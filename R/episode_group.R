@@ -33,7 +33,6 @@
 #' Integer values between \code{0} and \code{Inf}, and should be unique to each \emph{strata}
 #' \itemize{
 #' \item \code{\link[=starts_with]{starts_with()}}, \code{\link[=ends_with]{ends_with()}}, \code{\link[=contains]{contains()}}
-#' \item \code{\link[=matches]{matches()}}
 #' \item \code{\link[=num_range]{num_range()}}
 #' \item \code{\link[=one_of]{one_of()}}
 #' \item \code{\link[=everything]{everything()}}
