@@ -12,6 +12,13 @@
 #'
 #' @return Dataframe
 #'
+#' \itemize{
+#' \item \code{sn} - the unique record identifier provided
+#' \item \code{pid} - unique record group indentifier
+#' \item \code{pid_cri} - matching criteria each record
+#' \item \code{pid_dataset} - list of datasets in each record group
+#' }
+#'
 #' @seealso \code{\link{episode_group}}
 #'
 #' @details

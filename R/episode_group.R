@@ -6,9 +6,10 @@
 #' @param sn \code{numeric} unique record indentifier for the dataframe.
 #' @param strata Column names. Episodes will be unique to each strata. \code{\link{record_group}}.
 #' @param date Record date. \code{date} or \code{datetime}.
-#' @param case_length Duration from the \code{"Case"} within which other records of the same \code{strata} are considered \code{"Duplicates"}.
+#' @param case_length Duration from the \code{"Case"} within which another record of the same \code{strata} will be considered a \code{"Duplicate"}.
 #' @param episodes_max Maximum number of episodes permitted in each strata.
 #' @param episode_type \emph{"fixed"} or \emph{"rolling"}.
+#' @param recurrence_length Duration from the last record of an episode within which another record of the same \code{strata} will be considered a \code{"Recurrent"} record.
 #' @param episode_unit Time units not less than "seconds" and supported by \code{\link[lubridate]{duration}}
 #' @param rolls_max Maximum number of recurrence periods permitted within each episode. Only used if \code{episode_type} is \emph{"rolling"}.
 #' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.
@@ -18,8 +19,14 @@
 #' @param group_stats If \code{TRUE}, output will include two additional columns (\code{epid_total} and \code{epid_length}).
 #' @param display If \code{TRUE}, status messages are not printed on screen.
 #'
-#' @return Dataframe with a unique episode identifier, type of record based on the episode length and type, and if selected,
-#' a list of datasets where each episode was identified
+#' @return Dataframe
+#'
+#' \itemize{
+#' \item \code{sn} - the unique record identifier provided
+#' \item \code{epid} - unique episode indentifier
+#' \item \code{case_nm} - type of record in each epsiode
+#' \item \code{epid_dataset} - list of datasets in each episode
+#' }
 #'
 #' @seealso
 #' \code{\link{record_group}}
@@ -30,18 +37,6 @@
 #' The maximun duration of a \emph{"fixed"} episode is the \code{case_length} while, the maximum duration of a \emph{"rolling"} episode is the
 #' \code{case_length} in addition to all recurrence periods. A recurrence period is the \code{recurrence_length} from the last record in an episode
 #'
-#' Integer values between \code{0} and \code{Inf}, and should be unique to each \emph{strata}
-#' \itemize{
-#' \item \code{\link[=starts_with]{starts_with()}}, \code{\link[=ends_with]{ends_with()}}, \code{\link[=contains]{contains()}}
-#' \item \code{\link[=num_range]{num_range()}}
-#' \item \code{\link[=everything]{everything()}}
-#' \item \code{\link[=group_cols]{group_cols()}}
-#' }
-#' \code{case_length} must be an integer
-#' \code{episodes_max} and \code{rolls_max} must be a positive integer or \code{Inf}
-#' If \emph{"fixed"}, each episode will only include records within a fixed period \code{case_length} from the inital record (case). If \emph{"rolling"}, will include recurrent records. \strong{See \code{recurrence_length}}
-#'  with the number of records in each episode group, and another (\code{epid_length}) with the length of each episode
-#' @param recurrence_length Period of recurrence in calendar days. Recurrence here refers to records ocurring after \code{case_length} of the first record but within the \code{recurrence_length} of the last duplicate record. Only used if \code{episode_type}`is \emph{"rolling"}. Should also be unique to each strata. Integer value between \code{0} and \code{Inf}
 #' @examples
 #'
 #' library(lubridate)

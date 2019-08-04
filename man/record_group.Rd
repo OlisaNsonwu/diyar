@@ -24,6 +24,13 @@ record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
 }
 \value{
 Dataframe
+
+\itemize{
+\item \code{sn} - the unique record identifier provided
+\item \code{pid} - unique record group indentifier
+\item \code{pid_cri} - matching criteria each record
+\item \code{pid_dataset} - list of datasets in each record group
+}
 }
 \description{
 This function links records from one or more datasets into unique group idenfiers.
