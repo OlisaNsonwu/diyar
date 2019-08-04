@@ -34,7 +34,6 @@
 #' \itemize{
 #' \item \code{\link[=starts_with]{starts_with()}}, \code{\link[=ends_with]{ends_with()}}, \code{\link[=contains]{contains()}}
 #' \item \code{\link[=num_range]{num_range()}}
-#' \item \code{\link[=one_of]{one_of()}}
 #' \item \code{\link[=everything]{everything()}}
 #' \item \code{\link[=group_cols]{group_cols()}}
 #' }
