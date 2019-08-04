@@ -1,0 +1,21 @@
+Package: diyar
+Type: Package
+Title: Record linkage and episode grouping for epidemiological analyis
+Version: 1.0.0
+Author: Olisa Nsonwu
+Maintainer: Olisa Nsonwu <olisa.nsonwu@gmail.com>
+Description: A set of functions for a more flexible and variable form of deterministic record linkage, and implmenting case definitions for epidemiological analysis.
+License: GPL-3 + file LICENSE
+Encoding: UTF-8
+LazyData: true
+Imports: 
+    dplyr,
+    janitor,
+    lubridate,
+    stringr,
+    tidyr
+RoxygenNote: 6.1.1
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

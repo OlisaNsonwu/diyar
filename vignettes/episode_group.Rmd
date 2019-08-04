@@ -1,0 +1,388 @@
+---
+title: "Getting started with episode_group"
+#author: "Olisa Nsonwu"
+#date: "`r Sys.Date()`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting started with episode_group}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+#Introduction
+Deduplicating records is an important step for applying case definitions in epidemiological analysis. In such analysis, a reference event is selected and considered the start of an episode, while subequent events within the episode are considered duplicates.
+
+`episode_group()` aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time. 
+
+#Uses
+Arguments in `episode_group()` can be used and combined in different ways to deduplicate datasets in a varierty of ways. The flexible application of both [`record_group`](record_group.html) and `episode_group()` can allow you implement a varierty of case definitions to a dataset. Below are some examples;
+
+1. Group records into episodes lasting a fixed period (`case_length`) from a reference record (`"Case"`). See [episode grouping](#episode_grouping)
+2. Create episodes that continue to re-occur within a fixed period (`recurrence_length`) of the most recent `"Duplicate"` or `"Recurrent"` record
+3. Create episodes as in examples 1 and 2, and specify which record should be considered the `"Case"`. See [case assignment](#case_assignment)
+4. Create episodes with a different `case_length` and/or `recurrence_length` in one or more datasets. See [stratified grouping](#stratified_grouping)
+
+#Implementation 
+
+<a id= "episode_grouping"></a>
+
+##Episode grouping
+An episode as produced by `episode_group()` is a set of records within a particular time period. Each episode begins with a reference record (`"Case"`), and each subsequent record within the episode is flagged as a `"Duplicate"` of the `"Case"`.
+
+`episode_group()` can produce two type of episodes described below; 
+
+- A `"fixed"` episode - where all records are within a fixed `case_length` of the `"Case"`. All `"fixed"` episodes in the same [`strata`](#stratified_grouping) will have the same maximum episode length. See [stratified grouping](#stratified_grouping)
+
+- A `"rolling"` episode - where all records within a fixed `case_length` of the `"Case"`, and those within the periods of recurrence are grouped into an episode. See [episodes windows and recurrence periods](#recurrence).
+
+Note that a `"fixed"` episode will only have duplicates of the `"Case"` but a `"rolling"` episode may have duplicates of both the `"Case"` and `"Recurrent"` records.
+
+<a id ="recurrence" ><a/> 
+
+##Episode length and recurrence periods
+Episode length is the period between the `"Case"` and the last record in an episode. For `"fixed"` episodes, the maximum episode length is equal to the `"case_length"`.
+
+A recurrence period is the period between the last `"Recurrent"` or `"Duplicate"` record and the last record witin a `recurrence_length`. Only `"rolling"` episodes have a recurrence window. In addition, there can be multiple recurrence period within one episode. For a `"rolling"` episode, the episode lengthis the period covering the initial `case_length` and all recurrence periods.
+
+**Include image**
+
+The two examples below demonstrates the different implementations of `"fixed"` and `"rolling"` episode grouping.
+
+#### Example of `"fixed"` episode grouping
+```{r warning=FALSE, message=FALSE}
+library(diyar)
+library(dplyr)
+library(lubridate)
+
+infections <- data.frame(
+  rid = 1:6,
+  date = c(seq.Date(dmy("01/04/2019"), dmy("25/04/2019"), "5 day"), dmy("04/06/2019")),
+  pid = 1, infx = rep("E. coli BSI",6), epi = 14, recur = 7, stringsAsFactors = FALSE
+)
+
+# Fixed episode
+cbind(
+  infections,
+  episode_group(infections, rid, pid, date, epi)
+  )
+
+```
+
+Records 1 to 3 are assigned a unique episode ID (`"1"`). In this instance, record 1 is considered the initial `"Case"` and records 2 and 3 its duplicates. This is because records 2 and 3 are dated within 14 days of record 1. Record 4 is dated after this 14-day period and hence begins a new `"Case"` which is assigned episode ID `"4"`. Record 5 is within 14 days of record 4 (`"Case"`) and so considered a `"Duplicate"` of record 4 and assigned the same episode ID as record 4. This process continues chronologically until all records have been assigned an episode ID.
+
+#### Example of `"rolling"` episode grouping
+```{r warning=FALSE, message=FALSE}
+# Rolling episode
+# Progress messages can be turned off using the display argument
+cbind(
+  infections,
+  episode_group(infections, sn = rid, strata = pid, date =date, 
+                case_length = epi, episode_type = "rolling", recurrence_length = recur, 
+                display = FALSE)
+  )
+
+```
+
+In the `"rolling"` episode example, records 1 to 3 are also considered the same episode and therefore assigned the same episode ID. However, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case"`, instead it's considered a `"Recurrent"` record because it's within 7 days of the last `"Duplicate"` (record 3). Similarly, record 5 is within 7 days of the last `"Recurrent"` record (record 4). Record 6 is not within 14 days of the `"Case"` and not within 7 days of the last `"Recurrent"` record or its  `"Duplicate"`, and so can now be considered a new `"Case"`. `"Recurrent"` records are indicated in `case_nm` but are considered the same episode as the `"Case"`. This is why records 1 to 5 have the same episode ID.
+
+Note that if there are `"Duplicate"` records, the recurrence period will start from the last `"Duplicate"` not the last `"Recurrent"` record. The `"Recurrent"` record is simply the first record (excluding the `"Duplicate"`) in the recurrence period. For example, in `infections_2` below, record 6 is considered a `"Recurrent"` record because it's within 7 days of the record 5 (`"Duplicate"`) even though it's more than 7 days after record 4, the `"Recurrent"` record.
+
+```{r warning=FALSE}
+infections_2 <- infections
+infections_2$date <- c(seq.Date(dmy("01/04/2019"), dmy("25/04/2019"), "5 day")[1:3], 
+                     dmy("12/04/2019"), dmy("17/04/2019"), dmy("20/04/2019"))
+infections_2$epi <- 11
+
+cbind(
+  infections_2,
+  episode_group(infections_2, sn = rid, strata = pid, date =date, 
+                case_length = epi, episode_type = "rolling", recurrence_length = recur, 
+                display = FALSE)
+  )
+```
+
+By default, `episode_group()` will continue checking for `"Recurrent"` records and expanding the episode until all records have been grouped into episodes. However, you can choose the maximum number of times an episode can re-occur using `rolls_max`.
+
+```{r warning=FALSE, message=FALSE}
+infections_3 <- data.frame(
+  rid = 1:11,
+  date = seq.Date(dmy("01/04/2019"), dmy("11/04/2019"), "1 day"),
+  pid = 1, epi = 2, recur =2, stringsAsFactors = FALSE
+)
+
+# Infinite recurrence periods per episode (Default)
+cbind(
+  infections_3,
+  episode_group(infections_3, sn = rid, strata = pid, date =date, case_length = epi, 
+                episode_type = "rolling", recurrence_length = recur, display = FALSE)
+  )
+
+# Maximum of 1 recurrence period per episode
+cbind(
+  infections_3,
+  episode_group(infections_3, sn = rid, strata = pid, date =date, case_length = epi, 
+                episode_type = "rolling", recurrence_length = recur, rolls_max = 1, 
+                display = FALSE)
+  )
+
+# Maximum of 2 recurrence periods per episode
+cbind(
+  infections_3,
+  episode_group(infections_3, sn = rid, strata = pid, date =date, case_length = epi, 
+                episode_type = "rolling", recurrence_length = recur, rolls_max = 2, 
+                display = FALSE)
+  )
+```
+
+Similarly, you can chose the maximum number of times to group records into episodes. This can be done with `episode_max` as shown below. Once `episode_max` is reached, any record not yet grouped is assigned a unique episode ID and considered a unique `"Case"`. `episode_max` can be used in both `"rolling"` and `"fixed"` episode grouping.
+
+```{r warning=FALSE, message=FALSE}
+# Maximum of 1 episode with 1 recurrence period
+cbind(
+  infections_3,
+  episode_group(infections_3, sn = rid, strata = pid, date =date,  case_length = epi, 
+                episode_type = "rolling", recurrence_length = recur, 
+                rolls_max = 1, episodes_max = 1, display = FALSE)
+  )
+
+# Maximum of 2 episodes with 1 recurrence period
+cbind(
+  infections_3,
+  episode_group(infections_3, sn = rid, strata = pid, date =date,  case_length = epi, 
+                episode_type = "rolling", recurrence_length = recur, 
+                rolls_max = 1, episodes_max = 2, display = FALSE)
+  )
+
+```
+
+<a id="case_assignment"></a> 
+
+## Case assignment
+Unless otherwise specified, episode grouping begins at the earliest record and proceeds to the most recent record. Therefore, the earliest record in an episode will be considered the `"Case"`. You can opt for the opposite behaviour by changing `from_last` to `TRUE`. Doing this will start episode grouping at the most recent record and proceed backwards to the earliest record, thereby making the most recent record the `"Case"`.
+
+```{r warning=FALSE}
+# Episode grouping in chronological order
+cbind(
+  infections,
+  episode_group(infections, rid, pid, date, epi, display = FALSE)
+  )
+
+# Episode grouping in reverse chronological order
+cbind(
+  infections,
+  episode_group(infections, rid, pid, date, epi, from_last = TRUE, display = FALSE)
+  )
+
+```
+
+<a id ="custom_sort"></a>
+
+### User defined case assignment
+You can specify a different preference for case assignment using `custom_sort`. This is done by selecting one or more columns whose values when sorted in ascending order specifies your preference. 
+
+As an example, we can use this feature to implement a case definition where *E. coli* urinary tract infections (UTI) are considered precursors  to *E. coli* bloodstream infections (BSI). Therefore we need to create the episodes in such a way that if there are UTI and BSI records within the same episode window (`case_length` or `recurrence_length`), then episode grouping should start from the UTI record. 
+
+The column(s) used for `custom_sort` can either be `"character"`, `"numeric"` or `"factor"` data types. However, note that each would obey standard `R` sort behaviour. This means a `factor` will sort on its levels not its descriptive label. See examples of this below.
+
+```{r warning=FALSE}
+infections_4 <- mutate(infections, infx=ifelse(row_number() %in% c(2,5), "E. coli UTI", infx))
+cbind(
+  infections_4,
+  episode_group(infections_4, sn=rid, strata=pid, date=date, case_length =epi, 
+                custom_sort = infx, display = FALSE)
+  )
+
+infections_4 <- mutate(infections_4,infx = factor(infx, levels = c("E. coli UTI","E. coli BSI")))
+cbind(
+  infections_4,
+  episode_group(infections_4, sn=rid, strata=pid, date=date, case_length =epi, custom_sort = infx, display = FALSE)
+  )
+
+```
+
+By default episode grouping occurs in chronological order (forward) or reverse chronological order (backward) depending on whether `from_last` is `FALSE` or `TRUE` respectively. `custom_sort` alters this behaviour and therefore impacts how episodes are grouped. 
+
+In the second example above, after changing the sort preference using factor levels, record 1 (*E. coli* BSI)  and record 2 (*E. coli* UTI) are no longer grouped in the same episode. This is because record 2, is now the reference record, and since record 1 occurred before record 2, it's not considered the same episode. 
+
+This behaviour may suffice depending on your case definition however, you can change this by changing `bi_direction` to `TRUE`. This will ensure that records within the `case_length` or `recurrence_length` on either sides of the reference record are grouped together. Compared to the example above, the one below now considers record 1 a duplicate of record 2, eventhough it occured before record 2.
+
+```{r warning=FALSE}
+cbind(
+  infections_4,
+  episode_group(infections_4, sn=rid, strata=pid, date=date, 
+                case_length =epi, custom_sort = infx, bi_direction = TRUE, display = FALSE)
+  )
+
+```
+
+A different approach can be to create episodes without `custom_sort` and then recode `case_nm` thereby picking a different record as the "case". While this may be your desired approach, it's important to note that this is not the same as using `custom_sort`. This is because case assignment determines which record episode grouping starts from. 
+
+As seen below, using the second approach also yields three episodes just as above. However, record 4 belongs to different episodes in both. This is because even though, `case_nm` has been now been recoded such that record 2 is the `"Case"`, episode grouping did not start at record 2.
+
+```{r warning=FALSE}
+library(tidyr)
+
+cbind(
+  infections_4,
+  episode_group(infections_4, sn=rid, strata=pid, date=date, case_length =epi, 
+                display = FALSE)
+  ) %>%
+  group_by(epid) %>% 
+    mutate(
+    case_nm = case_when(
+      infx=="E. coli UTI" & n()>1 & case_nm == "Duplicate" ~ "Case",
+      infx=="E. coli BSI" & n()>1 & case_nm == "Case" ~ "Duplicate",
+      TRUE ~ case_nm
+    )
+  ) %>% 
+  ungroup() %>% 
+  as.data.frame() %>% 
+  select(-starts_with("dup"))
+
+```
+
+<a id="stratified_grouping"></a>
+
+## Stratified episode grouping
+Episode grouping can be done separately by different type of records (`strata`). Examples of a `strata` could be patient IDs, type of pathogen, source of infection or a combination of these parameters. Episodes will not overlap across different `strata` but can have different `case_length` and `recurrence_lenght`.
+
+To implement stratified episode grouping, supply the column name(s) of the record type identifiers to the `strata` argument. `record_group()` is useful in creating a group identifier for the `strata` argument. It also helps in addressing instances of missing values in group identifiers. See [record group](record_group.html) for further details.
+
+As an example, using the `infections_4` dataset, a different case definition may specify the following;
+
+- UTI and BSI records are considered different episodes regardless of when they occur. 
+- UTI has a `case_length` of 7 days and recurrence period of 30 days
+- BSI has a `case_length` of 14 days and no recurrence period
+
+In the example below, adding `infx` to the `strata` argument means that `"E. coli UTI"` episodes will not overlap with `"E. coli BSI"` records. Furthermore, the `case_length` and `recurrence_length` for each will be different as specified in `epi` and `recur` respectively 
+```{r warning=FALSE}
+infections_5 <- mutate(infections_4, 
+                       epi = ifelse(infx=="E. coli UTI", 7, 14),
+                       recur = ifelse(infx=="E. coli UTI", 30, 0))
+cbind(
+  infections_5,
+  episode_group(infections_5, sn=rid, strata=c(pid, infx), date=date, 
+                case_length =epi, episode_type = "rolling", recurrence_length = recur,
+                display = FALSE)
+  )
+
+```
+
+<a id="sub_strata"></a>
+
+### Sub-strata
+If `case_length` or `recurrence_length` is unique to a `strata`, every episode in that `strata` will have the same maximum episode length. However, a sub-strata is created when records within a `strata` have different `case_length` or `recurrence_length`. For example, a different case definition may specify that;
+
+- UTI and BSI records are different episodes regardless of when they occur. 
+- UTI have a `case_length` of 7 days and recurrence period of 30 days
+- BSI have a `case_length` of 14 days if not treated, **OR** `case_length` of 4 days if treated, and no recurence period in both situations
+- Respiratory tract infections (RTI) have a `case_length` of 28 days and recurrence period of 5 days
+
+In this example, whether or not the infection is treated should be considered the sub-strata, and the source of infection considered the `strata`.
+
+```{r warning=FALSE}
+infections_5 <- data.frame(
+  rid = 1:11,
+  date = seq.Date(dmy("01/04/2019"), dmy("21/05/2019"), "5 day"),
+  pid = 1,
+  organism = rep("E. coli",11), 
+  source =c(rep("UTI",2), rep("BSI",3), rep("RTI",2), rep("BSI",2), rep("UTI",2)), 
+  treated = c("-","-","Y","N","Y","Y","N","Y","N","N","N"),
+  stringsAsFactors = FALSE
+)
+
+infections_5 <- mutate(infections_5,
+                       epi = case_when(
+                         source == "UTI" ~ 7,
+                         source == "BSI" & treated == "Y" ~ 5,
+                         source == "BSI" & treated %in% c("N","-") ~ 14,
+                         source == "RTI" ~ 28
+                         ),
+                       recur = case_when(
+                         source == "UTI" ~ 0,
+                         source == "BSI" & treated == "Y" ~ 5,
+                         source == "BSI" & treated %in% c("N","-") ~ 5,
+                         source == "RTI" ~ 5
+                         )
+                       )
+
+cbind(
+  infections_5,
+  episode_group(infections_5, sn=rid, strata=c(pid, organism, source), date=date, 
+                case_length =epi, episode_type = "rolling", recurrence_length = recur,
+                display = FALSE)
+  )
+
+```
+
+There are a few things to note with stratified grouping;
+
+- Unless required, `case_length` and `recurrence_length` should be consistent across each `strata` otherwise, you'll inadvertently create a sub-strata
+- The behaviour of `episode_grouping()` with and without a sub-strata is different and could lead to different results
+- Using sub-strata is not the same as adding that sub-strata to the `strata` argument. In the example above, adding `treated` to `strata` will group treated infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not required treated and untreated infections to be grouped separately, only that the treated infections last longer. The example below demonstrates this difference;
+
+```{r warning=FALSE}
+
+cbind(
+  infections_5,
+  episode_group(infections_5, sn=rid, strata=c(pid, organism, source, treated), date=date, 
+                case_length =epi, episode_type = "rolling", recurrence_length = recur,
+                display = FALSE)
+  )
+
+```
+
+Stratified episode grouping will produce the same results as when you subset the dataset by `strata` and use `episode_group()` on each with same arguments as required. However, stratified episode grouping is the faster option to achieve this.
+
+## Useful ways of using episode_group 
+### Episode grouping across other units of time
+In the examples above, the unit for episode length (`episode_unit`) was in "days". However, episode grouping can be done by `"hours"` and `"minutes"`. Note that the minimum unit supported is `"seconds"`. Below is an example of episode grouping by the hour.
+
+```{r warning=FALSE, message=FALSE}
+hourly_dataset <- data.frame(
+  rid = 1:13,
+  datetime = seq.POSIXt(dmy_hms("01/04/2019 00:00:00"), dmy_hms("01/04/2019 24:00:00"), "120 min"),
+  category = c(rep(c("GP1","GP2"), 4), rep("GP3",5)) , epi =5, recur =9, 
+  stringsAsFactors = FALSE
+)
+
+cbind(
+  hourly_dataset,
+  episode_group(hourly_dataset, rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur)
+  )
+```
+
+### Limit episode grouping to a subset of the dataframe
+If there is a subset which you do not wish to group into episodes, you can separate the dataframe and use `episode_group()` on only the desired subset. Then join the subsets back to form the original dataframe. However, a faster alternative is to assign a `case_length` and `recurrence_length` of `0` to the subsets you need to exclude from episode grouping. Doing this will ignore those subsets for episode grouping and assign unique IDs to every record in it. The subsets to be excluded must be included in `strata` for this to work. This is particularly useful when the number of records you want to group are fewer than those you do not want to group.
+
+For example, with the `hourly_dataset`, you can decide to exclude `"GP1"` and `"GP2"` records from episode grouping as shown below;  
+
+```{r warning=FALSE, message=FALSE}
+head(hourly_dataset, 10) %>% 
+  mutate(epi = ifelse(category!="GP3", 0, epi), recur = ifelse(category!="GP3",0,recur)) %>% 
+  cbind(.,episode_group(., rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, display = TRUE))
+```
+
+Note that using a `case_length` and `recurrence_length` of `"1"` will yield the same results but will take more time, because it is essentially checking each record as a new `"Case"`. See the difference below;
+
+```{r warning=FALSE, message=FALSE}
+head(hourly_dataset, 10) %>% 
+  mutate(epi = ifelse(category!="GP3", 1, epi), recur = ifelse(category!="GP3",1,recur)) %>% 
+  cbind(.,episode_group(., rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, display = TRUE))
+```
+# Conclusion
+There are a varierty of ways to use this function. It's worth reviewing your case definition and its implication on the dataset before using this function. In general the following steps will help you choose how to use this function;
+
+1. work out which columns should be the `strata`
+2. choose whether you need `"fixed"` or `"rolling"` episodes  
+3. create a colum for `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata)
+3. change `from_last` to `TRUE`if you want to start episode grouping at the most recent record thereby making it the `"Case"`. Note that this is not the same as starting episode grouping at the earliest record (`from_last` is `FALSE`) and then picking the most recent record in that episode as the `"Case"`. See [case assignment](#case_assignment)
+4. if you require the `"Case"` to be the earliest or most recent record from a particular type of record use `custom_sort` in combination with `from_last`. If not, ignore this argument. See [user defined case assignment](#custom_sort)
+5. if you require episodes to include records on either side of the `"Case"` use `bi_direction`. If not, ignore this argument
