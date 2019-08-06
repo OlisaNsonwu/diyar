@@ -17,6 +17,7 @@
 #' \item \code{pid} - unique record group indentifier
 #' \item \code{pid_cri} - matching criteria each record
 #' \item \code{pid_dataset} - list of datasets in each record group
+#' \item \code{pid_dataset} - number of records in each record group
 #' }
 #'
 #' @seealso \code{\link{episode_group}}
@@ -237,27 +238,35 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     dplyr::mutate(pid = ifelse(.data$pid==0, .data$sn, .data$pid)) %>%
     dplyr::select(.data$sn, .data$pid, .data$pid_cri, .data$dsvr, .data$pr_sn)
 
-   sourc_list <- as.character(sort(unique(df$dsvr)))
-
-   df <- df %>%
-     dplyr::select(.data$pid, .data$dsvr) %>%
-     unique() %>%
-     dplyr::mutate(val= .data$dsvr) %>%
-     dplyr::arrange(.data$dsvr) %>%
-     tidyr::spread(key= "dsvr", value= "val") %>%
-     tidyr::unite("pid_dataset", sourc_list, sep=",") %>%
-     dplyr::mutate(pid_dataset = stringr::str_replace_all(.data$pid_dataset,"NA,|,NA|^NA$","")) %>%
-     dplyr::full_join(df, by="pid") %>%
-     dplyr::arrange(.data$pr_sn)
-
    if(is.null(ds)){
-     df <- dplyr::select(df, .data$sn, .data$pid, .data$pid_cri)
+     df <- dplyr::arrange(df, .data$pr_sn) %>%
+       dplyr::select(.data$sn, .data$pid, .data$pid_cri, .data$pr_sn)
    }else{
-     df <- dplyr::select(df, .data$sn, .data$pid, .data$pid_cri, .data$pid_dataset)
+     sourc_list <- as.character(sort(unique(df$dsvr)))
+
+     df <- df %>%
+       dplyr::select(.data$pid, .data$dsvr) %>%
+       unique() %>%
+       dplyr::mutate(val= .data$dsvr) %>%
+       dplyr::arrange(.data$dsvr) %>%
+       tidyr::spread(key= "dsvr", value= "val") %>%
+       tidyr::unite("pid_dataset", sourc_list, sep=",") %>%
+       dplyr::mutate(pid_dataset = stringr::str_replace_all(.data$pid_dataset,"NA,|,NA|^NA$","")) %>%
+       dplyr::full_join(df, by="pid")
+
+      df <- dplyr::select(df, .data$sn, .data$pid, .data$pid_cri, .data$pid_dataset, .data$pr_sn)
    }
+
+   if(group_stats){
+     df <- dplyr::arrange(df, .data$pid)
+     df$pid_total <- rep(rle(df$pid)$lengths, rle(df$pid)$lengths)
+   }
+
+    df <- dplyr::arrange(df, .data$pr_sn)
+    df <- dplyr::select(df, -.data$pr_sn)
 
    pd <- ifelse(display,"\n","")
    cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID." , sep =""))
-   cat("\n ----------------------------------------------------------------------------------------------------")
+   cat("\n ---------------------------------------------------------------------------------------------------- \n \n")
   df
 }

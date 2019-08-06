@@ -30,6 +30,7 @@ Dataframe
 \item \code{pid} - unique record group indentifier
 \item \code{pid_cri} - matching criteria each record
 \item \code{pid_dataset} - list of datasets in each record group
+\item \code{pid_dataset} - number of records in each record group
 }
 }
 \description{

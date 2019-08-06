@@ -70,7 +70,7 @@ infections <- data.frame(
 # Fixed episode
 cbind(
   infections,
-  episode_group(infections, rid, pid, date, epi)
+  episode_group(infections, rid, pid, date, epi, group_stats = TRUE)
   )
 
 ```
@@ -85,7 +85,7 @@ cbind(
   infections,
   episode_group(infections, sn = rid, strata = pid, date =date, 
                 case_length = epi, episode_type = "rolling", recurrence_length = recur, 
-                display = FALSE)
+                display = FALSE, group_stats = TRUE)
   )
 
 ```
@@ -355,7 +355,7 @@ hourly_dataset <- data.frame(
 
 cbind(
   hourly_dataset,
-  episode_group(hourly_dataset, rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur)
+  episode_group(hourly_dataset, rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, group_stats = TRUE)
   )
 ```
 
@@ -367,7 +367,7 @@ For example, with the `hourly_dataset`, you can decide to exclude `"GP1"` and `"
 ```{r warning=FALSE, message=FALSE}
 head(hourly_dataset, 10) %>% 
   mutate(epi = ifelse(category!="GP3", 0, epi), recur = ifelse(category!="GP3",0,recur)) %>% 
-  cbind(.,episode_group(., rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, display = TRUE))
+  cbind(.,episode_group(., rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, display = TRUE, group_stats = TRUE))
 ```
 
 Note that using a `case_length` and `recurrence_length` of `"1"` will yield the same results but will take more time, because it is essentially checking each record as a new `"Case"`. See the difference below;

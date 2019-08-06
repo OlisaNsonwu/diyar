@@ -142,7 +142,7 @@ infections &lt;-<span class="st"> </span><span class="kw"><a href="https://www.r
 <span class="co"># Fixed episode</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   infections,
-  <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections, rid, pid, date, epi)
+  <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections, rid, pid, date, epi, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
   )
 <span class="co">#&gt; Episode or recurrence window 1 .</span>
 <span class="co">#&gt; 3 of 6 record(s) grouped into episodes. 3 records not yet grouped.</span>
@@ -152,14 +152,23 @@ infections &lt;-<span class="st"> </span><span class="kw"><a href="https://www.r
 <span class="co">#&gt; 1 of 1 record(s) grouped into episodes. 0 records not yet grouped.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
-<span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
-<span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1      Case</span>
-<span class="co">#&gt; 2   2 2019-04-06   1 E. coli BSI  14     7  2    1 Duplicate</span>
-<span class="co">#&gt; 3   3 2019-04-11   1 E. coli BSI  14     7  3    1 Duplicate</span>
-<span class="co">#&gt; 4   4 2019-04-16   1 E. coli BSI  14     7  4    4      Case</span>
-<span class="co">#&gt; 5   5 2019-04-21   1 E. coli BSI  14     7  5    4 Duplicate</span>
-<span class="co">#&gt; 6   6 2019-06-04   1 E. coli BSI  14     7  6    6      Case</span></code></pre></div>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm epid_length</span>
+<span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1      Case     10 days</span>
+<span class="co">#&gt; 2   2 2019-04-06   1 E. coli BSI  14     7  2    1 Duplicate     10 days</span>
+<span class="co">#&gt; 3   3 2019-04-11   1 E. coli BSI  14     7  3    1 Duplicate     10 days</span>
+<span class="co">#&gt; 4   4 2019-04-16   1 E. coli BSI  14     7  4    4      Case      5 days</span>
+<span class="co">#&gt; 5   5 2019-04-21   1 E. coli BSI  14     7  5    4 Duplicate      5 days</span>
+<span class="co">#&gt; 6   6 2019-06-04   1 E. coli BSI  14     7  6    6      Case      0 days</span>
+<span class="co">#&gt;   epid_total</span>
+<span class="co">#&gt; 1          3</span>
+<span class="co">#&gt; 2          3</span>
+<span class="co">#&gt; 3          3</span>
+<span class="co">#&gt; 4          2</span>
+<span class="co">#&gt; 5          2</span>
+<span class="co">#&gt; 6          1</span></code></pre></div>
 <p>Records 1 to 3 are assigned a unique episode ID (<code>"1"</code>). In this instance, record 1 is considered the initial <code>"Case"</code> and records 2 and 3 its duplicates. This is because records 2 and 3 are dated within 14 days of record 1. Record 4 is dated after this 14-day period and hence begins a new <code>"Case"</code> which is assigned episode ID <code>"4"</code>. Record 5 is within 14 days of record 4 (<code>"Case"</code>) and so considered a <code>"Duplicate"</code> of record 4 and assigned the same episode ID as record 4. This process continues chronologically until all records have been assigned an episode ID.</p>
 </div>
 <div id="example-of-rolling-episode-grouping" class="section level4">
@@ -171,17 +180,26 @@ infections &lt;-<span class="st"> </span><span class="kw"><a href="https://www.r
   infections,
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections, <span class="dt">sn =</span> rid, <span class="dt">strata =</span> pid, <span class="dt">date =</span>date, 
                 <span class="dt">case_length =</span> epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">recurrence_length =</span> recur, 
-                <span class="dt">display =</span> <span class="ot">FALSE</span>)
+                <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
-<span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
-<span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1      Case</span>
-<span class="co">#&gt; 2   2 2019-04-06   1 E. coli BSI  14     7  2    1 Duplicate</span>
-<span class="co">#&gt; 3   3 2019-04-11   1 E. coli BSI  14     7  3    1 Duplicate</span>
-<span class="co">#&gt; 4   4 2019-04-16   1 E. coli BSI  14     7  4    1 Recurrent</span>
-<span class="co">#&gt; 5   5 2019-04-21   1 E. coli BSI  14     7  5    1 Recurrent</span>
-<span class="co">#&gt; 6   6 2019-06-04   1 E. coli BSI  14     7  6    6      Case</span></code></pre></div>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm epid_length</span>
+<span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1      Case     20 days</span>
+<span class="co">#&gt; 2   2 2019-04-06   1 E. coli BSI  14     7  2    1 Duplicate     20 days</span>
+<span class="co">#&gt; 3   3 2019-04-11   1 E. coli BSI  14     7  3    1 Duplicate     20 days</span>
+<span class="co">#&gt; 4   4 2019-04-16   1 E. coli BSI  14     7  4    1 Recurrent     20 days</span>
+<span class="co">#&gt; 5   5 2019-04-21   1 E. coli BSI  14     7  5    1 Recurrent     20 days</span>
+<span class="co">#&gt; 6   6 2019-06-04   1 E. coli BSI  14     7  6    6      Case      0 days</span>
+<span class="co">#&gt;   epid_total</span>
+<span class="co">#&gt; 1          5</span>
+<span class="co">#&gt; 2          5</span>
+<span class="co">#&gt; 3          5</span>
+<span class="co">#&gt; 4          5</span>
+<span class="co">#&gt; 5          5</span>
+<span class="co">#&gt; 6          1</span></code></pre></div>
 <p>In the <code>"rolling"</code> episode example, records 1 to 3 are also considered the same episode and therefore assigned the same episode ID. However, unlike the <code>"fixed"</code> episode example, record 4 is not considered a new <code>"Case"</code>, instead it’s considered a <code>"Recurrent"</code> record because it’s within 7 days of the last <code>"Duplicate"</code> (record 3). Similarly, record 5 is within 7 days of the last <code>"Recurrent"</code> record (record 4). Record 6 is not within 14 days of the <code>"Case"</code> and not within 7 days of the last <code>"Recurrent"</code> record or its <code>"Duplicate"</code>, and so can now be considered a new <code>"Case"</code>. <code>"Recurrent"</code> records are indicated in <code>case_nm</code> but are considered the same episode as the <code>"Case"</code>. This is why records 1 to 5 have the same episode ID.</p>
 <p>Note that if there are <code>"Duplicate"</code> records, the recurrence period will start from the last <code>"Duplicate"</code> not the last <code>"Recurrent"</code> record. The <code>"Recurrent"</code> record is simply the first record (excluding the <code>"Duplicate"</code>) in the recurrence period. For example, in <code>infections_2</code> below, record 6 is considered a <code>"Recurrent"</code> record because it’s within 7 days of the record 5 (<code>"Duplicate"</code>) even though it’s more than 7 days after record 4, the <code>"Recurrent"</code> record.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">infections_<span class="dv">2</span> &lt;-<span class="st"> </span>infections
@@ -196,7 +214,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  11     7  1    1      Case</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli BSI  11     7  2    1 Duplicate</span>
@@ -218,7 +238,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
                 <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">recurrence_length =</span> recur, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid       date pid epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01   1   2     2  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-02   1   2     2  2    1 Duplicate</span>
@@ -240,7 +262,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid       date pid epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01   1   2     2  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-02   1   2     2  2    1 Duplicate</span>
@@ -262,7 +286,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid       date pid epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01   1   2     2  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-02   1   2     2  2    1 Duplicate</span>
@@ -284,7 +310,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
                 <span class="dt">rolls_max =</span> <span class="dv">1</span>, <span class="dt">episodes_max =</span> <span class="dv">1</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 8 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid       date pid epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01   1   2     2  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-02   1   2     2  2    1 Duplicate</span>
@@ -306,7 +334,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
                 <span class="dt">rolls_max =</span> <span class="dv">1</span>, <span class="dt">episodes_max =</span> <span class="dv">2</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid       date pid epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01   1   2     2  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-02   1   2     2  2    1 Duplicate</span>
@@ -332,7 +362,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections, rid, pid, date, epi, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1      Case</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli BSI  14     7  2    1 Duplicate</span>
@@ -347,7 +379,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections, rid, pid, date, epi, <span class="dt">from_last =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    2 Duplicate</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli BSI  14     7  2    2      Case</span>
@@ -369,7 +403,9 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
                 <span class="dt">custom_sort =</span> infx, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1      Case</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli UTI  14     7  2    1 Duplicate</span>
@@ -384,7 +420,9 @@ infections_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections_<span class="dv">4</span>, <span class="dt">sn=</span>rid, <span class="dt">strata=</span>pid, <span class="dt">date=</span>date, <span class="dt">case_length =</span>epi, <span class="dt">custom_sort =</span> infx, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1      Case</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli UTI  14     7  2    2      Case</span>
@@ -401,7 +439,9 @@ infections_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="
                 <span class="dt">case_length =</span>epi, <span class="dt">custom_sort =</span> infx, <span class="dt">bi_direction =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    2 Duplicate</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli UTI  14     7  2    2      Case</span>
@@ -430,7 +470,9 @@ infections_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.data.frame">as.data.frame</a></span>() <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">starts_with</span>(<span class="st">"dup"</span>))
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    1 Duplicate</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli UTI  14     7  2    1      Case</span>
@@ -463,7 +505,9 @@ infections_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 4 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     0  1    1      Case</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli UTI   7    30  2    2      Case</span>
@@ -515,7 +559,9 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid       date pid organism source treated epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01   1  E. coli    UTI       -   7     0  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-06   1  E. coli    UTI       -   7     0  2    1 Duplicate</span>
@@ -542,7 +588,9 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
 <span class="co">#&gt; Episode grouping complete - 7 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid       date pid organism source treated epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01   1  E. coli    UTI       -   7     0  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-06   1  E. coli    UTI       -   7     0  2    1 Duplicate</span>
@@ -574,7 +622,7 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   hourly_dataset,
-  <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hourly_dataset, rid, category, datetime, epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, <span class="dt">recurrence_length =</span> recur)
+  <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hourly_dataset, rid, category, datetime, epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, <span class="dt">recurrence_length =</span> recur, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
   )
 <span class="co">#&gt; Episode or recurrence window 1 .</span>
 <span class="co">#&gt; 7 of 13 record(s) grouped into episodes. 6 records not yet grouped.</span>
@@ -582,7 +630,9 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 6 of 6 record(s) grouped into episodes. 0 records not yet grouped.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid            datetime category epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01 00:00:00      GP1   5     9  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-01 02:00:00      GP2   5     9  2    2      Case</span>
@@ -596,7 +646,21 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 10  10 2019-04-01 18:00:00      GP3   5     9 10    9 Duplicate</span>
 <span class="co">#&gt; 11  11 2019-04-01 20:00:00      GP3   5     9 11    9 Duplicate</span>
 <span class="co">#&gt; 12  12 2019-04-01 22:00:00      GP3   5     9 12    9 Recurrent</span>
-<span class="co">#&gt; 13  13 2019-04-02 00:00:00      GP3   5     9 13    9 Duplicate</span></code></pre></div>
+<span class="co">#&gt; 13  13 2019-04-02 00:00:00      GP3   5     9 13    9 Duplicate</span>
+<span class="co">#&gt;    epid_length epid_total</span>
+<span class="co">#&gt; 1     12 hours          4</span>
+<span class="co">#&gt; 2     12 hours          4</span>
+<span class="co">#&gt; 3     12 hours          4</span>
+<span class="co">#&gt; 4     12 hours          4</span>
+<span class="co">#&gt; 5     12 hours          4</span>
+<span class="co">#&gt; 6     12 hours          4</span>
+<span class="co">#&gt; 7     12 hours          4</span>
+<span class="co">#&gt; 8     12 hours          4</span>
+<span class="co">#&gt; 9      8 hours          5</span>
+<span class="co">#&gt; 10     8 hours          5</span>
+<span class="co">#&gt; 11     8 hours          5</span>
+<span class="co">#&gt; 12     8 hours          5</span>
+<span class="co">#&gt; 13     8 hours          5</span></code></pre></div>
 </div>
 <div id="limit-episode-grouping-to-a-subset-of-the-dataframe" class="section level3">
 <h3 class="hasAnchor">
@@ -605,12 +669,14 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 <p>For example, with the <code>hourly_dataset</code>, you can decide to exclude <code>"GP1"</code> and <code>"GP2"</code> records from episode grouping as shown below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(hourly_dataset, <span class="dv">10</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">epi =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(category<span class="op">!=</span><span class="st">"GP3"</span>, <span class="dv">0</span>, epi), <span class="dt">recur =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(category<span class="op">!=</span><span class="st">"GP3"</span>,<span class="dv">0</span>,recur)) <span class="op">%&gt;%</span><span class="st"> </span>
-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(.,<span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(., rid, category, datetime, epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, <span class="dt">recurrence_length =</span> recur, <span class="dt">display =</span> <span class="ot">TRUE</span>))
+<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(.,<span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(., rid, category, datetime, epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, <span class="dt">recurrence_length =</span> recur, <span class="dt">display =</span> <span class="ot">TRUE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>))
 <span class="co">#&gt; Episode or recurrence window 1 .</span>
 <span class="co">#&gt; 2 of 2 record(s) grouped into episodes. 0 records not yet grouped.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Episode grouping complete - 8 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid            datetime category epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01 00:00:00      GP1   0     0  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-01 02:00:00      GP2   0     0  2    2      Case</span>
@@ -621,7 +687,18 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 7    7 2019-04-01 12:00:00      GP1   0     0  7    7      Case</span>
 <span class="co">#&gt; 8    8 2019-04-01 14:00:00      GP2   0     0  8    8      Case</span>
 <span class="co">#&gt; 9    9 2019-04-01 16:00:00      GP3   5     9  9    9      Case</span>
-<span class="co">#&gt; 10  10 2019-04-01 18:00:00      GP3   5     9 10    9 Duplicate</span></code></pre></div>
+<span class="co">#&gt; 10  10 2019-04-01 18:00:00      GP3   5     9 10    9 Duplicate</span>
+<span class="co">#&gt;    epid_length epid_total</span>
+<span class="co">#&gt; 1      0 hours          1</span>
+<span class="co">#&gt; 2      0 hours          1</span>
+<span class="co">#&gt; 3      0 hours          1</span>
+<span class="co">#&gt; 4      0 hours          1</span>
+<span class="co">#&gt; 5      0 hours          1</span>
+<span class="co">#&gt; 6      0 hours          1</span>
+<span class="co">#&gt; 7      0 hours          1</span>
+<span class="co">#&gt; 8      0 hours          1</span>
+<span class="co">#&gt; 9      2 hours          2</span>
+<span class="co">#&gt; 10     2 hours          2</span></code></pre></div>
 <p>Note that using a <code>case_length</code> and <code>recurrence_length</code> of <code>"1"</code> will yield the same results but will take more time, because it is essentially checking each record as a new <code>"Case"</code>. See the difference below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(hourly_dataset, <span class="dv">10</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">epi =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(category<span class="op">!=</span><span class="st">"GP3"</span>, <span class="dv">1</span>, epi), <span class="dt">recur =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(category<span class="op">!=</span><span class="st">"GP3"</span>,<span class="dv">1</span>,recur)) <span class="op">%&gt;%</span><span class="st"> </span>
@@ -636,7 +713,9 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 2 of 2 record(s) grouped into episodes. 0 records not yet grouped.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Episode grouping complete - 8 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  ----------------------------------------------------------------------------------------------------</span>
+<span class="co">#&gt;  ---------------------------------------------------------------------------------------------------- </span>
+<span class="co">#&gt;  </span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt;    rid            datetime category epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1    1 2019-04-01 00:00:00      GP1   1     1  1    1      Case</span>
 <span class="co">#&gt; 2    2 2019-04-01 02:00:00      GP2   1     1  2    2      Case</span>

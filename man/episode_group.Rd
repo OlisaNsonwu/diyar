@@ -51,6 +51,8 @@ Dataframe
 \item \code{epid} - unique episode indentifier
 \item \code{case_nm} - type of record in each epsiode
 \item \code{epid_dataset} - list of datasets in each episode
+\item \code{epid_total} - number of records in each record group
+\item \code{epid_length} - \code{difftime} object. Date/time difference between earliest and most recent record. \code{episode_unit} is used a \code{difftime} unit.
 }
 }
 \description{

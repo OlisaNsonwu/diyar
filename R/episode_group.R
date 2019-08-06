@@ -26,6 +26,8 @@
 #' \item \code{epid} - unique episode indentifier
 #' \item \code{case_nm} - type of record in each epsiode
 #' \item \code{epid_dataset} - list of datasets in each episode
+#' \item \code{epid_total} - number of records in each record group
+#' \item \code{epid_length} - \code{difftime} object. Date/time difference between earliest and most recent record. \code{episode_unit} is used a \code{difftime} unit.
 #' }
 #'
 #' @seealso
@@ -358,29 +360,54 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       epid= ifelse(.data$epid==0, .data$sn, .data$epid)
     )
 
-  sourc_list <- as.character(sort(unique(df$dsvr)))
-
-  df <- df %>%
-    dplyr::select(.data$epid, .data$dsvr) %>%
-    unique() %>%
-    dplyr::mutate(val= .data$dsvr) %>%
-    dplyr::arrange(.data$dsvr) %>%
-    tidyr::spread(key="dsvr", value="val") %>%
-    tidyr::unite("epid_dataset", sourc_list, sep=",") %>%
-    dplyr::mutate(epid_dataset = stringr::str_replace_all(.data$epid_dataset,"NA,|,NA|^NA$","")) %>%
-    dplyr::full_join(df, by="epid") %>%
-    dplyr::arrange(.data$pr_sn)
-
   if(is.null(ds)){
-    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm)
+    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$pr_sn, .data$spec_dt)
   }else{
-    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$epid_dataset)
+    sourc_list <- as.character(sort(unique(df$dsvr)))
+
+    df <- df %>%
+      dplyr::select(.data$epid, .data$dsvr) %>%
+      unique() %>%
+      dplyr::mutate(val= .data$dsvr) %>%
+      dplyr::arrange(.data$dsvr) %>%
+      tidyr::spread(key="dsvr", value="val") %>%
+      tidyr::unite("epid_dataset", sourc_list, sep=",") %>%
+      dplyr::mutate(epid_dataset = stringr::str_replace_all(.data$epid_dataset,"NA,|,NA|^NA$","")) %>%
+      dplyr::full_join(df, by="epid")
+
+    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$epid_dataset, .data$pr_sn, .data$spec_dt)
   }
+
+  if(group_stats){
+
+    epid_l <- dplyr::select(df, .data$epid, .data$spec_dt) %>%
+      unique() %>%
+      dplyr::arrange(.data$epid, .data$spec_dt) %>%
+      dplyr::filter(!duplicated(.data$epid) | !duplicated(.data$epid, fromLast = TRUE))
+
+    epid_l$ord <- paste("o_",sequence(rle(epid_l$epid)$lengths), sep="")
+
+    epid_l <- epid_l %>%
+      dplyr::mutate(spec_dt = format(.data$spec_dt, "%d/%m/%Y %H:%M:%S")) %>%
+      tidyr::spread("ord","spec_dt") %>%
+      dplyr::mutate(
+        o_2 = ifelse(is.na(.data$o_2), .data$o_1, .data$o_2),
+        epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(o_2), lubridate::dmy_hms(o_1), units = "secs"), units = episode_unit)) %>%
+      dplyr::select(-c(.data$o_2, .data$o_1))
+
+    df <- dplyr::left_join(df, epid_l, by="epid")
+
+    df <- dplyr::arrange(df, .data$epid)
+    df$epid_total <- rep(rle(df$epid)$lengths, rle(df$epid)$lengths)
+  }
+
+  df <- dplyr::arrange(df, .data$pr_sn)
+  df <- dplyr::select(df, -c(.data$pr_sn, .data$spec_dt))
 
   unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = TRUE),]$epid)
 
   pd <- ifelse(display,"\n","")
   cat(paste(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID." , sep =""))
-  cat("\n ----------------------------------------------------------------------------------------------------")
+  cat("\n ---------------------------------------------------------------------------------------------------- \n \n ")
   df
 }
