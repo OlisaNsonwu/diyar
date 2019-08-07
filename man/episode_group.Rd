@@ -7,8 +7,8 @@
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
-  custom_sort = NULL, from_last = FALSE, bi_direction = FALSE,
-  group_stats = FALSE, display = TRUE)
+  custom_sort = NULL, from_last = FALSE, coverage = "overlap",
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 }
 \arguments{
 \item{df}{Dataframe. One or more datasets appened together.}
@@ -53,6 +53,7 @@ Dataframe
 \item \code{epid_dataset} - list of datasets in each episode
 \item \code{epid_total} - number of records in each record group
 \item \code{epid_length} - \code{difftime} object. Date/time difference between earliest and most recent record. \code{episode_unit} is used a \code{difftime} unit.
+\item \code{epid_window} - lubridate \code{interval} object. Earliest and most recent dates in the episode group.
 }
 }
 \description{

@@ -162,13 +162,13 @@ infections &lt;-<span class="st"> </span><span class="kw"><a href="https://www.r
 <span class="co">#&gt; 4   4 2019-04-16   1 E. coli BSI  14     7  4    4      Case      5 days</span>
 <span class="co">#&gt; 5   5 2019-04-21   1 E. coli BSI  14     7  5    4 Duplicate      5 days</span>
 <span class="co">#&gt; 6   6 2019-06-04   1 E. coli BSI  14     7  6    6      Case      0 days</span>
-<span class="co">#&gt;   epid_total</span>
-<span class="co">#&gt; 1          3</span>
-<span class="co">#&gt; 2          3</span>
-<span class="co">#&gt; 3          3</span>
-<span class="co">#&gt; 4          2</span>
-<span class="co">#&gt; 5          2</span>
-<span class="co">#&gt; 6          1</span></code></pre></div>
+<span class="co">#&gt;   epid_total                    epid_window</span>
+<span class="co">#&gt; 1          3 2019-04-01 UTC--2019-04-11 UTC</span>
+<span class="co">#&gt; 2          3 2019-04-01 UTC--2019-04-11 UTC</span>
+<span class="co">#&gt; 3          3 2019-04-01 UTC--2019-04-11 UTC</span>
+<span class="co">#&gt; 4          2 2019-04-16 UTC--2019-04-21 UTC</span>
+<span class="co">#&gt; 5          2 2019-04-16 UTC--2019-04-21 UTC</span>
+<span class="co">#&gt; 6          1 2019-06-04 UTC--2019-06-04 UTC</span></code></pre></div>
 <p>Records 1 to 3 are assigned a unique episode ID (<code>"1"</code>). In this instance, record 1 is considered the initial <code>"Case"</code> and records 2 and 3 its duplicates. This is because records 2 and 3 are dated within 14 days of record 1. Record 4 is dated after this 14-day period and hence begins a new <code>"Case"</code> which is assigned episode ID <code>"4"</code>. Record 5 is within 14 days of record 4 (<code>"Case"</code>) and so considered a <code>"Duplicate"</code> of record 4 and assigned the same episode ID as record 4. This process continues chronologically until all records have been assigned an episode ID.</p>
 </div>
 <div id="example-of-rolling-episode-grouping" class="section level4">
@@ -193,13 +193,13 @@ infections &lt;-<span class="st"> </span><span class="kw"><a href="https://www.r
 <span class="co">#&gt; 4   4 2019-04-16   1 E. coli BSI  14     7  4    1 Recurrent     20 days</span>
 <span class="co">#&gt; 5   5 2019-04-21   1 E. coli BSI  14     7  5    1 Recurrent     20 days</span>
 <span class="co">#&gt; 6   6 2019-06-04   1 E. coli BSI  14     7  6    6      Case      0 days</span>
-<span class="co">#&gt;   epid_total</span>
-<span class="co">#&gt; 1          5</span>
-<span class="co">#&gt; 2          5</span>
-<span class="co">#&gt; 3          5</span>
-<span class="co">#&gt; 4          5</span>
-<span class="co">#&gt; 5          5</span>
-<span class="co">#&gt; 6          1</span></code></pre></div>
+<span class="co">#&gt;   epid_total                    epid_window</span>
+<span class="co">#&gt; 1          5 2019-04-01 UTC--2019-04-21 UTC</span>
+<span class="co">#&gt; 2          5 2019-04-01 UTC--2019-04-21 UTC</span>
+<span class="co">#&gt; 3          5 2019-04-01 UTC--2019-04-21 UTC</span>
+<span class="co">#&gt; 4          5 2019-04-01 UTC--2019-04-21 UTC</span>
+<span class="co">#&gt; 5          5 2019-04-01 UTC--2019-04-21 UTC</span>
+<span class="co">#&gt; 6          1 2019-06-04 UTC--2019-06-04 UTC</span></code></pre></div>
 <p>In the <code>"rolling"</code> episode example, records 1 to 3 are also considered the same episode and therefore assigned the same episode ID. However, unlike the <code>"fixed"</code> episode example, record 4 is not considered a new <code>"Case"</code>, instead it’s considered a <code>"Recurrent"</code> record because it’s within 7 days of the last <code>"Duplicate"</code> (record 3). Similarly, record 5 is within 7 days of the last <code>"Recurrent"</code> record (record 4). Record 6 is not within 14 days of the <code>"Case"</code> and not within 7 days of the last <code>"Recurrent"</code> record or its <code>"Duplicate"</code>, and so can now be considered a new <code>"Case"</code>. <code>"Recurrent"</code> records are indicated in <code>case_nm</code> but are considered the same episode as the <code>"Case"</code>. This is why records 1 to 5 have the same episode ID.</p>
 <p>Note that if there are <code>"Duplicate"</code> records, the recurrence period will start from the last <code>"Duplicate"</code> not the last <code>"Recurrent"</code> record. The <code>"Recurrent"</code> record is simply the first record (excluding the <code>"Duplicate"</code>) in the recurrence period. For example, in <code>infections_2</code> below, record 6 is considered a <code>"Recurrent"</code> record because it’s within 7 days of the record 5 (<code>"Duplicate"</code>) even though it’s more than 7 days after record 4, the <code>"Recurrent"</code> record.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">infections_<span class="dv">2</span> &lt;-<span class="st"> </span>infections
@@ -647,20 +647,20 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 11  11 2019-04-01 20:00:00      GP3   5     9 11    9 Duplicate</span>
 <span class="co">#&gt; 12  12 2019-04-01 22:00:00      GP3   5     9 12    9 Recurrent</span>
 <span class="co">#&gt; 13  13 2019-04-02 00:00:00      GP3   5     9 13    9 Duplicate</span>
-<span class="co">#&gt;    epid_length epid_total</span>
-<span class="co">#&gt; 1     12 hours          4</span>
-<span class="co">#&gt; 2     12 hours          4</span>
-<span class="co">#&gt; 3     12 hours          4</span>
-<span class="co">#&gt; 4     12 hours          4</span>
-<span class="co">#&gt; 5     12 hours          4</span>
-<span class="co">#&gt; 6     12 hours          4</span>
-<span class="co">#&gt; 7     12 hours          4</span>
-<span class="co">#&gt; 8     12 hours          4</span>
-<span class="co">#&gt; 9      8 hours          5</span>
-<span class="co">#&gt; 10     8 hours          5</span>
-<span class="co">#&gt; 11     8 hours          5</span>
-<span class="co">#&gt; 12     8 hours          5</span>
-<span class="co">#&gt; 13     8 hours          5</span></code></pre></div>
+<span class="co">#&gt;    epid_length epid_total                                      epid_window</span>
+<span class="co">#&gt; 1     12 hours          4 2019-04-01 00:00:00 UTC--2019-04-01 12:00:00 UTC</span>
+<span class="co">#&gt; 2     12 hours          4 2019-04-01 02:00:00 UTC--2019-04-01 14:00:00 UTC</span>
+<span class="co">#&gt; 3     12 hours          4 2019-04-01 00:00:00 UTC--2019-04-01 12:00:00 UTC</span>
+<span class="co">#&gt; 4     12 hours          4 2019-04-01 02:00:00 UTC--2019-04-01 14:00:00 UTC</span>
+<span class="co">#&gt; 5     12 hours          4 2019-04-01 00:00:00 UTC--2019-04-01 12:00:00 UTC</span>
+<span class="co">#&gt; 6     12 hours          4 2019-04-01 02:00:00 UTC--2019-04-01 14:00:00 UTC</span>
+<span class="co">#&gt; 7     12 hours          4 2019-04-01 00:00:00 UTC--2019-04-01 12:00:00 UTC</span>
+<span class="co">#&gt; 8     12 hours          4 2019-04-01 02:00:00 UTC--2019-04-01 14:00:00 UTC</span>
+<span class="co">#&gt; 9      8 hours          5 2019-04-01 16:00:00 UTC--2019-04-02 00:00:00 UTC</span>
+<span class="co">#&gt; 10     8 hours          5 2019-04-01 16:00:00 UTC--2019-04-02 00:00:00 UTC</span>
+<span class="co">#&gt; 11     8 hours          5 2019-04-01 16:00:00 UTC--2019-04-02 00:00:00 UTC</span>
+<span class="co">#&gt; 12     8 hours          5 2019-04-01 16:00:00 UTC--2019-04-02 00:00:00 UTC</span>
+<span class="co">#&gt; 13     8 hours          5 2019-04-01 16:00:00 UTC--2019-04-02 00:00:00 UTC</span></code></pre></div>
 </div>
 <div id="limit-episode-grouping-to-a-subset-of-the-dataframe" class="section level3">
 <h3 class="hasAnchor">
@@ -688,17 +688,17 @@ infections_<span class="dv">5</span> &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 8    8 2019-04-01 14:00:00      GP2   0     0  8    8      Case</span>
 <span class="co">#&gt; 9    9 2019-04-01 16:00:00      GP3   5     9  9    9      Case</span>
 <span class="co">#&gt; 10  10 2019-04-01 18:00:00      GP3   5     9 10    9 Duplicate</span>
-<span class="co">#&gt;    epid_length epid_total</span>
-<span class="co">#&gt; 1      0 hours          1</span>
-<span class="co">#&gt; 2      0 hours          1</span>
-<span class="co">#&gt; 3      0 hours          1</span>
-<span class="co">#&gt; 4      0 hours          1</span>
-<span class="co">#&gt; 5      0 hours          1</span>
-<span class="co">#&gt; 6      0 hours          1</span>
-<span class="co">#&gt; 7      0 hours          1</span>
-<span class="co">#&gt; 8      0 hours          1</span>
-<span class="co">#&gt; 9      2 hours          2</span>
-<span class="co">#&gt; 10     2 hours          2</span></code></pre></div>
+<span class="co">#&gt;    epid_length epid_total                                      epid_window</span>
+<span class="co">#&gt; 1      0 hours          1 2019-04-01 00:00:00 UTC--2019-04-01 00:00:00 UTC</span>
+<span class="co">#&gt; 2      0 hours          1 2019-04-01 02:00:00 UTC--2019-04-01 02:00:00 UTC</span>
+<span class="co">#&gt; 3      0 hours          1 2019-04-01 04:00:00 UTC--2019-04-01 04:00:00 UTC</span>
+<span class="co">#&gt; 4      0 hours          1 2019-04-01 06:00:00 UTC--2019-04-01 06:00:00 UTC</span>
+<span class="co">#&gt; 5      0 hours          1 2019-04-01 08:00:00 UTC--2019-04-01 08:00:00 UTC</span>
+<span class="co">#&gt; 6      0 hours          1 2019-04-01 10:00:00 UTC--2019-04-01 10:00:00 UTC</span>
+<span class="co">#&gt; 7      0 hours          1 2019-04-01 12:00:00 UTC--2019-04-01 12:00:00 UTC</span>
+<span class="co">#&gt; 8      0 hours          1 2019-04-01 14:00:00 UTC--2019-04-01 14:00:00 UTC</span>
+<span class="co">#&gt; 9      2 hours          2 2019-04-01 16:00:00 UTC--2019-04-01 18:00:00 UTC</span>
+<span class="co">#&gt; 10     2 hours          2 2019-04-01 16:00:00 UTC--2019-04-01 18:00:00 UTC</span></code></pre></div>
 <p>Note that using a <code>case_length</code> and <code>recurrence_length</code> of <code>"1"</code> will yield the same results but will take more time, because it is essentially checking each record as a new <code>"Case"</code>. See the difference below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(hourly_dataset, <span class="dv">10</span>) <span class="op">%&gt;%</span><span class="st"> </span>
 <span class="st">  </span><span class="kw">mutate</span>(<span class="dt">epi =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(category<span class="op">!=</span><span class="st">"GP3"</span>, <span class="dv">1</span>, epi), <span class="dt">recur =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(category<span class="op">!=</span><span class="st">"GP3"</span>,<span class="dv">1</span>,recur)) <span class="op">%&gt;%</span><span class="st"> </span>
