@@ -171,6 +171,20 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   r_epl <- enq_vr(df, dplyr::enquo(recurrence_length))
   st <- enq_vr(df, dplyr::enquo(strata))
   ref_sort <- enq_vr(df, dplyr::enquo(custom_sort))
+  dt <- enq_vr(df, dplyr::enquo(date))
+
+  #assertions
+  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
+
+  if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
+
+  if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df) )){
+    missing_cols <- subset(names(df), !unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df))
+    missing_cols <- paste(missing_cols, collapse = "," )
+    stop(paste(missing_cols, "not found in the dataset"))
+  }
+
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt")) & all(!is.na(df[[dt]])))) stop(paste(dt," must be a date or datetime variable without missing values"))
 
   df_list <- names(df)
 

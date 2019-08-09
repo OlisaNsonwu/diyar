@@ -105,8 +105,24 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
   df_vars <- names(df)
 
+  rd_sn <- enq_vr(df, dplyr::enquo(sn))
+
+  sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
   cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
-  sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
+
+  #assertions
+  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
+
+  if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
+
+  if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df) )){
+    missing_cols <- subset(names(df), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
+    missing_cols <- paste(missing_cols, collapse = "," )
+    stop(paste(missing_cols, "not found in the dataset"))
+  }
+
+  #cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
+  #sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
 
   if(is.null(ds)){
     df$dsvr <- "A"
