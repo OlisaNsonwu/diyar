@@ -7,7 +7,7 @@
 #' @param criteria Matching criteria. Records with matching values in these columns are grouped together.
 #' @param sub_criteria Matching sub-criteria. Additional conditions for a match at each stage (\code{criteria}).
 #' @param data_source Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.
-#' @param group_stats If \code{TRUE}, output will include one additional column (\code{pid_total}) with the number of records in each record group.
+#' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
 #' @param display If \code{TRUE}, status messages are not printed on screen.
 #'
 #' @return Dataframe
@@ -17,7 +17,7 @@
 #' \item \code{pid} - unique record group indentifier
 #' \item \code{pid_cri} - matching criteria each record
 #' \item \code{pid_dataset} - list of datasets in each record group
-#' \item \code{pid_dataset} - number of records in each record group
+#' \item \code{pid_total} - number of records in each record group
 #' }
 #'
 #' @seealso \code{\link{episode_group}}
@@ -283,6 +283,5 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
    pd <- ifelse(display,"\n","")
    cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID." , sep =""))
-   cat("\n ---------------------------------------------------------------------------------------------------- \n \n")
-  df
+   df
 }

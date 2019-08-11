@@ -2,21 +2,22 @@
 #'
 #' @description This function assigns records into unique chronological episodes
 #'
-#' @param df Dataframe. One or more datasets appened together.
+#' @param df Dataframe. One or more datasets appended together.
 #' @param sn \code{numeric} unique record indentifier for the dataframe.
-#' @param strata Column names. Episodes will be unique to each strata. \code{\link{record_group}}.
-#' @param date Record date. \code{date} or \code{datetime}.
+#' @param strata Column names. Episodes will be unique to each strata. See \code{\link{record_group}}.
+#' @param date Record date. \code{date}, \code{datetime} or \code{\link[lubridate]{interval}} objects.
 #' @param case_length Duration from the \code{"Case"} within which another record of the same \code{strata} will be considered a \code{"Duplicate"}.
-#' @param episodes_max Maximum number of episodes permitted in each strata.
+#' @param episodes_max Maximum number times to group episodes in each strata.
 #' @param episode_type \emph{"fixed"} or \emph{"rolling"}.
 #' @param recurrence_length Duration from the last record of an episode within which another record of the same \code{strata} will be considered a \code{"Recurrent"} record.
 #' @param episode_unit Time units not less than "seconds" and supported by \code{\link[lubridate]{duration}}
 #' @param rolls_max Maximum number of recurrence periods permitted within each episode. Only used if \code{episode_type} is \emph{"rolling"}.
 #' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.
-#' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record to most recent.
-#' @param custom_sort If \code{TRUE}, epiosde grouping assignment will begin in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
-#' @param bi_direction If \code{FALSE}, \code{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length} before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records are those on either side of the \code{"Case"}.
-#' @param group_stats If \code{TRUE}, output will include two additional columns (\code{epid_total} and \code{epid_length}).
+#' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent.
+#' @param overlap_method A set of options by which grouped intervals should overlap. Options are; \emph{"none"} (default), \emph{"overlap"}, \emph{"aligns_start"}, \emph{"aligns_end"}, \emph{"within"} and \emph{"chain"}
+#' @param custom_sort If \code{TRUE}, \emph{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
+#' @param bi_direction If \code{FALSE}, \emph{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length} before or after the \emph{"Case"} as determined by \code{from_last}. If \code{TRUE}, \emph{"Duplicate"} records are those on either side of the \emph{"Case"}.
+#' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each episode.
 #' @param display If \code{TRUE}, status messages are not printed on screen.
 #'
 #' @return Dataframe
@@ -24,11 +25,11 @@
 #' \itemize{
 #' \item \code{sn} - the unique record identifier provided
 #' \item \code{epid} - unique episode indentifier
-#' \item \code{case_nm} - type of record in each epsiode
-#' \item \code{epid_dataset} - list of datasets in each episode
+#' \item \code{case_nm} - record type in regards to case assignment
+#' \item \code{epid_dataset} - datasets contained in each episode
+#' \item \code{epid_interval} - lubridate \code{interval} object. Episode start and end dates
+#' \item \code{epid_length} - \code{difftime} object. Difference between episode start and end dates. Unit for will match that supplied as \code{episode_unit}
 #' \item \code{epid_total} - number of records in each record group
-#' \item \code{epid_length} - \code{difftime} object. Date/time difference between earliest and most recent record. \code{episode_unit} is used a \code{difftime} unit.
-#' \item \code{epid_window} - lubridate \code{interval} object. Earliest and most recent dates in the episode group.
 #' }
 #'
 #' @seealso
@@ -150,7 +151,7 @@
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
-                          custom_sort = NULL, from_last=FALSE, coverage = "overlap", bi_direction = FALSE, group_stats= FALSE, display=TRUE){
+                          custom_sort = NULL, from_last=FALSE, overlap_method = "none", bi_direction = FALSE, group_stats= FALSE, display=TRUE){
 
   #Later, add data validations for arguments - assert that
   enq_vr <- function(x, vr){
@@ -176,6 +177,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   #assertions
   if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
 
+  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste(epl," must be -1 or a positive integer, numeric or double data type"))
+
+  if(!is.null(r_epl)){
+  if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste(r_epl," must be -1 or a positive integer, numeric or double data type"))
+    }
   if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
 
   if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df) )){
@@ -184,7 +190,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     stop(paste(missing_cols, "not found in the dataset"))
   }
 
-  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt")) & all(!is.na(df[[dt]])))) stop(paste(dt," must be a date or datetime variable without missing values"))
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","Interval")) & all(!is.na(df[[dt]])))) stop(paste(dt," must be a date or datetime variable without missing values"))
 
   df_list <- names(df)
 
@@ -214,14 +220,23 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- tidyr::unite(df, "cri", c(!!dplyr::enquo(strata)), remove=FALSE)
   }
 
+  if(class(df[[dt]])=="Interval"){
+  df$rec_dt_ai <- lubridate::int_start(df[[dt]])
+  df$rec_dt_zi <- lubridate::int_end(df[[dt]])
+  df$interval <- df[[dt]]
+  }else{
+    df$rec_dt_ai <- df[[dt]]
+    df$rec_dt_zi <- df[[dt]]
+  }
+
   df <- df %>%
-    dplyr::select(sn, spec_dt=!!dplyr::enquo(date), .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort)) %>%
+    dplyr::select(sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort)) %>%
     dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0)
 
   if(from_last==TRUE){
-    df$ord <- abs(max(df$spec_dt) - df$spec_dt)
+    df$ord <- abs(max(df$rec_dt_ai) - df$rec_dt_ai)
   }else{
-    df$ord <- abs(min(df$spec_dt) - df$spec_dt)
+    df$ord <- abs(min(df$rec_dt_ai) - df$rec_dt_ai)
   }
 
   if(is.null(ref_sort)){
@@ -246,8 +261,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   df$fg_a <- rep(rle(df$mrk_a)$lengths, rle(df$mrk_a)$lengths)
   df$fg_b <- rep(rle(df$mrk_b)$lengths, rle(df$mrk_b)$lengths)
 
-  df$mx_case_len <- ifelse(df$fg_a == df$fg_x & df$epi_len ==0, 0, 1)
-  df$mx_recur_len <- ifelse(df$fg_a == df$fg_b & df$rc_len ==0, 0, 1)
+  df$mx_case_len <- ifelse(df$fg_a == df$fg_x & df$epi_len ==-1, 0, 1)
+  df$mx_recur_len <- ifelse(df$fg_a == df$fg_b & df$rc_len ==-1, 0, 1)
 
   # df <- dplyr::select(df, .data$cri, mx_case_len = .data$epi_len) %>%
   #   unique() %>%
@@ -262,24 +277,26 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df$roll <- ifelse(df$mx_recur_len ==0, rolls_max, df$roll)
 
-  if(episode_unit=="days"){
-    df$epi_len <- df$epi_len-1
-    df$rc_len <- df$rc_len-1
-  }else{
-    df$epi_len <- df$epi_len
-    df$rc_len <- df$rc_len
-  }
+  # if(episode_unit=="days"){
+  #   df$epi_len <- df$epi_len-1
+  #   df$rc_len <- df$rc_len-1
+  # }else{
+  #   df$epi_len <- df$epi_len
+  #   df$rc_len <- df$rc_len
+  # }
+
+  df$int_l <- lubridate::int_length(lubridate::interval(df$rec_dt_ai, df$rec_dt_zi))
 
   while (min_tag != 2 & min_episodes_nm <= episodes_max){
       TR <- df %>%
         # preference to those tagged already i.e. exisitng episodes
-        dplyr::arrange(.data$cri,  dplyr::desc(.data$tag), .data$user_ord, .data$ord, dplyr::desc(.data$rc_len), dplyr::desc(.data$epi_len), .data$sn) %>%
+        dplyr::arrange(.data$cri,  dplyr::desc(.data$tag), .data$user_ord, .data$ord, dplyr::desc(.data$int_l), .data$sn) %>%
         #exclude records that will create 1 episode more than episodes_max
         dplyr::filter(!(.data$tag==0 & .data$episodes + 1 > episodes_max )) %>%
         dplyr::filter(.data$tag !=2 & !is.na(.data$tag)) %>%
         dplyr::filter(duplicated(.data$cri) == FALSE) %>%
-        dplyr::select(.data$sn, .data$cri, .data$spec_dt, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len) %>%
-        dplyr::rename_at(dplyr::vars(.data$sn, .data$spec_dt, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len), dplyr::funs(paste("tr_",.,sep="")))
+        dplyr::select(.data$sn, .data$cri, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len) %>%
+        dplyr::rename_at(dplyr::vars(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len), dplyr::funs(paste("tr_",.,sep="")))
 
     if(nrow(TR)==0) {break}
 
@@ -291,55 +308,55 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- dplyr::mutate_at(df, c("tr_rc_len", "tr_epi_len"), ~ lubridate::duration(., units=episode_unit))
 
     if (from_last==FALSE){
-      df$c_int <- lubridate::interval(df$spec_dt, df$spec_dt + df$epi_len)
-      df$r_int <- lubridate::interval(df$spec_dt, df$spec_dt + df$rc_len)
+      df$c_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi + lubridate::duration(df$epi_len, units=episode_unit))
+      df$r_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi + lubridate::duration(df$rc_len, units=episode_unit))
 
-      df$tr_c_int <- lubridate::interval(df$tr_spec_dt, df$tr_spec_dt + df$tr_epi_len)
-      df$tr_r_int <- lubridate::interval(df$tr_spec_dt, df$tr_spec_dt + df$tr_rc_len)
+      df$tr_c_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi + df$tr_epi_len)
+      df$tr_r_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi + df$tr_rc_len)
 
     }else{
-      df$c_int <- lubridate::interval(df$spec_dt, df$spec_dt - df$epi_len)
-      df$r_int <- lubridate::interval(df$spec_dt, df$spec_dt - df$rc_len)
+      df$c_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi - lubridate::duration(df$epi_len, units=episode_unit))
+      df$r_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi - lubridate::duration(df$rc_len, units=episode_unit))
 
-      df$tr_c_int <- lubridate::interval(df$tr_spec_dt, df$tr_spec_dt - df$tr_epi_len)
-      df$tr_r_int <- lubridate::interval(df$tr_spec_dt, df$tr_spec_dt - df$tr_rc_len)
+      df$tr_c_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi - df$tr_epi_len)
+      df$tr_r_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi - df$tr_rc_len)
     }
 
     if (bi_direction==TRUE){
-      df$tr_c_int <- lubridate::interval(df$tr_spec_dt - df$epi_len, df$tr_spec_dt + df$tr_epi_len)
-      df$tr_r_int <- lubridate::interval(df$tr_spec_dt - df$rc_len, df$tr_spec_dt + df$tr_rc_len)
+      df$tr_c_int <- lubridate::interval(df$tr_rec_dt_ai - lubridate::duration(df$epi_len, units=episode_unit), df$tr_rec_dt_zi + df$tr_epi_len)
+      df$tr_r_int <- lubridate::interval(df$tr_rec_dt_ai - lubridate::duration(df$rc_len, units=episode_unit), df$tr_rec_dt_zi + df$tr_rc_len)
     }
 
     df$r_range <- df$c_range <- FALSE
 
-    if("overlap" %in% tolower(coverage)){
+    if(any(c("overlap","none") %in% tolower(overlap_method))){
       df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int), TRUE, df$r_range)
       df$c_range <- ifelse(lubridate::int_overlaps(df$c_int,df$tr_c_int), TRUE, df$c_range)
     }
-    if("within" %in% tolower(coverage)){
+    if("within" %in% tolower(overlap_method)){
       df$r_range <- ifelse(df$r_int %within% df$tr_r_int, TRUE, df$r_range)
       df$c_range <- ifelse(df$c_int %within% df$tr_c_int, TRUE, df$c_range)
     }
-    if("aligns_start" %in% tolower(coverage)){
+    if("aligns_start" %in% tolower(overlap_method)){
       df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_start(df$tr_r_int) ==  lubridate::int_start(df$r_int), TRUE, df$r_range)
       df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_start(df$tr_c_int) ==  lubridate::int_start(df$c_int), TRUE, df$c_range)
     }
-    if("aligns_end" %in% tolower(coverage)){
+    if("aligns_end" %in% tolower(overlap_method)){
       df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_end(df$tr_r_int) ==  lubridate::int_end(df$r_int), TRUE, df$r_range)
       df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_end(df$tr_c_int) ==  lubridate::int_end(df$c_int), TRUE, df$c_range)
     }
-    if("chain" %in% tolower(coverage)){
-      df$r_range <- ifelse(lubridate::int_end(df$tr_r_int) ==  lubridate::int_start(df$r_int), TRUE, df$r_range)
-      df$c_range <- ifelse(lubridate::int_end(df$tr_c_int) ==  lubridate::int_start(df$c_int), TRUE, df$c_range)
+    if("chain" %in% tolower(overlap_method)){
+      df$r_range <- ifelse(lubridate::int_end(df$tr_r_int) ==  lubridate::int_start(df$r_int) | lubridate::int_start(df$tr_r_int) == lubridate::int_end(df$r_int), TRUE, df$r_range)
+      df$c_range <- ifelse(lubridate::int_end(df$tr_c_int) ==  lubridate::int_start(df$c_int) | lubridate::int_start(df$tr_c_int) == lubridate::int_end(df$c_int), TRUE, df$c_range)
     }
 
     if(!bi_direction & !from_last){
-      df$c_range <- ifelse(df$tr_spec_dt > df$spec_dt, FALSE, df$c_range)
-      df$r_range <- ifelse(df$tr_spec_dt > df$spec_dt, FALSE, df$r_range)
+      df$c_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$c_range)
+      df$r_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$r_range)
 
       }else if(!bi_direction & from_last){
-        df$c_range <- ifelse(df$tr_spec_dt < df$spec_dt, FALSE, df$c_range)
-        df$r_range <- ifelse(df$tr_spec_dt < df$spec_dt, FALSE, df$r_range)
+        df$c_range <- ifelse(df$tr_rec_dt_ai < df$rec_dt_ai, FALSE, df$c_range)
+        df$r_range <- ifelse(df$tr_rec_dt_ai < df$rec_dt_ai, FALSE, df$r_range)
         }
 
 
@@ -418,7 +435,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     )
 
   if(is.null(ds)){
-    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$pr_sn, .data$spec_dt, .data$ord)
+    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$epi_len)
     df <- dplyr::arrange(df, .data$pr_sn)
   }else{
     sourc_list <- as.character(sort(unique(df$dsvr)))
@@ -434,43 +451,55 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::full_join(df, by="epid")
 
     df <- dplyr::arrange(df, .data$pr_sn)
-    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$epid_dataset, .data$pr_sn, .data$spec_dt, .data$ord)
+    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$epid_dataset, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$epi_len)
   }
 
   if(group_stats){
 
-    epid_l <- dplyr::select(df, .data$epid, .data$spec_dt, .data$ord) %>%
+    epid_l <- dplyr::select(df, .data$epid, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord) %>%
       unique() %>%
       dplyr::arrange(.data$epid, .data$ord) %>%
       dplyr::filter(!duplicated(.data$epid) | !duplicated(.data$epid, fromLast = TRUE))
 
-    epid_l$ord <- paste("o_",sequence(rle(epid_l$epid)$lengths), sep="")
+    epid_l$ord <- sequence(rle(epid_l$epid)$lengths)
 
     epid_l <- epid_l %>%
-      dplyr::mutate(spec_dt = format(.data$spec_dt, "%d/%m/%Y %H:%M:%S")) %>%
-      tidyr::spread("ord","spec_dt") %>%
+      dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ format(., "%d/%m/%Y %H:%M:%S")) %>%
+      tidyr::gather("var", "val", -c(.data$epid, .data$ord)) %>%
+      dplyr::mutate(ord = paste(substr(.data$var,8,9), .data$ord,sep="_")) %>%
+      dplyr::select(-.data$var)
+
+    epid_l <- epid_l %>%
+      tidyr::spread("ord","val")
+
+    if(!"ai_2" %in% names(epid_l)){
+      epid_l$ai_2 <- epid_l$zi_2 <- NA
+    }
+
+    epid_l <- epid_l %>%
       dplyr::mutate(
-        o_2 = ifelse(is.na(.data$o_2), .data$o_1, .data$o_2),
-        epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(o_2), lubridate::dmy_hms(o_1), units = "secs"), units = episode_unit)
+        ai_2 = ifelse(is.na(.data$ai_2), .data$ai_1, .data$ai_2),
+        zi_2 = ifelse(is.na(.data$zi_2), .data$zi_1, .data$zi_2)
         )
 
     df <- dplyr::left_join(df, epid_l, by="epid")
 
     df <- dplyr::arrange(df, .data$epid)
 
+    df <- dplyr::arrange(df, .data$pr_sn)
+
+    df <- dplyr::mutate(df, epid_interval = lubridate::interval(lubridate::dmy_hms(.data$ai_1), lubridate::dmy_hms(.data$zi_2) ))
+    df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$zi_2), lubridate::dmy_hms(.data$ai_1), units = "secs"), units = episode_unit))
     df$epid_total <- rep(rle(df$epid)$lengths, rle(df$epid)$lengths)
 
-    df <- dplyr::arrange(df, .data$pr_sn)
-    df <- dplyr::mutate(df, epid_window = lubridate::interval(lubridate::dmy_hms(o_1), lubridate::dmy_hms(o_2)))
-    df <- dplyr::select(df, -c(.data$o_2, .data$o_1))
-  }
+    df <- dplyr::select(df, -c(.data$ai_1, .data$ai_2, .data$zi_1, .data$zi_2))
+    }
 
-  df <- dplyr::select(df, -c(.data$pr_sn, .data$spec_dt, .data$ord))
+  df <- dplyr::select(df, -c(.data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$epi_len))
 
   unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = TRUE),]$epid)
 
   pd <- ifelse(display,"\n","")
   cat(paste(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID." , sep =""))
-  cat("\n ---------------------------------------------------------------------------------------------------- \n \n ")
   df
 }

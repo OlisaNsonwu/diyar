@@ -7,17 +7,17 @@
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
-  custom_sort = NULL, from_last = FALSE, coverage = "overlap",
+  custom_sort = NULL, from_last = FALSE, overlap_method = "none",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 }
 \arguments{
-\item{df}{Dataframe. One or more datasets appened together.}
+\item{df}{Dataframe. One or more datasets appended together.}
 
 \item{sn}{\code{numeric} unique record indentifier for the dataframe.}
 
-\item{strata}{Column names. Episodes will be unique to each strata. \code{\link{record_group}}.}
+\item{strata}{Column names. Episodes will be unique to each strata. See \code{\link{record_group}}.}
 
-\item{date}{Record date. \code{date} or \code{datetime}.}
+\item{date}{Record date. \code{date}, \code{datetime} or \code{\link[lubridate]{interval}} objects.}
 
 \item{case_length}{Duration from the \code{"Case"} within which another record of the same \code{strata} will be considered a \code{"Duplicate"}.}
 
@@ -25,7 +25,7 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
 
 \item{episode_unit}{Time units not less than "seconds" and supported by \code{\link[lubridate]{duration}}}
 
-\item{episodes_max}{Maximum number of episodes permitted in each strata.}
+\item{episodes_max}{Maximum number times to group episodes in each strata.}
 
 \item{recurrence_length}{Duration from the last record of an episode within which another record of the same \code{strata} will be considered a \code{"Recurrent"} record.}
 
@@ -33,13 +33,15 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
 
 \item{data_source}{Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.}
 
-\item{custom_sort}{If \code{TRUE}, epiosde grouping assignment will begin in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.}
+\item{custom_sort}{If \code{TRUE}, \emph{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.}
 
-\item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record to most recent.}
+\item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent.}
 
-\item{bi_direction}{If \code{FALSE}, \code{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length} before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records are those on either side of the \code{"Case"}.}
+\item{overlap_method}{A set of options by which grouped intervals should overlap. Options are; \emph{"none"} (default), \emph{"overlap"}, \emph{"aligns_start"}, \emph{"aligns_end"}, \emph{"within"} and \emph{"chain"}}
 
-\item{group_stats}{If \code{TRUE}, output will include two additional columns (\code{epid_total} and \code{epid_length}).}
+\item{bi_direction}{If \code{FALSE}, \emph{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length} before or after the \emph{"Case"} as determined by \code{from_last}. If \code{TRUE}, \emph{"Duplicate"} records are those on either side of the \emph{"Case"}.}
+
+\item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each episode.}
 
 \item{display}{If \code{TRUE}, status messages are not printed on screen.}
 }
@@ -49,11 +51,11 @@ Dataframe
 \itemize{
 \item \code{sn} - the unique record identifier provided
 \item \code{epid} - unique episode indentifier
-\item \code{case_nm} - type of record in each epsiode
-\item \code{epid_dataset} - list of datasets in each episode
+\item \code{case_nm} - record type in regards to case assignment
+\item \code{epid_dataset} - datasets contained in each episode
+\item \code{epid_interval} - lubridate \code{interval} object. Episode start and end dates
+\item \code{epid_length} - \code{difftime} object. Difference between episode start and end dates. Unit for will match that supplied as \code{episode_unit}
 \item \code{epid_total} - number of records in each record group
-\item \code{epid_length} - \code{difftime} object. Date/time difference between earliest and most recent record. \code{episode_unit} is used a \code{difftime} unit.
-\item \code{epid_window} - lubridate \code{interval} object. Earliest and most recent dates in the episode group.
 }
 }
 \description{

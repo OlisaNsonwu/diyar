@@ -18,7 +18,7 @@ record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
 
 \item{data_source}{Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.}
 
-\item{group_stats}{If \code{TRUE}, output will include one additional column (\code{pid_total}) with the number of records in each record group.}
+\item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each record group.}
 
 \item{display}{If \code{TRUE}, status messages are not printed on screen.}
 }
@@ -30,7 +30,7 @@ Dataframe
 \item \code{pid} - unique record group indentifier
 \item \code{pid_cri} - matching criteria each record
 \item \code{pid_dataset} - list of datasets in each record group
-\item \code{pid_dataset} - number of records in each record group
+\item \code{pid_total} - number of records in each record group
 }
 }
 \description{
