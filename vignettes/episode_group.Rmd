@@ -255,7 +255,7 @@ cbind(
 ## Interval grouping
 In addition to time points (e.g. a day, minute or hour), you can also group time intervals (e.g. lengths of days, minutes or hours) into episodes. To to this, supply the start and end periods as a `lubridate` `interval` to the `date` argument. For example, you can group periods of hospital admissions into episodes. See the example below;
 
-```{r}
+```{r warning=FALSE}
 hospital_records <- data.frame(
     rd_id = 1:8,
   admin_dt = c(dmy("01/01/2010"), dmy("01/01/2010"), dmy("05/01/2010"), 
@@ -286,7 +286,7 @@ cbind(
 
 Time intervals can overlap in different ways, so you can use the `overlap_method` argument to choose how this is done when using `episode_group()`. The options available are `"overlap"` (default), `"overlap"`, `"within"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The examples and figure below demonstrates their differences.
 
-```{r}
+```{r warning=FALSE}
 # overlaping intervals
 overlap <- cbind(
   hospital_records,
@@ -383,7 +383,7 @@ ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
 
 You can also use a combination of the options as below. 
 
-```{r}
+```{r warning=FALSE}
 # chain and alings_end
 cbind(
   hospital_records,
@@ -403,7 +403,7 @@ cbind(
 
 As with time points, you can also have rolling episodes of intervals.
 
-```{r}
+```{r warning=FALSE}
 
 mutate(hospital_records, recur_len = 2) %>%
   cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len, 
@@ -422,7 +422,7 @@ mutate(hospital_records, recur_len = 10) %>%
 
 `"fixed"` episode grouping with a sufficiently large `case_length` in  can yield the results in  `"rolling"` episode grouping with a short `case_length` but long `recurrence_length`. However, it should be noted that this is not the same process despite similar results. See below.
 
-```{r}
+```{r warning=FALSE}
 mutate(hospital_records, epi_len =10) %>%
   cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len,
                         display = FALSE)

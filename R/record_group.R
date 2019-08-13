@@ -282,6 +282,6 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     df <- dplyr::select(df, -.data$pr_sn)
 
    pd <- ifelse(display,"\n","")
-   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID." , sep =""))
+   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID. \n" , sep =""))
    df
 }
