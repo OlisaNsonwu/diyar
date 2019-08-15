@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 ```
 
 #Introduction
-Deduplicating records is a main aspect of applying case definitions in epidemiological analysis. In these analysis, a reference event is selected and considered the start of an episode, while subequent events within specified period are considered duplicates.
+Deduplicating records is a main aspect of applying case definitions in epidemiological analysis. In these analysis, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
 
 `episode_group()` aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time. 
 
@@ -28,8 +28,8 @@ Arguments in `episode_group()` can be used in different combinations to deduplic
 2. Create episodes that continue to re-occur within a fixed period (`recurrence_length`) of the most recent `"Duplicate"` or `"Recurrent"` event
 3. Create episodes as in examples 1 and 2, and specify which event is considered the `"Case"`. See [case assignment](#case_assignment)
 4. Create episodes with a different `case_length` and/or `recurrence_length` in one or more datasets. See [stratified grouping](#stratified_grouping)
-5. Create episodes of overlaping time points e.g. days, minutes, hours. See [Useful ways of using episode_group](#tips)
-6. Create episodes overlaping time intervals e.g. length of days, minutes or hours. See [interval grouping](#interval_grouping)
+5. Create episodes of overlaping events (time points) e.g. days, minutes, hours. See [Useful ways of using episode_group](#tips)
+6. Create episodes overlaping intervals (time periods) e.g. period of days, minutes or hours. See [interval grouping](#interval_grouping)
 
 #Implementation 
 
@@ -40,18 +40,18 @@ An episode as produced by `episode_group()` is a set of events (records) within 
 
 `episode_group()` can produce two type of episodes described below; 
 
-- A `"fixed"` episode - where all events are within a fixed `case_length` of the `"Case"`. All `"fixed"` episodes in the same [`strata`](#stratified_grouping) will have the same maximum episode length. See [stratified grouping](#stratified_grouping)
+- A `"fixed"` episode - where all events/periods are within a fixed `case_length` of the `"Case"`. All `"fixed"` episodes in the same [`strata`](#stratified_grouping) will have the same maximum episode length (`epid_length`). See [stratified grouping](#stratified_grouping)
 
-- A `"rolling"` episode - where all events within a fixed `case_length` of the `"Case"`, and those within the periods of recurrence are grouped into an episode. See [episodes windows and recurrence periods](#recurrence).
+- A `"rolling"` episode - where all events/periods within a fixed `case_length` of the `"Case"`, and those within the periods of recurrence are grouped into an episode. See [episodes windows and recurrence periods](#recurrence).
 
-Note that a `"fixed"` episode will only have duplicates of the `"Case"` but a `"rolling"` episode may have duplicates of both the `"Case"` and `"Recurrent"` events.
+Note that a `"fixed"` episode will only have duplicates of the `"Case"` but a `"rolling"` episode may have duplicates of both the `"Case"` and `"Recurrent"` events/periods.
 
 <a id ="recurrence" ><a/> 
 
 ##Episode length and recurrence periods
-Episode window (`"epid_interval"`) is the period between the `"Case"` and the last event in an episode. For `"fixed"` episodes, the maximum episode length is equal to the `"case_length"`.
+Episode window (`epid_interval`) is the period between the `"Case"` and the episode's last event, or end period of the last interval. For `"fixed"` episodes, the maximum episode length (`epid_length`) is equal to the `"case_length"`.
 
-A recurrence period is the period between the last `"Recurrent"` or `"Duplicate"` events and the last event within the `recurrence_length`. Only `"rolling"` episodes have a recurrence period. In addition, there can be multiple recurrence periods within one episode. For a `"rolling"` episode, the episode window is the period covering the initial `case_length` and all recurrence periods.
+A recurrence period is the period between the last event or period in an episode and a specified `recurrence_length` afterwards. Only `"rolling"` episodes can have a recurrence period. In addition, there can be multiple recurrence periods within one episode. For a `"rolling"` episode, the episode window (`epid_interval`) is the period covering the initial `case_length` and all recurrence periods.
 
 **Include image**
 
@@ -189,7 +189,7 @@ cbind(
 ### User defined case assignment
 You can specify a different preference for case assignment using `custom_sort`. This is done by selecting one or more columns whose values when sorted in ascending order specifies your preference. 
 
-As an example, we can use this feature to implement a case definition where *E. coli* urinary tract infections (UTI) are considered precursors  to *E. coli* bloodstream infections (BSI). Therefore we need to create the episodes in such a way that if there are UTI and BSI records within the same episode window (`case_length` or `recurrence_length`), then episode grouping should start from the UTI record. 
+As an example, we can use this feature to implement a case definition where *E. coli* urinary tract infections (UTI) are considered precursors to *E. coli* bloodstream infections (BSI). Therefore we need to create the episodes in such a way that if there are UTI and BSI records within the same episode window (`case_length` only), then episode grouping should start from the UTI record. 
 
 The column(s) used for `custom_sort` can either be `"character"`, `"numeric"` or `"factor"` data types. However, note that each would obey standard `R` sort behaviour. This means a `factor` will sort on its levels not its descriptive label. See examples of this below.
 

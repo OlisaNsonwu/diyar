@@ -27,7 +27,7 @@ Arguments in `record_group()` control separate aspects of the linkage process. D
 - Linking datasets on one (or more) matching `criteria`
 - Linking datasets on one (or more) matching `criteria` and one (or more) matching `sub_criteria`. See [record matching](#record_matching)
 - Linking datasets in stages. Each stage is considered more certain than the subsequent one. See [record group expansion](#record_expansion)
-- Linking datastes with missing group identifiers. See [handling missing values](#missing_values) 
+- Linking datasets with missing group identifiers. See [handling missing values](#missing_values) 
 
 #Implementation 
 

@@ -261,13 +261,15 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   }
 
   df <- df %>%
-    dplyr::select(sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort)) %>%
+    dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort)) %>%
     dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0)
 
   if(from_last==TRUE){
     df$ord <- abs(max(df$rec_dt_ai) - df$rec_dt_ai)
+    df$ord_z <- abs(max(df$rec_dt_zi) - df$rec_dt_zi)
   }else{
     df$ord <- abs(min(df$rec_dt_ai) - df$rec_dt_ai)
+    df$ord_z <- abs(min(df$rec_dt_zi) - df$rec_dt_zi)
   }
 
   if(is.null(ref_sort)){
@@ -422,7 +424,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df <- dplyr::select(df, -dplyr::ends_with("_range"), -dplyr::ends_with("_int"))
     df <- df %>%
-      dplyr::arrange(.data$cri, .data$user_ord, .data$ord, dplyr::desc(.data$rc_len), dplyr::desc(.data$epi_len), .data$sn)
+      #dplyr::arrange(.data$cri, .data$user_ord, .data$ord, dplyr::desc(.data$rc_len), dplyr::desc(.data$epi_len), .data$sn)
+      dplyr::arrange(.data$cri, .data$epid, .data$ord_z, .data$sn)
 
     df <- df %>%
       dplyr::mutate(

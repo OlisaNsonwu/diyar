@@ -86,7 +86,7 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>Deduplicating records is a main aspect of applying case definitions in epidemiological analysis. In these analysis, a reference event is selected and considered the start of an episode, while subequent events within specified period are considered duplicates.</p>
+<p>Deduplicating records is a main aspect of applying case definitions in epidemiological analysis. In these analysis, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.</p>
 <p><code><a href="../reference/episode_group.html">episode_group()</a></code> aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time.</p>
 </div>
 <div id="uses" class="section level1">
@@ -101,9 +101,9 @@
 </li>
 <li>Create episodes with a different <code>case_length</code> and/or <code>recurrence_length</code> in one or more datasets. See <a href="#stratified_grouping">stratified grouping</a>
 </li>
-<li>Create episodes of overlaping time points e.g. days, minutes, hours. See <a href="#tips">Useful ways of using episode_group</a>
+<li>Create episodes of overlaping events (time points) e.g. days, minutes, hours. See <a href="#tips">Useful ways of using episode_group</a>
 </li>
-<li>Create episodes overlaping time intervals e.g. length of days, minutes or hours. See <a href="#interval_grouping">interval grouping</a>
+<li>Create episodes overlaping intervals (time periods) e.g. period of days, minutes or hours. See <a href="#interval_grouping">interval grouping</a>
 </li>
 </ol>
 </div>
@@ -117,17 +117,17 @@
 <p>An episode as produced by <code><a href="../reference/episode_group.html">episode_group()</a></code> is a set of events (records) within a particular time period. Each episode begins with a reference event (<code>"Case"</code>), and each subsequent event within the episode is flagged as a <code>"Duplicate"</code> of the <code>"Case"</code>.</p>
 <p><code><a href="../reference/episode_group.html">episode_group()</a></code> can produce two type of episodes described below;</p>
 <ul>
-<li><p>A <code>"fixed"</code> episode - where all events are within a fixed <code>case_length</code> of the <code>"Case"</code>. All <code>"fixed"</code> episodes in the same <a href="#stratified_grouping"><code>strata</code></a> will have the same maximum episode length. See <a href="#stratified_grouping">stratified grouping</a></p></li>
-<li><p>A <code>"rolling"</code> episode - where all events within a fixed <code>case_length</code> of the <code>"Case"</code>, and those within the periods of recurrence are grouped into an episode. See <a href="#recurrence">episodes windows and recurrence periods</a>.</p></li>
+<li><p>A <code>"fixed"</code> episode - where all events/periods are within a fixed <code>case_length</code> of the <code>"Case"</code>. All <code>"fixed"</code> episodes in the same <a href="#stratified_grouping"><code>strata</code></a> will have the same maximum episode length (<code>epid_length</code>). See <a href="#stratified_grouping">stratified grouping</a></p></li>
+<li><p>A <code>"rolling"</code> episode - where all events/periods within a fixed <code>case_length</code> of the <code>"Case"</code>, and those within the periods of recurrence are grouped into an episode. See <a href="#recurrence">episodes windows and recurrence periods</a>.</p></li>
 </ul>
-<p>Note that a <code>"fixed"</code> episode will only have duplicates of the <code>"Case"</code> but a <code>"rolling"</code> episode may have duplicates of both the <code>"Case"</code> and <code>"Recurrent"</code> events.</p>
+<p>Note that a <code>"fixed"</code> episode will only have duplicates of the <code>"Case"</code> but a <code>"rolling"</code> episode may have duplicates of both the <code>"Case"</code> and <code>"Recurrent"</code> events/periods.</p>
 <p><a id="recurrence"></a><a></a></p>
 </div>
 <div id="episode-length-and-recurrence-periods" class="section level2">
 <h2 class="hasAnchor">
 <a href="#episode-length-and-recurrence-periods" class="anchor"></a>Episode length and recurrence periods</h2>
-<p>Episode window (<code>"epid_interval"</code>) is the period between the <code>"Case"</code> and the last event in an episode. For <code>"fixed"</code> episodes, the maximum episode length is equal to the <code>"case_length"</code>.</p>
-<p>A recurrence period is the period between the last <code>"Recurrent"</code> or <code>"Duplicate"</code> events and the last event within the <code>recurrence_length</code>. Only <code>"rolling"</code> episodes have a recurrence period. In addition, there can be multiple recurrence periods within one episode. For a <code>"rolling"</code> episode, the episode window is the period covering the initial <code>case_length</code> and all recurrence periods.</p>
+<p>Episode window (<code>epid_interval</code>) is the period between the <code>"Case"</code> and the episode’s last event, or end period of the last interval. For <code>"fixed"</code> episodes, the maximum episode length (<code>epid_length</code>) is equal to the <code>"case_length"</code>.</p>
+<p>A recurrence period is the period between the last event or period in an episode and a specified <code>recurrence_length</code> afterwards. Only <code>"rolling"</code> episodes can have a recurrence period. In addition, there can be multiple recurrence periods within one episode. For a <code>"rolling"</code> episode, the episode window (<code>epid_interval</code>) is the period covering the initial <code>case_length</code> and all recurrence periods.</p>
 <p><strong>Include image</strong></p>
 <p>The two examples below demonstrates the different implementations of <code>"fixed"</code> and <code>"rolling"</code> episode grouping.</p>
 <div id="example-of-fixed-episode-grouping" class="section level4">
@@ -368,7 +368,7 @@ infections_<span class="dv">2</span><span class="op">$</span>epi &lt;-<span clas
 <h3 class="hasAnchor">
 <a href="#user-defined-case-assignment" class="anchor"></a>User defined case assignment</h3>
 <p>You can specify a different preference for case assignment using <code>custom_sort</code>. This is done by selecting one or more columns whose values when sorted in ascending order specifies your preference.</p>
-<p>As an example, we can use this feature to implement a case definition where <em>E. coli</em> urinary tract infections (UTI) are considered precursors to <em>E. coli</em> bloodstream infections (BSI). Therefore we need to create the episodes in such a way that if there are UTI and BSI records within the same episode window (<code>case_length</code> or <code>recurrence_length</code>), then episode grouping should start from the UTI record.</p>
+<p>As an example, we can use this feature to implement a case definition where <em>E. coli</em> urinary tract infections (UTI) are considered precursors to <em>E. coli</em> bloodstream infections (BSI). Therefore we need to create the episodes in such a way that if there are UTI and BSI records within the same episode window (<code>case_length</code> only), then episode grouping should start from the UTI record.</p>
 <p>The column(s) used for <code>custom_sort</code> can either be <code>"character"</code>, <code>"numeric"</code> or <code>"factor"</code> data types. However, note that each would obey standard <code>R</code> sort behaviour. This means a <code>factor</code> will sort on its levels not its descriptive label. See examples of this below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">infections_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(infections, <span class="dt">infx=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw">row_number</span>() <span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">5</span>), <span class="st">"E. coli UTI"</span>, infx))
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
