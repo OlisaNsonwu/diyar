@@ -504,14 +504,14 @@ overlap &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdoc
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">overlap_method =</span> <span class="st">"overlap"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
 
 overlap
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
-<span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
+<span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    1      Case</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    3      Case</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    4      Case</span>
 <span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    2 Duplicate</span>
 <span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    2 Duplicate</span>
 <span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    2 Duplicate</span>
@@ -584,16 +584,16 @@ within &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">overlap_method =</span> <span class="st">"within"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 
 within
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
-<span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
+<span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    1      Case</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    7 Duplicate</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    5 Duplicate</span>
 <span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
 <span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
-<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    5 Duplicate</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    6      Case</span>
 <span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
 <span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
 <span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span>
@@ -604,7 +604,7 @@ chain_within &lt;-<span class="st"> </span><span class="kw"><a href="https://www
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">overlap_method =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"chain"</span>,<span class="st">"within"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 
 chain_within
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
@@ -613,7 +613,7 @@ chain_within
 <span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
 <span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
 <span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
-<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    5 Duplicate</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    6      Case</span>
 <span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
 <span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
 <span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span></code></pre></div>
