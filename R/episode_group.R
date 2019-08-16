@@ -182,7 +182,7 @@
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
-                          custom_sort = NULL, from_last=FALSE, overlap_method = "none", bi_direction = FALSE, group_stats= FALSE, display=TRUE){
+                          custom_sort = NULL, from_last=FALSE, overlap_method = c("overlap","within","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
 
   #Later, add data validations for arguments - assert that
   enq_vr <- function(x, vr){
@@ -362,13 +362,17 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df$r_range <- df$c_range <- FALSE
 
-    if(any(c("overlap","none") %in% tolower(overlap_method))){
-      df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int), TRUE, df$r_range)
-      df$c_range <- ifelse(lubridate::int_overlaps(df$c_int,df$tr_c_int), TRUE, df$c_range)
+    if("overlap" %in% tolower(overlap_method)){
+      # df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int), TRUE, df$r_range)
+      # df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int), TRUE, df$c_range)
+      df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int) & lubridate::int_end(df$tr_r_int) !=  lubridate::int_start(df$r_int) & !lubridate::int_aligns(df$r_int, df$tr_r_int) & !(df$r_int %within% df$tr_r_int), TRUE, df$r_range)
+      df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int) & lubridate::int_end(df$tr_c_int) !=  lubridate::int_start(df$c_int) & !lubridate::int_aligns(df$c_int, df$tr_c_int) & !(df$c_int %within% df$tr_c_int), TRUE, df$c_range)
     }
     if("within" %in% tolower(overlap_method)){
-      df$r_range <- ifelse(df$r_int %within% df$tr_r_int, TRUE, df$r_range)
-      df$c_range <- ifelse(df$c_int %within% df$tr_c_int, TRUE, df$c_range)
+      # df$r_range <- ifelse(df$r_int %within% df$tr_r_int, TRUE, df$r_range)
+      # df$c_range <- ifelse(df$c_int %within% df$tr_c_int, TRUE, df$c_range)
+      df$r_range <- ifelse(df$r_int %within% df$tr_r_int & !lubridate::int_aligns(df$r_int, df$tr_r_int), TRUE, df$r_range)
+      df$c_range <- ifelse(df$c_int %within% df$tr_c_int & !lubridate::int_aligns(df$c_int, df$tr_c_int), TRUE, df$c_range)
     }
     if("aligns_start" %in% tolower(overlap_method)){
       df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_start(df$tr_r_int) ==  lubridate::int_start(df$r_int), TRUE, df$r_range)

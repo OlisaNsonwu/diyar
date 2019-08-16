@@ -123,8 +123,10 @@
     <pre class="usage"><span class='fu'>episode_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>date</span>, <span class='no'>case_length</span>,
   <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
-  <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"overlap"</span>, <span class='st'>"within"</span>, <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>,
+  <span class='st'>"chain"</span>), <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -227,10 +229,10 @@ The maximun duration of a <code>"fixed"</code> episode is the <code>case_length<
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lubridate</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lubridate</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'lubridate' was built under R version 3.5.1</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: 'lubridate'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:base':</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    date</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>    date</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'dplyr' was built under R version 3.5.2</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: 'dplyr'</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:lubridate':</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    intersect, setdiff, union</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:testthat':</span>
@@ -242,23 +244,13 @@ The maximun duration of a <code>"fixed"</code> episode is the <code>case_length<
 #&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'>
 <span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/seq.Date'>seq.Date</a></span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"01/04/2018"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"31/05/2018"</span>), <span class='kw'>by</span><span class='kw'>=</span><span class='st'>"6 days"</span>))
 <span class='no'>data</span>$<span class='no'>epi_len</span> <span class='kw'>&lt;-</span> <span class='fl'>15</span>
-<span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(<span class='no'>data</span>, <span class='kw'>rd_id</span> <span class='kw'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span>())</div><div class='output co'>#&gt; <span class='warning'>Warning: The `printer` argument is deprecated as of rlang 0.3.0.</span>
-#&gt; <span class='warning'><span style='color: #555555;'>This warning is displayed once per session.</span><span></span></div><div class='input'>
+<span class='no'>data</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/mutate.html'>mutate</a></span>(<span class='no'>data</span>, <span class='kw'>rd_id</span> <span class='kw'>=</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/ranking.html'>row_number</a></span>())
+
 <span class='co'># Begin episode grouping at the earliest record thereby making it the "Case"</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/cbind'>cbind</a></span>(<span class='no'>data</span>,
       <span class='fu'>episode_group</span>(<span class='no'>data</span>, <span class='kw'>sn</span><span class='kw'>=</span><span class='no'>rd_id</span>, <span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>)
-      )</div><div class='output co'>#&gt; <span class='warning'>Warning: `lang()` is deprecated as of rlang 0.2.0.</span>
-#&gt; <span class='warning'>Please use `call2()` instead.</span>
-#&gt; <span class='warning'></span><span style='color: #555555;'>This warning is displayed once per session.</span><span></span></div><div class='output co'>#&gt; <span class='warning'>Warning: `new_overscope()` is deprecated as of rlang 0.2.0.</span>
-#&gt; <span class='warning'>Please use `new_data_mask()` instead.</span>
-#&gt; <span class='warning'></span><span style='color: #555555;'>This warning is displayed once per session.</span><span></span></div><div class='output co'>#&gt; <span class='warning'>Warning: `overscope_eval_next()` is deprecated as of rlang 0.2.0.</span>
-#&gt; <span class='warning'>Please use `eval_tidy()` with a data mask instead.</span>
-#&gt; <span class='warning'></span><span style='color: #555555;'>This warning is displayed once per session.</span><span></span></div><div class='output co'>#&gt; <span class='warning'>Warning: `is_lang()` is deprecated as of rlang 0.2.0.</span>
-#&gt; <span class='warning'>Please use `is_call()` instead.</span>
-#&gt; <span class='warning'></span><span style='color: #555555;'>This warning is displayed once per session.</span><span></span></div><div class='output co'>#&gt; <span class='warning'>Warning: `lang_modify()` is deprecated as of rlang 0.2.0.</span>
-#&gt; <span class='warning'>Please use `call_modify()` instead.</span>
-#&gt; <span class='warning'></span><span style='color: #555555;'>This warning is displayed once per session.</span><span></span></div><div class='output co'>#&gt; Episode or recurrence window 1 .</div><div class='output co'>#&gt; <span class='warning'>Warning: `mut_node_car()` is deprecated as of rlang 0.2.0.</span>
-#&gt; <span class='warning'></span><span style='color: #555555;'>This warning is displayed once per session.</span><span></span></div><div class='output co'>#&gt; 3 of 11 record(s) grouped into episodes. 8 records not yet grouped.
+      )</div><div class='output co'>#&gt; Episode or recurrence window 1 .
+#&gt; 3 of 11 record(s) grouped into episodes. 8 records not yet grouped.
 #&gt; Episode or recurrence window 2 .
 #&gt; 3 of 8 record(s) grouped into episodes. 5 records not yet grouped.
 #&gt; Episode or recurrence window 3 .
@@ -603,14 +595,18 @@ The maximun duration of a <code>"fixed"</code> episode is the <code>case_length<
   <span class='no'>hopital_record</span>,
   <span class='fu'>episode_group</span>(<span class='no'>hopital_record</span>, <span class='kw'>date</span><span class='kw'>=</span><span class='no'>admin_period</span>, <span class='kw'>sn</span><span class='kw'>=</span><span class='no'>rd_id</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>)
   ) <span class='kw'>%&gt;%</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>admin_dt</span>, <span class='no'>discharge_dt</span>))</div><div class='output co'>#&gt; Episode or recurrence window 1 .
-#&gt; 6 of 8 record(s) grouped into episodes. 2 records not yet grouped.
+#&gt; 4 of 8 record(s) grouped into episodes. 4 records not yet grouped.
 #&gt; Episode or recurrence window 2 .
+#&gt; 1 of 4 record(s) grouped into episodes. 3 records not yet grouped.
+#&gt; Episode or recurrence window 3 .
+#&gt; 1 of 3 record(s) grouped into episodes. 2 records not yet grouped.
+#&gt; Episode or recurrence window 4 .
 #&gt; 2 of 2 record(s) grouped into episodes. 0 records not yet grouped.
 #&gt; 
-#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='output co'>#&gt;   rd_id epi_len                   admin_period sn epid   case_nm
-#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate
+#&gt; Episode grouping complete - 2 record(s) assinged a unique ID. </div><div class='output co'>#&gt;   rd_id epi_len                   admin_period sn epid   case_nm
+#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    1      Case
 #&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case
-#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    2 Duplicate
+#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    3      Case
 #&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    2 Duplicate
 #&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    2 Duplicate
 #&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    2 Duplicate
@@ -621,22 +617,26 @@ The maximun duration of a <code>"fixed"</code> episode is the <code>case_length<
   <span class='no'>hopital_record</span>,
   <span class='fu'>episode_group</span>(<span class='no'>hopital_record</span>, <span class='kw'>date</span><span class='kw'>=</span><span class='no'>admin_period</span>, <span class='kw'>sn</span><span class='kw'>=</span><span class='no'>rd_id</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='st'>"within"</span>)
   ) <span class='kw'>%&gt;%</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>admin_dt</span>, <span class='no'>discharge_dt</span>))</div><div class='output co'>#&gt; Episode or recurrence window 1 .
-#&gt; 3 of 8 record(s) grouped into episodes. 5 records not yet grouped.
+#&gt; 2 of 8 record(s) grouped into episodes. 6 records not yet grouped.
 #&gt; Episode or recurrence window 2 .
-#&gt; 1 of 5 record(s) grouped into episodes. 4 records not yet grouped.
+#&gt; 1 of 6 record(s) grouped into episodes. 5 records not yet grouped.
 #&gt; Episode or recurrence window 3 .
-#&gt; 2 of 4 record(s) grouped into episodes. 2 records not yet grouped.
+#&gt; 1 of 5 record(s) grouped into episodes. 4 records not yet grouped.
 #&gt; Episode or recurrence window 4 .
-#&gt; 1 of 2 record(s) grouped into episodes. 1 records not yet grouped.
+#&gt; 1 of 4 record(s) grouped into episodes. 3 records not yet grouped.
 #&gt; Episode or recurrence window 5 .
+#&gt; 1 of 3 record(s) grouped into episodes. 2 records not yet grouped.
+#&gt; Episode or recurrence window 6 .
+#&gt; 1 of 2 record(s) grouped into episodes. 1 records not yet grouped.
+#&gt; Episode or recurrence window 7 .
 #&gt; 1 of 1 record(s) grouped into episodes. 0 records not yet grouped.
 #&gt; 
-#&gt; Episode grouping complete - 3 record(s) assinged a unique ID. </div><div class='output co'>#&gt;   rd_id epi_len                   admin_period sn epid   case_nm
-#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate
+#&gt; Episode grouping complete - 6 record(s) assinged a unique ID. </div><div class='output co'>#&gt;   rd_id epi_len                   admin_period sn epid   case_nm
+#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    1      Case
 #&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case
 #&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    2 Duplicate
 #&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    4      Case
-#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    4 Duplicate
+#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    5      Case
 #&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case
 #&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case
 #&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</div><div class='input'>
@@ -665,7 +665,7 @@ The maximun duration of a <code>"fixed"</code> episode is the <code>case_length<
 #&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    4 Duplicate
 #&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case
 #&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case
-#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</div></span></pre>
+#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

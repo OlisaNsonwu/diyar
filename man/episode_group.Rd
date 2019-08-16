@@ -7,8 +7,10 @@
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
-  custom_sort = NULL, from_last = FALSE, overlap_method = "none",
-  bi_direction = FALSE, group_stats = FALSE, display = TRUE)
+  custom_sort = NULL, from_last = FALSE,
+  overlap_method = c("overlap", "within", "aligns_start", "aligns_end",
+  "chain"), bi_direction = FALSE, group_stats = FALSE,
+  display = TRUE)
 }
 \arguments{
 \item{df}{Dataframe. One or more datasets appended together.}

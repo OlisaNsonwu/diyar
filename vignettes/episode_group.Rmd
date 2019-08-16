@@ -257,11 +257,11 @@ In addition to time points (e.g. a day, minute or hour), you can also group time
 
 ```{r warning=FALSE}
 hospital_records <- data.frame(
-    rd_id = 1:8,
-  admin_dt = c(dmy("01/01/2010"), dmy("01/01/2010"), dmy("05/01/2010"), 
+    rd_id = 1:9,
+  admin_dt = c(dmy("01/01/2010"), dmy("01/01/2010"), dmy("10/01/2010"), dmy("05/01/2010"), 
                dmy("05/01/2010"), dmy("07/01/2010"), dmy("04/01/2010"),
                dmy("20/01/2010"), dmy("26/01/2010")),
-  discharge_dt = c(dmy("01/01/2010"), dmy("10/01/2010"), dmy("06/01/2010"), 
+  discharge_dt = c(dmy("01/01/2010"), dmy("10/01/2010"), dmy("13/01/2010"), dmy("06/01/2010"), 
                    dmy("15/01/2010"), dmy("15/01/2010"), dmy("13/01/2010"), 
                    dmy("30/01/2010"), dmy("31/01/2010"))
   )
@@ -331,6 +331,16 @@ within <- cbind(
   ) %>% select(-admin_dt, -discharge_dt)
 
 within
+
+# Intervals occuring completely within others
+chain_within <- cbind(
+  hospital_records,
+  episode_group(hospital_records, date=admin_period, sn=rd_id, case_length = epi_len, 
+                overlap_method = c("chain","within"), display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+chain_within
+
 ```
 
 **Figure 1: Options for `overlap_method`**
@@ -340,11 +350,11 @@ library(tidyr)
 
 plot <- rbind(
   mutate(overlap, method="overlap"),
-  mutate(overlap, method="none"),
   mutate(chain, method="chain"),
   mutate(aligns_start, method="aligns_start"),
   mutate(aligns_end, method="aligns_end"),
-  mutate(within, method="within")
+  mutate(within, method="within"), 
+  mutate(chain_within, method="chain and within")
   )
 
 plot <- mutate(plot,
@@ -353,6 +363,7 @@ plot <- mutate(plot,
   discharge_dt = int_end(admin_period)
   )
 
+plot <- dplyr::arrange(plot, .data$mrk)
 plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)
 
 plot <- plot %>%
@@ -361,7 +372,11 @@ plot <- plot %>%
   filter(N>1) %>%
   select(rd_id, admin_dt, discharge_dt, method, epid, epid_2, case_nm) %>%
   gather(var, val, -c(rd_id, method, epid, epid_2, case_nm)) %>%
-  mutate(cd ="A", rd_id = as.character(rd_id), lab =ifelse(case_nm=="Case" & var=="discharge_dt", case_nm, ""), lab_2 =ifelse(case_nm=="Case" & var=="discharge_dt", paste("epid", epid, sep=" "), ""))
+  mutate(
+    rd_id = as.character(rd_id), 
+    lab =ifelse(case_nm=="Case" & var=="discharge_dt", case_nm, ""), 
+    method = factor(method, levels = c("overlap","aligns_start","aligns_end","chain", "within", "chain and within"))
+    )
 
 ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
   geom_line(aes(colour=epid_2)) +
@@ -381,7 +396,7 @@ ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
 
 ```
 
-You can also use a combination of the options as below. 
+As with the last example above, you can use different combinations of each `overlap_method` option. More example below; 
 
 ```{r warning=FALSE}
 # chain and alings_end
@@ -401,7 +416,7 @@ cbind(
   select(-admin_dt, -discharge_dt)
 ```
 
-As with time points, you can also have rolling episodes of intervals.
+You can also have rolling episodes of intervals.
 
 ```{r warning=FALSE}
 
@@ -420,7 +435,7 @@ mutate(hospital_records, recur_len = 10) %>%
   select(-admin_dt, -discharge_dt)
 ```
 
-`"fixed"` episode grouping with a sufficiently large `case_length` in  can yield the results in  `"rolling"` episode grouping with a short `case_length` but long `recurrence_length`. However, it should be noted that this is not the same process despite similar results. See below.
+`"fixed"` episode grouping with a sufficiently long `case_length` can give the same results as `"rolling"` episode grouping with a short `case_length` but sufficiently long `recurrence_length`. However, it's important that they are not the same process despite similar results. See below.
 
 ```{r warning=FALSE}
 mutate(hospital_records, epi_len =10) %>%

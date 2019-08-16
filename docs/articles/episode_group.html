@@ -450,11 +450,11 @@ infections_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="
 <a href="#interval-grouping" class="anchor"></a>Interval grouping</h2>
 <p>In addition to time points (e.g. a day, minute or hour), you can also group time intervals (e.g. lengths of days, minutes or hours) into episodes. To to this, supply the start and end periods as a <code>lubridate</code> <code>interval</code> to the <code>date</code> argument. For example, you can group periods of hospital admissions into episodes. See the example below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hospital_records &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(
-    <span class="dt">rd_id =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">8</span>,
-  <span class="dt">admin_dt =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw">dmy</span>(<span class="st">"01/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"01/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"05/01/2010"</span>), 
+    <span class="dt">rd_id =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">9</span>,
+  <span class="dt">admin_dt =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw">dmy</span>(<span class="st">"01/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"01/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"10/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"05/01/2010"</span>), 
                <span class="kw">dmy</span>(<span class="st">"05/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"07/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"04/01/2010"</span>),
                <span class="kw">dmy</span>(<span class="st">"20/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"26/01/2010"</span>)),
-  <span class="dt">discharge_dt =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw">dmy</span>(<span class="st">"01/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"10/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"06/01/2010"</span>), 
+  <span class="dt">discharge_dt =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="kw">dmy</span>(<span class="st">"01/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"10/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"13/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"06/01/2010"</span>), 
                    <span class="kw">dmy</span>(<span class="st">"15/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"15/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"13/01/2010"</span>), 
                    <span class="kw">dmy</span>(<span class="st">"30/01/2010"</span>), <span class="kw">dmy</span>(<span class="st">"31/01/2010"</span>))
   )
@@ -468,16 +468,17 @@ hospital_records<span class="op">$</span>admin_period &lt;-<span class="st"> </s
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_dt, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_period)
-<span class="co">#&gt; Episode grouping complete - 4 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 <span class="co">#&gt;   rd_id   admin_dt discharge_dt epi_len sn epid   case_nm</span>
 <span class="co">#&gt; 1     1 2010-01-01   2010-01-01       0  1    1      Case</span>
 <span class="co">#&gt; 2     2 2010-01-01   2010-01-10       0  2    1 Duplicate</span>
-<span class="co">#&gt; 3     3 2010-01-05   2010-01-06       0  3    3      Case</span>
-<span class="co">#&gt; 4     4 2010-01-05   2010-01-15       0  4    3 Duplicate</span>
-<span class="co">#&gt; 5     5 2010-01-07   2010-01-15       0  5    5      Case</span>
-<span class="co">#&gt; 6     6 2010-01-04   2010-01-13       0  6    6      Case</span>
-<span class="co">#&gt; 7     7 2010-01-20   2010-01-30       0  7    7      Case</span>
-<span class="co">#&gt; 8     8 2010-01-26   2010-01-31       0  8    8      Case</span>
+<span class="co">#&gt; 3     3 2010-01-10   2010-01-13       0  3    3      Case</span>
+<span class="co">#&gt; 4     4 2010-01-05   2010-01-06       0  4    4      Case</span>
+<span class="co">#&gt; 5     5 2010-01-05   2010-01-15       0  5    4 Duplicate</span>
+<span class="co">#&gt; 6     6 2010-01-07   2010-01-15       0  6    6      Case</span>
+<span class="co">#&gt; 7     7 2010-01-04   2010-01-13       0  7    7      Case</span>
+<span class="co">#&gt; 8     8 2010-01-20   2010-01-30       0  8    8      Case</span>
+<span class="co">#&gt; 9     9 2010-01-26   2010-01-31       0  9    9      Case</span>
 
 <span class="co"># grouping periods of admissions into episodes</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
@@ -489,12 +490,13 @@ hospital_records<span class="op">$</span>admin_period &lt;-<span class="st"> </s
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    2 Duplicate</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    2 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    2 Duplicate</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    7 Duplicate</span></code></pre></div>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    2 Duplicate</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    2 Duplicate</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    2 Duplicate</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    8 Duplicate</span></code></pre></div>
 <p>Time intervals can overlap in different ways, so you can use the <code>overlap_method</code> argument to choose how this is done when using <code><a href="../reference/episode_group.html">episode_group()</a></code>. The options available are <code>"overlap"</code> (default), <code>"overlap"</code>, <code>"within"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. The examples and figure below demonstrates their differences.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># overlaping intervals</span>
 overlap &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
@@ -502,18 +504,19 @@ overlap &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdoc
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">overlap_method =</span> <span class="st">"overlap"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
 
 overlap
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
-<span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
+<span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    1      Case</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    2 Duplicate</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    2 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    2 Duplicate</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    7 Duplicate</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    3      Case</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    4      Case</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    2 Duplicate</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    2 Duplicate</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    2 Duplicate</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    8 Duplicate</span>
 
 <span class="co"># chained intervals</span>
 chain &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
@@ -527,12 +530,13 @@ chain
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    3      Case</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    4      Case</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    5      Case</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    4      Case</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    6      Case</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span>
 
 <span class="co"># Intervals with aligned end periods</span>
 aligns_end &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
@@ -540,18 +544,19 @@ aligns_end &lt;-<span class="st"> </span><span class="kw"><a href="https://www.r
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">overlap_method =</span> <span class="st">"aligns_end"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
-<span class="co">#&gt; Episode grouping complete - 6 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 
 aligns_end
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    1      Case</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    3      Case</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    4      Case</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    4 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    7 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    4      Case</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    5 Duplicate</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span>
 
 <span class="co"># Intervals with aligned start periods</span>
 aligns_start &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
@@ -559,18 +564,19 @@ aligns_start &lt;-<span class="st"> </span><span class="kw"><a href="https://www
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">overlap_method =</span> <span class="st">"aligns_start"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt) 
-<span class="co">#&gt; Episode grouping complete - 4 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 
 aligns_start
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    4 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    4      Case</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    5      Case</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    3      Case</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    5 Duplicate</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    6      Case</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span>
 
 <span class="co"># Intervals occuring completely within others</span>
 within &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
@@ -578,20 +584,41 @@ within &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocu
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
                 <span class="dt">overlap_method =</span> <span class="st">"within"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 
 within
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
+<span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    1      Case</span>
+<span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    5 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    6      Case</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span>
+
+<span class="co"># Intervals occuring completely within others</span>
+chain_within &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
+  hospital_records,
+  <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
+                <span class="dt">overlap_method =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"chain"</span>,<span class="st">"within"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>)
+  ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
+<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
+
+chain_within
+<span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    4      Case</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    4 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</span></code></pre></div>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    6      Case</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span></code></pre></div>
 <p><strong>Figure 1: Options for <code>overlap_method</code></strong> <img src="episode_group_files/figure-html/unnamed-chunk-12-1.png" width="768"></p>
-<p>You can also use a combination of the options as below.</p>
+<p>As with the last example above, you can use different combinations of each <code>overlap_method</code> option. More example below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># chain and alings_end</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   hospital_records,
@@ -603,12 +630,13 @@ within
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    3      Case</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    4      Case</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    4 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    4      Case</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    5 Duplicate</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span>
 
 <span class="co"># alings_start and alings_end</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
@@ -617,17 +645,18 @@ within
                 <span class="dt">overlap_method =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"aligns_start"</span>,<span class="st">"aligns_end"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC  3    4 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC  4    4      Case</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC  5    4 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC  6    6      Case</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</span></code></pre></div>
-<p>As with time points, you can also have rolling episodes of intervals.</p>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC  3    7 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC  4    5 Duplicate</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC  5    5      Case</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC  6    5 Duplicate</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC  7    7      Case</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span></code></pre></div>
+<p>You can also have rolling episodes of intervals.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">
 <span class="kw">mutate</span>(hospital_records, <span class="dt">recur_len =</span> <span class="dv">2</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(.,<span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(., <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
@@ -639,12 +668,13 @@ within
 <span class="co">#&gt;   rd_id epi_len                   admin_period recur_len sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC         2  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC         2  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC         2  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC         2  4    2 Duplicate</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC         2  5    2 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC         2  6    2 Duplicate</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC         2  7    7      Case</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC         2  8    7 Duplicate</span>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC         2  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC         2  4    2 Duplicate</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC         2  5    2 Duplicate</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC         2  6    2 Duplicate</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC         2  7    2 Duplicate</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC         2  8    8      Case</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC         2  9    8 Duplicate</span>
 
 <span class="kw">mutate</span>(hospital_records, <span class="dt">recur_len =</span> <span class="dv">10</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(.,<span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(., <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
@@ -656,13 +686,14 @@ within
 <span class="co">#&gt;   rd_id epi_len                   admin_period recur_len sn epid   case_nm</span>
 <span class="co">#&gt; 1     1       0 2010-01-01 UTC--2010-01-01 UTC        10  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2       0 2010-01-01 UTC--2010-01-10 UTC        10  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2010-01-05 UTC--2010-01-06 UTC        10  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-15 UTC        10  4    2 Duplicate</span>
-<span class="co">#&gt; 5     5       0 2010-01-07 UTC--2010-01-15 UTC        10  5    2 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2010-01-04 UTC--2010-01-13 UTC        10  6    2 Duplicate</span>
-<span class="co">#&gt; 7     7       0 2010-01-20 UTC--2010-01-30 UTC        10  7    2 Recurrent</span>
-<span class="co">#&gt; 8     8       0 2010-01-26 UTC--2010-01-31 UTC        10  8    2 Recurrent</span></code></pre></div>
-<p><code>"fixed"</code> episode grouping with a sufficiently large <code>case_length</code> in can yield the results in <code>"rolling"</code> episode grouping with a short <code>case_length</code> but long <code>recurrence_length</code>. However, it should be noted that this is not the same process despite similar results. See below.</p>
+<span class="co">#&gt; 3     3       0 2010-01-10 UTC--2010-01-13 UTC        10  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4       0 2010-01-05 UTC--2010-01-06 UTC        10  4    2 Duplicate</span>
+<span class="co">#&gt; 5     5       0 2010-01-05 UTC--2010-01-15 UTC        10  5    2 Duplicate</span>
+<span class="co">#&gt; 6     6       0 2010-01-07 UTC--2010-01-15 UTC        10  6    2 Duplicate</span>
+<span class="co">#&gt; 7     7       0 2010-01-04 UTC--2010-01-13 UTC        10  7    2 Duplicate</span>
+<span class="co">#&gt; 8     8       0 2010-01-20 UTC--2010-01-30 UTC        10  8    2 Recurrent</span>
+<span class="co">#&gt; 9     9       0 2010-01-26 UTC--2010-01-31 UTC        10  9    2 Recurrent</span></code></pre></div>
+<p><code>"fixed"</code> episode grouping with a sufficiently long <code>case_length</code> can give the same results as <code>"rolling"</code> episode grouping with a short <code>case_length</code> but sufficiently long <code>recurrence_length</code>. However, it’s important that they are not the same process despite similar results. See below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw">mutate</span>(hospital_records, <span class="dt">epi_len =</span><span class="dv">10</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(.,<span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(., <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len,
                         <span class="dt">display =</span> <span class="ot">FALSE</span>)
@@ -672,12 +703,13 @@ within
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1      10 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2      10 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3      10 2010-01-05 UTC--2010-01-06 UTC  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4      10 2010-01-05 UTC--2010-01-15 UTC  4    2 Duplicate</span>
-<span class="co">#&gt; 5     5      10 2010-01-07 UTC--2010-01-15 UTC  5    2 Duplicate</span>
-<span class="co">#&gt; 6     6      10 2010-01-04 UTC--2010-01-13 UTC  6    2 Duplicate</span>
-<span class="co">#&gt; 7     7      10 2010-01-20 UTC--2010-01-30 UTC  7    2 Duplicate</span>
-<span class="co">#&gt; 8     8      10 2010-01-26 UTC--2010-01-31 UTC  8    8      Case</span>
+<span class="co">#&gt; 3     3      10 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4      10 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
+<span class="co">#&gt; 5     5      10 2010-01-05 UTC--2010-01-15 UTC  5    2 Duplicate</span>
+<span class="co">#&gt; 6     6      10 2010-01-07 UTC--2010-01-15 UTC  6    2 Duplicate</span>
+<span class="co">#&gt; 7     7      10 2010-01-04 UTC--2010-01-13 UTC  7    2 Duplicate</span>
+<span class="co">#&gt; 8     8      10 2010-01-20 UTC--2010-01-30 UTC  8    2 Duplicate</span>
+<span class="co">#&gt; 9     9      10 2010-01-26 UTC--2010-01-31 UTC  9    9      Case</span>
 
 <span class="kw">mutate</span>(hospital_records, <span class="dt">epi_len =</span><span class="dv">10</span>) <span class="op">%&gt;%</span>
 <span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(.,<span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(., <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
@@ -688,12 +720,13 @@ within
 <span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
 <span class="co">#&gt; 1     1      10 2010-01-01 UTC--2010-01-01 UTC  1    2 Duplicate</span>
 <span class="co">#&gt; 2     2      10 2010-01-01 UTC--2010-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3      10 2010-01-05 UTC--2010-01-06 UTC  3    2 Duplicate</span>
-<span class="co">#&gt; 4     4      10 2010-01-05 UTC--2010-01-15 UTC  4    2 Duplicate</span>
-<span class="co">#&gt; 5     5      10 2010-01-07 UTC--2010-01-15 UTC  5    2 Duplicate</span>
-<span class="co">#&gt; 6     6      10 2010-01-04 UTC--2010-01-13 UTC  6    2 Duplicate</span>
-<span class="co">#&gt; 7     7      10 2010-01-20 UTC--2010-01-30 UTC  7    2 Duplicate</span>
-<span class="co">#&gt; 8     8      10 2010-01-26 UTC--2010-01-31 UTC  8    2 Recurrent</span></code></pre></div>
+<span class="co">#&gt; 3     3      10 2010-01-10 UTC--2010-01-13 UTC  3    2 Duplicate</span>
+<span class="co">#&gt; 4     4      10 2010-01-05 UTC--2010-01-06 UTC  4    2 Duplicate</span>
+<span class="co">#&gt; 5     5      10 2010-01-05 UTC--2010-01-15 UTC  5    2 Duplicate</span>
+<span class="co">#&gt; 6     6      10 2010-01-07 UTC--2010-01-15 UTC  6    2 Duplicate</span>
+<span class="co">#&gt; 7     7      10 2010-01-04 UTC--2010-01-13 UTC  7    2 Duplicate</span>
+<span class="co">#&gt; 8     8      10 2010-01-20 UTC--2010-01-30 UTC  8    2 Duplicate</span>
+<span class="co">#&gt; 9     9      10 2010-01-26 UTC--2010-01-31 UTC  9    2 Recurrent</span></code></pre></div>
 <p><a id="stratified_grouping"></a></p>
 </div>
 <div id="stratified-episode-grouping" class="section level2">
