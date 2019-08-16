@@ -8,7 +8,7 @@ library(lubridate)
 # Test 1
 data <- data.frame(date = seq.Date(dmy("01/04/2018"), dmy("31/05/2018"), by="3 days"))
 data$pid <- "Patient 1"
-data$episode_len <- 7
+data$episode_len <- 6
 data <- mutate(data, rd_id = row_number())
 
 test_1 <- episode_group(head(data,10), sn=rd_id, strata = pid, date = date, case_length = episode_len)
@@ -52,16 +52,11 @@ test_that("test rolling/recurring episodes", {
 
 })
 
-data_4 <- mutate(data_2, recurrence=4)
+data_4 <- mutate(data_2, recurrence=3)
 test_4 <- cbind(data_4,
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = FALSE), -sn, epid.1=epid, case.1=case_nm),
       select(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = FALSE), -sn, epid.2=epid, case.2=case_nm)
       )
-
-# k <- test_4
-# k$c1 <- c("Case",rep("Duplicate",4),rep("Recurrent",5))
-# k$c2 <- c("Case",rep("Duplicate",4),"Recurrent","Case",rep("Duplicate",3))
-# k
 
 test_that("test custom rc_length and roll_max 1", {
   expect_equal(test_4$epid.1, rep(1,10))
@@ -110,7 +105,7 @@ test_that("testing episodes_max and rolls_max combination", {
 })
 
 # Test 7
-data_7 <-  mutate(data_4, recurrence=3)
+data_7 <-  mutate(data_4, recurrence=2)
 data_7$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,3)), sep="")
 
 test_7 <- cbind(data_7,

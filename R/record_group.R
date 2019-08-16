@@ -7,7 +7,7 @@
 #' @param criteria Matching criteria. Records with matching values in these columns are grouped together.
 #' @param sub_criteria Matching sub-criteria. Additional conditions for a match at each stage (\code{criteria}).
 #' @param data_source Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.
-#' @param group_stats If \code{TRUE}, output will include one additional column (\code{pid_total}) with the number of records in each record group.
+#' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
 #' @param display If \code{TRUE}, status messages are not printed on screen.
 #'
 #' @return Dataframe
@@ -17,7 +17,7 @@
 #' \item \code{pid} - unique record group indentifier
 #' \item \code{pid_cri} - matching criteria each record
 #' \item \code{pid_dataset} - list of datasets in each record group
-#' \item \code{pid_dataset} - number of records in each record group
+#' \item \code{pid_total} - number of records in each record group
 #' }
 #'
 #' @seealso \code{\link{episode_group}}
@@ -105,8 +105,24 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
   df_vars <- names(df)
 
+  rd_sn <- enq_vr(df, dplyr::enquo(sn))
+
+  sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
   cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
-  sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
+
+  #assertions
+  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
+
+  if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
+
+  if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df) )){
+    missing_cols <- subset(names(df), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
+    missing_cols <- paste(missing_cols, collapse = "," )
+    stop(paste(missing_cols, "not found in the dataset"))
+  }
+
+  #cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
+  #sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
 
   if(is.null(ds)){
     df$dsvr <- "A"
@@ -266,7 +282,6 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     df <- dplyr::select(df, -.data$pr_sn)
 
    pd <- ifelse(display,"\n","")
-   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID." , sep =""))
-   cat("\n ---------------------------------------------------------------------------------------------------- \n \n")
-  df
+   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID. \n" , sep =""))
+   df
 }
