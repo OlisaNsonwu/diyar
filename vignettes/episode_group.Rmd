@@ -361,7 +361,7 @@ plot <- mutate(plot,
   mrk=paste(epid, method,sep="_"),
   admin_dt = int_start(admin_period),
   discharge_dt = int_end(admin_period)
-  )
+  ) %>% select(-admin_period)
 
 plot <- dplyr::arrange(plot, .data$mrk)
 plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)

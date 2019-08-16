@@ -115,7 +115,6 @@
 <p>Below are two implementation of a single stage record linkage. One is based on matching forename, and the other is based on forename and surname.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)
-<span class="co">#&gt; Warning: package 'dplyr' was built under R version 3.5.2</span>
 
 patient_list &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(
   <span class="dt">rd_id =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">6</span>,
@@ -130,8 +129,30 @@ patient_list &lt;-<span class="st"> </span><span class="kw"><a href="https://www
   patient_list,
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list, rd_id, forename)
   )
+<span class="co">#&gt; Warning: `lang()` is deprecated as of rlang 0.2.0.</span>
+<span class="co">#&gt; Please use `call2()` instead.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
+<span class="co">#&gt; Warning: `new_overscope()` is deprecated as of rlang 0.2.0.</span>
+<span class="co">#&gt; Please use `new_data_mask()` instead.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
+<span class="co">#&gt; Warning: `overscope_eval_next()` is deprecated as of rlang 0.2.0.</span>
+<span class="co">#&gt; Please use `eval_tidy()` with a data mask instead.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
+<span class="co">#&gt; Warning: `is_lang()` is deprecated as of rlang 0.2.0.</span>
+<span class="co">#&gt; Please use `is_call()` instead.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
+<span class="co">#&gt; Warning: `mut_node_car()` is deprecated as of rlang 0.2.0.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
+<span class="co">#&gt; Warning: The `printer` argument is deprecated as of rlang 0.3.0.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
+<span class="co">#&gt; Warning: `lang_modify()` is deprecated as of rlang 0.2.0.</span>
+<span class="co">#&gt; Please use `call_modify()` instead.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Group criteria 1 - `forename`</span>
+<span class="co">#&gt; Warning: `chr_along()` is deprecated as of rlang 0.2.0.</span>
+<span class="co">#&gt; This warning is displayed once per session.</span>
+<span class="co">#&gt; </span>
 <span class="co">#&gt; 5 of 6 record(s) have been assigned a group ID. 1 records not yet grouped.</span>
 <span class="co">#&gt; 5 record(s) with unique IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 6.</span>
 <span class="co">#&gt; </span>
@@ -198,7 +219,6 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <p><a id="sub_cri_example"></a></p>
 <p>Below are examples of record linkage using different combinations of the same <code>criteria</code> and <code>sub_criteria</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tidyr)
-<span class="co">#&gt; Warning: package 'tidyr' was built under R version 3.5.2</span>
 
 staff_list &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(
   <span class="dt">rd_id =</span> <span class="dv">1</span><span class="op">:</span><span class="dv">8</span>,
