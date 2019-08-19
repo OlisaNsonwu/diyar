@@ -61,7 +61,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/OlisaNsonwu/diyar">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -76,7 +83,7 @@
       <h1>Getting started with record_group</h1>
             
       
-      
+      <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/record_group.Rmd"><code>vignettes/record_group.Rmd</code></a></small>
       <div class="hidden name"><code>record_group.Rmd</code></div>
 
     </div>
@@ -468,7 +475,7 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
 <div id="conclusion" class="section level1">
 <h1 class="hasAnchor">
 <a href="#conclusion" class="anchor"></a>Conclusion</h1>
-<p>As a rule of thumb, the more unique a criteria, the earlier it shouldbe listed in <code>criteria</code>. Also, the set and ordering of <code>criteria</code> is a personal choice but should also be practical given the dataset. For example, when linking a vehicular database with no existing identifier, vehicle color alone is less practical than color and brand name, which in turn is less practical than color, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and would need to be relaxed. On the other hand, the dataset could be so small that vehicle color alone is sufficient as a <code>criteria</code>. <code><a href="../reference/record_group.html">record_group()</a></code> aims to minimize false mismatches due to random data error or missing values however, the choice and ordering of <code>criteria</code> and <code>sub_criteria</code> should balance the availability of alternative identifiers with their practicality as group identifiers.</p>
+<p>As a rule of thumb, the more unique a criteria, the earlier it should be listed in <code>criteria</code>. Also, the set and ordering of <code>criteria</code> is a personal choice but should also be practical given the dataset. For example, when linking a vehicular database with no existing identifier, vehicle color alone is less practical than color and brand name, which in turn is less practical than color, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and would need to be relaxed. On the other hand, the dataset could be so small that vehicle color alone is sufficient as a <code>criteria</code>. <code><a href="../reference/record_group.html">record_group()</a></code> aims to minimize false mismatches due to random data error or missing values however, the choice and ordering of <code>criteria</code> and <code>sub_criteria</code> should balance the availability of alternative identifiers with their practicality as group identifiers.</p>
 </div>
   </div>
 

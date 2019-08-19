@@ -2,7 +2,7 @@ Package: diyar
 Type: Package
 Title: Record linkage and case definitions for epidemiological analysis
 Version: 1.0.0
-URL: https://olisansonwu.github.io/diyar
+URL: https://github.com/OlisaNsonwu/diyar
 Author: Olisa Nsonwu
 Maintainer: Olisa Nsonwu <olisa.nsonwu@gmail.com>
 Description: A set of functions to deterministically link, deduplicate, and apply case definitions to multiple datasets

@@ -61,7 +61,14 @@
   </ul>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right"></ul>
+<ul class="nav navbar-nav navbar-right">
+<li>
+  <a href="https://github.com/OlisaNsonwu/diyar">
+    <span class="fa fa-github fa-lg"></span>
+     
+  </a>
+</li>
+      </ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -73,24 +80,35 @@
       </header><div class="row">
   <div class="contents col-md-9">
 
-<p>Deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in healthcare research and in other fields of research. The diyar package aims to simplify the assignment of identifiers that group repeat occurrences under the same individual.</p>
-<p>diyar also aims to make deterministic linkage of records between different datasets easier.</p>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
+<div id="overview" class="section level1">
+<div class="page-header"><h1 class="hasAnchor">
+<a href="#overview" class="anchor"></a>Overview</h1></div>
+<p>Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in healthcare research and in other fields of research.</p>
+<p>The diyar package aims to simplify the assignment of unique identifiers for matching records and repeat occurrences within a specified period.</p>
+</div>
+<div id="installation" class="section level1">
+<h1 class="hasAnchor">
+<a href="#installation" class="anchor"></a>Installation</h1>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)
 devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"OlisaNsonwu/diyar"</span>)</code></pre></div>
-</div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
-<p>A vignette is coming soon.</p>
+<p>This package has two functions; <code><a href="reference/record_group.html">record_group()</a></code> and <code><a href="reference/episode_group.html">episode_group()</a></code>. Please visit <a href="https://olisansonwu.github.io/diyar/index.html">here</a> for an introduction to both.</p>
+</div>
 </div>
 
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <div class="license">
+    <div class="links">
+<h2>Links</h2>
+<ul class="list-unstyled">
+<li>Browse source code at <br><a href="https://github.com/OlisaNsonwu/diyar">https://​github.com/​OlisaNsonwu/​diyar</a>
+</li>
+</ul>
+</div>
+<div class="license">
 <h2>License</h2>
 <ul class="list-unstyled">
 <li>
