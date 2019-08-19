@@ -16,44 +16,54 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Overview
+There are a varierty of ways to use this function. It's worth reviewing your case definition and its implication on the dataset before using this function. In general the following steps will guide you in using this function;
+
+1. work out which columns should be the `strata`
+2. choose whether you need `"fixed"` or `"rolling"` episodes
+3. choose whether you are grouping individual events or a duration of events by supply a date, datetime or `lubridate interval` object as required. See [interval grouping](#interval_grouping)
+4. create a colum for `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata)
+5. change `from_last` to `TRUE`if you want to start episode grouping at the most recent record thereby making it the `"Case"`. Note that this is not the same as starting episode grouping at the earliest record (`from_last` is `FALSE`) and then picking the most recent record in that episode as the `"Case"`. See [case assignment](#case_assignment)
+6. if you require the `"Case"` to be the earliest or most recent record from a particular type of record use `custom_sort` in combination with `from_last`. If not, ignore this argument. See [user defined case assignment](#custom_sort)
+7. if you require episodes to include records on either side of the `"Case"` use `bi_direction`. If not, ignore this argument
+8. determine if episodes are occuring by the minute, hour or day etc. #Set `episode_unit` accordingly
+
 #Introduction
-Deduplicating records is a main aspect of applying case definitions in epidemiological analysis. In these analysis, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
+Deduplicating records is a main part of case definitions in epidemiological analysis. In these analysis, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
 
 `episode_group()` aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time. 
 
 #Uses
-Arguments in `episode_group()` can be used in different combinations to deduplicate datasets in a varierty of ways. The flexible application of both [`record_group`](record_group.html) and `episode_group()` can allow you implement a varierty of case definitions to a dataset. Below are some examples;
+The arguments in `episode_group()` can be used to deduplicate records in different ways. The flexible application of both [`record_group`](record_group.html) and `episode_group()` can allow you apply a variety of case definitions to a dataset. Below are some examples;
 
-1. Group events into episodes lasting a fixed period (`case_length`) from a reference event (`"Case"`). See [episode grouping](#episode_grouping)
-2. Create episodes that continue to re-occur within a fixed period (`recurrence_length`) of the most recent `"Duplicate"` or `"Recurrent"` event
+1. Group events (dated records) or intervals (records with start and end periods) into episodes lasting a fixed period (`case_length`) from a reference event or interval (`"Case"`). See [episode grouping](#episode_grouping)
+2. Create episodes that continue to reoccur within a fixed period (`recurrence_length`) of the last event or interval
 3. Create episodes as in examples 1 and 2, and specify which event is considered the `"Case"`. See [case assignment](#case_assignment)
-4. Create episodes with a different `case_length` and/or `recurrence_length` in one or more datasets. See [stratified grouping](#stratified_grouping)
+4. Create episodes with different a different `case_length` and/or `recurrence_length` for different subsets of a dataset. See [stratified grouping](#stratified_grouping)
 5. Create episodes of overlaping events (time points) e.g. days, minutes, hours. See [Useful ways of using episode_group](#tips)
-6. Create episodes overlaping intervals (time periods) e.g. period of days, minutes or hours. See [interval grouping](#interval_grouping)
+6. Create episodes overlaping intervals (time periods) e.g. periods of days, minutes or hours. See [interval grouping](#interval_grouping)
 
 #Implementation 
 
 <a id= "episode_grouping"></a>
 
 ##Episode grouping
-An episode as produced by `episode_group()` is a set of events (records) within a particular time period. Each episode begins with a reference event (`"Case"`), and each subsequent event within the episode is flagged as a `"Duplicate"` of the `"Case"`.
+An episode as produced by `episode_group()` is a set of events/intervals within a specific time period. Each episode begins with a reference event/interval (`"Case"`), and each subsequent event/interval within the episode is flagged as a `"Duplicate"` of the `"Case"`.
 
 `episode_group()` can produce two type of episodes described below; 
 
-- A `"fixed"` episode - where all events/periods are within a fixed `case_length` of the `"Case"`. All `"fixed"` episodes in the same [`strata`](#stratified_grouping) will have the same maximum episode length (`epid_length`). See [stratified grouping](#stratified_grouping)
+- `"fixed"` episodes - all events/intervals are within the `case_length` of the `"Case"`. Any events/intervals after the `case_length` of the initial `"Case"` is considered a new epsiode. See [stratified grouping](#stratified_grouping)
 
-- A `"rolling"` episode - where all events/periods within a fixed `case_length` of the `"Case"`, and those within the periods of recurrence are grouped into an episode. See [episodes windows and recurrence periods](#recurrence).
+- `"rolling"` episodes - all events/intervals within the `case_length` of the `"Case"`, and those within periods of recurrence are grouped into episodes. See [episodes windows and recurrence periods](#recurrence).
 
-Note that a `"fixed"` episode will only have duplicates of the `"Case"` but a `"rolling"` episode may have duplicates of both the `"Case"` and `"Recurrent"` events/periods.
+Note that a `"fixed"` episode will only have duplicates of the `"Case"` but a `"rolling"` episode may have duplicates of both the `"Case"` and `"Recurrent"` events/intervals.
 
 <a id ="recurrence" ><a/> 
 
-##Episode length and recurrence periods
-Episode window (`epid_interval`) is the period between the `"Case"` and the episode's last event, or end period of the last interval. For `"fixed"` episodes, the maximum episode length (`epid_length`) is equal to the `"case_length"`.
+##Episode windows and recurrence periods
+An episode window (`epid_interval`) is the period between the `"Case"` and the episode's last event, or the end period of the last interval. For `"fixed"` episodes, the maximum episode length (`epid_length`) is equal to the `"case_length"`.
 
-A recurrence period is the period between the last event or period in an episode and a specified `recurrence_length` afterwards. Only `"rolling"` episodes can have a recurrence period. In addition, there can be multiple recurrence periods within one episode. For a `"rolling"` episode, the episode window (`epid_interval`) is the period covering the initial `case_length` and all recurrence periods.
-
-**Include image**
+A recurrence period is the period between the last event/interval in an episode and a specified `recurrence_length` afterwards. Only `"rolling"` episodes can have a recurrence period. There can also be multiple recurrence periods within one episode. For a `"rolling"` episode, the episode window (`epid_interval`) is the period covering the initial `case_length` and all recurrence periods of the episode.
 
 The two examples below demonstrates the different implementations of `"fixed"` and `"rolling"` episode grouping.
 
@@ -70,47 +80,98 @@ infections <- data.frame(
 )
 
 # Fixed episode
-cbind(
+fixed_episodes <- cbind(
   infections,
-  episode_group(infections, rid, pid, date, epi, group_stats = TRUE)
+  episode_group(infections, rid, pid, date, epi, 
+                group_stats = TRUE)
   )
+
+fixed_episodes
 
 ```
 
-Records 1 to 3 are assigned a unique episode ID (`"1"`). In this instance, record 1 is considered the initial `"Case"` and records 2 and 3 its duplicates. This is because records 2 and 3 are dated within 14 days of record 1. Record 4 is dated after this 14-day period and hence begins a new `"Case"` which is assigned episode ID `"4"`. Record 5 is within 14 days of record 4 (`"Case"`) and so considered a `"Duplicate"` of record 4 and assigned the same episode ID as record 4. This process continues chronologically until all records have been assigned an episode ID.
+Records 1 to 3 are assigned a unique episode ID (`"1"`) (Table 1). In this instance, record 1 is considered the initial `"Case"` and records 2 and 3 its duplicates. This is because records 2 and 3 are dated within 15 days of record 1 (difference of 14 days). Record 4 is dated after this 15-day period and hence begins a new `"Case"` which is assigned episode ID `"4"`. Record 5 is within 15 days of record 4 (`"Case"`), so it's considered a `"Duplicate"` of record 4 and assigned the same episode ID as record 4. This process continues chronologically until all records have been assigned an episode ID.
 
 #### Example of `"rolling"` episode grouping
 ```{r warning=FALSE, message=FALSE}
 # Rolling episode
 # Progress messages can be turned off using the display argument
-cbind(
+rolling_episodes <- cbind(
   infections,
   episode_group(infections, sn = rid, strata = pid, date =date, 
-                case_length = epi, episode_type = "rolling", recurrence_length = recur, 
+                case_length = epi, episode_type = "rolling",
+                recurrence_length = recur, 
                 display = FALSE, group_stats = TRUE)
   )
 
+rolling_episodes
+
 ```
 
-In the `"rolling"` episode example, records 1 to 3 are also considered the same episode and therefore assigned the same episode ID. However, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case"`, instead it's considered a `"Recurrent"` record because it's within 7 days of the last `"Duplicate"` (record 3). Similarly, record 5 is within 7 days of the last `"Recurrent"` record (record 4). Record 6 is not within 14 days of the `"Case"` and not within 7 days of the last `"Recurrent"` record or its  `"Duplicate"`, and so can now be considered a new `"Case"`. `"Recurrent"` records are indicated in `case_nm` but are considered the same episode as the `"Case"`. This is why records 1 to 5 have the same episode ID.
+In the `"rolling"` episode example, records 1 to 3 are also considered the same episode and therefore assigned the same episode ID (Table 1). However, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case"`, instead it's considered a `"Recurrent"` record because it's within 8 days of the last `"Duplicate"` (record 3). Similarly, record 5 is within 8 days of the last `"Recurrent"` record (record 4). Record 6 is not within 15 days of the `"Case"` and not within 8 days of the last `"Recurrent"` record or its  `"Duplicate"`, and so can now be considered a new `"Case"`. `"Recurrent"` records are indicated in `case_nm` but are considered the same episode as the `"Case"`. This is why records 1 to 5 have the same episode ID.
 
-Note that if there are `"Duplicate"` records, the recurrence period will start from the last `"Duplicate"` not the last `"Recurrent"` record. The `"Recurrent"` record is simply the first record (excluding the `"Duplicate"`) in the recurrence period. For example, in `infections_2` below, record 6 is considered a `"Recurrent"` record because it's within 7 days of the record 5 (`"Duplicate"`) even though it's more than 7 days after record 4, the `"Recurrent"` record.
+Note that recurrence periods start from the last record (`"Case"`, `"Duplicate"` or `"Recurrent"`) within the `case_length` or previous reccurence period i.e. the `"Recurrent"` record is the first `"Duplicate"` of the last record within in previous `case_length` or `recurrence_length`.
 
-```{r warning=FALSE}
-infections_2 <- infections
-infections_2$date <- c(seq.Date(dmy("01/04/2019"), dmy("25/04/2019"), "5 day")[1:3], 
-                     dmy("12/04/2019"), dmy("17/04/2019"), dmy("20/04/2019"))
-infections_2$epi <- 11
+*Table 1: `"Fixed"` and `"rolling"` episode grouping with their respective `case_lenth` and `recurrence_length`* 
+```{r echo=FALSE, fig.height=4, fig.width= 8, warning=FALSE}
+library(tidyr)
+library(ggplot2)
+plot <- bind_rows(
+  mutate(rolling_episodes, method="rolling episodes"),
+  mutate(fixed_episodes, method="fixed episodes")
+  ) %>% 
+  mutate(mrk=paste(epid,method,sep = "_"),
+         mrk_2=paste(epid,method,case_nm, sep = "_"))
 
-cbind(
-  infections_2,
-  episode_group(infections_2, sn = rid, strata = pid, date =date, 
-                case_length = epi, episode_type = "rolling", recurrence_length = recur, 
-                display = FALSE)
+plot <- dplyr::arrange(plot,mrk)
+plot$n <- sequence(rle(plot$mrk)$lengths)
+plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)
+
+plot <- dplyr::arrange(plot, mrk_2)
+plot$n2 <- sequence(rle(plot$mrk_2)$lengths)
+plot$N2 <- rep(rle(plot$mrk_2)$lengths, rle(plot$mrk_2)$lengths)
+
+plot <- plot %>%
+  mutate(epid_2 = paste(method, ": epid ",epid, sep="" )) %>% 
+  select(rid, epid, date, method, epid_2, case_nm, N, n, N2, n2, epi, recur) %>%
+  mutate(cd="A", rid=as.character(rid))
+
+lens_plot <- filter(
+  plot, 
+  ! (case_nm=="Duplicate" & n2==N2 & n!=N)
+  )
+
+#lens_plot <- filter(plot, N!=1 & n!=N)
+lens_plot <- filter(lens_plot, (case_nm=="Duplicate" & n!=N & n2==N2) | case_nm !="Duplicate")
+
+lens_plot <- mutate(lens_plot,
+                    end_l= ifelse(case_nm=="Case", epi, recur),
+                    end = date + duration(end_l, "days"))
+
+lens_plot <- select(lens_plot, rid, date, end,
+                    epid, epid_2, case_nm, method)
+
+lens_plot <- gather(lens_plot, var, val, -c(rid, epid, epid_2, case_nm, method)) 
+
+ggplot(plot, aes(x=date, y=rid, group=rid, label=case_nm, colour=epid_2)) +
+  geom_line(aes(colour=epid_2)) +
+  geom_point() +
+  geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
+  scale_y_discrete("Record ID") +
+  scale_x_date("Specimen date", limits = c(dmy("15/03/2019"), dmy("01/07/2019") ), date_breaks = "25 days", date_labels = "%d %b") +
+  geom_line(data=lens_plot, aes(x=val, y=rid, group=rid, colour=epid_2), linetype=2) +
+  facet_wrap(~method, scales = "free_y") +
+  theme(
+    strip.background = element_rect(fill="transparent"),
+    axis.line = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank()
   )
 ```
 
-By default, `episode_group()` will continue checking for `"Recurrent"` records and expanding the episode until all records have been grouped into episodes. However, you can choose the maximum number of times an episode can re-occur using `rolls_max`.
+
+By default, `episode_group()` will continue checking for `"Recurrent"` records, prolonging the episode until all records have been grouped into episodes. However, you can limit the maximum number of recurrence periods using `rolls_max`.
 
 ```{r warning=FALSE, message=FALSE}
 infections_3 <- data.frame(
@@ -126,7 +187,7 @@ cbind(
                 episode_type = "rolling", recurrence_length = recur, display = FALSE)
   )
 
-# Maximum of 1 recurrence period per episode
+# Maximum of one recurrence period per episode
 cbind(
   infections_3,
   episode_group(infections_3, sn = rid, strata = pid, date =date, case_length = epi, 
@@ -134,7 +195,7 @@ cbind(
                 display = FALSE)
   )
 
-# Maximum of 2 recurrence periods per episode
+# Maximum of two recurrence periods per episode
 cbind(
   infections_3,
   episode_group(infections_3, sn = rid, strata = pid, date =date, case_length = epi, 
@@ -143,10 +204,10 @@ cbind(
   )
 ```
 
-Similarly, you can chose the maximum number of times to group records into episodes. This can be done with `episode_max` as shown below. Once `episode_max` is reached, any record not yet grouped is assigned a unique episode ID and considered a unique `"Case"`. `episode_max` can be used in both `"rolling"` and `"fixed"` episode grouping.
+Similarly, you can limit the maximum number of times to creates episodes (per `strata`) using `episode_max`. Once `episode_max` is reached, any record not yet grouped is assigned a unique episode ID and considered a unique `"Case"`. `episode_max` can be used in both `"rolling"` and `"fixed"` episode grouping.
 
 ```{r warning=FALSE, message=FALSE}
-# Maximum of 1 episode with 1 recurrence period
+# Maximum of one episode with one recurrence period
 cbind(
   infections_3,
   episode_group(infections_3, sn = rid, strata = pid, date =date,  case_length = epi, 
@@ -154,7 +215,7 @@ cbind(
                 rolls_max = 1, episodes_max = 1, display = FALSE)
   )
 
-# Maximum of 2 episodes with 1 recurrence period
+# Maximum of two episodes with one recurrence period
 cbind(
   infections_3,
   episode_group(infections_3, sn = rid, strata = pid, date =date,  case_length = epi, 
@@ -167,7 +228,7 @@ cbind(
 <a id="case_assignment"></a> 
 
 ## Case assignment
-Unless otherwise specified, episode grouping begins at the earliest record and proceeds to the most recent record. Therefore, the earliest record in an episode will be considered the `"Case"`. You can opt for the opposite behaviour by changing `from_last` to `TRUE`. Doing this will start episode grouping at the most recent record and proceed backwards to the earliest record, thereby making the most recent record the `"Case"`.
+Unless otherwise specified, episode grouping begins at the earliest event/interval and proceeds to the most recent one. Therefore, the earliest event/interval in the `case_length` is considered the `"Case"`. Similarly, the earliest event/interval in the `recurrence_length` is considered the `"Recurrent"` event/interval. You can opt for the opposite behaviour by changing `from_last` to `TRUE`. Doing this will start episode grouping at the most recent event/interval and proceed backwards to the earliest one, thereby making the earliest one the `"Case"`.
 
 ```{r warning=FALSE}
 # Episode grouping in chronological order
@@ -187,11 +248,11 @@ cbind(
 <a id ="custom_sort"></a>
 
 ### User defined case assignment
-You can specify a different preference for case assignment using `custom_sort`. This is done by selecting one or more columns whose values when sorted in ascending order specifies your preference. 
+You can specify a different preference for case assignment from what's been described above. This is using `custom_sort` which is an ordered selection of columns, whose values when sorted in ascending order specifies the required preference. 
 
-As an example, we can use this feature to implement a case definition where *E. coli* urinary tract infections (UTI) are considered precursors to *E. coli* bloodstream infections (BSI). Therefore we need to create the episodes in such a way that if there are UTI and BSI records within the same episode window (`case_length` only), then episode grouping should start from the UTI record. 
+As an example, this feature can be used to implement a case definition where *E. coli* urinary tract infections (UTI) are considered precursors to *E. coli* bloodstream infections (BSI). Therefore, episodes need to be created in such a way that; if there are UTI and BSI records within the `case_length`, then episode grouping will start from the UTI record. 
 
-The column(s) used for `custom_sort` can either be `"character"`, `"numeric"` or `"factor"` data types. However, note that each would obey standard `R` sort behaviour. This means a `factor` will sort on its levels not its descriptive label. See examples of this below.
+The column(s) used for `custom_sort` can either be `"character"`, `"numeric"` or `"factor"` data types. However, note that each would follow `R` standard sort behaviour. For example, a `factor` will sort on its levels not its descriptive label. See examples of this below.
 
 ```{r warning=FALSE}
 infections_4 <- mutate(infections, infx=ifelse(row_number() %in% c(2,5), "E. coli UTI", infx))
@@ -209,11 +270,9 @@ cbind(
 
 ```
 
-By default episode grouping occurs in chronological order (forward) or reverse chronological order (backward) depending on whether `from_last` is `FALSE` or `TRUE` respectively. `custom_sort` alters this behaviour and therefore impacts how episodes are grouped. 
+In the second example above, after changing the sort preference using the factor's levels, record 1 (*E. coli* BSI)  and record 2 (*E. coli* UTI) are no longer grouped in the same episode. This is because record 2, is now the reference record, and since record 1 occurred before record 2, it's not considered the same episode. 
 
-In the second example above, after changing the sort preference using factor levels, record 1 (*E. coli* BSI)  and record 2 (*E. coli* UTI) are no longer grouped in the same episode. This is because record 2, is now the reference record, and since record 1 occurred before record 2, it's not considered the same episode. 
-
-This behaviour may suffice depending on your case definition however, you can change this by changing `bi_direction` to `TRUE`. This will ensure that records within the `case_length` or `recurrence_length` on either sides of the reference record are grouped together. Compared to the example above, the one below now considers record 1 a duplicate of record 2, eventhough it occured before record 2.
+This behaviour may suffice depending on your case definition however, you can change this using `bi_direction`. If `TRUE`, records within the `case_length` or `recurrence_length` on either sides of the `"Case"` or `"Recurrent"` events/intervals are grouped together. See the example below where record 1 is now considered a duplicate of record 2 eventhough it occured before record 2.
 
 ```{r warning=FALSE}
 cbind(
@@ -224,12 +283,11 @@ cbind(
 
 ```
 
-A different approach can be to create episodes without `custom_sort` and then recode `case_nm` thereby picking a different record as the "case". While this may be your desired approach, it's important to note that this is not the same as using `custom_sort`. This is because case assignment determines which record episode grouping starts from. 
+A different approach can be to create episodes without `custom_sort` and then recode `case_nm` thereby picking a different record as the "case". This can be the desired approach but it's important to note that this is not the same as using `custom_sort`. This is because using `custom_sort` also determines where episode grouping begins while episode grouping is already complete by the time `case_nm` is recoded. 
 
 As seen below, using the second approach also yields three episodes just as above. However, record 4 belongs to different episodes in both. This is because even though, `case_nm` has been now been recoded such that record 2 is the `"Case"`, episode grouping did not start at record 2.
 
 ```{r warning=FALSE}
-library(tidyr)
 
 cbind(
   infections_4,
@@ -253,23 +311,25 @@ cbind(
 <a id="interval_grouping"></a>
 
 ## Interval grouping
-In addition to time points (e.g. a day, minute or hour), you can also group time intervals (e.g. lengths of days, minutes or hours) into episodes. To to this, supply the start and end periods as a `lubridate` `interval` to the `date` argument. For example, you can group periods of hospital admissions into episodes. See the example below;
+In addition to grouping events that occured at a point in time (e.g. a day, minute or hour), you can also group time intervals (e.g. a period of days, minutes or hours) into episodes. For the purpose of episode grouping, an interval is a record with a start and end points in times. Each is created as a `lubridate` `interval` and supplied to the `date` argument. 
+
+As an example, you can group periods of hospital admissions into episodes. Each period will be a record with admission and discharge dates as the start and end dates respectively of `lubridate` `interval`. See the example below;
 
 ```{r warning=FALSE}
 hospital_records <- data.frame(
     rd_id = 1:9,
-  admin_dt = c(dmy("01/01/2010"), dmy("01/01/2010"), dmy("10/01/2010"), dmy("05/01/2010"), 
-               dmy("05/01/2010"), dmy("07/01/2010"), dmy("04/01/2010"),
-               dmy("20/01/2010"), dmy("26/01/2010")),
-  discharge_dt = c(dmy("01/01/2010"), dmy("10/01/2010"), dmy("13/01/2010"), dmy("06/01/2010"), 
-                   dmy("15/01/2010"), dmy("15/01/2010"), dmy("13/01/2010"), 
-                   dmy("30/01/2010"), dmy("31/01/2010"))
+  admin_dt = c(dmy("01/01/2019"), dmy("01/01/2019"), dmy("10/01/2019"), dmy("05/01/2019"), 
+               dmy("05/01/2019"), dmy("07/01/2019"), dmy("04/01/2019"),
+               dmy("20/01/2019"), dmy("26/01/2019")),
+  discharge_dt = c(dmy("01/01/2019"), dmy("10/01/2019"), dmy("13/01/2019"), dmy("06/01/2019"), 
+                   dmy("15/01/2019"), dmy("15/01/2019"), dmy("13/01/2019"), 
+                   dmy("30/01/2019"), dmy("31/01/2019"))
   )
 
 hospital_records$epi_len <- 0
 hospital_records$admin_period <- interval(hospital_records$admin_dt, hospital_records$discharge_dt)
 
-# grouping admissions into episodes
+# grouping admissions events into episodes
 cbind(
   hospital_records,
   episode_group(hospital_records, date=admin_dt, sn=rd_id, case_length = epi_len, 
@@ -284,7 +344,7 @@ cbind(
   ) %>% select(-admin_dt, -discharge_dt)
 ```
 
-Time intervals can overlap in different ways, so you can use the `overlap_method` argument to choose how this is done when using `episode_group()`. The options available are `"overlap"` (default), `"overlap"`, `"within"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The examples and figure below demonstrates their differences.
+Time intervals can overlap in different ways, the function allows you choose how this happens using the `overlap_method` argument. The options available are; `"overlap"`, `"within"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates their differences.
 
 ```{r warning=FALSE}
 # overlaping intervals
@@ -343,11 +403,8 @@ chain_within
 
 ```
 
-**Figure 1: Options for `overlap_method`**
+**Figure 2: Different options for `overlap_method` using a case_length of `"0"` days **
 ```{r echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
-library(ggplot2)
-library(tidyr)
-
 plot <- rbind(
   mutate(overlap, method="overlap"),
   mutate(chain, method="chain"),
@@ -359,8 +416,8 @@ plot <- rbind(
 
 plot <- mutate(plot,
   mrk=paste(epid, method,sep="_"),
-  admin_dt = int_start(admin_period),
-  discharge_dt = int_end(admin_period)
+  admin_dt = dmy(format(int_start(admin_period), "%d/%m/%Y")),
+  discharge_dt = dmy(format(int_end(admin_period), "%d/%m/%Y"))
   ) %>% select(-admin_period)
 
 plot <- dplyr::arrange(plot, .data$mrk)
@@ -374,16 +431,16 @@ plot <- plot %>%
   gather(var, val, -c(rd_id, method, epid, epid_2, case_nm)) %>%
   mutate(
     rd_id = as.character(rd_id), 
-    lab =ifelse(case_nm=="Case" & var=="discharge_dt", case_nm, ""), 
+    lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
     method = factor(method, levels = c("overlap","aligns_start","aligns_end","chain", "within", "chain and within"))
     )
 
 ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
   geom_line(aes(colour=epid_2)) +
   geom_point() +
-  geom_text(nudge_y = -.3, show.legend = FALSE) +
+  geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
   scale_y_discrete("Record ID") +
-  scale_x_datetime("Admitted period") +
+  scale_x_date("Admitted period", limits = c(dmy("15/12/2018"), dmy("10/02/2019")), date_breaks = "20 days", date_labels = "%d %b") +
   facet_wrap(~method, scales = "free_y") +
   theme(
     strip.background = element_rect(fill="transparent"),
@@ -393,62 +450,228 @@ ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
     legend.title = element_blank()
   )
 
-
 ```
 
-As with the last example above, you can use different combinations of each `overlap_method` option. More example below; 
+```{r warning=FALSE, include=FALSE}
+# overlaping intervals
+hospital_records_2 <- hospital_records
+hospital_records_2$epi_len <- 30
+hospital_records_2$shift <- ifelse(hospital_records_2$rd_id %in% c(2,8,5,7), 0, 30)
+hospital_records_2$admin_period <- int_shift(hospital_records_2$admin_period, duration(hospital_records_2$shift, "days"))
 
-```{r warning=FALSE}
-# chain and alings_end
-cbind(
-  hospital_records,
-  episode_group(hospital_records, date=admin_period, sn=rd_id, case_length = epi_len, 
+overlap <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
+                overlap_method = "overlap", display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+# chained intervals
+chain <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
+                overlap_method = "chain", display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+# Intervals with aligned end periods
+aligns_end <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
+                overlap_method = "aligns_end", display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+# Intervals with aligned start periods
+aligns_start <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
+                overlap_method = "aligns_start", display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+# Intervals occuring completely within others
+within <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
+                overlap_method = "within", display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+# Chained intervals and those occuring completely within others
+chain_within <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
+                overlap_method = c("chain","within"), display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+# Chained intervals and those with aligned end periods
+chain_aligns_end <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
                 overlap_method = c("chain","aligns_end"), display = FALSE)
   ) %>%
   select(-admin_dt, -discharge_dt)
 
-# alings_start and alings_end
-cbind(
-  hospital_records,
-  episode_group(hospital_records, date=admin_period, sn=rd_id, case_length = epi_len, 
+# Intervals with aligned start perod or aligned end periods
+aligns_start_end <- cbind(
+  hospital_records_2,
+  episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
                 overlap_method = c("aligns_start","aligns_end"), display = FALSE)
   ) %>%
   select(-admin_dt, -discharge_dt)
 ```
 
-You can also have rolling episodes of intervals.
+**Figure 3: Different options for `overlap_method` using a case_length of `"30"` days**
+```{r echo=FALSE, fig.height=5.5, fig.width=8, message=FALSE, warning=FALSE}
+
+plot <- rbind(
+  mutate(overlap, method="overlap"),
+  mutate(chain, method="chain"),
+  mutate(aligns_start, method="aligns_start"),
+  mutate(aligns_end, method="aligns_end"),
+  mutate(within, method="within"), 
+  mutate(chain_within, method="chain and within"), 
+  mutate(chain_aligns_end, method="chain and aligns_end")
+  #mutate(aligns_start_end, method="aligns_start and aligns_end")
+  )
+
+plot <- mutate(plot,
+  mrk=paste(epid, method,sep="_"),
+  admin_dt = dmy(format(int_start(admin_period), "%d/%m/%Y")),
+  discharge_dt = dmy(format(int_end(admin_period), "%d/%m/%Y"))
+  ) %>% select(-admin_period)
+
+plot <- dplyr::arrange(plot, .data$mrk)
+plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)
+
+plot <- plot %>%
+  mutate(epid_2 = paste(method, ": epid ",epid, sep="" )) %>% 
+  select(rd_id, epid, epid_2, admin_dt, discharge_dt, method, N, epid, case_nm, epi_len) %>%
+  filter(N>1) %>%
+  select(rd_id, admin_dt, discharge_dt, method, epid, epid_2, case_nm, epi_len) %>%
+  gather(var, val, -c(rd_id, method, epid, epid_2, case_nm, epi_len)) %>%
+  mutate(
+    rd_id = as.character(rd_id), 
+    lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
+    method = factor(method, levels = c("overlap","aligns_start","aligns_end","chain", "within",
+                                       "chain and within", "chain and aligns_end","aligns_start and aligns_end"))
+    )
+
+ep_plot <- filter(plot, var=="discharge_dt" & case_nm == "Case") %>% 
+  mutate(var="start")
+
+#ep_plot$k <- ifelse(ep_plot$case_nm=="Case", ep_plot$epi_len, ep_plot$recur_len)
+
+ep_plot <- mutate(ep_plot, val= val + duration(epi_len,"days"), var="end") %>% 
+  bind_rows(ep_plot)
+
+ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
+  geom_line() +
+  geom_point() +
+  geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
+  geom_line(data=ep_plot, aes(x=val, y=rd_id, group=rd_id, colour=epid_2), linetype=2) +
+  scale_y_discrete("Record ID") +
+  scale_x_date("Admitted period", limits = c(dmy("15/12/2018"), dmy("01/04/2019")), date_breaks = "35 days", date_labels = "%d %b") +
+  facet_wrap(~method, scales = "free_y") +
+  theme(
+    strip.background = element_rect(fill="transparent"),
+    axis.line = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank()
+  )
+
+```
+
+You can also create rolling episodes of time intervals. The examples and figure below shows the difference between rolling and fixed episodes of time intervals. 
+Notice that for these examples, fixed and rolling episode grouping assings the same episode ID to each record. In example 2, record 8 is after the recurrence period of record 7, and after the `case_length` of record 2 (`"0`). Therefore, it's considered a new `"Case"` and the start of a new episode. In this situation, that's effectively the same as example 1 where there is no recurrence period and a `case_length` of `"0"`. Similarly, in example 4, record 2 has a `case_length` of `"0"` but a recurrence periods long enough to reach records 7 and 8, making them all part of the same episode. This is effectively the same as example 3 where there are no recurrence periods but record 2 has `case_length` long enough to reach records 7 and 8. Note that although these results are the same, the case definitions are not, so results may differ depending on the dataset. However, in general fixed episode grouping takes less time to complete. Therefore, if your case definition does not explicitly require a rolling episode you should use fixed episode grouping. 
 
 ```{r warning=FALSE}
+fixed_intervals_a <- mutate(hospital_records, recur_len = 0) %>%
+  cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len,
+                        display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
 
-mutate(hospital_records, recur_len = 2) %>%
+fixed_intervals_a
+
+
+fixed_intervals_b <- mutate(hospital_records, recur_len = 0, epi_len=20) %>%
+  cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len,
+                        display = FALSE)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+fixed_intervals_b
+
+rolling_intervals_a <- mutate(hospital_records, recur_len = 4) %>%
   cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len, 
                         episode_type = "rolling", recurrence_length = recur_len, 
                         display = FALSE)
-  ) %>%
-  select(-admin_dt, -discharge_dt)
+  ) %>% select(-admin_dt, -discharge_dt)
 
-mutate(hospital_records, recur_len = 10) %>%
+rolling_intervals_a
+
+rolling_intervals_b <- mutate(hospital_records, recur_len = 10) %>%
   cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len, 
                         episode_type = "rolling", recurrence_length = recur_len,
                         display = FALSE)
-  ) %>%
-  select(-admin_dt, -discharge_dt)
+  ) %>% select(-admin_dt, -discharge_dt)
+
+rolling_intervals_b
+
 ```
 
-`"fixed"` episode grouping with a sufficiently long `case_length` can give the same results as `"rolling"` episode grouping with a short `case_length` but sufficiently long `recurrence_length`. However, it's important that they are not the same process despite similar results. See below.
+**Figure 4: Fixed and rolling episodes of periods of hospital admissions**
+```{r echo=FALSE, fig.height=5.5, fig.width=8.5, message=FALSE, warning=FALSE}
 
-```{r warning=FALSE}
-mutate(hospital_records, epi_len =10) %>%
-  cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len,
-                        display = FALSE)
-  ) %>%
-  select(-admin_dt, -discharge_dt)
+plot <- rbind(
+  mutate(fixed_intervals_a, method="1. fixed episodes; 0 case_length, 0 recurrence_length"),
+  mutate(fixed_intervals_b, method="3. fixed episodes; 30 case_length, 0 recurrence_length"),
+  mutate(rolling_intervals_a, method="2. rolling episodes; 0 case_length, recurrence_length 4"),
+  mutate(rolling_intervals_b, method="4. rolling episodes; 0 case_length, recurrence_length 10")
+  )
 
-mutate(hospital_records, epi_len =10) %>%
-  cbind(.,episode_group(., date=admin_period, sn=rd_id, case_length = epi_len, 
-                        episode_type = "rolling", display = FALSE)
-  ) %>%
-  select(-admin_dt, -discharge_dt)
+plot <- mutate(plot,
+  mrk=paste(epid, method,sep="_"),
+  admin_dt = dmy(format(int_start(admin_period), "%d/%m/%Y")),
+  discharge_dt = dmy(format(int_end(admin_period), "%d/%m/%Y"))
+  ) %>% select(-admin_period)
+
+plot <- dplyr::arrange(plot, .data$mrk)
+plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)
+
+plot <- plot %>%
+  mutate(epid_2 = paste(method, ": epid ",epid, sep="" )) %>% 
+  select(rd_id, epid, epid_2, admin_dt, discharge_dt, method, N, epid, case_nm, epi_len, recur_len) %>%
+  filter(N>1) %>%
+  select(rd_id, admin_dt, discharge_dt, method, epid, epid_2, case_nm, epi_len, recur_len) %>%
+  gather(var, val, -c(rd_id, method, epid, epid_2, case_nm, epi_len, recur_len)) %>%
+  mutate(
+    rd_id = as.character(rd_id), 
+    lab =ifelse(case_nm!="Duplicate" & var=="admin_dt", case_nm, "")
+    )
+
+ep_plot <- filter(plot, var=="discharge_dt" & 
+                    (case_nm %in% c("Case","Recurrent") | (case_nm == "Duplicate" & rd_id ==7))) %>% 
+  mutate(var="start")
+
+ep_plot$k <- ifelse(ep_plot$case_nm=="Case", ep_plot$epi_len, ep_plot$recur_len)
+
+ep_plot <- mutate(ep_plot, val= val + duration(k,"days"), var="end") %>% 
+  bind_rows(ep_plot)
+
+ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
+  geom_line() +
+  geom_point() +
+  geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
+  geom_line(data=ep_plot, aes(x=val, y=rd_id, group=rd_id, colour=epid_2), linetype=2) +
+  scale_y_discrete("Record ID") +
+  scale_x_date("Admitted period", limits = c(dmy("15/12/2018"), dmy("10/02/2019")), date_breaks = "10 days", date_labels = "%d %b") +
+  facet_wrap(~method, scales = "free_y", nrow = 2) +
+  guides(colour= guide_legend(ncol = 2)) +
+  theme(
+    strip.background = element_rect(fill="transparent"),
+    axis.line = element_line(colour = "black"),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    legend.title = element_blank()
+  )
+
 ```
 
 <a id="stratified_grouping"></a>
@@ -456,15 +679,15 @@ mutate(hospital_records, epi_len =10) %>%
 ## Stratified episode grouping
 Episode grouping can be done separately by different type of records (`strata`). Examples of a `strata` could be patient IDs, type of pathogen, source of infection or a combination of these parameters. Episodes will not overlap across different `strata` but can have different `case_length` and `recurrence_lenght`.
 
-To implement stratified episode grouping, supply the column name(s) of the record type identifiers to the `strata` argument. `record_group()` is useful in creating a group identifier for the `strata` argument. It also helps in addressing instances of missing values in group identifiers. See [record group](record_group.html) for further details.
+To implement this, assign the column name(s) of the record type identifier(s) to the `strata` argument. `record_group()` is useful for creating a group identifier which can be assigned to the `strata` argument. See [record group](record_group.html) for further details.
 
-As an example, using the `infections_4` dataset, a different case definition may specify the following;
+As an example, using the `infections_4` dataset, a case definition may specify the following;
 
 - UTI and BSI records are considered different episodes regardless of when they occur. 
 - UTI has a `case_length` of 7 days and recurrence period of 30 days
 - BSI has a `case_length` of 14 days and no recurrence period
 
-In the example below, adding `infx` to the `strata` argument means that `"E. coli UTI"` episodes will not overlap with `"E. coli BSI"` records. Furthermore, the `case_length` and `recurrence_length` for each will be different as specified in `epi` and `recur` respectively 
+In the example below, adding `infx` to the `strata` argument means that `"E. coli UTI"` episodes will not overlap with `"E. coli BSI"` records. Furthermore, the `case_length` and `recurrence_length` for each will be different as specified in `epi` and `recur` columns respectively 
 ```{r warning=FALSE}
 infections_5 <- mutate(infections_4, 
                        epi = ifelse(infx=="E. coli UTI", 7, 14),
@@ -481,7 +704,7 @@ cbind(
 <a id="sub_strata"></a>
 
 ### Sub-strata
-If `case_length` or `recurrence_length` is unique to a `strata`, every episode in that `strata` will have the same maximum episode length. However, a sub-strata is created when records within a `strata` have different `case_length` or `recurrence_length`. For example, a different case definition may specify that;
+If `case_length` or `recurrence_length` is unique to a `strata`, every episode in that `strata` will have the same `case_length`. However, a sub-strata is created when records within a `strata` have different `case_length` or `recurrence_length`. For example, a different case definition may specify that;
 
 - UTI and BSI records are different episodes regardless of when they occur. 
 - UTI have a `case_length` of 7 days and recurrence period of 30 days
@@ -504,14 +727,14 @@ infections_5 <- data.frame(
 infections_5 <- mutate(infections_5,
                        epi = case_when(
                          source == "UTI" ~ 7,
-                         source == "BSI" & treated == "Y" ~ 5,
+                         source == "BSI" & treated == "Y" ~ 4,
                          source == "BSI" & treated %in% c("N","-") ~ 14,
                          source == "RTI" ~ 28
                          ),
                        recur = case_when(
-                         source == "UTI" ~ 0,
-                         source == "BSI" & treated == "Y" ~ 5,
-                         source == "BSI" & treated %in% c("N","-") ~ 5,
+                         source == "UTI" ~ 30,
+                         source == "BSI" & treated == "Y" ~ 0,
+                         source == "BSI" & treated %in% c("N","-") ~ 0,
                          source == "RTI" ~ 5
                          )
                        )
@@ -535,20 +758,20 @@ There are a few things to note with stratified grouping;
 
 cbind(
   infections_5,
-  episode_group(infections_5, sn=rid, strata=c(pid, organism, source, treated), date=date, 
+  episode_group(infections_5, sn=rid, strata=c(pid, organism, source), date=date, 
                 case_length =epi, episode_type = "rolling", recurrence_length = recur,
                 display = FALSE)
   )
 
 ```
 
-Stratified episode grouping will produce the same results as when you subset the dataset by `strata` and use `episode_group()` on each with same arguments as required. However, stratified episode grouping is the faster option to achieve this.
+Stratified episode grouping will produce the same results as when you subset the dataset by `strata` and use `episode_group()` on each with same arguments as required. However, using stratified episode allows you to avoide repeat analysis using the same case definition.
 
 <a id="tips"></a>
 
 ## Useful ways of using episode_group 
 ### Episode grouping across other units of time
-In the examples above, the unit for episode length (`episode_unit`) was in "days". However, episode grouping can be done by `"hours"` and `"minutes"`. Note that the minimum unit supported is `"seconds"`. Below is an example of episode grouping by the hour.
+In the examples above, the unit for episode length (`episode_unit`) was in "days". However, episode grouping can be done the same units supported `lubridate duration()` function. Below is an example of episode grouping by the hour.
 
 ```{r warning=FALSE, message=FALSE}
 hourly_dataset <- data.frame(
@@ -565,29 +788,22 @@ cbind(
 ```
 
 ### Limit episode grouping to a subset of the dataframe
-If there is a subset which you do not wish to group into episodes, you can separate the dataframe and use `episode_group()` on only the desired subset. Then join the subsets back to form the original dataframe. However, a faster alternative is to assign a `case_length` and `recurrence_length` of `0` to the subsets you need to exclude from episode grouping. Doing this will ignore those subsets for episode grouping and assign unique IDs to every record in it. The subsets to be excluded must be included in `strata` for this to work. This is particularly useful when the number of records you want to group are fewer than those you do not want to group.
+If there is a subset which you do not wish to group into episodes, you can separate the dataframe and use `episode_group()` on only the desired subset. Then join the subsets back to form the original dataframe. However, a faster alternative could be to a `strata` with missing values for the subsets you need to exclude from episode grouping. Doing this will skip the specified records from episode grouping and assign each a episode unique IDs.
 
 For example, with the `hourly_dataset`, you can decide to exclude `"GP1"` and `"GP2"` records from episode grouping as shown below;  
 
 ```{r warning=FALSE, message=FALSE}
 head(hourly_dataset, 10) %>% 
-  mutate(epi = ifelse(category!="GP3", 0, epi), recur = ifelse(category!="GP3",0,recur)) %>% 
-  cbind(.,episode_group(., rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, display = TRUE, group_stats = TRUE))
+  mutate(subset = ifelse(category!="GP3", NA, "group")) %>% 
+  cbind(.,episode_group(., rid, subset, datetime, epi, episode_type = "rolling", episode_unit = "hours", 
+                        recurrence_length = recur, display = TRUE, group_stats = TRUE))
 ```
 
-Note that using a `case_length` and `recurrence_length` of `"1"` will yield the same results but will take more time, because it is essentially checking each record as a new `"Case"`. See the difference below;
+Note that using a `case_length` and `recurrence_length` of `"0"` will also have the same effect but will take more time, because each record is still being checked before but since there is no `case_length` and `recurrence_length`, each is assigned a unique episode ID. See the difference below;
 
 ```{r warning=FALSE, message=FALSE}
 head(hourly_dataset, 10) %>% 
-  mutate(epi = ifelse(category!="GP3", 1, epi), recur = ifelse(category!="GP3",1,recur)) %>% 
+  mutate(epi = ifelse(category!="GP3", 0, epi), recur = ifelse(category!="GP3",0,recur)) %>% 
   cbind(.,episode_group(., rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, display = TRUE))
 ```
-# Conclusion
-There are a varierty of ways to use this function. It's worth reviewing your case definition and its implication on the dataset before using this function. In general the following steps will help you choose how to use this function;
-
-1. work out which columns should be the `strata`
-2. choose whether you need `"fixed"` or `"rolling"` episodes  
-3. create a colum for `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata)
-3. change `from_last` to `TRUE`if you want to start episode grouping at the most recent record thereby making it the `"Case"`. Note that this is not the same as starting episode grouping at the earliest record (`from_last` is `FALSE`) and then picking the most recent record in that episode as the `"Case"`. See [case assignment](#case_assignment)
-4. if you require the `"Case"` to be the earliest or most recent record from a particular type of record use `custom_sort` in combination with `from_last`. If not, ignore this argument. See [user defined case assignment](#custom_sort)
-5. if you require episodes to include records on either side of the `"Case"` use `bi_direction`. If not, ignore this argument
+ 

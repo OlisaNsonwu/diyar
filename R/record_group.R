@@ -1,11 +1,11 @@
-#' @title Deterministic linkage for epidemiological analysis
+#' @title Multi-staged deterministic record linkage
 #'
-#' @description This function links records from one or more datasets into unique group idenfiers.
+#' @description This function assigns unique group identifiers to matching records from one or more datasets.
 #'
 #' @param df Dataframe. One or more datasets appened together.
-#' @param sn \code{numeric} unique record indentifier for the dataframe.
-#' @param criteria Matching criteria. Records with matching values in these columns are grouped together.
-#' @param sub_criteria Matching sub-criteria. Additional conditions for a match at each stage (\code{criteria}).
+#' @param sn Unique \code{numeric} record indentifier.
+#' @param criteria Column names of the attributes to match. Records with matching values in these columns are grouped together.
+#' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
 #' @param data_source Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
 #' @param display If \code{TRUE}, status messages are not printed on screen.
@@ -13,22 +13,22 @@
 #' @return Dataframe
 #'
 #' \itemize{
-#' \item \code{sn} - the unique record identifier provided
-#' \item \code{pid} - unique record group indentifier
-#' \item \code{pid_cri} - matching criteria each record
-#' \item \code{pid_dataset} - list of datasets in each record group
-#' \item \code{pid_total} - number of records in each record group
+#' \item \code{sn} - unique record identifier as provided
+#' \item \code{pid} - unique group indentifier
+#' \item \code{pid_cri} - matching criteria for each record in the group
+#' \item \code{pid_dataset} - list of datasets in each group
+#' \item \code{pid_total} - number of records in each group
 #' }
 #'
 #' @seealso \code{\link{episode_group}}
 #'
 #' @details
-#' Record linkage occurs in stages as listed in \code{criteria}. Linkage at each stage is considered more certain than subsequent stages.
-#' Therefore, \code{criteria} should be listed in order of decreasing certainty. \code{sub_criteria} can be used to force additonal conditions for record
-#' linkage at each stage. If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-#' If a \code{criteria} value is missing, that record is skipped for that stage of record linkage, and another attempt is made at the next stage.
+#' Record grouping occurs in stages as listed in \code{criteria}. A match at each stage is considered more certain than those in subsequent stages.
+#' Therefore, \code{criteria} should be listed in order of decreasing certainty. \code{sub_criteria} can be used to force additonal matching conditions
+#' at each stage. If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
+#' If a record has a missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
 #' If all \code{criteria} values are missing, that record is assigned a unique group ID. When a \code{data_source} identifier is included,
-#' \code{pid_dataset} is included in the output. This shows the datasets included in each record group.
+#' \code{pid_dataset} is included in the output. This shows the datasets included in each group.
 #'
 #' @examples
 #'
@@ -36,41 +36,42 @@
 #'  library(tidyr)
 #'
 #' # One stage record grouping
-#'  df <- data.frame(
+#'  df <- tibble(
 #'    r_id = c(1:5),
 #'    forename = c("Obinna","James","Ojay","James","Obinna"),
 #'    stringsAsFactors = FALSE
 #'  )
 #'
-#'  cbind(df, record_group(df, r_id, forename))
+#'  bind_cols(df, record_group(df, r_id, forename))
 #'
 #'  # Handling missing or unknown data - Recode missing or unknown values to NA or "".
 #'  # These are excluded from record grouping at the relevant stage
 #'
 #'  df %>%
 #'    mutate(forename = ifelse(r_id %in% c(1,4), NA, forename)) %>%
-#'    cbind(record_group(., r_id, forename))
+#'    bind_cols(record_group(., r_id, forename))
 #'
 #'  # Two or more stages of record grouping
 #'  # Criteria should be listed in decreasing order of certainty
-#' data_3 <- data.frame(
+#' data_3 <- tibble(
+#'   r_id = c(1:7),
 #'   forename = c("James",NA,"Jamey","","Derrick","Darrack","Christie"),
 #'   surname = c("Green","Anderson","Green",NA,"Anderson","Anderson","Green"),
 #'   sex = c("M","M","M","F","M","M","F"),
 #'   dataset = c("Staff list","Staff list", "Pay slips","Pay slips", "Staff list","Pay slips","Staff list"),
-#'   r_id = c(1:7),
 #'   stringsAsFactors = FALSE
 #' )
 #'
-#' cbind(data_3, record_group(data_3,r_id, c(forename, surname), data_source = sex, display = FALSE))
+#' bind_cols(data_3, record_group(data_3,r_id, c(forename, surname), data_source = sex, display = FALSE))
 #'
 #' # Add sex to the second stage to be more certain
 #' data_3 %>%
 #'   unite(cri_2, c(surname, sex)) %>%
-#'   cbind(record_group(., r_id, c(forename, cri_2), data_source = dataset, display = FALSE))
+#'   bind_cols(record_group(., r_id, c(forename, cri_2), data_source = dataset, display = FALSE))
 #'
 #' # Using sub-criteria
-#' data_4 <- data.frame(
+#' data_4 <- tibble(
+#'   r_id = c(1:7),
 #'   staff_id = c(NA,NA,NA,NA,NA,2,2),
 #'   age = rep(30,7),
 #'   initials = c("G.D.","B.G.","X.P.","X.P.",NA,"G.D.","G.D."),
@@ -78,14 +79,14 @@
 #'   branch_office = c("Republic of Ghana","France",NA,NA,"France","Ghana","Republic of Ghana"),
 #'   ds_1 = c("A","A","A","B","A","A","B"),
 #'   ds_2 = c(3,1,1,1,1,1,2),
-#'   r_id = c(1:7),
 #'   stringsAsFactors = FALSE
 #' )
 #'
-#' cbind(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = ds_1))
+#' bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = ds_1))
 #'
-#' cbind(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = c(ds_1, ds_2)))
+#' bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = c(ds_1, ds_2)))
 #'
+#' @importFrom dplyr %>%
 #' @export
 
 record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE){
