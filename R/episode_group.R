@@ -209,8 +209,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("overlap","within","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
-
-  #Later, add data validations for arguments - assert that
+  tb <- FALSE
+  if(tb) tictoc::tic("Data Processing")
   enq_vr <- function(x, vr){
     x <- names(dplyr::select(x, !!vr))
 
@@ -351,6 +351,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df$int_l <- lubridate::int_length(lubridate::interval(df$rec_dt_ai, df$rec_dt_zi))
   c <- 1
+  if(tb) tictoc::toc()
+  if(tb) tictoc::tic("Loop")
   while (min_tag != 2 & min_episodes_nm <= episodes_max){
       TR <- df %>%
         # preference to those tagged already i.e. exisitng episodes
@@ -499,7 +501,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     c = c+1
   }
-
+  if(tb) tictoc::toc()
+  if(tb) tictoc::tic("Epid datasets")
   df <- df %>%
     dplyr::mutate(
       case_nm= ifelse(.data$epid==0, "Case", .data$case_nm),
@@ -507,8 +510,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     )
 
   if(is.null(ds)){
-    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$epi_len)
+    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len)
     df <- dplyr::arrange(df, .data$pr_sn)
+    if(tb) tictoc::toc()
   }else{
     sourc_list <- as.character(sort(unique(df$dsvr)))
 
@@ -523,36 +527,44 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::full_join(df, by="epid")
 
     df <- dplyr::arrange(df, .data$pr_sn)
-    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$epid_dataset, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$epi_len)
-  }
-
-  if(group_stats){
-
-    epid_l <- dplyr::select(df, .data$epid, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord) %>%
-      unique() %>%
-      dplyr::arrange(.data$epid, .data$ord) %>%
-      dplyr::filter(!duplicated(.data$epid) | !duplicated(.data$epid, fromLast = TRUE))
-
-    epid_l$ord <- sequence(rle(epid_l$epid)$lengths)
-
-    epid_l <- epid_l %>%
-      dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ format(., "%d/%m/%Y %H:%M:%S")) %>%
-      tidyr::gather("var", "val", -c(.data$epid, .data$ord)) %>%
-      dplyr::mutate(ord = paste(substr(.data$var,8,9), .data$ord,sep="_")) %>%
-      dplyr::select(-.data$var)
-
-    epid_l <- epid_l %>%
-      tidyr::spread("ord","val")
-
-    if(!"ai_2" %in% names(epid_l)){
-      epid_l$ai_2 <- epid_l$zi_2 <- NA
+    df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$epid_dataset, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len)
+    if(tb) tictoc::toc()
     }
 
+  if(group_stats){
+    if(tb) tictoc::tic("Group stats")
+    epid_l <- dplyr::select(df, .data$epid, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z) %>%
+      unique()
+
+    epid_l <-
+      dplyr::bind_rows(
+      dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord), !duplicated(.data$epid)), var ="a" ),
+      dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord_z), !duplicated(.data$epid, fromLast = TRUE)), var ="z" )
+      ) %>%
+      dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ format(., "%d/%m/%Y %H:%M:%S")) %>%
+      dplyr::mutate(val = ifelse(var=="a",rec_dt_ai,rec_dt_zi)) %>%
+      dplyr::select(.data$epid, .data$var, .data$val)
+
+    #epid_l$ord <- sequence(rle(epid_l$epid)$lengths)
+
+    # epid_l <- epid_l %>%
+    #   dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ format(., "%d/%m/%Y %H:%M:%S")) %>%
+    #   tidyr::gather("var", "val", -c(.data$epid, .data$ord)) %>%
+    #   dplyr::mutate(ord = paste(substr(.data$var,8,9), .data$ord,sep="_")) %>%
+    #   dplyr::select(-.data$var)
+
     epid_l <- epid_l %>%
-      dplyr::mutate(
-        ai_2 = ifelse(is.na(.data$ai_2), .data$ai_1, .data$ai_2),
-        zi_2 = ifelse(is.na(.data$zi_2), .data$zi_1, .data$zi_2)
-        )
+      tidyr::spread("var","val")
+
+    # if(!"ai_2" %in% names(epid_l)){
+    #   epid_l$ai_2 <- epid_l$zi_2 <- NA
+    # }
+
+    # epid_l <- epid_l %>%
+    #   dplyr::mutate(
+    #     ai_2 = ifelse(is.na(.data$ai_2), .data$ai_1, .data$ai_2),
+    #     zi_2 = ifelse(is.na(.data$zi_2), .data$zi_1, .data$zi_2)
+    #     )
 
     df <- dplyr::left_join(df, epid_l, by="epid")
 
@@ -563,14 +575,15 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     diff_unit <- stringr::str_replace(tolower(episode_unit), "s$","")
     diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
 
-    df <- dplyr::mutate(df, epid_interval = lubridate::interval(lubridate::dmy_hms(.data$ai_1), lubridate::dmy_hms(.data$zi_2) ))
-    df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$zi_2), lubridate::dmy_hms(.data$ai_1), units = "secs"), units = diff_unit))
+    df <- dplyr::mutate(df, epid_interval = lubridate::interval(lubridate::dmy_hms(.data$a), lubridate::dmy_hms(.data$z) ))
+    df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$z), lubridate::dmy_hms(.data$a), units = "secs"), units = diff_unit))
     df$epid_total <- rep(rle(df$epid)$lengths, rle(df$epid)$lengths)
 
-    df <- dplyr::select(df, -c(.data$ai_1, .data$ai_2, .data$zi_1, .data$zi_2))
+    df <- dplyr::select(df, -c(.data$a, .data$z))
+    if(tb) tictoc::toc()
     }
 
-  df <- dplyr::select(df, -c(.data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$epi_len))
+  df <- dplyr::select(df, -c(.data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len))
 
   unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = TRUE),]$epid)
 

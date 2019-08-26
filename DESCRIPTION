@@ -18,6 +18,7 @@ RoxygenNote: 6.1.1
 Suggests:
     ggplot2,
     janitor,
+    tictoc,
     knitr,
     rmarkdown
 VignetteBuilder: knitr
