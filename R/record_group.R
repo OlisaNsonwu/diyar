@@ -150,11 +150,17 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     curr_attr <- ifelse(length(attr)==0, FALSE, TRUE)
 
     if(curr_attr){
-      func_1 <- function(x){paste("df2$",x, "==", "df2$tr_",x, sep="")}
+      #func_1 <- function(x){paste("df2$",x, "==", "df2$tr_",x, sep="")}
+      func_1 <- function(x){
+        ifelse(class(df[[x]]) == "number_line", paste("df2$",x, "==", "df2$tr_",x, sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
+      }
+
+      func_1b <- function(x) unlist(lapply(x, func_1))
+
       func_2 <- function(x){paste(x, collapse = " | ")}
       func_3 <- function(x){paste("(",x,")", sep="")}
 
-      sub_crx_func <- lapply(sub_criteria[attr], func_1)
+      sub_crx_func <- lapply(sub_criteria[attr], func_1b)
       sub_crx_func <- lapply(sub_crx_func, func_2)
       sub_crx_func <- lapply(sub_crx_func, func_3)
       sub_crx_func <- paste(sub_crx_func, collapse = " & ")
