@@ -133,8 +133,8 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
   df <- df %>%
     dplyr::select(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst, .data$dsvr) %>%
-    dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
-    dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(is.na(.),"",.))) %>%
+    #dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
+    #dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(is.na(.),"",.))) %>%
     dplyr::mutate(pr_sn = dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = Inf)
 
   cri_no <- length(cri_lst)
@@ -152,7 +152,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     if(curr_attr){
       #func_1 <- function(x){paste("df2$",x, "==", "df2$tr_",x, sep="")}
       func_1 <- function(x){
-        ifelse(class(df[[x]]) == "number_line", paste("df2$",x, "==", "df2$tr_",x, sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
+        ifelse(class(df[[x]]) == "number_line", paste("diyar::overlap(df2$",x, ", ", "df2$tr_",x,")",sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
       }
 
       func_1b <- function(x) unlist(lapply(x, func_1))

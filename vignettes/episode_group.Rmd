@@ -344,14 +344,14 @@ cbind(
   ) %>% select(-admin_dt, -discharge_dt)
 ```
 
-Time intervals can overlap in different ways, the function allows you choose how this happens using the `overlap_method` argument. The options available are; `"overlap"`, `"within"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates their differences.
+Time intervals can overlap in different ways, the function allows you choose how this happens using the `overlap_method` argument. The options available are; `"across"`, `"within"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates their differences.
 
 ```{r warning=FALSE}
 # overlaping intervals
-overlap <- cbind(
+across <- cbind(
   hospital_records,
   episode_group(hospital_records, date=admin_period, sn=rd_id, case_length = epi_len, 
-                overlap_method = "overlap", display = FALSE)
+                overlap_method = "across", display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
 overlap
@@ -406,7 +406,7 @@ chain_within
 **Figure 2: Different options for `overlap_method` using a case_length of `"0"` days **
 ```{r echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
 plot <- rbind(
-  mutate(overlap, method="overlap"),
+  mutate(across, method="across"),
   mutate(chain, method="chain"),
   mutate(aligns_start, method="aligns_start"),
   mutate(aligns_end, method="aligns_end"),
@@ -432,7 +432,7 @@ plot <- plot %>%
   mutate(
     rd_id = as.character(rd_id), 
     lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
-    method = factor(method, levels = c("overlap","aligns_start","aligns_end","chain", "within", "chain and within"))
+    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "within", "chain and within"))
     )
 
 ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
@@ -459,10 +459,10 @@ hospital_records_2$epi_len <- 30
 hospital_records_2$shift <- ifelse(hospital_records_2$rd_id %in% c(2,8,5,7), 0, 30)
 hospital_records_2$admin_period <- int_shift(hospital_records_2$admin_period, duration(hospital_records_2$shift, "days"))
 
-overlap <- cbind(
+across <- cbind(
   hospital_records_2,
   episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
-                overlap_method = "overlap", display = FALSE)
+                overlap_method = "across", display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
 # chained intervals
@@ -521,7 +521,7 @@ aligns_start_end <- cbind(
 ```{r echo=FALSE, fig.height=5.5, fig.width=8, message=FALSE, warning=FALSE}
 
 plot <- rbind(
-  mutate(overlap, method="overlap"),
+  mutate(across, method="across"),
   mutate(chain, method="chain"),
   mutate(aligns_start, method="aligns_start"),
   mutate(aligns_end, method="aligns_end"),
@@ -549,7 +549,7 @@ plot <- plot %>%
   mutate(
     rd_id = as.character(rd_id), 
     lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
-    method = factor(method, levels = c("overlap","aligns_start","aligns_end","chain", "within",
+    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "within",
                                        "chain and within", "chain and aligns_end","aligns_start and aligns_end"))
     )
 

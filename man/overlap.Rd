@@ -8,7 +8,7 @@
 \alias{aligns_end}
 \alias{within}
 \alias{overlap_method}
-\title{Overlaping time lines}
+\title{Overlaping number lines}
 \usage{
 overlap(x, y, method = c("across", "chain", "aligns_start", "aligns_end",
   "within"))
@@ -49,7 +49,7 @@ e <- number_line(50, 120)
 g <- number_line(100,100)
 
 across(a, b)
-across(a, b)
+across(a, e)
 chain(c, d)
 chain(a, c)
 

@@ -128,10 +128,9 @@
     <pre class="usage"><span class='fu'>episode_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>date</span>, <span class='no'>case_length</span>,
   <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"overlap"</span>, <span class='st'>"within"</span>, <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>,
-  <span class='st'>"chain"</span>), <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"across"</span>,
+  <span class='st'>"within"</span>, <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>), <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -190,7 +189,7 @@
     </tr>
     <tr>
       <th>overlap_method</th>
-      <td><p>A set methods for grouped intervals to overlap. Options are; <code>"overlap"</code>, <code>"aligns_start"</code>, <code>"aligns_end"</code>, <code>"within"</code>, <code>"chain"</code> or all (default),</p></td>
+      <td><p>A set methods for grouped intervals to overlap. Options are; <code>"across"</code>, <code>"aligns_start"</code>, <code>"aligns_end"</code>, <code>"within"</code>, <code>"chain"</code> or all (default),</p></td>
     </tr>
     <tr>
       <th>bi_direction</th>

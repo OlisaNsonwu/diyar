@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Function reference • diyar</title>
+<title>Number line — number_line • diyar</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,10 @@
 
 
 
-<meta property="og:title" content="Function reference" />
+<meta property="og:title" content="Number line — number_line" />
+
+<meta property="og:description" content="A function to create number lines" />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -47,7 +50,7 @@
   </head>
 
   <body>
-    <div class="container template-reference-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -109,60 +112,61 @@
       </header>
 
 <div class="row">
-  <div class="contents col-md-9">
+  <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Reference</h1>
+    <h1>Number line</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/number_line.R'><code>R/number_line.R</code></a></small>
+    <div class="hidden name"><code>number_line.Rd</code></div>
     </div>
 
-    <table class="ref-index">
+    <div class="ref-description">
+    
+    <p>A function to create number lines</p>
+    
+    </div>
 
-    <colgroup>
-      
-      <col class="alias" />
-      <col class="title" />
-    </colgroup>
+    <pre class="usage"><span class='fu'>number_line</span>(<span class='no'>a</span>, <span class='no'>z</span>)
 
-    <tbody>
-      <tr>
-        <th colspan="2">
-          <h2 id="section-all-functions" class="hasAnchor"><a href="#section-all-functions" class="anchor"></a>All functions</h2>
-          <p class="section-desc"></p>
-        </th>
-      </tr>
-      <tr>
-        
-        <td>
-          <p><code><a href="episode_group.html">episode_group()</a></code> </p>
-        </td>
-        <td><p>Episode grouping for record deduplication and case assignment</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="number_line.html">number_line()</a></code> <code><a href="number_line.html">is.number_line()</a></code> <code><a href="number_line.html">as.number_line()</a></code> </p>
-        </td>
-        <td><p>Number line</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="overlap.html">overlap()</a></code> <code><a href="overlap.html">across()</a></code> <code><a href="overlap.html">chain()</a></code> <code><a href="overlap.html">aligns_start()</a></code> <code><a href="overlap.html">aligns_end()</a></code> <code><a href="overlap.html">within()</a></code> <code><a href="overlap.html">overlap_method()</a></code> </p>
-        </td>
-        <td><p>Overlaping number lines</p></td>
-      </tr><tr>
-        
-        <td>
-          <p><code><a href="record_group.html">record_group()</a></code> </p>
-        </td>
-        <td><p>Multi-staged deterministic record linkage</p></td>
-      </tr>
-    </tbody>
+<span class='fu'>is.number_line</span>(<span class='no'>x</span>)
+
+<span class='fu'>as.number_line</span>(<span class='no'>a</span>, <span class='no'>z</span>)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>a</th>
+      <td><p>Start of the number line. Should be a vector of <code>numeric</code>, <code>double</code> or <code>integer</code></p></td>
+    </tr>
+    <tr>
+      <th>z</th>
+      <td><p>End of the number line. Should be a vector of <code>numeric</code>, <code>double</code> or <code>integer</code></p></td>
+    </tr>
+    <tr>
+      <th>x</th>
+      <td><p>object</p></td>
+    </tr>
     </table>
-  </div>
+    
+    <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
+    <p><code>number_line</code> object</p>
+    
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'>
+<span class='fu'>number_line</span>(-<span class='fl'>100</span>, <span class='fl'>100</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 100"</div><div class='input'><span class='fu'>number_line</span>(<span class='fl'>10</span>, <span class='fl'>11.2</span>)</div><div class='output co'>#&gt; [1] "10 -&gt; 11.2"</div><div class='input'><span class='fu'>number_line</span>(<span class='fl'>100</span>, <span class='fl'>200</span>)</div><div class='output co'>#&gt; [1] "100 -&gt; 200"</div><div class='input'><span class='fu'>number_line</span>(<span class='fl'>100</span>, <span class='fl'>120</span>)</div><div class='output co'>#&gt; [1] "100 -&gt; 120"</div><div class='input'><span class='fu'>number_line</span>(<span class='fl'>50</span>, <span class='fl'>120</span>)</div><div class='output co'>#&gt; [1] "50 -&gt; 120"</div><div class='input'><span class='fu'>number_line</span>(<span class='fl'>100</span>,<span class='fl'>100</span>)</div><div class='output co'>#&gt; [1] "100 == 100"</div></pre>
+  </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
     <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
+      <li><a href="#arguments">Arguments</a></li>
+      
+      <li><a href="#value">Value</a></li>
+      
+      <li><a href="#examples">Examples</a></li>
     </ul>
+
   </div>
 </div>
 

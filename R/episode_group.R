@@ -14,7 +14,7 @@
 #' @param rolls_max Maximum number of recurrence periods permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent.
-#' @param overlap_method A set methods for grouped intervals to overlap. Options are; \code{"overlap"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"within"}, \code{"chain"} or all (default),
+#' @param overlap_method A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"within"}, \code{"chain"} or all (default),
 #' @param custom_sort If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
 #' @param bi_direction If \code{FALSE}, \code{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records are those on either side of the \code{"Case"}.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each episode.
@@ -208,7 +208,7 @@
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
-                          custom_sort = NULL, from_last=FALSE, overlap_method = c("overlap","within","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
+                          custom_sort = NULL, from_last=FALSE, overlap_method = c("across","within","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
   tb <- FALSE
   if(tb) tictoc::tic("Data Processing")
   enq_vr <- function(x, vr){
@@ -248,7 +248,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     stop(paste(missing_cols, "column(s) not found in the dataset"))
   }
 
-  if(!(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","Interval") & all(!is.na(df[[dt]])))) stop(paste(dt," must be a date, datetime or lubridate interval data type, and not have missing values"))
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","Interval")) & all(!is.na(df[[dt]])))) stop(paste(dt," must be a date, datetime or lubridate interval data type, and not have missing values"))
 
   df_list <- names(df)
 
@@ -278,7 +278,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- tidyr::unite(df, "cri", c(!!dplyr::enquo(strata)), remove=FALSE)
   }
 
-  if(class(df[[dt]])=="Interval"){
+  if(any(class(df[[dt]])=="Interval")){
   df$rec_dt_ai <- lubridate::int_start(df[[dt]])
   df$rec_dt_zi <- lubridate::int_end(df[[dt]])
   df$interval <- df[[dt]]
@@ -398,30 +398,36 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df$r_range <- df$c_range <- FALSE
 
-    if("overlap" %in% tolower(overlap_method)){
-      # df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int), TRUE, df$r_range)
-      # df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int), TRUE, df$c_range)
-      df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int) & lubridate::int_end(df$tr_r_int) !=  lubridate::int_start(df$r_int) & !lubridate::int_aligns(df$r_int, df$tr_r_int) & !(df$r_int %within% df$tr_r_int), TRUE, df$r_range)
-      df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int) & lubridate::int_end(df$tr_c_int) !=  lubridate::int_start(df$c_int) & !lubridate::int_aligns(df$c_int, df$tr_c_int) & !(df$c_int %within% df$tr_c_int), TRUE, df$c_range)
-    }
-    if("within" %in% tolower(overlap_method)){
-      # df$r_range <- ifelse(df$r_int %within% df$tr_r_int, TRUE, df$r_range)
-      # df$c_range <- ifelse(df$c_int %within% df$tr_c_int, TRUE, df$c_range)
-      df$r_range <- ifelse(df$r_int %within% df$tr_r_int & !lubridate::int_aligns(df$r_int, df$tr_r_int), TRUE, df$r_range)
-      df$c_range <- ifelse(df$c_int %within% df$tr_c_int & !lubridate::int_aligns(df$c_int, df$tr_c_int), TRUE, df$c_range)
-    }
-    if("aligns_start" %in% tolower(overlap_method)){
-      df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_start(df$tr_r_int) ==  lubridate::int_start(df$r_int), TRUE, df$r_range)
-      df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_start(df$tr_c_int) ==  lubridate::int_start(df$c_int), TRUE, df$c_range)
-    }
-    if("aligns_end" %in% tolower(overlap_method)){
-      df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_end(df$tr_r_int) ==  lubridate::int_end(df$r_int), TRUE, df$r_range)
-      df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_end(df$tr_c_int) ==  lubridate::int_end(df$c_int), TRUE, df$c_range)
-    }
-    if("chain" %in% tolower(overlap_method)){
-      df$r_range <- ifelse(lubridate::int_end(df$tr_r_int) ==  lubridate::int_start(df$r_int) | lubridate::int_start(df$tr_r_int) == lubridate::int_end(df$r_int), TRUE, df$r_range)
-      df$c_range <- ifelse(lubridate::int_end(df$tr_c_int) ==  lubridate::int_start(df$c_int) | lubridate::int_start(df$tr_c_int) == lubridate::int_end(df$c_int), TRUE, df$c_range)
-    }
+    # if("across" %in% tolower(overlap_method)){
+    #   # df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int), TRUE, df$r_range)
+    #   # df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int), TRUE, df$c_range)
+    #   df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int) & lubridate::int_end(df$tr_r_int) !=  lubridate::int_start(df$r_int) & !lubridate::int_aligns(df$r_int, df$tr_r_int) & !(df$r_int %within% df$tr_r_int), TRUE, df$r_range)
+    #   df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int) & lubridate::int_end(df$tr_c_int) !=  lubridate::int_start(df$c_int) & !lubridate::int_aligns(df$c_int, df$tr_c_int) & !(df$c_int %within% df$tr_c_int), TRUE, df$c_range)
+    # }
+    # if("within" %in% tolower(overlap_method)){
+    #   # df$r_range <- ifelse(df$r_int %within% df$tr_r_int, TRUE, df$r_range)
+    #   # df$c_range <- ifelse(df$c_int %within% df$tr_c_int, TRUE, df$c_range)
+    #   df$r_range <- ifelse(df$r_int %within% df$tr_r_int & !lubridate::int_aligns(df$r_int, df$tr_r_int), TRUE, df$r_range)
+    #   df$c_range <- ifelse(df$c_int %within% df$tr_c_int & !lubridate::int_aligns(df$c_int, df$tr_c_int), TRUE, df$c_range)
+    # }
+    # if("aligns_start" %in% tolower(overlap_method)){
+    #   df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_start(df$tr_r_int) ==  lubridate::int_start(df$r_int), TRUE, df$r_range)
+    #   df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_start(df$tr_c_int) ==  lubridate::int_start(df$c_int), TRUE, df$c_range)
+    # }
+    # if("aligns_end" %in% tolower(overlap_method)){
+    #   df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_end(df$tr_r_int) ==  lubridate::int_end(df$r_int), TRUE, df$r_range)
+    #   df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_end(df$tr_c_int) ==  lubridate::int_end(df$c_int), TRUE, df$c_range)
+    # }
+    # if("chain" %in% tolower(overlap_method)){
+    #   df$r_range <- ifelse(lubridate::int_end(df$tr_r_int) ==  lubridate::int_start(df$r_int) | lubridate::int_start(df$tr_r_int) == lubridate::int_end(df$r_int), TRUE, df$r_range)
+    #   df$c_range <- ifelse(lubridate::int_end(df$tr_c_int) ==  lubridate::int_start(df$c_int) | lubridate::int_start(df$tr_c_int) == lubridate::int_end(df$c_int), TRUE, df$c_range)
+    # }
+
+    df$c_range <- diyar::overlap(diyar::as.number_line(lubridate::int_start(df$c_int), lubridate::int_end(df$c_int)),
+                   diyar::as.number_line(lubridate::int_start(df$tr_c_int), lubridate::int_end(df$tr_c_int)), method = overlap_method )
+
+    df$r_range <- diyar::overlap(diyar::as.number_line(lubridate::int_start(df$r_int), lubridate::int_end(df$r_int)),
+                              diyar::as.number_line(lubridate::int_start(df$tr_r_int), lubridate::int_end(df$tr_r_int)), method = overlap_method )
 
     if(!bi_direction & !from_last){
       df$c_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$c_range)
@@ -542,7 +548,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord_z), !duplicated(.data$epid, fromLast = TRUE)), var ="z" )
       ) %>%
       dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ format(., "%d/%m/%Y %H:%M:%S")) %>%
-      dplyr::mutate(val = ifelse(var=="a",rec_dt_ai,rec_dt_zi)) %>%
+      dplyr::mutate(val = ifelse(.data$var=="a", .data$rec_dt_ai,.data$rec_dt_zi)) %>%
       dplyr::select(.data$epid, .data$var, .data$val)
 
     #epid_l$ord <- sequence(rle(epid_l$epid)$lengths)

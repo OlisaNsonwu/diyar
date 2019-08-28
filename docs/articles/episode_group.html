@@ -515,26 +515,28 @@ hospital_records<span class="op">$</span>admin_period &lt;-<span class="st"> </s
 <span class="co">#&gt; 7     7       0 2019-01-04 UTC--2019-01-13 UTC  7    2 Duplicate</span>
 <span class="co">#&gt; 8     8       0 2019-01-20 UTC--2019-01-30 UTC  8    8      Case</span>
 <span class="co">#&gt; 9     9       0 2019-01-26 UTC--2019-01-31 UTC  9    8 Duplicate</span></code></pre></div>
-<p>Time intervals can overlap in different ways, the function allows you choose how this happens using the <code>overlap_method</code> argument. The options available are; <code>"overlap"</code>, <code>"within"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. The default option is to use all methods. The examples and figure below demonstrates their differences.</p>
+<p>Time intervals can overlap in different ways, the function allows you choose how this happens using the <code>overlap_method</code> argument. The options available are; <code>"across"</code>, <code>"within"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. The default option is to use all methods. The examples and figure below demonstrates their differences.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># overlaping intervals</span>
-overlap &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
+across &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   hospital_records,
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_records, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
-                <span class="dt">overlap_method =</span> <span class="st">"overlap"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
+                <span class="dt">overlap_method =</span> <span class="st">"across"</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>admin_dt, <span class="op">-</span>discharge_dt)
 <span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
 
 overlap
-<span class="co">#&gt;   rd_id epi_len                   admin_period sn epid   case_nm</span>
-<span class="co">#&gt; 1     1       0 2019-01-01 UTC--2019-01-01 UTC  1    1      Case</span>
-<span class="co">#&gt; 2     2       0 2019-01-01 UTC--2019-01-10 UTC  2    2      Case</span>
-<span class="co">#&gt; 3     3       0 2019-01-10 UTC--2019-01-13 UTC  3    3      Case</span>
-<span class="co">#&gt; 4     4       0 2019-01-05 UTC--2019-01-06 UTC  4    4      Case</span>
-<span class="co">#&gt; 5     5       0 2019-01-05 UTC--2019-01-15 UTC  5    2 Duplicate</span>
-<span class="co">#&gt; 6     6       0 2019-01-07 UTC--2019-01-15 UTC  6    2 Duplicate</span>
-<span class="co">#&gt; 7     7       0 2019-01-04 UTC--2019-01-13 UTC  7    2 Duplicate</span>
-<span class="co">#&gt; 8     8       0 2019-01-20 UTC--2019-01-30 UTC  8    8      Case</span>
-<span class="co">#&gt; 9     9       0 2019-01-26 UTC--2019-01-31 UTC  9    8 Duplicate</span>
+<span class="co">#&gt; function(x,y, method = c("across","chain","aligns_start","aligns_end","within")){</span>
+<span class="co">#&gt;   c &lt;- FALSE</span>
+<span class="co">#&gt;   if ("across" %in% method) c &lt;- ifelse(diyar::across(x,y), TRUE, c)</span>
+<span class="co">#&gt;   if ("chain" %in% method) c &lt;- ifelse(diyar::chain(x,y), TRUE, c)</span>
+<span class="co">#&gt;   if ("aligns_start" %in% method) c &lt;- ifelse(diyar::aligns_start(x,y), TRUE, c)</span>
+<span class="co">#&gt;   if ("aligns_end" %in% method) c &lt;- ifelse(diyar::aligns_end(x,y), TRUE, c)</span>
+<span class="co">#&gt;   if ("within" %in% method) c &lt;- ifelse(diyar::within(x,y), TRUE, c)</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt;   return(c)</span>
+<span class="co">#&gt; }</span>
+<span class="co">#&gt; &lt;bytecode: 0x00000000199b4e10&gt;</span>
+<span class="co">#&gt; &lt;environment: namespace:diyar&gt;</span>
 
 <span class="co"># chained intervals</span>
 chain &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(

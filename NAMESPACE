@@ -3,6 +3,7 @@
 export(across)
 export(aligns_end)
 export(aligns_start)
+export(as.number_line)
 export(chain)
 export(episode_group)
 export(is.number_line)

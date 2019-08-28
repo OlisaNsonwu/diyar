@@ -3,16 +3,21 @@
 \name{number_line}
 \alias{number_line}
 \alias{is.number_line}
+\alias{as.number_line}
 \title{Number line}
 \usage{
 number_line(a, z)
 
 is.number_line(x)
+
+as.number_line(a, z)
 }
 \arguments{
 \item{a}{Start of the number line. Should be a vector of \code{numeric}, \code{double} or \code{integer}}
 
 \item{z}{End of the number line. Should be a vector of \code{numeric}, \code{double} or \code{integer}}
+
+\item{x}{object}
 }
 \value{
 \code{number_line} object

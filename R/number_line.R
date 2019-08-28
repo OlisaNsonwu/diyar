@@ -22,55 +22,56 @@ number_line <- function(a, z){
   if(!all(class(a) %in% c("integer","double","numeric"))) stop(paste("`a` must be a vector of integer, numeric or double data type"))
   if(!all(class(z) %in% c("integer","double","numeric"))) stop(paste("`z` must be a vector of integer, numeric or double data type"))
 
-  nl <- new("number_line", a, end=z)
+  nl <- methods::new("number_line", .Data = z - a , start=a)
   return(nl)
 }
 
 #' @slot start Start of a number line
 #' @slot end End of a number line
-setClass("number_line", contains = c("numeric"), slots = c(end = "numeric"))
+setClass("number_line", contains = c("numeric"), slots = c(start = "numeric"))
 
-fmt_number_line <- function(x) print(paste(x@.Data, x@end, sep=" -> "))
-setMethod("show", signature(object="number_line"), function(object){print(fmt_number_line(object))} )
+setMethod("show", signature(object="number_line"), function(object){
+  s <- ifelse(object@start + object@.Data > object@start, "->","<-")
+  s <- ifelse(object@start + object@.Data == object@start, "==",s)
 
+  print(paste(object@start, s, object@start + object@.Data, sep=" "))}
+  )
 
 setMethod("rep", signature(x = "number_line"), function(x, ...) {
-  new("number_line", rep(x@.Data, ...), end = rep(x@end, ...))
+  methods::new("number_line", rep(x@.Data, ...), start = rep(x@start, ...))
 })
 
 setMethod("[", signature(x = "number_line"),
           function(x, i, j, ..., drop = TRUE) {
-            new("number_line", x@.Data[i], end = x@end[i])
+            methods::new("number_line", x@.Data[i], start = x@start[i])
           }
 )
 
 setMethod("[[", signature(x = "number_line"),
           function(x, i, j, ..., exact = TRUE) {
-            new("number_line", x@.Data[i], end = x@end[i])
+            methods::new("number_line", x@.Data[i], start = x@start[i])
           }
 )
 
-setMethod("[<-", signature(x = "number_line"), function(x, i, j, ..., value) {
-  x@.Data[i] <- value@.Data
-  x@end[i] <- value@.end
-  new("number_line", x@.Data, end = x@end)
-})
-
-setMethod("[[<-", signature(x = "number_line"), function(x, i, j, ..., value) {
-  x@.Data[i] <- value@.Data
-  x@end[i] <- value@.end
-    new("number_line", x@.Data, end = x@end)
-})
-
 setMethod("$", signature(x = "number_line"), function(x, name) {
-  slot(x, name)
+  methods::slot(x, name)
 })
 
 setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
-  slot(x, name) <- value
+  methods::slot(x, name) <- value
   x
 })
 
 #' @rdname number_line
+#' @param x object
 #' @export
 is.number_line <- function(x) class(x)=="number_line"
+
+#' @rdname number_line
+#' @export
+as.number_line <- function(a, z){
+  a <- as.numeric(a)
+  z <- as.numeric(z)
+  nl <- methods::new("number_line", .Data = z - a , start=a)
+  return(nl)
+}
