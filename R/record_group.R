@@ -111,19 +111,17 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
   cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
 
-  #assertions
-  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
+  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
+
+  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be positive integers"))
 
   if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
 
-  if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df) )){
-    missing_cols <- subset(names(df), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
+  if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))){
+    missing_cols <- subset(unique(c(rd_sn, ds, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
     missing_cols <- paste(missing_cols, collapse = "," )
     stop(paste(missing_cols, "not found in the dataset"))
   }
-
-  #cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
-  #sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
 
   if(is.null(ds)){
     df$dsvr <- "A"
@@ -133,8 +131,6 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
   df <- df %>%
     dplyr::select(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst, .data$dsvr) %>%
-    #dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
-    #dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(is.na(.),"",.))) %>%
     dplyr::mutate(pr_sn = dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = Inf)
 
   cri_no <- length(cri_lst)
@@ -150,7 +146,6 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     curr_attr <- ifelse(length(attr)==0, FALSE, TRUE)
 
     if(curr_attr){
-      #func_1 <- function(x){paste("df2$",x, "==", "df2$tr_",x, sep="")}
       func_1 <- function(x){
         ifelse(class(df[[x]]) == "number_line", paste("diyar::overlap(df2$",x, ", ", "df2$tr_",x,")",sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
       }

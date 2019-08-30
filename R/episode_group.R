@@ -221,6 +221,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     }
     return(x)
   }
+
   fmt <- function(g) formatC(g, format="d", big.mark=",")
 
   rd_sn <- enq_vr(df, dplyr::enquo(sn))
@@ -232,6 +233,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   dt <- enq_vr(df, dplyr::enquo(date))
 
   #assertions
+  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
+
   if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
 
   if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste(epl," must be -1 or a positive integer, numeric or double data type"))
@@ -310,25 +313,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$user_ord <- ord_ls[[1]]
   }
 
-  #min_episodes_nm <- min_tag <- 0
-
-  # df <- dplyr::arrange(df, .data$cri, .data$epi_len)
-  # df$mrk_a <- paste(df$cri, df$epi_len, sep= "_")
-  # df$mrk_b <- paste(df$cri, df$rc_len, sep= "_")
-  #
-  # df$fg_x <- rep(rle(df$cri)$lengths, rle(df$cri)$lengths)
-  # df$fg_a <- rep(rle(df$mrk_a)$lengths, rle(df$mrk_a)$lengths)
-  # df$fg_b <- rep(rle(df$mrk_b)$lengths, rle(df$mrk_b)$lengths)
-  #
-  # df$mx_case_len <- ifelse(df$fg_a == df$fg_x & df$epi_len ==-1, 0, 1)
-  # df$mx_recur_len <- ifelse(df$fg_a == df$fg_b & df$rc_len ==-1, 0, 1)
-
-  # df <- dplyr::select(df, .data$cri, mx_case_len = .data$epi_len) %>%
-  #   unique() %>%
-  #   dplyr::arrange(.data$cri, .data$mx_case_len) %>%
-  #   dplyr::filter(!duplicated(.data$cri, fromLast = TRUE)) %>%
-  #   dplyr::full_join(df, by="cri")
-
   df$epid <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$epid)
   df$tag <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 2, df$tag)
   df$case_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), "Case", df$case_nm)
@@ -336,18 +320,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df$roll <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), rolls_max, df$roll)
 
-  #min_episodes_nm <- min_tag <- 0
-
   min_tag <- min(df$tag)
   min_episodes_nm <- min(df$episodes)
-
-  # if(episode_unit=="days"){
-  #   df$epi_len <- df$epi_len-1
-  #   df$rc_len <- df$rc_len-1
-  # }else{
-  #   df$epi_len <- df$epi_len
-  #   df$rc_len <- df$rc_len
-  # }
 
   df$int_l <- lubridate::int_length(lubridate::interval(df$rec_dt_ai, df$rec_dt_zi))
   c <- 1
@@ -368,7 +342,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     if(display){cat(paste("Episode or recurrence window",c,".\n"), sep=" ")}
 
-
     df <- dplyr::left_join(df, TR, by= "cri")
 
     df <- dplyr::mutate_at(df, c("tr_rc_len", "tr_epi_len"), ~ lubridate::duration(., units=episode_unit))
@@ -377,16 +350,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$r_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi)
 
     if (from_last==FALSE){
-      #df$c_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi + lubridate::duration(df$epi_len, units=episode_unit))
-      #df$r_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi + lubridate::duration(df$rc_len, units=episode_unit))
-
       df$tr_c_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi + df$tr_epi_len)
       df$tr_r_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi + df$tr_rc_len)
 
     }else{
-      #df$c_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi - lubridate::duration(df$epi_len, units=episode_unit))
-      #df$r_int <- lubridate::interval(df$rec_dt_ai, df$rec_dt_zi - lubridate::duration(df$rc_len, units=episode_unit))
-
       df$tr_c_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi - df$tr_epi_len)
       df$tr_r_int <- lubridate::interval(df$tr_rec_dt_ai, df$tr_rec_dt_zi - df$tr_rc_len)
     }
@@ -397,31 +364,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     }
 
     df$r_range <- df$c_range <- FALSE
-
-    # if("across" %in% tolower(overlap_method)){
-    #   # df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int), TRUE, df$r_range)
-    #   # df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int), TRUE, df$c_range)
-    #   df$r_range <- ifelse(lubridate::int_overlaps(df$r_int, df$tr_r_int) & lubridate::int_end(df$tr_r_int) !=  lubridate::int_start(df$r_int) & !lubridate::int_aligns(df$r_int, df$tr_r_int) & !(df$r_int %within% df$tr_r_int), TRUE, df$r_range)
-    #   df$c_range <- ifelse(lubridate::int_overlaps(df$c_int, df$tr_c_int) & lubridate::int_end(df$tr_c_int) !=  lubridate::int_start(df$c_int) & !lubridate::int_aligns(df$c_int, df$tr_c_int) & !(df$c_int %within% df$tr_c_int), TRUE, df$c_range)
-    # }
-    # if("within" %in% tolower(overlap_method)){
-    #   # df$r_range <- ifelse(df$r_int %within% df$tr_r_int, TRUE, df$r_range)
-    #   # df$c_range <- ifelse(df$c_int %within% df$tr_c_int, TRUE, df$c_range)
-    #   df$r_range <- ifelse(df$r_int %within% df$tr_r_int & !lubridate::int_aligns(df$r_int, df$tr_r_int), TRUE, df$r_range)
-    #   df$c_range <- ifelse(df$c_int %within% df$tr_c_int & !lubridate::int_aligns(df$c_int, df$tr_c_int), TRUE, df$c_range)
-    # }
-    # if("aligns_start" %in% tolower(overlap_method)){
-    #   df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_start(df$tr_r_int) ==  lubridate::int_start(df$r_int), TRUE, df$r_range)
-    #   df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_start(df$tr_c_int) ==  lubridate::int_start(df$c_int), TRUE, df$c_range)
-    # }
-    # if("aligns_end" %in% tolower(overlap_method)){
-    #   df$r_range <- ifelse(lubridate::int_aligns(df$tr_r_int, df$r_int) & lubridate::int_end(df$tr_r_int) ==  lubridate::int_end(df$r_int), TRUE, df$r_range)
-    #   df$c_range <- ifelse(lubridate::int_aligns(df$tr_c_int, df$c_int) & lubridate::int_end(df$tr_c_int) ==  lubridate::int_end(df$c_int), TRUE, df$c_range)
-    # }
-    # if("chain" %in% tolower(overlap_method)){
-    #   df$r_range <- ifelse(lubridate::int_end(df$tr_r_int) ==  lubridate::int_start(df$r_int) | lubridate::int_start(df$tr_r_int) == lubridate::int_end(df$r_int), TRUE, df$r_range)
-    #   df$c_range <- ifelse(lubridate::int_end(df$tr_c_int) ==  lubridate::int_start(df$c_int) | lubridate::int_start(df$tr_c_int) == lubridate::int_end(df$c_int), TRUE, df$c_range)
-    # }
 
     df$c_range <- diyar::overlap(diyar::as.number_line(lubridate::int_start(df$c_int), lubridate::int_end(df$c_int)),
                    diyar::as.number_line(lubridate::int_start(df$tr_c_int), lubridate::int_end(df$tr_c_int)), method = overlap_method )
@@ -470,7 +412,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df <- dplyr::select(df, -dplyr::ends_with("_range"), -dplyr::ends_with("_int"))
     df <- df %>%
-      #dplyr::arrange(.data$cri, .data$user_ord, .data$ord, dplyr::desc(.data$rc_len), dplyr::desc(.data$epi_len), .data$sn)
       dplyr::arrange(.data$cri, .data$epid, .data$ord_z, .data$sn)
 
     df <- df %>%
@@ -502,7 +443,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::select( -dplyr::starts_with("tr"), -dplyr::starts_with("fg"), -dplyr::starts_with("mrk"))
 
     min_tag <- min(df$tag)
-    #min_roll <- min(df$roll)
     min_episodes_nm <- min(df$episodes)
 
     c = c+1
@@ -551,26 +491,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::mutate(val = ifelse(.data$var=="a", .data$rec_dt_ai,.data$rec_dt_zi)) %>%
       dplyr::select(.data$epid, .data$var, .data$val)
 
-    #epid_l$ord <- sequence(rle(epid_l$epid)$lengths)
-
-    # epid_l <- epid_l %>%
-    #   dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ format(., "%d/%m/%Y %H:%M:%S")) %>%
-    #   tidyr::gather("var", "val", -c(.data$epid, .data$ord)) %>%
-    #   dplyr::mutate(ord = paste(substr(.data$var,8,9), .data$ord,sep="_")) %>%
-    #   dplyr::select(-.data$var)
-
     epid_l <- epid_l %>%
       tidyr::spread("var","val")
-
-    # if(!"ai_2" %in% names(epid_l)){
-    #   epid_l$ai_2 <- epid_l$zi_2 <- NA
-    # }
-
-    # epid_l <- epid_l %>%
-    #   dplyr::mutate(
-    #     ai_2 = ifelse(is.na(.data$ai_2), .data$ai_1, .data$ai_2),
-    #     zi_2 = ifelse(is.na(.data$zi_2), .data$zi_1, .data$zi_2)
-    #     )
 
     df <- dplyr::left_join(df, epid_l, by="epid")
 
