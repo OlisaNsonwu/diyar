@@ -113,9 +113,10 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
 
-  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be positive integers"))
-
-  if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
+  if(!is.null(rd_sn)){
+    if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
+    if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
+      }
 
   if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))){
     missing_cols <- subset(unique(c(rd_sn, ds, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))

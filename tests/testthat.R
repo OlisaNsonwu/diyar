@@ -1,4 +1,4 @@
-library(testthat)
+#library(testthat)
 library(diyar)
-
-test_check("diyar")
+#testthat::test_dir("tests/testthat")
+testthat::test_check("diyar")

@@ -10,6 +10,8 @@
 #' @return \code{logical} object
 #'
 #' @examples
+#' library(diyar)
+#'
 #' a <- number_line(-100, 100)
 #' b <- number_line(10, 11.2)
 #' c <- number_line(100, 200)
@@ -94,8 +96,10 @@ within <- function(x,y){
   if(!diyar::is.number_line(x)) stop(paste("`x` is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("`y` is not a number_line object"))
 
-  x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data) | y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data)
+  (x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data)) | (y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data))
 }
+
+
 
 #' @rdname overlap
 #' @return \code{character} object (\code{overlap_method})

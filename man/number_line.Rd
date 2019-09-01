@@ -3,19 +3,21 @@
 \name{number_line}
 \alias{number_line}
 \alias{is.number_line}
-\alias{as.number_line}
+\alias{swap}
 \title{Number line}
 \usage{
 number_line(a, z)
 
 is.number_line(x)
 
-as.number_line(a, z)
+swap(x)
 }
 \arguments{
-\item{a}{Start of the number line. Should be a vector of \code{numeric}, \code{double} or \code{integer}}
+\item{a}{Start of the number line. It should a \code{numeric} object, or can be coerced to a \code{numeric} object}
 
-\item{z}{End of the number line. Should be a vector of \code{numeric}, \code{double} or \code{integer}}
+\item{z}{End of the number line. It should a \code{numeric} object, or can be coerced to a \code{numeric} object}
+
+\item{x}{object}
 
 \item{x}{object}
 }
@@ -26,11 +28,20 @@ as.number_line(a, z)
 A function to create number lines
 }
 \examples{
+library(lubridate)
+library(diyar)
 
 number_line(-100, 100)
 number_line(10, 11.2)
-number_line(100, 200)
-number_line(100, 120)
-number_line(50, 120)
-number_line(100,100)
+number_line(dmy("12/03/2019"), dmy("05/01/2019"))
+number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
+a <- number_line(0, -100)
+b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
+is.number_line(a)
+is.number_line(b)
+
+swap(number_line(200,-100))
+swap(number_line(200,-100))
+swap(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+
 }

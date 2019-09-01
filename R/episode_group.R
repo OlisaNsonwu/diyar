@@ -235,15 +235,16 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   #assertions
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
 
-  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
+  if(!is.null(rd_sn)){
+    if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
+    if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
+    }
 
   if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste(epl," must be -1 or a positive integer, numeric or double data type"))
 
   if(!is.null(r_epl)){
     if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste(r_epl," must be -1 or a positive integer, numeric or double data type"))
     }
-
-  if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
 
   if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df) )){
     missing_cols <- subset(names(df), !unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df))
@@ -365,11 +366,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df$r_range <- df$c_range <- FALSE
 
-    df$c_range <- diyar::overlap(diyar::as.number_line(lubridate::int_start(df$c_int), lubridate::int_end(df$c_int)),
-                   diyar::as.number_line(lubridate::int_start(df$tr_c_int), lubridate::int_end(df$tr_c_int)), method = overlap_method )
+    df$c_range <- diyar::overlap(diyar::number_line(lubridate::int_start(df$c_int), lubridate::int_end(df$c_int)),
+                   diyar::number_line(lubridate::int_start(df$tr_c_int), lubridate::int_end(df$tr_c_int)), method = overlap_method )
 
-    df$r_range <- diyar::overlap(diyar::as.number_line(lubridate::int_start(df$r_int), lubridate::int_end(df$r_int)),
-                              diyar::as.number_line(lubridate::int_start(df$tr_r_int), lubridate::int_end(df$tr_r_int)), method = overlap_method )
+    df$r_range <- diyar::overlap(diyar::number_line(lubridate::int_start(df$r_int), lubridate::int_end(df$r_int)),
+                              diyar::number_line(lubridate::int_start(df$tr_r_int), lubridate::int_end(df$tr_r_int)), method = overlap_method )
 
     if(!bi_direction & !from_last){
       df$c_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$c_range)
@@ -496,16 +497,16 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df <- dplyr::left_join(df, epid_l, by="epid")
 
-    df <- dplyr::arrange(df, .data$epid)
-
-    df <- dplyr::arrange(df, .data$pr_sn)
-
     diff_unit <- stringr::str_replace(tolower(episode_unit), "s$","")
     diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
 
     df <- dplyr::mutate(df, epid_interval = lubridate::interval(lubridate::dmy_hms(.data$a), lubridate::dmy_hms(.data$z) ))
     df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$z), lubridate::dmy_hms(.data$a), units = "secs"), units = diff_unit))
+
+    df <- dplyr::arrange(df, .data$epid)
+
     df$epid_total <- rep(rle(df$epid)$lengths, rle(df$epid)$lengths)
+    df <- dplyr::arrange(df, .data$pr_sn)
 
     df <- dplyr::select(df, -c(.data$a, .data$z))
     if(tb) tictoc::toc()
