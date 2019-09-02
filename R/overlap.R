@@ -96,6 +96,9 @@ within <- function(x,y){
   if(!diyar::is.number_line(x)) stop(paste("`x` is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("`y` is not a number_line object"))
 
+  X <- diyar::swap(x)
+  y <- diyar::swap(y)
+
   (x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data)) | (y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data))
 }
 
