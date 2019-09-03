@@ -18,20 +18,14 @@
 #'
 
 number_line <- function(a, z){
-  ac <- suppressWarnings(as.numeric(a))
-  zc <- suppressWarnings(as.numeric(z))
 
-  if(any(!is.numeric(ac))) stop("Can't coerce `a` to start a number_line object")
-  if(any(!is.numeric(zc))) stop("Can't coerce `z` to end a number_line object")
-
-  if(all(class(a)!=class(z))) warning("Class objects of `a` and `z` are different. It may need to be reconciled")
+  if(all(class(a)!=class(z))) warning("'a' and 'z' have different classes. It may need to be reconciled")
 
   nl <- methods::new("number_line", .Data = as.numeric(z) - as.numeric(a) , start=a)
   return(nl)
 }
 
 #' @slot start Start of a number line
-#' @slot end End of a number line
 #' @export
 setClass("number_line", contains = c("ANY"), slots = c(start = "ANY"))
 
@@ -69,7 +63,7 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 })
 
 #' @rdname number_line
-#' @param x object
+#' @param x \code{R} object
 #'
 #' @examples
 #' a <- number_line(0, -100)
@@ -81,7 +75,7 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 is.number_line <- function(x) class(x)=="number_line"
 
 #' @rdname number_line
-#' @param x object
+#' @param x \code{number_line} object
 #' @param direction Either \code{"increasing"} or \code{"decreasing"}. Type of \code{"number_line"} objects whose start and end points will be reversed
 #' @examples
 #'
@@ -91,18 +85,18 @@ is.number_line <- function(x) class(x)=="number_line"
 #'
 #' @export
 reverse <- function(x, direction = "both"){
-  if(!diyar::is.number_line(x)) stop(paste("`x` is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!(length(direction)==1 & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
-  if(!direction %in% c("increasing","decreasing","both") ) stop(paste("`direction` must be either 'increasing','decreasing'','both'"))
+  if(!tolower(direction) %in% c("increasing","decreasing","both") ) stop(paste("`direction` must be either 'increasing', 'decreasing', or 'both'"))
   f <- x
 
-  if(direction == "decreasing"){
+  if(tolower(direction) == "decreasing"){
     f@.Data <- ifelse(x@.Data <0, -x@.Data, x@.Data)
     c <- ifelse(x@.Data <0, x@.Data, 0)
-  }else if(direction == "increasing"){
+  }else if(tolower(direction) == "increasing"){
     f@.Data <- ifelse(x@.Data >0, -x@.Data, x@.Data)
     c <- ifelse(x@.Data >0, x@.Data, 0)
-  } else if(direction == "both"){
+  } else if(tolower(direction) == "both"){
     f@.Data <- -x@.Data
     c <- x@.Data
   }

@@ -215,6 +215,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   if(!(is.logical(group_stats) & is.logical(from_last) & is.logical(display) )) stop(paste("'group_stats', 'from_last' and 'display' must be TRUE or FALSE"))
+  if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
   if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","within"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or'within'"))
   if(!((is.infinite(rolls_max) | is.integer(rolls_max) ) & (is.infinite(episodes_max) | is.integer(episodes_max)) & length(rolls_max)==1 & length(episodes_max)==1) ) stop(paste("'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf"))
 

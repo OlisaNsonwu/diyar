@@ -35,13 +35,12 @@ overlap_method(x, y)
 \value{
 \code{logical} object
 
-\code{character} object (\code{overlap_method})
+\code{character} object
 }
 \description{
-A function to check for overlaps in \code{number_line} objects
+A set of functions to check for overlaps in \code{number_line} objects
 }
 \examples{
-library(diyar)
 
 a <- number_line(-100, 100)
 b <- number_line(10, 11.2)

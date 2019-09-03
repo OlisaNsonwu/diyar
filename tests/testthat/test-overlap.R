@@ -40,4 +40,29 @@ test_that("test overlap method function", {
   expect_equal(diyar::overlap_method(number_line(-1121, 1100), number_line(-100, 1100)), "aligns_end")
 })
 
-overlap_method(number_line(-100, -100), number_line(200, -100))
+test_that("test that error and warning messages are returned correctly", {
+  expect_error(diyar::overlap(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(diyar::overlap(number_line(50, 200), 1), "'y' is not a number_line object")
+
+  expect_error(diyar::across(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(diyar::across(number_line(50, 200), 1), "'y' is not a number_line object")
+
+  expect_error(diyar::within(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(diyar::within(number_line(50, 200), 1), "'y' is not a number_line object")
+
+  expect_error(diyar::aligns_start(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(diyar::aligns_start(number_line(50, 200), 1), "'y' is not a number_line object")
+
+  expect_error(diyar::aligns_end(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(diyar::aligns_end(number_line(50, 200), 1), "'y' is not a number_line object")
+
+  expect_error(diyar::chain(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(diyar::chain(number_line(50, 200), 1), "'y' is not a number_line object")
+
+  expect_error(diyar::overlap_method(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(diyar::overlap_method(number_line(50, 200), 1), "'y' is not a number_line object")
+
+  expect_error(diyar::overlap(number_line(-100, 100), number_line(50, 200), "overlaping"), "`method` must be either 'across','chain','aligns_start','aligns_end' or'within'")
+  expect_error(diyar::overlap(number_line(-100, 100), number_line(50, 200), 2), "'method' must be a character object")
+
+})
