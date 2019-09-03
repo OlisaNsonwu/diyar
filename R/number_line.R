@@ -1,15 +1,14 @@
 #' @title Number line
 #'
-#' @description A function to create number lines
-#' @param a Start of the number line. It should a \code{numeric} object, or can be coerced to a \code{numeric} object
-#' @param z End of the number line. It should a \code{numeric} object, or can be coerced to a \code{numeric} object
+#' @description A set of function to create and manipulate \code{number_line} objects
+#' @param a Start of the number line. Should be, or can be coerced to a \code{numeric} object
+#' @param z End of the number line. Should be, or can be coerced to a \code{numeric} object
 #'
 #' @return \code{number_line} object
 #'
 #' @aliases number_line
 #' @examples
 #' library(lubridate)
-#' library(diyar)
 #'
 #' number_line(-100, 100)
 #' number_line(10, 11.2)
@@ -83,22 +82,32 @@ is.number_line <- function(x) class(x)=="number_line"
 
 #' @rdname number_line
 #' @param x object
+#' @param direction Either \code{"increasing"} or \code{"decreasing"}. Type of \code{"number_line"} objects whose start and end points will be reversed
 #' @examples
-#' swap(number_line(200,-100))
-#' swap(number_line(200,-100))
-#' swap(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+#'
+#' reverse(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+#' reverse(number_line(200,-100), "increasing")
+#' reverse(number_line(200,-100), "decreasing")
 #'
 #' @export
-swap <- function(x){
+reverse <- function(x, direction = "both"){
   if(!diyar::is.number_line(x)) stop(paste("`x` is not a number_line object"))
-
+  if(!(length(direction)==1 & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
+  if(!direction %in% c("increasing","decreasing","both") ) stop(paste("`direction` must be either 'increasing','decreasing'','both'"))
   f <- x
 
-  if(f@start > (f@start + f@.Data)) {
-    f@start <- (x@start + x@.Data)
-    f@.Data <- x@start - (x@start + x@.Data)
-
+  if(direction == "decreasing"){
+    f@.Data <- ifelse(x@.Data <0, -x@.Data, x@.Data)
+    c <- ifelse(x@.Data <0, x@.Data, 0)
+  }else if(direction == "increasing"){
+    f@.Data <- ifelse(x@.Data >0, -x@.Data, x@.Data)
+    c <- ifelse(x@.Data >0, x@.Data, 0)
+  } else if(direction == "both"){
+    f@.Data <- -x@.Data
+    c <- x@.Data
   }
+
+  f@start <- f@start + c
 
   return(f)
 }

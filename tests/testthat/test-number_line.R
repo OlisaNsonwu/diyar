@@ -81,6 +81,6 @@ test_that("test changing the number line", {
 
   expect_equal(show(t5[[1:2]]), c("20 <- 10", "NA ?? NA" ))
 
-  expect_equal(diyar::swap(diyar::number_line(1000,-123)), diyar::number_line(-123, 1000))
+  expect_equal(diyar::reverse(diyar::number_line(1000,-123)), diyar::number_line(-123, 1000))
 })
 

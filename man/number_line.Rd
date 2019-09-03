@@ -3,14 +3,14 @@
 \name{number_line}
 \alias{number_line}
 \alias{is.number_line}
-\alias{swap}
+\alias{reverse}
 \title{Number line}
 \usage{
 number_line(a, z)
 
 is.number_line(x)
 
-swap(x)
+reverse(x, direction = "both")
 }
 \arguments{
 \item{a}{Start of the number line. It should a \code{numeric} object, or can be coerced to a \code{numeric} object}
@@ -25,11 +25,10 @@ swap(x)
 \code{number_line} object
 }
 \description{
-A function to create number lines
+A set of function to create and manipulate \code{number_line} objects
 }
 \examples{
 library(lubridate)
-library(diyar)
 
 number_line(-100, 100)
 number_line(10, 11.2)
@@ -40,8 +39,9 @@ b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
 is.number_line(a)
 is.number_line(b)
 
-swap(number_line(200,-100))
-swap(number_line(200,-100))
-swap(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+
+reverse(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+reverse(number_line(200,-100), "increasing")
+reverse(number_line(200,-100), "decreasing")
 
 }

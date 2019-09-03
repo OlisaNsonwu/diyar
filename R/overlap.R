@@ -1,6 +1,6 @@
 #' @title Overlaping number lines
 #'
-#' @description A function to check for overlaps in \code{number_line} objects
+#' @description A set of function to check for overlaps in \code{number_line} objects
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
@@ -23,12 +23,15 @@
 #'
 
 overlap <- function(x,y, method = c("across","chain","aligns_start","aligns_end","within")){
+
+  if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","within"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or'within'"))
+
   c <- FALSE
-  if ("across" %in% method) c <- ifelse(diyar::across(x,y), TRUE, c)
-  if ("chain" %in% method) c <- ifelse(diyar::chain(x,y), TRUE, c)
-  if ("aligns_start" %in% method) c <- ifelse(diyar::aligns_start(x,y), TRUE, c)
-  if ("aligns_end" %in% method) c <- ifelse(diyar::aligns_end(x,y), TRUE, c)
-  if ("within" %in% method) c <- ifelse(diyar::within(x,y), TRUE, c)
+  if ("across" %in% tolower(method)) c <- ifelse(diyar::across(x,y), TRUE, c)
+  if ("chain" %in% tolower(method)) c <- ifelse(diyar::chain(x,y), TRUE, c)
+  if ("aligns_start" %in% tolower(method)) c <- ifelse(diyar::aligns_start(x,y), TRUE, c)
+  if ("aligns_end" %in% tolower(method)) c <- ifelse(diyar::aligns_end(x,y), TRUE, c)
+  if ("within" %in% tolower(method)) c <- ifelse(diyar::within(x,y), TRUE, c)
 
   return(c)
 }
@@ -96,13 +99,8 @@ within <- function(x,y){
   if(!diyar::is.number_line(x)) stop(paste("`x` is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("`y` is not a number_line object"))
 
-  X <- diyar::swap(x)
-  y <- diyar::swap(y)
-
   (x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data)) | (y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data))
 }
-
-
 
 #' @rdname overlap
 #' @return \code{character} object (\code{overlap_method})
@@ -114,6 +112,9 @@ within <- function(x,y){
 #'
 #' @export
 overlap_method <- function(x,y){
+  if(!diyar::is.number_line(x)) stop(paste("`x` is not a number_line object"))
+  if(!diyar::is.number_line(y)) stop(paste("`y` is not a number_line object"))
+
   m <- ""
   m <- ifelse(diyar::across(x,y), paste(m,"across", sep=","), m)
   m <- ifelse(diyar::chain(x,y), paste(m,"chain", sep=","), m)

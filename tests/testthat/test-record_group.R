@@ -136,3 +136,16 @@ test_that("test record grouping using range matching", {
   expect_equal(test_7$pid_total, c(3,3,3,2,2,3,1,3,3,3,3,3,3,3,3))
 })
 
+df_9 <- df_8 <- df_7
+df_8$r_id <- -df_8$r_id
+df_9$r_id <- c(1,1,3:15)
+
+test_that("test that error and warning messages are returned correctly", {
+  expect_error(record_group(as.list(df_7), r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "A dataframe is required")
+  expect_error(record_group(df_7, record_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "object 'record_id' not found")
+  expect_error(record_group(df_7, r_id, criteria_1, list(s1a="age_range"), group_stats = TRUE), "object 'criteria_1' not found")
+  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_ranges"), group_stats = TRUE), "'age_ranges' not found")
+  expect_error(record_group(df_8, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must be > 0")
+  expect_error(record_group(df_9, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must not have duplicate values")
+  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats' and 'display' must be TRUE or FALSE")
+})

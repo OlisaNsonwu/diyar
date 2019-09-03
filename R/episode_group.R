@@ -209,8 +209,20 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("across","within","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
-  tb <- FALSE
-  if(tb) tictoc::tic("Data Processing")
+
+  episodes_max <- ifelse(is.numeric(episodes_max) & !is.na(episodes_max) & !is.infinite(episodes_max), as.integer(episodes_max), episodes_max)
+  rolls_max <- ifelse(is.numeric(rolls_max) & !is.na(rolls_max) & !is.infinite(rolls_max), as.integer(rolls_max), rolls_max)
+
+  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
+  if(!(is.logical(group_stats) & is.logical(from_last) & is.logical(display) )) stop(paste("'group_stats', 'from_last' and 'display' must be TRUE or FALSE"))
+  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","within"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or'within'"))
+  if(!((is.infinite(rolls_max) | is.integer(rolls_max) ) & (is.infinite(episodes_max) | is.integer(episodes_max)) & length(rolls_max)==1 & length(episodes_max)==1) ) stop(paste("'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf"))
+
+  if(length(episode_type)!=1 | !is.character(episode_type)) stop(paste("'episode_type' must be a character of length 1"))
+  if(length(episode_unit)!=1 | !is.character(episode_unit)) stop(paste("'episode_unit' must be a character of length 1"))
+
+  if(!episode_type %in% c("rolling","fixed") ) stop(paste("`episode_type` must be either 'rolling' or 'fixed'"))
+
   enq_vr <- function(x, vr){
     x <- names(dplyr::select(x, !!vr))
 
@@ -232,27 +244,18 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   ref_sort <- enq_vr(df, dplyr::enquo(custom_sort))
   dt <- enq_vr(df, dplyr::enquo(date))
 
-  #assertions
-  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
-
   if(!is.null(rd_sn)){
-    if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
-    if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
-    }
-
-  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste(epl," must be -1 or a positive integer, numeric or double data type"))
-
-  if(!is.null(r_epl)){
-    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste(r_epl," must be -1 or a positive integer, numeric or double data type"))
-    }
-
-  if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df) )){
-    missing_cols <- subset(names(df), !unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df))
-    missing_cols <- paste(missing_cols, collapse = "," )
-    stop(paste(missing_cols, "column(s) not found in the dataset"))
+    if(!(all(df[[rd_sn]] > 0) & is.numeric(as.numeric(df[[rd_sn]])))) stop(paste("'",rd_sn,"' as 'sn' must be > 0", sep=""))
+    if(any(duplicated(df[[rd_sn]]))) stop(paste("'",rd_sn,"' as 'sn' must not have duplicate values", sep=""))
   }
 
-  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","Interval")) & all(!is.na(df[[dt]])))) stop(paste(dt," must be a date, datetime or lubridate interval data type, and not have missing values"))
+  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste("'",epl,"' as 'case_length' must be -1 or a positive integer, numeric or double data type", sep=""))
+
+  if(!is.null(r_epl)){
+    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste("'",r_epl,"' as 'recurrence_length' must be -1 or a positive integer, numeric or double data type", sep=""))
+    }
+
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","Interval")) & all(!is.na(df[[dt]])))) stop(paste("'",dt,"' as 'date' must be a date, datetime or lubridate interval, and not have missing values", sep=""))
 
   df_list <- names(df)
 
@@ -282,7 +285,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- tidyr::unite(df, "cri", c(!!dplyr::enquo(strata)), remove=FALSE)
   }
 
-  if(any(class(df[[dt]])=="Interval")){
+  if(lubridate::is.interval(df[[dt]])){
   df$rec_dt_ai <- lubridate::int_start(df[[dt]])
   df$rec_dt_zi <- lubridate::int_end(df[[dt]])
   df$interval <- df[[dt]]
@@ -326,8 +329,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df$int_l <- lubridate::int_length(lubridate::interval(df$rec_dt_ai, df$rec_dt_zi))
   c <- 1
-  if(tb) tictoc::toc()
-  if(tb) tictoc::tic("Loop")
   while (min_tag != 2 & min_episodes_nm <= episodes_max){
       TR <- df %>%
         # preference to those tagged already i.e. exisitng episodes
@@ -448,8 +449,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     c = c+1
   }
-  if(tb) tictoc::toc()
-  if(tb) tictoc::tic("Epid datasets")
   df <- df %>%
     dplyr::mutate(
       case_nm= ifelse(.data$epid==0, "Case", .data$case_nm),
@@ -459,7 +458,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(is.null(ds)){
     df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len)
     df <- dplyr::arrange(df, .data$pr_sn)
-    if(tb) tictoc::toc()
   }else{
     sourc_list <- as.character(sort(unique(df$dsvr)))
 
@@ -475,11 +473,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df <- dplyr::arrange(df, .data$pr_sn)
     df <- dplyr::select(df, .data$sn, .data$epid, .data$case_nm, .data$epid_dataset, .data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len)
-    if(tb) tictoc::toc()
     }
 
   if(group_stats){
-    if(tb) tictoc::tic("Group stats")
     epid_l <- dplyr::select(df, .data$epid, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z) %>%
       unique()
 
@@ -509,7 +505,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- dplyr::arrange(df, .data$pr_sn)
 
     df <- dplyr::select(df, -c(.data$a, .data$z))
-    if(tb) tictoc::toc()
     }
 
   df <- dplyr::select(df, -c(.data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len))

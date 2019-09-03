@@ -90,6 +90,9 @@
 #' @export
 
 record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE){
+  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
+  if(!(is.logical(group_stats) & is.logical(display))) stop(paste("'group_stats' and 'display' must be TRUE or FALSE"))
+
   enq_vr <- function(x, vr){
     x <- names(dplyr::select(x, !!vr))
 
@@ -111,17 +114,15 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
   cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
 
-  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
-
   if(!is.null(rd_sn)){
-    if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
-    if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
-      }
+    if(!(all(df[[rd_sn]] > 0) & is.numeric(as.numeric(df[[rd_sn]])))) stop(paste("'",rd_sn,"' as 'sn' must be > 0", sep=""))
+    if(any(duplicated(df[[rd_sn]]))) stop(paste("'",rd_sn,"' as 'sn' must not have duplicate values", sep=""))
+  }
 
   if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))){
     missing_cols <- subset(unique(c(rd_sn, ds, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
-    missing_cols <- paste(missing_cols, collapse = "," )
-    stop(paste(missing_cols, "not found in the dataset"))
+    missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
+    stop(paste(missing_cols, "not found"))
   }
 
   if(is.null(ds)){

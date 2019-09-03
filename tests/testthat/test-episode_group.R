@@ -499,3 +499,45 @@ test_that("testing; intervals grouping with a case length", {
   expect_equal(test_11c$epid_total, rep(9,9))
   expect_equal(test_11c$epid_length, lubridate::as.difftime(rep(30,9), units = "days" ))
 })
+
+dft_11 <- dft_10 <- dft_9 <- dft_8 <- hospital_admissions
+dft_8$rd_id <- -dft_8$rd_id
+dft_9$rd_id <- c(1,1,3:9)
+
+dft_10$epi_len <- -3
+dft_11$recur <- "A"
+
+test_that("test that error and warning messages are returned correctly", {
+  expect_error(episode_group(as.list(dft_8), date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "A dataframe is required")
+  expect_error(episode_group(dft_8, date=admin_periods, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "object 'admin_periods' not found")
+  expect_error(episode_group(dft_8, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'rd_id' as 'sn' must be > 0")
+  expect_error(episode_group(dft_9, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'rd_id' as 'sn' must not have duplicate values")
+  expect_error(episode_group(hospital_admissions, date=epi_len, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'epi_len' as 'date' must be a date, datetime or lubridate interval, and not have missing values")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last' and 'display' must be TRUE or FALSE")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", from_last = "TRUE"), "'group_stats', 'from_last' and 'display' must be TRUE or FALSE")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_unit = 1), "'episode_unit' must be a character of length 1")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_type = 1), "'episode_type' must be a character of length 1")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_type = c("rolling","fixed")), "'episode_type' must be a character of length 1")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_type = "moving"), "`episode_type` must be either 'rolling' or 'fixed'")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or'within'")
+  expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_type = "rolling", rolls_max = NA, episodes_max = NA), "'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf")
+  expect_error(episode_group(dft_10, date=admin_period, sn=rd_id,
+                             case_length = epi_len, episode_type = "rolling"), "'epi_len' as 'case_length' must be -1 or a positive integer, numeric or double data type")
+  expect_error(episode_group(dft_11, date=admin_period, sn=rd_id,
+                             case_length = epi_len, recurrence_length = recur, episode_type = "rolling"), "'recur' as 'recurrence_length' must be -1 or a positive integer, numeric or double data type")
+
+
+})
