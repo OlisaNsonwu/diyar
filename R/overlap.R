@@ -127,3 +127,38 @@ overlap_method <- function(x,y){
   m <- ifelse(m=="", "none", m)
   m
 }
+
+#' @rdname overlap
+#' @param ... \code{number_line} objects
+#' @param method Method of overlap
+#'
+#' c(number_line(1,5), number_line(2,4), number_line(10,10))
+#' collapse_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
+#'
+#' c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
+#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)))
+#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)), method = "within")
+#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)), method = "chain")
+#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)), method = "across")
+#'
+#' @export
+collapse_number_line <- function(..., method = c("across","chain","aligns_start","aligns_end","within")){
+
+  x <- c(...)
+  if(!diyar::is.number_line(x)) stop(paste("'...' is not a number_line object"))
+  if(!is.character(method)) stop(paste("'method' must be a character object"))
+  if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","within"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or'within'"))
+
+  d <- rev(sort(x))
+
+  for (i in 1:length(x)){
+    a <- ifelse(d == d[i] | diyar::overlap(d[i], d, method=method), rep(min(d[d == d[i] | diyar::overlap(d[i], d, method=method),]@start), length(d[d == d[i] | diyar::overlap(d[i], d, method=method),])), d@start)
+    z <- ifelse(d == d[i] | diyar::overlap(d[i], d, method=method), rep(max(d[d == d[i] | diyar::overlap(d[i], d, method=method),]@start + d[d == d[i] | diyar::overlap(d[i], d, method=method),]@.Data), length(d[d == d[i] | diyar::overlap(d[i], d, method=method),])), d@start + d@.Data)
+
+    d <- number_line(unique(data.frame(a, z))[["a"]], unique(data.frame(a, z))[["z"]])
+
+    if(length(d) < i + 1) break
+  }
+
+  return(d)
+}

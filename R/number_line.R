@@ -67,6 +67,14 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
   x
 })
 
+setMethod("c", signature(x = "number_line"), function(x,...) {
+  ai <- unlist(lapply(list(x, ...), function(x) x@start))
+  zi <- unlist(list(x, ...))
+
+  methods::new("number_line", .Data = zi, start= ai)
+
+})
+
 #' @rdname number_line
 #' @examples
 #' a <- number_line(0, -100)

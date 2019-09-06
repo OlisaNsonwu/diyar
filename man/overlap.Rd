@@ -8,6 +8,7 @@
 \alias{aligns_end}
 \alias{within}
 \alias{overlap_method}
+\alias{collapse_number_line}
 \title{Overlaping number lines}
 \usage{
 overlap(x, y, method = c("across", "chain", "aligns_start", "aligns_end",
@@ -24,6 +25,9 @@ aligns_end(x, y)
 within(x, y)
 
 overlap_method(x, y)
+
+collapse_number_line(..., method = c("across", "chain", "aligns_start",
+  "aligns_end", "within"))
 }
 \arguments{
 \item{x}{\code{number_line} object}
@@ -31,6 +35,14 @@ overlap_method(x, y)
 \item{y}{\code{number_line} object}
 
 \item{method}{Method of overlap}
+
+\item{...}{\code{number_line} objects}
+
+\item{method}{Method of overlap
+
+collapse_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
+collapse_number_line(c(number_line(10,10), number_line(5,30), number_line(30,40)))
+collapse_number_line(c(number_line(10,10), number_line(5,30), number_line(30,40)), method = "within")}
 }
 \value{
 \code{logical} object

@@ -3,7 +3,6 @@
 \docType{class}
 \name{number_line-class}
 \alias{number_line-class}
-\alias{number_line_obj}
 \title{Number lines
 S4 objects representing a number line.
 Used for range matching in [record_grouping] and interval grouping in [episode_grouping].}
