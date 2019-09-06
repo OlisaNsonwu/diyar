@@ -1,6 +1,6 @@
 #' @title Number line
 #'
-#' @description A set of function to create and manipulate \code{number_line} objects
+#' @description A set of functions to create and manipulate \code{number_line} objects
 #' @param a Start of the number line. Should be, or can be coerced to a \code{numeric} object
 #' @param z End of the number line. Should be, or can be coerced to a \code{numeric} object
 #'
@@ -21,14 +21,19 @@ number_line <- function(a, z){
 
   if(all(class(a)!=class(z))) warning("'a' and 'z' have different classes. It may need to be reconciled")
 
-  nl <- methods::new("number_line", .Data = as.numeric(z) - as.numeric(a) , start=a)
+  nl <- methods::new("number_line", .Data = as.numeric(z) - as.numeric(a), start=a)
   return(nl)
 }
 
-#' @slot start Start of a number line
+#' Number lines
+#' S4 objects representing a number line.
+#' Used for range matching in [record_grouping] and interval grouping in [episode_grouping].
+#' @slot start Start of the number line.
+#' @slot .Data Length or width of the number line.
 #' @export
-setClass("number_line", contains = c("ANY"), slots = c(start = "ANY"))
+setClass("number_line", contains = "numeric", representation(start = "ANY"))
 
+#' @export
 setMethod("show", signature(object="number_line"), function(object){
   s <- ifelse(object@start + object@.Data > object@start, "->","<-")
   s <- ifelse(object@start + object@.Data == object@start, "==",s)
@@ -63,8 +68,6 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 })
 
 #' @rdname number_line
-#' @param x \code{R} object
-#'
 #' @examples
 #' a <- number_line(0, -100)
 #' b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))

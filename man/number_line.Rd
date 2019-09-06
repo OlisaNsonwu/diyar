@@ -17,17 +17,15 @@ reverse(x, direction = "both")
 
 \item{z}{End of the number line. Should be, or can be coerced to a \code{numeric} object}
 
-\item{x}{\code{R} object}
+\item{x}{\code{number_line} object}
 
 \item{direction}{Either \code{"increasing"} or \code{"decreasing"}. Type of \code{"number_line"} objects whose start and end points will be reversed}
-
-\item{x}{\code{number_line} object}
 }
 \value{
 \code{number_line} object
 }
 \description{
-A set of function to create and manipulate \code{number_line} objects
+A set of functions to create and manipulate \code{number_line} objects
 }
 \examples{
 library(lubridate)

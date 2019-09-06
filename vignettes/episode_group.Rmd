@@ -69,9 +69,9 @@ The two examples below demonstrates the different implementations of `"fixed"` a
 
 #### Example of `"fixed"` episode grouping
 ```{r warning=FALSE, message=FALSE}
-library(diyar)
 library(dplyr)
 library(lubridate)
+library(diyar)
 
 infections <- data.frame(
   rid = 1:6,
