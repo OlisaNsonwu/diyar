@@ -4,18 +4,20 @@
 \name{number_line-class}
 \alias{number_line-class}
 \title{Number lines
-S4 objects representing a number line.
-Used for range matching in [record_grouping] and interval grouping in [episode_grouping].}
+S4 objects representing a number line
+Used for range matching in [record_grouping] and interval grouping in [episode_grouping]}
 \description{
 Number lines
-S4 objects representing a number line.
-Used for range matching in [record_grouping] and interval grouping in [episode_grouping].
+S4 objects representing a number line
+Used for range matching in [record_grouping] and interval grouping in [episode_grouping]
 }
 \section{Slots}{
 
 \describe{
-\item{\code{start}}{Start of the number line.}
+\item{\code{start}}{Start of the number line}
 
-\item{\code{.Data}}{Length or width of the number line.}
+\item{\code{id}}{\code{numeric} element ID}
+
+\item{\code{.Data}}{Length or width of the number line}
 }}
 

@@ -21,18 +21,18 @@
 #' @export
 #'
 
-overlap <- function(x,y, method = c("across","chain","aligns_start","aligns_end","within")){
+overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end","within")){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","within"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or'within'"))
 
   c <- FALSE
-  if ("across" %in% tolower(method)) c <- ifelse(diyar::across(x,y), TRUE, c)
-  if ("chain" %in% tolower(method)) c <- ifelse(diyar::chain(x,y), TRUE, c)
-  if ("aligns_start" %in% tolower(method)) c <- ifelse(diyar::aligns_start(x,y), TRUE, c)
-  if ("aligns_end" %in% tolower(method)) c <- ifelse(diyar::aligns_end(x,y), TRUE, c)
-  if ("within" %in% tolower(method)) c <- ifelse(diyar::within(x,y), TRUE, c)
+  if ("across" %in% tolower(method)) c <- ifelse(diyar::across(x, y), TRUE, c)
+  if ("chain" %in% tolower(method)) c <- ifelse(diyar::chain(x, y), TRUE, c)
+  if ("aligns_start" %in% tolower(method)) c <- ifelse(diyar::aligns_start(x, y), TRUE, c)
+  if ("aligns_end" %in% tolower(method)) c <- ifelse(diyar::aligns_end(x, y), TRUE, c)
+  if ("within" %in% tolower(method)) c <- ifelse(diyar::within(x, y), TRUE, c)
 
   return(c)
 }
@@ -43,12 +43,15 @@ overlap <- function(x,y, method = c("across","chain","aligns_start","aligns_end"
 #' across(a, b)
 #' across(a, e)
 #' @export
-across <- function(x,y){
+across <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
-  (y@start > x@start & y@start < (x@start + x@.Data) & (y@start + y@.Data) > (x@start + x@.Data) ) |
+  r <- (y@start > x@start & y@start < (x@start + x@.Data) & (y@start + y@.Data) > (x@start + x@.Data) ) |
     (x@start > y@start & x@start < (y@start + y@.Data) & (x@start + x@.Data) > (y@start + y@.Data) )
+
+  r <- ifelse(!is.logical(r), FALSE, r)
+  return(r)
 }
 
 #' @rdname overlap
@@ -57,11 +60,14 @@ across <- function(x,y){
 #' chain(a, c)
 #'
 #' @export
-chain <- function(x,y){
+chain <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
-  x@start == (y@start + y@.Data) | (x@start + x@.Data) == y@start
+  r <- x@start == (y@start + y@.Data) | (x@start + x@.Data) == y@start
+
+  r <- ifelse(!is.logical(r), FALSE, r)
+  return(r)
 }
 
 #' @rdname overlap
@@ -70,11 +76,14 @@ chain <- function(x,y){
 #' aligns_start(a, c)
 #'
 #' @export
-aligns_start <- function(x,y){
+aligns_start <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
-  x@start==y@start
+  r <- x@start==y@start
+
+  r <- ifelse(!is.logical(r), FALSE, r)
+  return(r)
 }
 
 #' @rdname overlap
@@ -83,11 +92,13 @@ aligns_start <- function(x,y){
 #' aligns_end(a, c)
 #'
 #' @export
-aligns_end <- function(x,y){
+aligns_end <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
-  (x@start + x@.Data) == (y@start + y@.Data)
+  r <- (x@start + x@.Data) == (y@start + y@.Data)
+  r <- ifelse(!is.logical(r), FALSE, r)
+  return(r)
 }
 
 #' @rdname overlap
@@ -96,11 +107,13 @@ aligns_end <- function(x,y){
 #' within(b, a)
 #'
 #' @export
-within <- function(x,y){
+within <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
-  (x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data)) | (y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data))
+  r <- (x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data)) | (y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data))
+  r <- ifelse(!is.logical(r), FALSE, r)
+  return(r)
 }
 
 #' @rdname overlap
@@ -112,16 +125,16 @@ within <- function(x,y){
 #' overlap_method(b, e)
 #'
 #' @export
-overlap_method <- function(x,y){
+overlap_method <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
   m <- ""
-  m <- ifelse(diyar::across(x,y), paste(m,"across", sep=","), m)
-  m <- ifelse(diyar::chain(x,y), paste(m,"chain", sep=","), m)
-  m <- ifelse(diyar::aligns_start(x,y), paste(m,"aligns_start", sep=","), m)
-  m <- ifelse(diyar::aligns_end(x,y), paste(m,"aligns_end", sep=","), m)
-  m <- ifelse(diyar::within(x,y), paste(m,"within", sep=","), m)
+  m <- ifelse(diyar::across(x, y), paste(m,"across", sep=","), m)
+  m <- ifelse(diyar::chain(x, y), paste(m,"chain", sep=","), m)
+  m <- ifelse(diyar::aligns_start(x, y), paste(m,"aligns_start", sep=","), m)
+  m <- ifelse(diyar::aligns_end(x, y), paste(m,"aligns_end", sep=","), m)
+  m <- ifelse(diyar::within(x, y), paste(m,"within", sep=","), m)
 
   m <- stringr::str_replace(m, "^,","")
   m <- ifelse(m=="", "none", m)
@@ -129,36 +142,48 @@ overlap_method <- function(x,y){
 }
 
 #' @rdname overlap
-#' @param ... \code{number_line} objects
-#' @param method Method of overlap
+#' @description Compress overlaping \code{number_line} objects into new wider \code{number_line} objects that covers the original \code{number_line} objects
+#' @details The start and end points of the overlaping \code{number_line} objects are changed to that of the new wider \code{number_line} objects.
+#' This results in the overlaping \code{number_line} objects having new but identiical start and end point.
+#' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
+#' [compress] can be a simple alternative to [episode_group]. See XX vignette.
 #'
+#' @param ... \code{number_line} objects
+#' @param deduplicate \code{TRUE} to retain only one of the overlaping \code{number_line} objects
+#'
+#' @examples
 #' c(number_line(1,5), number_line(2,4), number_line(10,10))
-#' collapse_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
+#' compress(c(number_line(1,5), number_line(2,4), number_line(10,10)))
 #'
 #' c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)))
-#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)), method = "within")
-#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)), method = "chain")
-#' collapse_number_line(c(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40)), method = "across")
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40))
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "within")
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "chain")
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "across")
 #'
 #' @export
-collapse_number_line <- function(..., method = c("across","chain","aligns_start","aligns_end","within")){
+
+compress <- function(..., method = c("across","chain","aligns_start","aligns_end","within"), deduplicate = TRUE){
 
   x <- c(...)
+
   if(!diyar::is.number_line(x)) stop(paste("'...' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","within"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or'within'"))
 
-  d <- rev(sort(x))
+  if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
+  x <- diyar::reverse(x, "decreasing")
 
+  c <- rep(0, length(x))
   for (i in 1:length(x)){
-    a <- ifelse(d == d[i] | diyar::overlap(d[i], d, method=method), rep(min(d[d == d[i] | diyar::overlap(d[i], d, method=method),]@start), length(d[d == d[i] | diyar::overlap(d[i], d, method=method),])), d@start)
-    z <- ifelse(d == d[i] | diyar::overlap(d[i], d, method=method), rep(max(d[d == d[i] | diyar::overlap(d[i], d, method=method),]@start + d[d == d[i] | diyar::overlap(d[i], d, method=method),]@.Data), length(d[d == d[i] | diyar::overlap(d[i], d, method=method),])), d@start + d@.Data)
-
-    d <- number_line(unique(data.frame(a, z))[["a"]], unique(data.frame(a, z))[["z"]])
-
-    if(length(d) < i + 1) break
+    if(c[i]==1) next
+    h <- x@id == x[i]@id | diyar::overlap(x[i], x, method=method)
+    x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
+    x[which(h)]@start <- min(x[which(h),]@start)
+    c[which(h)] <- 1
+    if(min(c)==1) break
   }
 
-  return(d)
+  if(deduplicate) x <- unique.number_line(x)
+  return(x)
 }

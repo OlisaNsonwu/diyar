@@ -84,8 +84,18 @@ test_that("test changing the number line", {
   expect_equal(diyar::reverse(diyar::number_line(1000,-123)), diyar::number_line(-123, 1000))
   expect_equal(diyar::reverse(diyar::number_line(1000,-123), "increasing"), diyar::number_line(1000, -123))
   expect_equal(diyar::reverse(diyar::number_line(1000,-123), "decreasing"), diyar::number_line(-123, 1000))
-})
 
+  nl_2 <- nl_1 <- c(diyar::number_line(1, 10), diyar::number_line(5, 10))
+  nl_1[2]@.Data <- 0
+  nl_2[[1]]@start <- 10
+
+  expect_equal(nl_1, c(diyar::number_line(1, 10), diyar::number_line(5, 5)))
+  expect_equal(nl_2, c(diyar::number_line(10, 19), diyar::number_line(5, 10)))
+
+  expect_equal(unique(c(rep(diyar::number_line(50, 200),3), diyar::number_line(5, 10))), c(diyar::number_line(50, 200, id =1), diyar::number_line(5, 10, id =4)))
+  expect_equal(diyar::as.number_line(2), diyar::number_line(a=2, z=2, id=1))
+
+})
 
 test_that("test that error and warning messages are returned correctly", {
   expect_warning(diyar::number_line(50, "200"), "'a' and 'z' have different classes. It may need to be reconciled")
@@ -97,4 +107,11 @@ test_that("test that error and warning messages are returned correctly", {
 
   expect_warning(diyar::number_line("10A", 20), "'a' and 'z' have different classes. It may need to be reconciled")
   expect_warning(diyar::number_line("10A", 20), "NAs introduced by coercion")
+})
+
+test_that("test that error and warning messages are returned correctly", {
+  expect_error(diyar::number_line(mtcars, mtcars), "'a' or 'z' aren't compatible for a number_line object")
+  expect_error(diyar::number_line(1.2, 3.1, id = NA), "'id' must be numeric")
+  expect_error(diyar::as.number_line(mtcars), "'x' can't be coerced to a number_line object")
+
 })

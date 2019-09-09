@@ -2,46 +2,77 @@
 % Please edit documentation in R/number_line.R
 \name{number_line}
 \alias{number_line}
+\alias{as.number_line}
 \alias{is.number_line}
 \alias{reverse}
-\title{Number line}
+\alias{unique.number_line}
+\alias{format.number_line}
+\title{Number lines}
 \usage{
-number_line(a, z)
+number_line(a, z, id = NULL)
+
+as.number_line(x)
 
 is.number_line(x)
 
 reverse(x, direction = "both")
+
+\method{unique}{number_line}(x, ...)
+
+\method{format}{number_line}(x, ...)
 }
 \arguments{
 \item{a}{Start of the number line. Should be, or can be coerced to a \code{numeric} object}
 
 \item{z}{End of the number line. Should be, or can be coerced to a \code{numeric} object}
 
+\item{id}{Unique \code{numeric} element ID}
+
 \item{x}{\code{number_line} object}
 
-\item{direction}{Either \code{"increasing"} or \code{"decreasing"}. Type of \code{"number_line"} objects whose start and end points will be reversed}
+\item{direction}{Type of \code{"number_line"} objects whose start and end points will be reversed. Either \code{"increasing"} or \code{"decreasing"}.}
+
+\item{...}{arguments for particular methods.}
 }
 \value{
 \code{number_line} object
+
+\code{logical} object
 }
 \description{
-A set of functions to create and manipulate \code{number_line} objects
+A set of functions to create and manipulate \code{number_line} objects.
+}
+\details{
+A number lines has an \code{"increasing"} direction if its start point is less than its end point.
+It has a \code{"decreasing"} direction, if its end point is less than its start point.
+\code{reverse} will reverse this direction. \code{direction} argument determines which type of number lines are reversed.
 }
 \examples{
 library(lubridate)
 
 number_line(-100, 100)
 number_line(10, 11.2)
+
+# other numeric based object classes are also compatible for numeric_line objects
 number_line(dmy("12/03/2019"), dmy("05/01/2019"))
 number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
+
+# a prompt is given if 'a' and 'z' have different classes. Consider if these need to be corrected
+number_line(2, dmy("05/01/2019"))
+number_line(dmy("05/01/2019"), 2)
+
+# convert numeric objects to number_line objects
+as.number_line(5.1)
+as.number_line(dmy("21/10/2019"))
+
+# test for number_line objects
 a <- number_line(0, -100)
 b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
 is.number_line(a)
 is.number_line(b)
 
-
+#reverse number_line objects
 reverse(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
 reverse(number_line(200,-100), "increasing")
 reverse(number_line(200,-100), "decreasing")
-
 }

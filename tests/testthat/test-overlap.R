@@ -64,5 +64,24 @@ test_that("test that error and warning messages are returned correctly", {
 
   expect_error(diyar::overlap(number_line(-100, 100), number_line(50, 200), "overlaping"), "`method` must be either 'across','chain','aligns_start','aligns_end' or'within'")
   expect_error(diyar::overlap(number_line(-100, 100), number_line(50, 200), 2), "'method' must be a character object")
+})
+
+
+test_that("test compress function", {
+  expect_equal(diyar::compress(diyar::number_line(1, 20), diyar::number_line(5, 7)), diyar::number_line(1,20))
+  expect_equal(diyar::compress(diyar::number_line(20, 1), diyar::number_line(5, 7)), diyar::number_line(1,20))
+  expect_equal(diyar::compress(diyar::number_line(2, 5), diyar::number_line(3, 3), diyar::number_line(6, 7)), c(diyar::number_line(2,5, id=1), diyar::number_line(6,7, id=3)))
+
+  #warnings and errors
+  expect_error(diyar::compress(diyar::number_line(1, 20), diyar::number_line(5, 7), diyar::number_line(1,20), method = 2), "'method' must be a character object")
+  expect_error(diyar::compress(diyar::number_line(1, 20), diyar::number_line(5, 7), diyar::number_line(1,20), method = "crossing"), "`method` must be either 'across','chain','aligns_start','aligns_end' or'within'")
+  expect_error(diyar::compress(mtcars, diyar::number_line(6, 7), diyar::number_line(3, 3)), "'...' is not a number_line object")
+
+
+})
+
+
+test_that("test that error and warning messages are returned correctly", {
+
 
 })
