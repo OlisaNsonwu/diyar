@@ -14,7 +14,7 @@
 #' @param rolls_max Maximum number of recurrence periods permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent.
-#' @param overlap_method A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"within"}, \code{"chain"} or all (default),
+#' @param overlap_method A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}.
 #' @param custom_sort If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
 #' @param bi_direction If \code{FALSE}, \code{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records are those on either side of the \code{"Case"}.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each episode.
@@ -190,7 +190,7 @@
 #' hospital_admissions$epi_len <- 0
 #' bind_cols(
 #'   hospital_admissions,
-#'   episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, overlap_method = "within")
+#'   episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, overlap_method = "inbetween")
 #'   ) %>% select(-c(admin_dt, discharge_dt, sn))
 #'
 #' #Episodes of chained intervals episodes, and those with aligned end periods
@@ -208,7 +208,7 @@
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
-                          custom_sort = NULL, from_last=FALSE, overlap_method = c("across","within","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
+                          custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
 
   episodes_max <- ifelse(is.numeric(episodes_max) & !is.na(episodes_max) & !is.infinite(episodes_max), as.integer(episodes_max), episodes_max)
   rolls_max <- ifelse(is.numeric(rolls_max) & !is.na(rolls_max) & !is.infinite(rolls_max), as.integer(rolls_max), rolls_max)
@@ -216,7 +216,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   if(!(is.logical(group_stats) & is.logical(from_last) & is.logical(display) )) stop(paste("'group_stats', 'from_last' and 'display' must be TRUE or FALSE"))
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
-  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","within"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or'within'"))
+  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
   if(!((is.infinite(rolls_max) | is.integer(rolls_max) ) & (is.infinite(episodes_max) | is.integer(episodes_max)) & length(rolls_max)==1 & length(episodes_max)==1) ) stop(paste("'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf"))
 
   if(length(episode_type)!=1 | !is.character(episode_type)) stop(paste("'episode_type' must be a character of length 1"))

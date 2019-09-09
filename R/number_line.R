@@ -1,6 +1,23 @@
 #' @title Number lines
 #'
 #' @description A set of functions to create and manipulate \code{number_line} objects.
+#'
+#' @details
+#' A \code{number_line} object represents a series of real numbers on a number line.
+#'
+#' Visually, it's presented as the start and end point of the series.
+#'
+#' The \code{direction} of the number line indicates whether the number line has an \code{"increasing"} or \code{"decreasing"} series.
+#' An \code{"increasing"} direction is when the start point is less than the end point and vice versa.
+#' Those with the same start and end points are handled as having no direction.
+#'
+#' \code{reverse()} - reverses the direction of a number line. A reversed \code{number_line} object has its start and end points swapped but maintains the absolute size of its width or length.
+#' The \code{direction} argument determines which type of number lines will be reversed.
+#' \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
+#'
+#' \code{series()} - a convenience function to convert the \code{number_line} object to a a vector of a series of real numbers. The series will include the start and end points.
+#' The direction of the series will correspond to that of the \code{number_line} object.
+#'
 #' @param a Start of the number line. Should be, or can be coerced to a \code{numeric} object
 #' @param z End of the number line. Should be, or can be coerced to a \code{numeric} object
 #' @param id Unique \code{numeric} element ID
@@ -29,7 +46,7 @@ number_line <- function(a, z, id = NULL){
   er2 <- try(as.numeric(z), silent = TRUE)
   er3 <- try(as.numeric(z) - as.numeric(a), silent = TRUE)
 
-  if(!is.finite(er1) | !is.finite(er2) | !is.finite(er3)) stop(paste("'a' or 'z' aren't compatible for a number_line object",sep=""))
+  if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'a' or 'z' aren't compatible for a number_line object",sep=""))
   if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
 
   if(all(class(a)!=class(z))) warning("'a' and 'z' have different classes. It may need to be reconciled")
@@ -119,7 +136,7 @@ as.number_line <- function(x){
   er1 <- try(as.numeric(x), silent = TRUE)
   er2 <- try(as.numeric(x) + 0, silent = TRUE)
 
-  if(!is.finite(er1) | !is.finite(er2)) stop(paste("'x' can't be coerced to a number_line object",sep=""))
+  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a number_line object",sep=""))
 
   if(!diyar::is.number_line(x)){
     x <- methods::new("number_line", .Data = 0, start= x, id = length(x))
@@ -142,10 +159,6 @@ is.number_line <- function(x) class(x)=="number_line"
 #' @rdname number_line
 #' @param x \code{number_line} object
 #' @param direction Type of \code{"number_line"} objects whose start and end points will be reversed. Either \code{"increasing"} or \code{"decreasing"}.
-#' @details
-#' A number lines has an \code{"increasing"} direction if its start point is less than its end point.
-#' It has a \code{"decreasing"} direction, if its end point is less than its start point.
-#' \code{reverse} will reverse this direction. \code{direction} argument determines which type of number lines are reversed.
 #'
 #' @return \code{logical} object
 #' @examples
@@ -153,6 +166,7 @@ is.number_line <- function(x) class(x)=="number_line"
 #' reverse(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
 #' reverse(number_line(200,-100), "increasing")
 #' reverse(number_line(200,-100), "decreasing")
+#'
 #' @export
 reverse <- function(x, direction = "both"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
@@ -177,7 +191,83 @@ reverse <- function(x, direction = "both"){
 }
 
 #' @rdname number_line
-#' @param ... arguments for particular methods.
+#' @param by increment or decrement factor of the series
+#' @examples
+#' # Convert a number line object to its series of real numbers
+#' series(number_line(1, 5))
+#' series(number_line(5, 1), .5)
+#' series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
+#'
+#' # The length of the vector depends on the object class
+#' series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
+#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), duration(1.5,"days"))
+#'
+#' @export
+series <- function(x, by=1){
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!is.numeric(by) & length(by) !=1) stop(paste("'by' must be a numeric object of length 1",sep=""))
+
+  if(!is.finite(x@start) | !is.finite(x@.Data)){
+    s <- c(x@start, x@.Data)
+  }else{
+    by <- ifelse(x@.Data>0, abs(by), -abs(by))
+    s <- unique(c(x@start, seq(x@start, x@start + x@.Data, by), x@start + x@.Data))
+  }
+
+  return(s)
+}
+
+#' @rdname number_line
+#' @details
+#' \code{compress()} - Collapse overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+#' This results in the duplicate \code{number_line} objects having new but identiical start and end points which are those of the expanded number line.
+#' See \code{\link{overlap}} for further details on overlaping \code{number_line} objects.
+#' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
+#' \code{compress()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
+#'
+#' @param deduplicate \code{TRUE} to retain only one of the overlaping \code{number_line} objects
+#'
+#' @examples
+#' # collapse number lines
+#' c(number_line(1,5), number_line(2,4), number_line(10,10))
+#' compress(c(number_line(1,5), number_line(2,4), number_line(10,10)))
+#'
+#' c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40))
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "inbetween")
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "chain")
+#' compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "across")
+#'
+#' @export
+
+compress <- function(..., method = c("across","chain","aligns_start","aligns_end","inbetween"), deduplicate = TRUE){
+
+  x <- c(...)
+
+  if(!diyar::is.number_line(x)) stop(paste("'...' is not a number_line object"))
+  if(!is.character(method)) stop(paste("'method' must be a character object"))
+  if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+
+  if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
+  x <- diyar::reverse(x, "decreasing")
+
+  c <- rep(0, length(x))
+  for (i in 1:length(x)){
+    if(c[i]==1) next
+    h <- x@id == x[i]@id | diyar::overlap(x[i], x, method=method)
+    x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
+    x[which(h)]@start <- min(x[which(h),]@start)
+    c[which(h)] <- 1
+    if(min(c)==1) break
+  }
+
+  if(deduplicate) x <- unique.number_line(x)
+  return(x)
+}
+
+#' @rdname number_line
+#' @param ... arguments for particular methods | \code{number_line} objects in \code{compress()}
 #' @export
 unique.number_line <- function(x, ...){
 

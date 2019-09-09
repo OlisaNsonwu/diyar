@@ -531,7 +531,7 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = "moving"), "`episode_type` must be either 'rolling' or 'fixed'")
   expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or'within'")
+                             case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
   expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, overlap_method = 10), "'overlap_method' must be a character object")
   expect_error(episode_group(hospital_admissions, date=admin_period, sn=rd_id,

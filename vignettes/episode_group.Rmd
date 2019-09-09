@@ -344,7 +344,7 @@ cbind(
   ) %>% select(-admin_dt, -discharge_dt)
 ```
 
-Time intervals can overlap in different ways, the function allows you choose how this happens using the `overlap_method` argument. The options available are; `"across"`, `"within"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates their differences.
+Time intervals can overlap in different ways, the function allows you choose how this happens using the `overlap_method` argument. The options available are; `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates their differences.
 
 ```{r warning=FALSE}
 # overlaping intervals
@@ -384,22 +384,22 @@ aligns_start <- cbind(
 aligns_start
 
 # Intervals occuring completely within others
-within <- cbind(
+inbetween <- cbind(
   hospital_records,
   episode_group(hospital_records, date=admin_period, sn=rd_id, case_length = epi_len, 
-                overlap_method = "within", display = FALSE)
+                overlap_method = "inbetween", display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
-within
+inbetween
 
 # Intervals occuring completely within others
-chain_within <- cbind(
+chain_inbetween <- cbind(
   hospital_records,
   episode_group(hospital_records, date=admin_period, sn=rd_id, case_length = epi_len, 
-                overlap_method = c("chain","within"), display = FALSE)
+                overlap_method = c("chain","inbetween"), display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
-chain_within
+chain_inbetween
 
 ```
 
@@ -410,8 +410,8 @@ plot <- rbind(
   mutate(chain, method="chain"),
   mutate(aligns_start, method="aligns_start"),
   mutate(aligns_end, method="aligns_end"),
-  mutate(within, method="within"), 
-  mutate(chain_within, method="chain and within")
+  mutate(inbetween, method="inbetween"), 
+  mutate(chain_inbetween, method="chain and inbetween")
   )
 
 plot <- mutate(plot,
@@ -432,7 +432,7 @@ plot <- plot %>%
   mutate(
     rd_id = as.character(rd_id), 
     lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
-    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "within", "chain and within"))
+    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "inbetween", "chain and within"))
     )
 
 ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
@@ -487,17 +487,17 @@ aligns_start <- cbind(
   ) %>% select(-admin_dt, -discharge_dt)
 
 # Intervals occuring completely within others
-within <- cbind(
+inbetween <- cbind(
   hospital_records_2,
   episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
-                overlap_method = "within", display = FALSE)
+                overlap_method = "inbetween", display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
 # Chained intervals and those occuring completely within others
-chain_within <- cbind(
+chain_inbetween <- cbind(
   hospital_records_2,
   episode_group(hospital_records_2, date=admin_period, sn=rd_id, case_length = epi_len, 
-                overlap_method = c("chain","within"), display = FALSE)
+                overlap_method = c("chain","inbetween"), display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
 # Chained intervals and those with aligned end periods
@@ -525,8 +525,8 @@ plot <- rbind(
   mutate(chain, method="chain"),
   mutate(aligns_start, method="aligns_start"),
   mutate(aligns_end, method="aligns_end"),
-  mutate(within, method="within"), 
-  mutate(chain_within, method="chain and within"), 
+  mutate(inbetween, method="inbetween"), 
+  mutate(chain_inbetween, method="chain and inbetween"), 
   mutate(chain_aligns_end, method="chain and aligns_end")
   #mutate(aligns_start_end, method="aligns_start and aligns_end")
   )
@@ -549,8 +549,8 @@ plot <- plot %>%
   mutate(
     rd_id = as.character(rd_id), 
     lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
-    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "within",
-                                       "chain and within", "chain and aligns_end","aligns_start and aligns_end"))
+    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "inbetween",
+                                       "chain and inbetween", "chain and aligns_end","aligns_start and aligns_end"))
     )
 
 ep_plot <- filter(plot, var=="discharge_dt" & case_nm == "Case") %>% 

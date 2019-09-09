@@ -1,6 +1,6 @@
 #' @title Multi-staged deterministic record linkage
 #'
-#' @description This function assigns unique group identifiers to matching records from one or more datasets.
+#' @description This function assigns a unique group identifier for matching records from one or more datasets.
 #'
 #' @param df Dataframe. One or more datasets appened together.
 #' @param sn Unique \code{numeric} record indentifier.
@@ -21,19 +21,24 @@
 #' }
 #'
 #' @seealso \code{\link{episode_group}}
+#' @seealso \code{\link{number_line}}
 #'
 #' @details
 #' Record grouping occurs in stages as listed in \code{criteria}. A match at each stage is considered more certain than those in subsequent stages.
 #' Therefore, \code{criteria} should be listed in order of decreasing certainty. \code{sub_criteria} can be used to force additonal matching conditions
 #' at each stage. If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-#' If a record has a missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
+#' If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
 #' If all \code{criteria} values are missing, that record is assigned a unique group ID. When a \code{data_source} identifier is included,
 #' \code{pid_dataset} is included in the output. This shows the datasets included in each group.
 #'
+#' Record are matched in two ways; exact match - the equivalent of \code{==} or range matching.
+#' Range matching is when 2 or more record match on a range of values. For example, matching 2 records if the age value of one falls within 5 years before or after another.
+#' To do this, create the range of values as a \code{\link{number_line}} object and supply that to the \code{sub_criteria} arguement
+#'
 #' @examples
 #'
-#'  library(dplyr)
-#'  library(tidyr)
+#' library(dplyr)
+#' library(tidyr)
 #'
 #' # One stage record grouping
 #'  df <- tibble(
@@ -44,7 +49,7 @@
 #'
 #'  bind_cols(df, record_group(df, r_id, forename))
 #'
-#'  # Handling missing or unknown data - Recode missing or unknown values to NA or "".
+#'  # To handle missing or unknown data, recode missing or unknown values to NA or "".
 #'  # These are excluded from record grouping at the relevant stage
 #'
 #'  df %>%

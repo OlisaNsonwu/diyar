@@ -8,8 +8,8 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
-  "within", "aligns_start", "aligns_end", "chain"), bi_direction = FALSE,
-  group_stats = FALSE, display = TRUE)
+  "inbetween", "aligns_start", "aligns_end", "chain"),
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 }
 \arguments{
 \item{df}{Dataframe. One or more datasets appended together.}
@@ -38,7 +38,7 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
 
 \item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent.}
 
-\item{overlap_method}{A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"within"}, \code{"chain"} or all (default),}
+\item{overlap_method}{A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}.}
 
 \item{bi_direction}{If \code{FALSE}, \code{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records are those on either side of the \code{"Case"}.}
 
@@ -217,7 +217,7 @@ bind_cols(hospital_admissions,
 hospital_admissions$epi_len <- 0
 bind_cols(
   hospital_admissions,
-  episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, overlap_method = "within")
+  episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, overlap_method = "inbetween")
   ) \%>\% select(-c(admin_dt, discharge_dt, sn))
 
 #Episodes of chained intervals episodes, and those with aligned end periods

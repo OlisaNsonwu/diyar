@@ -6,13 +6,12 @@
 \alias{chain}
 \alias{aligns_start}
 \alias{aligns_end}
-\alias{within}
+\alias{inbetween}
 \alias{overlap_method}
-\alias{compress}
 \title{Overlaping number lines}
 \usage{
 overlap(x, y, method = c("across", "chain", "aligns_start", "aligns_end",
-  "within"))
+  "inbetween"))
 
 across(x, y)
 
@@ -22,12 +21,9 @@ aligns_start(x, y)
 
 aligns_end(x, y)
 
-within(x, y)
+inbetween(x, y)
 
 overlap_method(x, y)
-
-compress(..., method = c("across", "chain", "aligns_start", "aligns_end",
-  "within"), deduplicate = TRUE)
 }
 \arguments{
 \item{x}{\code{number_line} object}
@@ -35,10 +31,6 @@ compress(..., method = c("across", "chain", "aligns_start", "aligns_end",
 \item{y}{\code{number_line} object}
 
 \item{method}{Method of overlap}
-
-\item{...}{\code{number_line} objects}
-
-\item{deduplicate}{\code{TRUE} to retain only one of the overlaping \code{number_line} objects}
 }
 \value{
 \code{logical} object
@@ -47,14 +39,6 @@ compress(..., method = c("across", "chain", "aligns_start", "aligns_end",
 }
 \description{
 A set of functions to check for overlaps in \code{number_line} objects
-
-Compress overlaping \code{number_line} objects into new wider \code{number_line} objects that covers the original \code{number_line} objects
-}
-\details{
-The start and end points of the overlaping \code{number_line} objects are changed to that of the new wider \code{number_line} objects.
-This results in the overlaping \code{number_line} objects having new but identiical start and end point.
-If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
-[compress] can be a simple alternative to [episode_group]. See XX vignette.
 }
 \examples{
 
@@ -76,21 +60,12 @@ aligns_start(a, c)
 aligns_end(d, e)
 aligns_end(a, c)
 
-within(a, g)
-within(b, a)
+inbetween(a, g)
+inbetween(b, a)
 
 overlap_method(a, c)
 overlap_method(d, c)
 overlap_method(a, g)
 overlap_method(b, e)
-
-c(number_line(1,5), number_line(2,4), number_line(10,10))
-compress(c(number_line(1,5), number_line(2,4), number_line(10,10)))
-
-c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40))
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "within")
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "chain")
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "across")
 
 }
