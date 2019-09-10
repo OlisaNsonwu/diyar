@@ -4,8 +4,8 @@
 \alias{record_group}
 \title{Multi-staged deterministic record linkage}
 \usage{
-record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
-  group_stats = FALSE, display = TRUE)
+record_group(df, sn = NULL, criteria, sub_criteria = NULL,
+  data_source = NULL, group_stats = FALSE, display = TRUE)
 }
 \arguments{
 \item{df}{Dataframe. One or more datasets appened together.}
@@ -49,60 +49,37 @@ Range matching is when 2 or more record match on a range of values. For example,
 To do this, create the range of values as a \code{\link{number_line}} object and supply that to the \code{sub_criteria} arguement
 }
 \examples{
-
 library(dplyr)
 library(tidyr)
+library(diyar)
 
-# One stage record grouping
- df <- tibble(
-   r_id = c(1:5),
-   forename = c("Obinna","James","Ojay","James","Obinna"),
-   stringsAsFactors = FALSE
- )
+three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"), stringsAsFactors = FALSE)
+bind_cols(three_people, record_group(three_people, criteria= forename))
 
- bind_cols(df, record_group(df, r_id, forename))
+# To handle missing or unknown data, recode missing or unknown values to NA or "".
+three_people$r_id <- 1:5
+three_people$forename <- ifelse(three_people$r_id \%in\% c(1,4), NA, three_people$forename)
+bind_cols(three_people, record_group(three_people, criteria= forename))
 
- # To handle missing or unknown data, recode missing or unknown values to NA or "".
- # These are excluded from record grouping at the relevant stage
+# Two or more stages of record grouping
+data(staff_records); staff_records
 
- df \%>\%
-   mutate(forename = ifelse(r_id \%in\% c(1,4), NA, forename)) \%>\%
-   bind_cols(record_group(., r_id, forename))
-
- # Two or more stages of record grouping
- # Criteria should be listed in decreasing order of certainty
-data_3 <- tibble(
-  r_id = c(1:7),
-  forename = c("James",NA,"Jamey","","Derrick","Darrack","Christie"),
-  surname = c("Green","Anderson","Green",NA,"Anderson","Anderson","Green"),
-  sex = c("M","M","M","F","M","M","F"),
-  dataset = c("Staff list","Staff list", "Pay slips","Pay slips", "Staff list","Pay slips","Staff list"),
-  stringsAsFactors = FALSE
-)
-
-bind_cols(data_3, record_group(data_3,r_id, c(forename, surname), data_source = sex, display = FALSE))
+pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname), data_source = sex, display = FALSE)
+left_join(staff_records, pids, by=c("r_id"="sn"))
 
 # Add sex to the second stage to be more certain
-data_3 \%>\%
-  unite(cri_2, c(surname, sex)) \%>\%
-  bind_cols(record_group(., r_id, c(forename, cri_2), data_source = dataset, display = FALSE))
+staff_records_b <- unite(staff_records, cri_2, c(surname, sex), sep ="-")
+pids <- record_group(staff_records_b, r_id, c(forename, cri_2), data_source = dataset, display = FALSE)
+bind_cols(staff_records_b, pids)
 
 # Using sub-criteria
-data_4 <- tibble(
-  r_id = c(1:7),
-  staff_id = c(NA,NA,NA,NA,NA,2,2),
-  age = rep(30,7),
-  initials = c("G.D.","B.G.","X.P.","X.P.",NA,"G.D.","G.D."),
-  hair_colour = c("Brown","Teal",NA,"Green","Green","Dark brown","Brown"),
-  branch_office = c("Republic of Ghana","France",NA,NA,"France","Ghana","Republic of Ghana"),
-  ds_1 = c("A","A","A","B","A","A","B"),
-  ds_2 = c(3,1,1,1,1,1,2),
-  stringsAsFactors = FALSE
-)
+data(missing_staff_id); missing_staff_id
 
-bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = ds_1))
+pids <- record_group(missing_staff_id, r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1)
+left_join(missing_staff_id, pids, by=c("r_id"="sn"))
 
-bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = c(ds_1, ds_2)))
+pids <- record_group(missing_staff_id, r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = c(source_1, source_2))
+bind_cols(missing_staff_id, pids)
 
 }
 \seealso{
