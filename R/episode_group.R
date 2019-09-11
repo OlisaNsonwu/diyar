@@ -3,22 +3,22 @@
 #' @description This function assigns unique episode indentifiers to chronological episodes
 #'
 #' @param df Dataframe. One or more datasets appended together.
-#' @param sn Unique \code{numeric} record indentifier.
-#' @param strata Column names. Episodes will be unique to each strata. See \code{\link{record_group}}.
+#' @param sn Unique \code{numeric} record indentifier. Optional.
+#' @param strata Column names. Episodes will be unique to each strata. See \code{\link{record_group}} for creating group identifiers.
 #' @param date Record date or interval. \code{date}, \code{datetime} or \code{\link[lubridate]{interval}} objects.
 #' @param case_length Duration from the \code{"Case"} within which another record of the same \code{strata} will be considered a \code{"Duplicate"} record.
 #' @param episodes_max Maximum number times to group episodes in each strata.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
 #' @param recurrence_length Duration from the last record of an episode within which another record of the same \code{strata} will be considered a \code{"Recurrent"} record.
-#' @param episode_unit Time units as supported by \code{\link[lubridate]{duration}}.
+#' @param episode_unit Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.
 #' @param rolls_max Maximum number of recurrence periods permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent.
-#' @param overlap_method A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}.
+#' @param overlap_method A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.
 #' @param custom_sort If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
 #' @param bi_direction If \code{FALSE}, \code{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records are those on either side of the \code{"Case"}.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each episode.
-#' @param display If \code{TRUE}, status messages are not printed on screen.
+#' @param display If \code{TRUE}, status messages are printed on screen.
 #'
 #' @return Dataframe
 #'
@@ -28,12 +28,12 @@
 #' \item \code{case_nm} - record type in regards to case assignment
 #' \item \code{epid_dataset} - datasets contained in each episode
 #' \item \code{epid_interval} - lubridate \code{interval} object. Episode start and end dates
-#' \item \code{epid_length} - \code{difftime} object. Difference between episode start and end dates. Unit will match that supplied as \code{episode_unit} if possible othewrise, a difference in days is returned
+#' \item \code{epid_length} - \code{difftime} object. Difference between episode start and end dates. If possible, the same unit supplied to \code{episode_unit} is used otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each record group
 #' }
 #'
 #' @seealso
-#' \code{\link{record_group}}
+#' \code{\link{record_group}}, \code{\link{overlap}} and \code{\link{compress}},
 #'
 #' @details
 #' Episode grouping begins at a reference record (\code{"Case"}) and proceeds forward or backward in time depending on \code{from_last}.

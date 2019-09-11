@@ -14,9 +14,9 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
 \arguments{
 \item{df}{Dataframe. One or more datasets appended together.}
 
-\item{sn}{Unique \code{numeric} record indentifier.}
+\item{sn}{Unique \code{numeric} record indentifier. Optional.}
 
-\item{strata}{Column names. Episodes will be unique to each strata. See \code{\link{record_group}}.}
+\item{strata}{Column names. Episodes will be unique to each strata. See \code{\link{record_group}} for creating group identifiers.}
 
 \item{date}{Record date or interval. \code{date}, \code{datetime} or \code{\link[lubridate]{interval}} objects.}
 
@@ -24,7 +24,7 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
 
 \item{episode_type}{\code{"fixed"} or \code{"rolling"}.}
 
-\item{episode_unit}{Time units as supported by \code{\link[lubridate]{duration}}.}
+\item{episode_unit}{Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.}
 
 \item{episodes_max}{Maximum number times to group episodes in each strata.}
 
@@ -38,13 +38,13 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
 
 \item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent.}
 
-\item{overlap_method}{A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}.}
+\item{overlap_method}{A set methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}}}
 
 \item{bi_direction}{If \code{FALSE}, \code{"Duplicate"} records are those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records are those on either side of the \code{"Case"}.}
 
 \item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each episode.}
 
-\item{display}{If \code{TRUE}, status messages are not printed on screen.}
+\item{display}{If \code{TRUE}, status messages are printed on screen.}
 }
 \value{
 Dataframe
@@ -229,5 +229,5 @@ bind_cols(
 
 }
 \seealso{
-\code{\link{record_group}}
+\code{\link{record_group}}, \code{\link{overlap}} and \code{\link{compress}},
 }

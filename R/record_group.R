@@ -3,12 +3,12 @@
 #' @description This function assigns a unique group identifier for matching records from one or more datasets.
 #'
 #' @param df Dataframe. One or more datasets appened together.
-#' @param sn Unique \code{numeric} record indentifier.
+#' @param sn Unique \code{numeric} record indentifier. Optional.
 #' @param criteria Column names of the attributes to match. Records with matching values in these columns are grouped together.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
 #' @param data_source Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
-#' @param display If \code{TRUE}, status messages are not printed on screen.
+#' @param display If \code{TRUE}, status messages are printed on screen.
 #'
 #' @return Dataframe
 #'
@@ -20,20 +20,25 @@
 #' \item \code{pid_total} - number of records in each group
 #' }
 #'
-#' @seealso \code{\link{episode_group}}
-#' @seealso \code{\link{number_line}}
+#' @seealso \code{\link{episode_group}}, \code{\link{number_line}}
 #'
 #' @details
-#' Record grouping occurs in stages as listed in \code{criteria}. A match at each stage is considered more certain than those in subsequent stages.
-#' Therefore, \code{criteria} should be listed in order of decreasing certainty. \code{sub_criteria} can be used to force additonal matching conditions
-#' at each stage. If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-#' If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
-#' If all \code{criteria} values are missing, that record is assigned a unique group ID. When a \code{data_source} identifier is included,
-#' \code{pid_dataset} is included in the output. This shows the datasets included in each group.
+#' Record grouping occurs in stages of matching \code{criteria}.
 #'
-#' Record are matched in two ways; exact match - the equivalent of \code{==} or range matching.
-#' Range matching is when 2 or more record match on a range of values. For example, matching 2 records if the age value of one falls within 5 years before or after another.
-#' To do this, create the range of values as a \code{\link{number_line}} object and supply that to the \code{sub_criteria} arguement
+#' Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of values.
+#' An example of range matching is matching on a date give or take 5 days, or matching on age give or take 2 years.
+#' To do this, create the range of values as a \code{\link{number_line}} object and supply that to the \code{sub_criteria} arguement.
+#'
+#' A match at each stage is considered more certain than those at subsequent stages.
+#' Therefore, \code{criteria} should be listed in order of decreasing certainty.
+#'
+#' \code{sub_criteria} can be used to force additonal matching conditions at each stage.
+#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
+#' If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
+#' If all \code{criteria} values are missing, that record is assigned a unique group ID.
+#'
+#' When a \code{data_source} identifier is included,
+#' \code{pid_dataset} is included in the output. This shows the datasets included in each group.
 #'
 #' @examples
 #' library(dplyr)
@@ -48,9 +53,24 @@
 #' three_people$forename <- ifelse(three_people$r_id %in% c(1,4), NA, three_people$forename)
 #' bind_cols(three_people, record_group(three_people, criteria= forename))
 #'
-#' # Two or more stages of record grouping
 #' data(staff_records); staff_records
 #'
+#' # range matching
+#' staff_records_a <- select(staff_records, sex)
+#' staff_records_a$age <- c(10,8,20,5,5,9,7)
+#'
+#' # age range - age +- 2 years
+#' staff_records_a$range_a <- number_line(staff_records_c$age-2, staff_records_c$age+2)
+#' # age range - age + 2 years
+#' staff_records_a$range_b <- number_line(staff_records_c$age, staff_records_c$age+2)
+#' # age range - age +- 20 years
+#' staff_records_a$range_C <- number_line(staff_records_c$age-20, staff_records_c$age+20)
+#'
+#' bind_cols(staff_records_a, record_group(staff_records_a, criteria = sex, sub_criteria = list(s1a="range_a"), display = FALSE))
+#' bind_cols(staff_records_a, record_group(staff_records_a, criteria = sex, sub_criteria = list(s1a="range_b"), display = FALSE))
+#' bind_cols(staff_records_a, record_group(staff_records_a, criteria = sex, sub_criteria = list(s1a="range_C"), display = FALSE))
+#'
+#' # Two or more stages of record grouping
 #' pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname), data_source = sex, display = FALSE)
 #' left_join(staff_records, pids, by=c("r_id"="sn"))
 #'
