@@ -4,9 +4,11 @@
 \alias{number_line}
 \alias{as.number_line}
 \alias{is.number_line}
-\alias{reverse}
+\alias{reverse_number_line}
 \alias{series}
-\alias{compress}
+\alias{shift_number_line}
+\alias{expand_number_line}
+\alias{compress_number_line}
 \alias{unique.number_line}
 \alias{format.number_line}
 \title{Number lines}
@@ -17,12 +19,16 @@ as.number_line(x)
 
 is.number_line(x)
 
-reverse(x, direction = "both")
+reverse_number_line(x, direction = "both")
 
 series(x, by = 1)
 
-compress(..., method = c("across", "chain", "aligns_start", "aligns_end",
-  "inbetween"), deduplicate = TRUE)
+shift_number_line(x, by = 1)
+
+expand_number_line(x, by = 1, point = "both")
+
+compress_number_line(..., method = c("across", "chain", "aligns_start",
+  "aligns_end", "inbetween"), deduplicate = TRUE)
 
 \method{unique}{number_line}(x, ...)
 
@@ -37,11 +43,11 @@ compress(..., method = c("across", "chain", "aligns_start", "aligns_end",
 
 \item{x}{\code{number_line} object}
 
-\item{direction}{Type of \code{"number_line"} objects whose start and end points will be reversed. Either \code{"increasing"} or \code{"decreasing"}.}
+\item{direction}{Type of \code{"number_line"} objects whose start and end points are to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.}
 
-\item{by}{increment or decrement factor of the series}
+\item{by}{increment or decrement}
 
-\item{...}{arguments for particular methods | \code{number_line} objects in \code{compress()}}
+\item{...}{arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}}
 
 \item{deduplicate}{\code{TRUE} to retain only one of the overlaping \code{number_line} objects}
 }
@@ -58,22 +64,25 @@ A \code{number_line} object represents a series of real numbers on a number line
 
 Visually, it's presented as the start and end point of the series.
 
-The \code{direction} of the number line indicates whether the number line has an \code{"increasing"} or \code{"decreasing"} series.
+The \code{direction} of the number line indicates if it's an \code{"increasing"} or \code{"decreasing"} series of real numbers.
 An \code{"increasing"} direction is when the start point is less than the end point and vice versa.
-Those with the same start and end points are handled as having no direction.
 
-\code{reverse()} - reverses the direction of a number line. A reversed \code{number_line} object has its start and end points swapped but maintains the absolute size of its width or length.
+\code{reverse_number_line()} - reverses the direction of a number line. A reversed \code{number_line} object has its start and end points swapped but maintains the same width or length.
 The \code{direction} argument determines which type of number lines will be reversed.
 \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 
-\code{series()} - a convenience function to convert the \code{number_line} object to a a vector of a series of real numbers. The series will include the start and end points.
-The direction of the series will correspond to that of the \code{number_line} object.
+\code{series()} - a convenience function to convert the \code{number_line} object to a sequence of real numbers. The sequence will also include the start and end points.
+The direction of the sequence will correspond to that of the \code{number_line} object.
 
-\code{compress()} - Collapse overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+\code{shift_number_line()} - a convenience function to shift a \code{number_line} object towards the positive or negative end of the number line.
+
+\code{expand_number_line()} - a convenience function to increase or decrease the width or length of a  \code{number_line} object.
+
+\code{compress_number_line()} - Collapse overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
 This results in the duplicate \code{number_line} objects having new but identiical start and end points which are those of the expanded number line.
 See \code{\link{overlap}} for further details on overlaping \code{number_line} objects.
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
-\code{compress()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
+\code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 }
 \examples{
 library(lubridate)
@@ -100,9 +109,9 @@ is.number_line(a)
 is.number_line(b)
 
 #reverse number_line objects
-reverse(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
-reverse(number_line(200,-100), "increasing")
-reverse(number_line(200,-100), "decreasing")
+reverse_number_line(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+reverse_number_line(number_line(200,-100), "increasing")
+reverse_number_line(number_line(200,-100), "decreasing")
 
 # Convert a number line object to its series of real numbers
 series(number_line(1, 5))
@@ -114,14 +123,28 @@ series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
 series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
 series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), duration(1.5,"days"))
 
+# Shift \\code{number_line} objects
+number_line(5,6)
+# Towards the positive end of the number line
+shift_number_line(number_line(5,6), 2)
+# Towards the negative end of the number line
+shift_number_line(number_line(6,1), -2)
+
+# Increase or reduce the width or length of a \\code{number_line} object
+c(number_line(3,6), number_line(6,3))
+expand_number_line(c(number_line(3,6), number_line(6,3)), 2)
+expand_number_line(c(number_line(3,6), number_line(6,3)), -1)
+expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start")
+expand_number_line(c(number_line(3,6), number_line(6,3)), -2, "end")
+
 # collapse number lines
 c(number_line(1,5), number_line(2,4), number_line(10,10))
-compress(c(number_line(1,5), number_line(2,4), number_line(10,10)))
+compress_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
 
 c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40))
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "inbetween")
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "chain")
-compress(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "across")
+compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40))
+compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "inbetween")
+compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "chain")
+compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "across")
 
 }

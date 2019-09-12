@@ -81,9 +81,9 @@ test_that("test changing the number line", {
 
   expect_equal(show(t5[[1:2]]), c("20 <- 10", "NA ?? NA" ))
 
-  expect_equal(diyar::reverse(diyar::number_line(1000,-123)), diyar::number_line(-123, 1000))
-  expect_equal(diyar::reverse(diyar::number_line(1000,-123), "increasing"), diyar::number_line(1000, -123))
-  expect_equal(diyar::reverse(diyar::number_line(1000,-123), "decreasing"), diyar::number_line(-123, 1000))
+  expect_equal(diyar::reverse_number_line(diyar::number_line(1000,-123)), diyar::number_line(-123, 1000))
+  expect_equal(diyar::reverse_number_line(diyar::number_line(1000,-123), "increasing"), diyar::number_line(1000, -123))
+  expect_equal(diyar::reverse_number_line(diyar::number_line(1000,-123), "decreasing"), diyar::number_line(-123, 1000))
 
   nl_2 <- nl_1 <- c(diyar::number_line(1, 10), diyar::number_line(5, 10))
   nl_1[2]@.Data <- 0
@@ -99,9 +99,9 @@ test_that("test changing the number line", {
 
 test_that("test that error and warning messages are returned correctly", {
   expect_warning(diyar::number_line(50, "200"), "'a' and 'z' have different classes. It may need to be reconciled")
-  expect_error(diyar::reverse(1), "'x' is not a number_line object")
-  expect_error(diyar::reverse(number_line(10,100), c("both","increasing")), "'direction' must be a character of length 1")
-  expect_error(diyar::reverse(number_line(10,100), "increased"), "`direction` must be either 'increasing', 'decreasing', or 'both'")
+  expect_error(diyar::reverse_number_line(1), "'x' is not a number_line object")
+  expect_error(diyar::reverse_number_line(number_line(10,100), c("both","increasing")), "'direction' must be a character of length 1")
+  expect_error(diyar::reverse_number_line(number_line(10,100), "increased"), "`direction` must be either 'increasing', 'decreasing', or 'both'")
   expect_warning(diyar::number_line(50, "20A"), "'a' and 'z' have different classes. It may need to be reconciled")
   expect_warning(diyar::number_line(50, "20A"), "NAs introduced by coercion")
 
