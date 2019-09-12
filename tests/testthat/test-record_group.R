@@ -11,7 +11,7 @@ df <- data.frame(
   r_id = c(1:5)
 )
 
-test_1 <- cbind(df, record_group(df,r_id, cri_1, group_stats=TRUE))
+test_1 <- cbind(df, record_group(df, criteria=cri_1, group_stats=TRUE))
 
 test_that("test that row positions of the resulting dataframe are the same as supplied", {
   expect_equal(test_1$sn, test_1$r_id)
@@ -29,8 +29,8 @@ df_2b <- df_2a <- df
 df_2a$cri_1 <- ifelse(df_2a$cri_1=="A", NA, df_2a$cri_1 )
 df_2b$cri_1 <- ifelse(df_2b$cri_1=="A", "", df_2b$cri_1 )
 
-test_2a <- cbind(df_2a, record_group(df_2a,r_id, cri_1, group_stats = TRUE))
-test_2b <- cbind(df_2b, record_group(df_2b,r_id, cri_1, group_stats = TRUE))
+test_2a <- cbind(df_2a, record_group(df_2a, criteria = cri_1, group_stats = TRUE))
+test_2b <- cbind(df_2b, record_group(df_2b, criteria = cri_1, group_stats = TRUE))
 
 test_that("test that test blank space or NAs criteria are treated as unique record groups", {
   expect_equal(test_2a$pid, c(1,2,3,2,5))
@@ -147,5 +147,6 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_ranges"), group_stats = TRUE), "'age_ranges' not found")
   expect_error(record_group(df_8, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must be > 0")
   expect_error(record_group(df_9, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must not have duplicate values")
+  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats' and 'display' must be TRUE or FALSE")
   expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats' and 'display' must be TRUE or FALSE")
 })

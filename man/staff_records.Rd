@@ -9,7 +9,7 @@
 data(staff_records)
 }
 \description{
-Dummy staff record with some missing data
+Staff record with some missing data
 }
 \examples{
 data(staff_records)

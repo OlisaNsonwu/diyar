@@ -7,16 +7,15 @@
 #'
 #' Visually, it's presented as the start and end point of the series.
 #'
-#' The \code{direction} of the number line indicates whether the number line has an \code{"increasing"} or \code{"decreasing"} series.
+#' The \code{direction} of the number line indicates if it's an \code{"increasing"} or \code{"decreasing"} series of real numbers.
 #' An \code{"increasing"} direction is when the start point is less than the end point and vice versa.
-#' Those with the same start and end points are handled as having no direction.
 #'
-#' \code{reverse()} - reverses the direction of a number line. A reversed \code{number_line} object has its start and end points swapped but maintains the absolute size of its width or length.
+#' \code{reverse()} - reverses the direction of a number line. A reversed \code{number_line} object has its start and end points swapped but maintains the same width or length.
 #' The \code{direction} argument determines which type of number lines will be reversed.
 #' \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 #'
-#' \code{series()} - a convenience function to convert the \code{number_line} object to a a vector of a series of real numbers. The series will include the start and end points.
-#' The direction of the series will correspond to that of the \code{number_line} object.
+#' \code{series()} - a convenience function to convert the \code{number_line} object to a sequence of real numbers. The sequence will also include the start and end points.
+#' The direction of the sequence will correspond to that of the \code{number_line} object.
 #'
 #' @param a Start of the number line. Should be, or can be coerced to a \code{numeric} object
 #' @param z End of the number line. Should be, or can be coerced to a \code{numeric} object
@@ -158,7 +157,7 @@ is.number_line <- function(x) class(x)=="number_line"
 
 #' @rdname number_line
 #' @param x \code{number_line} object
-#' @param direction Type of \code{"number_line"} objects whose start and end points will be reversed. Either \code{"increasing"} or \code{"decreasing"}.
+#' @param direction Type of \code{"number_line"} objects whose start and end points are to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.
 #'
 #' @return \code{logical} object
 #' @examples
@@ -191,7 +190,7 @@ reverse <- function(x, direction = "both"){
 }
 
 #' @rdname number_line
-#' @param by increment or decrement factor of the series
+#' @param by increment or decrement
 #' @examples
 #' # Convert a number line object to its series of real numbers
 #' series(number_line(1, 5))
@@ -206,7 +205,7 @@ reverse <- function(x, direction = "both"){
 #' @export
 series <- function(x, by=1){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!is.numeric(by) & length(by) !=1) stop(paste("'by' must be a numeric object of length 1",sep=""))
+  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric object of length 1",sep=""))
 
   if(!is.finite(x@start) | !is.finite(x@.Data)){
     s <- c(x@start, x@.Data)
@@ -216,6 +215,50 @@ series <- function(x, by=1){
   }
 
   return(s)
+}
+
+#' @rdname number_line
+#' @examples
+#' # Shift a  \code{number_line} towards the positive end of the number line
+#' #' shift_number_line(number_line(5,6), 2)
+#' # Shift a  \code{number_line} towards the negative end of the number line
+#' shift_number_line(number_line(6,1), -2)
+#'
+#' @export
+shift_number_line <- function(x, by=1){
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric object of length 1",sep=""))
+
+  if(!(!is.finite(x@start) | !is.finite(x@.Data))) x@start <- x@start + by
+
+  return(x)
+}
+
+#' @rdname number_line
+#' @examples
+#' # Shift a  \code{number_line} towards the positive end of the number line
+#' expand_number_line(c(number_line(3,5), number_line(5,3)), 2)
+#' expand_number_line(c(number_line(3,5), number_line(5,3)), 2, "start")
+#' expand_number_line(c(number_line(3,5), number_line(5,3)), 2, "end")
+#'
+#' # Shift a  \code{number_line} towards the negative end of the number line
+#' shift_number_line(number_line(6,1), -2)
+#'
+#' @export
+expand_number_line <- function(x, by=1, point ="both"){
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric object of length 1",sep=""))
+  if(!is.character(point)) stop(paste("'point' must be a character object"))
+  if(all(!tolower(point) %in% c("both","start","end"))) stop(paste("`point` must be either 'start','end' or 'both'"))
+
+    dir <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
+    x <- diyar::reverse(x, direction = "decreasing")
+    if(point == "both") y <- diyar::number_line(x@start - by, (x@start + x@.Data) + by)
+    if(point == "start") y <- diyar::number_line(x@start - by, (x@start + x@.Data))
+    if(point == "end") y <- diyar::number_line(x@start, (x@start + x@.Data) + by)
+
+    y@.Data <- y@.Data * dir
+    return(y)
 }
 
 #' @rdname number_line
