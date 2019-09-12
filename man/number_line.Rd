@@ -35,11 +35,11 @@ compress_number_line(..., method = c("across", "chain", "aligns_start",
 \method{format}{number_line}(x, ...)
 }
 \arguments{
-\item{a}{Start of the number line. Should be, or can be coerced to a \code{numeric} object}
+\item{a}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
 
-\item{z}{End of the number line. Should be, or can be coerced to a \code{numeric} object}
+\item{z}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
 
-\item{id}{Unique \code{numeric} element ID}
+\item{id}{Unique \code{numeric} ID}
 
 \item{x}{\code{number_line} object}
 
@@ -62,8 +62,10 @@ A set of functions to create and manipulate \code{number_line} objects.
 \details{
 A \code{number_line} object represents a series of real numbers on a number line.
 
-Visually, it's presented as the start and end point of the series.
+Conceptually, it's presented as the left and right points of the series. This may differ from start and end point of the series.
+The start point is the lowest number in the series, regardless of whether it's at the left (\code{a}) or right (\code{z}) point of the \code{number_line} object.
 
+If the start point is at the
 The \code{direction} of the number line indicates if it's an \code{"increasing"} or \code{"decreasing"} series of real numbers.
 An \code{"increasing"} direction is when the start point is less than the end point and vice versa.
 

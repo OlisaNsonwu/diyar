@@ -5,15 +5,14 @@
 #' @details
 #' A \code{number_line} object represents a series of real numbers on a number line.
 #'
-#' Conceptually, it's presented as the left and right points of the series. This may differ from start and end point of the series.
-#' The start point is the lowest number in the series, regardless of whether it's at the left (\code{a}) or right (\code{z}) point of the \code{number_line} object.
+#' Conceptually, it's presented as the left and right points of the series. This may differ from start and end points.
+#' The start point is the lowest number in the series, regardless of whether it's at the left (\code{l}) or right (\code{r}) point of the \code{number_line} object.
 #'
-#' If the start point is at the
-#' The \code{direction} of the number line indicates if it's an \code{"increasing"} or \code{"decreasing"} series of real numbers.
-#' An \code{"increasing"} direction is when the start point is less than the end point and vice versa.
+#' The location of start point - on the left or right point, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
+#' This is refered to as the \code{direction} of the \code{number_line} object.
 #'
-#' @param a Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
-#' @param z Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
+#' @param l Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
+#' @param r Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
 #' @param id Unique \code{numeric} ID
 #' @return \code{number_line} object
 #'
@@ -28,34 +27,34 @@
 #' number_line(dmy("12/03/2019"), dmy("05/01/2019"))
 #' number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 #'
-#' # a prompt is given if 'a' and 'z' have different classes. Consider if these need to be corrected
+#' # a prompt is given if 'l' and 'r' have different classes. Consider if these need to be corrected
 #' number_line(2, dmy("05/01/2019"))
 #' number_line(dmy("05/01/2019"), 2)
 #'
 #' @export
 #'
 
-number_line <- function(a, z, id = NULL){
-  er1 <- try(as.numeric(a), silent = TRUE)
-  er2 <- try(as.numeric(z), silent = TRUE)
-  er3 <- try(as.numeric(z) - as.numeric(a), silent = TRUE)
+number_line <- function(l, r, id = NULL){
+  er1 <- try(as.numeric(l), silent = TRUE)
+  er2 <- try(as.numeric(r), silent = TRUE)
+  er3 <- try(as.numeric(r) - as.numeric(l), silent = TRUE)
 
-  if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'a' or 'z' aren't compatible for a number_line object",sep=""))
+  if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""))
   if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
 
-  if(all(class(a)!=class(z))) warning("'a' and 'z' have different classes. It may need to be reconciled")
+  if(all(class(a)!=class(z))) warning("'l' and 'r' have different classes. It may need to be reconciled")
 
   if(is.null(id) | any(duplicated(id)) | any(!is.finite(id)) ) id <- 1:length(a)
-  nl <- methods::new("number_line", .Data = as.numeric(z) - as.numeric(a), start=a, id = id)
+  nl <- methods::new("number_line", .Data = as.numeric(r) - as.numeric(l), start=l, id = id)
   return(nl)
 }
 
-#' Number lines
-#' S4 objects representing a number line
-#' Used for range matching in [record_grouping] and interval grouping in [episode_grouping]
+#' Number line objects
+#' S4 objects representing a series of finite numbers on a number line
+#' Used for range matching in \code{\link{record_grouping}} and interval grouping in \code{\link{episode_grouping}}
 #' @slot start Start of the number line
-#' @slot id \code{numeric} element ID
-#' @slot .Data Length or width of the number line
+#' @slot id \code{numeric} ID. Providing this is optional.
+#' @slot .Data Length/with and direction of the number line
 #' @export
 setClass("number_line", contains = "numeric", representation(start = "ANY", id = "numeric"))
 
@@ -152,13 +151,11 @@ is.number_line <- function(x) class(x)=="number_line"
 
 #' @rdname number_line
 #' @param x \code{number_line} object
-#' @param direction Type of \code{"number_line"} objects whose start and end points are to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.
+#' @param direction Type of \code{"number_line"} objects whose direction are to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.
 #' @details
-#' \code{reverse_number_line()} - reverses the direction of a number line. A reversed \code{number_line} object has its start and end points swapped but maintains the same width or length.
-#' The \code{direction} argument determines which type of number lines will be reversed.
+#' \code{reverse_number_line()} - reverses the direction of a \code{number_line} object. A reversed \code{number_line} object has its start and end points swapped but maintains the same width or length.
+#' The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 #' \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
-
-#' @return \code{logical} object
 #' @examples
 #' #reverse number_line objects
 #' reverse_number_line(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
@@ -191,7 +188,7 @@ reverse_number_line <- function(x, direction = "both"){
 #' @rdname number_line
 #' @param by increment or decrement
 #' @details
-#' \code{series()} - a convenience function to convert the \code{number_line} object to a sequence of real numbers. The sequence will also include the start and end points.
+#' \code{series()} - a convenience function to convert the \code{number_line} object to a sequence of finite numbers. The sequence will also include the start and end points.
 #' The direction of the sequence will correspond to that of the \code{number_line} object.
 #' @examples
 #' # Convert a number line object to its series of real numbers
@@ -242,7 +239,7 @@ shift_number_line <- function(x, by=1){
 
 #' @rdname number_line
 #' @details
-#' \code{expand_number_line()} - a convenience function to increase or decrease the width or length of a  \code{number_line} object.
+#' \code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
 #' @examples
 #' # Increase or reduce the width or length of a \code{number_line} object
 #' c(number_line(3,6), number_line(6,3))
@@ -268,8 +265,8 @@ expand_number_line <- function(x, by=1, point ="both"){
 
 #' @rdname number_line
 #' @details
-#' \code{compress_number_line()} - Collapse overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
-#' This results in the duplicate \code{number_line} objects having new but identiical start and end points which are those of the expanded number line.
+#' \code{compress_number_line()} - Collapses overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+#' This results in duplicate \code{number_line} objects with the new and identiical start and end points which are those of the expanded \code{number_line} object.
 #' See \code{\link{overlap}} for further details on overlaping \code{number_line} objects.
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
@@ -321,9 +318,9 @@ unique.number_line <- function(x, ...){
 
   if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
 
-  x <- unique(data.frame(a= x@start, z = x@start + x@.Data, row.names = x@id))
+  x <- unique(data.frame(l = x@start, r = x@start + x@.Data, row.names = x@id))
 
-  x <- diyar::number_line(a =x$a, z= x$z, id = as.numeric(row.names(x)))
+  x <- diyar::number_line(l =x$a, r = x$z, id = as.numeric(row.names(x)))
 
   return(x)
 }
