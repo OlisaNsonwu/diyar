@@ -5,23 +5,21 @@
 \alias{as.number_line}
 \alias{is.number_line}
 \alias{reverse_number_line}
-\alias{series}
 \alias{shift_number_line}
 \alias{expand_number_line}
 \alias{compress_number_line}
+\alias{series}
 \alias{unique.number_line}
 \alias{format.number_line}
 \title{Number lines}
 \usage{
-number_line(a, z, id = NULL)
+number_line(l, r, id = NULL)
 
 as.number_line(x)
 
 is.number_line(x)
 
 reverse_number_line(x, direction = "both")
-
-series(x, by = 1)
 
 shift_number_line(x, by = 1)
 
@@ -30,31 +28,31 @@ expand_number_line(x, by = 1, point = "both")
 compress_number_line(..., method = c("across", "chain", "aligns_start",
   "aligns_end", "inbetween"), deduplicate = TRUE)
 
+series(x, by = 1)
+
 \method{unique}{number_line}(x, ...)
 
 \method{format}{number_line}(x, ...)
 }
 \arguments{
-\item{a}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
+\item{l}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
 
-\item{z}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
+\item{r}{Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
 
-\item{id}{Unique \code{numeric} ID}
+\item{id}{Unique \code{numeric} ID. Providing this is optional.}
 
 \item{x}{\code{number_line} object}
 
-\item{direction}{Type of \code{"number_line"} objects whose start and end points are to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.}
+\item{direction}{Type of \code{"number_line"} objects whose direction are to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.}
 
 \item{by}{increment or decrement}
 
 \item{...}{arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}}
 
-\item{deduplicate}{\code{TRUE} to retain only one of the overlaping \code{number_line} objects}
+\item{deduplicate}{if \code{TRUE}, retains only one of duplicates}
 }
 \value{
 \code{number_line} object
-
-\code{logical} object
 }
 \description{
 A set of functions to create and manipulate \code{number_line} objects.
@@ -62,29 +60,28 @@ A set of functions to create and manipulate \code{number_line} objects.
 \details{
 A \code{number_line} object represents a series of real numbers on a number line.
 
-Conceptually, it's presented as the left and right points of the series. This may differ from start and end point of the series.
-The start point is the lowest number in the series, regardless of whether it's at the left (\code{a}) or right (\code{z}) point of the \code{number_line} object.
+Conceptually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from start and end points.
+The start point is the lowest number in the series, regardless of whether it's at the left or right point..
 
-If the start point is at the
-The \code{direction} of the number line indicates if it's an \code{"increasing"} or \code{"decreasing"} series of real numbers.
-An \code{"increasing"} direction is when the start point is less than the end point and vice versa.
+The location of the start point - left or right point, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
+This is refered to as the \code{direction} of the \code{number_line} object.
 
-\code{reverse_number_line()} - reverses the direction of a number line. A reversed \code{number_line} object has its start and end points swapped but maintains the same width or length.
-The \code{direction} argument determines which type of number lines will be reversed.
+\code{reverse_number_line()} - reverses the direction of a \code{number_line} object. A reversed \code{number_line} object has its start and end points swapped but maintains the same width or length.
+The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
-
-\code{series()} - a convenience function to convert the \code{number_line} object to a sequence of real numbers. The sequence will also include the start and end points.
-The direction of the sequence will correspond to that of the \code{number_line} object.
 
 \code{shift_number_line()} - a convenience function to shift a \code{number_line} object towards the positive or negative end of the number line.
 
-\code{expand_number_line()} - a convenience function to increase or decrease the width or length of a  \code{number_line} object.
+\code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
 
-\code{compress_number_line()} - Collapse overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
-This results in the duplicate \code{number_line} objects having new but identiical start and end points which are those of the expanded number line.
+\code{compress_number_line()} - Collapses overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+This results in duplicate \code{number_line} objects with start and end points of the new expanded \code{number_line} object.
 See \code{\link{overlap}} for further details on overlaping \code{number_line} objects.
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
+
+\code{series()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers. The sequence will also include the start and end points.
+The direction of the sequence will correspond to that of the \code{number_line} object.
 }
 \examples{
 library(lubridate)
@@ -96,7 +93,7 @@ number_line(10, 11.2)
 number_line(dmy("12/03/2019"), dmy("05/01/2019"))
 number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 
-# a prompt is given if 'a' and 'z' have different classes. Consider if these need to be corrected
+# a prompt is given if 'l' and 'r' have different classes. Consider if these need to be corrected
 number_line(2, dmy("05/01/2019"))
 number_line(dmy("05/01/2019"), 2)
 
@@ -114,16 +111,6 @@ is.number_line(b)
 reverse_number_line(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
 reverse_number_line(number_line(200,-100), "increasing")
 reverse_number_line(number_line(200,-100), "decreasing")
-
-# Convert a number line object to its series of real numbers
-series(number_line(1, 5))
-series(number_line(5, 1), .5)
-series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
-
-# The length of the vector depends on the object class
-series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
-series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
-series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), duration(1.5,"days"))
 
 # Shift \\code{number_line} objects
 number_line(5,6)
@@ -148,5 +135,15 @@ compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), 
 compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "inbetween")
 compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "chain")
 compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "across")
+
+# Convert a number line object to its series of real numbers
+series(number_line(1, 5))
+series(number_line(5, 1), .5)
+series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
+
+# The length of the vector depends on the object class
+series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
+series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), duration(1.5,"days"))
 
 }

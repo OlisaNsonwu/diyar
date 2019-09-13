@@ -93,24 +93,24 @@ test_that("test changing the number line", {
   expect_equal(nl_2, c(diyar::number_line(10, 19), diyar::number_line(5, 10)))
 
   expect_equal(unique(c(rep(diyar::number_line(50, 200),3), diyar::number_line(5, 10))), c(diyar::number_line(50, 200, id =1), diyar::number_line(5, 10, id =4)))
-  expect_equal(diyar::as.number_line(2), diyar::number_line(a=2, z=2, id=1))
+  expect_equal(diyar::as.number_line(2), diyar::number_line(2,2,1))
 
 })
 
 test_that("test that error and warning messages are returned correctly", {
-  expect_warning(diyar::number_line(50, "200"), "'a' and 'z' have different classes. It may need to be reconciled")
+  expect_warning(diyar::number_line(50, "200"), "'l' and 'r' have different classes. It may need to be reconciled")
   expect_error(diyar::reverse_number_line(1), "'x' is not a number_line object")
   expect_error(diyar::reverse_number_line(number_line(10,100), c("both","increasing")), "'direction' must be a character of length 1")
   expect_error(diyar::reverse_number_line(number_line(10,100), "increased"), "`direction` must be either 'increasing', 'decreasing', or 'both'")
-  expect_warning(diyar::number_line(50, "20A"), "'a' and 'z' have different classes. It may need to be reconciled")
+  expect_warning(diyar::number_line(50, "20A"), "'l' and 'r' have different classes. It may need to be reconciled")
   expect_warning(diyar::number_line(50, "20A"), "NAs introduced by coercion")
 
-  expect_warning(diyar::number_line("10A", 20), "'a' and 'z' have different classes. It may need to be reconciled")
+  expect_warning(diyar::number_line("10A", 20), "'l' and 'r' have different classes. It may need to be reconciled")
   expect_warning(diyar::number_line("10A", 20), "NAs introduced by coercion")
 })
 
 test_that("test that error and warning messages are returned correctly", {
-  expect_error(diyar::number_line(mtcars, mtcars), "'a' or 'z' aren't compatible for a number_line object")
+  expect_error(diyar::number_line(mtcars, mtcars), "'l' or 'r' aren't compatible for a number_line object")
   expect_error(diyar::number_line(1.2, 3.1, id = NA), "'id' must be numeric")
   expect_error(diyar::as.number_line(mtcars), "'x' can't be coerced to a number_line object")
 

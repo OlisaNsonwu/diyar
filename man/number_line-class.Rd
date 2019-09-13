@@ -3,21 +3,21 @@
 \docType{class}
 \name{number_line-class}
 \alias{number_line-class}
-\title{Number lines
-S4 objects representing a number line
-Used for range matching in [record_grouping] and interval grouping in [episode_grouping]}
+\title{Number line objects
+S4 objects representing a series of finite numbers on a number line
+Used for range matching in \code{\link{record_grouping}} and interval grouping in \code{\link{episode_grouping}}}
 \description{
-Number lines
-S4 objects representing a number line
-Used for range matching in [record_grouping] and interval grouping in [episode_grouping]
+Number line objects
+S4 objects representing a series of finite numbers on a number line
+Used for range matching in \code{\link{record_grouping}} and interval grouping in \code{\link{episode_grouping}}
 }
 \section{Slots}{
 
 \describe{
 \item{\code{start}}{Start of the number line}
 
-\item{\code{id}}{\code{numeric} element ID}
+\item{\code{id}}{Unique \code{numeric} ID. Providing this is optional.}
 
-\item{\code{.Data}}{Length or width of the number line}
+\item{\code{.Data}}{Length/with and direction of the number line}
 }}
 

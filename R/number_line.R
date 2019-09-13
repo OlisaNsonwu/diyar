@@ -5,15 +5,15 @@
 #' @details
 #' A \code{number_line} object represents a series of real numbers on a number line.
 #'
-#' Conceptually, it's presented as the left and right points of the series. This may differ from start and end points.
-#' The start point is the lowest number in the series, regardless of whether it's at the left (\code{l}) or right (\code{r}) point of the \code{number_line} object.
+#' Conceptually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from start and end points.
+#' The start point is the lowest number in the series, regardless of whether it's at the left or right point..
 #'
-#' The location of start point - on the left or right point, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
+#' The location of the start point - left or right point, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
 #' This is refered to as the \code{direction} of the \code{number_line} object.
 #'
 #' @param l Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
-#' @param r Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
-#' @param id Unique \code{numeric} ID
+#' @param r Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
+#' @param id Unique \code{numeric} ID. Providing this is optional.
 #' @return \code{number_line} object
 #'
 #' @aliases number_line
@@ -32,8 +32,6 @@
 #' number_line(dmy("05/01/2019"), 2)
 #'
 #' @export
-#'
-
 number_line <- function(l, r, id = NULL){
   er1 <- try(as.numeric(l), silent = TRUE)
   er2 <- try(as.numeric(r), silent = TRUE)
@@ -42,9 +40,9 @@ number_line <- function(l, r, id = NULL){
   if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""))
   if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
 
-  if(all(class(a)!=class(z))) warning("'l' and 'r' have different classes. It may need to be reconciled")
+  if(all(class(l)!=class(r))) warning("'l' and 'r' have different classes. It may need to be reconciled")
 
-  if(is.null(id) | any(duplicated(id)) | any(!is.finite(id)) ) id <- 1:length(a)
+  if(is.null(id) | any(duplicated(id)) | any(!is.finite(id)) ) id <- 1:length(l)
   nl <- methods::new("number_line", .Data = as.numeric(r) - as.numeric(l), start=l, id = id)
   return(nl)
 }
@@ -53,7 +51,7 @@ number_line <- function(l, r, id = NULL){
 #' S4 objects representing a series of finite numbers on a number line
 #' Used for range matching in \code{\link{record_grouping}} and interval grouping in \code{\link{episode_grouping}}
 #' @slot start Start of the number line
-#' @slot id \code{numeric} ID. Providing this is optional.
+#' @slot id Unique \code{numeric} ID. Providing this is optional.
 #' @slot .Data Length/with and direction of the number line
 #' @export
 setClass("number_line", contains = "numeric", representation(start = "ANY", id = "numeric"))
@@ -186,37 +184,6 @@ reverse_number_line <- function(x, direction = "both"){
 }
 
 #' @rdname number_line
-#' @param by increment or decrement
-#' @details
-#' \code{series()} - a convenience function to convert the \code{number_line} object to a sequence of finite numbers. The sequence will also include the start and end points.
-#' The direction of the sequence will correspond to that of the \code{number_line} object.
-#' @examples
-#' # Convert a number line object to its series of real numbers
-#' series(number_line(1, 5))
-#' series(number_line(5, 1), .5)
-#' series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
-#'
-#' # The length of the vector depends on the object class
-#' series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
-#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
-#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), duration(1.5,"days"))
-#'
-#' @export
-series <- function(x, by=1){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric object of length 1",sep=""))
-
-  if(!is.finite(x@start) | !is.finite(x@.Data)){
-    s <- c(x@start, x@.Data)
-  }else{
-    by <- ifelse(x@.Data>0, abs(by), -abs(by))
-    s <- unique(c(x@start, seq(x@start, x@start + x@.Data, by), x@start + x@.Data))
-  }
-
-  return(s)
-}
-
-#' @rdname number_line
 #' @details
 #' \code{shift_number_line()} - a convenience function to shift a \code{number_line} object towards the positive or negative end of the number line.
 #' @examples
@@ -266,12 +233,12 @@ expand_number_line <- function(x, by=1, point ="both"){
 #' @rdname number_line
 #' @details
 #' \code{compress_number_line()} - Collapses overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
-#' This results in duplicate \code{number_line} objects with the new and identiical start and end points which are those of the expanded \code{number_line} object.
+#' This results in duplicate \code{number_line} objects with start and end points of the new expanded \code{number_line} object.
 #' See \code{\link{overlap}} for further details on overlaping \code{number_line} objects.
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 #'
-#' @param deduplicate \code{TRUE} to retain only one of the overlaping \code{number_line} objects
+#' @param deduplicate if \code{TRUE}, retains only one of duplicates
 #'
 #' @examples
 #' # collapse number lines
@@ -312,6 +279,37 @@ compress_number_line <- function(..., method = c("across","chain","aligns_start"
 }
 
 #' @rdname number_line
+#' @param by increment or decrement
+#' @details
+#' \code{series()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers. The sequence will also include the start and end points.
+#' The direction of the sequence will correspond to that of the \code{number_line} object.
+#' @examples
+#' # Convert a number line object to its series of real numbers
+#' series(number_line(1, 5))
+#' series(number_line(5, 1), .5)
+#' series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
+#'
+#' # The length of the vector depends on the object class
+#' series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
+#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), duration(1.5,"days"))
+#'
+#' @export
+series <- function(x, by=1){
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric object of length 1",sep=""))
+
+  if(!is.finite(x@start) | !is.finite(x@.Data)){
+    s <- c(x@start, x@.Data)
+  }else{
+    by <- ifelse(x@.Data>0, abs(by), -abs(by))
+    s <- unique(c(x@start, seq(x@start, x@start + x@.Data, by), x@start + x@.Data))
+  }
+
+  return(s)
+}
+
+#' @rdname number_line
 #' @param ... arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}
 #' @export
 unique.number_line <- function(x, ...){
@@ -320,7 +318,7 @@ unique.number_line <- function(x, ...){
 
   x <- unique(data.frame(l = x@start, r = x@start + x@.Data, row.names = x@id))
 
-  x <- diyar::number_line(l =x$a, r = x$z, id = as.numeric(row.names(x)))
+  x <- diyar::number_line(l =x$l, r = x$r, id = as.numeric(row.names(x)))
 
   return(x)
 }
