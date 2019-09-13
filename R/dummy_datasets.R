@@ -37,3 +37,13 @@
 #' @examples
 #' data(hospital_admissions)
 "hospital_admissions"
+
+#' @title Dummy data for \code{diyar}
+#' @description Patient list with some missing data
+#' @docType data
+#' @usage data(patient_list)
+#' @format data.frame
+#' @keywords datasets
+#' @examples
+#' data(patient_list)
+"patient_list"

@@ -1,6 +1,6 @@
-#' @title Overlaping number lines
+#' @title Overlaping number line objects
 #'
-#' @description A set of functions to check for overlaps in \code{number_line} objects
+#' @description A set of functions to identify overlaping \code{number_line} objects
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
@@ -10,7 +10,6 @@
 #' @return \code{logical} object
 #'
 #' @examples
-#'
 #' a <- number_line(-100, 100)
 #' b <- number_line(10, 11.2)
 #' c <- number_line(100, 200)
@@ -19,7 +18,6 @@
 #' g <- number_line(100,100)
 #'
 #' @export
-#'
 
 overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end","inbetween")){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))

@@ -255,7 +255,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
 
     if(display) {
-      cat(paste("\n",fmt(removed), " record(s) with unique IDs untagged for possible matching in the next stage. The number of records not yet grouped is now ", fmt(removed + (total_1-tagged_1)),".\n", sep =""))
+      cat(paste("\n",fmt(removed), " record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now ", fmt(removed + (total_1-tagged_1)),".\n", sep =""))
     }
   }
 
@@ -294,6 +294,6 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     df <- dplyr::select(df, -.data$pr_sn)
 
    pd <- ifelse(display,"\n","")
-   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID. \n" , sep =""))
+   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a group unique ID. \n" , sep =""))
    df
 }

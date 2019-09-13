@@ -11,7 +11,7 @@
 \alias{series}
 \alias{unique.number_line}
 \alias{format.number_line}
-\title{Number lines}
+\title{Number line objects}
 \usage{
 number_line(l, r, id = NULL)
 
@@ -60,13 +60,13 @@ A set of functions to create and manipulate \code{number_line} objects.
 \details{
 A \code{number_line} object represents a series of real numbers on a number line.
 
-Conceptually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from start and end points.
+Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from start and end points.
 The start point is the lowest number in the series, regardless of whether it's at the left or right point..
 
-The location of the start point - left or right point, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
+The location of the start point - left or right, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
 This is refered to as the \code{direction} of the \code{number_line} object.
 
-\code{reverse_number_line()} - reverses the direction of a \code{number_line} object. A reversed \code{number_line} object has its start and end points swapped but maintains the same width or length.
+\code{reverse_number_line()} - reverses the direction of a \code{number_line} object. A reversed \code{number_line} object has its \code{l} and \code{r} points swapped but maintains the same width or length.
 The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 
@@ -86,33 +86,28 @@ The direction of the sequence will correspond to that of the \code{number_line} 
 \examples{
 library(lubridate)
 
-number_line(-100, 100)
-number_line(10, 11.2)
+number_line(-100, 100); number_line(10, 11.2)
 
 # other numeric based object classes are also compatible for numeric_line objects
-number_line(dmy("12/03/2019"), dmy("05/01/2019"))
 number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 
-# a prompt is given if 'l' and 'r' have different classes. Consider if these need to be corrected
+# a warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected
 number_line(2, dmy("05/01/2019"))
-number_line(dmy("05/01/2019"), 2)
 
 # convert numeric objects to number_line objects
-as.number_line(5.1)
-as.number_line(dmy("21/10/2019"))
+as.number_line(5.1); as.number_line(dmy("21/10/2019"))
 
 # test for number_line objects
 a <- number_line(0, -100)
 b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
-is.number_line(a)
-is.number_line(b)
+is.number_line(a); is.number_line(b)
 
 #reverse number_line objects
 reverse_number_line(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
 reverse_number_line(number_line(200,-100), "increasing")
 reverse_number_line(number_line(200,-100), "decreasing")
 
-# Shift \\code{number_line} objects
+# Shift number_line objects
 number_line(5,6)
 # Towards the positive end of the number line
 shift_number_line(number_line(5,6), 2)
