@@ -326,7 +326,7 @@ compress_number_line <- function(..., method = c("across","chain","aligns_start"
   c <- rep(0, length(x))
   for (i in 1:length(x)){
     if(c[i]==1) next
-    h <- x@id == x[i]@id | diyar::overlap(x[i], x, method=method)
+    h <- (x@id == x[i]@id | diyar::overlap(x[i], x, method=method)) & c != 1
     x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
     c[which(h)] <- 1
