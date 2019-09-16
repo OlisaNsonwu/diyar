@@ -3,13 +3,60 @@
 \docType{class}
 \name{number_line-class}
 \alias{number_line-class}
-\title{Number line objects
-S4 objects representing a series of finite numbers on a number line
-Used for range matching in \code{\link{record_grouping}} and interval grouping in \code{\link{episode_grouping}}}
+\alias{show,number_line-method}
+\alias{rep,number_line-method}
+\alias{[,number_line-method}
+\alias{[[,number_line-method}
+\alias{[<-,number_line,ANY,ANY,ANY-method}
+\alias{[[<-,number_line,ANY,ANY,ANY-method}
+\alias{$,number_line-method}
+\alias{$<-,number_line-method}
+\alias{c,number_line-method}
+\title{number_line object class}
+\usage{
+\S4method{show}{number_line}(object)
+
+\S4method{rep}{number_line}(x, ...)
+
+\S4method{[}{number_line}(x, i, j, ..., drop = TRUE)
+
+\S4method{[[}{number_line}(x, i, j, ..., exact = TRUE)
+
+\S4method{[}{number_line,ANY,ANY,ANY}(x, i, j, ...) <- value
+
+\S4method{[[}{number_line,ANY,ANY,ANY}(x, i, j, ...) <- value
+
+\S4method{$}{number_line}(x, name)
+
+\S4method{$}{number_line}(x, name) <- value
+
+\S4method{c}{number_line}(x, ...)
+}
+\arguments{
+\item{object}{R object}
+
+\item{x}{R object}
+
+\item{...}{...}
+
+\item{i}{i}
+
+\item{j}{j}
+
+\item{drop}{drop}
+
+\item{exact}{exact}
+
+\item{value}{value}
+
+\item{name}{slot name}
+}
 \description{
-Number line objects
+number_line object class
+}
+\details{
 S4 objects representing a series of finite numbers on a number line
-Used for range matching in \code{\link{record_grouping}} and interval grouping in \code{\link{episode_grouping}}
+Used for range matching in \code{record_grouping()} and interval grouping in \code{episode_grouping()}
 }
 \section{Slots}{
 

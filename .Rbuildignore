@@ -1,3 +1,6 @@
+^docs$
+^_config\.yml$
+^data/_config\.yml$
 ^Meta$
 ^doc$
 ^.*\.Rproj$

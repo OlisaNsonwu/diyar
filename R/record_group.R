@@ -20,7 +20,7 @@
 #' \item \code{pid_total} - number of records in each group
 #' }
 #'
-#' @seealso \code{\link{episode_group}}, \code{\link{number_line}}
+#' @seealso \code{\link{episode_group}}, \code{\link{overlap}} and \code{\link{number_line}}
 #'
 #' @details
 #' Record grouping occurs in stages of matching \code{criteria}.
@@ -43,9 +43,9 @@
 #' @examples
 #' library(dplyr)
 #' library(tidyr)
-#' library(diyar)
 #'
-#' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"), stringsAsFactors = FALSE)
+#' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
+#' stringsAsFactors = FALSE)
 #' bind_cols(three_people, record_group(three_people, criteria= forename))
 #'
 #' # To handle missing or unknown data, recode missing or unknown values to NA or "".
@@ -56,39 +56,39 @@
 #' data(staff_records); staff_records
 #'
 #' # range matching
-#' staff_records_a <- select(staff_records, sex)
-#' staff_records_a$age <- c(10,8,20,5,5,9,7)
+#' dob <- select(staff_records, sex)
+#' dob$age <- c(10,8,20,5,5,9,7)
 #'
 #' # age range - age +- 2 years
-#' staff_records_a$range_a <- number_line(staff_records_c$age-2, staff_records_c$age+2)
-#' # age range - age + 2 years
-#' staff_records_a$range_b <- number_line(staff_records_c$age, staff_records_c$age+2)
-#' # age range - age +- 20 years
-#' staff_records_a$range_C <- number_line(staff_records_c$age-20, staff_records_c$age+20)
+#' dob$range <- number_line(dob$age, dob$age+2)
+#' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 #'
-#' bind_cols(staff_records_a, record_group(staff_records_a, criteria = sex, sub_criteria = list(s1a="range_a"), display = FALSE))
-#' bind_cols(staff_records_a, record_group(staff_records_a, criteria = sex, sub_criteria = list(s1a="range_b"), display = FALSE))
-#' bind_cols(staff_records_a, record_group(staff_records_a, criteria = sex, sub_criteria = list(s1a="range_C"), display = FALSE))
+#' # age range - age +- 20 years
+#' dob$range <- number_line(dob$age, dob$age+20)
+#' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 #'
 #' # Two or more stages of record grouping
-#' pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname), data_source = sex, display = FALSE)
+#' pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
+#' data_source = sex, display = FALSE)
 #' left_join(staff_records, pids, by=c("r_id"="sn"))
 #'
 #' # Add sex to the second stage to be more certain
 #' staff_records_b <- unite(staff_records, cri_2, c(surname, sex), sep ="-")
-#' pids <- record_group(staff_records_b, r_id, c(forename, cri_2), data_source = dataset, display = FALSE)
+#' pids <- record_group(staff_records_b, r_id, c(forename, cri_2),
+#' data_source = dataset, display = FALSE)
 #' bind_cols(staff_records_b, pids)
 #'
 #' # Using sub-criteria
 #' data(missing_staff_id); missing_staff_id
 #'
-#' pids <- record_group(missing_staff_id, r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1)
+#' pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
+#' list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1)
 #' left_join(missing_staff_id, pids, by=c("r_id"="sn"))
 #'
-#' pids <- record_group(missing_staff_id, r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = c(source_1, source_2))
+#' pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
+#' list(s2a=c("initials","hair_colour","branch_office")), data_source = c(source_1, source_2))
 #' bind_cols(missing_staff_id, pids)
 #'
-#' @importFrom dplyr %>%
 #' @export
 
 record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE){
@@ -235,7 +235,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     total_1 <- length(subset(df$pid, df$tag ==0 ))
 
     if(display) {
-      cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," records not yet grouped.", sep =""))
+      cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," record(s) not yet grouped.", sep =""))
     }
 
     # untag record groups with only one record to attempt matching in the next criteria

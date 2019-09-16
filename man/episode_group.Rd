@@ -71,44 +71,44 @@ The maximun duration of a \code{"fixed"} episode is the \code{case_length} while
 \examples{
 library(lubridate)
 library(dplyr)
+library(diyar)
 
 data(infections); infections
 
 # 16-hour (difference of 15 hours) episodes, and the most recent record defined as the "Case"
-epids <- episode_group(infections, id = rd_id, date = date, case_length = epi_len,
-                       from_last = TRUE, episode_unit = "hours", group_stats = TRUE)
-left_join(infections, epids, by=c("rd"="sn"))
+epids <- episode_group(infections, sn = rd_id, date = date, case_length = epi_len,
+from_last = TRUE, episode_unit = "hours", group_stats = TRUE)
+left_join(infections, epids, by=c("rd_id"="sn"))
 
-# One rolling episode per strata. Initial case_length of 16 days (difference of 15 days) and one recurrence period lasting 31 days (difference of 30 days)
+# One rolling episode per strata. Initial case_length of 16 days (difference of 15 days) and
+# one recurrence period lasting 31 days (difference of 30 days)
 infections$recur <- 30
 epids <- episode_group(infections, date=date, case_length = epi_len, episode_type = "rolling",
-                       recurrence_length = recur, episodes_max = 1, rolls_max = 1, display = FALSE, group_stats = TRUE)
+recurrence_length = recur, episodes_max = 1, rolls_max = 1, display = FALSE, group_stats = TRUE)
 bind_cols(infections, epids)
 
 # User defined case assignment
 # Preference for case assignment - UTI > BSI > RTI
-source$infX_fac <- factor(source$infection, levels = c("UTI","BSI","RTI"))
+infections$infX <- factor(infections$infection, levels = c("UTI","BSI","RTI"))
 
 # Different case and recurrence lengths for different sources of infection
 infections <- mutate(infections,
                      epi_len = case_when(
-                       source == "BSI" ~ 14,
-                       source == "UTI" ~ 30,
-                       source == "RTI" ~ 60
+                       infection == "BSI" ~ 14,
+                       infection == "UTI" ~ 30,
+                       infection == "RTI" ~ 60
                      )
 )
 
 # n-day episodes beginning with the earliest record with the specified preference; UTI > BSI > RTI
 epids <- episode_group(infections, rd_id, date=date, case_length = epi_len,
-                       custom_sort = infX_fac, group_stats = TRUE,  display = FALSE)
+                       custom_sort = infX, group_stats = TRUE,  display = FALSE)
 bind_cols(infections, epids)
 
 # Another preference - RTI > UTI, or  RTI > BSI, or earliest record
-infections$infX_ord <- ifelse(infections$infection =="RTI",0,1)
-
-# n-day episodes with duplicates before and after the most recent "RTI" record, otherwise begin at the most recent record
+infections$infX <- ifelse(infections$infection =="RTI",0,1)
 epids <- episode_group(infections, rd_id, date=date, case_length = epi_len,
-                       custom_sort = infx_ord, from_last = TRUE, bi_direction = TRUE, display = FALSE, group_stats = TRUE)
+custom_sort = infX, from_last = TRUE, bi_direction = TRUE, display = FALSE, group_stats = TRUE)
 bind_cols(infections, epids)
 
 # Stratified episode grouping
@@ -116,33 +116,37 @@ infections$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Only three 9-day (difference of 8 days) rolling episodes per patient and infection.
 infections$epi_len <- 8
-epids <- episode_group(infections, rd_id, date=date, strata = c(patient_id, infection), case_length = epi_len,
-                       episode_type = "rolling", recurrence_length = recur, episodes_max = 3, data_source = c(patient_id, infection),
-                       display = FALSE)
+epids <- episode_group(infections, rd_id, date=date, strata = c(patient_id, infection),
+case_length = epi_len, episode_type = "rolling", recurrence_length = recur, episodes_max = 3,
+data_source = c(patient_id, infection), display = FALSE)
 
 bind_cols(infections, epids)
 
 # Interval grouping
-data(hospital_admission); hospital_admissions
+data(hospital_admissions); hospital_admissions
 
-hospital_admissions$admin_period <- interval(hospital_admissions$admin_dt, hospital_admissions$discharge_dt)
+hospital_admissions$admin_period <- interval(hospital_admissions$admin_dt,
+hospital_admissions$discharge_dt)
 hospital_admissions <- select(hospital_admissions, -c(discharge_dt, admin_dt))
 
 # Episodes of overlaping intervals of admission
-epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, group_stats = TRUE)
+epids <- episode_group(hospital_admissions, date=admin_period,
+sn=rd_id, case_length = epi_len, group_stats = TRUE)
 bind_cols(hospital_admissions, epids)
 
 # Overlaping intervals of admission seperated by 1 month
 hospital_admissions$epi_len <- 1
-epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, episode_unit = "months")
+epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+case_length = epi_len, episode_unit = "months")
 bind_cols(hospital_admissions, epids)
 
 # Episodes of chained intervals, and those with aligned end periods
 hospital_admissions$epi_len <- 0
-epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, overlap_method = c("chain","aligns_end"))
+epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
+case_length = epi_len, overlap_method = c("chain","aligns_end"))
 bind_cols(hospital_admissions, epids)
 
 }
 \seealso{
-\code{\link{record_group}}, \code{\link{overlap}} and \code{\link{compress}},
+\code{\link{record_group}}, \code{\link{overlap}} and \code{\link{number_line}}
 }

@@ -4,6 +4,10 @@
 \alias{number_line}
 \alias{as.number_line}
 \alias{is.number_line}
+\alias{left_point}
+\alias{right_point}
+\alias{start_point}
+\alias{end_point}
 \alias{reverse_number_line}
 \alias{shift_number_line}
 \alias{expand_number_line}
@@ -18,6 +22,14 @@ number_line(l, r, id = NULL)
 as.number_line(x)
 
 is.number_line(x)
+
+left_point(x)
+
+right_point(x)
+
+start_point(x)
+
+end_point(x)
 
 reverse_number_line(x, direction = "both")
 
@@ -47,7 +59,11 @@ series(x, by = 1)
 
 \item{by}{increment or decrement}
 
+\item{point}{\code{"start"} or \code{"start"} point}
+
 \item{...}{arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}}
+
+\item{method}{Method of overlap}
 
 \item{deduplicate}{if \code{TRUE}, retains only one of duplicates}
 }
@@ -88,21 +104,24 @@ library(lubridate)
 
 number_line(-100, 100); number_line(10, 11.2)
 
-# other numeric based object classes are also compatible for numeric_line objects
+# Other numeric based object classes are also compatible for numeric_line objects
 number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 
-# a warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected
+# A warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected
 number_line(2, dmy("05/01/2019"))
 
-# convert numeric objects to number_line objects
+# Convert numeric objects to number_line objects
 as.number_line(5.1); as.number_line(dmy("21/10/2019"))
 
-# test for number_line objects
+# Test for number_line objects
 a <- number_line(0, -100)
 b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
 is.number_line(a); is.number_line(b)
 
-#reverse number_line objects
+# Structure of a number_line object
+left_point(a); right_point(a); start_point(a); end_point(a)
+
+# Reverse number_line objects
 reverse_number_line(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
 reverse_number_line(number_line(200,-100), "increasing")
 reverse_number_line(number_line(200,-100), "decreasing")
@@ -121,15 +140,19 @@ expand_number_line(c(number_line(3,6), number_line(6,3)), -1)
 expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start")
 expand_number_line(c(number_line(3,6), number_line(6,3)), -2, "end")
 
-# collapse number lines
+# Collapse number line objects
 c(number_line(1,5), number_line(2,4), number_line(10,10))
 compress_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
 
 c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40))
-compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "inbetween")
-compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "chain")
-compress_number_line(number_line(10,10), number_line(10,20), number_line(5,30), number_line(30,40), method = "across")
+compress_number_line(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40))
+compress_number_line(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40), method = "inbetween")
+compress_number_line(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40), method = "chain")
+compress_number_line(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40), method = "across")
 
 # Convert a number line object to its series of real numbers
 series(number_line(1, 5))
@@ -139,6 +162,7 @@ series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
 # The length of the vector depends on the object class
 series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
 series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
-series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), duration(1.5,"days"))
+d <- duration(1.5,"days")
+series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), d)
 
 }
