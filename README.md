@@ -16,7 +16,7 @@ There are two main aspects of \code{diyar}; record and episode grouping. Additio
 
 ## Number line objects
 Series of real numbers on a number line. \code{diyar} also includes functions used to manipulate these objects. Some useful ones are shown below.
-```r
+```{r}
 l <- as.Date("01/04/2019", "%d/%m/%Y")
 r <- as.Date("30/04/2019", "%d/%m/%Y")
 nl <- number_line(l, r)
@@ -29,7 +29,7 @@ series(nl)
 ## Episode grouping
 The simplest implementation of episode grouping in \code{diyar} is the use of \code{compress_number_line()}.
 
-```r
+```{r}
 dates <- seq.Date(l, r, by = "3 days")
 episode_length <- 7
 nl_2 <- number_line(dates, dates + episode_length)
