@@ -3,6 +3,7 @@
 \name{episode_group}
 \alias{episode_group}
 \alias{fixed_episodes}
+\alias{rolling_episodes}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
@@ -13,6 +14,10 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 
 fixed_episodes(x, case_length, from_last = FALSE, deduplicate = FALSE,
+  display = TRUE)
+
+rolling_episodes(x, case_length, recurrence_length = NULL,
+  from_last = FALSE, rolls_max = Inf, deduplicate = FALSE,
   display = TRUE)
 }
 \arguments{
@@ -49,6 +54,10 @@ fixed_episodes(x, case_length, from_last = FALSE, deduplicate = FALSE,
 \item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each episode.}
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
+
+\item{x}{\code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects}
+
+\item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
 
 \item{x}{\code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects}
 
@@ -154,8 +163,9 @@ epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
 case_length = epi_len, overlap_method = c("chain","aligns_end"))
 bind_cols(hospital_admissions, epids)
 # episodes from time points
-x <- c("01/04/2019", "10/04/2019", "13/04/2019")
+x <- c("01/04/2019", "10/04/2019", "13/04/2019", "01/05/2019", "05/05/2019")
 x <- as.Date(x, "\%d/\%m/\%Y")
+
 epids <- fixed_episodes(x, case_length = 5, display = FALSE)
 epids$gid
 
@@ -164,6 +174,16 @@ y <- as.number_line(x)
 y <- expand_number_line(y, 1, "end")
 
 epids <- fixed_episodes(y, case_length = 20, deduplicate = TRUE, display = FALSE)
+epids$gid
+# rolling episodes from time points
+epids <- rolling_episodes(x, case_length = 5, recurrence_length =11, display = FALSE)
+epids$gid
+
+# rolling episodes from time periods
+y <- as.number_line(x)
+y <- expand_number_line(y, 1, "end")
+
+epids <- rolling_episodes(y, case_length = 20, recurrence_length =11, deduplicate = TRUE, display = FALSE)
 epids$gid
 }
 \seealso{
