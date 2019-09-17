@@ -65,6 +65,8 @@ Used for range matching in \code{record_grouping()} and interval grouping in \co
 
 \item{\code{id}}{Unique \code{numeric} ID. Providing this is optional.}
 
+\item{\code{gid}}{Unique \code{numeric} Group ID. Providing this is optional.}
+
 \item{\code{.Data}}{Length/with and direction of the number line}
 }}
 

@@ -118,7 +118,7 @@
 #' epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
 #' case_length = epi_len, overlap_method = c("chain","aligns_end"))
 #' bind_cols(hospital_admissions, epids)
-#'
+#' @aliases episode_group
 #' @importFrom dplyr %>%
 #' @importFrom rlang .data
 #' @export
@@ -262,7 +262,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     if(nrow(TR)==0) {break}
 
-    if(display){cat(paste("Episode or recurrence window",c,".\n"), sep=" ")}
+    if(display){cat(paste("Episode or recurrence window ",c,".\n", sep=""))}
 
     df <- dplyr::left_join(df, TR, by= "cri")
 
@@ -435,5 +435,67 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   pd <- ifelse(display,"\n","")
   cat(paste(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID. \n" , sep =""))
   df
+}
+
+
+#' @rdname episode_group
+#' @param x \code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects
+#' @param deduplicate if \code{TRUE}, retains only one of duplicate
+#' @examples
+#' # episodes from time points
+#' x <- c("01/04/2019", "10/04/2019", "13/04/2019")
+#' x <- as.Date(x, "%d/%m/%Y")
+#' epids <- fixed_episodes(x, case_length = 5, display = FALSE)
+#' epids$gid
+#'
+#' # episodes from time periods
+#' y <- as.number_line(x)
+#' y <- expand_number_line(y, 1, "end")
+#'
+#' epids <- fixed_episodes(y, case_length = 20, deduplicate = TRUE, display = FALSE)
+#' epids$gid
+#' @export
+fixed_episodes <- function(x, case_length, from_last = FALSE, deduplicate = FALSE, display = TRUE){
+
+  if(!(is.logical(from_last) & is.logical(display) )) stop(paste("'from_last' and 'display' must be TRUE or FALSE"))
+  if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be a numeric based object of length 1",sep=""))
+  if(!all(is.finite(x))) stop(paste("'x' must date, datetime, number_line object or a numeric based object",sep=""))
+  if(!(length(case_length) %in% c(1, length(x)))) stop(paste("'case_length' must be a 1 or the same length as 'date'",sep=""))
+
+  if(from_last) case_length <- -case_length
+  if(!diyar::is.number_line(x)){
+    x  <- diyar::as.number_line(x)
+  }
+
+  x@gid <- 1:length(x)
+  x <- sort.number_line(x, decreasing = from_last)
+  pr_sn <- x@gid
+  x <- diyar::reverse_number_line(x, "decreasing")
+
+  if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
+  j <- 0
+  c <- rep(0, length(x))
+  while (min(c) ==0 & j!=length(x)){
+    total_1 <- length(c[c==0])
+    if(display){cat(paste("Episode window ",j+1,".\n", sep=""))}
+    h <- (x@id == x[c==0][1]@id | diyar::overlap(diyar::expand_number_line(x[c==0][1], case_length, "end"), x)) & c != 1
+    x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
+    x[which(h)]@start <- min(x[which(h),]@start)
+    x[which(h)]@gid <- min(x[which(h),]@id)
+    c[which(h)] <- 1
+
+    tagged_1 <- length(h[h])
+    if(display){
+      cat(paste(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n", sep =""))
+    }
+    if(min(c)==1) break
+    j <- j + 1
+  }
+
+  db <- data.frame(nl=x, sn=pr_sn)
+  x <- db[order(db$sn),]$nl
+
+  if(deduplicate) x <- unique.number_line(x)
+  return(x)
 }
 

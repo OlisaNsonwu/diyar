@@ -29,18 +29,20 @@
 #' number_line(2, dmy("05/01/2019"))
 #'
 #' @export
-number_line <- function(l, r, id = NULL){
+number_line <- function(l, r, id = NULL, gid = NULL){
   er1 <- try(as.numeric(l), silent = TRUE)
   er2 <- try(as.numeric(r), silent = TRUE)
   er3 <- try(as.numeric(r) - as.numeric(l), silent = TRUE)
 
   if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""))
   if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
+  if(!(is.numeric(gid) | is.null(gid))) stop(paste("'gid' must be numeric",sep=""))
 
   if(all(class(l)!=class(r))) warning("'l' and 'r' have different classes. It may need to be reconciled")
 
   if(is.null(id) | any(duplicated(id)) | any(!is.finite(id)) ) id <- 1:length(l)
-  nl <- methods::new("number_line", .Data = as.numeric(r) - as.numeric(l), start=l, id = id)
+  if(is.null(gid) | any(duplicated(gid)) | any(!is.finite(gid)) ) gid <- 1:length(l)
+  nl <- methods::new("number_line", .Data = as.numeric(r) - as.numeric(l), start=l, id = id, gid = gid)
   return(nl)
 }
 
@@ -50,12 +52,13 @@ number_line <- function(l, r, id = NULL){
 #' Used for range matching in \code{record_grouping()} and interval grouping in \code{episode_grouping()}
 #' @slot start Start of the number line
 #' @slot id Unique \code{numeric} ID. Providing this is optional.
+#' @slot gid Unique \code{numeric} Group ID. Providing this is optional.
 #' @slot .Data Length/with and direction of the number line
 #' @aliases number_line-class
 #' @importFrom "methods" "new"
 #' @importFrom "utils" "head"
 #' @export
-setClass("number_line", contains = "numeric", representation(start = "ANY", id = "numeric"))
+setClass("number_line", contains = "numeric", representation(start = "ANY", id = "numeric", gid = "numeric"))
 
 #' @rdname number_line-class
 #' @param object R object
@@ -67,7 +70,7 @@ setMethod("show", signature(object="number_line"), function(object){
 #' @param x R object
 #' @param ... ...
 setMethod("rep", signature(x = "number_line"), function(x, ...) {
-  methods::new("number_line", rep(x@.Data, ...), start = rep(x@start, ...), id = rep(x@id, ...))
+  methods::new("number_line", rep(x@.Data, ...), start = rep(x@start, ...), id = rep(x@id, ...), gid = rep(x@gid, ...))
 })
 
 #' @rdname number_line-class
@@ -76,14 +79,14 @@ setMethod("rep", signature(x = "number_line"), function(x, ...) {
 #' @param drop drop
 setMethod("[", signature(x = "number_line"),
           function(x, i, j, ..., drop = TRUE) {
-            methods::new("number_line", x@.Data[i], start = x@start[i], id = x@id[i])
+            methods::new("number_line", x@.Data[i], start = x@start[i], id = x@id[i], gid = x@gid[i])
           })
 
 #' @rdname number_line-class
 #' @param exact exact
 setMethod("[[", signature(x = "number_line"),
           function(x, i, j, ..., exact = TRUE) {
-            methods::new("number_line", x@.Data[i], start = x@start[i], id = x@id[i])
+            methods::new("number_line", x@.Data[i], start = x@start[i], id = x@id[i], gid = x@gid[i])
           })
 
 #' @rdname number_line-class
@@ -93,7 +96,8 @@ setMethod("[<-", signature(x = "number_line"), function(x, i, j, ..., value) {
      x@.Data[i] <- value@.Data
      x@start[i] <- value@start
      x@id[i] <- value@id
-     new("number_line", x@.Data, start = x@start, id = x@id)
+     x@gid[i] <- value@gid
+     new("number_line", x@.Data, start = x@start, id = x@id, gid = x@gid)
    }
  })
 
@@ -103,7 +107,8 @@ setMethod("[[<-", signature(x = "number_line"), function(x, i, j, ..., value) {
      x@.Data[i] <- value@.Data
      x@start[i] <- value@start
      x@id[i] <- value@id
-     new("number_line", x@.Data, start = x@start, id = x@id)
+     x@gid[i] <- value@gid
+     new("number_line", x@.Data, start = x@start, id = x@id, gid = x@gid)
    }
  })
 
@@ -128,9 +133,10 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
    }
 
    id <- unlist(lapply(list(x, ...), function(y) as.number_line(y)@id))
+   gid <- unlist(lapply(list(x, ...), function(y) as.number_line(y)@gid))
    zi <- unlist(list(x, ...))
 
-   methods::new("number_line", .Data = zi, id = id, start= ai)
+   methods::new("number_line", .Data = zi, id = id, gid = gid, start= ai)
 
  })
 
@@ -148,7 +154,7 @@ as.number_line <- function(x){
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a number_line object",sep=""))
 
   if(!diyar::is.number_line(x)){
-    x <- methods::new("number_line", .Data = rep(0,length(x)), start= x, id = 1:length(x))
+    x <- methods::new("number_line", .Data = rep(0,length(x)), start= x, id = 1:length(x), gid = 1:length(x))
   }
 
   return(x)
@@ -293,7 +299,7 @@ expand_number_line <- function(x, by=1, point ="both"){
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 #'
-#' @param deduplicate if \code{TRUE}, retains only one of duplicates
+#' @param deduplicate if \code{TRUE}, retains only one of duplicate
 #' @param method Method of overlap
 #' @examples
 #' # Collapse number line objects
@@ -374,8 +380,20 @@ series <- function(x, by=1){
 #' @export
 unique.number_line <- function(x, ...){
   if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
-  x <- unique(data.frame(l = x@start, r = x@start + x@.Data, row.names = x@id))
-  x <- diyar::number_line(l =x$l, r = x$r, id = as.numeric(row.names(x)))
+  if(any(duplicated(x@gid) | is.na(x@gid))) x@gid <- 1:length(x@gid)
+  db <- unique(data.frame(l = x@start, r = x@start + x@.Data, row.names = x@id))
+  x <- diyar::number_line(l =db$l, r = db$r, id = as.numeric(row.names(db)), gid = x@gid[x@id %in% as.numeric(row.names(db))] )
+  return(x)
+}
+
+#' @rdname number_line
+#' @param ... arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}
+#' @export
+sort.number_line <- function(x, decreasing = FALSE, ...){
+  db <- data.frame(l = x@start, r = x@start + x@.Data, id = x@id, gid = x@gid)
+  db$y <- reverse_number_line(x)@start
+  db <- db[order(db$y, db$id, decreasing = decreasing),]
+  x <- diyar::number_line(l =db$l, r = db$r, id = db$id, gid = db$gid)
   return(x)
 }
 

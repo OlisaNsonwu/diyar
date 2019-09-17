@@ -14,10 +14,11 @@
 \alias{compress_number_line}
 \alias{series}
 \alias{unique.number_line}
+\alias{sort.number_line}
 \alias{format.number_line}
 \title{Number line objects}
 \usage{
-number_line(l, r, id = NULL)
+number_line(l, r, id = NULL, gid = NULL)
 
 as.number_line(x)
 
@@ -44,6 +45,8 @@ series(x, by = 1)
 
 \method{unique}{number_line}(x, ...)
 
+\method{sort}{number_line}(x, decreasing = FALSE, ...)
+
 \method{format}{number_line}(x, ...)
 }
 \arguments{
@@ -65,7 +68,9 @@ series(x, by = 1)
 
 \item{method}{Method of overlap}
 
-\item{deduplicate}{if \code{TRUE}, retains only one of duplicates}
+\item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
+
+\item{...}{arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}}
 }
 \value{
 \code{number_line} object

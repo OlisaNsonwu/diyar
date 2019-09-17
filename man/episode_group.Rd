@@ -2,6 +2,7 @@
 % Please edit documentation in R/episode_group.R
 \name{episode_group}
 \alias{episode_group}
+\alias{fixed_episodes}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
@@ -10,6 +11,9 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
   bi_direction = FALSE, group_stats = FALSE, display = TRUE)
+
+fixed_episodes(x, case_length, from_last = FALSE, deduplicate = FALSE,
+  display = TRUE)
 }
 \arguments{
 \item{df}{Dataframe. One or more datasets appended together.}
@@ -45,6 +49,10 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
 \item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each episode.}
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
+
+\item{x}{\code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects}
+
+\item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
 }
 \value{
 Dataframe
@@ -145,7 +153,18 @@ hospital_admissions$epi_len <- 0
 epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
 case_length = epi_len, overlap_method = c("chain","aligns_end"))
 bind_cols(hospital_admissions, epids)
+# episodes from time points
+x <- c("01/04/2019", "10/04/2019", "13/04/2019")
+x <- as.Date(x, "\%d/\%m/\%Y")
+epids <- fixed_episodes(x, case_length = 5, display = FALSE)
+epids$gid
 
+# episodes from time periods
+y <- as.number_line(x)
+y <- expand_number_line(y, 1, "end")
+
+epids <- fixed_episodes(y, case_length = 20, deduplicate = TRUE, display = FALSE)
+epids$gid
 }
 \seealso{
 \code{\link{record_group}}, \code{\link{overlap}} and \code{\link{number_line}}
