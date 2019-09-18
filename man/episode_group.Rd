@@ -21,11 +21,11 @@ rolling_episodes(x, case_length, recurrence_length = NULL,
   display = TRUE)
 }
 \arguments{
-\item{df}{Dataframe. One or more datasets appended together.}
+\item{df}{\code{data.frame}. One or more datasets appended together.}
 
 \item{sn}{Unique \code{numeric} record indentifier. Optional.}
 
-\item{strata}{Column names. Episodes will be unique to each strata. \code{\link{record_group}} can be used to create stratas}
+\item{strata}{Column names. Episodes will be unique to each strata. \code{\link{record_group}} can be used to create \code{stratas} within datasets.}
 
 \item{date}{Record date or interval. \code{date}, \code{datetime} or \code{\link[lubridate]{interval}} objects.}
 
@@ -35,9 +35,9 @@ rolling_episodes(x, case_length, recurrence_length = NULL,
 
 \item{episode_unit}{Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.}
 
-\item{episodes_max}{Maximum number of times to group episodes in each strata.}
+\item{episodes_max}{Maximum number of times to group episodes within each \code{strata}.}
 
-\item{recurrence_length}{Period from the last record of an episode within which another record of the same \code{strata} is considered a \code{"Recurrent"} record. If \code{epidsode_type} is \code{"rolling"} and \code{recurrence_length} is not supplied, the \code{case_length} is used.}
+\item{recurrence_length}{Period from the last record of an episode within which another record of the same \code{strata} is considered a \code{"Recurrent"} record. If a \code{recurrence_length} is not supplied, the \code{case_length} is used.}
 
 \item{rolls_max}{Maximum number of recurrence permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.}
 
@@ -51,13 +51,13 @@ rolling_episodes(x, case_length, recurrence_length = NULL,
 
 \item{bi_direction}{If \code{FALSE}, \code{"Duplicate"} records will be those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records will be those on both sides of the \code{"Case"}.}
 
-\item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each episode.}
+\item{group_stats}{If \code{TRUE}, the output will include additional columns with useful stats for each episode group.}
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{x}{\code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects}
+\item{x}{Record date or interval. \code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects.}
 
-\item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
+\item{deduplicate}{if \code{TRUE}, retains only one the \code{"Case"} from an episode group.}
 }
 \value{
 \code{data.frame}
@@ -73,17 +73,19 @@ rolling_episodes(x, case_length, recurrence_length = NULL,
 }
 
 \code{number_line}.
-See \code{\link{number_line}} for convenience functions to extract episode end date.
-
 \itemize{
 \item \code{id} - unique record identifier as provided
 \item \code{gid} - unique episode indentifier
 \item \code{start} - Episode start dates
 \item \code{.Data} - Difference between episode start and end dates. \code{numeric} object
 }
+
+Use \code{\link{number_line_width}} to extract the \code{epid_interval}
+
+Use \code{\link{right_point}} to extact the episode end date
 }
 \description{
-This function assigns unique episode indentifiers to chronological episodes
+Group records into chronological episode groups
 }
 \details{
 Episode grouping begins at a reference record (\code{"Case"}) and proceeds forward or backward in time depending on \code{from_last}.

@@ -135,11 +135,11 @@ test_that("test that error and warning messages are returned correctly", {
 })
 
 test_that("test series function", {
-  expect_equal(diyar::series(number_line(1, 5)), c(1:5))
-  expect_equal(diyar::series(number_line(5, 1), .5), seq(5,1,-.5))
-  expect_equal(diyar::series(number_line(1, NA), .5), c(1, NA))
-  expect_equal(diyar::series(number_line(NA, 1), .5), c(NA_real_, NA_real_))
-  expect_equal(diyar::series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1), seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
-  expect_error(diyar::series(1, .5), "'x' is not a number_line object")
-  expect_error(diyar::series(diyar::number_line(1,2), NA), "'by' must be a numeric object of length 1")
+  expect_equal(diyar::number_line_sequence(number_line(1, 5)), c(1:5))
+  expect_equal(diyar::number_line_sequence(number_line(5, 1), .5), seq(5,1,-.5))
+  expect_equal(diyar::number_line_sequence(number_line(1, NA), .5), c(1, NA))
+  expect_equal(diyar::number_line_sequence(number_line(NA, 1), .5), c(NA_real_, NA_real_))
+  expect_equal(diyar::number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1), seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
+  expect_error(diyar::number_line_sequence(1, .5), "'x' is not a number_line object")
+  expect_error(diyar::number_line_sequence(diyar::number_line(1,2), NA), "'by' must be a numeric object of length 1")
 })

@@ -1,15 +1,15 @@
 #' @title Episode grouping for record deduplication and case assignment
 #'
-#' @description This function assigns unique episode indentifiers to chronological episodes
+#' @description Group records into chronological episode groups
 #'
-#' @param df Dataframe. One or more datasets appended together.
+#' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique \code{numeric} record indentifier. Optional.
-#' @param strata Column names. Episodes will be unique to each strata. \code{\link{record_group}} can be used to create stratas
+#' @param strata Column names. Episodes will be unique to each strata. \code{\link{record_group}} can be used to create \code{stratas} within datasets.
 #' @param date Record date or interval. \code{date}, \code{datetime} or \code{\link[lubridate]{interval}} objects.
 #' @param case_length Period from a \code{"Case"} within which another record of the same \code{strata} is considered a \code{"Duplicate"} record.
-#' @param episodes_max Maximum number of times to group episodes in each strata.
+#' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Period from the last record of an episode within which another record of the same \code{strata} is considered a \code{"Recurrent"} record. If \code{epidsode_type} is \code{"rolling"} and \code{recurrence_length} is not supplied, the \code{case_length} is used.
+#' @param recurrence_length Period from the last record of an episode within which another record of the same \code{strata} is considered a \code{"Recurrent"} record. If a \code{recurrence_length} is not supplied, the \code{case_length} is used.
 #' @param episode_unit Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.
 #' @param rolls_max Maximum number of recurrence permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.
@@ -17,7 +17,7 @@
 #' @param overlap_method A set of methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.
 #' @param custom_sort If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
 #' @param bi_direction If \code{FALSE}, \code{"Duplicate"} records will be those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records will be those on both sides of the \code{"Case"}.
-#' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each episode.
+#' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #'
 #' @return \code{data.frame}
@@ -439,18 +439,21 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
 
 #' @rdname episode_group
-#' @param x \code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects
-#' @param deduplicate if \code{TRUE}, retains only one of duplicate
+#' @param x Record date or interval. \code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects.
+#' @param deduplicate if \code{TRUE}, retains only one the \code{"Case"} from an episode group.
 #'
 #' @return \code{number_line}.
-#' See \code{\link{number_line}} for convenience functions to extract episode end date.
-#'
 #' \itemize{
 #' \item \code{id} - unique record identifier as provided
 #' \item \code{gid} - unique episode indentifier
 #' \item \code{start} - Episode start dates
 #' \item \code{.Data} - Difference between episode start and end dates. \code{numeric} object
 #' }
+#'
+#' Use \code{\link{number_line_width}} to extract the \code{epid_interval}
+#'
+#' Use \code{\link{right_point}} to extact the episode end date
+#'
 #' @examples
 #' # episodes from time points
 #' x <- c("01/04/2019", "10/04/2019", "13/04/2019", "01/05/2019", "05/05/2019")
@@ -465,6 +468,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' epids <- fixed_episodes(y, case_length = 20, deduplicate = TRUE, display = FALSE)
 #' epids$gid
+#'
+#' db_a <- infections
+#' db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len,
+#'                                                    from_last = FALSE, display = FALSE, deduplicate = FALSE) )
+#' db_b$epid <- db_b$epid_interval$gid
 #' @export
 fixed_episodes <- function(x, case_length, from_last = FALSE, deduplicate = FALSE, display = TRUE){
 
@@ -492,7 +500,8 @@ fixed_episodes <- function(x, case_length, from_last = FALSE, deduplicate = FALS
     total_1 <- length(c[c==0])
     if(display){cat(paste("Episode window ",j+1,".\n", sep=""))}
     l <- x[c==0][1]
-    h <- (x@id == l@id | diyar::overlap(diyar::expand_number_line(l, case_length, pt), x)) & c != 1
+    l_l <- case_length[c==0][1]
+    h <- (x@id == l@id | diyar::overlap(diyar::expand_number_line(l, l_l, pt), x)) & c != 1
     x[which(h)]@.Data <- as.numeric(max(diyar::right_point(x[which(h),]))) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
     x[which(h)]@gid <- l@gid

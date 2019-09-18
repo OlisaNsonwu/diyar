@@ -8,11 +8,12 @@
 \alias{right_point}
 \alias{start_point}
 \alias{end_point}
+\alias{number_line_width}
 \alias{reverse_number_line}
 \alias{shift_number_line}
 \alias{expand_number_line}
 \alias{compress_number_line}
-\alias{series}
+\alias{number_line_sequence}
 \alias{unique.number_line}
 \alias{sort.number_line}
 \alias{format.number_line}
@@ -32,6 +33,8 @@ start_point(x)
 
 end_point(x)
 
+number_line_width(x)
+
 reverse_number_line(x, direction = "both")
 
 shift_number_line(x, by = 1)
@@ -41,7 +44,7 @@ expand_number_line(x, by = 1, point = "both")
 compress_number_line(x, method = c("across", "chain", "aligns_start",
   "aligns_end", "inbetween"), deduplicate = TRUE)
 
-series(x, by = 1)
+number_line_sequence(x, by = 1)
 
 \method{unique}{number_line}(x, ...)
 
@@ -103,7 +106,7 @@ See \code{\link{overlap}} for further details on overlaping \code{number_line} o
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 
-\code{series()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers. The sequence will also include the start and end points.
+\code{number_line_sequence()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers. The sequence will also include the start and end points.
 The direction of the sequence will correspond to that of the \code{number_line} object.
 }
 \examples{
@@ -162,14 +165,14 @@ compress_number_line(c(number_line(10,10), number_line(10,20),
 number_line(5,30), number_line(30,40)), method = "across")
 
 # Convert a number line object to its series of real numbers
-series(number_line(1, 5))
-series(number_line(5, 1), .5)
-series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
+number_line_sequence(number_line(1, 5))
+number_line_sequence(number_line(5, 1), .5)
+number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
 
 # The length of the vector depends on the object class
-series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
-series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
+number_line_sequence(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+number_line_sequence(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
 d <- duration(1.5,"days")
-series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), d)
+number_line_sequence(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), d)
 
 }

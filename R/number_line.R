@@ -154,14 +154,13 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 #'
 #' @export
 as.number_line <- function(x){
-
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
   er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a number_line object",sep=""))
 
   if(!diyar::is.number_line(x)){
-    x <- as.numeric(x)
+    x[!is.finite(as.numeric(x))] <- NA
     x <- methods::new("number_line", .Data = rep(0,length(x)), start= x, id = 1:length(x), gid = 1:length(x))
   }
 
@@ -210,6 +209,13 @@ end_point <- function(x){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start + x@.Data
+}
+
+#' @rdname number_line
+#' @export
+number_line_width <- function(x){
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  x <- diyar::right_point(x) - diyar::left_point(x)
 }
 
 #' @rdname number_line
@@ -351,22 +357,22 @@ compress_number_line <- function(x, method = c("across","chain","aligns_start","
 #' @rdname number_line
 #' @param by increment or decrement
 #' @details
-#' \code{series()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers. The sequence will also include the start and end points.
+#' \code{number_line_sequence()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers. The sequence will also include the start and end points.
 #' The direction of the sequence will correspond to that of the \code{number_line} object.
 #' @examples
 #' # Convert a number line object to its series of real numbers
-#' series(number_line(1, 5))
-#' series(number_line(5, 1), .5)
-#' series(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
+#' number_line_sequence(number_line(1, 5))
+#' number_line_sequence(number_line(5, 1), .5)
+#' number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
 #'
 #' # The length of the vector depends on the object class
-#' series(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
-#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
+#' number_line_sequence(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+#' number_line_sequence(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
 #' d <- duration(1.5,"days")
-#' series(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), d)
+#' number_line_sequence(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), d)
 #'
 #' @export
-series <- function(x, by=1){
+number_line_sequence <- function(x, by=1){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric object of length 1",sep=""))
 
