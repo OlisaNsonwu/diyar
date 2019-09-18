@@ -13,7 +13,8 @@
 #'
 #' @param l Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
 #' @param r Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
-#' @param id Unique \code{numeric} ID. Providing this is optional.
+#' @param id Unique \code{numeric} ID. Providing this is optional
+#' @param gid Unique \code{numeric} Group ID. Providing this is optional
 #' @return \code{number_line} object
 #'
 #' @aliases number_line
@@ -46,14 +47,16 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   return(nl)
 }
 
-#' number_line object class
+#' \code{number_line} class
+#'
 #' @details
 #' S4 objects representing a series of finite numbers on a number line
 #' Used for range matching in \code{record_grouping()} and interval grouping in \code{episode_grouping()}
+#'
 #' @slot start Start of the number line
 #' @slot id Unique \code{numeric} ID. Providing this is optional.
 #' @slot gid Unique \code{numeric} Group ID. Providing this is optional.
-#' @slot .Data Length/with and direction of the number line
+#' @slot .Data Length/with and direction of the \code{number_line} object.
 #' @aliases number_line-class
 #' @importFrom "methods" "new"
 #' @importFrom "utils" "head"
@@ -61,18 +64,19 @@ number_line <- function(l, r, id = NULL, gid = NULL){
 setClass("number_line", contains = "numeric", representation(start = "ANY", id = "numeric", gid = "numeric"))
 
 #' @rdname number_line-class
-#' @param object R object
+#' @param object object
 setMethod("show", signature(object="number_line"), function(object){
   print(format.number_line(object))
 })
 
 #' @rdname number_line-class
-#' @param x R object
+#' @param x x
 #' @param ... ...
 setMethod("rep", signature(x = "number_line"), function(x, ...) {
   methods::new("number_line", rep(x@.Data, ...), start = rep(x@start, ...), id = rep(x@id, ...), gid = rep(x@gid, ...))
 })
 
+#' @aliases [,number_line-method
 #' @rdname number_line-class
 #' @param i i
 #' @param j j
@@ -82,6 +86,7 @@ setMethod("[", signature(x = "number_line"),
             methods::new("number_line", x@.Data[i], start = x@start[i], id = x@id[i], gid = x@gid[i])
           })
 
+#' @aliases [[,number_line-method
 #' @rdname number_line-class
 #' @param exact exact
 setMethod("[[", signature(x = "number_line"),
@@ -89,6 +94,7 @@ setMethod("[[", signature(x = "number_line"),
             methods::new("number_line", x@.Data[i], start = x@start[i], id = x@id[i], gid = x@gid[i])
           })
 
+#' @aliases [<-,number_line-method
 #' @rdname number_line-class
 #' @param value value
 setMethod("[<-", signature(x = "number_line"), function(x, i, j, ..., value) {
@@ -101,6 +107,7 @@ setMethod("[<-", signature(x = "number_line"), function(x, i, j, ..., value) {
    }
  })
 
+#' @aliases [[<-,number_line-method
 #' @rdname number_line-class
 setMethod("[[<-", signature(x = "number_line"), function(x, i, j, ..., value) {
    if (is.number_line(value)) {
@@ -142,18 +149,19 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 
 #' @rdname number_line
 #' @examples
-#' # Convert numeric objects to number_line objects
+#' # Convert numeric based objects to number_line objects
 #' as.number_line(5.1); as.number_line(dmy("21/10/2019"))
 #'
 #' @export
 as.number_line <- function(x){
 
-  er1 <- try(as.numeric(x), silent = TRUE)
-  er2 <- try(as.numeric(x) + 0, silent = TRUE)
+  er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
+  er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a number_line object",sep=""))
 
   if(!diyar::is.number_line(x)){
+    x <- as.numeric(x)
     x <- methods::new("number_line", .Data = rep(0,length(x)), start= x, id = 1:length(x), gid = 1:length(x))
   }
 
@@ -307,22 +315,19 @@ expand_number_line <- function(x, by=1, point ="both"){
 #' compress_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
 #'
 #' c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-#' compress_number_line(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40))
-#' compress_number_line(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40), method = "inbetween")
-#' compress_number_line(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40), method = "chain")
-#' compress_number_line(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40), method = "across")
+#' compress_number_line(c(number_line(10,10), number_line(10,20),
+#' number_line(5,30), number_line(30,40)))
+#' compress_number_line(c(number_line(10,10), number_line(10,20),
+#' number_line(5,30), number_line(30,40)), method = "inbetween")
+#' compress_number_line(c(number_line(10,10), number_line(10,20),
+#' number_line(5,30), number_line(30,40)), method = "chain")
+#' compress_number_line(c(number_line(10,10), number_line(10,20),
+#' number_line(5,30), number_line(30,40)), method = "across")
 #'
 #' @export
 
-compress_number_line <- function(..., method = c("across","chain","aligns_start","aligns_end","inbetween"), deduplicate = TRUE){
-
-  x <- c(...)
-
-  if(!diyar::is.number_line(x)) stop(paste("'...' is not a number_line object"))
+compress_number_line <- function(x, method = c("across","chain","aligns_start","aligns_end","inbetween"), deduplicate = TRUE){
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
 
@@ -376,7 +381,7 @@ series <- function(x, by=1){
 }
 
 #' @rdname number_line
-#' @param ... arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}
+#' @param ... arguments for particular methods
 #' @export
 unique.number_line <- function(x, ...){
   if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
@@ -387,7 +392,7 @@ unique.number_line <- function(x, ...){
 }
 
 #' @rdname number_line
-#' @param ... arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}
+#' @param decreasing logical. Should the sort be increasing or decreasing
 #' @export
 sort.number_line <- function(x, decreasing = FALSE, ...){
   db <- data.frame(l = x@start, r = x@start + x@.Data, id = x@id, gid = x@gid)

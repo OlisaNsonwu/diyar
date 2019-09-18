@@ -8,11 +8,13 @@
 \alias{[,number_line-method}
 \alias{[[,number_line-method}
 \alias{[<-,number_line,ANY,ANY,ANY-method}
+\alias{[<-,number_line-method}
 \alias{[[<-,number_line,ANY,ANY,ANY-method}
+\alias{[[<-,number_line-method}
 \alias{$,number_line-method}
 \alias{$<-,number_line-method}
 \alias{c,number_line-method}
-\title{number_line object class}
+\title{\code{number_line} class}
 \usage{
 \S4method{show}{number_line}(object)
 
@@ -33,9 +35,9 @@
 \S4method{c}{number_line}(x, ...)
 }
 \arguments{
-\item{object}{R object}
+\item{object}{object}
 
-\item{x}{R object}
+\item{x}{x}
 
 \item{...}{...}
 
@@ -52,7 +54,7 @@
 \item{name}{slot name}
 }
 \description{
-number_line object class
+\code{number_line} class
 }
 \details{
 S4 objects representing a series of finite numbers on a number line
@@ -67,6 +69,6 @@ Used for range matching in \code{record_grouping()} and interval grouping in \co
 
 \item{\code{gid}}{Unique \code{numeric} Group ID. Providing this is optional.}
 
-\item{\code{.Data}}{Length/with and direction of the number line}
+\item{\code{.Data}}{Length/with and direction of the \code{number_line} object.}
 }}
 

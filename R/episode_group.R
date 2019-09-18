@@ -20,7 +20,7 @@
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each episode.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #'
-#' @return Dataframe
+#' @return \code{data.frame}
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
@@ -439,8 +439,18 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
 
 #' @rdname episode_group
-#' @param x \code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects
+#' @param x \code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects
 #' @param deduplicate if \code{TRUE}, retains only one of duplicate
+#'
+#' @return \code{number_line}.
+#' See \code{\link{number_line}} for convenience functions to extract episode end date.
+#'
+#' \itemize{
+#' \item \code{id} - unique record identifier as provided
+#' \item \code{gid} - unique episode indentifier
+#' \item \code{start} - Episode start dates
+#' \item \code{.Data} - Difference between episode start and end dates. \code{numeric} object
+#' }
 #' @examples
 #' # episodes from time points
 #' x <- c("01/04/2019", "10/04/2019", "13/04/2019", "01/05/2019", "05/05/2019")
@@ -463,6 +473,7 @@ fixed_episodes <- function(x, case_length, from_last = FALSE, deduplicate = FALS
   if(!all(is.finite(x))) stop(paste("'x' must date, datetime, number_line object or a numeric based object",sep=""))
   if(!(length(case_length) %in% c(1, length(x)))) stop(paste("'case_length' must be a 1 or the same length as 'date'",sep=""))
 
+  fmt <- function(g) formatC(g, format="d", big.mark=",")
   if(!diyar::is.number_line(x)){
     x  <- diyar::as.number_line(x)
   }
@@ -504,8 +515,6 @@ fixed_episodes <- function(x, case_length, from_last = FALSE, deduplicate = FALS
 }
 
 #' @rdname episode_group
-#' @param x \code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects
-#' @param deduplicate if \code{TRUE}, retains only one of duplicate
 #' @examples
 
 #' # rolling episodes from time points
@@ -528,6 +537,7 @@ rolling_episodes <- function(x, case_length, recurrence_length=NULL, from_last =
   if(!(length(case_length) %in% c(1, length(x)))) stop(paste("'case_length' must be a 1 or the same length as 'date'",sep=""))
   if(!(length(recurrence_length) %in% c(1, length(x)) | (length(recurrence_length) ==0 & is.null(recurrence_length)))) stop(paste("'recurrence_length' must be a 1 or the same length as 'date'",sep=""))
 
+  fmt <- function(g) formatC(g, format="d", big.mark=",")
   if(is.null(recurrence_length)){
     recurrence_length <- case_length
   }

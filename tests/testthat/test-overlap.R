@@ -68,14 +68,14 @@ test_that("test that error and warning messages are returned correctly", {
 
 
 test_that("test compress function", {
-  expect_equal(diyar::compress_number_line(diyar::number_line(1, 20), diyar::number_line(5, 7)), diyar::number_line(1,20))
-  expect_equal(diyar::compress_number_line(diyar::number_line(20, 1), diyar::number_line(5, 7)), diyar::number_line(1,20))
-  expect_equal(diyar::compress_number_line(diyar::number_line(2, 5), diyar::number_line(3, 3), diyar::number_line(6, 7)), c(diyar::number_line(2,5, id=1, gid =1), diyar::number_line(6,7, id=3, gid =3)))
+  expect_equal(diyar::compress_number_line(c(diyar::number_line(1, 20), diyar::number_line(5, 7))), diyar::number_line(1,20))
+  expect_equal(diyar::compress_number_line(c(diyar::number_line(20, 1), diyar::number_line(5, 7))), diyar::number_line(1,20))
+  expect_equal(diyar::compress_number_line(c(diyar::number_line(2, 5), diyar::number_line(3, 3), diyar::number_line(6, 7))), c(diyar::number_line(2,5, id=1, gid =1), diyar::number_line(6,7, id=3, gid =3)))
 
   #warnings and errors
-  expect_error(diyar::compress_number_line(diyar::number_line(1, 20), diyar::number_line(5, 7), diyar::number_line(1,20), method = 2), "'method' must be a character object")
-  expect_error(diyar::compress_number_line(diyar::number_line(1, 20), diyar::number_line(5, 7), diyar::number_line(1,20), method = "crossing"), "`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
-  expect_error(diyar::compress_number_line(mtcars, diyar::number_line(6, 7), diyar::number_line(3, 3)), "'...' is not a number_line object")
+  expect_error(diyar::compress_number_line(c(diyar::number_line(1, 20), diyar::number_line(5, 7), diyar::number_line(1,20)), method = 2), "'method' must be a character object")
+  expect_error(diyar::compress_number_line(c(diyar::number_line(1, 20), diyar::number_line(5, 7), diyar::number_line(1,20)), method = "crossing"), "`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
+  expect_error(diyar::compress_number_line(mtcars, diyar::number_line(6, 7), diyar::number_line(3, 3)), "'x' is not a number_line object")
 
 
 })

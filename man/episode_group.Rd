@@ -55,16 +55,12 @@ rolling_episodes(x, case_length, recurrence_length = NULL,
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{x}{\code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects}
-
-\item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
-
-\item{x}{\code{date}, \code{datetime}, \code{number_line} objects or other numeric based objects}
+\item{x}{\code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects}
 
 \item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
 }
 \value{
-Dataframe
+\code{data.frame}
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
@@ -74,6 +70,16 @@ Dataframe
 \item \code{epid_interval} - Episode start and end dates. Lubridate's \code{\link{interval}} object.
 \item \code{epid_length} - Difference between episode start and end dates. \code{difftime} object. If possible, the same unit supplied to \code{episode_unit} is used otherwise, a difference in days is returned
 \item \code{epid_total} - number of records in each record group
+}
+
+\code{number_line}.
+See \code{\link{number_line}} for convenience functions to extract episode end date.
+
+\itemize{
+\item \code{id} - unique record identifier as provided
+\item \code{gid} - unique episode indentifier
+\item \code{start} - Episode start dates
+\item \code{.Data} - Difference between episode start and end dates. \code{numeric} object
 }
 }
 \description{

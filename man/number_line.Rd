@@ -38,7 +38,7 @@ shift_number_line(x, by = 1)
 
 expand_number_line(x, by = 1, point = "both")
 
-compress_number_line(..., method = c("across", "chain", "aligns_start",
+compress_number_line(x, method = c("across", "chain", "aligns_start",
   "aligns_end", "inbetween"), deduplicate = TRUE)
 
 series(x, by = 1)
@@ -54,7 +54,9 @@ series(x, by = 1)
 
 \item{r}{Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
 
-\item{id}{Unique \code{numeric} ID. Providing this is optional.}
+\item{id}{Unique \code{numeric} ID. Providing this is optional}
+
+\item{gid}{Unique \code{numeric} Group ID. Providing this is optional}
 
 \item{x}{\code{number_line} object}
 
@@ -64,13 +66,13 @@ series(x, by = 1)
 
 \item{point}{\code{"start"} or \code{"start"} point}
 
-\item{...}{arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}}
-
 \item{method}{Method of overlap}
 
 \item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
 
-\item{...}{arguments for particular methods | \code{number_line} objects in \code{compress_number_line()}}
+\item{...}{arguments for particular methods}
+
+\item{decreasing}{logical. Should the sort be increasing or decreasing}
 }
 \value{
 \code{number_line} object
@@ -115,7 +117,7 @@ number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 # A warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected
 number_line(2, dmy("05/01/2019"))
 
-# Convert numeric objects to number_line objects
+# Convert numeric based objects to number_line objects
 as.number_line(5.1); as.number_line(dmy("21/10/2019"))
 
 # Test for number_line objects
@@ -150,14 +152,14 @@ c(number_line(1,5), number_line(2,4), number_line(10,10))
 compress_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
 
 c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-compress_number_line(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40))
-compress_number_line(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40), method = "inbetween")
-compress_number_line(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40), method = "chain")
-compress_number_line(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40), method = "across")
+compress_number_line(c(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40)))
+compress_number_line(c(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40)), method = "inbetween")
+compress_number_line(c(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40)), method = "chain")
+compress_number_line(c(number_line(10,10), number_line(10,20),
+number_line(5,30), number_line(30,40)), method = "across")
 
 # Convert a number line object to its series of real numbers
 series(number_line(1, 5))
