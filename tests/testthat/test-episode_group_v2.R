@@ -577,7 +577,7 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(dft_9, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'rd_id' as 'sn' must not have duplicate values")
   expect_error(episode_group(admissions, date=epi_len, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'epi_len' as 'date' must be a date, datetime or lubridate interval, and not have missing values")
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'epi_len' as 'date' must be a date, datetime or number_line object, and not have missing values")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last' and 'display' must be TRUE or FALSE")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,

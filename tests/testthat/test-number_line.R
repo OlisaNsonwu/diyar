@@ -94,9 +94,9 @@ test_that("test changing the number line", {
 
   expect_equal(unique(c(rep(diyar::number_line(50, 200),3), diyar::number_line(5, 10))), c(diyar::number_line(50, 200, id =1, gid =1), diyar::number_line(5, 10, id =4, gid=4)))
   expect_equal(diyar::as.number_line(2), diyar::number_line(2,2,1,1))
-  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2), c(number_line(1,8,1,1), number_line(8,1,2,2)))
-  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start"), c(number_line(1,6,1,1), number_line(8,3,2,2)))
-  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "end"), c(number_line(3,8,1,1), number_line(6,1,2,2)))
+  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2), c(number_line(1,8,1,1), number_line(8,1,1,1)))
+  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start"), c(number_line(1,6,1,1), number_line(8,3,1,1)))
+  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "end"), c(number_line(3,8,1,1), number_line(6,1,1,1)))
   expect_equal(left_point(diyar::number_line(5, 1)), 5)
   expect_equal(right_point(diyar::number_line(5, 1)), 1)
   expect_equal(start_point(diyar::number_line(5, 1)), 1)

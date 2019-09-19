@@ -156,12 +156,15 @@ Opes_c
 
 # Match record within 3 months before or after a date
 Opes_c$range <- expand_number_line(as.number_line(dmy(Opes_c$date_of_birth)), period(2, "years"), "end")
+Opes_c$range@gid <- as.numeric(dmy(Opes_c$date_of_birth))
 bind_cols(Opes_c,
   record_group(Opes_c, criteria = dummy_cri, sub_criteria = list(s1="range")))
 
 # Match record within 5 years younger or older than an age
 Opes_c$age <- as.numeric(round((Sys.Date() - dmy(Opes_c$date_of_birth))/365.5)) # approximate age
-Opes_c$range <- expand_number_line(as.number_line(Opes_c$age), 5, "end")
+Opes_c$range <- as.number_line(Opes_c$age)
+Opes_c$range@gid <- Opes_c$age
+Opes_c$range <- expand_number_line(Opes_c$range, 5, "end")
 bind_cols(Opes_c,
   record_group(Opes_c, criteria = dummy_cri, sub_criteria = list(s1="range")))
 ```

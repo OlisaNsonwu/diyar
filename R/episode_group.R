@@ -1,3 +1,4 @@
+#' @name episode_group
 #' @title Episode grouping for record deduplication and case assignment
 #'
 #' @description Group records into chronological episodes
@@ -99,7 +100,7 @@
 #'
 #' data(hospital_admissions); hospital_admissions
 #'
-#' hospital_admissions$admin_period <- interval(hospital_admissions$admin_dt,
+#' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 #' hospital_admissions$discharge_dt)
 #' hospital_admissions <- select(hospital_admissions, -c(discharge_dt, admin_dt))
 #'
@@ -553,7 +554,7 @@ fixed_episodes <- function(x, strata = NULL, case_length, from_last = FALSE, ove
   return(x)
 }
 
-#' @aliases episode_group
+#' @rdname episode_group
 #' @export
 rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NULL, from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), deduplicate = FALSE, display = TRUE){
 
@@ -646,7 +647,7 @@ rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NUL
   return(x)
 }
 
-#' @rdname episode_group
+#' @aliases episode_group
 #' @export
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
@@ -699,7 +700,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste("'",r_epl,"' as 'recurrence_length' must be -1 or a positive integer, numeric or double data type", sep=""))
   }
 
-  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line")) & all(!is.na(df[[dt]])))) stop(paste("'",dt,"' as 'date' must be a date, datetime or lubridate interval, and not have missing values", sep=""))
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line")) & all(!is.na(df[[dt]])))) stop(paste("'",dt,"' as 'date' must be a date, datetime or number_line object, and not have missing values", sep=""))
 
   df_list <- names(df)
 

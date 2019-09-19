@@ -1,3 +1,4 @@
+#' @name record_group
 #' @title Multi-staged deterministic record linkage
 #'
 #' @description Group matching records from one or more datasets.
@@ -66,12 +67,12 @@
 #'
 #' # age range - age +- 20 years
 #' dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
-#' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
+#' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range")))
 #'
 #' # Do not directly use number_line objects as criterias.
 #' # Instead, use it as the sub_criteria to a 'dummy criteria'
 #' dob$dum_var <- 1
-#' bind_cols(dob, record_group(dob, criteria = dum_var, sub_criteria = list(s1a="range"), display = FALSE))
+#' bind_cols(dob, record_group(dob, criteria = dum_var, sub_criteria = list(s1a="range")))
 #'
 #' # Two or more stages of record grouping
 #' pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),

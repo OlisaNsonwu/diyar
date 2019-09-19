@@ -300,9 +300,9 @@ expand_number_line <- function(x, by=1, point ="both"){
     by[!is.finite(by)] <- NA_real_
     n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
     by <- by * n
-    if(point == "both") x <- diyar::number_line(x@start - by, (x@start + x@.Data) + by)
-    if(point == "start") x <- diyar::number_line(x@start - by, (x@start + x@.Data))
-    if(point == "end") x <- diyar::number_line(x@start, (x@start + x@.Data) + by)
+    if(point == "both") x <- diyar::number_line(x@start - by, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
+    if(point == "start") x <- diyar::number_line(x@start - by, (x@start + x@.Data), id = x@id, gid = x@gid)
+    if(point == "end") x <- diyar::number_line(x@start, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
 
     return(x)
 }
