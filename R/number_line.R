@@ -41,8 +41,8 @@ number_line <- function(l, r, id = NULL, gid = NULL){
 
   if(all(class(l)!=class(r))) warning("'l' and 'r' have different classes. It may need to be reconciled")
 
-  if(is.null(id) | any(duplicated(id)) | any(!is.finite(id)) ) id <- 1:length(l)
-  if(is.null(gid) | any(duplicated(gid)) | any(!is.finite(gid)) ) gid <- 1:length(l)
+  if(is.null(id) | any(!is.finite(id)) ) id <- 1:length(l)
+  if(is.null(gid) | any(!is.finite(gid)) ) gid <- 1:length(l)
   nl <- methods::new("number_line", .Data = as.numeric(r) - as.numeric(l), start=l, id = id, gid = gid)
   return(nl)
 }
@@ -215,7 +215,7 @@ end_point <- function(x){
 #' @export
 number_line_width <- function(x){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  x <- diyar::right_point(x) - diyar::left_point(x)
+  diyar::right_point(x) - diyar::left_point(x)
 }
 
 #' @rdname number_line
@@ -292,7 +292,7 @@ shift_number_line <- function(x, by=1){
 #' @export
 expand_number_line <- function(x, by=1, point ="both"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric based object of length 1",sep=""))
+  if(!all(is.finite(by))) stop(paste("'by' must be a numeric based object",sep=""))
   if(!all(is.character(point)) | length(point)!=1) stop(paste("'point' must be a character object of length 1"))
   if(all(!tolower(point) %in% c("both","start","end"))) stop(paste("`point` must be either 'start','end' or 'both'"))
 

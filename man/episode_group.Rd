@@ -4,6 +4,7 @@
 \alias{episode_group}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
+\alias{episode_group_v2}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
@@ -13,12 +14,19 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   "inbetween", "aligns_start", "aligns_end", "chain"),
   bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 
-fixed_episodes(x, case_length, from_last = FALSE, deduplicate = FALSE,
-  display = TRUE)
+fixed_episodes(x, case_length, strata = NULL, from_last = FALSE,
+  deduplicate = FALSE, display = TRUE)
 
 rolling_episodes(x, case_length, recurrence_length = NULL,
-  from_last = FALSE, rolls_max = Inf, deduplicate = FALSE,
-  display = TRUE)
+  strata = NULL, from_last = FALSE, rolls_max = Inf,
+  deduplicate = FALSE, display = TRUE)
+
+episode_group_v2(df, sn = NULL, strata = NULL, date, case_length,
+  episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
+  recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
+  "inbetween", "aligns_start", "aligns_end", "chain"),
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
@@ -183,6 +191,11 @@ y <- expand_number_line(y, 1, "end")
 
 epids <- fixed_episodes(y, case_length = 20, deduplicate = TRUE, display = FALSE)
 epids$gid
+
+db_a <- infections
+db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len,
+                                                   from_last = FALSE, display = FALSE, deduplicate = FALSE) )
+db_b$epid <- db_b$epid_interval$gid
 # rolling episodes from time points
 epids <- rolling_episodes(x, case_length = 5, recurrence_length =11, display = FALSE)
 epids$gid
