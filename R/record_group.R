@@ -1,16 +1,16 @@
 #' @title Multi-staged deterministic record linkage
 #'
-#' @description This function assigns a unique group identifier for matching records from one or more datasets.
+#' @description Group matching records from one or more datasets.
 #'
-#' @param df Dataframe. One or more datasets appened together.
+#' @param df \code{data.frame}. One or more datasets appened together.
 #' @param sn Unique \code{numeric} record indentifier. Optional.
 #' @param criteria Column names of the attributes to match. Records with matching values in these columns are grouped together.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
-#' @param data_source Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.
+#' @param data_source Unique dataset indentifier. Useful when \code{data.frame} contains data from multiple datasets.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #'
-#' @return Dataframe
+#' @return \code{data.frame}
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
@@ -27,7 +27,8 @@
 #'
 #' Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of values.
 #' An example of range matching is matching on a date give or take 5 days, or matching on age give or take 2 years.
-#' To do this, create the range of values as a \code{\link{number_line}} object and supply that to the \code{sub_criteria} arguement.
+#' To do this, create a \code{\link{number_line}} object with the range of values, and assign the actual value to the \code{gid} argument.
+#' Then use the \code{\link{number_line}} as a \code{sub_criteria}.
 #'
 #' A match at each stage is considered more certain than those at subsequent stages.
 #' Therefore, \code{criteria} should be listed in order of decreasing certainty.
@@ -55,17 +56,22 @@
 #'
 #' data(staff_records); staff_records
 #'
-#' # range matching
+#' # Range matching
 #' dob <- select(staff_records, sex)
 #' dob$age <- c(10,8,20,5,5,9,7)
 #'
-#' # age range - age +- 2 years
-#' dob$range <- number_line(dob$age, dob$age+2)
+#' # age range - age + 20 years
+#' dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
 #' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 #'
 #' # age range - age +- 20 years
-#' dob$range <- number_line(dob$age, dob$age+20)
+#' dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
 #' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
+#'
+#' # Do not directly use number_line objects as criterias.
+#' # Instead, use it as the sub_criteria to a 'dummy criteria'
+#' dob$dum_var <- 1
+#' bind_cols(dob, record_group(dob, criteria = dum_var, sub_criteria = list(s1a="range"), display = FALSE))
 #'
 #' # Two or more stages of record grouping
 #' pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
@@ -145,6 +151,11 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
   cri_no <- length(cri_lst)
 
+  range_match <- function(x, tr_x) {
+    if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) stop("Actual value (gid) is outside the range created in a number_line object")
+    diyar::overlap(diyar::as.number_line(x@gid), tr_x)
+
+  }
   for(i in 1:cri_no){
     if(display) cat(paste("\nGroup criteria ",i," - ","`",cri_lst[i],"`", sep=""))
 
@@ -157,7 +168,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
     if(curr_attr){
       func_1 <- function(x){
-        ifelse(class(df[[x]]) == "number_line", paste("diyar::overlap(df2$",x, ", ", "df2$tr_",x,")",sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
+        ifelse(class(df[[x]]) == "number_line", paste("range_match(df2$",x, ", ", "df2$tr_",x,")",sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
       }
 
       func_1b <- function(x) unlist(lapply(x, func_1))

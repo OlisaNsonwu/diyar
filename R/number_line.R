@@ -268,8 +268,9 @@ reverse_number_line <- function(x, direction = "both"){
 #' @export
 shift_number_line <- function(x, by=1){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric based object of length 1",sep=""))
+  #if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric based object of length 1",sep=""))
 
+  by[!is.finite(by)] <- NA_real_
   n <- ifelse(is.finite(x@start) & is.finite(x@.Data),1,0)
   by <- by * n
 
@@ -292,10 +293,11 @@ shift_number_line <- function(x, by=1){
 #' @export
 expand_number_line <- function(x, by=1, point ="both"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!all(is.finite(by))) stop(paste("'by' must be a numeric based object",sep=""))
+  #if(!all(is.finite(by))) stop(paste("'by' must be a numeric based object",sep=""))
   if(!all(is.character(point)) | length(point)!=1) stop(paste("'point' must be a character object of length 1"))
   if(all(!tolower(point) %in% c("both","start","end"))) stop(paste("`point` must be either 'start','end' or 'both'"))
 
+    by[!is.finite(by)] <- NA_real_
     n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
     by <- by * n
     if(point == "both") x <- diyar::number_line(x@start - by, (x@start + x@.Data) + by)
@@ -367,9 +369,11 @@ compress_number_line <- function(x, method = c("across","chain","aligns_start","
 #'
 #' # The length of the vector depends on the object class
 #' number_line_sequence(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
-#' number_line_sequence(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), 1.5)
+#'
+#' nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
+#' number_line_sequence(nl, 1.5)
 #' d <- duration(1.5,"days")
-#' number_line_sequence(number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00")), d)
+#' number_line_sequence(nl, d)
 #'
 #' @export
 number_line_sequence <- function(x, by=1){

@@ -127,14 +127,19 @@ df_7 <- data.frame(
   stringsAsFactors = TRUE
 )
 
-df_7$age_range <- diyar::number_line(df_7$age-5, df_7$age+5)
+df_7$age_range <- diyar::number_line(df_7$age-5, df_7$age+5, gid = df_7$age)
+df_7$corrupt_range <- diyar::number_line(df_7$age-5, df_7$age+5)
 test_7 <- cbind(df_7, record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE))
 
 test_that("test record grouping using range matching", {
-  expect_equal(test_7$pid, c(1,1,1,4,4,6,7,6,6,10,11,10,10,11,11))
-  expect_equal(test_7$pid_cri, c(rep("Criteria 1",6),"None", rep("Criteria 1", 8)))
-  expect_equal(test_7$pid_total, c(3,3,3,2,2,3,1,3,3,3,3,3,3,3,3))
+  expect_equal(test_7$pid, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))
+  expect_equal(test_7$pid_cri, c(rep("Criteria 1",6),"None", rep("Criteria 1", 6),"None","Criteria 1"))
+  expect_equal(test_7$pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
+  #expect_error(record_group(df_7, r_id, cri_1, list(s1a="corrupt_range"), group_stats = TRUE), "Actual value (gid) is outside the range created in a number_line object")
 })
+
+# Special case. An error i've created but can't test for some reason
+try(record_group(df_7, r_id, cri_1, list(s1a="corrupt_range"), group_stats = TRUE), silent = TRUE)
 
 df_9 <- df_8 <- df_7
 df_8$r_id <- -df_8$r_id

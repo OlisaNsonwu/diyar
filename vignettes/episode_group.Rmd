@@ -16,41 +16,43 @@ knitr::opts_chunk$set(
 ```
 
 #Introduction
-Deduplicating events is a main part of establishing a case definition in epidemiological analysis. In these analysis, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
+Deduplicating events is a major part of establishing a case definition in epidemiological analysis. In such analyses, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
 
 `episode_group()` aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time. This allows for the deduplication of records, or a sub-analysis within each episode.
 
 #Uses
 The flexible application of both [`record_group`](record_group.html) and `episode_group()` can allow you apply a variety of case definitions to a dataset. Below are some examples;
 
-1. Group events (dated records) or intervals (records with start and end periods) into episodes lasting a fixed period (`case_length`) from a reference event or interval (`"Case"`). See [episode grouping](#episode_grouping)
-2. Create episodes that continue to reoccur within a fixed period (`recurrence_length`) of the last event or interval
-3. Create episodes as in examples 1 and 2, and specify which event is considered the `"Case"`. See [case assignment](#case_assignment)
-4. Create episodes with a different `case_length` and/or `recurrence_length` for different subsets of a dataset. See [stratified grouping](#stratified_grouping)
-5. Create episodes of overlaping events (time points) e.g. days, minutes, hours. See [Useful ways of using episode_group](#tips)
-6. Create episodes overlaping intervals (time periods) e.g. periods of days, minutes or hours. See [interval grouping](#interval_grouping)
+1. Group events (dated records) or intervals of events (records with start and end periods) into episodes lasting a fixed period (`case_length`) from a reference event or interval (`"Case"`). See [episode grouping](#episode_grouping)
+2. Create episodes that reoccur within a defined period (`recurrence_length`) from the last event
+3. Create episodes as in examples 1 and 2, and specify which event or period is considered the `"Case"`. See [case assignment](#case_assignment)
+4. Create episodes with a different `case_length` and/or `recurrence_length` for different subsets of the dataset. See [stratified grouping](#stratified_grouping)
+5. Create episodes of overlaping events (point in time) e.g. days, minutes, hours. See [Useful ways of using episode_group](#tips)
+6. Create episodes overlaping intervals (periods of time) e.g. period of days, minutes or hours. See [interval grouping](#interval_grouping)
 
 #Implementation 
 
 <a id= "episode_grouping"></a>
 
 ##Episode grouping
-An episode as produced by `episode_group()` is a set of events/intervals within a specific time period. Each episode begins with a reference event/interval (`"Case"`), and each subsequent event/interval within the episode is flagged as a `"Duplicate"` of the `"Case"`.
+An episode as produced by `episode_group()` is a set of events/intervals within a specific period of time. Each begins with a reference event/interval (`"Case"`), and subsequent ones within the same episode is flagged as a `"Duplicate"` of this `"Case"`.
 
 `episode_group()` can produce two type of episodes described below; 
 
-- `"fixed"` episodes - all events/intervals are within the `case_length` of the `"Case"`. Any events/intervals after the `case_length` of the initial `"Case"` is considered a new epsiode. See [stratified grouping](#stratified_grouping)
+- `"fixed"` episodes - all events/intervals are within the fixed period (`case_length`) of a `"Case"`. Any event/interval beyond this `case_length` is considered a new epsiode. See [stratified grouping](#stratified_grouping)
 
-- `"rolling"` episodes - all events/intervals within the `case_length` of the `"Case"`, and those within periods of recurrence are grouped into episodes. See [episodes windows and recurrence periods](#recurrence).
+- `"rolling"` episodes - In addition to events/intervals within the `case_length`, those within periods of recurrence are grouped together as episodes. See [episodes windows and recurrence periods](#recurrence).
 
-Note that a `"fixed"` episode will only have duplicates of the `"Case"` but a `"rolling"` episode may have duplicates of both the `"Case"` and `"Recurrent"` events/intervals.
+A `"fixed"` episode will only have duplicates of the `"Case"` but a `"rolling"` episode may have duplicates of both the `"Case"` and `"Recurrent"` event/interval.
 
 <a id ="recurrence" ><a/> 
 
 ##Episode windows and recurrence periods
-An episode window (`epid_interval`) is the period between the `"Case"` and the episode's last event, or the end point of the last interval. For `"fixed"` episodes, the maximum episode length (`epid_length`) is equal to the `"case_length"`.
+An episode window (`epid_interval`) is the period between the `"Case"` and the episode's last event, or the end point of the last interval. For a `"fixed"` episode, the maximum episode length (`epid_length`) is `"case_length"`, since any event/interval after that period is considered a new episode.
 
-A recurrence period is the period between the last event/interval in an episode and a specified `recurrence_length` afterwards. Only `"rolling"` episodes can have a recurrence period. There can also be multiple recurrence periods within one episode. For a `"rolling"` episode, the episode window (`epid_interval`) is the period covering the initial `case_length` and all recurrence periods in the episode.
+A recurrence period is a specified period (`recurrence_length`) after the last `"Duplicate"` event/interval. When there's no `"Duplicate"` event/interval, it's the `recurrence_length` after the last `"Case"` or `"Recurrent"` event/interval. 
+
+Only `"rolling"` episodes have recurrence periods. There can also be multiple recurrence periods within one episode. For a `"rolling"` episode, the episode window (`epid_interval`) is the period covering the initial `case_length` and all recurrence periods in the episode.
 
 The two examples below demonstrates the different implementations of `"fixed"` and `"rolling"` episode grouping.
 
@@ -206,7 +208,7 @@ cbind(
 <a id="case_assignment"></a> 
 
 ## Case assignment
-BY default, episode grouping begins at the earliest event/interval and proceeds to the most recent one. Therefore, that earliest event/interval is considered the `"Case"`. Similarly, the earliest event/interval in the recurrence period is considered the `"Recurrent"` event/interval. You can opt for the opposite behaviour by changing `from_last` to `TRUE`. Doing this will start episode grouping at the most recent event/interval and proceed backwards to the earliest one, thereby making the earliest one the `"Case"`.
+By default, episode grouping begins at the earliest event/interval and proceeds to the most recent one. Therefore, that earliest event/interval is considered the `"Case"`. Similarly, the earliest event/interval in the recurrence period is considered the `"Recurrent"` event/interval. You can opt for the opposite behaviour by changing `from_last` to `TRUE`. Doing this will start episode grouping at the most recent event/interval and proceed backwards to the earliest one, thereby making the earliest one the `"Case"`.
 
 ```{r message=FALSE, warning=FALSE}
 # Episode grouping in chronological order
@@ -288,14 +290,14 @@ cbind(
 <a id="interval_grouping"></a>
 
 ## Interval grouping
-In addition to grouping events that occured at a point in time (e.g. a day, minute or hour), you can also group time intervals (e.g. a period of days, minutes or hours) into episodes. For the purpose of episode grouping, an interval is a record with a start and end points in time. The interval should be created as a `lubridate` `interval` object and supplied to the `date` argument. 
+In addition to grouping events that occured at a point in time (e.g. a day, minute or hour), you can also group time intervals (e.g. a period of days, minutes or hours) into episodes. For the purpose of episode grouping, an interval is a record with a start and end points in time. The interval should be created as a `number_line` object and supplied to the `date` argument. 
 
 In the example below, periods of hospital admissions into episodes. Each period is a record with admission and discharge dates as the start and end dates respectively.
 
 ```{r message=FALSE, warning=FALSE}
 data("hospital_admissions"); hospital_admissions
 
-hospital_admissions$admin_period <- interval(hospital_admissions$admin_dt, hospital_admissions$discharge_dt)
+hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt, hospital_admissions$discharge_dt)
 
 # grouping admissions events into episodes
 cbind(
@@ -312,7 +314,7 @@ cbind(
   ) %>% select(-admin_dt, -discharge_dt)
 ```
 
-Time intervals can overlap in different ways. The function allows you choose how this happens using the `overlap_method` argument. The options available are; `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates their differences.
+Time intervals can overlap in different ways. The function allows you to choose how this happens by using the `overlap_method` argument. The options available are; `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates their differences.
 
 ```{r warning=FALSE}
 # overlaping intervals
@@ -384,8 +386,8 @@ plot <- rbind(
 
 plot <- mutate(plot,
   mrk=paste(epid, method,sep="_"),
-  admin_dt = dmy(format(int_start(admin_period), "%d/%m/%Y")),
-  discharge_dt = dmy(format(int_end(admin_period), "%d/%m/%Y"))
+  admin_dt = dmy(format(left_point(admin_period), "%d/%m/%Y")),
+  discharge_dt = dmy(format(right_point(admin_period), "%d/%m/%Y"))
   ) %>% select(-admin_period)
 
 plot <- dplyr::arrange(plot, .data$mrk)
@@ -421,11 +423,12 @@ ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
 ```
 
 ```{r warning=FALSE, include=FALSE}
+
 # overlaping intervals
 hospital_admissions_2 <- hospital_admissions
 hospital_admissions_2$epi_len <- 30
 hospital_admissions_2$shift <- ifelse(hospital_admissions_2$rd_id %in% c(2,8,5,7), 0, 30)
-hospital_admissions_2$admin_period <- int_shift(hospital_admissions_2$admin_period, duration(hospital_admissions_2$shift, "days"))
+hospital_admissions_2$admin_period <- shift_number_line(hospital_admissions_2$admin_period, duration(hospital_admissions_2$shift, "days"))
 
 across <- cbind(
   hospital_admissions_2,
@@ -501,8 +504,8 @@ plot <- rbind(
 
 plot <- mutate(plot,
   mrk=paste(epid, method,sep="_"),
-  admin_dt = dmy(format(int_start(admin_period), "%d/%m/%Y")),
-  discharge_dt = dmy(format(int_end(admin_period), "%d/%m/%Y"))
+  admin_dt = dmy(format(left_point(admin_period), "%d/%m/%Y")),
+  discharge_dt = dmy(format(right_point(admin_period), "%d/%m/%Y"))
   ) %>% select(-admin_period)
 
 plot <- dplyr::arrange(plot, .data$mrk)
@@ -600,8 +603,8 @@ plot <- rbind(
 
 plot <- mutate(plot,
   mrk=paste(epid, method,sep="_"),
-  admin_dt = dmy(format(int_start(admin_period), "%d/%m/%Y")),
-  discharge_dt = dmy(format(int_end(admin_period), "%d/%m/%Y"))
+  admin_dt = dmy(format(left_point(admin_period), "%d/%m/%Y")),
+  discharge_dt = dmy(format(right_point(admin_period), "%d/%m/%Y"))
   ) %>% select(-admin_period)
 
 plot <- dplyr::arrange(plot, .data$mrk)

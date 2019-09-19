@@ -1,0 +1,89 @@
+---
+output: github_document
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+## Overview
+Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in epidemiological analysis and other fields of research. 
+
+The `diyar` package aims to provide a simple and flexible implementation of deterministic record linkage, and episode grouping for the application of case definitions in epidemiological analysis.
+
+## Installation
+```{r eval=FALSE}
+install.packages("devtools")
+devtools::install_github("OlisaNsonwu/diyar")
+```
+
+## Usage
+There are two main aspects of the `diyar` package; record and episode grouping. Additionally, `number_line` objects are used in both as representations of a range of values to match, and time periods respectively. 
+
+### Number line objects
+Series of real numbers on a number line. `diyar` also includes functions used to manipulate these objects. Some useful ones are shown below.
+```{r number_line, message=FALSE, warning=FALSE}
+library(diyar)
+library(dplyr)
+
+l <- as.Date("01/04/2019", "%d/%m/%Y")
+r <- as.Date("30/04/2019", "%d/%m/%Y")
+nl <- number_line(l, r)
+nl
+reverse_number_line(nl)
+shift_number_line(nl, -2)
+expand_number_line(nl, 2)
+number_line_sequence(nl, by =3)
+```
+
+### Episode grouping
+Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.
+
+`fixed_episode()` and `rolling_episode()` are the simplest implementation this process in `diyar`.
+```{r}
+data(infections); infections
+db_a <- infections
+# Fixed episodes
+fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE)
+# Rolling episodes
+rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE)
+
+db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE))
+db_b$epid <- db_b$epid_interval@gid
+db_b
+```
+
+`episode_group()` is a more comprehensive options and provides useful information on each episode.
+```{r}
+db_c <- episode_group(db_a, sn=rd_id, date = date, strata = infection, case_length = epi_len, display = FALSE, group_stats = TRUE)
+db_c
+```
+
+### Record grouping
+Multi-stage deterministic linkages that addresses missing values by using a specfied list of alternative matching criteria.
+```{r}
+# Two or more stages of record grouping
+data(staff_records); staff_records
+pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
+                     data_source = sex, display = FALSE)
+left_join(staff_records, pids, by=c("r_id"="sn"))
+staff_records
+
+# Range matching
+dob <- select(staff_records, sex)
+dob$age <- c(10,8,20,5,5,9,7)
+
+# age range - age + 20 years
+dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
+bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
+
+# age range - age +- 20 years
+dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
+bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
+```
+
+Find out more [here](https://olisansonwu.github.io/diyar/index.html)!.
+

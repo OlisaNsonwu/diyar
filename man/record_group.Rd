@@ -8,7 +8,7 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
   data_source = NULL, group_stats = FALSE, display = TRUE)
 }
 \arguments{
-\item{df}{Dataframe. One or more datasets appened together.}
+\item{df}{\code{data.frame}. One or more datasets appened together.}
 
 \item{sn}{Unique \code{numeric} record indentifier. Optional.}
 
@@ -16,14 +16,14 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 
 \item{sub_criteria}{Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).}
 
-\item{data_source}{Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.}
+\item{data_source}{Unique dataset indentifier. Useful when \code{data.frame} contains data from multiple datasets.}
 
 \item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each record group.}
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 }
 \value{
-Dataframe
+\code{data.frame}
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
@@ -34,14 +34,15 @@ Dataframe
 }
 }
 \description{
-This function assigns a unique group identifier for matching records from one or more datasets.
+Group matching records from one or more datasets.
 }
 \details{
 Record grouping occurs in stages of matching \code{criteria}.
 
 Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of values.
 An example of range matching is matching on a date give or take 5 days, or matching on age give or take 2 years.
-To do this, create the range of values as a \code{\link{number_line}} object and supply that to the \code{sub_criteria} arguement.
+To do this, create a \code{\link{number_line}} object with the range of values, and assign the actual value to the \code{gid} argument.
+Then use the \code{\link{number_line}} as a \code{sub_criteria}.
 
 A match at each stage is considered more certain than those at subsequent stages.
 Therefore, \code{criteria} should be listed in order of decreasing certainty.
@@ -69,17 +70,22 @@ bind_cols(three_people, record_group(three_people, criteria= forename))
 
 data(staff_records); staff_records
 
-# range matching
+# Range matching
 dob <- select(staff_records, sex)
 dob$age <- c(10,8,20,5,5,9,7)
 
-# age range - age +- 2 years
-dob$range <- number_line(dob$age, dob$age+2)
+# age range - age + 20 years
+dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
 bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 
 # age range - age +- 20 years
-dob$range <- number_line(dob$age, dob$age+20)
+dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
 bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
+
+# Do not directly use number_line objects as criterias.
+# Instead, use it as the sub_criteria to a 'dummy criteria'
+dob$dum_var <- 1
+bind_cols(dob, record_group(dob, criteria = dum_var, sub_criteria = list(s1a="range"), display = FALSE))
 
 # Two or more stages of record grouping
 pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),

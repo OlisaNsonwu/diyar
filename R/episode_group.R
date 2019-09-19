@@ -1,18 +1,18 @@
 #' @title Episode grouping for record deduplication and case assignment
 #'
-#' @description Group records into chronological episode groups
+#' @description Group records into chronological episodes
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique \code{numeric} record indentifier. Optional.
-#' @param strata Column names. Episodes will be unique to each strata. \code{\link{record_group}} can be used to create \code{stratas} within datasets.
-#' @param date Record date or interval. \code{date}, \code{datetime} or \code{\link[lubridate]{interval}} objects.
+#' @param strata Column names. Episodes will be unique to each \code{strata}. \code{\link{record_group}} can be used to create \code{strata} within datasets.
+#' @param date Record date or interval. \code{date}, \code{datetime} or \code{\link{number_line}} objects.
 #' @param case_length Period from a \code{"Case"} within which another record of the same \code{strata} is considered a \code{"Duplicate"} record.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
 #' @param recurrence_length Period from the last record of an episode within which another record of the same \code{strata} is considered a \code{"Recurrent"} record. If a \code{recurrence_length} is not supplied, the \code{case_length} is used.
 #' @param episode_unit Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.
 #' @param rolls_max Maximum number of recurrence permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source Unique dataset indentifier for the dataframe. Useful when dataframe contains multiple datsets.
+#' @param data_source Unique dataset indentifier for the \code{data.frame}. Useful when \code{data.frame} contains multiple datsets.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.
 #' @param overlap_method A set of methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.
 #' @param custom_sort If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
@@ -20,14 +20,14 @@
 #' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #'
-#' @return \code{data.frame}
+#' @return \code{record_group()} - \code{data.frame}
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
 #' \item \code{epid} - unique episode indentifier
 #' \item \code{case_nm} - record type in regards to case assignment
 #' \item \code{epid_dataset} - datasets contained in each episode
-#' \item \code{epid_interval} - Episode start and end dates. Lubridate's \code{\link{interval}} object.
+#' \item \code{epid_interval} - Episode start and end dates. Lubridate's \code{\link{number_line}} object.
 #' \item \code{epid_length} - Difference between episode start and end dates. \code{difftime} object. If possible, the same unit supplied to \code{episode_unit} is used otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each record group
 #' }
@@ -48,13 +48,13 @@
 #'
 #' data(infections); infections
 #'
-#' # 16-hour (difference of 15 hours) episodes, and the most recent record defined as the "Case"
+#' # 16-hour (difference of 15 hours) episodes beginning from the earliest record
 #' epids <- episode_group(infections, sn = rd_id, date = date, case_length = epi_len,
 #' from_last = TRUE, episode_unit = "hours", group_stats = TRUE)
 #' left_join(infections, epids, by=c("rd_id"="sn"))
 #'
 #' # One rolling episode per strata. Initial case_length of 16 days (difference of 15 days) and
-#' # one recurrence period lasting 31 days (difference of 30 days)
+#' # one recurrence period of 31 days (difference of 30 days)
 #' infections$recur <- 30
 #' epids <- episode_group(infections, date=date, case_length = epi_len, episode_type = "rolling",
 #' recurrence_length = recur, episodes_max = 1, rolls_max = 1, display = FALSE, group_stats = TRUE)
@@ -62,7 +62,7 @@
 #'
 #' # User defined case assignment
 #' # Preference for case assignment - UTI > BSI > RTI
-#' infections$infX <- factor(infections$infection, levels = c("UTI","BSI","RTI"))
+#' infections$infx <- factor(infections$infection, levels = c("UTI","BSI","RTI"))
 #'
 #' # Different case and recurrence lengths for different sources of infection
 #' infections <- mutate(infections,
@@ -75,13 +75,13 @@
 #'
 #' # n-day episodes beginning with the earliest record with the specified preference; UTI > BSI > RTI
 #' epids <- episode_group(infections, rd_id, date=date, case_length = epi_len,
-#'                        custom_sort = infX, group_stats = TRUE,  display = FALSE)
+#'                        custom_sort = infx, group_stats = TRUE,  display = FALSE)
 #' bind_cols(infections, epids)
 #'
 #' # Another preference - RTI > UTI, or  RTI > BSI, or earliest record
-#' infections$infX <- ifelse(infections$infection =="RTI",0,1)
+#' infections$infx <- ifelse(infections$infection =="RTI",0,1)
 #' epids <- episode_group(infections, rd_id, date=date, case_length = epi_len,
-#' custom_sort = infX, from_last = TRUE, bi_direction = TRUE, display = FALSE, group_stats = TRUE)
+#' custom_sort = infx, from_last = TRUE, bi_direction = TRUE, display = FALSE, group_stats = TRUE)
 #' bind_cols(infections, epids)
 #'
 #' # Stratified episode grouping
@@ -96,6 +96,7 @@
 #' bind_cols(infections, epids)
 #'
 #' # Interval grouping
+#'
 #' data(hospital_admissions); hospital_admissions
 #'
 #' hospital_admissions$admin_period <- interval(hospital_admissions$admin_dt,
@@ -118,13 +119,13 @@
 #' epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
 #' case_length = epi_len, overlap_method = c("chain","aligns_end"))
 #' bind_cols(hospital_admissions, epids)
-#' @aliases episode_group
+#'
+#' @rdname episode_group
 #' @importFrom dplyr %>%
 #' @importFrom rlang .data
 #' @export
-#'
 
-episode_group <- function(df, sn = NULL, strata = NULL, date,
+xx_episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
@@ -442,7 +443,12 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' @param x Record date or interval. \code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects.
 #' @param deduplicate if \code{TRUE}, retains only one the \code{"Case"} from an episode group.
 #'
-#' @return \code{number_line}.
+#' @details
+#' \code{fixed_episodes()} and \code{rolling_episodes()} are more convenient implementations of \code{episode_group}.
+#' However, these are less efficient in deaing with large datasets (XX estimate), and lack the following features;
+#' \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
+#'
+#' @return \code{fixed_episodes() and rolling_episodes()} - \code{number_line}.
 #' \itemize{
 #' \item \code{id} - unique record identifier as provided
 #' \item \code{gid} - unique episode indentifier
@@ -455,27 +461,38 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' Use \code{\link{right_point}} to extact the episode end date
 #'
 #' @examples
-#' # episodes from time points
-#' x <- c("01/04/2019", "10/04/2019", "13/04/2019", "01/05/2019", "05/05/2019")
-#' x <- as.Date(x, "%d/%m/%Y")
+#' # Convenient versions of episode_group()
+#' # Episodes from time points
+#' dts <- c("13/04/2019", "01/04/2019", "05/05/2019", "10/04/2019", "01/05/2019")
+#' dts <- as.Date(dts, "%d/%m/%Y")
+#' dts
 #'
-#' epids <- fixed_episodes(x, case_length = 5, display = FALSE)
-#' epids$gid
+#' epids <- fixed_episodes(dts, case_length = 5, display = FALSE)
+#' epids; str(epids); unique(epids)
 #'
-#' # episodes from time periods
-#' y <- as.number_line(x)
-#' y <- expand_number_line(y, 1, "end")
+#' # Episodes from time periods
+#' pds <- as.number_line(dts)
+#' pds <- expand_number_line(pds, 1, "end")
+#' pds
 #'
-#' epids <- fixed_episodes(y, case_length = 20, deduplicate = TRUE, display = FALSE)
-#' epids$gid
+#' epids <- rolling_episodes(pds, case_length = 5, recurrence_length =11,
+#' deduplicate = TRUE, display = FALSE)
+#' epids; str(epids)
 #'
 #' db_a <- infections
 #' db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len,
-#'                                                    from_last = FALSE, display = FALSE, deduplicate = FALSE) )
+#' strata = infection, from_last = FALSE, display = FALSE, deduplicate = FALSE))
+#'
+#' db_b
+#' str(db_b$epid_interval)
 #' db_b$epid <- db_b$epid_interval$gid
+#' db_b
+#'
 #' @export
-fixed_episodes <- function(x, case_length, strata = NULL, from_last = FALSE, deduplicate = FALSE, display = TRUE){
+fixed_episodes <- function(x, strata = NULL, case_length, from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), deduplicate = FALSE, display = TRUE){
 
+  if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
+  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
   if(!(is.logical(from_last) & is.logical(display) )) stop(paste("'from_last' and 'display' must be TRUE or FALSE"))
   if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be a numeric based object of length 1",sep=""))
   if(!all(is.finite(x))) stop(paste("'x' must date, datetime, number_line object or a numeric based object",sep=""))
@@ -505,25 +522,26 @@ fixed_episodes <- function(x, case_length, strata = NULL, from_last = FALSE, ded
   x <- diyar::reverse_number_line(x, "decreasing")
 
   j <- 0
-  c <- rep(0, length(x))
+  t <- rep(0, length(x))
   pt <- ifelse(from_last,"start","end")
-  while (min(c) ==0 & j!=length(x)){
-    total_1 <- length(c[c==0])
+  if(length(case_length)==1) case_length <- rep(case_length, length(x@id))
+  while (min(t) ==0 & j!=length(x)){
+    total_1 <- length(t[t==0])
     if(display){cat(paste("Episode window ",j+1,".\n", sep=""))}
-    l <- x[c==0][1]
-    l_l <- case_length[c==0][1]
-    l_s <- s[c==0][1]
-    h <- (x@id == l@id | (diyar::overlap(diyar::expand_number_line(l, l_l, pt), x) & s ==l_s)) & c != 1
+    l <- x[t==0][1]
+    l_l <- case_length[t==0][1]
+    l_s <- s[t==0][1]
+    h <- (x@id == l@id | (diyar::overlap(diyar::expand_number_line(l, l_l, pt), x, method = overlap_method) & s ==l_s)) & t != 1
     x[which(h)]@.Data <- as.numeric(max(diyar::right_point(x[which(h),]))) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
     x[which(h)]@gid <- l@gid
-    c[which(h)] <- 1
+    t[which(h)] <- 1
 
     tagged_1 <- length(h[h])
     if(display){
       cat(paste(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n", sep =""))
     }
-    if(min(c)==1) break
+    if(min(t)==1) break
     j <- j + 1
   }
 
@@ -535,22 +553,12 @@ fixed_episodes <- function(x, case_length, strata = NULL, from_last = FALSE, ded
   return(x)
 }
 
-#' @rdname episode_group
-#' @examples
-
-#' # rolling episodes from time points
-#' epids <- rolling_episodes(x, case_length = 5, recurrence_length =11, display = FALSE)
-#' epids$gid
-#'
-#' # rolling episodes from time periods
-#' y <- as.number_line(x)
-#' y <- expand_number_line(y, 1, "end")
-#'
-#' epids <- rolling_episodes(y, case_length = 20, recurrence_length =11, deduplicate = TRUE, display = FALSE)
-#' epids$gid
+#' @aliases episode_group
 #' @export
-rolling_episodes <- function(x, case_length, recurrence_length=NULL, strata=NULL, from_last = FALSE, rolls_max = Inf, deduplicate = FALSE, display = TRUE){
+rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NULL, from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), deduplicate = FALSE, display = TRUE){
 
+  if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
+  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
   if(!(is.logical(from_last) & is.logical(display) )) stop(paste("'from_last' and 'display' must be TRUE or FALSE"))
   if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be a numeric based object of length 1",sep=""))
   if(!(all(is.finite(recurrence_length) & recurrence_length >= 0) | is.null(recurrence_length)) ) stop(paste("'recurrence_length' must be a numeric based object of length 1",sep=""))
@@ -604,7 +612,7 @@ rolling_episodes <- function(x, case_length, recurrence_length=NULL, strata=NULL
       e <- recurrence_length
     }
 
-    h <- (x@id == l@id | (diyar::overlap(diyar::expand_number_line(l, by=e, pt), x) & s==l_s))
+    h <- (x@id == l@id | (diyar::overlap(diyar::expand_number_line(l, by=e, pt), x, method = overlap_method) & s==l_s))
     x[which(h)]@.Data <- as.numeric(max(diyar::right_point(x[which(h),]))) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
     x[which(h)]@gid <- l@gid
@@ -640,7 +648,7 @@ rolling_episodes <- function(x, case_length, recurrence_length=NULL, strata=NULL
 
 #' @rdname episode_group
 #' @export
-episode_group_v2 <- function(df, sn = NULL, strata = NULL, date,
+episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
