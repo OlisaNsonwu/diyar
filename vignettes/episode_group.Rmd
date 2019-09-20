@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 #Introduction
-Deduplicating events is a major part of establishing a case definition in epidemiological analysis. In such analyses, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
+Deduplicating events is a major part of establishing a case definition in epidemiological analyses. In such analyses, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
 
 `episode_group()` aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time. This allows for the deduplication of records, or a sub-analysis within each episode.
 
@@ -75,7 +75,7 @@ fixed_episodes
 
 ```
 
-Records 1 to 3 are assigned a unique episode ID (`"1"`) (Table 1). In this instance, record 1 is considered the initial `"Case"` and records 2 and 3 its duplicates. This is because records 2 and 3 are dated within 15 days of record 1 (difference of 14 days). Record 4 is dated after this 15-day period and hence begins a new `"Case"` which is assigned episode ID `"4"`. Record 5 is within 15 days of record 4 (`"Case"`), so it's considered a `"Duplicate"` of record 4 and assigned the same episode ID as record 4. This process continues chronologically until all records have been assigned an episode ID.
+Records 1 to 3 are assigned a unique episode ID (`"1"`) (Table 1). In this instance, record 1 is considered the initial `"Case"` and records 2 and 3 its duplicates. This is because records 2 and 3 are dated within 15 days of record 1 (difference of 14 days). Record 4 is dated after this 15-day period and so begins a new `"Case"` which is assigned episode ID `"4"`. Record 5 is within 15 days of record 4 (`"Case"`), so it's considered a `"Duplicate"` of record 4 and assigned the same episode ID as record 4. This process continues chronologically until all records have been assigned an episode ID.
 
 #### Example of `"rolling"` episode grouping
 ```{r warning=FALSE, message=FALSE}
@@ -92,9 +92,9 @@ rolling_episodes <- cbind(
 rolling_episodes
 ```
 
-In the `"rolling"` episode example, records 1 to 3 are also considered the same episode and therefore assigned the same episode ID (`"1"`). However, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case"`, instead it's considered a `"Recurrent"` record because it's within 8 days of the last `"Duplicate"` (record 3). Similarly, record 5 is within 8 days of the last `"Recurrent"` record (record 4). Record 6 is not within 15 days of the `"Case"` and not within 8 days of the last `"Recurrent"` record, and so can now be considered a new `"Case"`. `"Recurrent"` records are indicated in `case_nm` but are considered the same episode as the `"Case"`. This is why records 1 to 5 have the same episode ID.
+In the `"rolling"` episode example, records 1 to 3 are also considered the same episode and therefore assigned the same episode ID (`"1"`). However, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case"`, instead it's considered a `"Recurrent"` record because it's within 8 days of the last `"Duplicate"` (record 3). Similarly, record 5 is within 8 days of the last `"Recurrent"` record (record 4). Record 6 is not within 15 days of the `"Case"` and not within 8 days of the last `"Recurrent"` record, and so can now be considered a new `"Case"`. `"Recurrent"` records are indicated in `case_nm` but belong to the same episode as its `"Case"`. This is why records 1 to 5 have the same episode ID.
 
-Note that recurrence periods start from the last record (`"Case"`, `"Duplicate"` or `"Recurrent"`) within the previous `case_length` or recurrence period. The `"Recurrent"` record is the first `"Duplicate"` of the last record within the previous `case_length` or `recurrence_length`.
+The `"Recurrent"` record is the first event within a specified period (`recurrence_length`) after the last event (`"Case"`, `"Duplicate"` or `"Recurrent"`) in the previous `case_length` or `recurrence_length`
 
 **Figure 1: `"Fixed"` and `"rolling"` episodes with their respective `case_lenth` and `recurrence_length`**
 ```{r echo=FALSE, fig.height=4, fig.width=8, message=FALSE, warning=FALSE}
@@ -120,13 +120,13 @@ plot <- plot %>%
   select(rid, epid, date, method, epid_2, case_nm, N, n, N2, n2, epi, recur) %>%
   mutate(cd="A", rid=as.character(rid))
 
-lens_plot <- filter(
-  plot, 
-  ! (case_nm=="Duplicate" & n2==N2 & n!=N)
-  )
+# lens_plot <- filter(
+#   plot, 
+#   ! (case_nm=="Duplicate" & n2==N2 & n!=N)
+#   )
 
 #lens_plot <- filter(plot, N!=1 & n!=N)
-lens_plot <- filter(lens_plot, (case_nm=="Duplicate" & n!=N & n2==N2) | case_nm !="Duplicate")
+lens_plot <- filter(plot, (case_nm=="Duplicate" & n!=N & n2==N2) | case_nm !="Duplicate")
 
 lens_plot <- mutate(lens_plot,
                     end_l= ifelse(case_nm=="Case", epi, recur),
@@ -155,7 +155,7 @@ ggplot(plot, aes(x=date, y=rid, group=rid, label=case_nm, colour=epid_2)) +
 ```
 
 
-By default, `episode_group()` will continue checking for `"Recurrent"` records indefintely, prolonging the episode. However, you can limit the number of recurrence periods an episode can have by using `rolls_max`.
+By default, `episode_group()` will continue checking for `"Recurrent"` records indefintely but you can limit the number of recurrence periods an episode can have by using `rolls_max`.
 
 ```{r warning=FALSE, message=FALSE}
 data("infections_3"); infections_3
@@ -184,7 +184,7 @@ cbind(
   )
 ```
 
-Similarly, you can limit the number of times to creates episodes (per `strata`) using `episode_max`. Once `episode_max` is reached, any record not yet grouped is assigned a unique episode ID, making it a unique `"Case"`. `episode_max` can be used in both `"rolling"` and `"fixed"` episode grouping.
+Similarly, you can limit the number of episodes to create per `strata` using `episode_max`. When `episode_max` is reached, any record not yet grouped is assigned a unique episode ID, making it a unique `"Case"`.
 
 ```{r warning=FALSE, message=FALSE}
 # Maximum of one episode with one recurrence period
@@ -208,7 +208,7 @@ cbind(
 <a id="case_assignment"></a> 
 
 ## Case assignment
-By default, episode grouping begins at the earliest event/interval and proceeds to the most recent one. Therefore, that earliest event/interval is considered the `"Case"`. Similarly, the earliest event/interval in the recurrence period is considered the `"Recurrent"` event/interval. You can opt for the opposite behaviour by changing `from_last` to `TRUE`. Doing this will start episode grouping at the most recent event/interval and proceed backwards to the earliest one, thereby making the earliest one the `"Case"`.
+By default, episode grouping begins at the earliest event/interval and proceeds to the most recent one, making the earliest event/interval the `"Case"` (or `"Recurrent"` in a recurrence period). For the opposite behaviour, change `from_last` to `TRUE`. Doing this will start episode grouping at the most recent event/interval and proceed backwards to the earliest one, making the most recent one the `"Case"` (or `"Recurrent"` in a recurrence period).
 
 ```{r message=FALSE, warning=FALSE}
 # Episode grouping in chronological order
@@ -232,7 +232,7 @@ You can specify a different preference for case assignment from what's been desc
 
 As an example, this feature can be used to implement a case definition where *E. coli* urinary tract infections (UTI) are considered precursors to *E. coli* bloodstream infections (BSI). Therefore, episodes need to be created in such a way that; if there are UTI and BSI records within the `case_length`, then episode grouping will start from the UTI record. 
 
-The column(s) used for `custom_sort` can either be `"character"`, `"numeric"` or `"factor"` data types. However, note that each would follow `R` standard sort behaviour. For example, a `factor` will sort on its levels not its descriptive label. See examples of this below.
+The column(s) used for `custom_sort` can be `"character"`, `"numeric"` or `"factor"` data types. However, each would follow `R` standard sort behaviour. For example, a `factor` will sort on its levels not the descriptive label. See examples of this below.
 
 ```{r message=FALSE, warning=FALSE}
 infections_2a <- mutate(infections_2, infx=ifelse(row_number() %in% c(2,5), "E. coli UTI", infx))
@@ -250,9 +250,9 @@ cbind(
 
 ```
 
-In the second example above, after changing the sort preference using the factor's levels, record 1 (*E. coli* BSI)  and record 2 (*E. coli* UTI) are no longer part of the same episode. This is because record 2, is now the reference record, and since record 1 occurred before record 2, it's not considered the same episode. 
+In the second example above, after changing the sort preference using the factor levels, record 1 (*E. coli* BSI)  and record 2 (*E. coli* UTI) are no longer part of the same episode. This is because record 2, is now the reference record, and since record 1 occurred before record 2, it's not considered the same episode. 
 
-This behaviour may suffice depending on your case definition however, you can change this using `bi_direction`. If `TRUE`, records within the `case_length` or `recurrence_length` on either sides of the `"Case"` or `"Recurrent"` events/intervals are grouped together. See the example below where record 1 is now flagged as a duplicate of record 2.
+This may suffice depending on your case definition, or you can `bi_direction` to ensure that event within the `case_length` or `recurrence_length` before and after the `"Case"` or `"Recurrent"` events/intervals are grouped together. See the example below where record 1 is now flagged as a duplicate of record 2.
 
 ```{r warning=FALSE}
 cbind(
