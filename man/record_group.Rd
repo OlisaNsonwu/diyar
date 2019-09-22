@@ -4,26 +4,26 @@
 \alias{record_group}
 \title{Multi-staged deterministic record linkage}
 \usage{
-record_group(df, sn, criteria, sub_criteria = NULL, data_source = NULL,
-  group_stats = FALSE, display = TRUE)
+record_group(df, sn = NULL, criteria, sub_criteria = NULL,
+  data_source = NULL, group_stats = FALSE, display = TRUE)
 }
 \arguments{
-\item{df}{Dataframe. One or more datasets appened together.}
+\item{df}{\code{data.frame}. One or more datasets appened together.}
 
-\item{sn}{Unique \code{numeric} record indentifier.}
+\item{sn}{Unique \code{numeric} record indentifier. Optional.}
 
 \item{criteria}{Column names of the attributes to match. Records with matching values in these columns are grouped together.}
 
 \item{sub_criteria}{Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).}
 
-\item{data_source}{Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.}
+\item{data_source}{Unique dataset indentifier. Useful when \code{data.frame} contains data from multiple datasets.}
 
 \item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each record group.}
 
-\item{display}{If \code{TRUE}, status messages are not printed on screen.}
+\item{display}{If \code{TRUE}, status messages are printed on screen.}
 }
 \value{
-Dataframe
+\code{data.frame}
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
@@ -34,73 +34,82 @@ Dataframe
 }
 }
 \description{
-This function assigns unique group identifiers to matching records from one or more datasets.
+Group matching records from one or more datasets.
 }
 \details{
-Record grouping occurs in stages as listed in \code{criteria}. A match at each stage is considered more certain than those in subsequent stages.
-Therefore, \code{criteria} should be listed in order of decreasing certainty. \code{sub_criteria} can be used to force additonal matching conditions
-at each stage. If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-If a record has a missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
-If all \code{criteria} values are missing, that record is assigned a unique group ID. When a \code{data_source} identifier is included,
+Record grouping occurs in stages of matching \code{criteria}.
+
+Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of values.
+An example of range matching is matching on a date give or take 5 days, or matching on age give or take 2 years.
+To do this, create a \code{\link{number_line}} object with the range of values, and assign the actual value to the \code{gid} argument.
+Then use the \code{\link{number_line}} as a \code{sub_criteria}.
+
+A match at each stage is considered more certain than those at subsequent stages.
+Therefore, \code{criteria} should be listed in order of decreasing certainty.
+
+\code{sub_criteria} can be used to force additonal matching conditions at each stage.
+If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
+If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
+If all \code{criteria} values are missing, that record is assigned a unique group ID.
+
+When a \code{data_source} identifier is included,
 \code{pid_dataset} is included in the output. This shows the datasets included in each group.
 }
 \examples{
+library(dplyr)
+library(tidyr)
 
- library(dplyr)
- library(tidyr)
+three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
+stringsAsFactors = FALSE)
+bind_cols(three_people, record_group(three_people, criteria= forename))
 
-# One stage record grouping
- df <- tibble(
-   r_id = c(1:5),
-   forename = c("Obinna","James","Ojay","James","Obinna"),
-   stringsAsFactors = FALSE
- )
+# To handle missing or unknown data, recode missing or unknown values to NA or "".
+three_people$r_id <- 1:5
+three_people$forename <- ifelse(three_people$r_id \%in\% c(1,4), NA, three_people$forename)
+bind_cols(three_people, record_group(three_people, criteria= forename))
 
- bind_cols(df, record_group(df, r_id, forename))
+data(staff_records); staff_records
 
- # Handling missing or unknown data - Recode missing or unknown values to NA or "".
- # These are excluded from record grouping at the relevant stage
+# Range matching
+dob <- select(staff_records, sex)
+dob$age <- c(10,8,20,5,5,9,7)
 
- df \%>\%
-   mutate(forename = ifelse(r_id \%in\% c(1,4), NA, forename)) \%>\%
-   bind_cols(record_group(., r_id, forename))
+# age range - age + 20 years
+dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
+bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 
- # Two or more stages of record grouping
- # Criteria should be listed in decreasing order of certainty
-data_3 <- tibble(
-  r_id = c(1:7),
-  forename = c("James",NA,"Jamey","","Derrick","Darrack","Christie"),
-  surname = c("Green","Anderson","Green",NA,"Anderson","Anderson","Green"),
-  sex = c("M","M","M","F","M","M","F"),
-  dataset = c("Staff list","Staff list", "Pay slips","Pay slips", "Staff list","Pay slips","Staff list"),
-  stringsAsFactors = FALSE
-)
+# age range - age +- 20 years
+dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
+bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range")))
 
-bind_cols(data_3, record_group(data_3,r_id, c(forename, surname), data_source = sex, display = FALSE))
+# Do not directly use number_line objects as criterias.
+# Instead, use it as the sub_criteria to a 'dummy criteria'
+dob$dum_var <- 1
+bind_cols(dob, record_group(dob, criteria = dum_var, sub_criteria = list(s1a="range")))
+
+# Two or more stages of record grouping
+pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
+data_source = sex, display = FALSE)
+left_join(staff_records, pids, by=c("r_id"="sn"))
 
 # Add sex to the second stage to be more certain
-data_3 \%>\%
-  unite(cri_2, c(surname, sex)) \%>\%
-  bind_cols(record_group(., r_id, c(forename, cri_2), data_source = dataset, display = FALSE))
+staff_records_b <- unite(staff_records, cri_2, c(surname, sex), sep ="-")
+pids <- record_group(staff_records_b, r_id, c(forename, cri_2),
+data_source = dataset, display = FALSE)
+bind_cols(staff_records_b, pids)
 
 # Using sub-criteria
-data_4 <- tibble(
-  r_id = c(1:7),
-  staff_id = c(NA,NA,NA,NA,NA,2,2),
-  age = rep(30,7),
-  initials = c("G.D.","B.G.","X.P.","X.P.",NA,"G.D.","G.D."),
-  hair_colour = c("Brown","Teal",NA,"Green","Green","Dark brown","Brown"),
-  branch_office = c("Republic of Ghana","France",NA,NA,"France","Ghana","Republic of Ghana"),
-  ds_1 = c("A","A","A","B","A","A","B"),
-  ds_2 = c(3,1,1,1,1,1,2),
-  stringsAsFactors = FALSE
-)
+data(missing_staff_id); missing_staff_id
 
-bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = ds_1))
+pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
+list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1)
+left_join(missing_staff_id, pids, by=c("r_id"="sn"))
 
-bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = c(ds_1, ds_2)))
+pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
+list(s2a=c("initials","hair_colour","branch_office")), data_source = c(source_1, source_2))
+bind_cols(missing_staff_id, pids)
 
 }
 \seealso{
-\code{\link{episode_group}}
+\code{\link{episode_group}}, \code{\link{overlap}} and \code{\link{number_line}}
 }

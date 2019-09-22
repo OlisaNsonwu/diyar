@@ -1,16 +1,17 @@
+#' @name record_group
 #' @title Multi-staged deterministic record linkage
 #'
-#' @description This function assigns unique group identifiers to matching records from one or more datasets.
+#' @description Group matching records from one or more datasets.
 #'
-#' @param df Dataframe. One or more datasets appened together.
-#' @param sn Unique \code{numeric} record indentifier.
+#' @param df \code{data.frame}. One or more datasets appened together.
+#' @param sn Unique \code{numeric} record indentifier. Optional.
 #' @param criteria Column names of the attributes to match. Records with matching values in these columns are grouped together.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
-#' @param data_source Unique dataset indentifier. Useful when dataframe contains data from multiple datasets.
+#' @param data_source Unique dataset indentifier. Useful when \code{data.frame} contains data from multiple datasets.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
-#' @param display If \code{TRUE}, status messages are not printed on screen.
+#' @param display If \code{TRUE}, status messages are printed on screen.
 #'
-#' @return Dataframe
+#' @return \code{data.frame}
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
@@ -20,76 +21,88 @@
 #' \item \code{pid_total} - number of records in each group
 #' }
 #'
-#' @seealso \code{\link{episode_group}}
+#' @seealso \code{\link{episode_group}}, \code{\link{overlap}} and \code{\link{number_line}}
 #'
 #' @details
-#' Record grouping occurs in stages as listed in \code{criteria}. A match at each stage is considered more certain than those in subsequent stages.
-#' Therefore, \code{criteria} should be listed in order of decreasing certainty. \code{sub_criteria} can be used to force additonal matching conditions
-#' at each stage. If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-#' If a record has a missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
-#' If all \code{criteria} values are missing, that record is assigned a unique group ID. When a \code{data_source} identifier is included,
+#' Record grouping occurs in stages of matching \code{criteria}.
+#'
+#' Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of values.
+#' An example of range matching is matching on a date give or take 5 days, or matching on age give or take 2 years.
+#' To do this, create a \code{\link{number_line}} object with the range of values, and assign the actual value to the \code{gid} argument.
+#' Then use the \code{\link{number_line}} as a \code{sub_criteria}.
+#'
+#' A match at each stage is considered more certain than those at subsequent stages.
+#' Therefore, \code{criteria} should be listed in order of decreasing certainty.
+#'
+#' \code{sub_criteria} can be used to force additonal matching conditions at each stage.
+#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
+#' If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
+#' If all \code{criteria} values are missing, that record is assigned a unique group ID.
+#'
+#' When a \code{data_source} identifier is included,
 #' \code{pid_dataset} is included in the output. This shows the datasets included in each group.
 #'
 #' @examples
+#' library(dplyr)
+#' library(tidyr)
 #'
-#'  library(dplyr)
-#'  library(tidyr)
+#' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
+#' stringsAsFactors = FALSE)
+#' bind_cols(three_people, record_group(three_people, criteria= forename))
 #'
-#' # One stage record grouping
-#'  df <- tibble(
-#'    r_id = c(1:5),
-#'    forename = c("Obinna","James","Ojay","James","Obinna"),
-#'    stringsAsFactors = FALSE
-#'  )
+#' # To handle missing or unknown data, recode missing or unknown values to NA or "".
+#' three_people$r_id <- 1:5
+#' three_people$forename <- ifelse(three_people$r_id %in% c(1,4), NA, three_people$forename)
+#' bind_cols(three_people, record_group(three_people, criteria= forename))
 #'
-#'  bind_cols(df, record_group(df, r_id, forename))
+#' data(staff_records); staff_records
 #'
-#'  # Handling missing or unknown data - Recode missing or unknown values to NA or "".
-#'  # These are excluded from record grouping at the relevant stage
+#' # Range matching
+#' dob <- select(staff_records, sex)
+#' dob$age <- c(10,8,20,5,5,9,7)
 #'
-#'  df %>%
-#'    mutate(forename = ifelse(r_id %in% c(1,4), NA, forename)) %>%
-#'    bind_cols(record_group(., r_id, forename))
+#' # age range - age + 20 years
+#' dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
+#' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 #'
-#'  # Two or more stages of record grouping
-#'  # Criteria should be listed in decreasing order of certainty
-#' data_3 <- tibble(
-#'   r_id = c(1:7),
-#'   forename = c("James",NA,"Jamey","","Derrick","Darrack","Christie"),
-#'   surname = c("Green","Anderson","Green",NA,"Anderson","Anderson","Green"),
-#'   sex = c("M","M","M","F","M","M","F"),
-#'   dataset = c("Staff list","Staff list", "Pay slips","Pay slips", "Staff list","Pay slips","Staff list"),
-#'   stringsAsFactors = FALSE
-#' )
+#' # age range - age +- 20 years
+#' dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
+#' bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range")))
 #'
-#' bind_cols(data_3, record_group(data_3,r_id, c(forename, surname), data_source = sex, display = FALSE))
+#' # Do not directly use number_line objects as criterias.
+#' # Instead, use it as the sub_criteria to a 'dummy criteria'
+#' dob$dum_var <- 1
+#' bind_cols(dob, record_group(dob, criteria = dum_var, sub_criteria = list(s1a="range")))
+#'
+#' # Two or more stages of record grouping
+#' pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
+#' data_source = sex, display = FALSE)
+#' left_join(staff_records, pids, by=c("r_id"="sn"))
 #'
 #' # Add sex to the second stage to be more certain
-#' data_3 %>%
-#'   unite(cri_2, c(surname, sex)) %>%
-#'   bind_cols(record_group(., r_id, c(forename, cri_2), data_source = dataset, display = FALSE))
+#' staff_records_b <- unite(staff_records, cri_2, c(surname, sex), sep ="-")
+#' pids <- record_group(staff_records_b, r_id, c(forename, cri_2),
+#' data_source = dataset, display = FALSE)
+#' bind_cols(staff_records_b, pids)
 #'
 #' # Using sub-criteria
-#' data_4 <- tibble(
-#'   r_id = c(1:7),
-#'   staff_id = c(NA,NA,NA,NA,NA,2,2),
-#'   age = rep(30,7),
-#'   initials = c("G.D.","B.G.","X.P.","X.P.",NA,"G.D.","G.D."),
-#'   hair_colour = c("Brown","Teal",NA,"Green","Green","Dark brown","Brown"),
-#'   branch_office = c("Republic of Ghana","France",NA,NA,"France","Ghana","Republic of Ghana"),
-#'   ds_1 = c("A","A","A","B","A","A","B"),
-#'   ds_2 = c(3,1,1,1,1,1,2),
-#'   stringsAsFactors = FALSE
-#' )
+#' data(missing_staff_id); missing_staff_id
 #'
-#' bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = ds_1))
+#' pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
+#' list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1)
+#' left_join(missing_staff_id, pids, by=c("r_id"="sn"))
 #'
-#' bind_cols(data_4, record_group(data_4,r_id, c(staff_id, age), list(s2a=c("initials","hair_colour","branch_office")), data_source = c(ds_1, ds_2)))
+#' pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
+#' list(s2a=c("initials","hair_colour","branch_office")), data_source = c(source_1, source_2))
+#' bind_cols(missing_staff_id, pids)
 #'
-#' @importFrom dplyr %>%
 #' @export
 
-record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE){
+record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE){
+  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
+  if(!(is.logical(group_stats) & is.logical(display))) stop(paste("'group_stats' and 'display' must be TRUE or FALSE"))
+
+  . <- NULL
   enq_vr <- function(x, vr){
     x <- names(dplyr::select(x, !!vr))
 
@@ -102,28 +115,31 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
   }
   fmt <- function(g) formatC(g, format="d", big.mark=",")
 
-  ds <- enq_vr(df[1,], dplyr::enquo(data_source))
+  ds <- enq_vr(head(df,1), dplyr::enquo(data_source))
 
   df_vars <- names(df)
 
-  rd_sn <- enq_vr(df, dplyr::enquo(sn))
+  rd_sn <- enq_vr(head(df,1), dplyr::enquo(sn))
 
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
-  cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
+  cri_lst <- enq_vr(head(df,1), dplyr::enquo(criteria))
 
-  #assertions
-  if(!(class(df[[rd_sn]]) == "integer" & all(df[[rd_sn]] > 0))) stop(paste(rd_sn," must be a positive integer"))
-
-  if(any(duplicated(df[[rd_sn]])) | 0 %in% c(df[[rd_sn]])) stop(paste(rd_sn," must have unique values and not contain '0'"))
-
-  if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df) )){
-    missing_cols <- subset(names(df), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
-    missing_cols <- paste(missing_cols, collapse = "," )
-    stop(paste(missing_cols, "not found in the dataset"))
+  if(!is.null(rd_sn)){
+    if(!(all(df[[rd_sn]] > 0) & is.numeric(as.numeric(df[[rd_sn]])))) stop(paste("'",rd_sn,"' as 'sn' must be > 0", sep=""))
+    if(any(duplicated(df[[rd_sn]]))) stop(paste("'",rd_sn,"' as 'sn' must not have duplicate values", sep=""))
   }
 
-  #cri_lst <- enq_vr(df[1,], dplyr::enquo(criteria))
-  #sub_cri_lst <- subset(unlist(sub_criteria, use.names = FALSE),unlist(sub_criteria, use.names = FALSE) %in% names(df))
+  if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))){
+    missing_cols <- subset(unique(c(rd_sn, ds, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
+    missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
+    stop(paste(missing_cols, "not found"))
+  }
+
+  if(is.null(rd_sn)){
+    df <- dplyr::mutate(df, sn= dplyr::row_number())
+  }else{
+    df$sn <- dplyr::select(df, sn = !!dplyr::enquo(sn))[[1]]
+  }
 
   if(is.null(ds)){
     df$dsvr <- "A"
@@ -132,13 +148,16 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
   }
 
   df <- df %>%
-    dplyr::select(sn=!!dplyr::enquo(sn), !!dplyr::enquo(criteria), sub_cri_lst, .data$dsvr) %>%
-    dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), as.character) %>%
-    dplyr::mutate_at(dplyr::vars(!!dplyr::enquo(criteria), sub_cri_lst), dplyr::funs(ifelse(is.na(.),"",.))) %>%
+    dplyr::select(sn, !!dplyr::enquo(criteria), sub_cri_lst, .data$dsvr) %>%
     dplyr::mutate(pr_sn = dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = Inf)
 
   cri_no <- length(cri_lst)
 
+  range_match <- function(x, tr_x) {
+    if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) stop("Actual value (gid) is outside the range created in a number_line object")
+    diyar::overlap(diyar::as.number_line(x@gid), tr_x)
+
+  }
   for(i in 1:cri_no){
     if(display) cat(paste("\nGroup criteria ",i," - ","`",cri_lst[i],"`", sep=""))
 
@@ -150,11 +169,16 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     curr_attr <- ifelse(length(attr)==0, FALSE, TRUE)
 
     if(curr_attr){
-      func_1 <- function(x){paste("df2$",x, "==", "df2$tr_",x, sep="")}
+      func_1 <- function(x){
+        ifelse(class(df[[x]]) == "number_line", paste("range_match(df2$",x, ", ", "df2$tr_",x,")",sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
+      }
+
+      func_1b <- function(x) unlist(lapply(x, func_1))
+
       func_2 <- function(x){paste(x, collapse = " | ")}
       func_3 <- function(x){paste("(",x,")", sep="")}
 
-      sub_crx_func <- lapply(sub_criteria[attr], func_1)
+      sub_crx_func <- lapply(sub_criteria[attr], func_1b)
       sub_crx_func <- lapply(sub_crx_func, func_2)
       sub_crx_func <- lapply(sub_crx_func, func_3)
       sub_crx_func <- paste(sub_crx_func, collapse = " & ")
@@ -224,7 +248,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     total_1 <- length(subset(df$pid, df$tag ==0 ))
 
     if(display) {
-      cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," records not yet grouped.", sep =""))
+      cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," record(s) not yet grouped.", sep =""))
     }
 
     # untag record groups with only one record to attempt matching in the next criteria
@@ -244,7 +268,7 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
 
 
     if(display) {
-      cat(paste("\n",fmt(removed), " record(s) with unique IDs untagged for possible matching in the next stage. The number of records not yet grouped is now ", fmt(removed + (total_1-tagged_1)),".\n", sep =""))
+      cat(paste("\n",fmt(removed), " record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now ", fmt(removed + (total_1-tagged_1)),".\n", sep =""))
     }
   }
 
@@ -283,6 +307,6 @@ record_group <- function(df, sn, criteria, sub_criteria=NULL, data_source = NULL
     df <- dplyr::select(df, -.data$pr_sn)
 
    pd <- ifelse(display,"\n","")
-   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a unique ID. \n" , sep =""))
+   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a group unique ID. \n" , sep =""))
    df
 }

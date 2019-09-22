@@ -1,4 +1,12 @@
+^cobertura\.xml$
+^NEWS\.Rmd$
+^codecov\.yml$
+^\.travis\.yml$
+^docs$
+^_config\.yml$
+^data/_config\.yml$
 ^Meta$
 ^doc$
 ^.*\.Rproj$
 ^\.Rproj\.user$
+^README\.Rmd$

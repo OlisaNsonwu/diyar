@@ -1,10 +1,9 @@
 ---
-title: "Getting started with record_group"
-#author: "Olisa Nsonwu"
-#date: "`r Sys.Date()`"
+title: "Mutli-stage deterministic linkage in R"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Getting started with record_group}
+  %\VignetteIndexEntry{Mutli-staged deterministic linkage in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,9 +16,9 @@ knitr::opts_chunk$set(
 ```
 
 #Introduction
-Linking multiple datasets is a common task in research, particularly those involving the use of "big data". Deterministic record linkage is the simplest and most common method for record linkage however, its accuracy relies heavly on data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
+Linking multiple datasets to consolidate information is a common task in research, particularly in those involving the use of "big data". Deterministic record linkage is the simplest and most common method for record linkage however, its accuracy relies on data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
 
-This function aims to provide a simple, multi-staged and flexible implementation of deterministic record linkage which tries to maximise succesful linkages in datasets with missing or incorrect group identifiers eg. customer, patient or event ID. In such instances, alternative identifiers like dates, names, height or other attributes are used in a specified order of preference.
+This function aims to provide a simple, multi-staged and flexible implementation of deterministic record linkage that tries to maximise succesful linkage of datasets with missing or incorrect group identifiers eg. customer, patient or event ID. In such instances, alternative identifiers like dates, names, height or other attributes are used in a specified order of preference.
 
 #Uses
 Arguments in `record_group()` control separate aspects of the linkage process. Different combinations of each argument can be used to link datasets in a variety of ways. Examples of these include;
@@ -30,164 +29,147 @@ Arguments in `record_group()` control separate aspects of the linkage process. D
 - Linking datasets with missing group identifiers. See [handling missing values](#missing_values) 
 
 #Implementation 
-
 Record linkage is done in stages. Each stage is considered more certain than the subsequent one i.e. a match at stage 1 is considered more certain than one at stage 2. 
 
-Records are assigned a unique group ID if they match on a `criteria`. This is provided as a `vector` of column names for the attributes to be compared. This argument takes advanatge of `dplyr` quasiquotation. 
+Records are assigned a unique group ID if they match on a `criteria`. The group ID is essentially the record ID (`sn`) of one of the matching records. As a result, if you use a familiar record ID (`sn`), you can link the results back to the original dataset. 
 
-One or more `sub_criteria` can be used at each stage to include additional conditions for a match. This is provided as a `list` of named `vectors` of column names. If used, records will only be assigned a group ID when they match on the `criteria`, and at least one named column in each `sub_criteria`. 
+The `criteria` should be provided as column names of the attributes to be compared. This argument takes advanatge of `dplyr` quasiquotation.
 
-Each `sub_criteria` should be paired with a corresponding `criteria`. To do this, the vector name for each `sub_criteria` should be prefixed with `"s"` and the corresponding `criteria` number eg. `"s1"` or `"s4"`. When a `criteria` has more than one `sub_criteria`, include a suffix after the `criteria` number eg. `"s1a"`, `"s1b"`, `"s1c"` or `"s2a"`. [See examples](#sub_cri_example). Any `sub_criteria` not paired to `criteria` will be ignored. `sub_criteria` argument does not support quasiquotation.
+One or more `sub_criteria` can be used at each stage to include additional conditions for a match. This is provided as a `list` of column names as named `vectors`. If a `sub_criteria` is used, records will only be assigned a group ID when they match on the `criteria`, and at least one named column in each `sub_criteria`. 
+
+Each `sub_criteria` should be paired with a corresponding `criteria`. To do this, the vector name for each `sub_criteria` should be prefixed with `"s"` and the corresponding `criteria` number eg. `"s1"` or `"s4"`. When a `criteria` has more than one `sub_criteria`, include a suffix after the `criteria` number eg. `"s1a"`, `"s1b"`, `"s1c"` or `"s2a"`. [See examples](#sub_cri_example). Any `sub_criteria` not paired to a `criteria` will be ignored. The `sub_criteria` argument does not support quasiquotation.
 
 At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record. 
 
-Below are two implementation of a single stage record linkage. One is based on matching forename, and the other is based on forename and surname.
+Below are two implementation of a single stage record linkage. One is based on matching forenames, and the other is based on matching forenames and surnames.
 
 ```{r, message=FALSE}
 library(diyar)
 library(dplyr)
-
-patient_list <- data.frame(
-  rd_id = 1:6,
-  forename = c("James","ESTHER","", "Jamey", "Daniel", "Henry"), 
-  surname = c("Green","Kulmar","OBI", "Green", "Kulmar","OBI"), 
-  sex = c("M","F","F","M","M","M"), 
-  stringsAsFactors = FALSE  
-  )
+data(patient_list); patient_list
 
 # Matching forename only
-cbind(
-  patient_list,
-  record_group(patient_list, rd_id, forename)
-  )
+cbind(patient_list, record_group(patient_list, rd_id, forename))
 
 # Matching forename and surname
 patient_list <- mutate(patient_list, cri_1 = paste(forename, surname,sep="-") )
+cbind(patient_list, record_group(patient_list, rd_id, cri_1, display = FALSE))
 
-cbind(
-  patient_list,
-  record_group(patient_list, rd_id, cri_1, display = FALSE)
-  )
-
-# Note that matching is case sensitive
+# Note that exact matching is case sensitive. See range matching.
 ```
 <a id = "record_matching"></a>
 
 ##Record matching
-The choice and ordering of `criteria` and `sub_criteria` directly impacts the linkage. Before using this function, review the dataset and decide which combinations of `criteria` and `sub_criteria` would be appropriate. `record_group()` can use any combination availabe from the dataset however, you should consider a practical combination which would yield more true positive matches than false positive matches.
+The choice and ordering of `criteria` and `sub_criteria` directly impacts the linkage. Before using this function, review the dataset and decide which combinations of `criteria` and `sub_criteria` would be appropriate. `record_group()` can use any combination availabe from the dataset however, you should consider a practical combination which would yield more "true" matches than "false" matches.
 
-For example, in `patient_list` above, linking on forenames only, or forenames and surnames does not yield any match. However, linking in two stages - forname followed by surname (see [Record group expansion](#record_expansion)), will pair records 1 and 4, 2 and 5, 3 and 6. 
+For example, in `patient_list` above, linking on forenames only, or forenames and surnames does not yield any match. However, linking in two stages - forname followed by surname, will pair records 1 and 4, 2 and 5, 3 and 6. See [Record group expansion](#record_expansion). 
 
 ```{r}
-cbind(
-  patient_list,
-  record_group(patient_list, rd_id, c(forename, surname), display = FALSE)
-  )
-
+cbind(patient_list, record_group(patient_list, rd_id, c(forename, surname), display = FALSE))
 ```
 
-Although this result of this linkage is logically correct, a two stage linkage on forenames followed by surnames is not the most practical option given the dataset. For instance, records 3 and 6 could be cousins and not the same individual. Therefore, a better combination could be forename at stage 1, followed by surname and sex at stage 2. See below;
+Although this result is logically correct, a two stage linkage on forenames followed by surnames is not the most practical option given the dataset. For instance, records 3 and 6 could be cousins and not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See below;
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 patient_list <- mutate(patient_list, cri_2 = paste(surname, sex,sep="-") )
-
-cbind(
-  patient_list,
-  record_group(patient_list, rd_id, c(forename, cri_2), display = FALSE)
-  )
+cbind(patient_list, record_group(patient_list, rd_id, c(forename, cri_2), display = FALSE))
 ```
 
-As mentioned earlier, at each stage of record linkage, a `sub_criteria` can be used to include additional conditions for a match. Just like `criteria`, any column in the dataset can be used as a `sub_criteria`. However, you should consider using a practical combination for the given dataset. 
+As mentioned earlier, at each stage of record linkage, a `sub_criteria` can be used to include additional conditions for a match. Just like `criteria`, any column in the dataset can be used as a `sub_criteria`. Although, a practical combination for the given dataset is recommended.
 
 <a id="sub_cri_example"></a>
 
 Below are examples of record linkage using different combinations of the same `criteria` and `sub_criteria`
 
-```{r, message=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(tidyr)
-
-staff_list <- data.frame(
-  rd_id = 1:8,
-  name = rep("John Smith",8), 
-  department = c("Procurement","Security","Security","Publishing",
-                 "Publishing","Publishing","Publishing","Procurement"), 
-  hair_colour = c("Brown","Brown","Brown", "Green", 
-                  "Teal","Grey","White","Black"),
-  date_of_birth = c("23/03/1986", "23/03/1986", "23/03/1968", "01/02/1985",
-                    "02/01/1985", "11/03/1964","11/03/1964", "11/10/1985"),
-  stringsAsFactors = FALSE  
-)
-
-staff_list <- separate(staff_list, date_of_birth, c("d", "m", "y"),  sep="/", remove = FALSE) %>% 
-  mutate(
-    db_pt1 = paste(d,m,sep="/"),
-    db_pt2 = paste(d,y,sep="/"),
-    db_pt3 = paste(m,y,sep="/")
-  ) %>% 
-  select(-c(d,m,y))
+data(Opes); Opes
 
 # 1 stage linkage
   # stage 1 - name, and either department, hair colour or date of birth
 cbind(
-  staff_list,
-  record_group(staff_list, rd_id, name, list("s1a"=c("department","hair_colour","date_of_birth")),  display = FALSE)
-  ) %>% select(-starts_with("db_"))
+  Opes,
+  record_group(Opes, rd_id, name, list("s1a"=c("department","hair_colour","date_of_birth")),  display = FALSE)
+  ) %>% select(-starts_with("db_"), -sn)
   
-
 # 1 stage linkage 
   # stage 1 - name, and either department or hair color, and date of birth 
 cbind(
-  staff_list,
-  record_group(staff_list, rd_id, c(name), 
+  Opes,
+  record_group(Opes, rd_id, c(name), 
                list("s1a"=c("department","hair_colour"), 
                     "s1b"=c("date_of_birth")),  display = FALSE)
-  ) %>% select(-starts_with("db_"))
+  ) %>% select(-starts_with("db_"), -sn)
 
 # 1 stage linkage 
   # stage 1 - name, and either department or hair color, and either day and month of birth, day and year of birth or month and year of birth date of birth
 cbind(
-  staff_list,
-  record_group(staff_list, rd_id, c(name), 
+  Opes,
+  record_group(Opes, rd_id, c(name), 
                list("s1a"=c("department","hair_colour"), 
                     "s1b"=c("db_pt1","db_pt2","db_pt3")),  display = FALSE)
-  ) %>% select(-starts_with("db_"))
+  ) %>% select(-date_of_birth, -sn)
 
 
 # 1 stage linkage 
-  # stage 1 - name, and either department, and hair color, and either day and month of birth, day and year of birth or month and year of birth date of birth 
+  # stage 1 - name, and department, and hair color, and either day and month of birth, day and year of birth or month and year of birth date of birth 
 cbind(
-  staff_list,
-  record_group(staff_list, rd_id, c(name), 
+  Opes,
+  record_group(Opes, rd_id, c(name), 
                list("s1a"=c("department"),
                     "s1c"=c("hair_colour"),
                     "s1b"=c("db_pt1","db_pt2","db_pt3")),  display = FALSE)
-  ) %>% select(-starts_with("db_"))
+  ) %>% select(-starts_with("db_"), -sn)
 
 ```
 
-Note that using `sub_criteria` costs additional processing time, so it should be avoided when unnecessary. For example, the two implementations of linkage below will yield the same result but the second method will take less time. This time difference becomes more noticeable with very large datasets.
+Note that using `sub_criteria` costs additional processing time, so it should be avoided when unnecessary. For example, the two implementations below will yield the same result however, the second will take less time. This is indicated in the displayed messages. This time difference is more noticeable with very large datasets.
 
 ```{r, warning = FALSE}
 # 1 stage linkage 
   # stage 1 - name, and date of birth, and department and hair color 
 cbind(
-  staff_list,
-  record_group(staff_list, rd_id, name, 
+  Opes,
+  record_group(Opes, rd_id, name, 
                list("s1a"=c("department"),
                     "s1b"=c("hair_colour"),
-                    "s1c"=c("date_of_birth")),  display = FALSE)
+                    "s1c"=c("date_of_birth")),  display = TRUE)
   ) %>% select(-starts_with("db_"))
-
 
 # 1 stage linkage 
   # stage 1 - name, and date of birth, and department and hair color
-staff_list_b <- unite(staff_list, cri, c(name, date_of_birth, department, hair_colour))
+Opes_b <- unite(Opes, cri, c(name, date_of_birth, department, hair_colour))
 cbind(
-  staff_list_b,
-  record_group(staff_list_b, rd_id, c(cri),  display = FALSE)
+  Opes_b,
+  record_group(Opes_b, rd_id, c(cri),  display = TRUE)
   ) %>% select(-starts_with("db_"))
-
 ```
+
+###Range matching
+Records can be matched in two ways; exact matches as in the examples above, or matching a range a values. The latter is done by converting the range of values to a `number_line` object, and the `gid` arguement/slot set to the actual value. This `number_line` object is then used as a `sub_criteria` argument. `number_line` objects are considered a match if they overlap. See the example below.
+
+```{r message=FALSE, warning=FALSE}
+library(lubridate)
+Opes_c <- select(Opes, date_of_birth)
+Opes_c$dummy_cri <- 1
+Opes_c
+
+# Match record within 3 months before or after a date
+Opes_c$range <- expand_number_line(as.number_line(dmy(Opes_c$date_of_birth)), period(2, "years"), "end")
+Opes_c$range@gid <- as.numeric(dmy(Opes_c$date_of_birth))
+bind_cols(Opes_c,
+  record_group(Opes_c, criteria = dummy_cri, sub_criteria = list(s1="range")))
+
+# Match record within 5 years younger or older than an age
+Opes_c$age <- as.numeric(round((Sys.Date() - dmy(Opes_c$date_of_birth))/365.5)) # approximate age
+Opes_c$range <- as.number_line(Opes_c$age)
+Opes_c$range@gid <- Opes_c$age
+Opes_c$range <- expand_number_line(Opes_c$range, 5, "end")
+bind_cols(Opes_c,
+  record_group(Opes_c, criteria = dummy_cri, sub_criteria = list(s1="range")))
+```
+
+Only use `number_line` objects as a `sub_criteria`. **Do not directly use `number_line` objects as a `criteria`!**. Instead, create a dummy `criteria` (e.g. `1` for every row), and then use the range as a `sub_criteria` for the dummy `criteria`.
 
 <a id = "record_expansion"></a>
 
@@ -195,7 +177,7 @@ cbind(
 At each stage of record linkage, records are either assigned a new group ID or inherit an existing one. The following scenerio explains how these happen;
 
 - If a record only matches others that have not yet been assigned a group ID, it and the others will then be assigned a new group ID 
-- If a record matches others which already have a group ID, the record will inherit the existing group ID. Note that if it matches records  multiple existing group IDs, the ID assigned at the earliest stage is the one inherited 
+- If a record matches others which already have a group ID, the record will inherit the existing group ID. Note that if it matches multiple records with existing but different group IDs, the ID assigned at the earliest stage is the one inherited 
 - If a record does not match any record, it will not be assigned a group ID. If by the last stage, it still has not matched any other record, it is assigned a new group ID
 
 It's worth reiterating that `record_group()` expects the `criteria` to be listed in order of decreasing certainty. Therefore, existing group IDs can be inherited but will not be overwritten. This is because groups formed at earlier stages are considered more "certain" than those formed at subsequent stages. 
@@ -203,17 +185,11 @@ It's worth reiterating that `record_group()` expects the `criteria` to be listed
 The example below with `patient_list` demonstrates this behaviour.
 
 - Stage 1 - Only records 3 and 4 are grouped together and therefore assigned a new group ID (`3`). Records 1 and 2 are excluded from grouping at this stage because of [missing values](#missing_values). Record 5 is not assigned a group ID because it doesn't match any other record. 
-- Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a unique ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they match on forenames which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID because it doesn't match any other record on surnames. 
+- Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they've prevously been matched on forenames, which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID since it doesn't match any other record on surnames. 
 - Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3's group ID (`3`) because that was assigned at stage 1 (`"Criteria 1"`) as opposed to record 2's group ID which was assigned at stage 2 (`"Criteria 2"`).
 
 ```{r}
-patient_list <- data.frame(
-  rd_id = 1:5,
-  forename = c("","","Tomi","Tomi","Obi"),
-  surname = c("Jefferson","Jefferson","Abdul","Abdulkareem","Nelson"),
-  sex = c("Male","Female","Male","Female","Male"),
-  stringsAsFactors = FALSE
-)
+data(patient_list_2); patient_list_2
 
 cbind(
   patient_list,
@@ -229,13 +205,9 @@ Records with missing values for a particular `criteria` are excluded from that s
 It's common for databases to use specific characters or numbers to represent missing or unknown data e.g. `N/A`, `Nil`, `01/01/1100`, `111111` etc. These pseudo-missing values will need to be recoded to one of the two recognised by `record_group()` - `NA` or an empty string (`""`). If this is not done, the function will assume the pseudo-misssing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.
 
 ```{r}
-patient_list_b <- data.frame(
-  rd_id = 1:6,
-  forename = c("Nil","Nil","Nil", "Jamey", "Daniel", "Henry"), 
-  surname = c("Green","Kulmar","OBI", "Green", "Kulmar","OBI"), 
-  sex = c("M","F","F","M","M","M"), 
-  stringsAsFactors = FALSE  
-)
+patient_list_b <- patient_list_2
+patient_list_b <- mutate(patient_list_b, forename = 
+                           ifelse(rd_id %in% 1:3, "Nil", forename))  
 
 # 2 stage linkage
     # Stage 1 - Forname
@@ -279,4 +251,4 @@ cbind(
 ```
 
 #Conclusion
-As a rule of thumb, the more unique a criteria, the earlier it should be listed in `criteria`. Also, the set and ordering of `criteria` is a personal choice but should also be practical given the dataset. For example, when linking a vehicular database with no existing identifier, vehicle color alone is less practical than color and brand name, which in turn is less practical than color, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and would need to be relaxed. On the other hand, the dataset could be so small that vehicle color alone is sufficient as a `criteria`. `record_group()` aims to minimize false mismatches due to random data error or missing values however, the choice and ordering of `criteria` and `sub_criteria` should balance the availability of alternative identifiers with their practicality as group identifiers.
+As a general rule, the more unique a criteria, the earlier it should be listed in `criteria`. Also, the set and ordering of `criteria` is a personal choice but should also be practical given the dataset. For example, when linking a vehicular database with no existing identifier, vehicle color alone is less practical than color and brand name, which in turn is less practical than color, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and would need to be relaxed. On the other hand, the dataset could be so small that vehicle color alone is sufficient as a `criteria`. `record_group()` aims to minimize false mismatches due to random errors in data entry or collection, or missing values. The choice and ordering of `criteria` and `sub_criteria` should balance the availability of alternative identifiers with their practicality as group identifiers.

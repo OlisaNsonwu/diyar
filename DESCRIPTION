@@ -1,15 +1,18 @@
 Package: diyar
 Type: Package
-Title: Record linkage and case definitions for epidemiological analysis
-Version: 1.0.0
+Title: Record linkage and case definitions for epidemiological analysisT
+Version: 0.0.1
 URL: https://github.com/OlisaNsonwu/diyar
 Author: Olisa Nsonwu
 Maintainer: Olisa Nsonwu <olisa.nsonwu@gmail.com>
-Description: A set of functions to deterministically link, deduplicate, and apply case definitions to multiple datasets
+Description: A set of functions to deterministically link, deduplicate, and apply case definitions to datasets.
 License: GPL-3 + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports: 
+    methods,
+    utils,
+    rlang,
     dplyr,
     lubridate,
     stringr,
@@ -18,7 +21,8 @@ RoxygenNote: 6.1.1
 Suggests:
     ggplot2,
     janitor,
-    tictoc,
     knitr,
-    rmarkdown
+    rmarkdown,
+    testthat,
+    covr
 VignetteBuilder: knitr
