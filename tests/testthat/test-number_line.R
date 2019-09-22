@@ -101,7 +101,9 @@ test_that("test changing the number line", {
   expect_equal(right_point(diyar::number_line(5, 1)), 1)
   expect_equal(start_point(diyar::number_line(5, 1)), 1)
   expect_equal(end_point(diyar::number_line(5, 1)), 5)
-
+  expect_equal(sort(c(number_line(5,7), number_line(2,10))), c(number_line(2,10), number_line(5,7)))
+  expect_equal(diyar::number_line_width(diyar::number_line(5,10)), 5)
+  expect_equal(diyar::number_line_width(diyar::number_line(25,10)), -15)
   expect_equal(shift_number_line(number_line(5,6), 2), number_line(7,8))
 })
 
@@ -118,6 +120,7 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(diyar::right_point(1), "'x' is not a number_line object")
   expect_error(diyar::start_point(1), "'x' is not a number_line object")
   expect_error(diyar::end_point(1), "'x' is not a number_line object")
+  expect_error(diyar::number_line_width(1), "'x' is not a number_line object")
   expect_error(diyar::reverse_number_line(number_line(10,100), c("both","increasing")), "'direction' must be a character of length 1")
   expect_error(diyar::reverse_number_line(number_line(10,100), "increased"), "`direction` must be either 'increasing', 'decreasing', or 'both'")
   expect_warning(diyar::number_line(50, "20A"), "'l' and 'r' have different classes. It may need to be reconciled")
@@ -130,6 +133,7 @@ test_that("test that error and warning messages are returned correctly", {
 test_that("test that error and warning messages are returned correctly", {
   expect_error(diyar::number_line(mtcars, mtcars), "'l' or 'r' aren't compatible for a number_line object")
   expect_error(diyar::number_line(1.2, 3.1, id = NA), "'id' must be numeric")
+  expect_error(diyar::number_line(1.2, 3.1, gid = NA), "'gid' must be numeric")
   expect_error(diyar::as.number_line(mtcars), "'x' can't be coerced to a number_line object")
 
 })

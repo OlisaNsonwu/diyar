@@ -406,7 +406,7 @@ unique.number_line <- function(x, ...){
 #' @export
 sort.number_line <- function(x, decreasing = FALSE, ...){
   db <- data.frame(l = x@start, r = x@start + x@.Data, id = x@id, gid = x@gid)
-  db$y <- reverse_number_line(x)@start
+  db$y <- diyar::start_point(x)
   db <- db[order(db$y, db$id, decreasing = decreasing),]
   x <- diyar::number_line(l =db$l, r = db$r, id = db$id, gid = db$gid)
   return(x)

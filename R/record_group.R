@@ -102,6 +102,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   if(!(is.logical(group_stats) & is.logical(display))) stop(paste("'group_stats' and 'display' must be TRUE or FALSE"))
 
+  . <- NULL
   enq_vr <- function(x, vr){
     x <- names(dplyr::select(x, !!vr))
 

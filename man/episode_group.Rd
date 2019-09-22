@@ -97,7 +97,7 @@ The maximun duration of a \code{"fixed"} episode is the \code{case_length} while
 \code{case_length} in addition to all recurrence periods. A recurrence period is the \code{recurrence_length} from the last record in an episode
 
 \code{fixed_episodes()} and \code{rolling_episodes()} are more convenient implementations of \code{episode_group}.
-However, these are less efficient in deaing with large datasets (XX estimate), and lack the following features;
+However, these are less efficient in deaing with large datasets, and lack the following features;
 \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
 }
 \examples{

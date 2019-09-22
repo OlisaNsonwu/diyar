@@ -130,7 +130,7 @@ xx_episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
-
+  . <- NULL
   episodes_max <- ifelse(is.numeric(episodes_max) & !is.na(episodes_max) & !is.infinite(episodes_max), as.integer(episodes_max), episodes_max)
   rolls_max <- ifelse(is.numeric(rolls_max) & !is.na(rolls_max) & !is.infinite(rolls_max), as.integer(rolls_max), rolls_max)
 
@@ -446,7 +446,7 @@ xx_episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' @details
 #' \code{fixed_episodes()} and \code{rolling_episodes()} are more convenient implementations of \code{episode_group}.
-#' However, these are less efficient in deaing with large datasets (XX estimate), and lack the following features;
+#' However, these are less efficient in deaing with large datasets, and lack the following features;
 #' \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
 #'
 #' @return \code{fixed_episodes() and rolling_episodes()} - \code{number_line}.
@@ -653,7 +653,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), bi_direction = FALSE, group_stats= FALSE, display=TRUE){
-
+  . <- NULL
   episodes_max <- ifelse(is.numeric(episodes_max) & !is.na(episodes_max) & !is.infinite(episodes_max), as.integer(episodes_max), episodes_max)
   rolls_max <- ifelse(is.numeric(rolls_max) & !is.na(rolls_max) & !is.infinite(rolls_max), as.integer(rolls_max), rolls_max)
 
@@ -730,7 +730,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- tidyr::unite(df, "cri", c(!!dplyr::enquo(strata)), remove=FALSE)
   }
 
-  if(diyar::is.number_line(df[[dt]])){
+  if(all(diyar::is.number_line(df[[dt]]))){
     df$rec_dt_ai <- diyar::left_point(df[[dt]])
     df$rec_dt_zi <- diyar::right_point(df[[dt]])
   }else{

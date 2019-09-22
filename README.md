@@ -1,4 +1,9 @@
 
+diyar
+=====
+
+[![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar) [![Coverage status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master)
+
 Overview
 --------
 
@@ -48,7 +53,7 @@ number_line_sequence(nl, by =3)
 
 Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.
 
-`fixed_episode()` and `rolling_episode()` are the simplest implementation this process in `diyar`.
+`fixed_episode()` and `rolling_episode()` are the simplest implementation of this. Their outputs are `number_line` objects, with `@gid` as the episode identifier, and `@id` as the record identifier.
 
 ``` r
 data(infections); infections
@@ -67,43 +72,61 @@ data(infections); infections
 #> 10    10 2018-05-25 RTI            15
 #> 11    11 2018-05-31 BSI            15
 db_a <- infections
+
 # Fixed episodes
-fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE)
+f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE)
+f_epi; str(f_epi)
 #>  [1] "2018-04-01 -> 2018-04-13" "2018-04-01 -> 2018-04-13"
 #>  [3] "2018-04-01 -> 2018-04-13" "2018-04-19 -> 2018-05-01"
 #>  [5] "2018-04-19 -> 2018-05-01" "2018-04-19 -> 2018-05-01"
 #>  [7] "2018-05-07 -> 2018-05-19" "2018-05-07 -> 2018-05-19"
 #>  [9] "2018-05-07 -> 2018-05-19" "2018-05-25 -> 2018-05-31"
 #> [11] "2018-05-25 -> 2018-05-31"
-# Rolling episodes
-rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE)
-#>  [1] "2018-04-01 -> 2018-05-31" "2018-04-01 -> 2018-05-31"
-#>  [3] "2018-04-01 -> 2018-05-31" "2018-04-01 -> 2018-05-31"
-#>  [5] "2018-04-01 -> 2018-05-31" "2018-04-01 -> 2018-05-31"
-#>  [7] "2018-04-01 -> 2018-05-31" "2018-04-01 -> 2018-05-31"
-#>  [9] "2018-04-01 -> 2018-05-31" "2018-04-01 -> 2018-05-31"
-#> [11] "2018-04-01 -> 2018-05-31"
+#> Formal class 'number_line' [package "diyar"] with 4 slots
+#>   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...
+#>   ..@ start: Date[1:11], format: "2018-04-01" ...
+#>   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...
+#>   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...
 
+# Rolling episodes
+r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE)
+f_epi; str(f_epi)
+#>  [1] "2018-04-01 -> 2018-04-13" "2018-04-01 -> 2018-04-13"
+#>  [3] "2018-04-01 -> 2018-04-13" "2018-04-19 -> 2018-05-01"
+#>  [5] "2018-04-19 -> 2018-05-01" "2018-04-19 -> 2018-05-01"
+#>  [7] "2018-05-07 -> 2018-05-19" "2018-05-07 -> 2018-05-19"
+#>  [9] "2018-05-07 -> 2018-05-19" "2018-05-25 -> 2018-05-31"
+#> [11] "2018-05-25 -> 2018-05-31"
+#> Formal class 'number_line' [package "diyar"] with 4 slots
+#>   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...
+#>   ..@ start: Date[1:11], format: "2018-04-01" ...
+#>   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...
+#>   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...
+
+# Working with a data.frame
 db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE))
+
+# Extract useful episode information from the number_line objects
 db_b$epid <- db_b$epid_interval@gid
-db_b
-#> # A tibble: 11 x 6
-#>    rd_id date       infection epi_len epid_interval             epid
-#>    <int> <date>     <chr>       <dbl> <S4: number_line>        <int>
-#>  1     1 2018-04-01 BSI            15 2018-04-01 == 2018-04-01     1
-#>  2     2 2018-04-07 UTI            15 2018-04-07 -> 2018-04-19     2
-#>  3     3 2018-04-13 UTI            15 2018-04-07 -> 2018-04-19     2
-#>  4     4 2018-04-19 UTI            15 2018-04-07 -> 2018-04-19     2
-#>  5     5 2018-04-25 BSI            15 2018-04-25 -> 2018-05-07     5
-#>  6     6 2018-05-01 UTI            15 2018-05-01 == 2018-05-01     6
-#>  7     7 2018-05-07 BSI            15 2018-04-25 -> 2018-05-07     5
-#>  8     8 2018-05-13 BSI            15 2018-05-13 == 2018-05-13     8
-#>  9     9 2018-05-19 RTI            15 2018-05-19 -> 2018-05-25     9
-#> 10    10 2018-05-25 RTI            15 2018-05-19 -> 2018-05-25     9
-#> 11    11 2018-05-31 BSI            15 2018-05-31 == 2018-05-31    11
+db_b$epid_length <- number_line_width(db_b$epid_interval)
+select(db_b, rd_id, date, epid_interval, epid, epid_length)
+#> # A tibble: 11 x 5
+#>    rd_id date       epid_interval             epid epid_length
+#>    <int> <date>     <S4: number_line>        <int> <time>     
+#>  1     1 2018-04-01 2018-04-01 == 2018-04-01     1  0 days    
+#>  2     2 2018-04-07 2018-04-07 -> 2018-04-19     2 12 days    
+#>  3     3 2018-04-13 2018-04-07 -> 2018-04-19     2 12 days    
+#>  4     4 2018-04-19 2018-04-07 -> 2018-04-19     2 12 days    
+#>  5     5 2018-04-25 2018-04-25 -> 2018-05-07     5 12 days    
+#>  6     6 2018-05-01 2018-05-01 == 2018-05-01     6  0 days    
+#>  7     7 2018-05-07 2018-04-25 -> 2018-05-07     5 12 days    
+#>  8     8 2018-05-13 2018-05-13 == 2018-05-13     8  0 days    
+#>  9     9 2018-05-19 2018-05-19 -> 2018-05-25     9  6 days    
+#> 10    10 2018-05-25 2018-05-19 -> 2018-05-25     9  6 days    
+#> 11    11 2018-05-31 2018-05-31 == 2018-05-31    11  0 days
 ```
 
-`episode_group()` is a more comprehensive options and provides useful information on each episode.
+`episode_group()` is a more comprehensive option and returns a `data.frame` of useful information for each episode.
 
 ``` r
 db_c <- episode_group(db_a, sn=rd_id, date = date, strata = infection, case_length = epi_len, display = FALSE, group_stats = TRUE)
@@ -142,6 +165,7 @@ data(staff_records); staff_records
 #> 5     5 Derrick  Anderson M     Staff list
 #> 6     6 Darrack  Anderson M     Pay slips 
 #> 7     7 Christie Green    F     Staff list
+
 pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
                      data_source = sex, display = FALSE)
 #> Record grouping complete - 1 record(s) assigned a group unique ID.
@@ -156,17 +180,6 @@ left_join(staff_records, pids, by=c("r_id"="sn"))
 #> 5     5 Derrick  Anderson M     Staff list     2 Criteria 2 M          
 #> 6     6 Darrack  Anderson M     Pay slips      2 Criteria 2 M          
 #> 7     7 Christie Green    F     Staff list     1 Criteria 2 F,M
-staff_records
-#> # A tibble: 7 x 5
-#>    r_id forename surname  sex   dataset   
-#>   <int> <chr>    <chr>    <chr> <chr>     
-#> 1     1 James    Green    M     Staff list
-#> 2     2 <NA>     Anderson M     Staff list
-#> 3     3 Jamey    Green    M     Pay slips 
-#> 4     4 ""       <NA>     F     Pay slips 
-#> 5     5 Derrick  Anderson M     Staff list
-#> 6     6 Darrack  Anderson M     Pay slips 
-#> 7     7 Christie Green    F     Staff list
 
 # Range matching
 dob <- select(staff_records, sex)
@@ -203,4 +216,4 @@ bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"
 #> 7 F         7 -13 -> 27             7     4 Criteria 1
 ```
 
-Find out more [here](https://olisansonwu.github.io/diyar/index.html)!.
+Find out more [here](https://olisansonwu.github.io/diyar/index.html)!
