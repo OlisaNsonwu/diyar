@@ -1,3 +1,5 @@
+^cobertura\.xml$
+^NEWS\.Rmd$
 ^codecov\.yml$
 ^\.travis\.yml$
 ^docs$
