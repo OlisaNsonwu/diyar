@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 #Introduction
 Linking multiple datasets to consolidate information is a common task in research, particularly in those involving the use of "big data". Deterministic record linkage is the simplest and most common method for record linkage however, its accuracy relies on data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
 
-This function aims to provide a simple, multi-staged and flexible implementation of deterministic record linkage that tries to maximise succesful linkage of datasets with missing or incorrect group identifiers eg. customer, patient or event ID. In such instances, alternative identifiers like dates, names, height or other attributes are used in a specified order of preference.
+This function aims to provide a simple, multistage and flexible implementation of deterministic record linkage that tries to maximise succesful linkage of datasets with missing or incorrect group identifiers eg. customer, patient or event ID. In such instances, alternative identifiers like dates, names, height or other attributes are used in a specified order of preference.
 
 #Uses
 Arguments in `record_group()` control separate aspects of the linkage process. Different combinations of each argument can be used to link datasets in a variety of ways. Examples of these include;

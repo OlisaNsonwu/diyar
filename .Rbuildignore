@@ -1,3 +1,4 @@
+^cran-comments\.md$
 ^cobertura\.xml$
 ^NEWS\.Rmd$
 ^codecov\.yml$
@@ -10,3 +11,4 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
+^revdep$

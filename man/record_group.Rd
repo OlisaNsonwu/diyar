@@ -2,7 +2,7 @@
 % Please edit documentation in R/record_group.R
 \name{record_group}
 \alias{record_group}
-\title{Multi-staged deterministic record linkage}
+\title{Multistage deterministic record linkage}
 \usage{
 record_group(df, sn = NULL, criteria, sub_criteria = NULL,
   data_source = NULL, group_stats = FALSE, display = TRUE)

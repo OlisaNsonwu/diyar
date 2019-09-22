@@ -1,5 +1,5 @@
 #' @name record_group
-#' @title Multi-staged deterministic record linkage
+#' @title Multistage deterministic record linkage
 #'
 #' @description Group matching records from one or more datasets.
 #'
@@ -155,6 +155,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
   range_match <- function(x, tr_x) {
     if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) stop("Actual value (gid) is outside the range created in a number_line object")
+    if(utils::packageVersion("dplyr") < package_version("0.8.3")) stop("dplyr >= v0.8.3 is required for range matching")
     diyar::overlap(diyar::as.number_line(x@gid), tr_x)
 
   }
