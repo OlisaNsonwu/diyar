@@ -127,8 +127,8 @@ df_7 <- data.frame(
   stringsAsFactors = TRUE
 )
 
-df_7$age_range <- diyar::number_line(df_7$age-5, df_7$age+5, gid = df_7$age)
-df_7$corrupt_range <- diyar::number_line(df_7$age-5, df_7$age+5)
+df_7$age_range <- number_line(df_7$age-5, df_7$age+5, gid = df_7$age)
+df_7$corrupt_range <- number_line(df_7$age-5, df_7$age+5)
 test_7 <- cbind(df_7, record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE))
 
 test_that("test record grouping using range matching", {

@@ -159,7 +159,7 @@ as.number_line <- function(x){
 
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a number_line object",sep=""))
 
-  if(!diyar::is.number_line(x)){
+  if(all(!diyar::is.number_line(x))){
     x[!is.finite(as.numeric(x))] <- NA
     x <- methods::new("number_line", .Data = rep(0,length(x)), start= x, id = 1:length(x), gid = 1:length(x))
   }
@@ -394,10 +394,15 @@ number_line_sequence <- function(x, by=1){
 #' @param ... arguments for particular methods
 #' @export
 unique.number_line <- function(x, ...){
-  if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
-  if(any(duplicated(x@gid) | is.na(x@gid))) x@gid <- 1:length(x@gid)
-  db <- unique(data.frame(l = x@start, r = x@start + x@.Data, row.names = x@id))
-  x <- diyar::number_line(l =db$l, r = db$r, id = as.numeric(row.names(db)), gid = x@gid[x@id %in% as.numeric(row.names(db))] )
+  #if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
+  #if(any(duplicated(x@gid) | is.na(x@gid))) x@gid <- 1:length(x@gid)
+  #db <- unique(data.frame(l = x@start, r = x@start + x@.Data, row.names = x@id))
+
+  db <- unique(data.frame(l = left_point(x), r = right_point(x), nl = x))
+  db$cri <- paste(as.numeric(db$l), as.numeric(db$r),sep="")
+  db <- subset(db, !duplicated(db$cri))
+  x <- db$nl
+  #x <- diyar::number_line(l =db$l, r = db$r, id = as.numeric(row.names(db)), gid = x@gid[x@id %in% as.numeric(row.names(db))] )
   return(x)
 }
 
@@ -405,10 +410,10 @@ unique.number_line <- function(x, ...){
 #' @param decreasing logical. Should the sort be increasing or decreasing
 #' @export
 sort.number_line <- function(x, decreasing = FALSE, ...){
-  db <- data.frame(l = x@start, r = x@start + x@.Data, id = x@id, gid = x@gid)
-  db$y <- diyar::start_point(x)
-  db <- db[order(db$y, db$id, decreasing = decreasing),]
-  x <- diyar::number_line(l =db$l, r = db$r, id = db$id, gid = db$gid)
+  db <- data.frame(sd = as.numeric(diyar::start_point(x)), id = x@id, nl= x)
+
+  if(decreasing) db$sd <- -db$sd
+  x <- db[order(db$sd, db$id),]$nl
   return(x)
 }
 

@@ -6,52 +6,72 @@ library(dplyr)
 library(lubridate)
 
 # Test 1 - Fixed episodes
-data <- data.frame(date = seq.Date(dmy("01/04/2018"), dmy("31/05/2018"), by="3 days"))
+data <- data.frame(date = seq.POSIXt(dmy_hms("01/04/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"), by="3 days"))
 data$pid <- "Patient 1"
 data$episode_len <- 6
-data <- mutate(data, rd_id = row_number())
+data$d <- as.numeric(duration(data$episode_len, "days"))
 
+data <- mutate(data, rd_id = row_number())
+data$date_int <- as.number_line(data$date)
+data$date_int@id <- 1
+# episode grouping with episode_group()
 test_1 <- episode_group(head(data,10), strata = pid, date = date, case_length = episode_len, group_stats = TRUE)
+
+# episode grouping with fixed episodes()
+test_1$epid_interval_2 <- mutate(head(data,10), epid_interval_2 = fixed_episodes(strata = pid, x = date, case_length = d))[["epid_interval_2"]]
+test_1$epid_interval_3 <- mutate(head(data,10), epid_interval_3 = fixed_episodes(x = date, case_length = d[[1]]))[["epid_interval_3"]]
+
+t_ds <- head(data,10)
+epids_dedup <- fixed_episodes(x = t_ds$date, case_length = t_ds$d[[1]], deduplicate = TRUE)
 
 test_that("test that row positions of the resulting dataframe are the same as supplied", {
   expect_equal(test_1$sn, head(data,10)$rd_id)
 })
 
 e_int <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("07/04/2018  00:00:00")), 3),
-  rep(diyar::number_line(lubridate::dmy_hms("10/04/2018 00:00:00"), lubridate::dmy_hms("16/04/2018  00:00:00")), 3),
-  rep(diyar::number_line(lubridate::dmy_hms("19/04/2018 00:00:00"), lubridate::dmy_hms("25/04/2018  00:00:00")), 3),
-  rep(diyar::number_line(lubridate::dmy_hms("28/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018  00:00:00")), 1)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("07/04/2018  00:00:00")), 3),
+  rep(number_line(dmy_hms("10/04/2018 00:00:00"), dmy_hms("16/04/2018  00:00:00")), 3),
+  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("25/04/2018  00:00:00")), 3),
+  rep(number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018  00:00:00")), 1)
   )
 
-test_that("test that test episode identifier is as expected for fixed episode type", {
+test_that("test that test episode identifier is as expected for fixed episodes", {
+  expect_error(mutate(head(data,10), epid_interval_4 = fixed_episodes(x = date_int, case_length = d[[1]])),
+               "'id' slot of the number_line object must be contain unique finite numbers")
   expect_equal(test_1$epid, c(1,1,1,4,4,4,7,7,7,10))
   expect_equal(test_1$case_nm, rep(c("Case",rep("Duplicate",2)),4)[1:10] )
 
   e_int@id <- 1:10
   e_int@gid <- c(1,1,1,4,4,4,7,7,7,10)
   expect_equal(test_1$epid_interval, e_int)
+  expect_equal(test_1$epid_interval, test_1$epid_interval_2)
+  expect_equal(test_1$epid_interval, test_1$epid_interval_3)
   expect_equal(test_1$epid_total, c(rep(3,9),1))
-  expect_equal(test_1$epid_length, lubridate::as.difftime(c(rep(6,9),0), units = "days" ))
+  expect_equal(test_1$epid_length, as.difftime(c(rep(6,9),0), units = "days" ))
+  expect_equal(unique(test_1$epid_interval_3), epids_dedup)
 })
 
-
 # Test 2 - Case assignment - Reverse chronological order
-data_2 <- mutate(head(data,10), episode_len_s=13)
+data_2 <- mutate(head(data,10), episode_len_s=13, d = as.numeric(duration(13, "days")) )
+
 test_2 <-
 cbind(data_2,
       rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = FALSE, from_last = FALSE, group_stats = TRUE), funs(paste(.,1,sep="."))),
       rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = FALSE, from_last = TRUE, group_stats = TRUE), funs(paste(.,2,sep=".")))
 )
 
+#with fixed_episodes()
+test_2$epid_interval.1.1 <- mutate(data_2, epid_interval.1.1 = fixed_episodes(strata = pid, x = date, case_length = d))[["epid_interval.1.1"]]
+test_2$epid_interval.2.1 <- mutate(data_2, epid_interval.2.1 = fixed_episodes(strata = pid, x = date, case_length = d, from_last = TRUE))[["epid_interval.2.1"]]
+
 e_int.1 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("13/04/2018 00:00:00")), 5),
-  rep(diyar::number_line(lubridate::dmy_hms("16/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00")), 5)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 5),
+  rep(number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 5)
 )
 
 e_int.2 <- c(
-  rep(diyar::reverse_number_line(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("13/04/2018 00:00:00"))), 5),
-  rep(diyar::reverse_number_line(diyar::number_line(lubridate::dmy_hms("16/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00"))), 5)
+  rep(reverse_number_line(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00"))), 5),
+  rep(reverse_number_line(number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))), 5)
 )
 
 test_that("test reverse episode grouping", {
@@ -66,11 +86,15 @@ test_that("test reverse episode grouping", {
 
   expect_equal(test_2$epid_interval.1, e_int.1)
   expect_equal(test_2$epid_total.1, rep(5,10))
-  expect_equal(test_2$epid_length.1, lubridate::as.difftime(rep(12,10), units = "days" ))
+  expect_equal(test_2$epid_length.1, as.difftime(rep(12,10), units = "days" ))
 
   expect_equal(test_2$epid_interval.2, e_int.2)
   expect_equal(test_2$epid_total.2, rep(5,10))
-  expect_equal(test_2$epid_length.2, lubridate::as.difftime(rep(-12,10), units = "days" ))
+  expect_equal(test_2$epid_length.2, as.difftime(rep(-12,10), units = "days" ))
+
+  #test that fixed_episodes() gives the same result as episode_group()
+  expect_equal(test_2$epid_interval.1, test_2$epid_interval.1.1)
+  expect_equal(test_2$epid_interval.2, test_2$epid_interval.2.1)
   })
 
 # Test 3 - Rolling episodes
@@ -78,13 +102,19 @@ test_3 <- cbind(data_2,
       rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = FALSE, from_last = FALSE, group_stats = TRUE), funs(paste(.,1,sep="."))),
       rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = FALSE, from_last = TRUE, group_stats = TRUE), funs(paste(.,2,sep=".")))
       )
+test_3$epid_interval.1.1 <- mutate(data_2, epid_interval.1.1 = rolling_episodes(strata = pid, x = date, case_length = d))[["epid_interval.1.1"]]
+test_3$epid_interval.2.1 <- mutate(data_2, epid_interval.2.1 = rolling_episodes(x = date, case_length = d[1], from_last = TRUE))[["epid_interval.2.1"]]
+test_3$epid_interval.2.2 <- mutate(data_2, epid_interval.2.2 = rolling_episodes(x = date, strata=pid, case_length = d[1], from_last = TRUE))[["epid_interval.2.2"]]
+
+t_ds <- data_2
+rolling_epids <- rolling_episodes(strata = t_ds$pid, x = t_ds$date, case_length = t_ds$d, deduplicate = TRUE)
 
 e_int.1 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00")), 10)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 10)
 )
 
 e_int.2 <- c(
-  rep(diyar::reverse_number_line(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00"))), 10)
+  rep(reverse_number_line(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))), 10)
 )
 
 test_that("test rolling/recurring episodes", {
@@ -99,28 +129,39 @@ test_that("test rolling/recurring episodes", {
 
   expect_equal(test_3$epid_interval.1, e_int.1)
   expect_equal(test_3$epid_total.1, rep(10,10))
-  expect_equal(test_3$epid_length.1, lubridate::as.difftime(rep(27,10), units = "days" ))
+  expect_equal(test_3$epid_length.1, as.difftime(rep(27,10), units = "days" ))
 
   expect_equal(test_3$epid_interval.2, e_int.2)
   expect_equal(test_3$epid_total.2, rep(10,10))
-  expect_equal(test_3$epid_length.2, lubridate::as.difftime(rep(-27,10), units = "days" ))
+  expect_equal(test_3$epid_length.2, as.difftime(rep(-27,10), units = "days" ))
 
+  #test that rolling_episodes() gives the same result as episode_group()
+  expect_equal(test_3$epid_interval.1, test_3$epid_interval.1.1)
+  expect_equal(test_3$epid_interval.2, test_3$epid_interval.2.1)
+  expect_equal(test_3$epid_interval.2, test_3$epid_interval.2.2)
+  expect_equal(unique(test_3$epid_interval.1), rolling_epids)
+
+  expect_error(mutate(data_2, epid_interval.2.2 = rolling_episodes(x = date_int, strata=pid, case_length = d[1])),
+               "'id' slot of the number_line object must be contain unique finite numbers")
 })
 
 # Test 3 - Rolls max
-data_4 <- mutate(data_2, recurrence=3)
+data_4 <- mutate(data_2, recurrence=3, r = as.numeric(duration(3,"days")))
 test_4 <- cbind(data_4,
       rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = FALSE, group_stats = TRUE), funs(paste(.,1,sep="."))),
       rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = FALSE, group_stats = TRUE), funs(paste(.,2,sep=".")))
       )
 
+#with rolling_episodes()
+test_4$epid_interval.1.1 <- mutate(data_4, epid_interval.1.1 = rolling_episodes(strata = pid, x = date, case_length = d, recurrence_length =r))[["epid_interval.1.1"]]
+
 e_int.1 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00")), 10)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 10)
 )
 
 e_int.2 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("16/04/2018 00:00:00")), 6),
-  rep(diyar::number_line(lubridate::dmy_hms("19/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00")), 4)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")), 6),
+  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 4)
 )
 
 test_that("test user defined recurrence length and roll_max", {
@@ -135,11 +176,15 @@ test_that("test user defined recurrence length and roll_max", {
 
   expect_equal(test_4$epid_interval.1, e_int.1)
   expect_equal(test_4$epid_total.1, rep(10,10))
-  expect_equal(test_4$epid_length.1, lubridate::as.difftime(rep(27,10), units = "days" ))
+  expect_equal(test_4$epid_length.1, as.difftime(rep(27,10), units = "days" ))
 
   expect_equal(test_4$epid_interval.2, e_int.2)
   expect_equal(test_4$epid_total.2, c(rep(6,6), rep(4,4)))
-  expect_equal(test_4$epid_length.2, lubridate::as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
+  expect_equal(test_4$epid_length.2, as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
+
+  #test that rolling_episodes() gives the same result as episode_group()
+  expect_equal(test_4$epid_interval.1, test_4$epid_interval.1.1)
+
 })
 
 # Test 5 - Episodes max
@@ -149,17 +194,17 @@ test_5 <- cbind(data_4,
       )
 
 e_int.1 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("13/04/2018 00:00:00")), 5),
-  diyar::number_line(lubridate::dmy_hms("16/04/2018 00:00:00"), lubridate::dmy_hms("16/04/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("19/04/2018 00:00:00"), lubridate::dmy_hms("19/04/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("22/04/2018 00:00:00"), lubridate::dmy_hms("22/04/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("25/04/2018 00:00:00"), lubridate::dmy_hms("25/04/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("28/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00"))
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 5),
+  number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")),
+  number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("19/04/2018 00:00:00")),
+  number_line(dmy_hms("22/04/2018 00:00:00"), dmy_hms("22/04/2018 00:00:00")),
+  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")),
+  number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))
 )
 
 e_int.2 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("13/04/2018 00:00:00")), 5),
-  rep(diyar::number_line(lubridate::dmy_hms("16/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00")), 5)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 5),
+  rep(number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 5)
 )
 
 test_that("testing user defined episodes_max", {
@@ -174,11 +219,11 @@ test_that("testing user defined episodes_max", {
 
   expect_equal(test_5$epid_interval.1, e_int.1)
   expect_equal(test_5$epid_total.1, rep(c(rep(5,5), rep(1,5))))
-  expect_equal(test_5$epid_length.1, lubridate::as.difftime(c(rep(12,5), rep(0,5)), units = "days" ))
+  expect_equal(test_5$epid_length.1, as.difftime(c(rep(12,5), rep(0,5)), units = "days" ))
 
   expect_equal(test_5$epid_interval.2, e_int.2)
   expect_equal(test_5$epid_total.2, rep(5,10))
-  expect_equal(test_5$epid_length.2, lubridate::as.difftime(rep(12,10), units = "days" ))
+  expect_equal(test_5$epid_length.2, as.difftime(rep(12,10), units = "days" ))
 })
 
 
@@ -192,23 +237,23 @@ test_6 <- cbind(data_4,
 )
 
 e_int.1 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("16/04/2018: 00:00:00")), 6),
-  diyar::number_line(lubridate::dmy_hms("19/04/2018 00:00:00"), lubridate::dmy_hms("19/04/2018: 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("22/04/2018 00:00:00"), lubridate::dmy_hms("22/04/2018: 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("25/04/2018 00:00:00"), lubridate::dmy_hms("25/04/2018: 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("28/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018: 00:00:00"))
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("16/04/2018: 00:00:00")), 6),
+  number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("19/04/2018: 00:00:00")),
+  number_line(dmy_hms("22/04/2018 00:00:00"), dmy_hms("22/04/2018: 00:00:00")),
+  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018: 00:00:00")),
+  number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018: 00:00:00"))
 )
 
 e_int.2 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("16/04/2018 00:00:00")), 6),
-  rep(diyar::number_line(lubridate::dmy_hms("19/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00")), 4)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")), 6),
+  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 4)
 )
 
 e_int.3 <- e_int.2
 
 e_int.4 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("22/04/2018 00:00:00")), 8),
-  rep(diyar::number_line(lubridate::dmy_hms("25/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00")), 2)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("22/04/2018 00:00:00")), 8),
+  rep(number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 2)
 )
 
 test_that("testing episodes_max and rolls_max combinations", {
@@ -228,19 +273,19 @@ test_that("testing episodes_max and rolls_max combinations", {
   e_int.4@gid <- c(rep(1,8), rep(9,2))
   expect_equal(test_6$epid_interval.1, e_int.1)
   expect_equal(test_6$epid_total.1, rep(c(rep(6,6), rep(1,4))))
-  expect_equal(test_6$epid_length.1, lubridate::as.difftime(c(rep(15,6), rep(0,4)), units = "days" ))
+  expect_equal(test_6$epid_length.1, as.difftime(c(rep(15,6), rep(0,4)), units = "days" ))
 
   expect_equal(test_6$epid_interval.2, e_int.2)
   expect_equal(test_6$epid_total.2, rep(c(rep(6,6), rep(4,4))))
-  expect_equal(test_6$epid_length.2, lubridate::as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
+  expect_equal(test_6$epid_length.2, as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
 
   expect_equal(test_6$epid_interval.3, e_int.3)
   expect_equal(test_6$epid_total.3, rep(c(rep(6,6), rep(4,4))))
-  expect_equal(test_6$epid_length.3, lubridate::as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
+  expect_equal(test_6$epid_length.3, as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
 
   expect_equal(test_6$epid_interval.4, e_int.4)
   expect_equal(test_6$epid_total.4, rep(c(rep(8,8), rep(2,2))))
-  expect_equal(test_6$epid_length.4, lubridate::as.difftime(rep(c(rep(21,8), rep(3,2))), units = "days" ))
+  expect_equal(test_6$epid_length.4, as.difftime(rep(c(rep(21,8), rep(3,2))), units = "days" ))
 })
 
 # Test 7 - Deterministic linkage
@@ -253,10 +298,10 @@ test_7 <- cbind(data_7,
       )
 
 e_int.1 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("07/04/2018 00:00:00")), 3),
-  rep(diyar::number_line(lubridate::dmy_hms("10/04/2018 00:00:00"), lubridate::dmy_hms("16/04/2018 00:00:00")), 3),
-  rep(diyar::number_line(lubridate::dmy_hms("19/04/2018 00:00:00"), lubridate::dmy_hms("25/04/2018 00:00:00")), 3),
-  diyar::number_line(lubridate::dmy_hms("28/04/2018 00:00:00"), lubridate::dmy_hms("28/04/2018 00:00:00"))
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("07/04/2018 00:00:00")), 3),
+  rep(number_line(dmy_hms("10/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")), 3),
+  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")), 3),
+  number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))
 )
 
 test_that("testing epid_dataset", {
@@ -269,7 +314,7 @@ test_that("testing epid_dataset", {
 
   expect_equal(test_7$epid_interval.1, e_int.1)
   expect_equal(test_7$epid_total.1, c(rep(3,9),1))
-  expect_equal(test_7$epid_length.1, lubridate::as.difftime(c(rep(6,9),0), units = "days" ))
+  expect_equal(test_7$epid_length.1, as.difftime(c(rep(6,9),0), units = "days" ))
 
   expect_equal(test_7$epid.1, test_7$epid.2)
   expect_equal(test_7$case_nm.1, test_7$case_nm.2)
@@ -296,7 +341,7 @@ test_8a <- bind_cols(hospital_infections,
                         from_last = TRUE, episode_unit = "hours", display = FALSE, group_stats = TRUE)) %>%
   select(-sn)
 
-e_int <- diyar::number_line(test_8a$date, test_8a$date)
+e_int <- number_line(test_8a$date, test_8a$date)
 
 test_that("testing; episode grouping by the hour", {
   expect_equal(test_8a$epid, 1:11)
@@ -306,7 +351,7 @@ test_that("testing; episode grouping by the hour", {
 
   expect_equal(test_8a$epid_interval, e_int)
   expect_equal(test_8a$epid_total, rep(1,11))
-  expect_equal(test_8a$epid_length, lubridate::as.difftime(rep(0,11), units = "hours" ))
+  expect_equal(test_8a$epid_length, as.difftime(rep(0,11), units = "hours" ))
 })
 
 # 15-week (difference of 9072000 seconds) episodes , and the most recent record defined as the "Case"
@@ -315,7 +360,7 @@ test_8b <- bind_cols(hospital_infections,
                         from_last = TRUE, episode_unit = "weeks", display = FALSE, group_stats = TRUE)) %>%
   select(-sn)
 
-e_int <- rep(diyar::number_line(lubridate::dmy_hms("31/05/2018 00:00:00"), lubridate::dmy_hms("01/04/2018 00:00:00")), 11)
+e_int <- rep(number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 11)
 
 test_that("testing; episode grouping by weeks", {
   expect_equal(test_8b$epid, rep(11,11))
@@ -326,7 +371,7 @@ test_that("testing; episode grouping by weeks", {
   expect_equal(test_8b$case_nm, c(rep("Duplicate",10),"Case"))
   expect_equal(test_8b$epid_interval, e_int)
   expect_equal(test_8b$epid_total, rep(11,11))
-  expect_equal(test_8b$epid_length, lubridate::as.difftime(rep(-60,11), units = "days" ))
+  expect_equal(test_8b$epid_length, as.difftime(rep(-60,11), units = "days" ))
 })
 
 # Test 9 - User defined case assignment
@@ -349,10 +394,10 @@ test_9a <- bind_cols(hospital_infections,
                         custom_sort = infection,  display = FALSE, group_stats = TRUE)) %>% select(-sn)
 
 e_int <- c(
-  diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("01/04/2018 00:00:00")),
-  rep(diyar::number_line(lubridate::dmy_hms("07/04/2018 00:00:00"), lubridate::dmy_hms("07/05/2018 00:00:00")), 6),
-  rep(diyar::number_line(lubridate::dmy_hms("13/05/2018 00:00:00"), lubridate::dmy_hms("25/05/2018 00:00:00")), 3),
-  diyar::number_line(lubridate::dmy_hms("31/05/2018 00:00:00"), lubridate::dmy_hms("31/05/2018 00:00:00"))
+  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")),
+  rep(number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("07/05/2018 00:00:00")), 6),
+  rep(number_line(dmy_hms("13/05/2018 00:00:00"), dmy_hms("25/05/2018 00:00:00")), 3),
+  number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"))
 )
 
 test_that("testing episode; custom sort", {
@@ -364,7 +409,7 @@ test_that("testing episode; custom sort", {
 
   expect_equal(test_9a$epid_interval, e_int)
   expect_equal(test_9a$epid_total, c(1,rep(6,6), rep(3,3), 1))
-  expect_equal(test_9a$epid_length, lubridate::as.difftime(c(0,rep(30,6), rep(12,3), 0), units = "days" ))
+  expect_equal(test_9a$epid_length, as.difftime(c(0,rep(30,6), rep(12,3), 0), units = "days" ))
 })
 
 # preference for case assignment - RTI > UTI, or  RTI > BSI, or earliest record
@@ -380,11 +425,11 @@ test_9b <- bind_cols(hospital_infections,
           ) %>%
   select(-starts_with("sn"))
 
-e_int.1 <- rep(diyar::number_line(lubridate::dmy_hms("31/05/2018 00:00:00"), lubridate::dmy_hms("01/04/2018 00:00:00")), 11)
+e_int.1 <- rep(number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 11)
 
 e_int.2 <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("25/05/2018 00:00:00"), lubridate::dmy_hms("01/04/2018 00:00:00")), 10),
-  diyar::number_line(lubridate::dmy_hms("31/05/2018 00:00:00"), lubridate::dmy_hms("31/05/2018 00:00:00"))
+  rep(number_line(dmy_hms("25/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 10),
+  number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"))
   )
 
 test_that("testing; episode grouping with custom sort and bi_direction", {
@@ -396,7 +441,7 @@ test_that("testing; episode grouping with custom sort and bi_direction", {
 
   expect_equal(test_9b$epid_interval.1, e_int.1)
   expect_equal(test_9b$epid_total.1, rep(11,11))
-  expect_equal(test_9b$epid_length.1, lubridate::as.difftime(rep(-60,11), units = "days" ))
+  expect_equal(test_9b$epid_length.1, as.difftime(rep(-60,11), units = "days" ))
 
   e_int.2@gid <- c(rep(10,10), 11)
 
@@ -404,7 +449,7 @@ test_that("testing; episode grouping with custom sort and bi_direction", {
   expect_equal(test_9b$case_nm.2, c(rep("Duplicate",9),"Case","Case"))
   expect_equal(test_9b$epid_interval.2, e_int.2)
   expect_equal(test_9b$epid_total.2, c(rep(10,10),1))
-  expect_equal(test_9b$epid_length.2, lubridate::as.difftime(c(rep(-54,10), 0), units = "days" ))
+  expect_equal(test_9b$epid_length.2, as.difftime(c(rep(-54,10), 0), units = "days" ))
 })
 
 # Test 10 - Stratified episode grouping
@@ -417,13 +462,13 @@ test_10a <- bind_cols(hospital_infections,
   select(-sn)
 
 e_int <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("13/04/2018 00:00:00")), 3),
-  diyar::number_line(lubridate::dmy_hms("19/04/2018 00:00:00"), lubridate::dmy_hms("19/04/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("25/04/2018 00:00:00"), lubridate::dmy_hms("25/04/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("01/05/2018 00:00:00"), lubridate::dmy_hms("01/05/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("07/05/2018 00:00:00"), lubridate::dmy_hms("07/05/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("13/05/2018 00:00:00"), lubridate::dmy_hms("13/05/2018 00:00:00")),
-  rep(diyar::number_line(lubridate::dmy_hms("19/05/2018 00:00:00"), lubridate::dmy_hms("31/05/2018 00:00:00")), 3)
+  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 3),
+  number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("19/04/2018 00:00:00")),
+  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")),
+  number_line(dmy_hms("01/05/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")),
+  number_line(dmy_hms("07/05/2018 00:00:00"), dmy_hms("07/05/2018 00:00:00")),
+  number_line(dmy_hms("13/05/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
+  rep(number_line(dmy_hms("19/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00")), 3)
 )
 
 test_that("testing; stratified grouping", {
@@ -435,9 +480,52 @@ test_that("testing; stratified grouping", {
 
   expect_equal(test_10a$epid_interval, e_int)
   expect_equal(test_10a$epid_total, c(rep(3,3), rep(1,5), rep(3,3)))
-  expect_equal(test_10a$epid_length, lubridate::as.difftime(c(rep(12,3), rep(0,5), rep(12,3)), units = "days" ))
+  expect_equal(test_10a$epid_length, as.difftime(c(rep(12,3), rep(0,5), rep(12,3)), units = "days" ))
   expect_equal(test_10a$epid_dataset, c(rep("BSI,UTI",3), "UTI","BSI","UTI","BSI","BSI",rep("BSI,RTI",3)))
 })
+
+
+test_10a.1 <- bind_cols(hospital_infections,
+                        episode_group(hospital_infections, rd_id, date=date, strata = patient_id, case_length = epi_len,
+                                      episode_type="rolling", display = FALSE, data_source = infection, group_stats = TRUE)) %>%
+  select(-sn)
+
+t_ds <- hospital_infections
+
+t_ds$date <- dmy_hms(format(t_ds$date, "%d/%m/%Y 00:00:00"))
+t_ds$epi_len <- as.numeric(duration(t_ds$epi_len, "days"))
+
+strata_rolling_epids <- rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id)
+test_that("testing; stratified grouping 1.1", {
+  expect_equal(test_10a.1$epid_interval, strata_rolling_epids)
+})
+
+test_that("test fixed and rolling episode funcs errors", {
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
+
+  expect_error(rolling_episodes(x=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'x' values must be a date, datetime, number_line object or a numeric based object")
+  expect_error(fixed_episodes(x=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'x' values must be a date, datetime, number_line object or a numeric based object")
+
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 1), "'overlap_method' must be a character object")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 2), "'overlap_method' must be a character object")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last' and 'display' must be TRUE or FALSE")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last' and 'display' must be TRUE or FALSE")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last' and 'display' must be TRUE or FALSE")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last' and 'display' must be TRUE or FALSE")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = -1, strata = t_ds$patient_id), "'case_length' must be a numeric based object of length 1")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = Inf, strata = t_ds$patient_id), "'case_length' must be a numeric based object of length 1")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "'case_length' must be a 1 or the same length as 'date'")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "'case_length' must be a 1 or the same length as 'date'")
+
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, recurrence_length = -1, strata = t_ds$patient_id), "'recurrence_length' must be a numeric based object of length 1")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, recurrence_length = t_ds$epi_len[1:2],strata = t_ds$patient_id), "'recurrence_length' must be a 1 or the same length as 'date'")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "'strata' must be a 1 or the same length as 'date'")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "'strata' must be a 1 or the same length as 'date'")
+
+
+})
+
 
 # Only three 9-day (difference of 8 days) rolling episode per patient and infection.
 hospital_infections$epi_len <- 8
@@ -449,14 +537,14 @@ test_10b <- bind_cols(hospital_infections,
   select(-sn)
 
 e_int <- c(
-  diyar::number_line(lubridate::dmy_hms("01/04/2018 00:00:00"), lubridate::dmy_hms("01/04/2018 00:00:00")),
-  rep(diyar::number_line(lubridate::dmy_hms("07/04/2018 00:00:00"), lubridate::dmy_hms("01/05/2018 00:00:00")), 3),
-  diyar::number_line(lubridate::dmy_hms("25/04/2018 00:00:00"), lubridate::dmy_hms("25/04/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("07/04/2018 00:00:00"), lubridate::dmy_hms("01/05/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("07/05/2018 00:00:00"), lubridate::dmy_hms("13/05/2018 00:00:00")),
-  diyar::number_line(lubridate::dmy_hms("07/05/2018 00:00:00"), lubridate::dmy_hms("13/05/2018 00:00:00")),
-  rep(diyar::number_line(lubridate::dmy_hms("19/05/2018 00:00:00"), lubridate::dmy_hms("25/05/2018 00:00:00")), 2),
-  diyar::number_line(lubridate::dmy_hms("31/05/2018 00:00:00"), lubridate::dmy_hms("31/05/2018 00:00:00"))
+  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")),
+  rep(number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")), 3),
+  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")),
+  number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")),
+  number_line(dmy_hms("07/05/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
+  number_line(dmy_hms("07/05/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
+  rep(number_line(dmy_hms("19/05/2018 00:00:00"), dmy_hms("25/05/2018 00:00:00")), 2),
+  number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"))
 )
 
 test_that("testing; stratified grouping 2", {
@@ -470,7 +558,7 @@ test_that("testing; stratified grouping 2", {
 
   expect_equal(test_10b$epid_interval, e_int)
   expect_equal(test_10b$epid_total, c(1, rep(4,3), 1,4, rep(2,4),1))
-  expect_equal(test_10b$epid_length, lubridate::as.difftime(c(0, rep(24,3), 0, 24, rep(6,4), 0), units = "days" ))
+  expect_equal(test_10b$epid_length, as.difftime(c(0, rep(24,3), 0, 24, rep(6,4), 0), units = "days" ))
 })
 
 #Test 11 - Interval grouping
@@ -487,7 +575,7 @@ hospital_admissions <- tibble(
 data(hospital_admissions)
 admissions <- hospital_admissions
 admissions$epi_len <- 0
-admissions$admin_period <- diyar::number_line(admissions$admin_dt, admissions$discharge_dt)
+admissions$admin_period <- number_line(admissions$admin_dt, admissions$discharge_dt)
 admissions
 
 # episodes of overlaping intervals of admission
@@ -497,8 +585,8 @@ test_11a <-bind_cols(
   select(-c(admin_dt, discharge_dt, sn))
 
 e_int <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/01/2019 00:00:00"), lubridate::dmy_hms("15/01/2019 00:00:00")), 7),
-  rep(diyar::number_line(lubridate::dmy_hms("20/01/2019 00:00:00"), lubridate::dmy_hms("31/01/2019 00:00:00")), 2)
+  rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("15/01/2019 00:00:00")), 7),
+  rep(number_line(dmy_hms("20/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 2)
 )
 
 test_that("testing; intervals grouping", {
@@ -510,7 +598,7 @@ test_that("testing; intervals grouping", {
 
   expect_equal(test_11a$epid_interval, e_int)
   expect_equal(test_11a$epid_total, c(rep(7,7), rep(2,2)))
-  expect_equal(test_11a$epid_length, lubridate::as.difftime(c(rep(14,7), rep(11,2)), units = "days" ))
+  expect_equal(test_11a$epid_length, as.difftime(c(rep(14,7), rep(11,2)), units = "days" ))
 })
 
 # rolling episodes of overlaping intervals of admission, and those within 10 days of the last interval
@@ -524,7 +612,7 @@ test_11b <- bind_cols(
   select(-c(admin_dt, discharge_dt, sn))
 
 e_int <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/01/2019 00:00:00"), lubridate::dmy_hms("31/01/2019 00:00:00")), 9)
+  rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 9)
 )
 
 test_that("testing; intervals grouping for rolling intervals", {
@@ -536,7 +624,7 @@ test_that("testing; intervals grouping for rolling intervals", {
 
   expect_equal(test_11b$epid_interval, e_int)
   expect_equal(test_11b$epid_total, rep(9,9))
-  expect_equal(test_11b$epid_length, lubridate::as.difftime(rep(30,9), units = "days" ))
+  expect_equal(test_11b$epid_length, as.difftime(rep(30,9), units = "days" ))
 })
 
 # fixed episodes of overlaping intervals of admission seperated by 1 month
@@ -547,7 +635,7 @@ test_11c <- bind_cols(admissions,
   select(-c(admin_dt, discharge_dt, sn))
 
 e_int <- c(
-  rep(diyar::number_line(lubridate::dmy_hms("01/01/2019 00:00:00"), lubridate::dmy_hms("31/01/2019 00:00:00")), 9)
+  rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 9)
 )
 
 test_that("testing; intervals grouping with a case length", {
@@ -557,7 +645,7 @@ test_that("testing; intervals grouping with a case length", {
   e_int@gid <- rep(2,9)
   expect_equal(test_11c$epid_interval, e_int)
   expect_equal(test_11c$epid_total, rep(9,9))
-  expect_equal(test_11c$epid_length, lubridate::as.difftime(rep(30,9), units = "days" ))
+  expect_equal(test_11c$epid_length, as.difftime(rep(30,9), units = "days" ))
 })
 
 dft_11 <- dft_10 <- dft_9 <- dft_8 <- admissions

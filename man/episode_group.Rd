@@ -2,21 +2,21 @@
 % Please edit documentation in R/episode_group.R
 \name{episode_group}
 \alias{episode_group}
-\alias{xx_episode_group}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
-xx_episode_group(df, sn = NULL, strata = NULL, date, case_length,
+episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
   bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 
-fixed_episodes(x, strata = NULL, case_length, from_last = FALSE,
-  overlap_method = c("across", "inbetween", "aligns_start", "aligns_end",
-  "chain"), deduplicate = FALSE, display = TRUE)
+fixed_episodes(x, strata = NULL, case_length, episodes_max = Inf,
+  from_last = FALSE, overlap_method = c("across", "inbetween",
+  "aligns_start", "aligns_end", "chain"), deduplicate = FALSE,
+  display = TRUE)
 
 rolling_episodes(x, strata = NULL, case_length,
   recurrence_length = NULL, from_last = FALSE,
