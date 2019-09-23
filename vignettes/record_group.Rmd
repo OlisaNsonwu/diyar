@@ -1,5 +1,5 @@
 ---
-title: "Mutli-stage deterministic linkage in R"
+title: "Mutlistage deterministic linkage in R"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >

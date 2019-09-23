@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • diyar</title>
+<title>Changelog • diyar</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,7 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="Changelog" />
 
 
 
@@ -47,7 +47,7 @@
   </head>
 
   <body>
-    <div class="container template-article-index">
+    <div class="container template-news">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -114,19 +114,48 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+      <h1>Changelog <small></small></h1>
+      <small>Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
+    <div id="version-0-0-1" class="section level1">
+<h1 class="page-header">
+<a href="#version-0-0-1" class="anchor"></a>Version 0.0.1</h1>
+<div id="features" class="section level2">
+<h2 class="hasAnchor">
+<a href="#features" class="anchor"></a>Features</h2>
+<ul>
+<li>
+<code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - Group records into fixed or rolling episodes of events or period of events.</li>
+<li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code> - A more comprehensive implementation of <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>, with additional features such as user defined case assignment.</li>
+<li>
+<code><a href="../reference/record_group.html">record_group()</a></code> - Multistage deterministic linkage that addresses missing data.</li>
+<li>
+<code>number_line</code> S4 object.
+<ul>
+<li>Used to represent a range of numeric values to match using <code><a href="../reference/record_group.html">record_group()</a></code>
+</li>
+<li>Used to represent a period in time to be grouped using <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code>
+</li>
+<li>Used as the returned output of <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+  </div>
 
-      <ul>
-        <li><a href="episode_group.html">Implementing case definitions for epidemiological analysis in R</a></li>
-        <li><a href="record_group.html">Mutlistage deterministic linkage in R</a></li>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <div id="tocnav">
+      <h2>Contents</h2>
+      <ul class="nav nav-pills nav-stacked">
+        <li><a href="#version-0-0-1">0.0.1</a></li>
       </ul>
     </div>
   </div>
+
 </div>
 
       <footer>

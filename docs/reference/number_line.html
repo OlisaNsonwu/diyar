@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">1.0.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
       </span>
     </div>
 
@@ -86,12 +86,15 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episode_group.html">Getting started with episode_group</a>
+      <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
-      <a href="../articles/record_group.html">Getting started with record_group</a>
+      <a href="../articles/record_group.html">Mutlistage deterministic linkage in R</a>
     </li>
   </ul>
+</li>
+<li>
+  <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
       
@@ -125,7 +128,7 @@
     
     </div>
 
-    <pre class="usage"><span class='fu'>number_line</span>(<span class='no'>l</span>, <span class='no'>r</span>, <span class='kw'>id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
+    <pre class="usage"><span class='fu'>number_line</span>(<span class='no'>l</span>, <span class='no'>r</span>, <span class='kw'>id</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>gid</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)
 
 <span class='fu'>as.number_line</span>(<span class='no'>x</span>)
 
@@ -139,19 +142,24 @@
 
 <span class='fu'>end_point</span>(<span class='no'>x</span>)
 
+<span class='fu'>number_line_width</span>(<span class='no'>x</span>)
+
 <span class='fu'>reverse_number_line</span>(<span class='no'>x</span>, <span class='kw'>direction</span> <span class='kw'>=</span> <span class='st'>"both"</span>)
 
 <span class='fu'>shift_number_line</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
 <span class='fu'>expand_number_line</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>point</span> <span class='kw'>=</span> <span class='st'>"both"</span>)
 
-<span class='fu'>compress_number_line</span>(<span class='no'>...</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>, <span class='st'>"aligns_start"</span>,
+<span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>, <span class='st'>"aligns_start"</span>,
   <span class='st'>"aligns_end"</span>, <span class='st'>"inbetween"</span>), <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
-<span class='fu'>series</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 
 <span class='co'># S3 method for number_line</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/unique'>unique</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for number_line</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/sort'>sort</a></span>(<span class='no'>x</span>, <span class='kw'>decreasing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for number_line</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/format'>format</a></span>(<span class='no'>x</span>, <span class='no'>...</span>)</pre>
@@ -169,7 +177,11 @@
     </tr>
     <tr>
       <th>id</th>
-      <td><p>Unique <code>numeric</code> ID. Providing this is optional.</p></td>
+      <td><p>Unique <code>numeric</code> ID. Providing this is optional</p></td>
+    </tr>
+    <tr>
+      <th>gid</th>
+      <td><p>Unique <code>numeric</code> Group ID. Providing this is optional</p></td>
     </tr>
     <tr>
       <th>x</th>
@@ -188,16 +200,20 @@
       <td><p><code>"start"</code> or <code>"start"</code> point</p></td>
     </tr>
     <tr>
-      <th>...</th>
-      <td><p>arguments for particular methods | <code>number_line</code> objects in <code>compress_number_line()</code></p></td>
-    </tr>
-    <tr>
       <th>method</th>
       <td><p>Method of overlap</p></td>
     </tr>
     <tr>
       <th>deduplicate</th>
-      <td><p>if <code>TRUE</code>, retains only one of duplicates</p></td>
+      <td><p>if <code>TRUE</code>, retains only one of duplicate</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>arguments for particular methods</p></td>
+    </tr>
+    <tr>
+      <th>decreasing</th>
+      <td><p>logical. Should the sort be increasing or decreasing</p></td>
     </tr>
     </table>
     
@@ -222,7 +238,7 @@ This results in duplicate <code>number_line</code> objects with start and end po
 See <code><a href='overlap.html'>overlap</a></code> for further details on overlaping <code>number_line</code> objects.
 If a familiar (but unique) <code>id</code> is used when creating the <code>number_line</code> objects,
 <code>compress_number_line()</code> can be a simple alternative to <code><a href='record_group.html'>record_group</a></code> or <code><a href='episode_group.html'>episode_group</a></code>.</p>
-<p><code>series()</code> - a convenience function to convert a <code>number_line</code> object into a sequence of finite numbers. The sequence will also include the start and end points.
+<p><code>number_line_sequence()</code> - a convenience function to convert a <code>number_line</code> object into a sequence of finite numbers. The sequence will also include the start and end points.
 The direction of the sequence will correspond to that of the <code>number_line</code> object.</p>
     
 
@@ -231,19 +247,19 @@ The direction of the sequence will correspond to that of the <code>number_line</
 
 <span class='fu'>number_line</span>(-<span class='fl'>100</span>, <span class='fl'>100</span>); <span class='fu'>number_line</span>(<span class='fl'>10</span>, <span class='fl'>11.2</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 100"</div><div class='output co'>#&gt; [1] "10 -&gt; 11.2"</div><div class='input'>
 <span class='co'># Other numeric based object classes are also compatible for numeric_line objects</span>
-<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"15/05/2019 13:15:07"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"15/05/2019 15:17:10"</span>))</div><div class='output co'>#&gt; [1] "2019-05-15 13:15:07 -&gt; 2019-05-15 15:17:10"</div><div class='input'>
+<span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd_hms'>dmy_hms</a></span>(<span class='st'>"15/05/2019 13:15:07"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd_hms'>dmy_hms</a></span>(<span class='st'>"15/05/2019 15:17:10"</span>))</div><div class='output co'>#&gt; [1] "2019-05-15 13:15:07 -&gt; 2019-05-15 15:17:10"</div><div class='input'>
 <span class='co'># A warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected</span>
-<span class='fu'>number_line</span>(<span class='fl'>2</span>, <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"05/01/2019"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: 'l' and 'r' have different classes. It may need to be reconciled</span></div><div class='output co'>#&gt; [1] "2 -&gt; 17901"</div><div class='input'>
-<span class='co'># Convert numeric objects to number_line objects</span>
-<span class='fu'>as.number_line</span>(<span class='fl'>5.1</span>); <span class='fu'>as.number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"21/10/2019"</span>))</div><div class='output co'>#&gt; [1] "5.1 == 5.1"</div><div class='output co'>#&gt; [1] "2019-10-21 == 2019-10-21"</div><div class='input'>
+<span class='fu'>number_line</span>(<span class='fl'>2</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"05/01/2019"</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: 'l' and 'r' have different classes. It may need to be reconciled</span></div><div class='output co'>#&gt; [1] "2 -&gt; 17901"</div><div class='input'>
+<span class='co'># Convert numeric based objects to number_line objects</span>
+<span class='fu'>as.number_line</span>(<span class='fl'>5.1</span>); <span class='fu'>as.number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"21/10/2019"</span>))</div><div class='output co'>#&gt; [1] "5.1 == 5.1"</div><div class='output co'>#&gt; [1] "2019-10-21 == 2019-10-21"</div><div class='input'>
 <span class='co'># Test for number_line objects</span>
 <span class='no'>a</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fl'>0</span>, -<span class='fl'>100</span>)
-<span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"01/01/2019"</span>))
+<span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"01/01/2019"</span>))
 <span class='fu'>is.number_line</span>(<span class='no'>a</span>); <span class='fu'>is.number_line</span>(<span class='no'>b</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 <span class='co'># Structure of a number_line object</span>
 <span class='fu'>left_point</span>(<span class='no'>a</span>); <span class='fu'>right_point</span>(<span class='no'>a</span>); <span class='fu'>start_point</span>(<span class='no'>a</span>); <span class='fu'>end_point</span>(<span class='no'>a</span>)</div><div class='output co'>#&gt; [1] 0</div><div class='output co'>#&gt; [1] -100</div><div class='output co'>#&gt; [1] -100</div><div class='output co'>#&gt; [1] 0</div><div class='input'>
 <span class='co'># Reverse number_line objects</span>
-<span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"01/01/2019"</span>)))</div><div class='output co'>#&gt; [1] "2019-01-01 -&gt; 2019-04-25"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>,-<span class='fl'>100</span>), <span class='st'>"increasing"</span>)</div><div class='output co'>#&gt; [1] "200 &lt;- -100"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>,-<span class='fl'>100</span>), <span class='st'>"decreasing"</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 200"</div><div class='input'>
+<span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"01/01/2019"</span>)))</div><div class='output co'>#&gt; [1] "2019-01-01 -&gt; 2019-04-25"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>,-<span class='fl'>100</span>), <span class='st'>"increasing"</span>)</div><div class='output co'>#&gt; [1] "200 &lt;- -100"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>,-<span class='fl'>100</span>), <span class='st'>"decreasing"</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 200"</div><div class='input'>
 <span class='co'># Shift number_line objects</span>
 <span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>6</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 6"</div><div class='input'><span class='co'># Towards the positive end of the number line</span>
 <span class='fu'>shift_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>6</span>), <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "7 -&gt; 8"</div><div class='input'><span class='co'># Towards the negative end of the number line</span>
@@ -252,16 +268,18 @@ The direction of the sequence will correspond to that of the <code>number_line</
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>,<span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>,<span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "3 -&gt; 6" "6 &lt;- 3"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>,<span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>,<span class='fl'>3</span>)), <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 8" "8 &lt;- 1"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>,<span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>,<span class='fl'>3</span>)), -<span class='fl'>1</span>)</div><div class='output co'>#&gt; [1] "4 -&gt; 5" "5 &lt;- 4"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>,<span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>,<span class='fl'>3</span>)), <span class='fl'>2</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 6" "8 &lt;- 3"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>,<span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>,<span class='fl'>3</span>)), -<span class='fl'>2</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3 -&gt; 4" "6 &lt;- 5"</div><div class='input'>
 <span class='co'># Collapse number line objects</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>1</span>,<span class='fl'>5</span>), <span class='fu'>number_line</span>(<span class='fl'>2</span>,<span class='fl'>4</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "1 -&gt; 5"   "2 -&gt; 4"   "10 == 10"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>1</span>,<span class='fl'>5</span>), <span class='fu'>number_line</span>(<span class='fl'>2</span>,<span class='fl'>4</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>)))</div><div class='output co'>#&gt; [1] "1 -&gt; 5"   "10 == 10"</div><div class='input'>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>), <span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>),  <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>))</div><div class='output co'>#&gt; [1] "10 == 10" "10 -&gt; 20" "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
-<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>))</div><div class='output co'>#&gt; [1] "5 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
-<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>), <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
-<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>), <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"chain"</span>)</div><div class='output co'>#&gt; [1] "10 -&gt; 20" "5 -&gt; 40" </div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
-<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>), <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "10 == 10" "10 -&gt; 20" "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>), <span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>),  <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>))</div><div class='output co'>#&gt; [1] "10 == 10" "10 -&gt; 20" "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
+<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>)))</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
+<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>)), <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "10 -&gt; 20" "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
+<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>)), <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"chain"</span>)</div><div class='output co'>#&gt; [1] "10 -&gt; 20" "5 -&gt; 40" </div><div class='input'><span class='fu'>compress_number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>),
+<span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>), <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>)), <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "10 == 10" "10 -&gt; 20" "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'>
 <span class='co'># Convert a number line object to its series of real numbers</span>
-<span class='fu'>series</span>(<span class='fu'>number_line</span>(<span class='fl'>1</span>, <span class='fl'>5</span>))</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'><span class='fu'>series</span>(<span class='fu'>number_line</span>(<span class='fl'>5</span>, <span class='fl'>1</span>), <span class='fl'>.5</span>)</div><div class='output co'>#&gt; [1] 5.0 4.5 4.0 3.5 3.0 2.5 2.0 1.5 1.0</div><div class='input'><span class='fu'>series</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"01/04/2019"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"10/04/2019"</span>)), <span class='fl'>1</span>)</div><div class='output co'>#&gt;  [1] "2019-04-01" "2019-04-02" "2019-04-03" "2019-04-04" "2019-04-05"
+<span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>1</span>, <span class='fl'>5</span>))</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>5</span>, <span class='fl'>1</span>), <span class='fl'>.5</span>)</div><div class='output co'>#&gt; [1] 5.0 4.5 4.0 3.5 3.0 2.5 2.0 1.5 1.0</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"01/04/2019"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"10/04/2019"</span>)), <span class='fl'>1</span>)</div><div class='output co'>#&gt;  [1] "2019-04-01" "2019-04-02" "2019-04-03" "2019-04-04" "2019-04-05"
 #&gt;  [6] "2019-04-06" "2019-04-07" "2019-04-08" "2019-04-09" "2019-04-10"</div><div class='input'>
 <span class='co'># The length of the vector depends on the object class</span>
-<span class='fu'>series</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"01/04/2019"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"04/04/2019"</span>)), <span class='fl'>1.5</span>)</div><div class='output co'>#&gt; [1] "2019-04-01" "2019-04-02" "2019-04-04"</div><div class='input'><span class='fu'>series</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"01/04/2019 00:00:00"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"04/04/2019 00:00:00"</span>)), <span class='fl'>1.5</span>)</div><div class='output co'>#&gt;     [1] "2019-04-01 00:00:00 UTC" "2019-04-01 00:00:01 UTC"
+<span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"01/04/2019"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd'>dmy</a></span>(<span class='st'>"04/04/2019"</span>)), <span class='fl'>1.5</span>)</div><div class='output co'>#&gt; [1] "2019-04-01" "2019-04-02" "2019-04-04"</div><div class='input'>
+<span class='no'>nl</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd_hms'>dmy_hms</a></span>(<span class='st'>"01/04/2019 00:00:00"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/ymd_hms'>dmy_hms</a></span>(<span class='st'>"04/04/2019 00:00:00"</span>))
+<span class='fu'>number_line_sequence</span>(<span class='no'>nl</span>, <span class='fl'>1.5</span>)</div><div class='output co'>#&gt;     [1] "2019-04-01 00:00:00 UTC" "2019-04-01 00:00:01 UTC"
 #&gt;     [3] "2019-04-01 00:00:03 UTC" "2019-04-01 00:00:04 UTC"
 #&gt;     [5] "2019-04-01 00:00:06 UTC" "2019-04-01 00:00:07 UTC"
 #&gt;     [7] "2019-04-01 00:00:09 UTC" "2019-04-01 00:00:10 UTC"
@@ -50261,8 +50279,8 @@ The direction of the sequence will correspond to that of the <code>number_line</
 #&gt; [99995] "2019-04-02 17:39:51 UTC" "2019-04-02 17:39:52 UTC"
 #&gt; [99997] "2019-04-02 17:39:54 UTC" "2019-04-02 17:39:55 UTC"
 #&gt; [99999] "2019-04-02 17:39:57 UTC"
-#&gt;  [ reached 'max' / getOption("max.print") -- omitted 72802 entries ]</div><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://lubridate.tidyverse.org/reference/duration.html'>duration</a></span>(<span class='fl'>1.5</span>,<span class='st'>"days"</span>)
-<span class='fu'>series</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"01/04/2019 00:00:00"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"04/04/2019 00:00:00"</span>)), <span class='no'>d</span>)</div><div class='output co'>#&gt; [1] "2019-04-01 00:00:00 UTC" "2019-04-02 12:00:00 UTC"
+#&gt;  [ reached 'max' / getOption("max.print") -- omitted 72802 entries ]</div><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/lubridate/topics/duration'>duration</a></span>(<span class='fl'>1.5</span>,<span class='st'>"days"</span>)
+<span class='fu'>number_line_sequence</span>(<span class='no'>nl</span>, <span class='no'>d</span>)</div><div class='output co'>#&gt; [1] "2019-04-01 00:00:00 UTC" "2019-04-02 12:00:00 UTC"
 #&gt; [3] "2019-04-04 00:00:00 UTC"</div><div class='input'>
 </div></pre>
   </div>
