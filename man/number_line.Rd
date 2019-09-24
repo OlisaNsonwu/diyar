@@ -42,7 +42,7 @@ shift_number_line(x, by = 1)
 expand_number_line(x, by = 1, point = "both")
 
 compress_number_line(x, method = c("across", "chain", "aligns_start",
-  "aligns_end", "inbetween"), deduplicate = TRUE)
+  "aligns_end", "inbetween"), collapse = FALSE, deduplicate = TRUE)
 
 number_line_sequence(x, by = 1)
 
@@ -71,7 +71,9 @@ number_line_sequence(x, by = 1)
 
 \item{method}{Method of overlap}
 
-\item{deduplicate}{if \code{TRUE}, retains only one of duplicate}
+\item{collapse}{If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps}
+
+\item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object among duplicates}
 
 \item{...}{arguments for particular methods}
 
@@ -151,18 +153,11 @@ expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start")
 expand_number_line(c(number_line(3,6), number_line(6,3)), -2, "end")
 
 # Collapse number line objects
-c(number_line(1,5), number_line(2,4), number_line(10,10))
-compress_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
-
-c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-compress_number_line(c(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40)))
-compress_number_line(c(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40)), method = "inbetween")
-compress_number_line(c(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40)), method = "chain")
-compress_number_line(c(number_line(10,10), number_line(10,20),
-number_line(5,30), number_line(30,40)), method = "across")
+x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
+compress_number_line(x, deduplicate = FALSE)
+compress_number_line(x)
+compress_number_line(x, collapse=TRUE)
+compress_number_line(x, collapse=TRUE, method = "inbetween")
 
 # Convert a number line object to its series of real numbers
 number_line_sequence(number_line(1, 5))

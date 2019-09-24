@@ -74,6 +74,9 @@ test_that("test compress function", {
 
   #warnings and errors
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), method = 2), "'method' must be a character object")
+  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = 2), "'collapse' and 'deduplicate' must be TRUE or FALSE")
+  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = rep(TRUE,4)), "length of 'collapse' must be 1 or the same as 'x'")
+  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), deduplicate ="2"), "'collapse' and 'deduplicate' must be TRUE or FALSE")
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), method = "crossing"), "`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
   expect_error(compress_number_line(mtcars, number_line(6, 7), number_line(3, 3)), "'x' is not a number_line object")
 

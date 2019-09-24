@@ -252,9 +252,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   c <- 1
   while (min_tag != 2 & min_episodes_nm <= episodes_max){
     TR <- df %>%
-      # preference to those tagged already i.e. exisitng episodes
+      # preference to exisitng episodes
       dplyr::arrange(.data$cri,  dplyr::desc(.data$tag), .data$user_ord, .data$ord, dplyr::desc(.data$int_l), .data$sn) %>%
-      #exclude records that will create 1 episode more than episodes_max
+      # exclude records that will create 1 episode more than episodes_max
       dplyr::filter(!(.data$tag==0 & .data$episodes + 1 > episodes_max )) %>%
       dplyr::filter(.data$tag !=2 & !is.na(.data$tag)) %>%
       dplyr::filter(duplicated(.data$cri) == FALSE & !is.na(.data$cri)) %>%
@@ -492,11 +492,11 @@ fixed_episodes <- function(x, strata = NULL, case_length, episodes_max = Inf, fr
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
   if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
-  if(!(is.logical(from_last) & is.logical(display) )) stop(paste("'from_last' and 'display' must be TRUE or FALSE"))
+  if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
   if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be a numeric based object of length 1",sep=""))
   if(!all(is.finite(x))) stop(paste("All 'x' values must be a date, datetime, number_line object or a numeric based object",sep=""))
-  if(!(length(case_length) %in% c(1, length(x)))) stop(paste("'case_length' must be a 1 or the same length as 'date'",sep=""))
-  if(!(length(strata) %in% c(1, length(x)) | (length(strata) ==0 & is.null(strata)))) stop(paste("'strata' must be a 1 or the same length as 'date'",sep=""))
+  if(!(length(case_length) %in% c(1, length(x)))) stop(paste("length of 'case_length' must be 1 or the same as 'x'",sep=""))
+  if(!(length(strata) %in% c(1, length(x)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'x'",sep=""))
 
   fmt <- function(g) formatC(g, format="d", big.mark=",")
   if(any(!diyar::is.number_line(x))){
@@ -563,13 +563,13 @@ rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NUL
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
   if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
-  if(!(is.logical(from_last) & is.logical(display) )) stop(paste("'from_last' and 'display' must be TRUE or FALSE"))
+  if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
   if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be a numeric based object of length 1",sep=""))
   if(!(all(is.finite(recurrence_length) & recurrence_length >= 0) | is.null(recurrence_length)) ) stop(paste("'recurrence_length' must be a numeric based object of length 1",sep=""))
   if(!all(is.finite(x))) stop(paste("All 'x' values must be a date, datetime, number_line object or a numeric based object",sep=""))
-  if(!(length(case_length) %in% c(1, length(x)))) stop(paste("'case_length' must be a 1 or the same length as 'date'",sep=""))
-  if(!(length(recurrence_length) %in% c(1, length(x)) | (length(recurrence_length) ==0 & is.null(recurrence_length)))) stop(paste("'recurrence_length' must be a 1 or the same length as 'date'",sep=""))
-  if(!(length(strata) %in% c(1, length(x)) | (length(strata) ==0 & is.null(strata)))) stop(paste("'strata' must be a 1 or the same length as 'date'",sep=""))
+  if(!(length(case_length) %in% c(1, length(x)))) stop(paste("length of 'case_length' must be 1 or the same as 'x'",sep=""))
+  if(!(length(recurrence_length) %in% c(1, length(x)) | (length(recurrence_length) ==0 & is.null(recurrence_length)))) stop(paste("length of 'recurrence_length' must be 1 or the same as 'x'",sep=""))
+  if(!(length(strata) %in% c(1, length(x)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'x'",sep=""))
 
   fmt <- function(g) formatC(g, format="d", big.mark=",")
   if(is.null(recurrence_length)){

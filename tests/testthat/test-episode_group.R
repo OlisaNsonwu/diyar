@@ -509,19 +509,19 @@ test_that("test fixed and rolling episode funcs errors", {
 
   expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 1), "'overlap_method' must be a character object")
   expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 2), "'overlap_method' must be a character object")
-  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last' and 'display' must be TRUE or FALSE")
-  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last' and 'display' must be TRUE or FALSE")
-  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last' and 'display' must be TRUE or FALSE")
-  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last' and 'display' must be TRUE or FALSE")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
   expect_error(rolling_episodes(x=t_ds$date, case_length = -1, strata = t_ds$patient_id), "'case_length' must be a numeric based object of length 1")
   expect_error(fixed_episodes(x=t_ds$date, case_length = Inf, strata = t_ds$patient_id), "'case_length' must be a numeric based object of length 1")
-  expect_error(rolling_episodes(x=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "'case_length' must be a 1 or the same length as 'date'")
-  expect_error(fixed_episodes(x=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "'case_length' must be a 1 or the same length as 'date'")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'x'")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'x'")
 
   expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, recurrence_length = -1, strata = t_ds$patient_id), "'recurrence_length' must be a numeric based object of length 1")
-  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, recurrence_length = t_ds$epi_len[1:2],strata = t_ds$patient_id), "'recurrence_length' must be a 1 or the same length as 'date'")
-  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "'strata' must be a 1 or the same length as 'date'")
-  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "'strata' must be a 1 or the same length as 'date'")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, recurrence_length = t_ds$epi_len[1:2],strata = t_ds$patient_id), "length of 'recurrence_length' must be 1 or the same as 'x'")
+  expect_error(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'x'")
+  expect_error(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'x'")
 
 
 })

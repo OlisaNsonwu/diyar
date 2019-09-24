@@ -315,41 +315,40 @@ expand_number_line <- function(x, by=1, point ="both"){
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 #'
-#' @param deduplicate if \code{TRUE}, retains only one of duplicate
 #' @param method Method of overlap
+#' @param collapse If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps
+#' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object among duplicates
 #' @examples
 #' # Collapse number line objects
-#' c(number_line(1,5), number_line(2,4), number_line(10,10))
-#' compress_number_line(c(number_line(1,5), number_line(2,4), number_line(10,10)))
-#'
-#' c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-#' compress_number_line(c(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40)))
-#' compress_number_line(c(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40)), method = "inbetween")
-#' compress_number_line(c(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40)), method = "chain")
-#' compress_number_line(c(number_line(10,10), number_line(10,20),
-#' number_line(5,30), number_line(30,40)), method = "across")
+#' x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
+#' compress_number_line(x, deduplicate = FALSE)
+#' compress_number_line(x)
+#' compress_number_line(x, collapse=TRUE)
+#' compress_number_line(x, collapse=TRUE, method = "inbetween")
 #'
 #' @export
 
-compress_number_line <- function(x, method = c("across","chain","aligns_start","aligns_end","inbetween"), deduplicate = TRUE){
+compress_number_line <- function(x, method = c("across","chain","aligns_start","aligns_end","inbetween"), collapse =FALSE, deduplicate = TRUE){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
+  if(!(is.logical(collapse) & is.logical(deduplicate) )) stop(paste("'collapse' and 'deduplicate' must be TRUE or FALSE"))
   if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(!(length(collapse) %in% c(1, length(x)))) stop(paste("length of 'collapse' must be 1 or the same as 'x'",sep=""))
 
   if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
   x <- diyar::reverse_number_line(x, "decreasing")
 
-  c <- rep(0, length(x))
-  for (i in 1:length(x)){
-    if(c[i]==1) next
-    h <- (x@id == x[i]@id | diyar::overlap(x[i], x, method=method)) & c != 1
+  j <- 1
+  t <- rep(0, length(x))
+  if(length(collapse)==1) collapse <- rep(collapse, length(x))
+  while (min(t) ==0 & j<=length(x)){
+    l <- x[t==0][1]
+    h <- (x@id == l@id | diyar::overlap(l, x, method=method)) & ifelse(collapse, TRUE, (t!=1))
     x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
-    c[which(h)] <- 1
-    if(min(c)==1) break
+    t[which(h)] <- 1
+    if(min(t)==1) break
+    j <- j + 1
   }
 
   if(deduplicate) x <- unique.number_line(x)
