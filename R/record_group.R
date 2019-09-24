@@ -203,7 +203,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
         dplyr::arrange(.data$cri, .data$skip, dplyr::desc(.data$force_check), dplyr::desc(.data$tag), .data$m_tag, .data$pid_cri, .data$sn) %>%
         dplyr::filter(duplicated(.data$cri) == FALSE) %>%
         dplyr::select_at(c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst)) %>%
-        dplyr::rename_at(c("pid","m_tag", "tag", "sn","pid_cri",curr_sub_cri_lst), dplyr::funs(paste("tr_",.,sep="")))
+        dplyr::rename_at(c("pid","m_tag", "tag", "sn","pid_cri",curr_sub_cri_lst), list(~paste("tr_",.,sep="")))
 
       df <- dplyr::left_join(df,TR, by="cri")
 

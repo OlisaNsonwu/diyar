@@ -112,7 +112,7 @@ db_b$epid_length <- number_line_width(db_b$epid_interval)
 select(db_b, rd_id, date, epid_interval, epid, epid_length)
 #> # A tibble: 11 x 5
 #>    rd_id date       epid_interval             epid epid_length
-#>    <int> <date>     <S4: number_line>        <int> <time>     
+#>    <int> <date>     <numbr_ln>               <int> <drtn>     
 #>  1     1 2018-04-01 2018-04-01 == 2018-04-01     1  0 days    
 #>  2     2 2018-04-07 2018-04-07 -> 2018-04-19     2 12 days    
 #>  3     3 2018-04-13 2018-04-07 -> 2018-04-19     2 12 days    
@@ -134,7 +134,7 @@ db_c <- episode_group(db_a, sn=rd_id, date = date, strata = infection, case_leng
 db_c
 #> # A tibble: 11 x 6
 #>       sn  epid case_nm   epid_length epid_total epid_interval           
-#>    <int> <dbl> <chr>     <time>           <int> <S4: number_line>       
+#>    <int> <dbl> <chr>     <drtn>           <int> <numbr_ln>              
 #>  1     1     1 Case       0 days              1 2018-04-01 == 2018-04-01
 #>  2     2     2 Case      12 days              3 2018-04-07 -> 2018-04-19
 #>  3     3     2 Duplicate 12 days              3 2018-04-07 -> 2018-04-19
@@ -150,7 +150,7 @@ db_c
 
 ### Record grouping
 
-Multi-stage deterministic linkages that addresses missing values by using a specfied list of alternative matching criteria.
+Multistage deterministic linkages that addresses missing values by using a specfied list of alternative matching criteria.
 
 ``` r
 # Two or more stages of record grouping
@@ -190,30 +190,35 @@ dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
 bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 #> Record grouping complete - 1 record(s) assigned a group unique ID.
 #> # A tibble: 7 x 6
-#>   sex     age range                sn   pid pid_cri   
-#>   <chr> <dbl> <S4: number_line> <int> <dbl> <chr>     
-#> 1 M        10 10 -> 30              1     2 Criteria 1
-#> 2 M         8 8 -> 28               2     2 Criteria 1
-#> 3 M        20 20 -> 40              3     2 Criteria 1
-#> 4 F         5 5 -> 25               4     4 Criteria 1
-#> 5 M         5 5 -> 25               5     5 None      
-#> 6 M         9 9 -> 29               6     2 Criteria 1
-#> 7 F         7 7 -> 27               7     4 Criteria 1
+#>   sex     age range         sn   pid pid_cri   
+#>   <chr> <dbl> <numbr_ln> <int> <dbl> <chr>     
+#> 1 M        10 10 -> 30       1     2 Criteria 1
+#> 2 M         8 8 -> 28        2     2 Criteria 1
+#> 3 M        20 20 -> 40       3     2 Criteria 1
+#> 4 F         5 5 -> 25        4     4 Criteria 1
+#> 5 M         5 5 -> 25        5     5 None      
+#> 6 M         9 9 -> 29        6     2 Criteria 1
+#> 7 F         7 7 -> 27        7     4 Criteria 1
 
 # age range - age +- 20 years
 dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
 bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
 #> Record grouping complete - 0 record(s) assigned a group unique ID.
 #> # A tibble: 7 x 6
-#>   sex     age range                sn   pid pid_cri   
-#>   <chr> <dbl> <S4: number_line> <int> <int> <chr>     
-#> 1 M        10 -10 -> 30             1     1 Criteria 1
-#> 2 M         8 -12 -> 28             2     1 Criteria 1
-#> 3 M        20 0 -> 40               3     1 Criteria 1
-#> 4 F         5 -15 -> 25             4     4 Criteria 1
-#> 5 M         5 -15 -> 25             5     1 Criteria 1
-#> 6 M         9 -11 -> 29             6     1 Criteria 1
-#> 7 F         7 -13 -> 27             7     4 Criteria 1
+#>   sex     age range         sn   pid pid_cri   
+#>   <chr> <dbl> <numbr_ln> <int> <int> <chr>     
+#> 1 M        10 -10 -> 30      1     1 Criteria 1
+#> 2 M         8 -12 -> 28      2     1 Criteria 1
+#> 3 M        20 0 -> 40        3     1 Criteria 1
+#> 4 F         5 -15 -> 25      4     4 Criteria 1
+#> 5 M         5 -15 -> 25      5     1 Criteria 1
+#> 6 M         9 -11 -> 29      6     1 Criteria 1
+#> 7 F         7 -13 -> 27      7     4 Criteria 1
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!
+
+Bugs and issues
+---------------
+
+Please report any bug or issues with using this package [here](https://github.com/OlisaNsonwu/diyar/issues).

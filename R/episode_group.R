@@ -231,8 +231,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$user_ord <- 0
   }else{
     ord_ls <- dplyr::select(df, ref_sort) %>%
-      dplyr::mutate_all(dplyr::funs(as.numeric(as.factor(.)))) %>%
-      dplyr::mutate_all(dplyr::funs(stringr::str_pad(., width = max(stringr::str_length(.)), pad=0) )) %>%
+      dplyr::mutate_all(list(~as.numeric(as.factor(.)))) %>%
+      dplyr::mutate_all(list(~stringr::str_pad(., width = max(stringr::str_length(.)), pad=0) )) %>%
       tidyr::unite("ord")
 
     df$user_ord <- ord_ls[[1]]
@@ -259,7 +259,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::filter(.data$tag !=2 & !is.na(.data$tag)) %>%
       dplyr::filter(duplicated(.data$cri) == FALSE & !is.na(.data$cri)) %>%
       dplyr::select(.data$sn, .data$cri, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len) %>%
-      dplyr::rename_at(dplyr::vars(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len), dplyr::funs(paste("tr_",.,sep="")))
+      dplyr::rename_at(dplyr::vars(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len), list(~paste("tr_",.,sep="")))
 
     if(nrow(TR)==0) {break}
 
@@ -537,9 +537,9 @@ fixed_episodes <- function(x, strata = NULL, case_length, episodes_max = Inf, fr
     x[which(h)]@.Data <- as.numeric(max(diyar::right_point(x[which(h),]))) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
     x[which(h)]@gid <- l@gid
-    t[which(h)] <- 1
 
     tagged_1 <- length(h[h])
+    t[which(h)] <- 1
     if(display){
       cat(paste(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n", sep =""))
     }
@@ -603,15 +603,15 @@ rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NUL
 
   j <- 0
   l <- NULL
-  c <- rep(0, length(x))
+  t <- rep(0, length(x))
   pt <- ifelse(from_last,"start","end")
-  while (min(c) ==0 & j!=length(x)){
-    total_1 <- length(c[c==0])
+  while (min(t) ==0 & j!=length(x)){
+    total_1 <- length(t[t==0])
     if(display){cat(paste("Episode window ",j+1,".\n", sep=""))}
 
     if(length(l)==0 | is.null(l)){
-      l <- x[c==0][1]
-      l_s <- s[c==0][1]
+      l <- x[t==0][1]
+      l_s <- s[t==0][1]
       e <- case_length
     }else{
       e <- recurrence_length
@@ -622,7 +622,7 @@ rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NUL
     x[which(h)]@start <- min(x[which(h),]@start)
     x[which(h)]@gid <- l@gid
 
-    if(min(c[which(h)])==1){
+    if(min(t[which(h)])==1){
       l <- NULL
     }else{
       l <- x[which(h)]
@@ -632,13 +632,12 @@ rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NUL
       l_s <- l_s[length(l_s)]
     }
 
-    c[which(h)] <- 1
-
-    tagged_1 <- length(h[h])
+    tagged_1 <- length(h[h & t==0])
+    t[which(h)] <- 1
     if(display){
       cat(paste(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n", sep =""))
     }
-    if(min(c)==1) break
+    if(min(t)==1) break
     j <- j + 1
   }
 

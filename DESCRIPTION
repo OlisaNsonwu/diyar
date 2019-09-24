@@ -18,7 +18,7 @@ Imports:
     dplyr (>= 0.7.5),
     lubridate (>= 1.7.4),
     stringr,
-    tidyr (>= 0.8.3) 
+    tidyr (>= 0.8.2) 
 RoxygenNote: 6.1.1
 Suggests:
     ggplot2,
