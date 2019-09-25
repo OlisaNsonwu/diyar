@@ -26,7 +26,7 @@ rolling_episodes(x, strata = NULL, case_length,
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
 
-\item{sn}{Unique \code{numeric} record indentifier. Optional.}
+\item{sn}{Unique \code{numeric} record identifier. Optional.}
 
 \item{strata}{Column names. Episodes will be unique to each \code{strata}. \code{\link{record_group}} can be used to create \code{strata} within datasets.}
 
@@ -44,7 +44,7 @@ rolling_episodes(x, strata = NULL, case_length,
 
 \item{rolls_max}{Maximum number of recurrence permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{data_source}{Unique dataset indentifier for the \code{data.frame}. Useful when \code{data.frame} contains multiple datsets.}
+\item{data_source}{Unique dataset identifier for the \code{data.frame}. Useful when \code{data.frame} contains multiple datasets.}
 
 \item{custom_sort}{If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.}
 
@@ -67,10 +67,10 @@ rolling_episodes(x, strata = NULL, case_length,
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
-\item \code{epid} - unique episode indentifier
+\item \code{epid} - unique episode identifier
 \item \code{case_nm} - record type in regards to case assignment
 \item \code{epid_dataset} - datasets contained in each episode
-\item \code{epid_interval} - Episode start and end dates. Lubridate's \code{\link{number_line}} object.
+\item \code{epid_interval} - Episode start and end dates. \code{\link{number_line}} object.
 \item \code{epid_length} - Difference between episode start and end dates. \code{difftime} object. If possible, the same unit supplied to \code{episode_unit} is used otherwise, a difference in days is returned
 \item \code{epid_total} - number of records in each record group
 }
@@ -78,14 +78,14 @@ rolling_episodes(x, strata = NULL, case_length,
 \code{fixed_episodes() and rolling_episodes()} - \code{number_line}.
 \itemize{
 \item \code{id} - unique record identifier as provided
-\item \code{gid} - unique episode indentifier
+\item \code{gid} - unique episode identifier
 \item \code{start} - Episode start dates
 \item \code{.Data} - Difference between episode start and end dates. \code{numeric} object
 }
 
 Use \code{\link{number_line_width}} to extract the \code{epid_interval}
 
-Use \code{\link{right_point}} to extact the episode end date
+Use \code{\link{right_point}} to extract the episode end date
 }
 \description{
 Group records into chronological episodes
@@ -93,11 +93,11 @@ Group records into chronological episodes
 \details{
 Episode grouping begins at a reference record (\code{"Case"}) and proceeds forward or backward in time depending on \code{from_last}.
 If \code{custom_sort} is used, episode grouping can be forced to begin at certain record before proceeding forward or backwards in time.
-The maximun duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
+The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
 \code{case_length} in addition to all recurrence periods. A recurrence period is the \code{recurrence_length} from the last record in an episode
 
 \code{fixed_episodes()} and \code{rolling_episodes()} are more convenient implementations of \code{episode_group}.
-However, these are less efficient in deaing with large datasets, and lack the following features;
+However, these are less efficient in dealing with large datasets, and lack the following features;
 \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
 }
 \examples{

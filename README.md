@@ -150,7 +150,7 @@ db_c
 
 ### Record grouping
 
-Multistage deterministic linkages that addresses missing values by using a specfied list of alternative matching criteria.
+Multistage deterministic linkages that addresses missing values by using a specified list of alternative matching criteria.
 
 ``` r
 # Two or more stages of record grouping

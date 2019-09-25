@@ -92,7 +92,7 @@ Visually, it's presented as the left (\code{l}) and right (\code{r}) points of t
 The start point is the lowest number in the series, regardless of whether it's at the left or right point..
 
 The location of the start point - left or right, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
-This is refered to as the \code{direction} of the \code{number_line} object.
+This is referred to as the \code{direction} of the \code{number_line} object.
 
 \code{reverse_number_line()} - reverses the direction of a \code{number_line} object. A reversed \code{number_line} object has its \code{l} and \code{r} points swapped but maintains the same width or length.
 The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
@@ -102,9 +102,9 @@ The \code{direction} argument determines which type of \code{number_line} object
 
 \code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
 
-\code{compress_number_line()} - Collapses overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+\code{compress_number_line()} - Collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
 This results in duplicate \code{number_line} objects with start and end points of the new expanded \code{number_line} object.
-See \code{\link{overlap}} for further details on overlaping \code{number_line} objects.
+See \code{\link{overlap}} for further details on overlapping \code{number_line} objects.
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 

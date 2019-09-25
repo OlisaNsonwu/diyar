@@ -89,7 +89,7 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
-      <a href="../articles/record_group.html">Mutlistage deterministic linkage in R</a>
+      <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
 </li>
@@ -136,11 +136,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p><code>data.frame</code>. One or more datasets appened together.</p></td>
+      <td><p><code>data.frame</code>. One or more datasets appended together.</p></td>
     </tr>
     <tr>
       <th>sn</th>
-      <td><p>Unique <code>numeric</code> record indentifier. Optional.</p></td>
+      <td><p>Unique <code>numeric</code> record identifier. Optional.</p></td>
     </tr>
     <tr>
       <th>criteria</th>
@@ -152,7 +152,7 @@
     </tr>
     <tr>
       <th>data_source</th>
-      <td><p>Unique dataset indentifier. Useful when <code>data.frame</code> contains data from multiple datasets.</p></td>
+      <td><p>Unique dataset identifier. Useful when <code>data.frame</code> contains data from multiple datasets.</p></td>
     </tr>
     <tr>
       <th>group_stats</th>
@@ -169,7 +169,7 @@
     <p><code>data.frame</code></p>
 <ul>
 <li><p><code>sn</code> - unique record identifier as provided</p></li>
-<li><p><code>pid</code> - unique group indentifier</p></li>
+<li><p><code>pid</code> - unique group identifier</p></li>
 <li><p><code>pid_cri</code> - matching criteria for each record in the group</p></li>
 <li><p><code>pid_dataset</code> - list of datasets in each group</p></li>
 <li><p><code>pid_total</code> - number of records in each group</p></li>
@@ -185,7 +185,7 @@ To do this, create a <code><a href='number_line.html'>number_line</a></code> obj
 Then use the <code><a href='number_line.html'>number_line</a></code> as a <code>sub_criteria</code>.</p>
 <p>A match at each stage is considered more certain than those at subsequent stages.
 Therefore, <code>criteria</code> should be listed in order of decreasing certainty.</p>
-<p><code>sub_criteria</code> can be used to force additonal matching conditions at each stage.
+<p><code>sub_criteria</code> can be used to force additional matching conditions at each stage.
 If <code>sub_criteria</code> is not <code>NULL</code>, only records with matching <code>criteria</code> and <code>sub_criteria</code> values are grouped together.
 If a record has missing values for any <code>criteria</code>, it's skipped at that stage, and another attempt is made at the next stage.
 If all <code>criteria</code> values are missing, that record is assigned a unique group ID.</p>
@@ -199,8 +199,7 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>tidyr</span>)
-
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>tidyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'tidyr' was built under R version 3.5.2</span></div><div class='input'>
 <span class='no'>three_people</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>forename</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Obinna"</span>,<span class='st'>"James"</span>,<span class='st'>"Ojay"</span>,<span class='st'>"James"</span>,<span class='st'>"Obinna"</span>),
 <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>three_people</span>, <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>))</div><div class='output co'>#&gt; 

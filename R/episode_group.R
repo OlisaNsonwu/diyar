@@ -4,7 +4,7 @@
 #' @description Group records into chronological episodes
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
-#' @param sn Unique \code{numeric} record indentifier. Optional.
+#' @param sn Unique \code{numeric} record identifier. Optional.
 #' @param strata Column names. Episodes will be unique to each \code{strata}. \code{\link{record_group}} can be used to create \code{strata} within datasets.
 #' @param date Record date or interval. \code{date}, \code{datetime} or \code{\link{number_line}} objects.
 #' @param case_length Period from a \code{"Case"} within which another record of the same \code{strata} is considered a \code{"Duplicate"} record.
@@ -13,7 +13,7 @@
 #' @param recurrence_length Period from the last record of an episode within which another record of the same \code{strata} is considered a \code{"Recurrent"} record. If a \code{recurrence_length} is not supplied, the \code{case_length} is used.
 #' @param episode_unit Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.
 #' @param rolls_max Maximum number of recurrence permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source Unique dataset indentifier for the \code{data.frame}. Useful when \code{data.frame} contains multiple datsets.
+#' @param data_source Unique dataset identifier for the \code{data.frame}. Useful when \code{data.frame} contains multiple datasets.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.
 #' @param overlap_method A set of methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.
 #' @param custom_sort If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
@@ -25,10 +25,10 @@
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
-#' \item \code{epid} - unique episode indentifier
+#' \item \code{epid} - unique episode identifier
 #' \item \code{case_nm} - record type in regards to case assignment
 #' \item \code{epid_dataset} - datasets contained in each episode
-#' \item \code{epid_interval} - Episode start and end dates. Lubridate's \code{\link{number_line}} object.
+#' \item \code{epid_interval} - Episode start and end dates. \code{\link{number_line}} object.
 #' \item \code{epid_length} - Difference between episode start and end dates. \code{difftime} object. If possible, the same unit supplied to \code{episode_unit} is used otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each record group
 #' }
@@ -39,7 +39,7 @@
 #' @details
 #' Episode grouping begins at a reference record (\code{"Case"}) and proceeds forward or backward in time depending on \code{from_last}.
 #' If \code{custom_sort} is used, episode grouping can be forced to begin at certain record before proceeding forward or backwards in time.
-#' The maximun duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
+#' The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
 #' \code{case_length} in addition to all recurrence periods. A recurrence period is the \code{recurrence_length} from the last record in an episode
 #'
 #' @examples
@@ -248,7 +248,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   min_tag <- min(df$tag)
   min_episodes_nm <- min(df$episodes)
 
-  df$int_l <- lubridate::int_length(lubridate::interval(df$rec_dt_ai, df$rec_dt_zi))
+  df$int_l <- diyar::number_line_width(diyar::number_line(df$rec_dt_ai, df$rec_dt_zi))
   c <- 1
   while (min_tag != 2 & min_episodes_nm <= episodes_max){
     TR <- df %>%
@@ -444,20 +444,20 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' @details
 #' \code{fixed_episodes()} and \code{rolling_episodes()} are more convenient implementations of \code{episode_group}.
-#' However, these are less efficient in deaing with large datasets, and lack the following features;
+#' However, these are less efficient in dealing with large datasets, and lack the following features;
 #' \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
 #'
 #' @return \code{fixed_episodes() and rolling_episodes()} - \code{number_line}.
 #' \itemize{
 #' \item \code{id} - unique record identifier as provided
-#' \item \code{gid} - unique episode indentifier
+#' \item \code{gid} - unique episode identifier
 #' \item \code{start} - Episode start dates
 #' \item \code{.Data} - Difference between episode start and end dates. \code{numeric} object
 #' }
 #'
 #' Use \code{\link{number_line_width}} to extract the \code{epid_interval}
 #'
-#' Use \code{\link{right_point}} to extact the episode end date
+#' Use \code{\link{right_point}} to extract the episode end date
 #'
 #' @examples
 #' # Convenient versions of episode_group()

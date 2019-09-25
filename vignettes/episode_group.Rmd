@@ -16,7 +16,7 @@ knitr::opts_chunk$set(
 ```
 
 #Introduction
-Deduplicating events is a major part of establishing a case definition in epidemiological analyses. In such analyses, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.
+Deduplicating events is a major part of establishing a case definition in epidemiological analyses. In such analyses, a reference event is selected and considered the start of an episode, while subsequent events within a specified period are considered duplicates.
 
 `episode_group()` aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time. This allows for the deduplication of records, or a sub-analysis within each episode.
 
@@ -27,8 +27,8 @@ The flexible application of both [`record_group`](record_group.html) and `episod
 2. Create episodes that reoccur within a defined period (`recurrence_length`) from the last event
 3. Create episodes as in examples 1 and 2, and specify which event or period is considered the `"Case"`. See [case assignment](#case_assignment)
 4. Create episodes with a different `case_length` and/or `recurrence_length` for different subsets of the dataset. See [stratified grouping](#stratified_grouping)
-5. Create episodes of overlaping events (point in time) e.g. days, minutes, hours. See [Useful ways of using episode_group](#tips)
-6. Create episodes overlaping intervals (periods of time) e.g. period of days, minutes or hours. See [interval grouping](#interval_grouping)
+5. Create episodes of overlapping events (point in time) e.g. days, minutes, hours. See [Useful ways of using episode_group](#tips)
+6. Create episodes overlapping intervals (periods of time) e.g. period of days, minutes or hours. See [interval grouping](#interval_grouping)
 
 #Implementation 
 
@@ -39,7 +39,7 @@ An episode as produced by `episode_group()` is a set of events/intervals within 
 
 `episode_group()` can produce two type of episodes described below; 
 
-- `"fixed"` episodes - all events/intervals are within the fixed period (`case_length`) of a `"Case"`. Any event/interval beyond this `case_length` is considered a new epsiode. See [stratified grouping](#stratified_grouping)
+- `"fixed"` episodes - all events/intervals are within the fixed period (`case_length`) of a `"Case"`. Any event/interval beyond this `case_length` is considered a new episode. See [stratified grouping](#stratified_grouping)
 
 - `"rolling"` episodes - In addition to events/intervals within the `case_length`, those within periods of recurrence are grouped together as episodes. See [episodes windows and recurrence periods](#recurrence).
 
@@ -160,7 +160,7 @@ ggplot(plot, aes(x=date, y=rid, group=rid, label=case_nm, colour=epid_2)) +
 
 ***If your case definition does not explicitly require a rolling episode, use fixed episode grouping as it takes less time to complete.***
 
-By default, `episode_group()` will continue checking for `"Recurrent"` records indefintely, but you can limit the number of recurrence periods an episode can have using `rolls_max`.
+By default, `episode_group()` will continue checking for `"Recurrent"` records indefinitely, but you can limit the number of recurrence periods an episode can have using `rolls_max`.
 
 ```{r warning=FALSE, message=FALSE}
 data("infections_3"); infections_3
@@ -295,7 +295,7 @@ cbind(
 <a id="interval_grouping"></a>
 
 ## Interval grouping
-In addition to grouping events that occured at a point in time, you can also group events that occured over a period of time (intervals). For the purpose of episode grouping, an interval is a record with start and end points in time. The interval should be created as a `number_line` object and supplied to the `date` argument. 
+In addition to grouping events that occurred at a point in time, you can also group events that occurred over a period of time (intervals). For the purpose of episode grouping, an interval is a record with start and end points in time. The interval should be created as a `number_line` object and supplied to the `date` argument. 
 
 In the example below, we group periods of hospital admissions into episodes. This is different from grouping the admission or discharge events into episodes.
 
@@ -322,7 +322,7 @@ cbind(
 Intervals are grouped together if they overlaps. Furthermore, the intervals can overlap in different ways, and the function allows you to choose how this happens by using `overlap_method`. The options are; `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates each method.
 
 ```{r warning=FALSE}
-# Overlaping intervals
+# Overlapping intervals
 across <- cbind(
   hospital_admissions,
   episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, 
@@ -358,7 +358,7 @@ aligns_start <- cbind(
 
 aligns_start
 
-# Intervals occuring completely within others
+# Intervals occurring completely within others
 inbetween <- cbind(
   hospital_admissions,
   episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, 
@@ -367,7 +367,7 @@ inbetween <- cbind(
 
 inbetween
 
-# Intervals occuring completely within others
+# Intervals occurring completely within others
 chain_inbetween <- cbind(
   hospital_admissions,
   episode_group(hospital_admissions, date=admin_period, sn=rd_id, case_length = epi_len, 
@@ -430,7 +430,7 @@ ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
 
 ```{r warning=FALSE, include=FALSE}
 
-# Overlaping intervals
+# Overlapping intervals
 hospital_admissions_2 <- hospital_admissions
 hospital_admissions_2$epi_len <- 30
 hospital_admissions_2$shift <- ifelse(hospital_admissions_2$rd_id %in% c(2,8,5,7), 0, 30)
@@ -463,14 +463,14 @@ aligns_start <- cbind(
                 overlap_method = "aligns_start", display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
-# Intervals occuring completely within others
+# Intervals occurring completely within others
 inbetween <- cbind(
   hospital_admissions_2,
   episode_group(hospital_admissions_2, date=admin_period, sn=rd_id, case_length = epi_len, 
                 overlap_method = "inbetween", display = FALSE)
   ) %>% select(-admin_dt, -discharge_dt)
 
-# Chained intervals and those occuring completely within others
+# Chained intervals and those occurring completely within others
 chain_inbetween <- cbind(
   hospital_admissions_2,
   episode_group(hospital_admissions_2, date=admin_period, sn=rd_id, case_length = epi_len, 
@@ -684,7 +684,7 @@ A sub-strata is created when records within a `strata` have a different `case_le
 
 - UTI and BSI records are different episodes regardless of when they occur. 
 - UTI have a `case_length` of 7 days and recurrence period of 30 days
-- BSI have a `case_length` of 14 days if not treated, **OR** `case_length` of 4 days if treated, and no recurence period in both situations
+- BSI have a `case_length` of 14 days if not treated, **OR** `case_length` of 4 days if treated, and no recurrence period in both situations
 - Respiratory tract infections (RTI) have a `case_length` of 28 days and recurrence period of 5 days
 
 In this example, whether or not the infection is treated should be considered the sub-strata, and the source of infection considered the `strata`.
@@ -723,7 +723,7 @@ Stratified episode grouping will produce the same results as when you subset the
 
 ## Useful ways of using episode_group 
 ### Episode grouping across other units of time
-In the examples above, episode grouping was dne by the days (`episode_unit`). However, it can be done in other units of time e.g. hours, days or weeks. Acceptable options are those supported by `lubridate's duration()` function. Below is an example of episode grouping by the hour.
+In the examples above, episode grouping was done by the days (`episode_unit`). However, it can be done in other units of time e.g. hours, days or weeks. Acceptable options are those supported by `lubridate's duration()` function. Below is an example of episode grouping by the hour.
 
 ```{r warning=FALSE, message=FALSE}
 data("hourly_data"); hourly_data
@@ -749,7 +749,7 @@ head(hourly_data, 10) %>%
 ### fixed_episodes and rolling_episodes functions
 `fixed_episodes()` and `rolling_episodes()` are convenient implementation of `episode_group()`. They return `number_line` objects (`epid_interval`) with the record identifier supplied (`id` slot) and episode identifiers created (`gid` slot).
 
-***Both functions are less efficient in deaing with large datasets and lack the following features; "custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"***
+***Both functions are less efficient in dealing with large datasets and lack the following features; "custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"***
 
 ```{r warning=FALSE, message=FALSE}
 data(infections); infections
@@ -773,13 +773,13 @@ select(db_b, rd_id, date, epid_interval, epid, epid_length)
 ```
 
 # Conclusion
-There are a varierty of ways to use this function. It's worth reviewing your case definition and its implication on the dataset before using this function. In general, the following steps will guide you on how to use this function;
+There are a variety of ways to use this function. It's worth reviewing your case definition and its implication on the dataset before using this function. In general, the following steps will guide you on how to use this function;
 
 1. Work out which columns should be the `strata`
 2. Choose whether you need `"fixed"` or `"rolling"` episodes
 3. Choose whether you are grouping individual events or a duration of events by supply a date, datetime or `lubridate interval` object as required. See [interval grouping](#interval_grouping)
-4. Create a colum for `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata)
+4. Create a column for `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata)
 5. Change `from_last` to `TRUE` if you want to start episode grouping at the most recent record thereby making it the `"Case"`. Note that this is not the same as starting episode grouping at the earliest record (`from_last` is `FALSE`) and then picking the most recent record in that episode as the `"Case"`. See [case assignment](#case_assignment)
 6. If you require the `"Case"` to be the earliest or most recent record of a particular type of record, use `custom_sort` in combination with `from_last`. If not, ignore this argument. See [user defined case assignment](#custom_sort)
 7. If you require episodes to include records on either side of the `"Case"` use `bi_direction`. If not, ignore this argument
-8. Choose if episodes are occuring by the minute, hour or day etc., and set `episode_unit` accordingly
+8. Choose if episodes are occurring by the minute, hour or day etc., and set `episode_unit` accordingly

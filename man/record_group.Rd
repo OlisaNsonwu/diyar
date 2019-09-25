@@ -8,15 +8,15 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
   data_source = NULL, group_stats = FALSE, display = TRUE)
 }
 \arguments{
-\item{df}{\code{data.frame}. One or more datasets appened together.}
+\item{df}{\code{data.frame}. One or more datasets appended together.}
 
-\item{sn}{Unique \code{numeric} record indentifier. Optional.}
+\item{sn}{Unique \code{numeric} record identifier. Optional.}
 
 \item{criteria}{Column names of the attributes to match. Records with matching values in these columns are grouped together.}
 
 \item{sub_criteria}{Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).}
 
-\item{data_source}{Unique dataset indentifier. Useful when \code{data.frame} contains data from multiple datasets.}
+\item{data_source}{Unique dataset identifier. Useful when \code{data.frame} contains data from multiple datasets.}
 
 \item{group_stats}{If \code{TRUE}, output will include additional columns with useful stats for each record group.}
 
@@ -27,7 +27,7 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
-\item \code{pid} - unique group indentifier
+\item \code{pid} - unique group identifier
 \item \code{pid_cri} - matching criteria for each record in the group
 \item \code{pid_dataset} - list of datasets in each group
 \item \code{pid_total} - number of records in each group
@@ -47,7 +47,7 @@ Then use the \code{\link{number_line}} as a \code{sub_criteria}.
 A match at each stage is considered more certain than those at subsequent stages.
 Therefore, \code{criteria} should be listed in order of decreasing certainty.
 
-\code{sub_criteria} can be used to force additonal matching conditions at each stage.
+\code{sub_criteria} can be used to force additional matching conditions at each stage.
 If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
 If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
 If all \code{criteria} values are missing, that record is assigned a unique group ID.

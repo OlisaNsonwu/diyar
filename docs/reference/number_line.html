@@ -89,7 +89,7 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
-      <a href="../articles/record_group.html">Mutlistage deterministic linkage in R</a>
+      <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
 </li>
@@ -231,15 +231,15 @@
 <p>Visually, it's presented as the left (<code>l</code>) and right (<code>r</code>) points of the series. This may differ from start and end points.
 The start point is the lowest number in the series, regardless of whether it's at the left or right point..</p>
 <p>The location of the start point - left or right, indicate if it's an <code>"increasing"</code> or <code>"decreasing"</code> series.
-This is refered to as the <code>direction</code> of the <code>number_line</code> object.</p>
+This is referred to as the <code>direction</code> of the <code>number_line</code> object.</p>
 <p><code>reverse_number_line()</code> - reverses the direction of a <code>number_line</code> object. A reversed <code>number_line</code> object has its <code>l</code> and <code>r</code> points swapped but maintains the same width or length.
 The <code>direction</code> argument determines which type of <code>number_line</code> objects will be reversed.
 <code>number_line</code> objects with non-finite numeric starts or end points i.e. (<code>NA</code>, <code>NaN</code> and <code>Inf</code>) can't be reversed.</p>
 <p><code>shift_number_line()</code> - a convenience function to shift a <code>number_line</code> object towards the positive or negative end of the number line.</p>
 <p><code>expand_number_line()</code> - a convenience function to increase or decrease the width or length of a <code>number_line</code> object.</p>
-<p><code>compress_number_line()</code> - Collapses overlaping <code>number_line</code> objects into a new <code>number_line</code> objects that covers the start and end points of the originals.
+<p><code>compress_number_line()</code> - Collapses overlapping <code>number_line</code> objects into a new <code>number_line</code> objects that covers the start and end points of the originals.
 This results in duplicate <code>number_line</code> objects with start and end points of the new expanded <code>number_line</code> object.
-See <code><a href='overlap.html'>overlap</a></code> for further details on overlaping <code>number_line</code> objects.
+See <code><a href='overlap.html'>overlap</a></code> for further details on overlapping <code>number_line</code> objects.
 If a familiar (but unique) <code>id</code> is used when creating the <code>number_line</code> objects,
 <code>compress_number_line()</code> can be a simple alternative to <code><a href='record_group.html'>record_group</a></code> or <code><a href='episode_group.html'>episode_group</a></code>.</p>
 <p><code>number_line_sequence()</code> - a convenience function to convert a <code>number_line</code> object into a sequence of finite numbers. The sequence will also include the start and end points.
@@ -50279,7 +50279,8 @@ The direction of the sequence will correspond to that of the <code>number_line</
 #&gt; [99995] "2019-04-02 17:39:51 UTC" "2019-04-02 17:39:52 UTC"
 #&gt; [99997] "2019-04-02 17:39:54 UTC" "2019-04-02 17:39:55 UTC"
 #&gt; [99999] "2019-04-02 17:39:57 UTC"
-#&gt;  [ reached 'max' / getOption("max.print") -- omitted 72802 entries ]</div><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://lubridate.tidyverse.org/reference/duration.html'>duration</a></span>(<span class='fl'>1.5</span>,<span class='st'>"days"</span>)
+#&gt;  [ reached getOption("max.print") -- omitted 72802 entries ]
+#&gt;  [ reached getOption("max.print") -- omitted 72802 entries ]</div><div class='input'><span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='http://lubridate.tidyverse.org/reference/duration.html'>duration</a></span>(<span class='fl'>1.5</span>,<span class='st'>"days"</span>)
 <span class='fu'>number_line_sequence</span>(<span class='no'>nl</span>, <span class='no'>d</span>)</div><div class='output co'>#&gt; [1] "2019-04-01 00:00:00 UTC" "2019-04-02 12:00:00 UTC"
 #&gt; [3] "2019-04-04 00:00:00 UTC"</div><div class='input'>
 </div></pre>

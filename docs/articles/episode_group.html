@@ -56,7 +56,7 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
-      <a href="../articles/record_group.html">Mutlistage deterministic linkage in R</a>
+      <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
 </li>
@@ -85,7 +85,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">24 September 2019</h4>
+            <h4 class="date">25 September 2019</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/episode_group.Rmd"><code>vignettes/episode_group.Rmd</code></a></small>
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -97,7 +97,7 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>Deduplicating events is a major part of establishing a case definition in epidemiological analyses. In such analyses, a reference event is selected and considered the start of an episode, while subequent events within a specified period are considered duplicates.</p>
+<p>Deduplicating events is a major part of establishing a case definition in epidemiological analyses. In such analyses, a reference event is selected and considered the start of an episode, while subsequent events within a specified period are considered duplicates.</p>
 <p><code><a href="../reference/episode_group.html">episode_group()</a></code> aims to provide a simple and flexible way to group records from multiple datasets into episodes, each lasting a specified period of time. This allows for the deduplication of records, or a sub-analysis within each episode.</p>
 </div>
 <div id="uses" class="section level1">
@@ -112,9 +112,9 @@
 </li>
 <li>Create episodes with a different <code>case_length</code> and/or <code>recurrence_length</code> for different subsets of the dataset. See <a href="#stratified_grouping">stratified grouping</a>
 </li>
-<li>Create episodes of overlaping events (point in time) e.g. days, minutes, hours. See <a href="#tips">Useful ways of using episode_group</a>
+<li>Create episodes of overlapping events (point in time) e.g. days, minutes, hours. See <a href="#tips">Useful ways of using episode_group</a>
 </li>
-<li>Create episodes overlaping intervals (periods of time) e.g. period of days, minutes or hours. See <a href="#interval_grouping">interval grouping</a>
+<li>Create episodes overlapping intervals (periods of time) e.g. period of days, minutes or hours. See <a href="#interval_grouping">interval grouping</a>
 </li>
 </ol>
 </div>
@@ -128,7 +128,7 @@
 <p>An episode as produced by <code><a href="../reference/episode_group.html">episode_group()</a></code> is a set of events/intervals within a specific period of time. Each begins with a reference event/interval (<code>"Case"</code>), and subsequent ones within the same episode is flagged as a <code>"Duplicate"</code> of this <code>"Case"</code>.</p>
 <p><code><a href="../reference/episode_group.html">episode_group()</a></code> can produce two type of episodes described below;</p>
 <ul>
-<li><p><code>"fixed"</code> episodes - all events/intervals are within the fixed period (<code>case_length</code>) of a <code>"Case"</code>. Any event/interval beyond this <code>case_length</code> is considered a new epsiode. See <a href="#stratified_grouping">stratified grouping</a></p></li>
+<li><p><code>"fixed"</code> episodes - all events/intervals are within the fixed period (<code>case_length</code>) of a <code>"Case"</code>. Any event/interval beyond this <code>case_length</code> is considered a new episode. See <a href="#stratified_grouping">stratified grouping</a></p></li>
 <li><p><code>"rolling"</code> episodes - In addition to events/intervals within the <code>case_length</code>, those within periods of recurrence are grouped together as episodes. See <a href="#recurrence">episodes windows and recurrence periods</a>.</p></li>
 </ul>
 <p>A <code>"fixed"</code> episode will only have duplicates of the <code>"Case"</code> but a <code>"rolling"</code> episode may have duplicates of both the <code>"Case"</code> and <code>"Recurrent"</code> event/interval.</p>
@@ -226,7 +226,7 @@ rolling_episodes
 <p><strong>Figure 1: <code>"Fixed"</code> and <code>"rolling"</code> episodes with their respective <code>case_lenth</code> and <code>recurrence_length</code></strong></p>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
 <p><strong><em>If your case definition does not explicitly require a rolling episode, use fixed episode grouping as it takes less time to complete.</em></strong></p>
-<p>By default, <code><a href="../reference/episode_group.html">episode_group()</a></code> will continue checking for <code>"Recurrent"</code> records indefintely, but you can limit the number of recurrence periods an episode can have using <code>rolls_max</code>.</p>
+<p>By default, <code><a href="../reference/episode_group.html">episode_group()</a></code> will continue checking for <code>"Recurrent"</code> records indefinitely, but you can limit the number of recurrence periods an episode can have using <code>rolls_max</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"infections_3"</span>); infections_<span class="dv">3</span>
 <span class="co">#&gt; # A tibble: 11 x 5</span>
 <span class="co">#&gt;      rid date         pid   epi recur</span>
@@ -462,7 +462,7 @@ infections_2a &lt;-<span class="st"> </span><span class="kw">mutate</span>(infec
 <div id="interval-grouping" class="section level2">
 <h2 class="hasAnchor">
 <a href="#interval-grouping" class="anchor"></a>Interval grouping</h2>
-<p>In addition to grouping events that occured at a point in time, you can also group events that occured over a period of time (intervals). For the purpose of episode grouping, an interval is a record with start and end points in time. The interval should be created as a <code>number_line</code> object and supplied to the <code>date</code> argument.</p>
+<p>In addition to grouping events that occurred at a point in time, you can also group events that occurred over a period of time (intervals). For the purpose of episode grouping, an interval is a record with start and end points in time. The interval should be created as a <code>number_line</code> object and supplied to the <code>date</code> argument.</p>
 <p>In the example below, we group periods of hospital admissions into episodes. This is different from grouping the admission or discharge events into episodes.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"hospital_admissions"</span>); hospital_admissions
 <span class="co">#&gt; # A tibble: 9 x 4</span>
@@ -516,7 +516,7 @@ hospital_admissions<span class="op">$</span>admin_period &lt;-<span class="st"> 
 <span class="co">#&gt; 8     8       0 2019-01-20 -&gt; 2019-01-30  8    8      Case</span>
 <span class="co">#&gt; 9     9       0 2019-01-26 -&gt; 2019-01-31  9    8 Duplicate</span></code></pre></div>
 <p>Intervals are grouped together if they overlaps. Furthermore, the intervals can overlap in different ways, and the function allows you to choose how this happens by using <code>overlap_method</code>. The options are; <code>"across"</code>, <code>"inbetween"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. The default option is to use all methods. The examples and figure below demonstrates each method.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Overlaping intervals</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Overlapping intervals</span>
 across &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   hospital_admissions,
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_admissions, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
@@ -596,7 +596,7 @@ aligns_start
 <span class="co">#&gt; 8     8       0 2019-01-20 -&gt; 2019-01-30  8    8      Case</span>
 <span class="co">#&gt; 9     9       0 2019-01-26 -&gt; 2019-01-31  9    9      Case</span>
 
-<span class="co"># Intervals occuring completely within others</span>
+<span class="co"># Intervals occurring completely within others</span>
 inbetween &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   hospital_admissions,
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_admissions, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
@@ -616,7 +616,7 @@ inbetween
 <span class="co">#&gt; 8     8       0 2019-01-20 -&gt; 2019-01-30  8    8      Case</span>
 <span class="co">#&gt; 9     9       0 2019-01-26 -&gt; 2019-01-31  9    9      Case</span>
 
-<span class="co"># Intervals occuring completely within others</span>
+<span class="co"># Intervals occurring completely within others</span>
 chain_inbetween &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   hospital_admissions,
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(hospital_admissions, <span class="dt">date=</span>admin_period, <span class="dt">sn=</span>rd_id, <span class="dt">case_length =</span> epi_len, 
@@ -751,7 +751,7 @@ rolling_intervals_b
 <ul>
 <li>UTI and BSI records are different episodes regardless of when they occur.</li>
 <li>UTI have a <code>case_length</code> of 7 days and recurrence period of 30 days</li>
-<li>BSI have a <code>case_length</code> of 14 days if not treated, <strong>OR</strong> <code>case_length</code> of 4 days if treated, and no recurence period in both situations</li>
+<li>BSI have a <code>case_length</code> of 14 days if not treated, <strong>OR</strong> <code>case_length</code> of 4 days if treated, and no recurrence period in both situations</li>
 <li>Respiratory tract infections (RTI) have a <code>case_length</code> of 28 days and recurrence period of 5 days</li>
 </ul>
 <p>In this example, whether or not the infection is treated should be considered the sub-strata, and the source of infection considered the <code>strata</code>.</p>
@@ -825,7 +825,7 @@ rolling_intervals_b
 <div id="episode-grouping-across-other-units-of-time" class="section level3">
 <h3 class="hasAnchor">
 <a href="#episode-grouping-across-other-units-of-time" class="anchor"></a>Episode grouping across other units of time</h3>
-<p>In the examples above, episode grouping was dne by the days (<code>episode_unit</code>). However, it can be done in other units of time e.g. hours, days or weeks. Acceptable options are those supported by <code>lubridate's duration()</code> function. Below is an example of episode grouping by the hour.</p>
+<p>In the examples above, episode grouping was done by the days (<code>episode_unit</code>). However, it can be done in other units of time e.g. hours, days or weeks. Acceptable options are those supported by <code>lubridate's duration()</code> function. Below is an example of episode grouping by the hour.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"hourly_data"</span>); hourly_data
 <span class="co">#&gt;    rid            datetime category epi recur</span>
 <span class="co">#&gt; 1    1 2019-04-01 00:00:00      GP1   5     9</span>
@@ -921,7 +921,7 @@ rolling_intervals_b
 <h3 class="hasAnchor">
 <a href="#fixed_episodes-and-rolling_episodes-functions" class="anchor"></a>fixed_episodes and rolling_episodes functions</h3>
 <p><code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> are convenient implementation of <code><a href="../reference/episode_group.html">episode_group()</a></code>. They return <code>number_line</code> objects (<code>epid_interval</code>) with the record identifier supplied (<code>id</code> slot) and episode identifiers created (<code>gid</code> slot).</p>
-<p><strong><em>Both functions are less efficient in deaing with large datasets and lack the following features; “custom_sort”, “rolls_max”, “episodes_max”, “data_source”, “episode_unit”, “bi_direction” and “group_stats”</em></strong></p>
+<p><strong><em>Both functions are less efficient in dealing with large datasets and lack the following features; “custom_sort”, “rolls_max”, “episodes_max”, “data_source”, “episode_unit”, “bi_direction” and “group_stats”</em></strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections); infections
 <span class="co">#&gt; # A tibble: 11 x 4</span>
 <span class="co">#&gt;    rd_id date       infection epi_len</span>
@@ -996,21 +996,21 @@ db_b<span class="op">$</span>epid_length &lt;-<span class="st"> </span><span cla
 <div id="conclusion" class="section level1">
 <h1 class="hasAnchor">
 <a href="#conclusion" class="anchor"></a>Conclusion</h1>
-<p>There are a varierty of ways to use this function. It’s worth reviewing your case definition and its implication on the dataset before using this function. In general, the following steps will guide you on how to use this function;</p>
+<p>There are a variety of ways to use this function. It’s worth reviewing your case definition and its implication on the dataset before using this function. In general, the following steps will guide you on how to use this function;</p>
 <ol style="list-style-type: decimal">
 <li>Work out which columns should be the <code>strata</code>
 </li>
 <li>Choose whether you need <code>"fixed"</code> or <code>"rolling"</code> episodes</li>
 <li>Choose whether you are grouping individual events or a duration of events by supply a date, datetime or <code>lubridate interval</code> object as required. See <a href="#interval_grouping">interval grouping</a>
 </li>
-<li>Create a colum for <code>case_length</code>, and/or <code>recurrence_length</code>. The values should be unique to each <code>strata</code> unless you require a <a href="#sub_strata">sub-strata</a>
+<li>Create a column for <code>case_length</code>, and/or <code>recurrence_length</code>. The values should be unique to each <code>strata</code> unless you require a <a href="#sub_strata">sub-strata</a>
 </li>
 <li>Change <code>from_last</code> to <code>TRUE</code> if you want to start episode grouping at the most recent record thereby making it the <code>"Case"</code>. Note that this is not the same as starting episode grouping at the earliest record (<code>from_last</code> is <code>FALSE</code>) and then picking the most recent record in that episode as the <code>"Case"</code>. See <a href="#case_assignment">case assignment</a>
 </li>
 <li>If you require the <code>"Case"</code> to be the earliest or most recent record of a particular type of record, use <code>custom_sort</code> in combination with <code>from_last</code>. If not, ignore this argument. See <a href="#custom_sort">user defined case assignment</a>
 </li>
 <li>If you require episodes to include records on either side of the <code>"Case"</code> use <code>bi_direction</code>. If not, ignore this argument</li>
-<li>Choose if episodes are occuring by the minute, hour or day etc., and set <code>episode_unit</code> accordingly</li>
+<li>Choose if episodes are occurring by the minute, hour or day etc., and set <code>episode_unit</code> accordingly</li>
 </ol>
 </div>
   </div>

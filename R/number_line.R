@@ -9,7 +9,7 @@
 #' The start point is the lowest number in the series, regardless of whether it's at the left or right point..
 #'
 #' The location of the start point - left or right, indicate if it's an \code{"increasing"} or \code{"decreasing"} series.
-#' This is refered to as the \code{direction} of the \code{number_line} object.
+#' This is referred to as the \code{direction} of the \code{number_line} object.
 #'
 #' @param l Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
 #' @param r Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
@@ -309,9 +309,9 @@ expand_number_line <- function(x, by=1, point ="both"){
 
 #' @rdname number_line
 #' @details
-#' \code{compress_number_line()} - Collapses overlaping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+#' \code{compress_number_line()} - Collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
 #' This results in duplicate \code{number_line} objects with start and end points of the new expanded \code{number_line} object.
-#' See \code{\link{overlap}} for further details on overlaping \code{number_line} objects.
+#' See \code{\link{overlap}} for further details on overlapping \code{number_line} objects.
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 #'

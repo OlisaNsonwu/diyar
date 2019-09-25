@@ -1,6 +1,6 @@
-#' @title Overlaping number line objects
+#' @title Overlapping number line objects
 #'
-#' @description A set of functions to identify overlaping \code{number_line} objects
+#' @description A set of functions to identify overlapping \code{number_line} objects
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object

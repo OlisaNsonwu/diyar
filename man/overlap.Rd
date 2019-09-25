@@ -8,7 +8,7 @@
 \alias{aligns_end}
 \alias{inbetween}
 \alias{overlap_method}
-\title{Overlaping number line objects}
+\title{Overlapping number line objects}
 \usage{
 overlap(x, y, method = c("across", "chain", "aligns_start", "aligns_end",
   "inbetween"))
@@ -38,7 +38,7 @@ overlap_method(x, y)
 \code{character} object
 }
 \description{
-A set of functions to identify overlaping \code{number_line} objects
+A set of functions to identify overlapping \code{number_line} objects
 }
 \examples{
 a <- number_line(-100, 100)

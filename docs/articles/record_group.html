@@ -5,11 +5,11 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mutlistage deterministic linkage in R • diyar</title>
+<title>Multistage deterministic linkage in R • diyar</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Mutlistage deterministic linkage in R">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Multistage deterministic linkage in R">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
@@ -56,7 +56,7 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
-      <a href="../articles/record_group.html">Mutlistage deterministic linkage in R</a>
+      <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
 </li>
@@ -83,9 +83,9 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1>Mutlistage deterministic linkage in R</h1>
+      <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">24 September 2019</h4>
+            <h4 class="date">25 September 2019</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/record_group.Rmd"><code>vignettes/record_group.Rmd</code></a></small>
       <div class="hidden name"><code>record_group.Rmd</code></div>
@@ -98,7 +98,7 @@
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
 <p>Linking multiple datasets to consolidate information is a common task in research, particularly in those involving the use of “big data”. Deterministic record linkage is the simplest and most common method for record linkage however, its accuracy relies on data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.</p>
-<p>This function aims to provide a simple, multistage and flexible implementation of deterministic record linkage that tries to maximise succesful linkage of datasets with missing or incorrect group identifiers eg. customer, patient or event ID. In such instances, alternative identifiers like dates, names, height or other attributes are used in a specified order of preference.</p>
+<p>This function aims to provide a simple, multistage and flexible implementation of deterministic record linkage that tries to maximise successful linkage of datasets with missing or incorrect group identifiers e.g. customer, patient or event ID. In such instances, alternative identifiers like dates, names, height or other attributes are used in a specified order of preference.</p>
 </div>
 <div id="uses" class="section level1">
 <h1 class="hasAnchor">
@@ -120,14 +120,14 @@
 <a href="#implementation" class="anchor"></a>Implementation</h1>
 <p>Record linkage is done in stages. Each stage is considered more certain than the subsequent one i.e. a match at stage 1 is considered more certain than one at stage 2.</p>
 <p>Records are assigned a unique group ID if they match on a <code>criteria</code>. The group ID is essentially the record ID (<code>sn</code>) of one of the matching records. As a result, if you use a familiar record ID (<code>sn</code>), you can link the results back to the original dataset.</p>
-<p>The <code>criteria</code> should be provided as column names of the attributes to be compared. This argument takes advanatge of <code>dplyr</code> quasiquotation.</p>
+<p>The <code>criteria</code> should be provided as column names of the attributes to be compared. This argument takes advantage of <code>dplyr</code> quasiquotation.</p>
 <p>One or more <code>sub_criteria</code> can be used at each stage to include additional conditions for a match. This is provided as a <code>list</code> of column names as named <code>vectors</code>. If a <code>sub_criteria</code> is used, records will only be assigned a group ID when they match on the <code>criteria</code>, and at least one named column in each <code>sub_criteria</code>.</p>
-<p>Each <code>sub_criteria</code> should be paired with a corresponding <code>criteria</code>. To do this, the vector name for each <code>sub_criteria</code> should be prefixed with <code>"s"</code> and the corresponding <code>criteria</code> number eg. <code>"s1"</code> or <code>"s4"</code>. When a <code>criteria</code> has more than one <code>sub_criteria</code>, include a suffix after the <code>criteria</code> number eg. <code>"s1a"</code>, <code>"s1b"</code>, <code>"s1c"</code> or <code>"s2a"</code>. <a href="#sub_cri_example">See examples</a>. Any <code>sub_criteria</code> not paired to a <code>criteria</code> will be ignored. The <code>sub_criteria</code> argument does not support quasiquotation.</p>
+<p>Each <code>sub_criteria</code> should be paired with a corresponding <code>criteria</code>. To do this, the vector name for each <code>sub_criteria</code> should be prefixed with <code>"s"</code> and the corresponding <code>criteria</code> number e.g. <code>"s1"</code> or <code>"s4"</code>. When a <code>criteria</code> has more than one <code>sub_criteria</code>, include a suffix after the <code>criteria</code> number e.g. <code>"s1a"</code>, <code>"s1b"</code>, <code>"s1c"</code> or <code>"s2a"</code>. <a href="#sub_cri_example">See examples</a>. Any <code>sub_criteria</code> not paired to a <code>criteria</code> will be ignored. The <code>sub_criteria</code> argument does not support quasiquotation.</p>
 <p>At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record.</p>
 <p>Below are two implementation of a single stage record linkage. One is based on matching forenames, and the other is based on matching forenames and surnames.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)
-<span class="co">#&gt; Warning: package 'dplyr' was built under R version 3.5.3</span>
+<span class="co">#&gt; Warning: package 'dplyr' was built under R version 3.5.2</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(patient_list); patient_list
 <span class="co">#&gt; # A tibble: 6 x 4</span>
 <span class="co">#&gt;   rd_id forename surname sex  </span>
@@ -172,8 +172,8 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <div id="record-matching" class="section level2">
 <h2 class="hasAnchor">
 <a href="#record-matching" class="anchor"></a>Record matching</h2>
-<p>The choice and ordering of <code>criteria</code> and <code>sub_criteria</code> directly impacts the linkage. Before using this function, review the dataset and decide which combinations of <code>criteria</code> and <code>sub_criteria</code> would be appropriate. <code><a href="../reference/record_group.html">record_group()</a></code> can use any combination availabe from the dataset however, you should consider a practical combination which would yield more “true” matches than “false” matches.</p>
-<p>For example, in <code>patient_list</code> above, linking on forenames only, or forenames and surnames does not yield any match. However, linking in two stages - forname followed by surname, will pair records 1 and 4, 2 and 5, 3 and 6. See <a href="#record_expansion">Record group expansion</a>.</p>
+<p>The choice and ordering of <code>criteria</code> and <code>sub_criteria</code> directly impacts the linkage. Before using this function, review the dataset and decide which combinations of <code>criteria</code> and <code>sub_criteria</code> would be appropriate. <code><a href="../reference/record_group.html">record_group()</a></code> can use any combination available from the dataset however, you should consider a practical combination which would yield more “true” matches than “false” matches.</p>
+<p>For example, in <code>patient_list</code> above, linking on forenames only, or forenames and surnames does not yield any match. However, linking in two stages - forename followed by surname, will pair records 1 and 4, 2 and 5, 3 and 6. See <a href="#record_expansion">Record group expansion</a>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(patient_list, <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>))
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 <span class="co">#&gt;   rd_id forename surname sex         cri_1 sn pid    pid_cri</span>
@@ -229,7 +229,7 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   1 Criteria 1</span>
   
 <span class="co"># 1 stage linkage </span>
-  <span class="co"># stage 1 - name, and either department or hair color, and date of birth </span>
+  <span class="co"># stage 1 - name, and either department or hair colour, and date of birth </span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   Opes,
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(name), 
@@ -248,7 +248,7 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   8       None</span>
 
 <span class="co"># 1 stage linkage </span>
-  <span class="co"># stage 1 - name, and either department or hair color, and either day and month of birth, day and year of birth or month and year of birth date of birth</span>
+  <span class="co"># stage 1 - name, and either department or hair colour, and either day and month of birth, day and year of birth or month and year of birth date of birth</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   Opes,
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(name), 
@@ -268,7 +268,7 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 
 
 <span class="co"># 1 stage linkage </span>
-  <span class="co"># stage 1 - name, and department, and hair color, and either day and month of birth, day and year of birth or month and year of birth date of birth </span>
+  <span class="co"># stage 1 - name, and department, and hair colour, and either day and month of birth, day and year of birth or month and year of birth date of birth </span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   Opes,
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(name), 
@@ -288,7 +288,7 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   8       None</span></code></pre></div>
 <p>Note that using <code>sub_criteria</code> costs additional processing time, so it should be avoided when unnecessary. For example, the two implementations below will yield the same result however, the second will take less time. This is indicated in the displayed messages. This time difference is more noticeable with very large datasets.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1 stage linkage </span>
-  <span class="co"># stage 1 - name, and date of birth, and department and hair color </span>
+  <span class="co"># stage 1 - name, and date of birth, and department and hair colour </span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   Opes,
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, rd_id, name, 
@@ -320,7 +320,7 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985  8   8    None</span>
 
 <span class="co"># 1 stage linkage </span>
-  <span class="co"># stage 1 - name, and date of birth, and department and hair color</span>
+  <span class="co"># stage 1 - name, and date of birth, and department and hair colour</span>
 Opes_b &lt;-<span class="st"> </span><span class="kw">unite</span>(Opes, cri, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(name, date_of_birth, department, hair_colour))
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   Opes_b,
@@ -344,7 +344,7 @@ Opes_b &lt;-<span class="st"> </span><span class="kw">unite</span>(Opes, cri, <s
 <div id="range-matching" class="section level3">
 <h3 class="hasAnchor">
 <a href="#range-matching" class="anchor"></a>Range matching</h3>
-<p>Records can be matched in two ways; exact matches as in the examples above, or matching a range a values. The latter is done by converting the range of values to a <code>number_line</code> object, and the <code>gid</code> arguement/slot set to the actual value. This <code>number_line</code> object is then used as a <code>sub_criteria</code> argument. <code>number_line</code> objects are considered a match if they overlap. See the example below.</p>
+<p>Records can be matched in two ways; exact matches as in the examples above, or matching a range a values. The latter is done by converting the range of values to a <code>number_line</code> object, and the <code>gid</code> argument/slot set to the actual value. This <code>number_line</code> object is then used as a <code>sub_criteria</code> argument. <code>number_line</code> objects are considered a match if they overlap. See the example below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(lubridate)
 Opes_c &lt;-<span class="st"> </span><span class="kw">select</span>(Opes, date_of_birth)
 Opes_c<span class="op">$</span>dummy_cri &lt;-<span class="st"> </span><span class="dv">1</span>
@@ -414,8 +414,8 @@ Opes_c<span class="op">$</span>range &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 3 23/03/1968            1 51 -&gt; 56      51     3     3 Criteria 1</span>
 <span class="co">#&gt; 4 01/02/1985            1 35 -&gt; 40      35     4     1 Criteria 1</span>
 <span class="co">#&gt; 5 02/01/1985            1 35 -&gt; 40      35     5     1 Criteria 1</span>
-<span class="co">#&gt; 6 11/03/1964            1 55 -&gt; 60      55     6     3 Criteria 1</span>
-<span class="co">#&gt; 7 11/03/1964            1 55 -&gt; 60      55     7     3 Criteria 1</span>
+<span class="co">#&gt; 6 11/03/1964            1 56 -&gt; 61      56     6     3 Criteria 1</span>
+<span class="co">#&gt; 7 11/03/1964            1 56 -&gt; 61      56     7     3 Criteria 1</span>
 <span class="co">#&gt; 8 11/10/1985            1 34 -&gt; 39      34     8     1 Criteria 1</span></code></pre></div>
 <p>Only use <code>number_line</code> objects as a <code>sub_criteria</code>. <strong>Do not directly use <code>number_line</code> objects as a <code>criteria</code>!</strong>. Instead, create a dummy <code>criteria</code> (e.g. <code>1</code> for every row), and then use the range as a <code>sub_criteria</code> for the dummy <code>criteria</code>.</p>
 <p><a id="record_expansion"></a></p>
@@ -424,7 +424,7 @@ Opes_c<span class="op">$</span>range &lt;-<span class="st"> </span><span class="
 <div id="record-group-expansion" class="section level2">
 <h2 class="hasAnchor">
 <a href="#record-group-expansion" class="anchor"></a>Record group expansion</h2>
-<p>At each stage of record linkage, records are either assigned a new group ID or inherit an existing one. The following scenerio explains how these happen;</p>
+<p>At each stage of record linkage, records are either assigned a new group ID or inherit an existing one. The following scenario explains how these happen;</p>
 <ul>
 <li>If a record only matches others that have not yet been assigned a group ID, it and the others will then be assigned a new group ID</li>
 <li>If a record matches others which already have a group ID, the record will inherit the existing group ID. Note that if it matches multiple records with existing but different group IDs, the ID assigned at the earliest stage is the one inherited</li>
@@ -434,7 +434,7 @@ Opes_c<span class="op">$</span>range &lt;-<span class="st"> </span><span class="
 <p>The example below with <code>patient_list</code> demonstrates this behaviour.</p>
 <ul>
 <li>Stage 1 - Only records 3 and 4 are grouped together and therefore assigned a new group ID (<code>3</code>). Records 1 and 2 are excluded from grouping at this stage because of <a href="#missing_values">missing values</a>. Record 5 is not assigned a group ID because it doesn’t match any other record.</li>
-<li>Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (<code>1</code>). Records 3 and 4 do not match on surnames but remain grouped together since they’ve prevously been matched on forenames, which is more “certain” as listed in <code>criteria</code>. Record 5 is still not assigned a group ID since it doesn’t match any other record on surnames.</li>
+<li>Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (<code>1</code>). Records 3 and 4 do not match on surnames but remain grouped together since they’ve previously been matched on forenames, which is more “certain” as listed in <code>criteria</code>. Record 5 is still not assigned a group ID since it doesn’t match any other record on surnames.</li>
 <li>Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3’s group ID (<code>3</code>) because that was assigned at stage 1 (<code>"Criteria 1"</code>) as opposed to record 2’s group ID which was assigned at stage 2 (<code>"Criteria 2"</code>).</li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(patient_list_<span class="dv">2</span>); patient_list_<span class="dv">2</span>
@@ -478,13 +478,13 @@ Opes_c<span class="op">$</span>range &lt;-<span class="st"> </span><span class="
 <h2 class="hasAnchor">
 <a href="#handling-missing-values" class="anchor"></a>Handling missing values</h2>
 <p>Records with missing values for a particular <code>criteria</code> are excluded from that stage of record linkage. If a record has missing values for every listed <code>criteria</code>, it’s assigned a unique group ID at the end of record linkage.</p>
-<p>It’s common for databases to use specific characters or numbers to represent missing or unknown data e.g. <code>N/A</code>, <code>Nil</code>, <code>01/01/1100</code>, <code>111111</code> etc. These pseudo-missing values will need to be recoded to one of the two recognised by <code><a href="../reference/record_group.html">record_group()</a></code> - <code>NA</code> or an empty string (<code>""</code>). If this is not done, the function will assume the pseudo-misssing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.</p>
+<p>It’s common for databases to use specific characters or numbers to represent missing or unknown data e.g. <code>N/A</code>, <code>Nil</code>, <code>01/01/1100</code>, <code>111111</code> etc. These pseudo-missing values will need to be recoded to one of the two recognised by <code><a href="../reference/record_group.html">record_group()</a></code> - <code>NA</code> or an empty string (<code>""</code>). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_list_b &lt;-<span class="st"> </span>patient_list_<span class="dv">2</span>
 patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_b, <span class="dt">forename =</span> 
                            <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(rd_id <span class="op">%in%</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="st">"Nil"</span>, forename))  
 
 <span class="co"># 2 stage linkage</span>
-    <span class="co"># Stage 1 - Forname</span>
+    <span class="co"># Stage 1 - forename</span>
     <span class="co"># Stage 2 - Surname</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(
   patient_list_b,
@@ -499,7 +499,7 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
 <span class="co">#&gt; 5     5      Obi      Nelson   Male  5   5       None</span>
 
 <span class="co"># 2 stage linkage</span>
-    <span class="co"># Stage 1 - Forname</span>
+    <span class="co"># Stage 1 - forename</span>
     <span class="co"># Stage 2 - Surname and sex</span>
 patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_b, <span class="dt">cri_2 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(surname,sex,<span class="dt">sep=</span><span class="st">""</span>))
 
@@ -514,7 +514,7 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
 <span class="co">#&gt; 3     3      Nil       Abdul   Male         AbdulMale  3   1 Criteria 1</span>
 <span class="co">#&gt; 4     4     Tomi Abdulkareem Female AbdulkareemFemale  4   4       None</span>
 <span class="co">#&gt; 5     5      Obi      Nelson   Male        NelsonMale  5   5       None</span></code></pre></div>
-<p>In the example above, records 1-3 are assigned a single group ID based on matching fornames (<code>"Nil"</code>). Then records 4-6 are assigned the same group ID because they having matching surnames with either records 1-3. Even when stage 2 is changed to matching surnames and sex, records 2 and 3 are still “incorrectly” grouped together. Although, this is likley not the desired outcome, it’s the expected result given the parameters supplied to the function. This isssue can be addressed by recoding <code>"Nil"</code> to <code>NA</code> or <code>""</code>.</p>
+<p>In the example above, records 1-3 are assigned a single group ID based on matching forenames (<code>"Nil"</code>). Then records 4-6 are assigned the same group ID because they having matching surnames with either records 1-3. Even when stage 2 is changed to matching surnames and sex, records 2 and 3 are still “incorrectly” grouped together. Although, this is likely not the desired outcome, it’s the expected result given the parameters supplied to the function. This issue can be addressed by recoding <code>"Nil"</code> to <code>NA</code> or <code>""</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using NA as the proxy for missing value</span>
 patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_b,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(forename<span class="op">==</span><span class="st">"Nil"</span>,<span class="ot">NA</span>,forename))
 
@@ -549,7 +549,7 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
 <div id="conclusion" class="section level1">
 <h1 class="hasAnchor">
 <a href="#conclusion" class="anchor"></a>Conclusion</h1>
-<p>As a general rule, the more unique a criteria, the earlier it should be listed in <code>criteria</code>. Also, the set and ordering of <code>criteria</code> is a personal choice but should also be practical given the dataset. For example, when linking a vehicular database with no existing identifier, vehicle color alone is less practical than color and brand name, which in turn is less practical than color, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and would need to be relaxed. On the other hand, the dataset could be so small that vehicle color alone is sufficient as a <code>criteria</code>. <code><a href="../reference/record_group.html">record_group()</a></code> aims to minimize false mismatches due to random errors in data entry or collection, or missing values. The choice and ordering of <code>criteria</code> and <code>sub_criteria</code> should balance the availability of alternative identifiers with their practicality as group identifiers.</p>
+<p>As a general rule, the more unique a criteria, the earlier it should be listed in <code>criteria</code>. Also, the set and ordering of <code>criteria</code> is a personal choice but should also be practical given the dataset. For example, when linking a vehicular database with no existing identifier, vehicle colour alone is less practical than colour and brand name, which in turn is less practical than colour, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and would need to be relaxed. On the other hand, the dataset could be so small that vehicle colour alone is sufficient as a <code>criteria</code>. <code><a href="../reference/record_group.html">record_group()</a></code> aims to minimize false mismatches due to random errors in data entry or collection, or missing values. The choice and ordering of <code>criteria</code> and <code>sub_criteria</code> should balance the availability of alternative identifiers with their practicality as group identifiers.</p>
 </div>
   </div>
 
