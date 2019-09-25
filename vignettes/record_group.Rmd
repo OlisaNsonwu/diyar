@@ -1,9 +1,9 @@
 ---
-title: "Mutlistage deterministic linkage in R"
+title: "Multistage deterministic linkage in R"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Mutli-staged deterministic linkage in R}
+  %\VignetteIndexEntry{Multistage deterministic linkage in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
