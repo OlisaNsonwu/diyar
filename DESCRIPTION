@@ -6,7 +6,7 @@ Version: 0.0.1
 URL: https://github.com/OlisaNsonwu/diyar
 BugReports: https://github.com/OlisaNsonwu/diyar/issues
 Author: Olisa Nsonwu
-Maintainer: Olisa Nsonwu <nsonwu.olisa@gmail.com>
+Maintainer: Olisa Nsonwu <olisa.nsonwu@gmail.com>
 Description: Perform multistage deterministic linkages, apply case definitions to datasets, and deduplicate records.
     Records (rows) from datasets are linked by different matching criteria and sub-criteria (columns) in a specified order of certainty. 
     The linkage process handles missing data and conflicting matches based on this same order of certainty.
