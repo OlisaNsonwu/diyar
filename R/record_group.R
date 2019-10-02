@@ -157,8 +157,14 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) stop("Actual value (gid) is outside the range created in a number_line object")
     if(utils::packageVersion("dplyr") < package_version("0.8.0.1")) stop("dplyr >= v0.8.0.1 is required for range matching")
     diyar::overlap(diyar::as.number_line(x@gid), tr_x)
-
   }
+
+  exact_match <- function(x, tr_x) {
+    x <- ifelse(is.na(x), "", as.character(x))
+    tr_x <- ifelse(is.na(tr_x), "", as.character(tr_x))
+    x == tr_x
+  }
+
   for(i in 1:cri_no){
     if(display) cat(paste("\nGroup criteria ",i," - ","`",cri_lst[i],"`", sep=""))
 
@@ -171,7 +177,9 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
     if(curr_attr){
       func_1 <- function(x){
-        ifelse(class(df[[x]]) == "number_line", paste("range_match(df2$",x, ", ", "df2$tr_",x,")",sep=""), paste("df2$",x, "==", "df2$tr_",x, sep=""))
+        ifelse(class(df[[x]]) == "number_line",
+               paste("range_match(df2$",x, ", ", "df2$tr_",x,")",sep=""),
+               paste("exact_match(df2$",x, ", ", "df2$tr_",x,")",sep=""))
       }
 
       func_1b <- function(x) unlist(lapply(x, func_1))

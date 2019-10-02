@@ -43,7 +43,7 @@ At each stage, the function prints the number of records that have been assigned
 
 Below are two implementation of a single stage record linkage. One is based on matching forenames, and the other is based on matching forenames and surnames.
 
-```{r, message=FALSE}
+```{r warning=FALSE, message=FALSE}
 library(diyar)
 library(dplyr)
 data(patient_list); patient_list
@@ -64,7 +64,7 @@ The choice and ordering of `criteria` and `sub_criteria` directly impacts the li
 
 For example, in `patient_list` above, linking on forenames only, or forenames and surnames does not yield any match. However, linking in two stages - forename followed by surname, will pair records 1 and 4, 2 and 5, 3 and 6. See [Record group expansion](#record_expansion). 
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 cbind(patient_list, record_group(patient_list, rd_id, c(forename, surname), display = FALSE))
 ```
 
@@ -125,7 +125,7 @@ cbind(
 
 Note that using `sub_criteria` costs additional processing time, so it should be avoided when unnecessary. For example, the two implementations below will yield the same result however, the second will take less time. This is indicated in the displayed messages. This time difference is more noticeable with very large datasets.
 
-```{r, warning = FALSE}
+```{r, warning=FALSE, message=FALSE}
 # 1 stage linkage 
   # stage 1 - name, and date of birth, and department and hair colour 
 cbind(
@@ -188,7 +188,7 @@ The example below with `patient_list` demonstrates this behaviour.
 - Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they've previously been matched on forenames, which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID since it doesn't match any other record on surnames. 
 - Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3's group ID (`3`) because that was assigned at stage 1 (`"Criteria 1"`) as opposed to record 2's group ID which was assigned at stage 2 (`"Criteria 2"`).
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 data(patient_list_2); patient_list_2
 
 cbind(
@@ -204,7 +204,7 @@ Records with missing values for a particular `criteria` are excluded from that s
 
 It's common for databases to use specific characters or numbers to represent missing or unknown data e.g. `N/A`, `Nil`, `01/01/1100`, `111111` etc. These pseudo-missing values will need to be recoded to one of the two recognised by `record_group()` - `NA` or an empty string (`""`). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 patient_list_b <- patient_list_2
 patient_list_b <- mutate(patient_list_b, forename = 
                            ifelse(rd_id %in% 1:3, "Nil", forename))  
@@ -231,7 +231,7 @@ cbind(
 
 In the example above, records 1-3 are assigned a single group ID based on matching forenames (`"Nil"`). Then records 4-6 are assigned the same group ID because they having matching surnames with either records 1-3. Even when stage 2 is changed to matching surnames and sex, records 2 and 3 are still "incorrectly" grouped together. Although, this is likely not the desired outcome, it's the expected result given the parameters supplied to the function. This issue can be addressed by recoding `"Nil"` to `NA` or `""`.
 
-```{r}
+```{r warning=FALSE, message=FALSE}
 # Using NA as the proxy for missing value
 patient_list_b <- mutate(patient_list_b,forename = ifelse(forename=="Nil",NA,forename))
 

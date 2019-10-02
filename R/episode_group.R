@@ -21,7 +21,7 @@
 #' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #'
-#' @return \code{record_group()} - \code{data.frame}
+#' @return \code{episode_group} - \code{data.frame}
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
@@ -43,8 +43,8 @@
 #' \code{case_length} in addition to all recurrence periods. A recurrence period is the \code{recurrence_length} from the last record in an episode
 #'
 #' @examples
-#' library(lubridate)
 #' library(dplyr)
+#' library(lubridate)
 #' library(diyar)
 #'
 #' data(infections); infections
@@ -97,7 +97,6 @@
 #' bind_cols(infections, epids)
 #'
 #' # Interval grouping
-#'
 #' data(hospital_admissions); hospital_admissions
 #'
 #' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
@@ -443,11 +442,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' @param deduplicate if \code{TRUE}, retains only one the \code{"Case"} from an episode group.
 #'
 #' @details
-#' \code{fixed_episodes()} and \code{rolling_episodes()} are more convenient implementations of \code{episode_group}.
+#' \code{fixed_episodes} and \code{rolling_episodes} are more convenient implementations of \code{episode_group}.
 #' However, these are less efficient in dealing with large datasets, and lack the following features;
 #' \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
 #'
-#' @return \code{fixed_episodes() and rolling_episodes()} - \code{number_line}.
+#' @return \code{fixed_episodes} and \code{rolling_episodes} - \code{number_line}.
 #' \itemize{
 #' \item \code{id} - unique record identifier as provided
 #' \item \code{gid} - unique episode identifier
@@ -457,10 +456,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' Use \code{\link{number_line_width}} to extract the \code{epid_interval}
 #'
-#' Use \code{\link{right_point}} to extract the episode end date
+#' Use \code{\link{right_point}} or \code{\link{end_point}} to extract the episode end date
 #'
 #' @examples
-#' # Convenient versions of episode_group()
+#' # Convenient versions of episode_group
 #' # Episodes from time points
 #' dts <- c("13/04/2019", "01/04/2019", "05/05/2019", "10/04/2019", "01/05/2019")
 #' dts <- as.Date(dts, "%d/%m/%Y")

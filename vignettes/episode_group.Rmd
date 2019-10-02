@@ -57,7 +57,7 @@ Only `"rolling"` episodes have recurrence periods. There can also be multiple re
 The two examples below demonstrates the different implementations of `"fixed"` and `"rolling"` episode grouping.
 
 #### Example of `"fixed"` episode grouping
-```{r warning=FALSE, message=FALSE}
+```{r message=FALSE, warning=FALSE}
 library(dplyr)
 library(lubridate)
 library(diyar)
@@ -123,12 +123,6 @@ plot <- plot %>%
   select(rid, epid, date, method, epid_2, case_nm, N, n, N2, n2, epi, recur) %>%
   mutate(cd="A", rid=as.character(rid))
 
-# lens_plot <- filter(
-#   plot, 
-#   ! (case_nm=="Duplicate" & n2==N2 & n!=N)
-#   )
-
-#lens_plot <- filter(plot, N!=1 & n!=N)
 lens_plot <- filter(plot, (case_nm=="Duplicate" & n!=N & n2==N2) | case_nm !="Duplicate")
 
 lens_plot <- mutate(lens_plot,

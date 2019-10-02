@@ -1,14 +1,21 @@
 Package: diyar
 Type: Package
 Title: Multistage Record Linkage and Case Definition for Epidemiological Analysis
-Date: 2019-09-20
+Date: 2019-10-01
 Version: 0.0.1
 URL: https://github.com/OlisaNsonwu/diyar
 BugReports: https://github.com/OlisaNsonwu/diyar/issues
 Author: Olisa Nsonwu
-Maintainer: Olisa Nsonwu <olisa.nsonwu@gmail.com>
+Maintainer: Olisa Nsonwu <nsonwu.olisa@gmail.com>
 Description: Perform multistage deterministic linkages, apply case definitions to datasets, and deduplicate records.
-License: file LICENSE
+    Records (rows) from datasets are linked by different matching criteria and sub-criteria (columns) in a specified order of certainty. 
+    The linkage process handles missing data and conflicting matches based on this same order of certainty.
+    For episode grouping, rows of dated events (e.g. sample collection) or interval of events (e.g. hospital admission) are 
+    grouped into chronological episodes beginning with a "case". The process permits several options such as 
+    episode lengths and recurrence periods which are used to build custom preferences for case assignment (definition).
+    The record linkage and episode grouping processes assign unique group IDs to matching records or those grouped into episodes. 
+    This then allows for record deduplication or sub-analysis within these groups.  
+License: GPL-3
 Encoding: UTF-8
 LazyData: true
 Imports: 

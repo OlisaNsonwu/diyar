@@ -47,24 +47,18 @@ c <- number_line(100, 200)
 d <- number_line(100, 120)
 e <- number_line(50, 120)
 g <- number_line(100,100)
-
 across(a, b)
 across(a, e)
 chain(c, d)
 chain(a, c)
-
 aligns_start(c, d)
 aligns_start(a, c)
-
 aligns_end(d, e)
 aligns_end(a, c)
-
 inbetween(a, g)
 inbetween(b, a)
-
 overlap_method(a, c)
 overlap_method(d, c)
 overlap_method(a, g)
 overlap_method(b, e)
-
 }

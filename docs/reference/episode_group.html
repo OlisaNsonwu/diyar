@@ -228,7 +228,7 @@
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code><a href='record_group.html'>record_group()</a></code> - <code>data.frame</code></p>
+    <p><code>episode_group</code> - <code>data.frame</code></p>
 <ul>
 <li><p><code>sn</code> - unique record identifier as provided</p></li>
 <li><p><code>epid</code> - unique episode identifier</p></li>
@@ -239,7 +239,7 @@
 <li><p><code>epid_total</code> - number of records in each record group</p></li>
 </ul>
 
-<p><code>fixed_episodes() and rolling_episodes()</code> - <code>number_line</code>.</p><ul>
+<p><code>fixed_episodes</code> and <code>rolling_episodes</code> - <code>number_line</code>.</p><ul>
 <li><p><code>id</code> - unique record identifier as provided</p></li>
 <li><p><code>gid</code> - unique episode identifier</p></li>
 <li><p><code>start</code> - Episode start dates</p></li>
@@ -247,7 +247,7 @@
 </ul>
 
 <p>Use <code><a href='number_line.html'>number_line_width</a></code> to extract the <code>epid_interval</code></p>
-<p>Use <code><a href='number_line.html'>right_point</a></code> to extract the episode end date</p>
+<p>Use <code><a href='number_line.html'>right_point</a></code> or <code><a href='number_line.html'>end_point</a></code> to extract the episode end date</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -255,7 +255,7 @@
 If <code>custom_sort</code> is used, episode grouping can be forced to begin at certain record before proceeding forward or backwards in time.
 The maximum duration of a <code>"fixed"</code> episode is the <code>case_length</code> while, the maximum duration of a <code>"rolling"</code> episode is the
 <code>case_length</code> in addition to all recurrence periods. A recurrence period is the <code>recurrence_length</code> from the last record in an episode</p>
-<p><code>fixed_episodes()</code> and <code>rolling_episodes()</code> are more convenient implementations of <code>episode_group</code>.
+<p><code>fixed_episodes</code> and <code>rolling_episodes</code> are more convenient implementations of <code>episode_group</code>.
 However, these are less efficient in dealing with large datasets, and lack the following features;
 <code>"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"</code></p>
     
@@ -265,19 +265,17 @@ However, these are less efficient in dealing with large datasets, and lack the f
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lubridate</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'lubridate' was built under R version 3.5.1</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: 'lubridate'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:base':</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    date</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'dplyr' was built under R version 3.5.2</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: 'dplyr'</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:lubridate':</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    intersect, setdiff, union</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:testthat':</span>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'dplyr' was built under R version 3.5.3</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: 'dplyr'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:testthat':</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    matches</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:stats':</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    filter, lag</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:base':</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>diyar</span>)
+#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lubridate</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'lubridate' was built under R version 3.5.3</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>Attaching package: 'lubridate'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:base':</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'>    date</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>diyar</span>)
 
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>infections</span>); <span class='no'>infections</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 11 x 4</span><span>
 #&gt;    rd_id date       infection epi_len
@@ -426,7 +424,6 @@ However, these are less efficient in dealing with large datasets, and lack the f
 #&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI             8    30     1 PID 2         11    11 Case   
 #&gt; </span><span style='color: #555555;'># ... with 1 more variable: epid_dataset </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'>
 <span class='co'># Interval grouping</span>
-
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>hospital_admissions</span>); <span class='no'>hospital_admissions</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 9 x 4</span><span>
 #&gt;   rd_id admin_dt   discharge_dt epi_len
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
@@ -509,7 +506,7 @@ However, these are less efficient in dealing with large datasets, and lack the f
 #&gt; </span><span style='color: #555555;'>7</span><span>     7       0 2019-01-04 -&gt; 2019-01-13     7     7 Case     
 #&gt; </span><span style='color: #555555;'>8</span><span>     8       0 2019-01-20 -&gt; 2019-01-30     8     8 Case     
 #&gt; </span><span style='color: #555555;'>9</span><span>     9       0 2019-01-26 -&gt; 2019-01-31     9     9 Case     </div><div class='input'>
-<span class='co'># Convenient versions of episode_group()</span>
+<span class='co'># Convenient versions of episode_group</span>
 <span class='co'># Episodes from time points</span>
 <span class='no'>dts</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"13/04/2019"</span>, <span class='st'>"01/04/2019"</span>, <span class='st'>"05/05/2019"</span>, <span class='st'>"10/04/2019"</span>, <span class='st'>"01/05/2019"</span>)
 <span class='no'>dts</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></span>(<span class='no'>dts</span>, <span class='st'>"%d/%m/%Y"</span>)

@@ -46,7 +46,7 @@ number_line_sequence(nl, by =3)
 ### Episode grouping
 Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.
 
-`fixed_episode()` and `rolling_episode()` are the simplest implementation of this. Their outputs are `number_line` objects, with `@gid` as the episode identifier, and `@id` as the record identifier.
+`fixed_episodes()` and `rolling_episodes()` are the simplest implementation of this. Their outputs are `number_line` objects, with `@gid` as the episode identifier, and `@id` as the record identifier.
 ```{r}
 data(infections); infections
 db_a <- infections

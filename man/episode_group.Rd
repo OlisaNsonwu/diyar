@@ -63,7 +63,7 @@ rolling_episodes(x, strata = NULL, case_length,
 \item{deduplicate}{if \code{TRUE}, retains only one the \code{"Case"} from an episode group.}
 }
 \value{
-\code{record_group()} - \code{data.frame}
+\code{episode_group} - \code{data.frame}
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
@@ -75,7 +75,7 @@ rolling_episodes(x, strata = NULL, case_length,
 \item \code{epid_total} - number of records in each record group
 }
 
-\code{fixed_episodes() and rolling_episodes()} - \code{number_line}.
+\code{fixed_episodes} and \code{rolling_episodes} - \code{number_line}.
 \itemize{
 \item \code{id} - unique record identifier as provided
 \item \code{gid} - unique episode identifier
@@ -85,7 +85,7 @@ rolling_episodes(x, strata = NULL, case_length,
 
 Use \code{\link{number_line_width}} to extract the \code{epid_interval}
 
-Use \code{\link{right_point}} to extract the episode end date
+Use \code{\link{right_point}} or \code{\link{end_point}} to extract the episode end date
 }
 \description{
 Group records into chronological episodes
@@ -96,13 +96,13 @@ If \code{custom_sort} is used, episode grouping can be forced to begin at certai
 The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
 \code{case_length} in addition to all recurrence periods. A recurrence period is the \code{recurrence_length} from the last record in an episode
 
-\code{fixed_episodes()} and \code{rolling_episodes()} are more convenient implementations of \code{episode_group}.
+\code{fixed_episodes} and \code{rolling_episodes} are more convenient implementations of \code{episode_group}.
 However, these are less efficient in dealing with large datasets, and lack the following features;
 \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
 }
 \examples{
-library(lubridate)
 library(dplyr)
+library(lubridate)
 library(diyar)
 
 data(infections); infections
@@ -155,7 +155,6 @@ data_source = c(patient_id, infection), display = FALSE)
 bind_cols(infections, epids)
 
 # Interval grouping
-
 data(hospital_admissions); hospital_admissions
 
 hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
@@ -179,7 +178,7 @@ epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
 case_length = epi_len, overlap_method = c("chain","aligns_end"))
 bind_cols(hospital_admissions, epids)
 
-# Convenient versions of episode_group()
+# Convenient versions of episode_group
 # Episodes from time points
 dts <- c("13/04/2019", "01/04/2019", "05/05/2019", "10/04/2019", "01/05/2019")
 dts <- as.Date(dts, "\%d/\%m/\%Y")

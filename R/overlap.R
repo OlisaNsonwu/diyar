@@ -16,7 +16,6 @@
 #' d <- number_line(100, 120)
 #' e <- number_line(50, 120)
 #' g <- number_line(100,100)
-#'
 #' @export
 
 overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end","inbetween")){
@@ -56,7 +55,6 @@ across <- function(x, y){
 #' @examples
 #' chain(c, d)
 #' chain(a, c)
-#'
 #' @export
 chain <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
@@ -72,7 +70,6 @@ chain <- function(x, y){
 #' @examples
 #' aligns_start(c, d)
 #' aligns_start(a, c)
-#'
 #' @export
 aligns_start <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
@@ -88,7 +85,6 @@ aligns_start <- function(x, y){
 #' @examples
 #' aligns_end(d, e)
 #' aligns_end(a, c)
-#'
 #' @export
 aligns_end <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
@@ -103,7 +99,6 @@ aligns_end <- function(x, y){
 #' @examples
 #' inbetween(a, g)
 #' inbetween(b, a)
-#'
 #' @export
 inbetween <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
@@ -121,7 +116,6 @@ inbetween <- function(x, y){
 #' overlap_method(d, c)
 #' overlap_method(a, g)
 #' overlap_method(b, e)
-#'
 #' @export
 overlap_method <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
@@ -138,4 +132,3 @@ overlap_method <- function(x, y){
   m <- ifelse(m=="", "none", m)
   m
 }
-
