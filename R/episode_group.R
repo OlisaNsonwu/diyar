@@ -438,7 +438,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
 
 #' @rdname episode_group
-#' @param x Record date or interval. \code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects.
+#' @param x Record date or interval. \code{date}, \code{datetime}, \code{\link{number_line}} objects or other \code{numeric} based objects.
 #' @param deduplicate if \code{TRUE}, retains only one the \code{"Case"} from an episode group.
 #'
 #' @details
@@ -446,7 +446,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' However, these are less efficient in dealing with large datasets, and lack the following features;
 #' \code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
 #'
-#' @return \code{fixed_episodes} and \code{rolling_episodes} - \code{number_line}.
+#' @return \code{fixed_episodes} and \code{rolling_episodes} - \code{\link{number_line}}.
 #' \itemize{
 #' \item \code{id} - unique record identifier as provided
 #' \item \code{gid} - unique episode identifier

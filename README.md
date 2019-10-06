@@ -2,7 +2,7 @@
 diyar
 =====
 
-[![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar) [![Coverage status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master)
+[![CRAN version](http://www.r-pkg.org/badges/version/diyar)](https://cran.r-project.org/package=diyar) [![Coverage status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master) [![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar)
 
 Overview
 --------
@@ -15,6 +15,10 @@ Installation
 ------------
 
 ``` r
+# Install the latest CRAN release 
+install.packages("diyar")
+
+# Or, install the development version from GitHub
 install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```

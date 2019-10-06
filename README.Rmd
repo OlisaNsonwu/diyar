@@ -10,8 +10,9 @@ knitr::opts_chunk$set(
 ```
 
 #diyar
-[![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar)
+[![CRAN version](http://www.r-pkg.org/badges/version/diyar)](https://cran.r-project.org/package=diyar)
 [![Coverage status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master)
+[![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar)
 
 ## Overview
 Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in epidemiological analysis and other fields of research. 
@@ -20,6 +21,10 @@ The `diyar` package aims to provide a simple and flexible implementation of dete
 
 ## Installation
 ```{r eval=FALSE}
+# Install the latest CRAN release 
+install.packages("diyar")
+
+# Or, install the development version from GitHub
 install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```

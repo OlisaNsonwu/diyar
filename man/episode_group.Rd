@@ -58,7 +58,7 @@ rolling_episodes(x, strata = NULL, case_length,
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{x}{Record date or interval. \code{date}, \code{datetime}, \code{number_line} objects or other \code{numeric} based objects.}
+\item{x}{Record date or interval. \code{date}, \code{datetime}, \code{\link{number_line}} objects or other \code{numeric} based objects.}
 
 \item{deduplicate}{if \code{TRUE}, retains only one the \code{"Case"} from an episode group.}
 }
@@ -75,7 +75,7 @@ rolling_episodes(x, strata = NULL, case_length,
 \item \code{epid_total} - number of records in each record group
 }
 
-\code{fixed_episodes} and \code{rolling_episodes} - \code{number_line}.
+\code{fixed_episodes} and \code{rolling_episodes} - \code{\link{number_line}}.
 \itemize{
 \item \code{id} - unique record identifier as provided
 \item \code{gid} - unique episode identifier
