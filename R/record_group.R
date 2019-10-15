@@ -171,7 +171,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     df$cri <- df[[cri_lst[i]]]
 
     attr <- attributes(sub_criteria)[["names"]]
-    attr <- subset(attr, stringr::str_detect(attr,paste("s",i,sep="")))
+    attr <- subset(attr, grepl(paste("s",i,sep=""), attr))
 
     curr_attr <- ifelse(length(attr)==0, FALSE, TRUE)
 
@@ -301,7 +301,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
        dplyr::arrange(.data$dsvr) %>%
        tidyr::spread(key= "dsvr", value= "val") %>%
        tidyr::unite("pid_dataset", sourc_list, sep=",") %>%
-       dplyr::mutate(pid_dataset = stringr::str_replace_all(.data$pid_dataset,"NA,|,NA|^NA$","")) %>%
+       dplyr::mutate(pid_dataset = gsub("NA,|,NA|^NA$","",.data$pid_dataset)) %>%
        dplyr::full_join(df, by="pid")
 
       df <- dplyr::select(df, .data$sn, .data$pid, .data$pid_cri, .data$pid_dataset, .data$pr_sn)

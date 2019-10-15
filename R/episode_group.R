@@ -231,7 +231,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   }else{
     ord_ls <- dplyr::select(df, ref_sort) %>%
       dplyr::mutate_all(list(~as.numeric(as.factor(.)))) %>%
-      dplyr::mutate_all(list(~stringr::str_pad(., width = max(stringr::str_length(.)), pad=0) )) %>%
+      dplyr::mutate_all(list(~formatC(., width = max(nchar(.)), flag=0))) %>%
       tidyr::unite("ord")
 
     df$user_ord <- ord_ls[[1]]
@@ -387,7 +387,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::arrange(.data$dsvr) %>%
       tidyr::spread(key="dsvr", value="val") %>%
       tidyr::unite("epid_dataset", sourc_list, sep=",") %>%
-      dplyr::mutate(epid_dataset = stringr::str_replace_all(.data$epid_dataset,"NA,|,NA|^NA$","")) %>%
+      dplyr::mutate(epid_dataset = gsub("NA,|,NA|^NA$","",.data$epid_dataset)) %>%
       dplyr::full_join(df, by="epid")
 
     df <- dplyr::arrange(df, .data$pr_sn)
@@ -412,7 +412,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df <- dplyr::left_join(df, epid_l, by="epid")
 
-    diff_unit <- stringr::str_replace(tolower(episode_unit), "s$","")
+    diff_unit <- gsub("s$","",tolower(episode_unit))
     diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
 
     df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$z), lubridate::dmy_hms(.data$a), units = "secs"), units = diff_unit))

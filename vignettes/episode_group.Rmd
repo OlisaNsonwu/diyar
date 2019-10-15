@@ -103,44 +103,48 @@ Similarly, in the `"rolling"` episode example, records 1 to 3 are grouped into e
 ```{r echo=FALSE, fig.height=4, fig.width=7, message=FALSE, warning=FALSE}
 library(tidyr)
 library(ggplot2)
+
+rolling_episodes$dt_a <- start_point(rolling_episodes$epid_interval)
+rolling_episodes$dt_z <- end_point(rolling_episodes$epid_interval)
+
+fixed_episodes$dt_a <- start_point(fixed_episodes$epid_interval)
+fixed_episodes$dt_z <- end_point(fixed_episodes$epid_interval)
+
 plot <- bind_rows(
   mutate(rolling_episodes, method="rolling episodes"),
-  mutate(fixed_episodes, method="fixed episodes")
-  ) %>% 
-  mutate(mrk=paste(epid,method,sep = "_"),
-         mrk_2=paste(epid,method,case_nm, sep = "_"))
+  mutate(fixed_episodes, method="fixed episodes")) %>% 
+  select(method, rid, epid, date, dt_a, dt_z, epi, recur, case_nm) %>% 
+  mutate(epid = paste("EP",epid,sep="")) %>% 
+  mutate_at(vars(dt_a, dt_z), funs(dmy(format(.,"%d/%m/%Y")))) 
 
-plot <- dplyr::arrange(plot,mrk)
-plot$n <- sequence(rle(plot$mrk)$lengths)
-plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)
+plot <- plot %>% 
+  group_by(method, epid) %>% 
+  arrange(date) %>% 
+  mutate(
+    last_record = ifelse(row_number()==n(),1,0),
+    recur_dup = ifelse(case_nm=="Duplicate" & !is.na(case_nm[row_number()+1]) & case_nm[row_number()+1] == "Recurrent", 1,0)
+    ) %>% 
+  ungroup() %>% 
+  mutate(
+    dash_range = case_when(
+      case_nm=="Case" ~ epi, 
+      (case_nm =="Recurrent" & last_record !=1) | (recur_dup ==1) ~ recur,
+      TRUE ~ 0
+    ), 
+    dash_num = ifelse(dash_range==0,"",as.character(dash_range)),
+    dash_range = date + duration(dash_range,"days")
+  )
 
-plot <- dplyr::arrange(plot, mrk_2)
-plot$n2 <- sequence(rle(plot$mrk_2)$lengths)
-plot$N2 <- rep(rle(plot$mrk_2)$lengths, rle(plot$mrk_2)$lengths)
+g_area <- unique(select(plot, method, epid, date=dt_a, dt_z)) 
+g_area$rid <- max(plot$rid)
 
-plot <- plot %>%
-  mutate(epid_2 = paste(method, ": epid ",epid, sep="" )) %>% 
-  select(rid, epid, date, method, epid_2, case_nm, N, n, N2, n2, epi, recur) %>%
-  mutate(cd="A", rid=as.character(rid))
-
-lens_plot <- filter(plot, (case_nm=="Duplicate" & n!=N & n2==N2) | case_nm !="Duplicate")
-
-lens_plot <- mutate(lens_plot,
-                    end_l= ifelse(case_nm=="Case", epi, recur),
-                    end = date + duration(end_l, "days"))
-
-lens_plot <- select(lens_plot, rid, date, end,
-                    epid, epid_2, case_nm, method)
-
-lens_plot <- gather(lens_plot, var, val, -c(rid, epid, epid_2, case_nm, method)) 
-
-ggplot(plot, aes(x=date, y=rid, group=rid, label=case_nm, colour=epid_2)) +
-  geom_line(aes(colour=epid_2)) +
+ggplot(plot, aes(x=date, y=rid, group=rid, colour=epid)) +
   geom_point() +
-  geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
-  scale_y_discrete("Record ID") +
+  geom_segment(aes(x=date,xend=dash_range,y=rid,yend=rid), linetype=2) +
+  geom_text(aes(hjust="right", label=case_nm), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
+  geom_text(aes(hjust="left", label=dash_num), nudge_x = 2, nudge_y = .18, show.legend = FALSE, size =2.5) +
+  scale_y_continuous("Record ID", breaks = 1:6) +
   scale_x_date("Specimen date", limits = c(dmy("15/03/2019"), dmy("01/07/2019") ), date_breaks = "25 days", date_labels = "%d %b") +
-  geom_line(data=lens_plot, aes(x=val, y=rid, group=rid, colour=epid_2), linetype=2) +
   facet_wrap(~method, scales = "free_y") +
   guides(col = guide_legend(nrow = 2)) +
   theme(

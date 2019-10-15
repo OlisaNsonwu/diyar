@@ -5,7 +5,6 @@
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
 #' @param method Method of overlap
-#'
 #' @aliases overlap
 #' @return \code{logical} object
 #'
@@ -35,7 +34,6 @@ overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end
 }
 
 #' @rdname overlap
-#'
 #' @examples
 #' across(a, b)
 #' across(a, e)
@@ -46,7 +44,6 @@ across <- function(x, y){
 
   r <- (y@start > x@start & y@start < (x@start + x@.Data) & (y@start + y@.Data) > (x@start + x@.Data) ) |
     (x@start > y@start & x@start < (y@start + y@.Data) & (x@start + x@.Data) > (y@start + y@.Data) )
-
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -61,7 +58,6 @@ chain <- function(x, y){
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
   r <- x@start == (y@start + y@.Data) | (x@start + x@.Data) == y@start
-
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -76,7 +72,6 @@ aligns_start <- function(x, y){
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
   r <- x@start==y@start
-
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -128,7 +123,7 @@ overlap_method <- function(x, y){
   m <- ifelse(diyar::aligns_end(x, y), paste(m,"aligns_end", sep=","), m)
   m <- ifelse(diyar::inbetween(x, y), paste(m,"inbetween", sep=","), m)
 
-  m <- stringr::str_replace(m, "^,","")
+  m <- gsub("^,","",m)
   m <- ifelse(m=="", "none", m)
   m
 }
