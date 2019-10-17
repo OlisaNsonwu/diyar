@@ -35,3 +35,10 @@ Suggests:
     covr
 VignetteBuilder: knitr
 Language: en-GB
+Collate: 
+    'dummy_datasets.R'
+    'number_line.R'
+    'epid.R'
+    'episode_group.R'
+    'overlap.R'
+    'record_group.R'

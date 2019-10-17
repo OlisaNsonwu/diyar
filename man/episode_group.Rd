@@ -3,6 +3,7 @@
 \name{episode_group}
 \alias{episode_group}
 \alias{fixed_episodes}
+\alias{arch_fixed_episodes}
 \alias{rolling_episodes}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
@@ -13,15 +14,24 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   "inbetween", "aligns_start", "aligns_end", "chain"),
   bi_direction = FALSE, group_stats = FALSE, display = TRUE)
 
-fixed_episodes(x, strata = NULL, case_length, episodes_max = Inf,
+fixed_episodes(date, strata = NULL, case_length, episode_unit = "days",
+  episodes_max = Inf, data_source = NULL, custom_sort = NULL,
+  from_last = FALSE, overlap_method = c("across", "inbetween",
+  "aligns_start", "aligns_end", "chain"), bi_direction = FALSE,
+  group_stats = FALSE, display = TRUE, deduplicate = FALSE, x)
+
+arch_fixed_episodes(x, strata = NULL, case_length, episodes_max = Inf,
   from_last = FALSE, overlap_method = c("across", "inbetween",
   "aligns_start", "aligns_end", "chain"), deduplicate = FALSE,
   display = TRUE)
 
-rolling_episodes(x, strata = NULL, case_length,
-  recurrence_length = NULL, from_last = FALSE,
-  overlap_method = c("across", "inbetween", "aligns_start", "aligns_end",
-  "chain"), deduplicate = FALSE, display = TRUE)
+rolling_episodes(date, strata = NULL, case_length,
+  recurrence_length = NULL, episode_unit = "days",
+  episodes_max = Inf, rolls_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
+  "inbetween", "aligns_start", "aligns_end", "chain"),
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, x)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
@@ -58,9 +68,9 @@ rolling_episodes(x, strata = NULL, case_length,
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{x}{Record date or interval. \code{date}, \code{datetime}, \code{\link{number_line}} objects or other \code{numeric} based objects.}
-
 \item{deduplicate}{if \code{TRUE}, retains only one the \code{"Case"} from an episode group.}
+
+\item{x}{Record date or interval. \code{date}, \code{datetime}, \code{\link{number_line}} objects or other \code{numeric} based objects.}
 }
 \value{
 \code{episode_group} - \code{data.frame}

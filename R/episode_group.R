@@ -216,7 +216,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df <- df %>%
     dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort)) %>%
-    dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0)
+    dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0) %>%
+    dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ lubridate::dmy_hms(format(., "%d/%m/%Y %H:%M:%S")))
 
   if(from_last==TRUE){
     df$ord <- abs(max(df$rec_dt_ai) - df$rec_dt_ai)
@@ -487,7 +488,60 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' db_b
 #'
 #' @export
-fixed_episodes <- function(x, strata = NULL, case_length, episodes_max = Inf, from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), deduplicate = FALSE, display = TRUE){
+fixed_episodes <- function(date, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
+                           from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"),
+                           bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x){
+
+  if (!missing(x)) {
+    warning("'x' is deprecated; please use 'date' instead."); date <- x
+    }
+
+  if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
+  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
+  if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be a numeric based object of length 1",sep=""))
+  if(!all(is.finite(date))) stop(paste("All 'date' values must be a date, datetime, number_line object or a numeric based object",sep=""))
+  if(!(length(case_length) %in% c(1, length(date)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
+  if(!(length(strata) %in% c(1, length(date)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'date'",sep=""))
+  if(!(length(data_source) %in% c(1, length(date)) | (length(data_source) ==0 & is.null(data_source)))) stop(paste("length of 'data_source' must be 1 or the same as 'date'",sep=""))
+  if(!(length(custom_sort) %in% c(1, length(date)) | (length(custom_sort) ==0 & is.null(custom_sort)))) stop(paste("length of 'custom_sort' must be 1 or the same as 'date'",sep=""))
+
+  df <- data.frame(dts = date, epl = case_length, stringsAsFactors = FALSE)
+
+  if(is.null(strata)){
+    df$sr <- 1
+  }else{
+    df$sr <- strata
+  }
+
+  if(is.null(strata)){
+    df$sn <- 1:nrow(df)
+  }else{
+    df$sn <- sn
+  }
+
+  if(is.null(data_source)){
+    df$ds <- 1
+    ds <- NULL
+  }else{
+    df$ds <- data_source
+    ds <- "ds"
+  }
+
+  if(is.null(custom_sort)){
+    df$user_srt <- 0
+  }else{
+    df$user_srt <- as.numeric(as.factor(custom_sort))
+  }
+
+  diyar::episode_group(df, date = dts, case_length = epl, episode_type = "fixed", episodes_max = episodes_max,
+                       bi_direction = bi_direction , data_source = !!ds, custom_sort = user_srt,
+                       from_last = from_last, overlap_method = overlap_method,
+                       display = display, episode_unit = episode_unit, group_stats = group_stats)
+}
+
+#' @rdname episode_group
+arch_fixed_episodes <- function(x, strata = NULL, case_length, episodes_max = Inf, from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), deduplicate = FALSE, display = TRUE){
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
   if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
@@ -558,7 +612,67 @@ fixed_episodes <- function(x, strata = NULL, case_length, episodes_max = Inf, fr
 
 #' @rdname episode_group
 #' @export
-rolling_episodes <- function(x,  strata=NULL, case_length, recurrence_length=NULL, from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), deduplicate = FALSE, display = TRUE){
+rolling_episodes <- function(date, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, data_source = NULL, custom_sort = NULL,
+                           from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"),
+                           bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x){
+  if (!missing(x)) {
+    warning("'x' is deprecated; please use 'date' instead."); date <- x
+  }
+
+  if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
+  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
+  if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be a numeric based object of length 1",sep=""))
+  if(!(all(is.finite(recurrence_length) & recurrence_length >= 0) | is.null(recurrence_length)) ) stop(paste("'recurrence_length' must be a numeric based object of length 1",sep=""))
+  if(!all(is.finite(date))) stop(paste("All 'date' values must be a date, datetime, number_line object or a numeric based object",sep=""))
+  if(!(length(case_length) %in% c(1, length(date)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
+  if(!(length(recurrence_length) %in% c(1, length(date)) | (length(recurrence_length) ==0 & is.null(recurrence_length)))) stop(paste("length of 'recurrence_length' must be 1 or the same as 'date'",sep=""))
+  if(!(length(strata) %in% c(1, length(date)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'date'",sep=""))
+  if(!(length(data_source) %in% c(1, length(date)) | (length(data_source) ==0 & is.null(data_source)))) stop(paste("length of 'data_source' must be 1 or the same as 'date'",sep=""))
+  if(!(length(custom_sort) %in% c(1, length(date)) | (length(custom_sort) ==0 & is.null(custom_sort)))) stop(paste("length of 'custom_sort' must be 1 or the same as 'date'",sep=""))
+
+  df <- data.frame(dts = date, epl = case_length, stringsAsFactors = FALSE)
+
+  if(is.null(strata)){
+    df$sr <- 1
+  }else{
+    df$sr <- strata
+  }
+
+  if(is.null(strata)){
+    df$sn <- 1:nrow(df)
+  }else{
+    df$sn <- sn
+  }
+
+  if(is.null(data_source)){
+    df$ds <- 1
+    ds <- NULL
+  }else{
+    df$ds <- data_source
+    ds <- "ds"
+  }
+
+  if(is.null(custom_sort)){
+    df$user_srt <- 0
+  }else{
+    df$user_srt <- as.numeric(as.factor(custom_sort))
+  }
+
+  if(is.null(recurrence_length)){
+    df$rc_epl <- df$epl
+  }else{
+    df$rc_epl <- recurrence_length
+  }
+
+  diyar::episode_group(df, date = dts, case_length = epl, episode_type = "rolling", episodes_max = episodes_max,
+                       bi_direction = bi_direction , data_source = !!ds, custom_sort = user_srt,
+                       from_last = from_last, overlap_method = overlap_method, recurrence_length = rc_epl, rolls_max = rolls_max,
+                       display = display, episode_unit = episode_unit, group_stats = group_stats)
+}
+
+#'  @rdname  episode_group
+arch_rolling_episodes <- function(x, strata=NULL, case_length, recurrence_length=NULL, from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), deduplicate = FALSE, display = TRUE){
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
   if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
