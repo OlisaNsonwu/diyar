@@ -36,9 +36,10 @@ Suggests:
 VignetteBuilder: knitr
 Language: en-GB
 Collate: 
-    'dummy_datasets.R'
     'number_line.R'
-    'epid.R'
+    'classes.R'
+    'dummy_datasets.R'
     'episode_group.R'
     'overlap.R'
     'record_group.R'
+    'to_df.R'

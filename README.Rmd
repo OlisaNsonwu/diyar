@@ -57,15 +57,15 @@ data(infections); infections
 db_a <- infections
 
 # Fixed episodes
-f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE)
+f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE, group_stats = TRUE)$epid_interval
 f_epi; str(f_epi)
 
 # Rolling episodes
-r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE)
+r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE, group_stats = TRUE)$epid_interval
 f_epi; str(f_epi)
 
 # Working with a data.frame
-db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE))
+db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE, group_stats = TRUE)$epid_interval)
 
 # Extract useful episode information from the number_line objects
 db_b$epid <- db_b$epid_interval@gid

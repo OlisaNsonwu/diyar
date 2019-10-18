@@ -78,7 +78,10 @@ data(infections); infections
 db_a <- infections
 
 # Fixed episodes
-f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE)
+f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE, group_stats = TRUE)$epid_interval
+#> Warning in fixed_episodes(x = db_a$date, case_length = db_a$epi_len,
+#> display = FALSE, : 'x' is deprecated; please use 'date' instead.
+#> Episode grouping complete - 0 record(s) assinged a unique ID.
 f_epi; str(f_epi)
 #>  [1] "2018-04-01 -> 2018-04-13" "2018-04-01 -> 2018-04-13"
 #>  [3] "2018-04-01 -> 2018-04-13" "2018-04-19 -> 2018-05-01"
@@ -87,13 +90,16 @@ f_epi; str(f_epi)
 #>  [9] "2018-05-07 -> 2018-05-19" "2018-05-25 -> 2018-05-31"
 #> [11] "2018-05-25 -> 2018-05-31"
 #> Formal class 'number_line' [package "diyar"] with 4 slots
-#>   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...
-#>   ..@ start: Date[1:11], format: "2018-04-01" ...
+#>   ..@ .Data: num [1:11] 1036800 1036800 1036800 1036800 1036800 ...
+#>   ..@ start: POSIXct[1:11], format: "2018-04-01" ...
 #>   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...
-#>   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...
+#>   ..@ gid  : num [1:11] 1 1 1 4 4 4 7 7 7 10 ...
 
 # Rolling episodes
-r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE)
+r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE, group_stats = TRUE)$epid_interval
+#> Warning in rolling_episodes(x = db_a$date, case_length = db_a$epi_len,
+#> recurrence_length = 40, : 'x' is deprecated; please use 'date' instead.
+#> Episode grouping complete - 0 record(s) assinged a unique ID.
 f_epi; str(f_epi)
 #>  [1] "2018-04-01 -> 2018-04-13" "2018-04-01 -> 2018-04-13"
 #>  [3] "2018-04-01 -> 2018-04-13" "2018-04-19 -> 2018-05-01"
@@ -102,13 +108,16 @@ f_epi; str(f_epi)
 #>  [9] "2018-05-07 -> 2018-05-19" "2018-05-25 -> 2018-05-31"
 #> [11] "2018-05-25 -> 2018-05-31"
 #> Formal class 'number_line' [package "diyar"] with 4 slots
-#>   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...
-#>   ..@ start: Date[1:11], format: "2018-04-01" ...
+#>   ..@ .Data: num [1:11] 1036800 1036800 1036800 1036800 1036800 ...
+#>   ..@ start: POSIXct[1:11], format: "2018-04-01" ...
 #>   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...
-#>   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...
+#>   ..@ gid  : num [1:11] 1 1 1 4 4 4 7 7 7 10 ...
 
 # Working with a data.frame
-db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE))
+db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE, group_stats = TRUE)$epid_interval)
+#> Warning in fixed_episodes(x = date, case_length = epi_len, strata =
+#> infection, : 'x' is deprecated; please use 'date' instead.
+#> Episode grouping complete - 0 record(s) assinged a unique ID.
 
 # Extract useful episode information from the number_line objects
 db_b$epid <- db_b$epid_interval@gid
@@ -116,18 +125,18 @@ db_b$epid_length <- number_line_width(db_b$epid_interval)
 select(db_b, rd_id, date, epid_interval, epid, epid_length)
 #> # A tibble: 11 x 5
 #>    rd_id date       epid_interval             epid epid_length
-#>    <int> <date>     <numbr_ln>               <int> <drtn>     
-#>  1     1 2018-04-01 2018-04-01 == 2018-04-01     1  0 days    
-#>  2     2 2018-04-07 2018-04-07 -> 2018-04-19     2 12 days    
-#>  3     3 2018-04-13 2018-04-07 -> 2018-04-19     2 12 days    
-#>  4     4 2018-04-19 2018-04-07 -> 2018-04-19     2 12 days    
-#>  5     5 2018-04-25 2018-04-25 -> 2018-05-07     5 12 days    
-#>  6     6 2018-05-01 2018-05-01 == 2018-05-01     6  0 days    
-#>  7     7 2018-05-07 2018-04-25 -> 2018-05-07     5 12 days    
-#>  8     8 2018-05-13 2018-05-13 == 2018-05-13     8  0 days    
-#>  9     9 2018-05-19 2018-05-19 -> 2018-05-25     9  6 days    
-#> 10    10 2018-05-25 2018-05-19 -> 2018-05-25     9  6 days    
-#> 11    11 2018-05-31 2018-05-31 == 2018-05-31    11  0 days
+#>    <int> <date>     <numbr_ln>               <dbl> <drtn>     
+#>  1     1 2018-04-01 2018-04-01 -> 2018-04-13     1 12 days    
+#>  2     2 2018-04-07 2018-04-01 -> 2018-04-13     1 12 days    
+#>  3     3 2018-04-13 2018-04-01 -> 2018-04-13     1 12 days    
+#>  4     4 2018-04-19 2018-04-19 -> 2018-05-01     4 12 days    
+#>  5     5 2018-04-25 2018-04-19 -> 2018-05-01     4 12 days    
+#>  6     6 2018-05-01 2018-04-19 -> 2018-05-01     4 12 days    
+#>  7     7 2018-05-07 2018-05-07 -> 2018-05-19     7 12 days    
+#>  8     8 2018-05-13 2018-05-07 -> 2018-05-19     7 12 days    
+#>  9     9 2018-05-19 2018-05-07 -> 2018-05-19     7 12 days    
+#> 10    10 2018-05-25 2018-05-25 -> 2018-05-31    10  6 days    
+#> 11    11 2018-05-31 2018-05-25 -> 2018-05-31    10  6 days
 ```
 
 `episode_group()` is a more comprehensive option and returns a `data.frame` of useful information for each episode.

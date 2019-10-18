@@ -1,3 +1,4 @@
+^archive$
 ^CRAN-RELEASE$
 ^cran-comments\.md$
 ^cobertura\.xml$

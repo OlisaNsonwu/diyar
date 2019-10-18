@@ -3,7 +3,6 @@
 \name{episode_group}
 \alias{episode_group}
 \alias{fixed_episodes}
-\alias{arch_fixed_episodes}
 \alias{rolling_episodes}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
@@ -12,26 +11,23 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
-  bi_direction = FALSE, group_stats = FALSE, display = TRUE)
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, to_df = TRUE)
 
-fixed_episodes(date, strata = NULL, case_length, episode_unit = "days",
-  episodes_max = Inf, data_source = NULL, custom_sort = NULL,
-  from_last = FALSE, overlap_method = c("across", "inbetween",
-  "aligns_start", "aligns_end", "chain"), bi_direction = FALSE,
-  group_stats = FALSE, display = TRUE, deduplicate = FALSE, x)
+fixed_episodes(date, sn = NULL, strata = NULL, case_length,
+  episode_unit = "days", episodes_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
+  "inbetween", "aligns_start", "aligns_end", "chain"),
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, x, to_df = TRUE)
 
-arch_fixed_episodes(x, strata = NULL, case_length, episodes_max = Inf,
-  from_last = FALSE, overlap_method = c("across", "inbetween",
-  "aligns_start", "aligns_end", "chain"), deduplicate = FALSE,
-  display = TRUE)
-
-rolling_episodes(date, strata = NULL, case_length,
+rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   recurrence_length = NULL, episode_unit = "days",
   episodes_max = Inf, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
-  deduplicate = FALSE, x)
+  deduplicate = FALSE, x, to_df = TRUE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
@@ -208,7 +204,8 @@ epids; str(epids)
 
 db_a <- infections
 db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len,
-strata = infection, from_last = FALSE, display = FALSE, deduplicate = FALSE))
+strata = infection, from_last = FALSE, display = FALSE, deduplicate = FALSE,
+group_stats = FALSE)$epid_interval)
 
 db_b
 str(db_b$epid_interval)
