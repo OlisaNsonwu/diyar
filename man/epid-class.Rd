@@ -4,13 +4,16 @@
 \name{epid-class}
 \alias{epid-class}
 \alias{format.epid}
+\alias{unique.epid}
 \alias{show,epid-method}
 \alias{rep,epid-method}
 \alias{[,epid-method}
 \alias{[[,epid-method}
-\title{S4 classes in \code{diyar}}
+\title{\code{epid} object}
 \usage{
 \method{format}{epid}(x, ...)
+
+\method{unique}{epid}(x, ...)
 
 \S4method{show}{epid}(object)
 
@@ -36,5 +39,5 @@
 \item{exact}{exact}
 }
 \description{
-S4 classes in \code{diyar}
+An S4 object to store the results of \code{\link{fixed_episodes}}, \code{\link{rolling_episodes}} and \code{\link{episode_group}}
 }

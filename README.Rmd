@@ -51,55 +51,63 @@ number_line_sequence(nl, by =3)
 ### Episode grouping
 Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.
 
-`fixed_episodes()` and `rolling_episodes()` are the simplest implementation of this. Their outputs are `number_line` objects, with `@gid` as the episode identifier, and `@id` as the record identifier.
+`fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Currently, these returns a `data.frame` but will be changed to `epid` objects in the next major release. The `id` and `epid` columns/slots are the record and episode identifiers respectively.
+
+***NOTE. `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects.***
+
 ```{r}
-data(infections); infections
-db_a <- infections
+data(infections);
+db <- infections[c("date","epi_len")]
+db$recur <- 40
+db
 
 # Fixed episodes
-f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE, group_stats = TRUE)$epid_interval
-f_epi; str(f_epi)
+db$f_epid <- fixed_episodes(date = db$date, case_length = db$epi_len, 
+                              display = FALSE, to_s4 = TRUE)
 
 # Rolling episodes
-r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE, group_stats = TRUE)$epid_interval
-f_epi; str(f_epi)
+db$r_epid <- rolling_episodes(date = db$date, case_length = 15, 
+                                recurrence_length = 40, display = FALSE, to_s4 = TRUE)
+db
 
-# Working with a data.frame
-db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE, group_stats = TRUE)$epid_interval)
+# episode_group() takes column names
+db$f_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "fixed", 
+                              display = FALSE, to_s4 = TRUE)
 
-# Extract useful episode information from the number_line objects
-db_b$epid <- db_b$epid_interval@gid
-db_b$epid_length <- number_line_width(db_b$epid_interval)
-select(db_b, rd_id, date, epid_interval, epid, epid_length)
-```
-
-`episode_group()` is a more comprehensive option and returns a `data.frame` of useful information for each episode.
-```{r}
-db_c <- episode_group(db_a, sn=rd_id, date = date, strata = infection, case_length = epi_len, display = FALSE, group_stats = TRUE)
-db_c
+db$r_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "rolling", 
+                              recurrence_length = recur, display = FALSE, to_s4 = TRUE)
+db
 ```
 
 ### Record grouping
 Multistage deterministic linkages that addresses missing values by using a specified list of alternative matching criteria.
+
+`record_group()` - Currently, this returns a `data.frame` but will be changed to `pid` objects in the next major release. The `id` and `pid` columns/slots are the record and group identifiers respectively.
+
+***NOTE. `to_s4` and `to_s4()` changes its output from a data.frame (current default) to `pid` objects.***
+
 ```{r}
 # Two or more stages of record grouping
 data(staff_records); staff_records
 
-pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
-                     data_source = sex, display = FALSE)
-left_join(staff_records, pids, by=c("r_id"="sn"))
+staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
+                     data_source = sex, display = FALSE, to_s4 = TRUE)
+staff_records
 
 # Range matching
-dob <- select(staff_records, sex)
+dob <- select(staff_records, sex); dob
+
 dob$age <- c(10,8,20,5,5,9,7)
 
 # age range - age + 20 years
-dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
-bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
-
+dob$rng_b <- number_line(dob$age, dob$age+20, gid=dob$age)
 # age range - age +- 20 years
-dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
-bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
+dob$rng_c <- number_line(dob$age-20, dob$age+20, gid=dob$age)
+
+dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_b"), display = FALSE, to_s4 = TRUE)
+dob$pids_c <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_c"), display = FALSE, to_s4 = TRUE)
+
+dob
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!

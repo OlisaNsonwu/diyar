@@ -3,7 +3,7 @@ Type: Package
 Title: Multistage Record Linkage and Case Definition for Epidemiological Analysis
 Date: 2019-10-01
 Version: 0.0.1.9000
-URL: https://github.com/OlisaNsonwu/diyar
+URL: https://olisansonwu.github.io/diyar/index.html
 BugReports: https://github.com/OlisaNsonwu/diyar/issues
 Author: Olisaeloka Nsonwu
 Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
@@ -35,11 +35,3 @@ Suggests:
     covr
 VignetteBuilder: knitr
 Language: en-GB
-Collate: 
-    'number_line.R'
-    'classes.R'
-    'dummy_datasets.R'
-    'episode_group.R'
-    'overlap.R'
-    'record_group.R'
-    'to_df.R'

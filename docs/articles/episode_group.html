@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1.9000</span>
       </span>
     </div>
 
@@ -64,14 +64,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/OlisaNsonwu/diyar">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -85,9 +78,9 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">02 October 2019</h4>
+            <h4 class="date">21 October 2019</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/episode_group.Rmd"><code>vignettes/episode_group.Rmd</code></a></small>
+      
       <div class="hidden name"><code>episode_group.Rmd</code></div>
 
     </div>
@@ -422,13 +415,13 @@ infections_2a &lt;-<span class="st"> </span><span class="kw">mutate</span>(infec
   <span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections_2a, <span class="dt">sn=</span>rid, <span class="dt">strata=</span>pid, <span class="dt">date=</span>date, 
                 <span class="dt">case_length =</span>epi, <span class="dt">custom_sort =</span> infx, <span class="dt">bi_direction =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
   )
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
 <span class="co">#&gt;   rid       date pid        infx epi recur sn epid   case_nm</span>
 <span class="co">#&gt; 1   1 2019-04-01   1 E. coli BSI  14     7  1    2 Duplicate</span>
 <span class="co">#&gt; 2   2 2019-04-06   1 E. coli UTI  14     7  2    2      Case</span>
 <span class="co">#&gt; 3   3 2019-04-11   1 E. coli BSI  14     7  3    2 Duplicate</span>
 <span class="co">#&gt; 4   4 2019-04-16   1 E. coli BSI  14     7  4    2 Duplicate</span>
-<span class="co">#&gt; 5   5 2019-04-21   1 E. coli UTI  14     7  5    2 Duplicate</span>
+<span class="co">#&gt; 5   5 2019-04-21   1 E. coli UTI  14     7  5    5      Case</span>
 <span class="co">#&gt; 6   6 2019-06-04   1 E. coli BSI  14     7  6    6      Case</span></code></pre></div>
 <p>A different approach can be to create episodes without <code>custom_sort</code>, and then pick a preferred record as the “case”. However note that, since episode grouping did not begin as this preferred method, the result may differ from when <code>custom_sort</code> is used.</p>
 <p>As seen below, using this approach also yields three episodes just as above. However, record 4 belongs to different episodes in both. This is because even though record 2 was picked as the <code>"Case"</code>, episode grouping did not start there.</p>
@@ -940,7 +933,8 @@ rolling_intervals_b
 db_a &lt;-<span class="st"> </span>infections
 
 <span class="co"># Fixed episodes</span>
-f_epi &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">x =</span> db_a<span class="op">$</span>date, <span class="dt">case_length =</span> db_a<span class="op">$</span>epi_len, <span class="dt">display =</span> <span class="ot">FALSE</span>)
+f_epi &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">x =</span> db_a<span class="op">$</span>date, <span class="dt">case_length =</span> db_a<span class="op">$</span>epi_len, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)<span class="op">$</span>epid_interval
+<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
 f_epi; <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(f_epi)
 <span class="co">#&gt;  [1] "2018-04-01 -&gt; 2018-04-13" "2018-04-01 -&gt; 2018-04-13"</span>
 <span class="co">#&gt;  [3] "2018-04-01 -&gt; 2018-04-13" "2018-04-19 -&gt; 2018-05-01"</span>
@@ -949,13 +943,14 @@ f_epi; <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/t
 <span class="co">#&gt;  [9] "2018-05-07 -&gt; 2018-05-19" "2018-05-25 -&gt; 2018-05-31"</span>
 <span class="co">#&gt; [11] "2018-05-25 -&gt; 2018-05-31"</span>
 <span class="co">#&gt; Formal class 'number_line' [package "diyar"] with 4 slots</span>
-<span class="co">#&gt;   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...</span>
-<span class="co">#&gt;   ..@ start: Date[1:11], format: "2018-04-01" ...</span>
+<span class="co">#&gt;   ..@ .Data: num [1:11] 1036800 1036800 1036800 1036800 1036800 ...</span>
+<span class="co">#&gt;   ..@ start: POSIXct[1:11], format: "2018-04-01" ...</span>
 <span class="co">#&gt;   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...</span>
-<span class="co">#&gt;   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...</span>
+<span class="co">#&gt;   ..@ gid  : num [1:11] 1 1 1 4 4 4 7 7 7 10 ...</span>
 
 <span class="co"># Rolling episodes</span>
-r_epi &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">x =</span> db_a<span class="op">$</span>date, <span class="dt">case_length =</span> db_a<span class="op">$</span>epi_len, <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
+r_epi &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">x =</span> db_a<span class="op">$</span>date, <span class="dt">case_length =</span> db_a<span class="op">$</span>epi_len, <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)<span class="op">$</span>epid_interval
+<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
 f_epi; <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(f_epi)
 <span class="co">#&gt;  [1] "2018-04-01 -&gt; 2018-04-13" "2018-04-01 -&gt; 2018-04-13"</span>
 <span class="co">#&gt;  [3] "2018-04-01 -&gt; 2018-04-13" "2018-04-19 -&gt; 2018-05-01"</span>
@@ -964,32 +959,33 @@ f_epi; <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/t
 <span class="co">#&gt;  [9] "2018-05-07 -&gt; 2018-05-19" "2018-05-25 -&gt; 2018-05-31"</span>
 <span class="co">#&gt; [11] "2018-05-25 -&gt; 2018-05-31"</span>
 <span class="co">#&gt; Formal class 'number_line' [package "diyar"] with 4 slots</span>
-<span class="co">#&gt;   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...</span>
-<span class="co">#&gt;   ..@ start: Date[1:11], format: "2018-04-01" ...</span>
+<span class="co">#&gt;   ..@ .Data: num [1:11] 1036800 1036800 1036800 1036800 1036800 ...</span>
+<span class="co">#&gt;   ..@ start: POSIXct[1:11], format: "2018-04-01" ...</span>
 <span class="co">#&gt;   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...</span>
-<span class="co">#&gt;   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...</span>
+<span class="co">#&gt;   ..@ gid  : num [1:11] 1 1 1 4 4 4 7 7 7 10 ...</span>
 
 <span class="co"># Working with a data.frame</span>
-db_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(db_a, <span class="dt">epid_interval=</span> <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">x =</span> date, <span class="dt">case_length =</span> epi_len, <span class="dt">strata =</span> infection, <span class="dt">display =</span> <span class="ot">FALSE</span>))
+db_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(db_a, <span class="dt">epid_interval=</span> <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">x =</span> date, <span class="dt">case_length =</span> epi_len, <span class="dt">strata =</span> infection, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)<span class="op">$</span>epid_interval)
+<span class="co">#&gt; Episode grouping complete - 4 record(s) assinged a unique ID.</span>
 
 <span class="co"># Extract useful episode information from the number_line objects</span>
 db_b<span class="op">$</span>epid &lt;-<span class="st"> </span>db_b<span class="op">$</span>epid_interval<span class="op">@</span>gid
 db_b<span class="op">$</span>epid_length &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line_width</a></span>(db_b<span class="op">$</span>epid_interval)
 <span class="kw">select</span>(db_b, rd_id, date, epid_interval, epid, epid_length)
 <span class="co">#&gt; # A tibble: 11 x 5</span>
-<span class="co">#&gt;    rd_id date       epid_interval             epid epid_length</span>
-<span class="co">#&gt;    &lt;int&gt; &lt;date&gt;     &lt;numbr_ln&gt;               &lt;int&gt; &lt;drtn&gt;     </span>
-<span class="co">#&gt;  1     1 2018-04-01 2018-04-01 == 2018-04-01     1  0 days    </span>
-<span class="co">#&gt;  2     2 2018-04-07 2018-04-07 -&gt; 2018-04-19     2 12 days    </span>
-<span class="co">#&gt;  3     3 2018-04-13 2018-04-07 -&gt; 2018-04-19     2 12 days    </span>
-<span class="co">#&gt;  4     4 2018-04-19 2018-04-07 -&gt; 2018-04-19     2 12 days    </span>
-<span class="co">#&gt;  5     5 2018-04-25 2018-04-25 -&gt; 2018-05-07     5 12 days    </span>
-<span class="co">#&gt;  6     6 2018-05-01 2018-05-01 == 2018-05-01     6  0 days    </span>
-<span class="co">#&gt;  7     7 2018-05-07 2018-04-25 -&gt; 2018-05-07     5 12 days    </span>
-<span class="co">#&gt;  8     8 2018-05-13 2018-05-13 == 2018-05-13     8  0 days    </span>
-<span class="co">#&gt;  9     9 2018-05-19 2018-05-19 -&gt; 2018-05-25     9  6 days    </span>
-<span class="co">#&gt; 10    10 2018-05-25 2018-05-19 -&gt; 2018-05-25     9  6 days    </span>
-<span class="co">#&gt; 11    11 2018-05-31 2018-05-31 == 2018-05-31    11  0 days</span></code></pre></div>
+<span class="co">#&gt;    rd_id date       epid_interval             epid epid_length </span>
+<span class="co">#&gt;    &lt;int&gt; &lt;date&gt;     &lt;numbr_ln&gt;               &lt;dbl&gt; &lt;drtn&gt;      </span>
+<span class="co">#&gt;  1     1 2018-04-01 2018-04-01 == 2018-04-01     1       0 secs</span>
+<span class="co">#&gt;  2     2 2018-04-07 2018-04-07 -&gt; 2018-04-19     2 1036800 secs</span>
+<span class="co">#&gt;  3     3 2018-04-13 2018-04-07 -&gt; 2018-04-19     2 1036800 secs</span>
+<span class="co">#&gt;  4     4 2018-04-19 2018-04-07 -&gt; 2018-04-19     2 1036800 secs</span>
+<span class="co">#&gt;  5     5 2018-04-25 2018-04-25 -&gt; 2018-05-07     5 1036800 secs</span>
+<span class="co">#&gt;  6     6 2018-05-01 2018-05-01 == 2018-05-01     6       0 secs</span>
+<span class="co">#&gt;  7     7 2018-05-07 2018-04-25 -&gt; 2018-05-07     5 1036800 secs</span>
+<span class="co">#&gt;  8     8 2018-05-13 2018-05-13 == 2018-05-13     8       0 secs</span>
+<span class="co">#&gt;  9     9 2018-05-19 2018-05-19 -&gt; 2018-05-25     9  518400 secs</span>
+<span class="co">#&gt; 10    10 2018-05-25 2018-05-19 -&gt; 2018-05-25     9  518400 secs</span>
+<span class="co">#&gt; 11    11 2018-05-31 2018-05-31 == 2018-05-31    11       0 secs</span></code></pre></div>
 </div>
 </div>
 </div>
@@ -1041,7 +1037,7 @@ db_b<span class="op">$</span>epid_length &lt;-<span class="st"> </span><span cla
 
 
       <footer><div class="copyright">
-  <p>Developed by Olisa Nsonwu.</p>
+  <p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">

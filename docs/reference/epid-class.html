@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Articles • diyar</title>
+<title><code>epid</code> object — epid-class • diyar</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,7 +30,10 @@
 
 
 
-<meta property="og:title" content="Articles" />
+<meta property="og:title" content="<code>epid</code> object — epid-class" />
+
+<meta property="og:description" content="An S4 object to store the results of fixed_episodes, rolling_episodes and episode_group" />
+<meta name="twitter:card" content="summary" />
 
 
 
@@ -47,7 +50,7 @@
   </head>
 
   <body>
-    <div class="container template-article-index">
+    <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -109,18 +112,76 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-      <h1>Articles</h1>
+    <h1><code>epid</code> object</h1>
+    
+    <div class="hidden name"><code>epid-class.Rd</code></div>
     </div>
 
-    <div class="section ">
-      <h3>All vignettes</h3>
-      <p class="section-desc"></p>
-
-      <ul>
-        <li><a href="episode_group.html">Implementing case definitions for epidemiological analysis in R</a></li>
-        <li><a href="record_group.html">Multistage deterministic linkage in R</a></li>
-      </ul>
+    <div class="ref-description">
+    
+    <p>An S4 object to store the results of <code><a href='episode_group.html'>fixed_episodes</a></code>, <code><a href='episode_group.html'>rolling_episodes</a></code> and <code><a href='episode_group.html'>episode_group</a></code></p>
+    
     </div>
+
+    <pre class="usage"># S3 method for epid
+format(x, ...)
+
+# S3 method for epid
+unique(x, ...)
+
+# S4 method for epid
+show(object)
+
+# S4 method for epid
+rep(x, ...)
+
+# S4 method for epid
+[(x, i, j, ..., drop = TRUE)
+
+# S4 method for epid
+[[(x, i, j, ..., exact = TRUE)</pre>
+    
+    <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
+    <table class="ref-arguments">
+    <colgroup><col class="name" /><col class="desc" /></colgroup>
+    <tr>
+      <th>x</th>
+      <td><p>x</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>...</p></td>
+    </tr>
+    <tr>
+      <th>object</th>
+      <td><p>object</p></td>
+    </tr>
+    <tr>
+      <th>i</th>
+      <td><p>i</p></td>
+    </tr>
+    <tr>
+      <th>j</th>
+      <td><p>j</p></td>
+    </tr>
+    <tr>
+      <th>drop</th>
+      <td><p>drop</p></td>
+    </tr>
+    <tr>
+      <th>exact</th>
+      <td><p>exact</p></td>
+    </tr>
+    </table>
+    
+
+  </div>
+  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+    <h2>Contents</h2>
+    <ul class="nav nav-pills nav-stacked">
+      <li><a href="#arguments">Arguments</a></li>
+                </ul>
+
   </div>
 </div>
 
