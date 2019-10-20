@@ -57,104 +57,87 @@ number_line_sequence(nl, by =3)
 
 Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.
 
-`fixed_episodes()` and `rolling_episodes()` are the simplest implementation of this. Their outputs are `number_line` objects, with `@gid` as the episode identifier, and `@id` as the record identifier.
+`fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Currently, these returns a `data.frame` but will be changed to `epid` objects in the next major release. The `id` and `epid` columns/slots are the record and episode identifiers respectively.
+
+***NOTE. `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects.***
 
 ``` r
-data(infections); infections
-#> # A tibble: 11 x 4
-#>    rd_id date       infection epi_len
-#>    <int> <date>     <chr>       <dbl>
-#>  1     1 2018-04-01 BSI            15
-#>  2     2 2018-04-07 UTI            15
-#>  3     3 2018-04-13 UTI            15
-#>  4     4 2018-04-19 UTI            15
-#>  5     5 2018-04-25 BSI            15
-#>  6     6 2018-05-01 UTI            15
-#>  7     7 2018-05-07 BSI            15
-#>  8     8 2018-05-13 BSI            15
-#>  9     9 2018-05-19 RTI            15
-#> 10    10 2018-05-25 RTI            15
-#> 11    11 2018-05-31 BSI            15
-db_a <- infections
+data(infections);
+db <- infections[c("date","epi_len")]
+db$recur <- 40
+db
+#> # A tibble: 11 x 3
+#>    date       epi_len recur
+#>    <date>       <dbl> <dbl>
+#>  1 2018-04-01      15    40
+#>  2 2018-04-07      15    40
+#>  3 2018-04-13      15    40
+#>  4 2018-04-19      15    40
+#>  5 2018-04-25      15    40
+#>  6 2018-05-01      15    40
+#>  7 2018-05-07      15    40
+#>  8 2018-05-13      15    40
+#>  9 2018-05-19      15    40
+#> 10 2018-05-25      15    40
+#> 11 2018-05-31      15    40
 
 # Fixed episodes
-f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE)
-f_epi; str(f_epi)
-#>  [1] "2018-04-01 -> 2018-04-13" "2018-04-01 -> 2018-04-13"
-#>  [3] "2018-04-01 -> 2018-04-13" "2018-04-19 -> 2018-05-01"
-#>  [5] "2018-04-19 -> 2018-05-01" "2018-04-19 -> 2018-05-01"
-#>  [7] "2018-05-07 -> 2018-05-19" "2018-05-07 -> 2018-05-19"
-#>  [9] "2018-05-07 -> 2018-05-19" "2018-05-25 -> 2018-05-31"
-#> [11] "2018-05-25 -> 2018-05-31"
-#> Formal class 'number_line' [package "diyar"] with 4 slots
-#>   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...
-#>   ..@ start: Date[1:11], format: "2018-04-01" ...
-#>   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...
-#>   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...
+db$f_epid <- fixed_episodes(date = db$date, case_length = db$epi_len, 
+                              display = FALSE, to_s4 = TRUE)
+#> Episode grouping complete - 0 record(s) assinged a unique ID.
 
 # Rolling episodes
-r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE)
-f_epi; str(f_epi)
-#>  [1] "2018-04-01 -> 2018-04-13" "2018-04-01 -> 2018-04-13"
-#>  [3] "2018-04-01 -> 2018-04-13" "2018-04-19 -> 2018-05-01"
-#>  [5] "2018-04-19 -> 2018-05-01" "2018-04-19 -> 2018-05-01"
-#>  [7] "2018-05-07 -> 2018-05-19" "2018-05-07 -> 2018-05-19"
-#>  [9] "2018-05-07 -> 2018-05-19" "2018-05-25 -> 2018-05-31"
-#> [11] "2018-05-25 -> 2018-05-31"
-#> Formal class 'number_line' [package "diyar"] with 4 slots
-#>   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...
-#>   ..@ start: Date[1:11], format: "2018-04-01" ...
-#>   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...
-#>   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...
-
-# Working with a data.frame
-db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE))
-
-# Extract useful episode information from the number_line objects
-db_b$epid <- db_b$epid_interval@gid
-db_b$epid_length <- number_line_width(db_b$epid_interval)
-select(db_b, rd_id, date, epid_interval, epid, epid_length)
+db$r_epid <- rolling_episodes(date = db$date, case_length = 15, 
+                                recurrence_length = 40, display = FALSE, to_s4 = TRUE)
+#> Episode grouping complete - 0 record(s) assinged a unique ID.
+db
 #> # A tibble: 11 x 5
-#>    rd_id date       epid_interval             epid epid_length
-#>    <int> <date>     <numbr_ln>               <int> <drtn>     
-#>  1     1 2018-04-01 2018-04-01 == 2018-04-01     1  0 days    
-#>  2     2 2018-04-07 2018-04-07 -> 2018-04-19     2 12 days    
-#>  3     3 2018-04-13 2018-04-07 -> 2018-04-19     2 12 days    
-#>  4     4 2018-04-19 2018-04-07 -> 2018-04-19     2 12 days    
-#>  5     5 2018-04-25 2018-04-25 -> 2018-05-07     5 12 days    
-#>  6     6 2018-05-01 2018-05-01 == 2018-05-01     6  0 days    
-#>  7     7 2018-05-07 2018-04-25 -> 2018-05-07     5 12 days    
-#>  8     8 2018-05-13 2018-05-13 == 2018-05-13     8  0 days    
-#>  9     9 2018-05-19 2018-05-19 -> 2018-05-25     9  6 days    
-#> 10    10 2018-05-25 2018-05-19 -> 2018-05-25     9  6 days    
-#> 11    11 2018-05-31 2018-05-31 == 2018-05-31    11  0 days
-```
+#>    date       epi_len recur f_epid   r_epid 
+#>    <date>       <dbl> <dbl> <epid>   <epid> 
+#>  1 2018-04-01      15    40 E-01 (C) E-1 (C)
+#>  2 2018-04-07      15    40 E-01 (D) E-1 (D)
+#>  3 2018-04-13      15    40 E-01 (D) E-1 (D)
+#>  4 2018-04-19      15    40 E-04 (C) E-1 (R)
+#>  5 2018-04-25      15    40 E-04 (D) E-1 (D)
+#>  6 2018-05-01      15    40 E-04 (D) E-1 (D)
+#>  7 2018-05-07      15    40 E-07 (C) E-1 (D)
+#>  8 2018-05-13      15    40 E-07 (D) E-1 (D)
+#>  9 2018-05-19      15    40 E-07 (D) E-1 (D)
+#> 10 2018-05-25      15    40 E-10 (C) E-1 (R)
+#> 11 2018-05-31      15    40 E-10 (D) E-1 (D)
 
-`episode_group()` is a more comprehensive option and returns a `data.frame` of useful information for each episode.
+# episode_group() takes column names
+db$f_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "fixed", 
+                              display = FALSE, to_s4 = TRUE)
+#> Episode grouping complete - 0 record(s) assinged a unique ID.
 
-``` r
-db_c <- episode_group(db_a, sn=rd_id, date = date, strata = infection, case_length = epi_len, display = FALSE, group_stats = TRUE)
-#> Episode grouping complete - 4 record(s) assinged a unique ID.
-db_c
-#> # A tibble: 11 x 6
-#>       sn  epid case_nm   epid_length epid_total epid_interval           
-#>    <int> <dbl> <chr>     <drtn>           <int> <numbr_ln>              
-#>  1     1     1 Case       0 days              1 2018-04-01 == 2018-04-01
-#>  2     2     2 Case      12 days              3 2018-04-07 -> 2018-04-19
-#>  3     3     2 Duplicate 12 days              3 2018-04-07 -> 2018-04-19
-#>  4     4     2 Duplicate 12 days              3 2018-04-07 -> 2018-04-19
-#>  5     5     5 Case      12 days              2 2018-04-25 -> 2018-05-07
-#>  6     6     6 Case       0 days              1 2018-05-01 == 2018-05-01
-#>  7     7     5 Duplicate 12 days              2 2018-04-25 -> 2018-05-07
-#>  8     8     8 Case       0 days              1 2018-05-13 == 2018-05-13
-#>  9     9     9 Case       6 days              2 2018-05-19 -> 2018-05-25
-#> 10    10     9 Duplicate  6 days              2 2018-05-19 -> 2018-05-25
-#> 11    11    11 Case       0 days              1 2018-05-31 == 2018-05-31
+db$r_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "rolling", 
+                              recurrence_length = recur, display = FALSE, to_s4 = TRUE)
+#> Episode grouping complete - 0 record(s) assinged a unique ID.
+db
+#> # A tibble: 11 x 7
+#>    date       epi_len recur f_epid   r_epid  f_epid.2 r_epid.2
+#>    <date>       <dbl> <dbl> <epid>   <epid>  <epid>   <epid>  
+#>  1 2018-04-01      15    40 E-01 (C) E-1 (C) E-01 (C) E-1 (C) 
+#>  2 2018-04-07      15    40 E-01 (D) E-1 (D) E-01 (D) E-1 (D) 
+#>  3 2018-04-13      15    40 E-01 (D) E-1 (D) E-01 (D) E-1 (D) 
+#>  4 2018-04-19      15    40 E-04 (C) E-1 (R) E-04 (C) E-1 (R) 
+#>  5 2018-04-25      15    40 E-04 (D) E-1 (D) E-04 (D) E-1 (D) 
+#>  6 2018-05-01      15    40 E-04 (D) E-1 (D) E-04 (D) E-1 (D) 
+#>  7 2018-05-07      15    40 E-07 (C) E-1 (D) E-07 (C) E-1 (D) 
+#>  8 2018-05-13      15    40 E-07 (D) E-1 (D) E-07 (D) E-1 (D) 
+#>  9 2018-05-19      15    40 E-07 (D) E-1 (D) E-07 (D) E-1 (D) 
+#> 10 2018-05-25      15    40 E-10 (C) E-1 (R) E-10 (C) E-1 (R) 
+#> 11 2018-05-31      15    40 E-10 (D) E-1 (D) E-10 (D) E-1 (D)
 ```
 
 ### Record grouping
 
 Multistage deterministic linkages that addresses missing values by using a specified list of alternative matching criteria.
+
+`record_group()` - Currently, this returns a `data.frame` but will be changed to `pid` objects in the next major release. The `id` and `pid` columns/slots are the record and group identifiers respectively.
+
+***NOTE. `to_s4` and `to_s4()` changes its output from a data.frame (current default) to `pid` objects.***
 
 ``` r
 # Two or more stages of record grouping
@@ -170,54 +153,57 @@ data(staff_records); staff_records
 #> 6     6 Darrack  Anderson M     Pay slips 
 #> 7     7 Christie Green    F     Staff list
 
-pids <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
-                     data_source = sex, display = FALSE)
+staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
+                     data_source = sex, display = FALSE, to_s4 = TRUE)
 #> Record grouping complete - 1 record(s) assigned a group unique ID.
-left_join(staff_records, pids, by=c("r_id"="sn"))
-#> # A tibble: 7 x 8
-#>    r_id forename surname  sex   dataset      pid pid_cri    pid_dataset
-#>   <int> <chr>    <chr>    <chr> <chr>      <dbl> <chr>      <chr>      
-#> 1     1 James    Green    M     Staff list     1 Criteria 2 F,M        
-#> 2     2 <NA>     Anderson M     Staff list     2 Criteria 2 M          
-#> 3     3 Jamey    Green    M     Pay slips      1 Criteria 2 F,M        
-#> 4     4 ""       <NA>     F     Pay slips      4 None       F          
-#> 5     5 Derrick  Anderson M     Staff list     2 Criteria 2 M          
-#> 6     6 Darrack  Anderson M     Pay slips      2 Criteria 2 M          
-#> 7     7 Christie Green    F     Staff list     1 Criteria 2 F,M
+staff_records
+#> # A tibble: 7 x 6
+#>    r_id forename surname  sex   dataset    pids_a      
+#>   <int> <chr>    <chr>    <chr> <chr>      <pid>       
+#> 1     1 James    Green    M     Staff list P-1 (CRI 02)
+#> 2     2 <NA>     Anderson M     Staff list P-2 (CRI 02)
+#> 3     3 Jamey    Green    M     Pay slips  P-1 (CRI 02)
+#> 4     4 ""       <NA>     F     Pay slips  P-4 (No Hit)
+#> 5     5 Derrick  Anderson M     Staff list P-2 (CRI 02)
+#> 6     6 Darrack  Anderson M     Pay slips  P-2 (CRI 02)
+#> 7     7 Christie Green    F     Staff list P-1 (CRI 02)
 
 # Range matching
-dob <- select(staff_records, sex)
+dob <- select(staff_records, sex); dob
+#> # A tibble: 7 x 1
+#>   sex  
+#>   <chr>
+#> 1 M    
+#> 2 M    
+#> 3 M    
+#> 4 F    
+#> 5 M    
+#> 6 M    
+#> 7 F
+
 dob$age <- c(10,8,20,5,5,9,7)
 
 # age range - age + 20 years
-dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
-bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
-#> Record grouping complete - 1 record(s) assigned a group unique ID.
-#> # A tibble: 7 x 6
-#>   sex     age range         sn   pid pid_cri   
-#>   <chr> <dbl> <numbr_ln> <int> <dbl> <chr>     
-#> 1 M        10 10 -> 30       1     2 Criteria 1
-#> 2 M         8 8 -> 28        2     2 Criteria 1
-#> 3 M        20 20 -> 40       3     2 Criteria 1
-#> 4 F         5 5 -> 25        4     4 Criteria 1
-#> 5 M         5 5 -> 25        5     5 None      
-#> 6 M         9 9 -> 29        6     2 Criteria 1
-#> 7 F         7 7 -> 27        7     4 Criteria 1
-
+dob$rng_b <- number_line(dob$age, dob$age+20, gid=dob$age)
 # age range - age +- 20 years
-dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
-bind_cols(dob, record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), display = FALSE))
+dob$rng_c <- number_line(dob$age-20, dob$age+20, gid=dob$age)
+
+dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_b"), display = FALSE, to_s4 = TRUE)
+#> Record grouping complete - 1 record(s) assigned a group unique ID.
+dob$pids_c <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_c"), display = FALSE, to_s4 = TRUE)
 #> Record grouping complete - 0 record(s) assigned a group unique ID.
+
+dob
 #> # A tibble: 7 x 6
-#>   sex     age range         sn   pid pid_cri   
-#>   <chr> <dbl> <numbr_ln> <int> <int> <chr>     
-#> 1 M        10 -10 -> 30      1     1 Criteria 1
-#> 2 M         8 -12 -> 28      2     1 Criteria 1
-#> 3 M        20 0 -> 40        3     1 Criteria 1
-#> 4 F         5 -15 -> 25      4     4 Criteria 1
-#> 5 M         5 -15 -> 25      5     1 Criteria 1
-#> 6 M         9 -11 -> 29      6     1 Criteria 1
-#> 7 F         7 -13 -> 27      7     4 Criteria 1
+#>   sex     age rng_b      rng_c      pids_b       pids_c      
+#>   <chr> <dbl> <numbr_ln> <numbr_ln> <pid>        <pid>       
+#> 1 M        10 10 -> 30   -10 -> 30  P-2 (CRI 01) P-1 (CRI 01)
+#> 2 M         8 8 -> 28    -12 -> 28  P-2 (CRI 01) P-1 (CRI 01)
+#> 3 M        20 20 -> 40   0 -> 40    P-2 (CRI 01) P-1 (CRI 01)
+#> 4 F         5 5 -> 25    -15 -> 25  P-4 (CRI 01) P-4 (CRI 01)
+#> 5 M         5 5 -> 25    -15 -> 25  P-5 (No Hit) P-1 (CRI 01)
+#> 6 M         9 9 -> 29    -11 -> 29  P-2 (CRI 01) P-1 (CRI 01)
+#> 7 F         7 7 -> 27    -13 -> 27  P-4 (CRI 01) P-4 (CRI 01)
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!

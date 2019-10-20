@@ -14,9 +14,6 @@
 \alias{expand_number_line}
 \alias{compress_number_line}
 \alias{number_line_sequence}
-\alias{unique.number_line}
-\alias{sort.number_line}
-\alias{format.number_line}
 \title{Number line objects}
 \usage{
 number_line(l, r, id = NULL, gid = NULL)
@@ -45,12 +42,6 @@ compress_number_line(x, method = c("across", "chain", "aligns_start",
   "aligns_end", "inbetween"), collapse = FALSE, deduplicate = TRUE)
 
 number_line_sequence(x, by = 1)
-
-\method{unique}{number_line}(x, ...)
-
-\method{sort}{number_line}(x, decreasing = FALSE, ...)
-
-\method{format}{number_line}(x, ...)
 }
 \arguments{
 \item{l}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
@@ -74,10 +65,6 @@ number_line_sequence(x, by = 1)
 \item{collapse}{If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps}
 
 \item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object among duplicates}
-
-\item{...}{arguments for particular methods}
-
-\item{decreasing}{logical. Should the sort be increasing or decreasing}
 }
 \value{
 \code{number_line} object

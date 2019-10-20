@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1.9000</span>
       </span>
     </div>
 
@@ -64,14 +64,7 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/OlisaNsonwu/diyar">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -85,9 +78,9 @@
     <div class="page-header toc-ignore">
       <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">02 October 2019</h4>
+            <h4 class="date">21 October 2019</h4>
       
-      <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/record_group.Rmd"><code>vignettes/record_group.Rmd</code></a></small>
+      
       <div class="hidden name"><code>record_group.Rmd</code></div>
 
     </div>
@@ -147,24 +140,24 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 6 record(s) assigned a group unique ID.</span>
 <span class="co">#&gt;   rd_id forename surname sex sn pid pid_cri</span>
-<span class="co">#&gt; 1     1    James   Green   M  1   1    None</span>
-<span class="co">#&gt; 2     2   ESTHER  Kulmar   F  2   2    None</span>
-<span class="co">#&gt; 3     3              OBI   F  3   3    None</span>
-<span class="co">#&gt; 4     4    Jamey   Green   M  4   4    None</span>
-<span class="co">#&gt; 5     5   Daniel  Kulmar   M  5   5    None</span>
-<span class="co">#&gt; 6     6    Henry     OBI   M  6   6    None</span>
+<span class="co">#&gt; 1     1    James   Green   M  1   1       0</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F  2   2       0</span>
+<span class="co">#&gt; 3     3              OBI   F  3   3       0</span>
+<span class="co">#&gt; 4     4    Jamey   Green   M  4   4       0</span>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M  5   5       0</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M  6   6       0</span>
 
 <span class="co"># Matching forename and surname</span>
 patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list, <span class="dt">cri_1 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(forename, surname,<span class="dt">sep=</span><span class="st">"-"</span>) )
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(patient_list, <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list, rd_id, cri_<span class="dv">1</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>))
 <span class="co">#&gt; Record grouping complete - 6 record(s) assigned a group unique ID.</span>
 <span class="co">#&gt;   rd_id forename surname sex         cri_1 sn pid pid_cri</span>
-<span class="co">#&gt; 1     1    James   Green   M   James-Green  1   1    None</span>
-<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar  2   2    None</span>
-<span class="co">#&gt; 3     3              OBI   F          -OBI  3   3    None</span>
-<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  4   4    None</span>
-<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar  5   5    None</span>
-<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI  6   6    None</span>
+<span class="co">#&gt; 1     1    James   Green   M   James-Green  1   1       0</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar  2   2       0</span>
+<span class="co">#&gt; 3     3              OBI   F          -OBI  3   3       0</span>
+<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  4   4       0</span>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar  5   5       0</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI  6   6       0</span>
 
 <span class="co"># Note that exact matching is case sensitive. See range matching.</span></code></pre></div>
 <p><a id="record_matching"></a></p>
@@ -175,24 +168,24 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <p>For example, in <code>patient_list</code> above, linking on forenames only, or forenames and surnames does not yield any match. However, linking in two stages - forename followed by surname, will pair records 1 and 4, 2 and 5, 3 and 6. See <a href="#record_expansion">Record group expansion</a>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(patient_list, <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>))
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id forename surname sex         cri_1 sn pid    pid_cri</span>
-<span class="co">#&gt; 1     1    James   Green   M   James-Green  1   1 Criteria 2</span>
-<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar  2   2 Criteria 2</span>
-<span class="co">#&gt; 3     3              OBI   F          -OBI  3   3 Criteria 2</span>
-<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  4   1 Criteria 2</span>
-<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar  5   2 Criteria 2</span>
-<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI  6   3 Criteria 2</span></code></pre></div>
+<span class="co">#&gt;   rd_id forename surname sex         cri_1 sn pid pid_cri</span>
+<span class="co">#&gt; 1     1    James   Green   M   James-Green  1   1       2</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar  2   2       2</span>
+<span class="co">#&gt; 3     3              OBI   F          -OBI  3   3       2</span>
+<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  4   1       2</span>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar  5   2       2</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI  6   3       2</span></code></pre></div>
 <p>Although this result is logically correct, a two stage linkage on forenames followed by surnames is not the most practical option given the dataset. For instance, records 3 and 6 could be cousins and not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list, <span class="dt">cri_2 =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(surname, sex,<span class="dt">sep=</span><span class="st">"-"</span>) )
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/cbind">cbind</a></span>(patient_list, <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, cri_<span class="dv">2</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>))
 <span class="co">#&gt; Record grouping complete - 4 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id forename surname sex         cri_1    cri_2 sn pid    pid_cri</span>
-<span class="co">#&gt; 1     1    James   Green   M   James-Green  Green-M  1   1 Criteria 2</span>
-<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar Kulmar-F  2   2       None</span>
-<span class="co">#&gt; 3     3              OBI   F          -OBI    OBI-F  3   3       None</span>
-<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  Green-M  4   1 Criteria 2</span>
-<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar Kulmar-M  5   5       None</span>
-<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI    OBI-M  6   6       None</span></code></pre></div>
+<span class="co">#&gt;   rd_id forename surname sex         cri_1    cri_2 sn pid pid_cri</span>
+<span class="co">#&gt; 1     1    James   Green   M   James-Green  Green-M  1   1       2</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar Kulmar-F  2   2       0</span>
+<span class="co">#&gt; 3     3              OBI   F          -OBI    OBI-F  3   3       0</span>
+<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  Green-M  4   1       2</span>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar Kulmar-M  5   5       0</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI    OBI-M  6   6       0</span></code></pre></div>
 <p>As mentioned earlier, at each stage of record linkage, a <code>sub_criteria</code> can be used to include additional conditions for a match. Just like <code>criteria</code>, any column in the dataset can be used as a <code>sub_criteria</code>. Although, a practical combination for the given dataset is recommended.</p>
 <p><a id="sub_cri_example"></a></p>
 <p>Below are examples of record linkage using different combinations of the same <code>criteria</code> and <code>sub_criteria</code></p>
@@ -217,15 +210,15 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, rd_id, name, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>)),  <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">starts_with</span>(<span class="st">"db_"</span>), <span class="op">-</span>sn)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id name  department hair_colour date_of_birth pid    pid_cri</span>
-<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986   1 Criteria 1</span>
-<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986   1 Criteria 1</span>
-<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968   1 Criteria 1</span>
-<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985   4 Criteria 1</span>
-<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985   4 Criteria 1</span>
-<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964   4 Criteria 1</span>
-<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964   4 Criteria 1</span>
-<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   1 Criteria 1</span>
+<span class="co">#&gt;   rd_id name  department hair_colour date_of_birth pid pid_cri</span>
+<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986   1       1</span>
+<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986   1       1</span>
+<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968   1       1</span>
+<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985   4       1</span>
+<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985   4       1</span>
+<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964   4       1</span>
+<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964   4       1</span>
+<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   1       1</span>
   
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name, and either department or hair colour, and date of birth </span>
@@ -236,15 +229,15 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
                     <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>)),  <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">starts_with</span>(<span class="st">"db_"</span>), <span class="op">-</span>sn)
 <span class="co">#&gt; Record grouping complete - 4 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id name  department hair_colour date_of_birth pid    pid_cri</span>
-<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986   1 Criteria 1</span>
-<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986   1 Criteria 1</span>
-<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968   3       None</span>
-<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985   4       None</span>
-<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985   5       None</span>
-<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964   6 Criteria 1</span>
-<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964   6 Criteria 1</span>
-<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   8       None</span>
+<span class="co">#&gt;   rd_id name  department hair_colour date_of_birth pid pid_cri</span>
+<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986   1       1</span>
+<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986   1       1</span>
+<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968   3       0</span>
+<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985   4       0</span>
+<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985   5       0</span>
+<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964   6       1</span>
+<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964   6       1</span>
+<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   8       0</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name, and either department or hair colour, and either day and month of birth, day and year of birth or month and year of birth date of birth</span>
@@ -255,15 +248,15 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
                     <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),  <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span>date_of_birth, <span class="op">-</span>sn)
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id name  department hair_colour db_pt1  db_pt2  db_pt3 pid    pid_cri</span>
-<span class="co">#&gt; 1     1  Ope Procurement       Brown  23/03 23/1986 03/1986   1 Criteria 1</span>
-<span class="co">#&gt; 2     2  Ope    Security       Brown  23/03 23/1986 03/1986   1 Criteria 1</span>
-<span class="co">#&gt; 3     3  Ope    Security       Brown  23/03 23/1968 03/1968   1 Criteria 1</span>
-<span class="co">#&gt; 4     4  Ope  Publishing       Green  01/02 01/1985 02/1985   4       None</span>
-<span class="co">#&gt; 5     5  Ope  Publishing        Teal  02/01 02/1985 01/1985   5       None</span>
-<span class="co">#&gt; 6     6  Ope  Publishing        Grey  11/03 11/1964 03/1964   6 Criteria 1</span>
-<span class="co">#&gt; 7     7  Ope  Publishing       White  11/03 11/1964 03/1964   6 Criteria 1</span>
-<span class="co">#&gt; 8     8  Ope Procurement       Black  11/10 11/1985 10/1985   8       None</span>
+<span class="co">#&gt;   rd_id name  department hair_colour db_pt1  db_pt2  db_pt3 pid pid_cri</span>
+<span class="co">#&gt; 1     1  Ope Procurement       Brown  23/03 23/1986 03/1986   1       1</span>
+<span class="co">#&gt; 2     2  Ope    Security       Brown  23/03 23/1986 03/1986   1       1</span>
+<span class="co">#&gt; 3     3  Ope    Security       Brown  23/03 23/1968 03/1968   1       1</span>
+<span class="co">#&gt; 4     4  Ope  Publishing       Green  01/02 01/1985 02/1985   4       0</span>
+<span class="co">#&gt; 5     5  Ope  Publishing        Teal  02/01 02/1985 01/1985   5       0</span>
+<span class="co">#&gt; 6     6  Ope  Publishing        Grey  11/03 11/1964 03/1964   6       1</span>
+<span class="co">#&gt; 7     7  Ope  Publishing       White  11/03 11/1964 03/1964   6       1</span>
+<span class="co">#&gt; 8     8  Ope Procurement       Black  11/10 11/1985 10/1985   8       0</span>
 
 
 <span class="co"># 1 stage linkage </span>
@@ -276,15 +269,15 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
                     <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),  <span class="dt">display =</span> <span class="ot">FALSE</span>)
   ) <span class="op">%&gt;%</span><span class="st"> </span><span class="kw">select</span>(<span class="op">-</span><span class="kw">starts_with</span>(<span class="st">"db_"</span>), <span class="op">-</span>sn)
 <span class="co">#&gt; Record grouping complete - 6 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id name  department hair_colour date_of_birth pid    pid_cri</span>
-<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986   1       None</span>
-<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986   2 Criteria 1</span>
-<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968   2 Criteria 1</span>
-<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985   4       None</span>
-<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985   5       None</span>
-<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964   6       None</span>
-<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964   7       None</span>
-<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   8       None</span></code></pre></div>
+<span class="co">#&gt;   rd_id name  department hair_colour date_of_birth pid pid_cri</span>
+<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986   1       0</span>
+<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986   2       1</span>
+<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968   2       1</span>
+<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985   4       0</span>
+<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985   5       0</span>
+<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964   6       0</span>
+<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964   7       0</span>
+<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985   8       0</span></code></pre></div>
 <p>Note that using <code>sub_criteria</code> costs additional processing time, so it should be avoided when unnecessary. For example, the two implementations below will yield the same result however, the second will take less time. This is indicated in the displayed messages. This time difference is more noticeable with very large datasets.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name, and date of birth, and department and hair colour </span>
@@ -309,14 +302,14 @@ patient_list &lt;-<span class="st"> </span><span class="kw">mutate</span>(patien
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 8 record(s) assigned a group unique ID.</span>
 <span class="co">#&gt;   rd_id name  department hair_colour date_of_birth sn pid pid_cri</span>
-<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986  1   1    None</span>
-<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986  2   2    None</span>
-<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968  3   3    None</span>
-<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985  4   4    None</span>
-<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985  5   5    None</span>
-<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964  6   6    None</span>
-<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964  7   7    None</span>
-<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985  8   8    None</span>
+<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986  1   1       0</span>
+<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986  2   2       0</span>
+<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968  3   3       0</span>
+<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985  4   4       0</span>
+<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985  5   5       0</span>
+<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964  6   6       0</span>
+<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964  7   7       0</span>
+<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985  8   8       0</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name, and date of birth, and department and hair colour</span>
@@ -332,14 +325,14 @@ Opes_b &lt;-<span class="st"> </span><span class="kw">unite</span>(Opes, cri, <s
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 8 record(s) assigned a group unique ID.</span>
 <span class="co">#&gt;   rd_id                              cri sn pid pid_cri</span>
-<span class="co">#&gt; 1     1 Ope_23/03/1986_Procurement_Brown  1   1    None</span>
-<span class="co">#&gt; 2     2    Ope_23/03/1986_Security_Brown  2   2    None</span>
-<span class="co">#&gt; 3     3    Ope_23/03/1968_Security_Brown  3   3    None</span>
-<span class="co">#&gt; 4     4  Ope_01/02/1985_Publishing_Green  4   4    None</span>
-<span class="co">#&gt; 5     5   Ope_02/01/1985_Publishing_Teal  5   5    None</span>
-<span class="co">#&gt; 6     6   Ope_11/03/1964_Publishing_Grey  6   6    None</span>
-<span class="co">#&gt; 7     7  Ope_11/03/1964_Publishing_White  7   7    None</span>
-<span class="co">#&gt; 8     8 Ope_11/10/1985_Procurement_Black  8   8    None</span></code></pre></div>
+<span class="co">#&gt; 1     1 Ope_23/03/1986_Procurement_Brown  1   1       0</span>
+<span class="co">#&gt; 2     2    Ope_23/03/1986_Security_Brown  2   2       0</span>
+<span class="co">#&gt; 3     3    Ope_23/03/1968_Security_Brown  3   3       0</span>
+<span class="co">#&gt; 4     4  Ope_01/02/1985_Publishing_Green  4   4       0</span>
+<span class="co">#&gt; 5     5   Ope_02/01/1985_Publishing_Teal  5   5       0</span>
+<span class="co">#&gt; 6     6   Ope_11/03/1964_Publishing_Grey  6   6       0</span>
+<span class="co">#&gt; 7     7  Ope_11/03/1964_Publishing_White  7   7       0</span>
+<span class="co">#&gt; 8     8 Ope_11/10/1985_Procurement_Black  8   8       0</span></code></pre></div>
 <div id="range-matching" class="section level3">
 <h3 class="hasAnchor">
 <a href="#range-matching" class="anchor"></a>Range matching</h3>
@@ -380,16 +373,16 @@ Opes_c<span class="op">$</span>range<span class="op">@</span>gid &lt;-<span clas
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 2 record(s) assigned a group unique ID.</span>
 <span class="co">#&gt; # A tibble: 8 x 6</span>
-<span class="co">#&gt;   date_of_birth dummy_cri range                       sn   pid pid_cri   </span>
-<span class="co">#&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;numbr_ln&gt;               &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;     </span>
-<span class="co">#&gt; 1 23/03/1986            1 1986-03-23 -&gt; 1988-03-23     1     4 Criteria 1</span>
-<span class="co">#&gt; 2 23/03/1986            1 1986-03-23 -&gt; 1988-03-23     2     4 Criteria 1</span>
-<span class="co">#&gt; 3 23/03/1968            1 1968-03-23 -&gt; 1970-03-23     3     3 None      </span>
-<span class="co">#&gt; 4 01/02/1985            1 1985-02-01 -&gt; 1987-02-01     4     4 Criteria 1</span>
-<span class="co">#&gt; 5 02/01/1985            1 1985-01-02 -&gt; 1987-01-02     5     5 None      </span>
-<span class="co">#&gt; 6 11/03/1964            1 1964-03-11 -&gt; 1966-03-11     6     6 Criteria 1</span>
-<span class="co">#&gt; 7 11/03/1964            1 1964-03-11 -&gt; 1966-03-11     7     6 Criteria 1</span>
-<span class="co">#&gt; 8 11/10/1985            1 1985-10-11 -&gt; 1987-10-11     8     4 Criteria 1</span>
+<span class="co">#&gt;   date_of_birth dummy_cri range                       sn   pid pid_cri</span>
+<span class="co">#&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;numbr_ln&gt;               &lt;int&gt; &lt;dbl&gt;   &lt;dbl&gt;</span>
+<span class="co">#&gt; 1 23/03/1986            1 1986-03-23 -&gt; 1988-03-23     1     4       1</span>
+<span class="co">#&gt; 2 23/03/1986            1 1986-03-23 -&gt; 1988-03-23     2     4       1</span>
+<span class="co">#&gt; 3 23/03/1968            1 1968-03-23 -&gt; 1970-03-23     3     3       0</span>
+<span class="co">#&gt; 4 01/02/1985            1 1985-02-01 -&gt; 1987-02-01     4     4       1</span>
+<span class="co">#&gt; 5 02/01/1985            1 1985-01-02 -&gt; 1987-01-02     5     5       0</span>
+<span class="co">#&gt; 6 11/03/1964            1 1964-03-11 -&gt; 1966-03-11     6     6       1</span>
+<span class="co">#&gt; 7 11/03/1964            1 1964-03-11 -&gt; 1966-03-11     7     6       1</span>
+<span class="co">#&gt; 8 11/10/1985            1 1985-10-11 -&gt; 1987-10-11     8     4       1</span>
 
 <span class="co"># Match record within 5 years younger or older than an age</span>
 Opes_c<span class="op">$</span>age &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>() <span class="op">-</span><span class="st"> </span><span class="kw">dmy</span>(Opes_c<span class="op">$</span>date_of_birth))<span class="op">/</span><span class="fl">365.5</span>)) <span class="co"># approximate age</span>
@@ -406,16 +399,16 @@ Opes_c<span class="op">$</span>range &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 <span class="co">#&gt; # A tibble: 8 x 7</span>
-<span class="co">#&gt;   date_of_birth dummy_cri range        age    sn   pid pid_cri   </span>
-<span class="co">#&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;numbr_ln&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;     </span>
-<span class="co">#&gt; 1 23/03/1986            1 34 -&gt; 39      34     1     1 Criteria 1</span>
-<span class="co">#&gt; 2 23/03/1986            1 34 -&gt; 39      34     2     1 Criteria 1</span>
-<span class="co">#&gt; 3 23/03/1968            1 51 -&gt; 56      51     3     3 Criteria 1</span>
-<span class="co">#&gt; 4 01/02/1985            1 35 -&gt; 40      35     4     1 Criteria 1</span>
-<span class="co">#&gt; 5 02/01/1985            1 35 -&gt; 40      35     5     1 Criteria 1</span>
-<span class="co">#&gt; 6 11/03/1964            1 56 -&gt; 61      56     6     3 Criteria 1</span>
-<span class="co">#&gt; 7 11/03/1964            1 56 -&gt; 61      56     7     3 Criteria 1</span>
-<span class="co">#&gt; 8 11/10/1985            1 34 -&gt; 39      34     8     1 Criteria 1</span></code></pre></div>
+<span class="co">#&gt;   date_of_birth dummy_cri range        age    sn   pid pid_cri</span>
+<span class="co">#&gt;   &lt;chr&gt;             &lt;dbl&gt; &lt;numbr_ln&gt; &lt;dbl&gt; &lt;int&gt; &lt;dbl&gt;   &lt;int&gt;</span>
+<span class="co">#&gt; 1 23/03/1986            1 34 -&gt; 39      34     1     1       1</span>
+<span class="co">#&gt; 2 23/03/1986            1 34 -&gt; 39      34     2     1       1</span>
+<span class="co">#&gt; 3 23/03/1968            1 52 -&gt; 57      52     3     3       1</span>
+<span class="co">#&gt; 4 01/02/1985            1 35 -&gt; 40      35     4     1       1</span>
+<span class="co">#&gt; 5 02/01/1985            1 35 -&gt; 40      35     5     1       1</span>
+<span class="co">#&gt; 6 11/03/1964            1 56 -&gt; 61      56     6     3       1</span>
+<span class="co">#&gt; 7 11/03/1964            1 56 -&gt; 61      56     7     3       1</span>
+<span class="co">#&gt; 8 11/10/1985            1 34 -&gt; 39      34     8     1       1</span></code></pre></div>
 <p>Only use <code>number_line</code> objects as a <code>sub_criteria</code>. <strong>Do not directly use <code>number_line</code> objects as a <code>criteria</code>!</strong>. Instead, create a dummy <code>criteria</code> (e.g. <code>1</code> for every row), and then use the range as a <code>sub_criteria</code> for the dummy <code>criteria</code>.</p>
 <p><a id="record_expansion"></a></p>
 </div>
@@ -464,13 +457,13 @@ Opes_c<span class="op">$</span>range &lt;-<span class="st"> </span><span class="
 <span class="co">#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id forename surname sex         cri_1    cri_2 sn pid    pid_cri</span>
-<span class="co">#&gt; 1     1    James   Green   M   James-Green  Green-M  1   1 Criteria 2</span>
-<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar Kulmar-F  2   2 Criteria 2</span>
-<span class="co">#&gt; 3     3              OBI   F          -OBI    OBI-F  3   3 Criteria 2</span>
-<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  Green-M  4   1 Criteria 2</span>
-<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar Kulmar-M  5   2 Criteria 2</span>
-<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI    OBI-M  6   3 Criteria 2</span></code></pre></div>
+<span class="co">#&gt;   rd_id forename surname sex         cri_1    cri_2 sn pid pid_cri</span>
+<span class="co">#&gt; 1     1    James   Green   M   James-Green  Green-M  1   1       2</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F ESTHER-Kulmar Kulmar-F  2   2       2</span>
+<span class="co">#&gt; 3     3              OBI   F          -OBI    OBI-F  3   3       2</span>
+<span class="co">#&gt; 4     4    Jamey   Green   M   Jamey-Green  Green-M  4   1       2</span>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M Daniel-Kulmar Kulmar-M  5   2       2</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M     Henry-OBI    OBI-M  6   3       2</span></code></pre></div>
 <p><a id="missing_values"></a></p>
 </div>
 <div id="handling-missing-values" class="section level2">
@@ -490,12 +483,12 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_b, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>)
 )
 <span class="co">#&gt; Record grouping complete - 2 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id forename     surname    sex sn pid    pid_cri</span>
-<span class="co">#&gt; 1     1      Nil   Jefferson   Male  1   1 Criteria 1</span>
-<span class="co">#&gt; 2     2      Nil   Jefferson Female  2   1 Criteria 1</span>
-<span class="co">#&gt; 3     3      Nil       Abdul   Male  3   1 Criteria 1</span>
-<span class="co">#&gt; 4     4     Tomi Abdulkareem Female  4   4       None</span>
-<span class="co">#&gt; 5     5      Obi      Nelson   Male  5   5       None</span>
+<span class="co">#&gt;   rd_id forename     surname    sex sn pid pid_cri</span>
+<span class="co">#&gt; 1     1      Nil   Jefferson   Male  1   1       1</span>
+<span class="co">#&gt; 2     2      Nil   Jefferson Female  2   1       1</span>
+<span class="co">#&gt; 3     3      Nil       Abdul   Male  3   1       1</span>
+<span class="co">#&gt; 4     4     Tomi Abdulkareem Female  4   4       0</span>
+<span class="co">#&gt; 5     5      Obi      Nelson   Male  5   5       0</span>
 
 <span class="co"># 2 stage linkage</span>
     <span class="co"># Stage 1 - forename</span>
@@ -507,12 +500,12 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_b, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, cri_<span class="dv">2</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>)
 )
 <span class="co">#&gt; Record grouping complete - 2 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id forename     surname    sex             cri_2 sn pid    pid_cri</span>
-<span class="co">#&gt; 1     1      Nil   Jefferson   Male     JeffersonMale  1   1 Criteria 1</span>
-<span class="co">#&gt; 2     2      Nil   Jefferson Female   JeffersonFemale  2   1 Criteria 1</span>
-<span class="co">#&gt; 3     3      Nil       Abdul   Male         AbdulMale  3   1 Criteria 1</span>
-<span class="co">#&gt; 4     4     Tomi Abdulkareem Female AbdulkareemFemale  4   4       None</span>
-<span class="co">#&gt; 5     5      Obi      Nelson   Male        NelsonMale  5   5       None</span></code></pre></div>
+<span class="co">#&gt;   rd_id forename     surname    sex             cri_2 sn pid pid_cri</span>
+<span class="co">#&gt; 1     1      Nil   Jefferson   Male     JeffersonMale  1   1       1</span>
+<span class="co">#&gt; 2     2      Nil   Jefferson Female   JeffersonFemale  2   1       1</span>
+<span class="co">#&gt; 3     3      Nil       Abdul   Male         AbdulMale  3   1       1</span>
+<span class="co">#&gt; 4     4     Tomi Abdulkareem Female AbdulkareemFemale  4   4       0</span>
+<span class="co">#&gt; 5     5      Obi      Nelson   Male        NelsonMale  5   5       0</span></code></pre></div>
 <p>In the example above, records 1-3 are assigned a single group ID based on matching forenames (<code>"Nil"</code>). Then records 4-6 are assigned the same group ID because they having matching surnames with either records 1-3. Even when stage 2 is changed to matching surnames and sex, records 2 and 3 are still “incorrectly” grouped together. Although, this is likely not the desired outcome, it’s the expected result given the parameters supplied to the function. This issue can be addressed by recoding <code>"Nil"</code> to <code>NA</code> or <code>""</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using NA as the proxy for missing value</span>
 patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_b,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(forename<span class="op">==</span><span class="st">"Nil"</span>,<span class="ot">NA</span>,forename))
@@ -522,12 +515,12 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_b, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>)
 )
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id forename     surname    sex             cri_2 sn pid    pid_cri</span>
-<span class="co">#&gt; 1     1     &lt;NA&gt;   Jefferson   Male     JeffersonMale  1   1 Criteria 2</span>
-<span class="co">#&gt; 2     2     &lt;NA&gt;   Jefferson Female   JeffersonFemale  2   1 Criteria 2</span>
-<span class="co">#&gt; 3     3     &lt;NA&gt;       Abdul   Male         AbdulMale  3   3       None</span>
-<span class="co">#&gt; 4     4     Tomi Abdulkareem Female AbdulkareemFemale  4   4       None</span>
-<span class="co">#&gt; 5     5      Obi      Nelson   Male        NelsonMale  5   5       None</span>
+<span class="co">#&gt;   rd_id forename     surname    sex             cri_2 sn pid pid_cri</span>
+<span class="co">#&gt; 1     1     &lt;NA&gt;   Jefferson   Male     JeffersonMale  1   1       2</span>
+<span class="co">#&gt; 2     2     &lt;NA&gt;   Jefferson Female   JeffersonFemale  2   1       2</span>
+<span class="co">#&gt; 3     3     &lt;NA&gt;       Abdul   Male         AbdulMale  3   3       0</span>
+<span class="co">#&gt; 4     4     Tomi Abdulkareem Female AbdulkareemFemale  4   4       0</span>
+<span class="co">#&gt; 5     5      Obi      Nelson   Male        NelsonMale  5   5       0</span>
 
 <span class="co"># Using "" as the proxy for missing value</span>
 patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_b,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(forename),<span class="st">""</span>,forename))  
@@ -537,12 +530,12 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
   <span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_b, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>)
 )
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt;   rd_id forename     surname    sex             cri_2 sn pid    pid_cri</span>
-<span class="co">#&gt; 1     1            Jefferson   Male     JeffersonMale  1   1 Criteria 2</span>
-<span class="co">#&gt; 2     2            Jefferson Female   JeffersonFemale  2   1 Criteria 2</span>
-<span class="co">#&gt; 3     3                Abdul   Male         AbdulMale  3   3       None</span>
-<span class="co">#&gt; 4     4     Tomi Abdulkareem Female AbdulkareemFemale  4   4       None</span>
-<span class="co">#&gt; 5     5      Obi      Nelson   Male        NelsonMale  5   5       None</span></code></pre></div>
+<span class="co">#&gt;   rd_id forename     surname    sex             cri_2 sn pid pid_cri</span>
+<span class="co">#&gt; 1     1            Jefferson   Male     JeffersonMale  1   1       2</span>
+<span class="co">#&gt; 2     2            Jefferson Female   JeffersonFemale  2   1       2</span>
+<span class="co">#&gt; 3     3                Abdul   Male         AbdulMale  3   3       0</span>
+<span class="co">#&gt; 4     4     Tomi Abdulkareem Female AbdulkareemFemale  4   4       0</span>
+<span class="co">#&gt; 5     5      Obi      Nelson   Male        NelsonMale  5   5       0</span></code></pre></div>
 </div>
 </div>
 <div id="conclusion" class="section level1">
@@ -575,7 +568,7 @@ patient_list_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(pati
 
 
       <footer><div class="copyright">
-  <p>Developed by Olisa Nsonwu.</p>
+  <p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">

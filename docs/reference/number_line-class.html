@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title><code>number_line</code> class — number_line-class • diyar</title>
+<title><code>number_line</code> object — number_line-class • diyar</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,9 +30,10 @@
 
 
 
-<meta property="og:title" content="<code>number_line</code> class — number_line-class" />
+<meta property="og:title" content="<code>number_line</code> object — number_line-class" />
 
-<meta property="og:description" content="number_line class" />
+<meta property="og:description" content="S4 objects representing a series of finite numbers on a number line
+Used for range matching in record_group and interval grouping in fixed_episodes, rolling_episodes and episode_group" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -63,7 +64,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1.9000</span>
       </span>
     </div>
 
@@ -99,12 +100,7 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/OlisaNsonwu/diyar">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -117,14 +113,15 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1><code>number_line</code> class</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/number_line.R'><code>R/number_line.R</code></a></small>
+    <h1><code>number_line</code> object</h1>
+    
     <div class="hidden name"><code>number_line-class.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p><code>number_line</code> class</p>
+    <p>S4 objects representing a series of finite numbers on a number line
+Used for range matching in <code><a href='record_group.html'>record_group</a></code> and interval grouping in <code><a href='episode_group.html'>fixed_episodes</a></code>, <code><a href='episode_group.html'>rolling_episodes</a></code> and <code><a href='episode_group.html'>episode_group</a></code></p>
     
     </div>
 
@@ -153,7 +150,16 @@ $(x, name)
 $(x, name) <- value
 
 # S4 method for number_line
-c(x, ...)</pre>
+c(x, ...)
+
+# S3 method for number_line
+unique(x, ...)
+
+# S3 method for number_line
+sort(x, decreasing = FALSE, ...)
+
+# S3 method for number_line
+format(x, ...)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -194,12 +200,11 @@ c(x, ...)</pre>
       <th>name</th>
       <td><p>slot name</p></td>
     </tr>
+    <tr>
+      <th>decreasing</th>
+      <td><p>logical. Should the sort be increasing or decreasing</p></td>
+    </tr>
     </table>
-    
-    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
-
-    <p>S4 objects representing a series of finite numbers on a number line
-Used for range matching in <code>record_grouping()</code> and interval grouping in <code>episode_grouping()</code></p>
     
     <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
@@ -218,8 +223,6 @@ Used for range matching in <code>record_grouping()</code> and interval grouping 
     <ul class="nav nav-pills nav-stacked">
       <li><a href="#arguments">Arguments</a></li>
       
-      <li><a href="#details">Details</a></li>
-
       <li><a href="#slots">Slots</a></li>
           </ul>
 
@@ -228,7 +231,7 @@ Used for range matching in <code>record_grouping()</code> and interval grouping 
 
       <footer>
       <div class="copyright">
-  <p>Developed by Olisa Nsonwu.</p>
+  <p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">

@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1.9000</span>
       </span>
     </div>
 
@@ -99,12 +99,7 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        <li>
-  <a href="https://github.com/OlisaNsonwu/diyar">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
+        
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -118,7 +113,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Multistage deterministic record linkage</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/record_group.R'><code>R/record_group.R</code></a></small>
+    
     <div class="hidden name"><code>record_group.Rd</code></div>
     </div>
 
@@ -129,7 +124,8 @@
     </div>
 
     <pre class="usage"><span class='fu'>record_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>criteria</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -144,7 +140,7 @@
     </tr>
     <tr>
       <th>criteria</th>
-      <td><p>Column names of the attributes to match. Records with matching values in these columns are grouped together.</p></td>
+      <td><p>Column names of attributes to match. Records with matching values in these columns are grouped together.</p></td>
     </tr>
     <tr>
       <th>sub_criteria</th>
@@ -152,7 +148,7 @@
     </tr>
     <tr>
       <th>data_source</th>
-      <td><p>Unique dataset identifier. Useful when <code>data.frame</code> contains data from multiple datasets.</p></td>
+      <td><p>Unique dataset identifier. Useful when <code>ds</code> contains data from multiple sources.</p></td>
     </tr>
     <tr>
       <th>group_stats</th>
@@ -162,16 +158,20 @@
       <th>display</th>
       <td><p>If <code>TRUE</code>, status messages are printed on screen.</p></td>
     </tr>
+    <tr>
+      <th>to_s4</th>
+      <td><p>if <code>TRUE</code>, changes the returned value to an <code><a href='pid-class.html'>pid</a></code> object.</p></td>
+    </tr>
     </table>
     
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>data.frame</code></p>
+    <p><code>data.frame</code> (<code><a href='pid-class.html'>pid</a></code> objects if <code>to_s4</code> is <code>TRUE</code>)</p>
 <ul>
 <li><p><code>sn</code> - unique record identifier as provided</p></li>
 <li><p><code>pid</code> - unique group identifier</p></li>
-<li><p><code>pid_cri</code> - matching criteria for each record in the group</p></li>
-<li><p><code>pid_dataset</code> - list of datasets in each group</p></li>
+<li><p><code>pid_cri</code> - matched criteria for each record in the group</p></li>
+<li><p><code>pid_dataset</code> - data sources in each group</p></li>
 <li><p><code>pid_total</code> - number of records in each group</p></li>
 </ul>
 
@@ -179,18 +179,18 @@
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Record grouping occurs in stages of matching <code>criteria</code>.</p>
-<p>Records are matched in two ways; an exact match - the equivalent of <code>(==)</code>, or matching a range of values.
-An example of range matching is matching on a date give or take 5 days, or matching on age give or take 2 years.
-To do this, create a <code><a href='number_line.html'>number_line</a></code> object with the range of values, and assign the actual value to the <code>gid</code> argument.
+<p>Records are matched in two ways; an exact match - the equivalent of <code>(==)</code>, or matching a range of numeric values.
+An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
+To do this, create a <code><a href='number_line.html'>number_line</a></code> object with the range of values with the actual value assigned to <code>gid</code>.
 Then use the <code><a href='number_line.html'>number_line</a></code> as a <code>sub_criteria</code>.</p>
-<p>A match at each stage is considered more certain than those at subsequent stages.
-Therefore, <code>criteria</code> should be listed in order of decreasing certainty.</p>
+<p>A match at each stage is considered more relevant than those at subsequent stages.
+Therefore, <code>criteria</code> should be listed in order of decreasing relevance or certainty.</p>
 <p><code>sub_criteria</code> can be used to force additional matching conditions at each stage.
 If <code>sub_criteria</code> is not <code>NULL</code>, only records with matching <code>criteria</code> and <code>sub_criteria</code> values are grouped together.
 If a record has missing values for any <code>criteria</code>, it's skipped at that stage, and another attempt is made at the next stage.
 If all <code>criteria</code> values are missing, that record is assigned a unique group ID.</p>
 <p>When a <code>data_source</code> identifier is included,
-<code>pid_dataset</code> is included in the output. This shows the datasets included in each group.</p>
+<code>pid_dataset</code> is included in the output. This shows the data sources included in each group.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -202,32 +202,39 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>tidyr</span>)
 
 <span class='no'>three_people</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>forename</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Obinna"</span>,<span class='st'>"James"</span>,<span class='st'>"Ojay"</span>,<span class='st'>"James"</span>,<span class='st'>"Obinna"</span>),
-<span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-<span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>three_people</span>, <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>))</div><div class='output co'>#&gt; 
+                           <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='co'># Current default output (will be changed in next major release)</span>
+<span class='no'>output</span> <span class='kw'>&lt;-</span>  <span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>three_people</span>, <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>))</div><div class='output co'>#&gt; 
 #&gt; Group criteria 1 - `forename`
 #&gt; 5 of 5 record(s) have been assigned a group ID. 0 record(s) not yet grouped.
 #&gt; 1 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 1.
 #&gt; 
-#&gt; Record grouping complete - 1 record(s) assigned a group unique ID. </div><div class='output co'>#&gt;   forename sn pid    pid_cri
-#&gt; 1   Obinna  1   1 Criteria 1
-#&gt; 2    James  2   2 Criteria 1
-#&gt; 3     Ojay  3   3       None
-#&gt; 4    James  4   2 Criteria 1
-#&gt; 5   Obinna  5   1 Criteria 1</div><div class='input'>
+#&gt; Record grouping complete - 1 record(s) assigned a group unique ID. </div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;   forename sn pid pid_cri
+#&gt; 1   Obinna  1   1       1
+#&gt; 2    James  2   2       1
+#&gt; 3     Ojay  3   3       0
+#&gt; 4    James  4   2       1
+#&gt; 5   Obinna  5   1       1</div><div class='input'><span class='co'># New pid_object</span>
+<span class='no'>three_people</span>$<span class='no'>pids_a</span> <span class='kw'>&lt;-</span> <span class='no'>output</span>$<span class='no'>pids</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
+#&gt; Group criteria 1 - `forename`
+#&gt; 5 of 5 record(s) have been assigned a group ID. 0 record(s) not yet grouped.
+#&gt; 1 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 1.
+#&gt; 
+#&gt; Record grouping complete - 1 record(s) assigned a group unique ID. </div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;   forename sn pid pid_cri         pids
+#&gt; 1   Obinna  1   1       1 P-1 (CRI 01)
+#&gt; 2    James  2   2       1 P-2 (CRI 01)
+#&gt; 3     Ojay  3   3       0 P-3 (No Hit)
+#&gt; 4    James  4   2       1 P-2 (CRI 01)
+#&gt; 5   Obinna  5   1       1 P-1 (CRI 01)</div><div class='input'>
 <span class='co'># To handle missing or unknown data, recode missing or unknown values to NA or "".</span>
-<span class='no'>three_people</span>$<span class='no'>r_id</span> <span class='kw'>&lt;-</span> <span class='fl'>1</span>:<span class='fl'>5</span>
-<span class='no'>three_people</span>$<span class='no'>forename</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/ifelse'>ifelse</a></span>(<span class='no'>three_people</span>$<span class='no'>r_id</span> <span class='kw'>%in%</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>4</span>), <span class='fl'>NA</span>, <span class='no'>three_people</span>$<span class='no'>forename</span>)
-<span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>three_people</span>, <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>))</div><div class='output co'>#&gt; 
+<span class='no'>three_people</span>$<span class='no'>forename</span>[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>4</span>)] <span class='kw'>&lt;-</span> <span class='fl'>NA</span>
+<span class='no'>three_people</span>$<span class='no'>pids_b</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
 #&gt; Group criteria 1 - `forename`
 #&gt; 3 of 5 record(s) have been assigned a group ID. 2 record(s) not yet grouped.
 #&gt; 3 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 5.
 #&gt; 
-#&gt; Record grouping complete - 5 record(s) assigned a group unique ID. </div><div class='output co'>#&gt;   forename r_id sn pid pid_cri
-#&gt; 1     &lt;NA&gt;    1  1   1    None
-#&gt; 2    James    2  2   2    None
-#&gt; 3     Ojay    3  3   3    None
-#&gt; 4     &lt;NA&gt;    4  4   4    None
-#&gt; 5   Obinna    5  5   5    None</div><div class='input'>
+#&gt; Record grouping complete - 5 record(s) assigned a group unique ID. </div><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>staff_records</span>); <span class='no'>staff_records</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 7 x 5</span><span>
 #&gt;    r_id forename surname  sex   dataset   
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     
@@ -239,81 +246,65 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 #&gt; </span><span style='color: #555555;'>6</span><span>     6 Darrack  Anderson M     Pay slips 
 #&gt; </span><span style='color: #555555;'>7</span><span>     7 Christie Green    F     Staff list</div><div class='input'>
 <span class='co'># Range matching</span>
-<span class='no'>dob</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://dplyr.tidyverse.org/reference/select.html'>select</a></span>(<span class='no'>staff_records</span>, <span class='no'>sex</span>)
+<span class='no'>dob</span> <span class='kw'>&lt;-</span> <span class='no'>staff_records</span>[<span class='st'>"sex"</span>]
 <span class='no'>dob</span>$<span class='no'>age</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>10</span>,<span class='fl'>8</span>,<span class='fl'>20</span>,<span class='fl'>5</span>,<span class='fl'>5</span>,<span class='fl'>9</span>,<span class='fl'>7</span>)
 
 <span class='co'># age range - age + 20 years</span>
 <span class='no'>dob</span>$<span class='no'>range</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>dob</span>$<span class='no'>age</span>, <span class='no'>dob</span>$<span class='no'>age</span>+<span class='fl'>20</span>, <span class='kw'>gid</span><span class='kw'>=</span><span class='no'>dob</span>$<span class='no'>age</span>)
-<span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>dob</span>, <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range"</span>), <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>))</div><div class='output co'>#&gt; Record grouping complete - 1 record(s) assigned a group unique ID. </div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 6</span><span>
-#&gt;   sex     age range         sn   pid pid_cri   
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     
-#&gt; </span><span style='color: #555555;'>1</span><span> M        10 10 -&gt; 30       1     2 Criteria 1
-#&gt; </span><span style='color: #555555;'>2</span><span> M         8 8 -&gt; 28        2     2 Criteria 1
-#&gt; </span><span style='color: #555555;'>3</span><span> M        20 20 -&gt; 40       3     2 Criteria 1
-#&gt; </span><span style='color: #555555;'>4</span><span> F         5 5 -&gt; 25        4     4 Criteria 1
-#&gt; </span><span style='color: #555555;'>5</span><span> M         5 5 -&gt; 25        5     5 None      
-#&gt; </span><span style='color: #555555;'>6</span><span> M         9 9 -&gt; 29        6     2 Criteria 1
-#&gt; </span><span style='color: #555555;'>7</span><span> F         7 7 -&gt; 27        7     4 Criteria 1</div><div class='input'>
+<span class='no'>dob</span>$<span class='no'>pids_a</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range"</span>), <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
+#&gt; Group criteria 1 - `sex`
+#&gt; Matching criteria 1: iteration 2
+#&gt; Matching criteria 1: iteration 3
+#&gt; Matching criteria 1: iteration 4
+#&gt; Matching criteria 1: iteration 5
+#&gt; Matching criteria 1: iteration 6
+#&gt; Matching criteria 1: iteration 7
+#&gt; 7 of 7 record(s) have been assigned a group ID. 0 record(s) not yet grouped.
+#&gt; 1 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 1.
+#&gt; 
+#&gt; Record grouping complete - 1 record(s) assigned a group unique ID. </div><div class='input'>
 <span class='co'># age range - age +- 20 years</span>
 <span class='no'>dob</span>$<span class='no'>range</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>dob</span>$<span class='no'>age</span>-<span class='fl'>20</span>, <span class='no'>dob</span>$<span class='no'>age</span>+<span class='fl'>20</span>, <span class='kw'>gid</span><span class='kw'>=</span><span class='no'>dob</span>$<span class='no'>age</span>)
-<span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>dob</span>, <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range"</span>)))</div><div class='output co'>#&gt; 
+<span class='no'>dob</span>$<span class='no'>pids_b</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range"</span>), <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
 #&gt; Group criteria 1 - `sex`
 #&gt; 7 of 7 record(s) have been assigned a group ID. 0 record(s) not yet grouped.
 #&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.
 #&gt; 
-#&gt; Record grouping complete - 0 record(s) assigned a group unique ID. </div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 6</span><span>
-#&gt;   sex     age range         sn   pid pid_cri   
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     
-#&gt; </span><span style='color: #555555;'>1</span><span> M        10 -10 -&gt; 30      1     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>2</span><span> M         8 -12 -&gt; 28      2     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>3</span><span> M        20 0 -&gt; 40        3     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>4</span><span> F         5 -15 -&gt; 25      4     4 Criteria 1
-#&gt; </span><span style='color: #555555;'>5</span><span> M         5 -15 -&gt; 25      5     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>6</span><span> M         9 -11 -&gt; 29      6     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>7</span><span> F         7 -13 -&gt; 27      7     4 Criteria 1</div><div class='input'>
+#&gt; Record grouping complete - 0 record(s) assigned a group unique ID. </div><div class='input'>
 <span class='co'># Do not directly use number_line objects as criterias.</span>
 <span class='co'># Instead, use it as the sub_criteria to a 'dummy criteria'</span>
 <span class='no'>dob</span>$<span class='no'>dum_var</span> <span class='kw'>&lt;-</span> <span class='fl'>1</span>
-<span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>dob</span>, <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>dum_var</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range"</span>)))</div><div class='output co'>#&gt; 
+<span class='no'>dob</span>$<span class='no'>pids_c</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>dum_var</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range"</span>), <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
 #&gt; Group criteria 1 - `dum_var`
 #&gt; 7 of 7 record(s) have been assigned a group ID. 0 record(s) not yet grouped.
 #&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.
 #&gt; 
-#&gt; Record grouping complete - 0 record(s) assigned a group unique ID. </div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 7</span><span>
-#&gt;   sex     age range      dum_var    sn   pid pid_cri   
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     
-#&gt; </span><span style='color: #555555;'>1</span><span> M        10 -10 -&gt; 30        1     1     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>2</span><span> M         8 -12 -&gt; 28        1     2     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>3</span><span> M        20 0 -&gt; 40          1     3     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>4</span><span> F         5 -15 -&gt; 25        1     4     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>5</span><span> M         5 -15 -&gt; 25        1     5     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>6</span><span> M         9 -11 -&gt; 29        1     6     1 Criteria 1
-#&gt; </span><span style='color: #555555;'>7</span><span> F         7 -13 -&gt; 27        1     7     1 Criteria 1</div><div class='input'>
+#&gt; Record grouping complete - 0 record(s) assigned a group unique ID. </div><div class='input'>
 <span class='co'># Two or more stages of record grouping</span>
-<span class='no'>pids</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>staff_records</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='no'>r_id</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>forename</span>, <span class='no'>surname</span>),
-<span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Record grouping complete - 1 record(s) assigned a group unique ID. </div><div class='input'><span class='fu'><a href='https://dplyr.tidyverse.org/reference/join.html'>left_join</a></span>(<span class='no'>staff_records</span>, <span class='no'>pids</span>, <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"r_id"</span><span class='kw'>=</span><span class='st'>"sn"</span>))</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 8</span><span>
-#&gt;    r_id forename surname  sex   dataset      pid pid_cri    pid_dataset
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      
-#&gt; </span><span style='color: #555555;'>1</span><span>     1 James    Green    M     Staff list     1 Criteria 2 F,M        
-#&gt; </span><span style='color: #555555;'>2</span><span>     2 </span><span style='color: #BB0000;'>NA</span><span>       Anderson M     Staff list     2 Criteria 2 M          
-#&gt; </span><span style='color: #555555;'>3</span><span>     3 Jamey    Green    M     Pay slips      1 Criteria 2 F,M        
-#&gt; </span><span style='color: #555555;'>4</span><span>     4 </span><span style='color: #555555;'>""</span><span>       </span><span style='color: #BB0000;'>NA</span><span>       F     Pay slips      4 None       F          
-#&gt; </span><span style='color: #555555;'>5</span><span>     5 Derrick  Anderson M     Staff list     2 Criteria 2 M          
-#&gt; </span><span style='color: #555555;'>6</span><span>     6 Darrack  Anderson M     Pay slips      2 Criteria 2 M          
-#&gt; </span><span style='color: #555555;'>7</span><span>     7 Christie Green    F     Staff list     1 Criteria 2 F,M        </div><div class='input'>
+<span class='no'>staff_records</span>$<span class='no'>pids_a</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>staff_records</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='no'>r_id</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>forename</span>, <span class='no'>surname</span>),
+                                     <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; Record grouping complete - 1 record(s) assigned a group unique ID. </div><div class='input'><span class='no'>staff_records</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 6</span><span>
+#&gt;    r_id forename surname  sex   dataset    pids_a      
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;pid&gt;</span><span>       
+#&gt; </span><span style='color: #555555;'>1</span><span>     1 James    Green    M     Staff list P-1 (CRI 02)
+#&gt; </span><span style='color: #555555;'>2</span><span>     2 </span><span style='color: #BB0000;'>NA</span><span>       Anderson M     Staff list P-2 (CRI 02)
+#&gt; </span><span style='color: #555555;'>3</span><span>     3 Jamey    Green    M     Pay slips  P-1 (CRI 02)
+#&gt; </span><span style='color: #555555;'>4</span><span>     4 </span><span style='color: #555555;'>""</span><span>       </span><span style='color: #BB0000;'>NA</span><span>       F     Pay slips  P-4 (No Hit)
+#&gt; </span><span style='color: #555555;'>5</span><span>     5 Derrick  Anderson M     Staff list P-2 (CRI 02)
+#&gt; </span><span style='color: #555555;'>6</span><span>     6 Darrack  Anderson M     Pay slips  P-2 (CRI 02)
+#&gt; </span><span style='color: #555555;'>7</span><span>     7 Christie Green    F     Staff list P-1 (CRI 02)</div><div class='input'>
 <span class='co'># Add sex to the second stage to be more certain</span>
-<span class='no'>staff_records_b</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://tidyr.tidyverse.org/reference/unite.html'>unite</a></span>(<span class='no'>staff_records</span>, <span class='no'>cri_2</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>surname</span>, <span class='no'>sex</span>), <span class='kw'>sep</span> <span class='kw'>=</span><span class='st'>"-"</span>)
-<span class='no'>pids</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>staff_records_b</span>, <span class='no'>r_id</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>forename</span>, <span class='no'>cri_2</span>),
-<span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>dataset</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Record grouping complete - 2 record(s) assigned a group unique ID. </div><div class='input'><span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>staff_records_b</span>, <span class='no'>pids</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 8</span><span>
-#&gt;    r_id forename cri_2      dataset       sn   pid pid_cri   pid_dataset        
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>              
-#&gt; </span><span style='color: #555555;'>1</span><span>     1 James    Green-M    Staff list     1     1 Criteria~ Pay slips,Staff li~
-#&gt; </span><span style='color: #555555;'>2</span><span>     2 </span><span style='color: #BB0000;'>NA</span><span>       Anderson-M Staff list     2     2 Criteria~ Pay slips,Staff li~
-#&gt; </span><span style='color: #555555;'>3</span><span>     3 Jamey    Green-M    Pay slips      3     1 Criteria~ Pay slips,Staff li~
-#&gt; </span><span style='color: #555555;'>4</span><span>     4 </span><span style='color: #555555;'>""</span><span>       NA-F       Pay slips      4     4 None      Pay slips          
-#&gt; </span><span style='color: #555555;'>5</span><span>     5 Derrick  Anderson-M Staff list     5     2 Criteria~ Pay slips,Staff li~
-#&gt; </span><span style='color: #555555;'>6</span><span>     6 Darrack  Anderson-M Pay slips      6     2 Criteria~ Pay slips,Staff li~
-#&gt; </span><span style='color: #555555;'>7</span><span>     7 Christie Green-F    Staff list     7     7 None      Staff list         </div><div class='input'>
+<span class='no'>staff_records</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://tidyr.tidyverse.org/reference/unite.html'>unite</a></span>(<span class='no'>staff_records</span>, <span class='no'>cri_2</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>surname</span>, <span class='no'>sex</span>), <span class='kw'>sep</span> <span class='kw'>=</span><span class='st'>"-"</span>)
+<span class='no'>staff_records</span>$<span class='no'>pids_b</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>staff_records</span>, <span class='no'>r_id</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>forename</span>, <span class='no'>cri_2</span>),
+                                     <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>dataset</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; Record grouping complete - 2 record(s) assigned a group unique ID. </div><div class='input'><span class='no'>staff_records</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 6</span><span>
+#&gt;    r_id forename cri_2      dataset    pids_a       pids_b      
+#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;pid&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;pid&gt;</span><span>       
+#&gt; </span><span style='color: #555555;'>1</span><span>     1 James    Green-M    Staff list P-1 (CRI 02) P-1 (CRI 02)
+#&gt; </span><span style='color: #555555;'>2</span><span>     2 </span><span style='color: #BB0000;'>NA</span><span>       Anderson-M Staff list P-2 (CRI 02) P-2 (CRI 02)
+#&gt; </span><span style='color: #555555;'>3</span><span>     3 Jamey    Green-M    Pay slips  P-1 (CRI 02) P-1 (CRI 02)
+#&gt; </span><span style='color: #555555;'>4</span><span>     4 </span><span style='color: #555555;'>""</span><span>       NA-F       Pay slips  P-4 (No Hit) P-4 (No Hit)
+#&gt; </span><span style='color: #555555;'>5</span><span>     5 Derrick  Anderson-M Staff list P-2 (CRI 02) P-2 (CRI 02)
+#&gt; </span><span style='color: #555555;'>6</span><span>     6 Darrack  Anderson-M Pay slips  P-2 (CRI 02) P-2 (CRI 02)
+#&gt; </span><span style='color: #555555;'>7</span><span>     7 Christie Green-F    Staff list P-1 (CRI 02) P-7 (No Hit)</div><div class='input'>
 <span class='co'># Using sub-criteria</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>missing_staff_id</span>); <span class='no'>missing_staff_id</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 8</span><span>
 #&gt;    r_id staff_id   age initials hair_colour branch_office     source_1 source_2
@@ -325,8 +316,8 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 #&gt; </span><span style='color: #555555;'>5</span><span>     5       </span><span style='color: #BB0000;'>NA</span><span>    30 </span><span style='color: #BB0000;'>NA</span><span>       Green       France            A               1
 #&gt; </span><span style='color: #555555;'>6</span><span>     6        2    30 G.D.     Dark brown  Ghana             A               1
 #&gt; </span><span style='color: #555555;'>7</span><span>     7        2    30 G.D.     Brown       Republic of Ghana B               2</div><div class='input'>
-<span class='no'>pids</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>missing_staff_id</span>, <span class='no'>r_id</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>staff_id</span>, <span class='no'>age</span>),
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s2a</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"initials"</span>,<span class='st'>"hair_colour"</span>,<span class='st'>"branch_office"</span>)), <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>source_1</span>)</div><div class='output co'>#&gt; 
+<span class='no'>missing_staff_id</span>$<span class='no'>pids</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>missing_staff_id</span>, <span class='no'>r_id</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>staff_id</span>, <span class='no'>age</span>),
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s2a</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"initials"</span>,<span class='st'>"hair_colour"</span>,<span class='st'>"branch_office"</span>)), <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>source_1</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
 #&gt; Group criteria 1 - `staff_id`
 #&gt; 2 of 7 record(s) have been assigned a group ID. 5 record(s) not yet grouped.
 #&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 5.
@@ -337,7 +328,8 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 #&gt; 5 of 5 record(s) have been assigned a group ID. 0 record(s) not yet grouped.
 #&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.
 #&gt; 
-#&gt; Record grouping complete - 0 record(s) assigned a group unique ID. </div><div class='input'><span class='fu'><a href='https://dplyr.tidyverse.org/reference/join.html'>left_join</a></span>(<span class='no'>missing_staff_id</span>, <span class='no'>pids</span>, <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"r_id"</span><span class='kw'>=</span><span class='st'>"sn"</span>))</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 11</span><span>
+#&gt; Record grouping complete - 0 record(s) assigned a group unique ID. </div><div class='input'>
+<span class='no'>missing_staff_id</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 9</span><span>
 #&gt;    r_id staff_id   age initials hair_colour branch_office source_1 source_2
 #&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
 #&gt; </span><span style='color: #555555;'>1</span><span>     1       </span><span style='color: #BB0000;'>NA</span><span>    30 G.D.     Brown       Republic of ~ A               3
@@ -347,31 +339,7 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 #&gt; </span><span style='color: #555555;'>5</span><span>     5       </span><span style='color: #BB0000;'>NA</span><span>    30 </span><span style='color: #BB0000;'>NA</span><span>       Green       France        A               1
 #&gt; </span><span style='color: #555555;'>6</span><span>     6        2    30 G.D.     Dark brown  Ghana         A               1
 #&gt; </span><span style='color: #555555;'>7</span><span>     7        2    30 G.D.     Brown       Republic of ~ B               2
-#&gt; </span><span style='color: #555555;'># ... with 3 more variables: pid </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, pid_cri </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>, pid_dataset </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'>
-<span class='no'>pids</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>missing_staff_id</span>, <span class='no'>r_id</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>staff_id</span>, <span class='no'>age</span>),
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s2a</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"initials"</span>,<span class='st'>"hair_colour"</span>,<span class='st'>"branch_office"</span>)), <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>source_1</span>, <span class='no'>source_2</span>))</div><div class='output co'>#&gt; 
-#&gt; Group criteria 1 - `staff_id`
-#&gt; 2 of 7 record(s) have been assigned a group ID. 5 record(s) not yet grouped.
-#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 5.
-#&gt; 
-#&gt; Group criteria 2 - `age`
-#&gt; Matching criteria 2: iteration 2
-#&gt; Matching criteria 2: iteration 3
-#&gt; 5 of 5 record(s) have been assigned a group ID. 0 record(s) not yet grouped.
-#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.
-#&gt; 
-#&gt; Record grouping complete - 0 record(s) assigned a group unique ID. </div><div class='input'><span class='fu'><a href='https://dplyr.tidyverse.org/reference/bind.html'>bind_cols</a></span>(<span class='no'>missing_staff_id</span>, <span class='no'>pids</span>)</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 7 x 12</span><span>
-#&gt;    r_id staff_id   age initials hair_colour branch_office source_1 source_2
-#&gt;   </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>    </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>         </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'>1</span><span>     1       </span><span style='color: #BB0000;'>NA</span><span>    30 G.D.     Brown       Republic of ~ A               3
-#&gt; </span><span style='color: #555555;'>2</span><span>     2       </span><span style='color: #BB0000;'>NA</span><span>    30 B.G.     Teal        France        A               1
-#&gt; </span><span style='color: #555555;'>3</span><span>     3       </span><span style='color: #BB0000;'>NA</span><span>    30 X.P.     </span><span style='color: #BB0000;'>NA</span><span>          </span><span style='color: #BB0000;'>NA</span><span>            A               1
-#&gt; </span><span style='color: #555555;'>4</span><span>     4       </span><span style='color: #BB0000;'>NA</span><span>    30 X.P.     Green       </span><span style='color: #BB0000;'>NA</span><span>            B               1
-#&gt; </span><span style='color: #555555;'>5</span><span>     5       </span><span style='color: #BB0000;'>NA</span><span>    30 </span><span style='color: #BB0000;'>NA</span><span>       Green       France        A               1
-#&gt; </span><span style='color: #555555;'>6</span><span>     6        2    30 G.D.     Dark brown  Ghana         A               1
-#&gt; </span><span style='color: #555555;'>7</span><span>     7        2    30 G.D.     Brown       Republic of ~ B               2
-#&gt; </span><span style='color: #555555;'># ... with 4 more variables: sn </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span style='color: #555555;'>, pid </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span style='color: #555555;'>, pid_cri </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span style='color: #555555;'>,
-#&gt; #   pid_dataset </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span></div><div class='input'>
+#&gt; </span><span style='color: #555555;'># ... with 1 more variable: pids </span><span style='color: #555555;font-style: italic;'>&lt;pid&gt;</span><span></div><div class='input'>
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
@@ -393,7 +361,7 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 
       <footer>
       <div class="copyright">
-  <p>Developed by Olisa Nsonwu.</p>
+  <p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">

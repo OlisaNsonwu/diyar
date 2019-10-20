@@ -20,7 +20,7 @@ test_that("test that row positions of the resulting dataframe are the same as su
 
 test_that("test that test record identifier is as expected for one criteria", {
   expect_equal(test_1$pid, c(1,2,3,2,1))
-  expect_equal(test_1$pid_cri, c("Criteria 1","Criteria 1","None","Criteria 1","Criteria 1"))
+  expect_equal(test_1$pid_cri, c(1,1,0,1,1))
   expect_equal(test_1$pid_total, c(2,2,1,2,2))
 })
 
@@ -57,10 +57,10 @@ test_3b <- cbind(df_3b, record_group(df_3b,r_id, c(cri_1, cri_2), group_stats = 
 
 test_that("test that record grouping with >1 criteria follows an order of decreasing certaintity", {
   expect_equal(test_3a$pid, c(6,2,6,4,2,6,6))
-  expect_equal(test_3a$pid_cri, c("Criteria 2","Criteria 2","Criteria 2", "None","Criteria 2","Criteria 1", "Criteria 1"))
+  expect_equal(test_3a$pid_cri, c(2,2,2, 0,2,1, 1))
   expect_equal(test_3a$pid_total, c(4,2,4,1,2,4,4))
   expect_equal(test_3b$pid, c(1,2,1,4,2,6,1))
-  expect_equal(test_3b$pid_cri, c("Criteria 2","Criteria 2","Criteria 2", "None","Criteria 2","None", "Criteria 2"))
+  expect_equal(test_3b$pid_cri, c(2,2,2, 0,2,0, 2))
   expect_equal(test_3b$pid_total, c(3,2,3,1,2,1,3))
 
 })
@@ -81,7 +81,7 @@ test_4a <- cbind(df_4a, record_group(df_4a,r_id, c(cri_1, cri_2), list(s2a=c("cr
 
 test_that("test record grouping with 1 set of sub-criteria per criteria", {
   expect_equal(test_4a$pid, c(1,1,1,1,5,6,6))
-  expect_equal(test_4a$pid_cri, c("Criteria 2","Criteria 2","Criteria 2","Criteria 2", "None","Criteria 1","Criteria 1"))
+  expect_equal(test_4a$pid_cri, c(2,2,2,2, 0,1,1))
   expect_equal(test_4a$pid_total, c(4,4,4,4,1,2,2))
 })
 
@@ -102,7 +102,7 @@ test_5a <- cbind(df_5a, record_group(df_5a,r_id, c(cri_1, cri_2), list(s2a=c("cr
 
 test_that("test record grouping with >1 set of sub-criteria per criteria", {
   expect_equal(test_5a$pid, c(1,1,3,4,5,6,6))
-  expect_equal(test_5a$pid_cri, c("Criteria 2","Criteria 2","None","None","None","Criteria 1","Criteria 1"))
+  expect_equal(test_5a$pid_cri, c(2,2,0,0,0,1,1))
   expect_equal(test_5a$pid_total, c(2,2,1,1,1,2,2))
 })
 
@@ -114,7 +114,7 @@ test_6a <- cbind(df_6a, record_group(df_6a,r_id, c(cri_1, cri_2), list(s2a=c("cr
 
 test_that("test record grouping for deterministic linkage", {
   expect_equal(test_6a$pid, c(1,1,1,1,5,6,6))
-  expect_equal(test_6a$pid_cri, c("Criteria 2","Criteria 2","Criteria 2","Criteria 2","None","Criteria 1","Criteria 1"))
+  expect_equal(test_6a$pid_cri, c(2,2,2,2,0,1,1))
   expect_equal(test_6a$pid_total, c(4,4,4,4,1,2,2))
   expect_equal(test_6a$pid_dataset, c(rep("DS1,DS2,DS4",4), "DS4",rep("DS1,DS3",2)) )
 })
@@ -133,7 +133,7 @@ test_7 <- cbind(df_7, record_group(df_7, r_id, cri_1, list(s1a="age_range"), gro
 
 test_that("test record grouping using range matching", {
   expect_equal(test_7$pid, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))
-  expect_equal(test_7$pid_cri, c(rep("Criteria 1",6),"None", rep("Criteria 1", 6),"None","Criteria 1"))
+  expect_equal(test_7$pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
   expect_equal(test_7$pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
   #expect_error(record_group(df_7, r_id, cri_1, list(s1a="corrupt_range"), group_stats = TRUE), "Actual value (gid) is outside the range created in a number_line object")
 })
@@ -154,4 +154,16 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(record_group(df_9, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must not have duplicate values")
   expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats' and 'display' must be TRUE or FALSE")
   expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats' and 'display' must be TRUE or FALSE")
+})
+
+
+dfs <- diyar::infections
+pids <- record_group(dfs, criteria = infection, to_s4 = TRUE)
+
+test_that("test pid methods", {
+  expect_equal(show(pids), c("P-1 (CRI 01)","P-2 (CRI 01)","P-2 (CRI 01)","P-2 (CRI 01)",
+                             "P-1 (CRI 01)","P-2 (CRI 01)","P-1 (CRI 01)","P-1 (CRI 01)",
+                             "P-9 (CRI 01)","P-9 (CRI 01)","P-1 (CRI 01)"))
+  expect_equal(rep(pids,2), rep(pids,2))
+  expect_equal(unique(pids), unique(pids))
 })

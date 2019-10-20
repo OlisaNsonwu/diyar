@@ -11,28 +11,34 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
-  bi_direction = FALSE, group_stats = FALSE, display = TRUE)
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, to_s4 = FALSE)
 
-fixed_episodes(x, strata = NULL, case_length, episodes_max = Inf,
-  from_last = FALSE, overlap_method = c("across", "inbetween",
-  "aligns_start", "aligns_end", "chain"), deduplicate = FALSE,
-  display = TRUE)
+fixed_episodes(date, sn = NULL, strata = NULL, case_length,
+  episode_unit = "days", episodes_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
+  "inbetween", "aligns_start", "aligns_end", "chain"),
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, x, to_s4 = FALSE)
 
-rolling_episodes(x, strata = NULL, case_length,
-  recurrence_length = NULL, from_last = FALSE,
-  overlap_method = c("across", "inbetween", "aligns_start", "aligns_end",
-  "chain"), deduplicate = FALSE, display = TRUE)
+rolling_episodes(date, sn = NULL, strata = NULL, case_length,
+  recurrence_length = NULL, episode_unit = "days",
+  episodes_max = Inf, rolls_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
+  "inbetween", "aligns_start", "aligns_end", "chain"),
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, x, to_s4 = FALSE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
 
 \item{sn}{Unique \code{numeric} record identifier. Optional.}
 
-\item{strata}{Column names. Episodes will be unique to each \code{strata}. \code{\link{record_group}} can be used to create \code{strata} within datasets.}
+\item{strata}{Episode grouping will be do separately for these subsets (\code{strata}) of the dataset. \code{episode_group} support the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.}
 
-\item{date}{Record date or interval. \code{date}, \code{datetime} or \code{\link{number_line}} objects.}
+\item{date}{Record date (\code{date} or \code{datetime}) or interval (\code{\link{number_line}}) objects.}
 
-\item{case_length}{Period from a \code{"Case"} within which another record of the same \code{strata} is considered a \code{"Duplicate"} record.}
+\item{case_length}{Period after a \code{"Case"} (C) within which another record from the same \code{strata} is considered a \code{"Duplicate"} (D) record.}
 
 \item{episode_type}{\code{"fixed"} or \code{"rolling"}.}
 
@@ -40,30 +46,32 @@ rolling_episodes(x, strata = NULL, case_length,
 
 \item{episodes_max}{Maximum number of times to group episodes within each \code{strata}.}
 
-\item{recurrence_length}{Period from the last record of an episode within which another record of the same \code{strata} is considered a \code{"Recurrent"} record. If a \code{recurrence_length} is not supplied, the \code{case_length} is used.}
+\item{recurrence_length}{Period after the last record (\code{"Case"} (C), \code{"Duplicate"} (D) or \code{"Recurrent"} (R)) of an episode within which another record from the same \code{strata} is considered a \code{"Recurrent"} (R) record. If \code{recurrence_length} is not supplied, \code{case_length} is also taken as \code{recurrence_length}.}
 
 \item{rolls_max}{Maximum number of recurrence permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{data_source}{Unique dataset identifier for the \code{data.frame}. Useful when \code{data.frame} contains multiple datasets.}
+\item{data_source}{Unique dataset identifier. Useful when the dataset contains data from multiple sources. \code{episode_group} support the use of multiple columns supplied as column names.}
 
-\item{custom_sort}{If \code{TRUE}, \code{"Case"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.}
+\item{custom_sort}{If \code{TRUE}, \code{"Case"} (C) assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.}
 
 \item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.}
 
-\item{overlap_method}{A set of methods for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.}
+\item{overlap_method}{A set of ways for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.}
 
-\item{bi_direction}{If \code{FALSE}, \code{"Duplicate"} records will be those within the \code{case_length} and \code{recurrence_length}, before or after the \code{"Case"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} records will be those on both sides of the \code{"Case"}.}
+\item{bi_direction}{If \code{FALSE}, \code{"Duplicate"} (D) records will be those within the \code{case_length} period, before or after the \code{"Case"} (C) as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} (D) records will be those within the same period before and after the \code{"Case"} (C).}
 
 \item{group_stats}{If \code{TRUE}, the output will include additional columns with useful stats for each episode group.}
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{x}{Record date or interval. \code{date}, \code{datetime}, \code{\link{number_line}} objects or other \code{numeric} based objects.}
+\item{deduplicate}{if \code{TRUE}, retains only one the \code{"Case"} (C) record in an episode.}
 
-\item{deduplicate}{if \code{TRUE}, retains only one the \code{"Case"} from an episode group.}
+\item{to_s4}{if \code{TRUE}, changes the returned value to an \code{\link[=epid-class]{epid}} object.}
+
+\item{x}{Record date or interval. Deprecated. Please use \code{date}}
 }
 \value{
-\code{episode_group} - \code{data.frame}
+\code{data.frame} (\code{\link[=epid-class]{epid}} objects if \code{to_s4} is \code{TRUE})
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
@@ -71,139 +79,113 @@ rolling_episodes(x, strata = NULL, case_length,
 \item \code{case_nm} - record type in regards to case assignment
 \item \code{epid_dataset} - datasets contained in each episode
 \item \code{epid_interval} - Episode start and end dates. \code{\link{number_line}} object.
-\item \code{epid_length} - Difference between episode start and end dates. \code{difftime} object. If possible, the same unit supplied to \code{episode_unit} is used otherwise, a difference in days is returned
-\item \code{epid_total} - number of records in each record group
+\item \code{epid_length} - Difference between episode start and end dates. \code{difftime} object. If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
+\item \code{epid_total} - number of records in each episode
 }
-
-\code{fixed_episodes} and \code{rolling_episodes} - \code{\link{number_line}}.
-\itemize{
-\item \code{id} - unique record identifier as provided
-\item \code{gid} - unique episode identifier
-\item \code{start} - Episode start dates
-\item \code{.Data} - Difference between episode start and end dates. \code{numeric} object
-}
-
-Use \code{\link{number_line_width}} to extract the \code{epid_interval}
-
-Use \code{\link{right_point}} or \code{\link{end_point}} to extract the episode end date
 }
 \description{
 Group records into chronological episodes
 }
 \details{
-Episode grouping begins at a reference record (\code{"Case"}) and proceeds forward or backward in time depending on \code{from_last}.
-If \code{custom_sort} is used, episode grouping can be forced to begin at certain record before proceeding forward or backwards in time.
+Episode grouping begins at a reference record (\code{"Case"} (C)) and proceeds forward or backward in time depending on \code{from_last}.
+If \code{custom_sort} is used, episode grouping can be forced to begin at certain records before proceeding forward or backwards in time.
 The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
-\code{case_length} in addition to all recurrence periods. A recurrence period is the \code{recurrence_length} from the last record in an episode
+\code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record in episode.
 
-\code{fixed_episodes} and \code{rolling_episodes} are more convenient implementations of \code{episode_group}.
-However, these are less efficient in dealing with large datasets, and lack the following features;
-\code{"custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"}
+\code{fixed_episodes} and \code{rolling_episodes} are wrapper functions of \code{episode_group}.
+They can be more convenient to use and has the same functions as \code{episode_group}.
 }
 \examples{
 library(dplyr)
 library(lubridate)
-library(diyar)
 
+#1. Fixed episodes
 data(infections); infections
-
+db_1 <- infections
+# 16-day (difference of 15 days) episodes beginning from the earliest record
+db_1$fd <- fixed_episodes(db_1$date, case_length = 15, to_s4 = TRUE, display = FALSE)
 # 16-hour (difference of 15 hours) episodes beginning from the earliest record
-epids <- episode_group(infections, sn = rd_id, date = date, case_length = epi_len,
-from_last = TRUE, episode_unit = "hours", group_stats = TRUE)
-left_join(infections, epids, by=c("rd_id"="sn"))
+db_1$fh <- fixed_episodes(db_1$date, case_length = 15,
+episode_unit = "hours", to_s4 = TRUE, display = FALSE)
+db_1
 
-# One rolling episode per strata. Initial case_length of 16 days (difference of 15 days) and
-# one recurrence period of 31 days (difference of 30 days)
-infections$recur <- 30
-epids <- episode_group(infections, date=date, case_length = epi_len, episode_type = "rolling",
-recurrence_length = recur, episodes_max = 1, rolls_max = 1, display = FALSE, group_stats = TRUE)
-bind_cols(infections, epids)
+#2. Rolling episodes
+# Case length and recurrence periods of 15 days
+db_1$rd_a <- rolling_episodes(db_1$date, case_length = 15, to_s4 = TRUE, display = FALSE)
+# Case length of 15 days and recurrence periods of 5 days
+db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
+recurrence_length = 10, to_s4 = TRUE, display = FALSE)
+# Case length of 15 days and 2 recurrence periods of 5 days
+db_1$rd_c <- rolling_episodes(db_1$date, case_length = 15,
+recurrence_length = 10, rolls_max = 2, to_s4 = TRUE, display = FALSE)
+db_1
 
-# User defined case assignment
-# Preference for case assignment - UTI > BSI > RTI
-infections$infx <- factor(infections$infection, levels = c("UTI","BSI","RTI"))
+# 3. Stratified episode grouping
+db_3 <- infections
 
-# Different case and recurrence lengths for different sources of infection
-infections <- mutate(infections,
-                     epi_len = case_when(
-                       infection == "BSI" ~ 14,
-                       infection == "UTI" ~ 30,
-                       infection == "RTI" ~ 60
-                     )
-)
+db_3$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
+# One 16-day episode per patient
+db_3$epids_p <- fixed_episodes(date=db_3$date, strata = db_3$patient_id,
+case_length = 15, episodes_max = 1, to_s4 = TRUE, display = FALSE)
 
-# n-day episodes beginning with the earliest record with the specified preference; UTI > BSI > RTI
-epids <- episode_group(infections, rd_id, date=date, case_length = epi_len,
-                       custom_sort = infx, group_stats = TRUE,  display = FALSE)
-bind_cols(infections, epids)
+# 4. Case assignment
+db_4 <- infections
 
-# Another preference - RTI > UTI, or  RTI > BSI, or earliest record
-infections$infx <- ifelse(infections$infection =="RTI",0,1)
-epids <- episode_group(infections, rd_id, date=date, case_length = epi_len,
-custom_sort = infx, from_last = TRUE, bi_direction = TRUE, display = FALSE, group_stats = TRUE)
-bind_cols(infections, epids)
+## 4.1 Chronological order
+db_4$forward_time <- fixed_episodes(db_4$date, case_length = 1,
+episode_unit = "month", to_s4 = TRUE, display = FALSE)
+db_4$backward_time <- fixed_episodes(db_4$date, case_length = 1,
+episode_unit = "month", from_last = TRUE, to_s4 = TRUE, display = FALSE)
+db_4
 
-# Stratified episode grouping
-infections$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
+## 4.2 User defined order
+db_4b <- infections
+# RTI > UTI, or RTI > BSI
+db_4b$ord2 <- ifelse(db_4b$infection =="RTI",0,1)
+# UTI > BSI > RTI
+db_4b$ord1 <- factor(db_4b$infection, levels = c("UTI","BSI","RTI"))
 
-# Only three 9-day (difference of 8 days) rolling episodes per patient and infection.
-infections$epi_len <- 8
-epids <- episode_group(infections, rd_id, date=date, strata = c(patient_id, infection),
-case_length = epi_len, episode_type = "rolling", recurrence_length = recur, episodes_max = 3,
-data_source = c(patient_id, infection), display = FALSE)
+db_4b$epids_1 <- fixed_episodes(db_4b$date, case_length = 15,
+custom_sort = db_4b$ord2, to_s4 = TRUE, display = FALSE)
+db_4b$epids_2 <- fixed_episodes(db_4b$date, case_length = 15,
+custom_sort = db_4b$ord1, to_s4 = TRUE, display = FALSE)
+db_4b$epids_2b <- fixed_episodes(db_4b$date, case_length = 15,
+custom_sort = db_4b$ord1, bi_direction = TRUE, to_s4 = TRUE, display = FALSE)
+db_4b
 
-bind_cols(infections, epids)
-
-# Interval grouping
-data(hospital_admissions); hospital_admissions
+#5. Interval grouping
+data(hospital_admissions);
 
 hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 hospital_admissions$discharge_dt)
-hospital_admissions <- select(hospital_admissions, -c(discharge_dt, admin_dt))
+admissions <- hospital_admissions[c("admin_period","epi_len")]
+admissions
 
-# Episodes of overlaping intervals of admission
-epids <- episode_group(hospital_admissions, date=admin_period,
-sn=rd_id, case_length = epi_len, group_stats = TRUE)
-bind_cols(hospital_admissions, epids)
+# Episodes of overlaping periods of admission
+admissions$epi_0 <- fixed_episodes(date=admissions$admin_period, case_length = 0,
+group_stats = TRUE, to_s4=TRUE)
+admissions
 
-# Overlaping intervals of admission seperated by 1 month
-hospital_admissions$epi_len <- 1
-epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
-case_length = epi_len, episode_unit = "months")
-bind_cols(hospital_admissions, epids)
+# Overlaping periods of admission seperated by 1 month
+admissions$epi_1 <- fixed_episodes(date=admissions$admin_period, case_length = 1,
+episode_unit = "months", group_stats = TRUE, to_s4 = TRUE, display = FALSE)
+admissions
 
-# Episodes of chained intervals, and those with aligned end periods
-hospital_admissions$epi_len <- 0
-epids <- episode_group(hospital_admissions, date=admin_period, sn=rd_id,
-case_length = epi_len, overlap_method = c("chain","aligns_end"))
-bind_cols(hospital_admissions, epids)
+# Episodes of chained admission periods, and those with aligned end periods
+admissions$epi_0b <- fixed_episodes(date=admissions$admin_period, case_length = 0,
+overlap_method = c("chain","aligns_end"), group_stats = TRUE, to_s4 = TRUE, display = FALSE)
+admissions["epi_0b"]
 
-# Convenient versions of episode_group
-# Episodes from time points
-dts <- c("13/04/2019", "01/04/2019", "05/05/2019", "10/04/2019", "01/05/2019")
-dts <- as.Date(dts, "\%d/\%m/\%Y")
-dts
 
-epids <- fixed_episodes(dts, case_length = 5, display = FALSE)
-epids; str(epids); unique(epids)
+# Note - episode_group() takes column names not actual values
+db_5 <- infections
 
-# Episodes from time periods
-pds <- as.number_line(dts)
-pds <- expand_number_line(pds, 1, "end")
-pds
-
-epids <- rolling_episodes(pds, case_length = 5, recurrence_length =11,
-deduplicate = TRUE, display = FALSE)
-epids; str(epids)
-
-db_a <- infections
-db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len,
-strata = infection, from_last = FALSE, display = FALSE, deduplicate = FALSE))
-
-db_b
-str(db_b$epid_interval)
-db_b$epid <- db_b$epid_interval$gid
-db_b
+db_5$recur <- 20
+db_5$epids_f <- episode_group(db_5, date=date, episode_type = "fixed",
+case_length = epi_len, to_s4 = TRUE, display = FALSE)
+db_5$epids_r <- episode_group(db_5, date=date, episode_type = "rolling",
+case_length = epi_len, recurrence_length = recur, to_s4 = TRUE, display = FALSE)
+db_5
 
 }
 \seealso{

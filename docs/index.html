@@ -14,7 +14,7 @@
     Records (rows) from datasets are linked by different matching criteria and sub-criteria (columns) in a specified order of certainty. 
     The linkage process handles missing data and conflicting matches based on this same order of certainty.
     For episode grouping, rows of dated events (e.g. sample collection) or interval of events (e.g. hospital admission) are 
-    grouped into chronological episodes beginning with a "case". The process permits several options such as 
+    grouped into chronological episodes beginning with a "Case". The process permits several options such as 
     episode lengths and recurrence periods which are used to build custom preferences for case assignment (definition).
     The record linkage and episode grouping processes assign unique group IDs to matching records or those grouped into episodes. 
     This then allows for record deduplication or sub-analysis within these groups.  '>
@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.1.9000</span>
       </span>
     </div>
 
@@ -71,14 +71,7 @@
   <a href="news/index.html">Changelog</a>
 </li>
       </ul>
-<ul class="nav navbar-nav navbar-right">
-<li>
-  <a href="https://github.com/OlisaNsonwu/diyar">
-    <span class="fa fa-github fa-lg"></span>
-     
-  </a>
-</li>
-      </ul>
+<ul class="nav navbar-nav navbar-right"></ul>
 </div>
 <!--/.nav-collapse -->
   </div>
@@ -106,7 +99,11 @@
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
 <a href="#installation" class="anchor"></a>Installation</h2>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Install the latest CRAN release </span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"diyar"</span>)
+
+<span class="co"># Or, install the development version from GitHub</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)
 devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/remote-reexports">install_github</a></span>(<span class="st">"OlisaNsonwu/diyar"</span>)</code></pre></div>
 </div>
 <div id="usage" class="section level2">
@@ -140,98 +137,82 @@ nl
 <h3 class="hasAnchor">
 <a href="#episode-grouping" class="anchor"></a>Episode grouping</h3>
 <p>Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.</p>
-<p><code><a href="reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="reference/episode_group.html">rolling_episodes()</a></code> are the simplest implementation of this. Their outputs are <code>number_line</code> objects, with <code>@gid</code> as the episode identifier, and <code>@id</code> as the record identifier.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections); infections
-<span class="co">#&gt; # A tibble: 11 x 4</span>
-<span class="co">#&gt;    rd_id date       infection epi_len</span>
-<span class="co">#&gt;    &lt;int&gt; &lt;date&gt;     &lt;chr&gt;       &lt;dbl&gt;</span>
-<span class="co">#&gt;  1     1 2018-04-01 BSI            15</span>
-<span class="co">#&gt;  2     2 2018-04-07 UTI            15</span>
-<span class="co">#&gt;  3     3 2018-04-13 UTI            15</span>
-<span class="co">#&gt;  4     4 2018-04-19 UTI            15</span>
-<span class="co">#&gt;  5     5 2018-04-25 BSI            15</span>
-<span class="co">#&gt;  6     6 2018-05-01 UTI            15</span>
-<span class="co">#&gt;  7     7 2018-05-07 BSI            15</span>
-<span class="co">#&gt;  8     8 2018-05-13 BSI            15</span>
-<span class="co">#&gt;  9     9 2018-05-19 RTI            15</span>
-<span class="co">#&gt; 10    10 2018-05-25 RTI            15</span>
-<span class="co">#&gt; 11    11 2018-05-31 BSI            15</span>
-db_a &lt;-<span class="st"> </span>infections
+<p><code><a href="reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="reference/episode_group.html">episode_group()</a></code> - Currently, these returns a <code>data.frame</code> but will be changed to <code>epid</code> objects in the next major release. The <code>id</code> and <code>epid</code> columns/slots are the record and episode identifiers respectively.</p>
+<p><strong><em>NOTE. <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes their output from a data.frame (current default) to <code>epid</code> objects.</em></strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections);
+db &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"epi_len"</span>)]
+db<span class="op">$</span>recur &lt;-<span class="st"> </span><span class="dv">40</span>
+db
+<span class="co">#&gt; # A tibble: 11 x 3</span>
+<span class="co">#&gt;    date       epi_len recur</span>
+<span class="co">#&gt;    &lt;date&gt;       &lt;dbl&gt; &lt;dbl&gt;</span>
+<span class="co">#&gt;  1 2018-04-01      15    40</span>
+<span class="co">#&gt;  2 2018-04-07      15    40</span>
+<span class="co">#&gt;  3 2018-04-13      15    40</span>
+<span class="co">#&gt;  4 2018-04-19      15    40</span>
+<span class="co">#&gt;  5 2018-04-25      15    40</span>
+<span class="co">#&gt;  6 2018-05-01      15    40</span>
+<span class="co">#&gt;  7 2018-05-07      15    40</span>
+<span class="co">#&gt;  8 2018-05-13      15    40</span>
+<span class="co">#&gt;  9 2018-05-19      15    40</span>
+<span class="co">#&gt; 10 2018-05-25      15    40</span>
+<span class="co">#&gt; 11 2018-05-31      15    40</span>
 
 <span class="co"># Fixed episodes</span>
-f_epi &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">x =</span> db_a<span class="op">$</span>date, <span class="dt">case_length =</span> db_a<span class="op">$</span>epi_len, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-f_epi; <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(f_epi)
-<span class="co">#&gt;  [1] "2018-04-01 -&gt; 2018-04-13" "2018-04-01 -&gt; 2018-04-13"</span>
-<span class="co">#&gt;  [3] "2018-04-01 -&gt; 2018-04-13" "2018-04-19 -&gt; 2018-05-01"</span>
-<span class="co">#&gt;  [5] "2018-04-19 -&gt; 2018-05-01" "2018-04-19 -&gt; 2018-05-01"</span>
-<span class="co">#&gt;  [7] "2018-05-07 -&gt; 2018-05-19" "2018-05-07 -&gt; 2018-05-19"</span>
-<span class="co">#&gt;  [9] "2018-05-07 -&gt; 2018-05-19" "2018-05-25 -&gt; 2018-05-31"</span>
-<span class="co">#&gt; [11] "2018-05-25 -&gt; 2018-05-31"</span>
-<span class="co">#&gt; Formal class 'number_line' [package "diyar"] with 4 slots</span>
-<span class="co">#&gt;   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...</span>
-<span class="co">#&gt;   ..@ start: Date[1:11], format: "2018-04-01" ...</span>
-<span class="co">#&gt;   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...</span>
-<span class="co">#&gt;   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...</span>
+db<span class="op">$</span>f_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> db<span class="op">$</span>epi_len, 
+                              <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
 
 <span class="co"># Rolling episodes</span>
-r_epi &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">x =</span> db_a<span class="op">$</span>date, <span class="dt">case_length =</span> db_a<span class="op">$</span>epi_len, <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-f_epi; <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/str">str</a></span>(f_epi)
-<span class="co">#&gt;  [1] "2018-04-01 -&gt; 2018-04-13" "2018-04-01 -&gt; 2018-04-13"</span>
-<span class="co">#&gt;  [3] "2018-04-01 -&gt; 2018-04-13" "2018-04-19 -&gt; 2018-05-01"</span>
-<span class="co">#&gt;  [5] "2018-04-19 -&gt; 2018-05-01" "2018-04-19 -&gt; 2018-05-01"</span>
-<span class="co">#&gt;  [7] "2018-05-07 -&gt; 2018-05-19" "2018-05-07 -&gt; 2018-05-19"</span>
-<span class="co">#&gt;  [9] "2018-05-07 -&gt; 2018-05-19" "2018-05-25 -&gt; 2018-05-31"</span>
-<span class="co">#&gt; [11] "2018-05-25 -&gt; 2018-05-31"</span>
-<span class="co">#&gt; Formal class 'number_line' [package "diyar"] with 4 slots</span>
-<span class="co">#&gt;   ..@ .Data: num [1:11] 12 12 12 12 12 12 12 12 12 6 ...</span>
-<span class="co">#&gt;   ..@ start: Date[1:11], format: "2018-04-01" ...</span>
-<span class="co">#&gt;   ..@ id   : int [1:11] 1 2 3 4 5 6 7 8 9 10 ...</span>
-<span class="co">#&gt;   ..@ gid  : int [1:11] 1 1 1 4 4 4 7 7 7 10 ...</span>
-
-<span class="co"># Working with a data.frame</span>
-db_b &lt;-<span class="st"> </span><span class="kw">mutate</span>(db_a, <span class="dt">epid_interval=</span> <span class="kw"><a href="reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">x =</span> date, <span class="dt">case_length =</span> epi_len, <span class="dt">strata =</span> infection, <span class="dt">display =</span> <span class="ot">FALSE</span>))
-
-<span class="co"># Extract useful episode information from the number_line objects</span>
-db_b<span class="op">$</span>epid &lt;-<span class="st"> </span>db_b<span class="op">$</span>epid_interval<span class="op">@</span>gid
-db_b<span class="op">$</span>epid_length &lt;-<span class="st"> </span><span class="kw"><a href="reference/number_line.html">number_line_width</a></span>(db_b<span class="op">$</span>epid_interval)
-<span class="kw">select</span>(db_b, rd_id, date, epid_interval, epid, epid_length)
+db<span class="op">$</span>r_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, 
+                                <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+db
 <span class="co">#&gt; # A tibble: 11 x 5</span>
-<span class="co">#&gt;    rd_id date       epid_interval             epid epid_length</span>
-<span class="co">#&gt;    &lt;int&gt; &lt;date&gt;     &lt;numbr_ln&gt;               &lt;int&gt; &lt;drtn&gt;     </span>
-<span class="co">#&gt;  1     1 2018-04-01 2018-04-01 == 2018-04-01     1  0 days    </span>
-<span class="co">#&gt;  2     2 2018-04-07 2018-04-07 -&gt; 2018-04-19     2 12 days    </span>
-<span class="co">#&gt;  3     3 2018-04-13 2018-04-07 -&gt; 2018-04-19     2 12 days    </span>
-<span class="co">#&gt;  4     4 2018-04-19 2018-04-07 -&gt; 2018-04-19     2 12 days    </span>
-<span class="co">#&gt;  5     5 2018-04-25 2018-04-25 -&gt; 2018-05-07     5 12 days    </span>
-<span class="co">#&gt;  6     6 2018-05-01 2018-05-01 == 2018-05-01     6  0 days    </span>
-<span class="co">#&gt;  7     7 2018-05-07 2018-04-25 -&gt; 2018-05-07     5 12 days    </span>
-<span class="co">#&gt;  8     8 2018-05-13 2018-05-13 == 2018-05-13     8  0 days    </span>
-<span class="co">#&gt;  9     9 2018-05-19 2018-05-19 -&gt; 2018-05-25     9  6 days    </span>
-<span class="co">#&gt; 10    10 2018-05-25 2018-05-19 -&gt; 2018-05-25     9  6 days    </span>
-<span class="co">#&gt; 11    11 2018-05-31 2018-05-31 == 2018-05-31    11  0 days</span></code></pre></div>
-<p><code><a href="reference/episode_group.html">episode_group()</a></code> is a more comprehensive option and returns a <code>data.frame</code> of useful information for each episode.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">db_c &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">episode_group</a></span>(db_a, <span class="dt">sn=</span>rd_id, <span class="dt">date =</span> date, <span class="dt">strata =</span> infection, <span class="dt">case_length =</span> epi_len, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
-<span class="co">#&gt; Episode grouping complete - 4 record(s) assinged a unique ID.</span>
-db_c
-<span class="co">#&gt; # A tibble: 11 x 6</span>
-<span class="co">#&gt;       sn  epid case_nm   epid_length epid_total epid_interval           </span>
-<span class="co">#&gt;    &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;     &lt;drtn&gt;           &lt;int&gt; &lt;numbr_ln&gt;              </span>
-<span class="co">#&gt;  1     1     1 Case       0 days              1 2018-04-01 == 2018-04-01</span>
-<span class="co">#&gt;  2     2     2 Case      12 days              3 2018-04-07 -&gt; 2018-04-19</span>
-<span class="co">#&gt;  3     3     2 Duplicate 12 days              3 2018-04-07 -&gt; 2018-04-19</span>
-<span class="co">#&gt;  4     4     2 Duplicate 12 days              3 2018-04-07 -&gt; 2018-04-19</span>
-<span class="co">#&gt;  5     5     5 Case      12 days              2 2018-04-25 -&gt; 2018-05-07</span>
-<span class="co">#&gt;  6     6     6 Case       0 days              1 2018-05-01 == 2018-05-01</span>
-<span class="co">#&gt;  7     7     5 Duplicate 12 days              2 2018-04-25 -&gt; 2018-05-07</span>
-<span class="co">#&gt;  8     8     8 Case       0 days              1 2018-05-13 == 2018-05-13</span>
-<span class="co">#&gt;  9     9     9 Case       6 days              2 2018-05-19 -&gt; 2018-05-25</span>
-<span class="co">#&gt; 10    10     9 Duplicate  6 days              2 2018-05-19 -&gt; 2018-05-25</span>
-<span class="co">#&gt; 11    11    11 Case       0 days              1 2018-05-31 == 2018-05-31</span></code></pre></div>
+<span class="co">#&gt;    date       epi_len recur f_epid   r_epid </span>
+<span class="co">#&gt;    &lt;date&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;epid&gt;   &lt;epid&gt; </span>
+<span class="co">#&gt;  1 2018-04-01      15    40 E-01 (C) E-1 (C)</span>
+<span class="co">#&gt;  2 2018-04-07      15    40 E-01 (D) E-1 (D)</span>
+<span class="co">#&gt;  3 2018-04-13      15    40 E-01 (D) E-1 (D)</span>
+<span class="co">#&gt;  4 2018-04-19      15    40 E-04 (C) E-1 (R)</span>
+<span class="co">#&gt;  5 2018-04-25      15    40 E-04 (D) E-1 (D)</span>
+<span class="co">#&gt;  6 2018-05-01      15    40 E-04 (D) E-1 (D)</span>
+<span class="co">#&gt;  7 2018-05-07      15    40 E-07 (C) E-1 (D)</span>
+<span class="co">#&gt;  8 2018-05-13      15    40 E-07 (D) E-1 (D)</span>
+<span class="co">#&gt;  9 2018-05-19      15    40 E-07 (D) E-1 (D)</span>
+<span class="co">#&gt; 10 2018-05-25      15    40 E-10 (C) E-1 (R)</span>
+<span class="co">#&gt; 11 2018-05-31      15    40 E-10 (D) E-1 (D)</span>
+
+<span class="co"># episode_group() takes column names</span>
+db<span class="op">$</span>f_epid.<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">episode_group</a></span>(db, <span class="dt">date =</span> date, <span class="dt">case_length =</span> epi_len, <span class="dt">episode_type =</span> <span class="st">"fixed"</span>, 
+                              <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+
+db<span class="op">$</span>r_epid.<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">episode_group</a></span>(db, <span class="dt">date =</span> date, <span class="dt">case_length =</span> epi_len, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, 
+                              <span class="dt">recurrence_length =</span> recur, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+db
+<span class="co">#&gt; # A tibble: 11 x 7</span>
+<span class="co">#&gt;    date       epi_len recur f_epid   r_epid  f_epid.2 r_epid.2</span>
+<span class="co">#&gt;    &lt;date&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;epid&gt;   &lt;epid&gt;  &lt;epid&gt;   &lt;epid&gt;  </span>
+<span class="co">#&gt;  1 2018-04-01      15    40 E-01 (C) E-1 (C) E-01 (C) E-1 (C) </span>
+<span class="co">#&gt;  2 2018-04-07      15    40 E-01 (D) E-1 (D) E-01 (D) E-1 (D) </span>
+<span class="co">#&gt;  3 2018-04-13      15    40 E-01 (D) E-1 (D) E-01 (D) E-1 (D) </span>
+<span class="co">#&gt;  4 2018-04-19      15    40 E-04 (C) E-1 (R) E-04 (C) E-1 (R) </span>
+<span class="co">#&gt;  5 2018-04-25      15    40 E-04 (D) E-1 (D) E-04 (D) E-1 (D) </span>
+<span class="co">#&gt;  6 2018-05-01      15    40 E-04 (D) E-1 (D) E-04 (D) E-1 (D) </span>
+<span class="co">#&gt;  7 2018-05-07      15    40 E-07 (C) E-1 (D) E-07 (C) E-1 (D) </span>
+<span class="co">#&gt;  8 2018-05-13      15    40 E-07 (D) E-1 (D) E-07 (D) E-1 (D) </span>
+<span class="co">#&gt;  9 2018-05-19      15    40 E-07 (D) E-1 (D) E-07 (D) E-1 (D) </span>
+<span class="co">#&gt; 10 2018-05-25      15    40 E-10 (C) E-1 (R) E-10 (C) E-1 (R) </span>
+<span class="co">#&gt; 11 2018-05-31      15    40 E-10 (D) E-1 (D) E-10 (D) E-1 (D)</span></code></pre></div>
 </div>
 <div id="record-grouping" class="section level3">
 <h3 class="hasAnchor">
 <a href="#record-grouping" class="anchor"></a>Record grouping</h3>
 <p>Multistage deterministic linkages that addresses missing values by using a specified list of alternative matching criteria.</p>
+<p><code><a href="reference/record_group.html">record_group()</a></code> - Currently, this returns a <code>data.frame</code> but will be changed to <code>pid</code> objects in the next major release. The <code>id</code> and <code>pid</code> columns/slots are the record and group identifiers respectively.</p>
+<p><strong><em>NOTE. <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes its output from a data.frame (current default) to <code>pid</code> objects.</em></strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Two or more stages of record grouping</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(staff_records); staff_records
 <span class="co">#&gt; # A tibble: 7 x 5</span>
@@ -245,54 +226,57 @@ db_c
 <span class="co">#&gt; 6     6 Darrack  Anderson M     Pay slips </span>
 <span class="co">#&gt; 7     7 Christie Green    F     Staff list</span>
 
-pids &lt;-<span class="st"> </span><span class="kw"><a href="reference/record_group.html">record_group</a></span>(staff_records, <span class="dt">sn =</span> r_id, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname),
-                     <span class="dt">data_source =</span> sex, <span class="dt">display =</span> <span class="ot">FALSE</span>)
+staff_records<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="reference/record_group.html">record_group</a></span>(staff_records, <span class="dt">sn =</span> r_id, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname),
+                     <span class="dt">data_source =</span> sex, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
-<span class="kw">left_join</span>(staff_records, pids, <span class="dt">by=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"r_id"</span>=<span class="st">"sn"</span>))
-<span class="co">#&gt; # A tibble: 7 x 8</span>
-<span class="co">#&gt;    r_id forename surname  sex   dataset      pid pid_cri    pid_dataset</span>
-<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;dbl&gt; &lt;chr&gt;      &lt;chr&gt;      </span>
-<span class="co">#&gt; 1     1 James    Green    M     Staff list     1 Criteria 2 F,M        </span>
-<span class="co">#&gt; 2     2 &lt;NA&gt;     Anderson M     Staff list     2 Criteria 2 M          </span>
-<span class="co">#&gt; 3     3 Jamey    Green    M     Pay slips      1 Criteria 2 F,M        </span>
-<span class="co">#&gt; 4     4 ""       &lt;NA&gt;     F     Pay slips      4 None       F          </span>
-<span class="co">#&gt; 5     5 Derrick  Anderson M     Staff list     2 Criteria 2 M          </span>
-<span class="co">#&gt; 6     6 Darrack  Anderson M     Pay slips      2 Criteria 2 M          </span>
-<span class="co">#&gt; 7     7 Christie Green    F     Staff list     1 Criteria 2 F,M</span>
+staff_records
+<span class="co">#&gt; # A tibble: 7 x 6</span>
+<span class="co">#&gt;    r_id forename surname  sex   dataset    pids_a      </span>
+<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;    &lt;chr&gt; &lt;chr&gt;      &lt;pid&gt;       </span>
+<span class="co">#&gt; 1     1 James    Green    M     Staff list P-1 (CRI 02)</span>
+<span class="co">#&gt; 2     2 &lt;NA&gt;     Anderson M     Staff list P-2 (CRI 02)</span>
+<span class="co">#&gt; 3     3 Jamey    Green    M     Pay slips  P-1 (CRI 02)</span>
+<span class="co">#&gt; 4     4 ""       &lt;NA&gt;     F     Pay slips  P-4 (No Hit)</span>
+<span class="co">#&gt; 5     5 Derrick  Anderson M     Staff list P-2 (CRI 02)</span>
+<span class="co">#&gt; 6     6 Darrack  Anderson M     Pay slips  P-2 (CRI 02)</span>
+<span class="co">#&gt; 7     7 Christie Green    F     Staff list P-1 (CRI 02)</span>
 
 <span class="co"># Range matching</span>
-dob &lt;-<span class="st"> </span><span class="kw">select</span>(staff_records, sex)
+dob &lt;-<span class="st"> </span><span class="kw">select</span>(staff_records, sex); dob
+<span class="co">#&gt; # A tibble: 7 x 1</span>
+<span class="co">#&gt;   sex  </span>
+<span class="co">#&gt;   &lt;chr&gt;</span>
+<span class="co">#&gt; 1 M    </span>
+<span class="co">#&gt; 2 M    </span>
+<span class="co">#&gt; 3 M    </span>
+<span class="co">#&gt; 4 F    </span>
+<span class="co">#&gt; 5 M    </span>
+<span class="co">#&gt; 6 M    </span>
+<span class="co">#&gt; 7 F</span>
+
 dob<span class="op">$</span>age &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">10</span>,<span class="dv">8</span>,<span class="dv">20</span>,<span class="dv">5</span>,<span class="dv">5</span>,<span class="dv">9</span>,<span class="dv">7</span>)
 
 <span class="co"># age range - age + 20 years</span>
-dob<span class="op">$</span>range &lt;-<span class="st"> </span><span class="kw"><a href="reference/number_line.html">number_line</a></span>(dob<span class="op">$</span>age, dob<span class="op">$</span>age<span class="op">+</span><span class="dv">20</span>, <span class="dt">gid=</span>dob<span class="op">$</span>age)
-<span class="kw">bind_cols</span>(dob, <span class="kw"><a href="reference/record_group.html">record_group</a></span>(dob, <span class="dt">criteria =</span> sex, <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">s1a=</span><span class="st">"range"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>))
-<span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
-<span class="co">#&gt; # A tibble: 7 x 6</span>
-<span class="co">#&gt;   sex     age range         sn   pid pid_cri   </span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;numbr_ln&gt; &lt;int&gt; &lt;dbl&gt; &lt;chr&gt;     </span>
-<span class="co">#&gt; 1 M        10 10 -&gt; 30       1     2 Criteria 1</span>
-<span class="co">#&gt; 2 M         8 8 -&gt; 28        2     2 Criteria 1</span>
-<span class="co">#&gt; 3 M        20 20 -&gt; 40       3     2 Criteria 1</span>
-<span class="co">#&gt; 4 F         5 5 -&gt; 25        4     4 Criteria 1</span>
-<span class="co">#&gt; 5 M         5 5 -&gt; 25        5     5 None      </span>
-<span class="co">#&gt; 6 M         9 9 -&gt; 29        6     2 Criteria 1</span>
-<span class="co">#&gt; 7 F         7 7 -&gt; 27        7     4 Criteria 1</span>
-
+dob<span class="op">$</span>rng_b &lt;-<span class="st"> </span><span class="kw"><a href="reference/number_line.html">number_line</a></span>(dob<span class="op">$</span>age, dob<span class="op">$</span>age<span class="op">+</span><span class="dv">20</span>, <span class="dt">gid=</span>dob<span class="op">$</span>age)
 <span class="co"># age range - age +- 20 years</span>
-dob<span class="op">$</span>range &lt;-<span class="st"> </span><span class="kw"><a href="reference/number_line.html">number_line</a></span>(dob<span class="op">$</span>age<span class="op">-</span><span class="dv">20</span>, dob<span class="op">$</span>age<span class="op">+</span><span class="dv">20</span>, <span class="dt">gid=</span>dob<span class="op">$</span>age)
-<span class="kw">bind_cols</span>(dob, <span class="kw"><a href="reference/record_group.html">record_group</a></span>(dob, <span class="dt">criteria =</span> sex, <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">s1a=</span><span class="st">"range"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>))
+dob<span class="op">$</span>rng_c &lt;-<span class="st"> </span><span class="kw"><a href="reference/number_line.html">number_line</a></span>(dob<span class="op">$</span>age<span class="op">-</span><span class="dv">20</span>, dob<span class="op">$</span>age<span class="op">+</span><span class="dv">20</span>, <span class="dt">gid=</span>dob<span class="op">$</span>age)
+
+dob<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="reference/record_group.html">record_group</a></span>(dob, <span class="dt">criteria =</span> sex, <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">s1a=</span><span class="st">"rng_b"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+<span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
+dob<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="kw"><a href="reference/record_group.html">record_group</a></span>(dob, <span class="dt">criteria =</span> sex, <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">s1a=</span><span class="st">"rng_c"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
+
+dob
 <span class="co">#&gt; # A tibble: 7 x 6</span>
-<span class="co">#&gt;   sex     age range         sn   pid pid_cri   </span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;numbr_ln&gt; &lt;int&gt; &lt;int&gt; &lt;chr&gt;     </span>
-<span class="co">#&gt; 1 M        10 -10 -&gt; 30      1     1 Criteria 1</span>
-<span class="co">#&gt; 2 M         8 -12 -&gt; 28      2     1 Criteria 1</span>
-<span class="co">#&gt; 3 M        20 0 -&gt; 40        3     1 Criteria 1</span>
-<span class="co">#&gt; 4 F         5 -15 -&gt; 25      4     4 Criteria 1</span>
-<span class="co">#&gt; 5 M         5 -15 -&gt; 25      5     1 Criteria 1</span>
-<span class="co">#&gt; 6 M         9 -11 -&gt; 29      6     1 Criteria 1</span>
-<span class="co">#&gt; 7 F         7 -13 -&gt; 27      7     4 Criteria 1</span></code></pre></div>
+<span class="co">#&gt;   sex     age rng_b      rng_c      pids_b       pids_c      </span>
+<span class="co">#&gt;   &lt;chr&gt; &lt;dbl&gt; &lt;numbr_ln&gt; &lt;numbr_ln&gt; &lt;pid&gt;        &lt;pid&gt;       </span>
+<span class="co">#&gt; 1 M        10 10 -&gt; 30   -10 -&gt; 30  P-2 (CRI 01) P-1 (CRI 01)</span>
+<span class="co">#&gt; 2 M         8 8 -&gt; 28    -12 -&gt; 28  P-2 (CRI 01) P-1 (CRI 01)</span>
+<span class="co">#&gt; 3 M        20 20 -&gt; 40   0 -&gt; 40    P-2 (CRI 01) P-1 (CRI 01)</span>
+<span class="co">#&gt; 4 F         5 5 -&gt; 25    -15 -&gt; 25  P-4 (CRI 01) P-4 (CRI 01)</span>
+<span class="co">#&gt; 5 M         5 5 -&gt; 25    -15 -&gt; 25  P-5 (No Hit) P-1 (CRI 01)</span>
+<span class="co">#&gt; 6 M         9 9 -&gt; 29    -11 -&gt; 29  P-2 (CRI 01) P-1 (CRI 01)</span>
+<span class="co">#&gt; 7 F         7 7 -&gt; 27    -13 -&gt; 27  P-4 (CRI 01) P-4 (CRI 01)</span></code></pre></div>
 <p>Find out more <a href="https://olisansonwu.github.io/diyar/index.html">here</a>!</p>
 </div>
 </div>
@@ -308,7 +292,7 @@ dob<span class="op">$</span>range &lt;-<span class="st"> </span><span class="kw"
     <div class="links">
 <h2>Links</h2>
 <ul class="list-unstyled">
-<li>Browse source code at <br><a href="https://github.com/OlisaNsonwu/diyar">https://​github.com/​OlisaNsonwu/​diyar</a>
+<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=diyar">https://​cloud.r-project.org/​package=diyar</a>
 </li>
 <li>Report a bug at <br><a href="https://github.com/OlisaNsonwu/diyar/issues">https://​github.com/​OlisaNsonwu/​diyar/​issues</a>
 </li>
@@ -323,15 +307,16 @@ dob<span class="op">$</span>range &lt;-<span class="st"> </span><span class="kw"
 <div class="developers">
 <h2>Developers</h2>
 <ul class="list-unstyled">
-<li>Olisa Nsonwu <br><small class="roles"> Maintainer </small>  </li>
+<li>Olisaeloka Nsonwu <br><small class="roles"> Maintainer </small>  </li>
 </ul>
 </div>
 
       <div class="dev-status">
 <h2>Dev status</h2>
 <ul class="list-unstyled">
-<li><a href="https://travis-ci.org/OlisaNsonwu/diyar"><img src="https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master" alt="Travis build status"></a></li>
+<li><a href="https://cran.r-project.org/package=diyar"><img src="http://www.r-pkg.org/badges/version/diyar" alt="CRAN version"></a></li>
 <li><a href="https://codecov.io/github/OlisaNsonwu/diyar?branch=master"><img src="https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
+<li><a href="https://travis-ci.org/OlisaNsonwu/diyar"><img src="https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master" alt="Travis build status"></a></li>
 </ul>
 </div>
 </div>
@@ -340,7 +325,7 @@ dob<span class="op">$</span>range &lt;-<span class="st"> </span><span class="kw"
 
 
       <footer><div class="copyright">
-  <p>Developed by Olisa Nsonwu.</p>
+  <p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">
