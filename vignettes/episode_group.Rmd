@@ -16,17 +16,17 @@ knitr::opts_chunk$set(
 ```
 
 #Introduction
-Deduplicating events is a major part of establishing a case definition in epidemiological analyses. In such analyses, you select a reference event (`"Case (C)"`) which is taken as the start of an episode. Subsequent events within a specified period after the reference event are then considered duplicates `"(D)"`.
+Deduplicating events is a major part of establishing a case definition in epidemiological analyses. In such analyses, you select a reference event (`"Case (C)"`) which is taken as the start of an episode. Subsequent events within a specified period after this reference event are then considered duplicates `"(D)"`.
 
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` aims to provide a simple but flexible way of grouping records from multiple data sources into episodes. This then allows for the deduplication of the dataset, or a sub-analysis within each episode.
+`fixed_episodes()`, `rolling_episodes()` and `episode_group()` aim to provide a simple but flexible way of grouping records from multiple data sources into episodes. This then allows for the deduplication of the dataset, or a sub-analysis within each episode.
 
 #Uses
-The flexible application of [`record_group`](record_group.html) and, `fixed_episodes()`, `rolling_episodes()` or `episode_group()` can allow you apply a different case definitions to a dataset. Some examples below;
+The flexible application of [`record_group`](record_group.html) and, `fixed_episodes()`, `rolling_episodes()` or `episode_group()` can allow you apply different case definitions to a dataset. Some examples below;
 
-1. Create episodes of events that occur at a point in time e.g. diagnosis. See [episode grouping](#episode_grouping) and [Useful ways of using episode_group](#tips)
+1. Create episodes of events that occur at a point in time e.g. medical diagnoses or traffic incidents
 2. Create episodes of overlapping periods of events e.g. hospital stay. See [interval grouping](#interval_grouping)
 3. Create episodes that reoccur within a defined period (`recurrence_length`) from the last event
-3. Specify which event (or period of event) is considered the `"Case (C)"`. See [case assignment](#case_assignment)
+3. Specify which event (or period of event) is taken as the `"Case (C)"`. See [case assignment](#case_assignment)
 4. Create episodes with a different `case_length` and/or `recurrence_length` for different subsets of a dataset. See [stratified grouping](#stratified_grouping)
 
 #Implementation 
@@ -34,29 +34,27 @@ The flexible application of [`record_group`](record_group.html) and, `fixed_epis
 <a id= "episode_grouping"></a>
 
 ## Overview
-An episode as produced by `fixed_episdoes()`, `rolling_episodes()` or `episode_group()` is a set of events (or periods of events) within a specific period of time. Each begins with a reference event - the `"Case (C)"`, and may contain a `"Recurrent (R)"` event. The remaining events are considered duplicates `"(D)"`.
+An episode as produced by `fixed_episodes()`, `rolling_episodes()` or `episode_group()` is a set of events (or periods of events) within a specific period of time. Each begins with a reference event - the `"Case (C)"`, and may contain a `"Recurrent (R)"` event. The remaining events are considered duplicates `"(D)"`.
 
 Two type of episodes can be produced;
 
-- `"fixed"` episodes - `"Duplicate (D)"` events (or periods of events) are those within a specified period (`case_length`) after/before the `"Case (C)"`. Any event after this `case_length` is considered a different episode.
+- `"fixed"` episodes - where `"Duplicate (D)"` events (or periods of events) are those within a specified period (`case_length`) after/before the `"Case (C)"`. Any event after this `case_length` is grouped as a different episode.
 
-- `"rolling"` episodes - `"Duplicate (D)"` events (or periods of events) are those within the `case_length` and those within periods of recurrence. See [episodes windows and recurrence periods](#recurrence).
+- `"rolling"` episodes - where `"Duplicate (D)"` events (or periods of events) are those within the `case_length` and those within periods of recurrence. See [episodes windows and recurrence periods](#recurrence).
 
 `"fixed"` and `"rolling"` episodes are created with `fixed_episdoes()` and `rolling_episodes()` respectively, while `episode_group` can create both.
 
 <a id ="recurrence" ><a/> 
 
 ##Episode windows and recurrence periods
-An episode window (`epid_interval`) is the period between the `"Case"` and the episode's last event (or the end point of the last period). For a `"fixed"` episode, its length is never longer than the `"case_length"`.
+An episode window (`epid_interval`) is the period between the `"Case"` and the last event in the episode (or the end point of the last period). A `"fixed"` episode is never longer than its `"case_length"`.
 
-A recurrence period is a specified period (`recurrence_length`) after the last record in an epsiode. The first new record within this `recurrence_length` is taken as a `"Recurrent (R)"` record. Others within that period are taken as a `"Duplicate (D)"` of that `"Recurrent (R)"` record. This means that a rolling episode will continue to expand as far as there's a record within the recurrence period of the last record in the episode (`"Case (C)"`, `"Duplicate (C)"` or `"Recurrent (R)"`). As a result, the episode window (`epid_interval`) of a rolling episode is not fixed and depends on the data.
+A recurrence period is a specified period (`recurrence_length`) after the last event in an epsiode. The first new record within this `recurrence_length` is taken as a `"Recurrent (R)"` record. Others after that period are taken as a duplicates `"(D)"` of that recurrent `"(R)"` record. This means that a rolling episode will continue to expand as far as there's a record within the recurrence period of the last event in the episode. The last event could be a `"Case (C)"`, `"Duplicate (C)"` or `"Recurrent (R)"` record. As a result, a rolling episode can be longer than its `case_length`.
 
-The examples below demonstrates this difference;
+The examples below demonstrates the difference;
 
 ```{r message=FALSE, warning=FALSE}
-library(dplyr)
-library(lubridate)
-library(diyar)
+library(dplyr); library(lubridate); library(diyar)
 
 data("infections_2")
 dates <- infections_2$date
@@ -74,17 +72,17 @@ f # fixed episode identifiers
 r # rolling episode identifiers
 ```
 
-In the `"fixed"` episodes example, Records 1 to 3 are assigned a unique episode ID (`"E-1"`). In this instance, record 1 is the `"Case (C)"` and records 2 and 3 its duplicates `"(D)"`. This is because records 2 and 3 are dated within 15 days of record 1 (difference of 14 days). Record 4 occured after this 15-day period and so begins a new `"Case (C)"` which is assigned a new episode ID (`"E-4"`). Record 5 is within 15 days of record 4, so is considered a `"Duplicate (D)"` of record 4 and assigned the same episode ID as record 4 (`"E-4"`). This process continues chronologically until all records have been assigned an episode ID.
+In the `"fixed"` episodes example, records 1 to 3 are assigned a unique episode ID (`"E-1"`). In this instance, record 1 is the `"Case (C)"` and records 2 and 3 its duplicates `"(D)"`. This is because records 2 and 3 are within 15 days (difference of 14 days) of record 1. Record 4 occured after this 15-day period and so begins a new `"Case (C)"` which is assigned a new episode ID (`"E-4"`). Record 5 is within 15 days of record 4, so is considered a `"Duplicate (D)"` of record 4 and assigned the same episode ID as record 4 (`"E-4"`). This process continues chronologically until all records have been assigned an episode ID.
 
-In the `"rolling"` episode example, records 1 to 3 are also grouped together as episode `"E-1"` however, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case (C)"`. Instead its assigned to episode `"E-1"` as a `"Recurrent (R)"` record. This occured because it was within 8 days of the last `"Duplicate (D)"` (record 3). Record 5 is also assigned to episode `"E-1"` because it's within 8 days of record 4. Record 6 is not within 15 days of the initial `"Case (C)"` (record 1) and not within 8 days of the last record at this stage (record 5), so it's now considered a new `"Case (C)"` and assigned a new episode ID (`"E-6"`).
+In the `"rolling"` episodes example, records 1 to 3 are also grouped together as episode `"E-1"` however, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case (C)"`. Instead its assigned to episode `"E-1"` again as a `"Recurrent (R)"` record. This occured because it was within 8 days (difference of 7 days) of the last `"Duplicate (D)"` (record 3). Record 5 is also assigned to episode `"E-1"` because it's within 8 days of record 4. Record 6 is not within 15 days of the initial `"Case (C)"` (record 1) and not within 8 days of the last record at this stage (record 5), so it's now considered a new `"Case (C)"` and assigned a new episode ID (`"E-6"`).
 
 \newline
 
 **Figure 1: `"Fixed"` and `"rolling"` episodes with their respective `case_lenth` and `recurrence_length`**
 
 ```{r echo=FALSE, fig.height=4, fig.width=7, message=FALSE, warning=FALSE}
-library(tidyr)
-library(ggplot2)
+library(tidyr); library(ggplot2)
+
 r_epids <- f_epids <- infections_2[c("rid","pid","date")]
 
 f_epids$epids <- f
@@ -122,7 +120,7 @@ plot <- plot %>%
       (case_nm =="Recurrent" & last_record !=1) | (recur_dup ==1) ~ recur,
       TRUE ~ 0
     ), 
-    dash_num = ifelse(dash_range==0,"",as.character(dash_range)),
+    dash_num = ifelse(dash_range==0,"",paste(dash_range, "days")),
     dash_range = date + duration(dash_range,"days")
   )
 
@@ -152,20 +150,22 @@ ggplot(plot, aes(x=date, y=rid, group=rid, colour=epid)) +
 <a id="case_assignment"></a> 
 
 ## Case assignment
-This section covers the different functionalities of these functions that determine which record is taken as the `"Case (C)"`.
+This section covers the different ways you can determine which record is taken as the `"Case (C)"`.
 
 ### Number of recurrence periods and episodes
-You can choose to have a certain number of episodes per `strata` by using `episode_max`. When `episode_max` is reached, any record not yet grouped is assigned a unique episode ID, making it a unique `"Case (C)"`.
+You can choose to have a certain number of episodes per `strata` by using `episode_max`. When `episode_max` is reached, any record not yet grouped is assigned a unique episode ID, making them unique cases `"(C)"`.
 
 ```{r warning=FALSE, message=FALSE}
 data("infections_3");
 dbs <- infections_3[c("pid","date")]; dbs
 
 # Maximum of one episode with one recurrence period
-dbs$eps_1 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 1,display = FALSE, rolls_max = 1, episodes_max = 1, to_s4 = TRUE)
+dbs$eps_1 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 1,display = FALSE, 
+                              rolls_max = 1, episodes_max = 1, to_s4 = TRUE)
 
 # Maximum of two episodes with one recurrence period
-dbs$eps_2 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 1,display = FALSE, rolls_max = 1, episodes_max = 2, to_s4 = TRUE)
+dbs$eps_2 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 1,display = FALSE, 
+                              rolls_max = 1, episodes_max = 2, to_s4 = TRUE)
 
 dbs
 
@@ -178,17 +178,18 @@ By default, `rolling_episodes()` will continue checking for `"Recurrent" (R)` re
 dbs$eps_3 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = FALSE, to_s4 = TRUE)
 
 # Maximum of one recurrence period per episode
-dbs$eps_4 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = FALSE, rolls_max = 1, to_s4 = TRUE)
+dbs$eps_4 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = FALSE, 
+                              rolls_max = 1, to_s4 = TRUE)
 
 # Maximum of two recurrence periods per episode
-dbs$eps_5 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = FALSE, rolls_max = 2, to_s4 = TRUE)
+dbs$eps_5 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = FALSE, 
+                              rolls_max = 2, to_s4 = TRUE)
 
 dbs
 ```
 
-
 ### Chronological order of events
-By default, episode grouping begins at the earliest event (or period of event) and proceeds to the most recent one, making the earliest event the `"Case (C)"`. The opposite of this is to have the most recent record as the `"Case (C)"`. To do this, change `from_last` to `TRUE`. Doing this will start episode grouping at the most recent event and proceed backwards in time to the earliest one.
+By default, episode grouping begins at the earliest event (or period of event) and proceeds to the most recent one, making the earliest event the `"Case (C)"`. The opposite of this is to begin episode grouping at the most recent record and proceed backwards in time. This results in taking the most recent record as the `"Case (C)"`. To do this, change `from_last` to `TRUE`.
 
 ```{r message=FALSE, warning=FALSE}
 dbs <- infections_2[c("date")]; dbs
@@ -198,7 +199,8 @@ dbs$forward <- fixed_episodes(date=dbs$date, case_length= 14,
                               group_stats = TRUE, display = FALSE, to_s4=TRUE)
 
 # Episode grouping in reverse chronological order
-dbs$backward <- fixed_episodes(date=dbs$date, case_length= 14, group_stats = TRUE, display = FALSE, from_last=TRUE, to_s4=TRUE)
+dbs$backward <- fixed_episodes(date=dbs$date, case_length= 14, group_stats = TRUE, display = FALSE,
+                               from_last=TRUE, to_s4=TRUE)
 
 dbs[c("forward","backward")]
 ```
@@ -206,7 +208,7 @@ dbs[c("forward","backward")]
 <a id ="custom_sort"></a>
 
 ### User defined case assignment
-You can specify a different preference for case assignment from what's been described above. This is done using `custom_sort`. In `fixed_episodes()` and `rolling_episodes()` this is a vector whose values when sorted in ascending order specifies the required preference. For example, records with a `custom_sort` value of `1` will be preferentially taken as the start of an episode over one with a value of `2`. This is prioritised over the chronological order records. See the example below.
+You can use a specific preference for case assignment by using `custom_sort`. In `fixed_episodes()` and `rolling_episodes()`, this is a vector whose values when sorted in ascending order specifies the required preference. For example, records with a `custom_sort` value of `1` will be preferentially taken as the start of an episode over one with a value of `2`. This is prioritised over the chronological order of records. See the example below.
 
 ```{r message=FALSE, warning=FALSE}
 dates <- c("01/04/2019", "05/04/2019", "07/04/2019")
@@ -214,23 +216,24 @@ dates <- as.Date(dates,"%d/%m/%Y")
 user_sort <- c(2,1,2)
 
 # preference determined by from_last 
-fixed_episodes(date=dates, case_length=6, to_s4=TRUE, display=FALSE)
+fixed_episodes(date=dates, case_length=6, to_s4=TRUE, display=FALSE, group_stats = TRUE)
 
 # user defined preference via custom sort is prioritised before from_last 
-fixed_episodes(date=dates, case_length=6, to_s4=TRUE, custom_sort = user_sort, display=FALSE)
+fixed_episodes(date=dates, case_length=6, to_s4=TRUE, custom_sort = user_sort, display=FALSE, group_stats = TRUE)
 
 # user defined preference via custom sort is prioritised before from_last. Duplicates flagged from both directions
-fixed_episodes(date=dates, case_length=6, to_s4=TRUE, custom_sort = user_sort, display=FALSE, bi_direction = TRUE)
+fixed_episodes(date=dates, case_length=6, to_s4=TRUE, custom_sort = user_sort, display=FALSE, 
+               bi_direction = TRUE, group_stats = TRUE)
 
 ```
 
-In the second example above, even though the second record occured after the first, episode grouping begins at the second record and then continues chronologically in the direction specified by `from_last`. 
+In the second example above, even though the second record occured after the first, episode grouping began at the second one and continued chronologically in the direction specified by `from_last`. 
 
-A consequence of using `custom_sort` was that record 1 was not grouped together with record 2 even though its within the `case_length` of record 2. This is because duplicates are tracked in one direction, and determined by `from_last`. To track dupliciates from both directions use `bi_direction` as shown in the third example.   
+A consequence of using `custom_sort` was that record 1 was not grouped together with record 2 even though its within the `case_length` of record 2. This is because duplicates are tracked in one direction which is determined by `from_last`. To track dupliciates from both directions use `bi_direction` as shown in the third example.   
 
 Note that example 1 and 3 now have the same number of duplicates (and episodes) but different cases - records 1 and 2 respectively.
 
-***`custom_sort` can be `"character"`, `"numeric"` or `"factor"` data types. However, each would follow `R` standard sort behaviour. For example, a `factor` will sort on its levels not the descriptive label.***
+***`custom_sort` will follow `R` standard sort behaviour. For example, a `factor` will sort on its levels not the descriptive label.***
 
 For a practical example, we'll use this feature for a case definition where *E. coli* urinary tract infections (UTI) are considered precursors to *E. coli* bloodstream infections (BSI). This means that episodes need to be created in such a way that; if there are UTI and BSI records within the same `case_length`, the UTI record will be taken as the `"Case (C)"`. 
 
