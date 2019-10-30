@@ -485,7 +485,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
     df$sr <- strata
   }
 
-  if(is.null(strata)){
+  if(is.null(sn)){
     df$sn <- 1:nrow(df)
   }else{
     df$sn <- sn
@@ -505,7 +505,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
     df$user_srt <- as.numeric(as.factor(custom_sort))
   }
 
-  diyar::episode_group(df, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
+  diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
                        bi_direction = bi_direction , data_source = !!ds, custom_sort = "user_srt",
                        from_last = from_last, overlap_method = overlap_method,
                        display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
@@ -540,7 +540,7 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
     df$sr <- strata
   }
 
-  if(is.null(strata)){
+  if(is.null(sn)){
     df$sn <- 1:nrow(df)
   }else{
     df$sn <- sn
@@ -566,7 +566,7 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
     df$rc_epl <- recurrence_length
   }
 
-  diyar::episode_group(df, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
+  diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                        bi_direction = bi_direction , data_source = !!ds, custom_sort = "user_srt",
                        from_last = from_last, overlap_method = overlap_method, recurrence_length = "rc_epl", rolls_max = rolls_max,
                        display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4)

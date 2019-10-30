@@ -263,9 +263,9 @@ In `epids_2`, after changing the sort preference using factor levels, record 1 (
 <a id="interval_grouping"></a>
 
 ## Interval grouping
-In this section we discuss the process of grouping periods of events into episodes. Each period or interval is essentially a record with a start and end point in time. For the purpose of episode grouping, these intervals are created as `number_line` objects and supplied to the `date` argument.
+In this section we discuss the process of grouping periods of events into episodes. Each period/interval is essentially a record with a start and end point in time. For the purpose of episode grouping, these periods are created as `number_line` objects and supplied to the `date` argument.
 
-The simple example below demonstrates the difference between grouping events and periods of events.
+Below are simple examples;
 
 ```{r message=FALSE, warning=FALSE}
 dbs <- tibble(date=c("01/04/2019", "05/04/2019"))
@@ -275,12 +275,14 @@ dbs$period <- number_line(dbs$date, dbs$date + 10)
 
 dbs
 
+# Grouping events
 fixed_episodes(date=dbs$date, case_length=30, to_s4=TRUE, display=FALSE, group_stat=TRUE)
 
+# Grouping periods
 fixed_episodes(date=dbs$period, case_length=30, to_s4=TRUE, display=FALSE, group_stat=TRUE)
 ```
 
-In the example below, we group periods of hospital stay into episodes. This is different from grouping the admission or discharge events themselves.
+As a practical example, below can group periods of hospital stay into episodes. This is different from grouping the actual admission or discharge events.
 
 ```{r message=FALSE, warning=FALSE}
 data("hospital_admissions"); hospital_admissions
@@ -297,7 +299,7 @@ fixed_episodes(date=hospital_admissions$admin_period, sn=hospital_admissions$rd_
 
 ```
 
-Intervals are grouped into the same episode when they overlap. Since this can happen in different ways, each function allows you to choose how this happens by using `overlap_method`. The options available are; `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all methods. The examples and figure below demonstrates each method.
+Periods are grouped into the same episode if they overlap. Since this can happen in different ways, you can choose how this happens by using `overlap_method`. The options available are; `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all. Below are examples demonstrating each option.
 
 ```{r warning=FALSE}
 # Overlapping intervals
@@ -483,11 +485,14 @@ ep_plot <- filter(plot, var=="discharge_dt" & case_nm == "Case") %>%
 ep_plot <- mutate(ep_plot, val= val + duration(epi_len,"days"), var="end") %>% 
   bind_rows(ep_plot)
 
+ep_plot$lab <- ifelse(ep_plot$var=="start", paste(ep_plot$epi_len, "days"),"")
+                      
 ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
   geom_line() +
   geom_point() +
   geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
   geom_line(data=ep_plot, aes(x=val, y=rd_id, group=rd_id, colour=epid_2), linetype=2) +
+  #geom_text(data=ep_plot, aes(hjust="left", label=lab), nudge_x = 2, nudge_y = .18, show.legend = FALSE, size =2.5) +
   scale_y_discrete("Record ID") +
   scale_x_date("Admitted period", limits = c(dmy("15/12/2018"), dmy("01/04/2019")), date_breaks = "35 days", date_labels = "%d %b") +
   guides(col = guide_legend(nrow = 4)) +
@@ -506,9 +511,9 @@ ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
 <a id="stratified_grouping"></a>
 
 ## Stratified episode grouping
-Episode grouping can be done separately for different subsets (`strata`) of the dataset. Examples of a `strata` could be patient IDs, type of pathogen, source of infection or a combination of these parameters. Episodes will be limited to each `strata` however, episodes from different `strata` but can have different `case_length` and `recurrence_length`.
+Episode grouping can be done separately for different subsets (`strata`) of the dataset. Examples of a `strata` could be patient IDs, type of pathogen, source of infection or any combination of these. Episodes will be limited to each `strata` however, episodes from different `strata` can have different `case_length` and/or `recurrence_length`.
 
-`record_group()` is useful for creating a group identifiers which can used as a `strata`. See [record group](record_group.html) for further details.
+**`record_group()` is useful for creating group identifiers which can used as a `strata`. See [record group](record_group.html) for further details.**
 
 As an example, using the `infections` dataset, a case definition may specify the following;
 
@@ -564,53 +569,49 @@ Stratified grouping is the same as a separate analysis for each subset (`strata`
 
 ## Useful ways of using episode_group 
 ### Episode grouping across other units of time
-In the examples above, episode grouping was done by the days (`episode_unit`). However, it can be done in other units of time e.g. hours, days or weeks. Acceptable options are those supported by `lubridate's duration()` function. Below is an example of episode grouping by the hour.
+In the examples above, episode grouping was done by days (`episode_unit`). However, it can be done in other units of time e.g. hours, days or weeks. Acceptable options are those supported by `lubridate's duration()` function. Below is an example of episode grouping by the hour.
 
 ```{r warning=FALSE, message=FALSE}
 data("hourly_data"); hourly_data
+dbs <- hourly_data
 
-cbind(
-  select(hourly_data, datetime),
-  episode_group(hourly_data, rid, category, datetime, epi, episode_type = "rolling", episode_unit = "hours", recurrence_length = recur, group_stats = TRUE)
-  )
+dbs$datetime
+
+rolling_episodes(strata = dbs$category, date = dbs$datetime, case_length = 5,
+                 episode_unit = "hours", recurrence_length = 9, group_stats = TRUE, to_s4 = TRUE, display = FALSE)
 ```
 
 ### Limit episode grouping to a subset of the dataframe
-To exclude a subset of the data from episode grouping, you can separate the `data.frame` and use `episode_group()` on only the desired subset, before joining it back to the original dataset. `episode_group()` has a convenience feature to achieve the same thing. To use this, assign `NA` to the `strata` to be excluded. These records will be excluded from episode grouping and assigned a unique episode ID.
-
-For example, with the `hourly_data`, you can decide to exclude `"GP1"` and `"GP2"` records from episode grouping as shown below. 
+For example, with the `hourly_data` dataset, you can decide to exclude `"GP1"` and `"GP2"` records from episode grouping as shown below. These records will be excluded from episode grouping and assigned a unique episode IDs.
 
 ```{r warning=FALSE, message=FALSE}
-head(hourly_data, 10) %>% 
-  mutate(subset = ifelse(category!="GP3", NA, "group")) %>% 
-  cbind(.,episode_group(., rid, subset, datetime, epi, episode_type = "rolling", episode_unit = "hours", 
-                        recurrence_length = recur, display = TRUE, group_stats = TRUE))
+dbs <- head(hourly_data[c("datetime","category")], 10)
+dbs$subset <- ifelse(dbs$category!="GP3", NA, "group")
+
+dbs$epids <- rolling_episodes(strata= dbs$subset, date = dbs$datetime, case_length = 5, episode_unit = "hours", 
+                        recurrence_length = 9, display = TRUE, group_stats = TRUE, to_s4 = TRUE)
+
+dbs
 ```
 
-### fixed_episodes and rolling_episodes functions
-`fixed_episodes()` and `rolling_episodes()` are convenient implementation of `episode_group()`. They return `number_line` objects (`epid_interval`) with the record identifier supplied (`id` slot) and episode identifiers created (`gid` slot).
-
-***Both functions are less efficient in dealing with large datasets and lack the following features; "custom_sort", "rolls_max", "episodes_max", "data_source", "episode_unit", "bi_direction" and "group_stats"***
+### Use a `strata` from `record_group()`
 
 ```{r warning=FALSE, message=FALSE}
-data(infections); infections
-db_a <- infections
+data(infections) 
 
-# Fixed episodes
-f_epi <- fixed_episodes(x = db_a$date, case_length = db_a$epi_len, display = FALSE, group_stats = TRUE)$epid_interval
-f_epi; str(f_epi)
+dbs <- infections[c("date","infection")]; dbs
 
-# Rolling episodes
-r_epi <- rolling_episodes(x = db_a$date, case_length = db_a$epi_len, recurrence_length = 40, display = FALSE, group_stats = TRUE)$epid_interval
-f_epi; str(f_epi)
+# unique record ids
+rd_id <- c(640,17,58,21,130,79,45,300,40,13,31)
 
-# Working with a data.frame
-db_b <- mutate(db_a, epid_interval= fixed_episodes(x = date, case_length = epi_len, strata = infection, display = FALSE, group_stats = TRUE)$epid_interval)
+# strata based on matching sources of infection
+dbs$pids <- record_group(dbs, criteria = infection, to_s4 = TRUE, display = FALSE)
 
-# Extract useful episode information from the number_line objects
-db_b$epid <- db_b$epid_interval@gid
-db_b$epid_length <- number_line_width(db_b$epid_interval)
-select(db_b, rd_id, date, epid_interval, epid, epid_length)
+# stratified grouping 
+dbs$epids <- fixed_episodes(sn = rd_id, date = dbs$date, strata = dbs$pids, 
+                             to_s4 = TRUE, display = FALSE, group_stats = TRUE, case_length = 10)
+
+dbs
 ```
 
 # Conclusion
