@@ -20,8 +20,8 @@ Changes
 Bug fixes
 ---------
 
--   (\#3) - Resolved a bug with `episode_unit` in `episode_group()`
--   (\#4) - Resolved a bug with `bi_direction` in `episode_group()`
+-   [\#3](https://github.com/OlisaNsonwu/diyar/issues/3) - Resolved a bug with `episode_unit` in `episode_group()`
+-   [\#4](https://github.com/OlisaNsonwu/diyar/issues/4) - Resolved a bug with `bi_direction` in `episode_group()`
 
 Version 0.0.1
 =============
