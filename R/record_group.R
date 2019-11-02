@@ -106,23 +106,13 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   if(!(is.logical(group_stats) & is.logical(display))) stop(paste("'group_stats' and 'display' must be TRUE or FALSE"))
 
   . <- NULL
-  enq_vr <- function(x, vr){
-    x <- names(dplyr::select(x, !!vr))
-
-    if(length(x)==0){
-      x <- NULL
-    }else{
-      x
-    }
-    return(x)
-  }
-
   enq_vr <- function(x){
     x <- as.character(x)
     if(x[1]=="c" & length(x)>1) x <- x[2:length(x)]
     if(length(x)==0) x <- NULL
     x
   }
+
   fmt <- function(g) formatC(g, format="d", big.mark=",")
 
   ds <- enq_vr(substitute(data_source))

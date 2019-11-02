@@ -147,8 +147,8 @@ df_9$r_id <- c(1,1,3:15)
 
 test_that("test that error and warning messages are returned correctly", {
   expect_error(record_group(as.list(df_7), r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "A dataframe is required")
-  expect_error(record_group(df_7, record_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "object 'record_id' not found")
-  expect_error(record_group(df_7, r_id, criteria_1, list(s1a="age_range"), group_stats = TRUE), "object 'criteria_1' not found")
+  expect_error(record_group(df_7, record_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'record_id' not found")
+  expect_error(record_group(df_7, r_id, criteria_1, list(s1a="age_range"), group_stats = TRUE), "'criteria_1' not found")
   expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_ranges"), group_stats = TRUE), "'age_ranges' not found")
   expect_error(record_group(df_8, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must be > 0")
   expect_error(record_group(df_9, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must not have duplicate values")
