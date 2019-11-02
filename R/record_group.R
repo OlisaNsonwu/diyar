@@ -116,16 +116,23 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     }
     return(x)
   }
+
+  enq_vr <- function(x){
+    x <- as.character(x)
+    if(x[1]=="c" & length(x)>1) x <- x[2:length(x)]
+    if(length(x)==0) x <- NULL
+    x
+  }
   fmt <- function(g) formatC(g, format="d", big.mark=",")
 
-  ds <- enq_vr(head(df,1), dplyr::enquo(data_source))
+  ds <- enq_vr(substitute(data_source))
 
   df_vars <- names(df)
 
-  rd_sn <- enq_vr(head(df,1), dplyr::enquo(sn))
+  rd_sn <- enq_vr(substitute(sn))
 
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
-  cri_lst <- enq_vr(head(df,1), dplyr::enquo(criteria))
+  cri_lst <- enq_vr(substitute(criteria))
 
   if(!is.null(rd_sn)){
     if(!(all(df[[rd_sn]] > 0) & is.numeric(as.numeric(df[[rd_sn]])))) stop(paste("'",rd_sn,"' as 'sn' must be > 0", sep=""))

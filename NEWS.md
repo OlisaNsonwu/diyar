@@ -10,6 +10,7 @@ New feature
 -   `to_s4()` and `to_s4` argument in `record_group()`, `episode_group()`, `fixed_episodes()` and `rolling_episodes()`. Changes their output from a `data.frame` (current deault) to `epid` or `pid` objects
 -   `to_df()` changes `epid` or `pid` objects to a `data.frame`
 -   `deduplicate` argument from `fixed_episodes()` and `rolling_episodes()` added to `episode_group()`
+-   `record_group()` - columns can now be used as `criteria` multiple times
 
 Changes
 -------

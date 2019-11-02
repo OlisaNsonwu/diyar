@@ -23,6 +23,11 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
+Cheatsheet
+----------
+
+<a href="https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf">Test</a>
+
 Usage
 -----
 

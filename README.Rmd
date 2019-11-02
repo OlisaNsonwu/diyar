@@ -30,18 +30,19 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-## Usage
-There are two main aspects of the `diyar` package; record and episode grouping. Additionally, `number_line` objects are used in both as representations of a range of values to match, and time periods respectively. 
+##Cheatsheet
+<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/thumbnail.png"/></a>
 
-### Number line objects
-Series of real numbers on a number line. `diyar` also includes functions used to manipulate these objects. Some useful ones are shown below.
+## Usage
+There are two main aspects of the `diyar` package; record and episode grouping, both of which make use of `number_line` objects 
+
++ Number line objects
+Series of real numbers on a number line. These can be manipulated and merged.
 ```{r number_line, message=FALSE, warning=FALSE}
 library(diyar); library(dplyr)
 
-l <- as.Date("01/04/2019", "%d/%m/%Y")
-r <- as.Date("30/04/2019", "%d/%m/%Y")
+l <- as.Date("01/04/2019", "%d/%m/%Y"); r <- as.Date("30/04/2019", "%d/%m/%Y")
 nl <- number_line(l, r)
-
 nl
 reverse_number_line(nl)
 shift_number_line(nl, -2)
@@ -49,16 +50,12 @@ expand_number_line(nl, 2)
 number_line_sequence(nl, by =3)
 ```
 
-### Episode grouping
-
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.
-
-***NOTE. `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be made the default output in the next major release.***
++ `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. ***NOTE. `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be made the default output in the next major release.***
 
 ```{r}
 data(infections);
 db <- infections[c("date")]
-db
+db$date
 
 # Fixed episodes
 db$f_epid <- fixed_episodes(date = db$date, case_length = 15, 
@@ -69,46 +66,17 @@ db$r_epid <- rolling_episodes(date = db$date, case_length = 15,
                               recurrence_length = 40, display = FALSE, to_s4 = TRUE, 
                               group_stats = TRUE)
 db[c("f_epid","r_epid")]
-
-# episode_group() takes column names
-db$epi_len <- 15
-db$recur <- 40
-
-db$f_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "fixed", 
-                              display = FALSE, to_s4 = TRUE)
-
-db$r_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "rolling", 
-                              recurrence_length = recur, display = FALSE, to_s4 = TRUE)
 ```
 
-### Record grouping
-
-`record_group()` - Multistage deterministic linkages that addresses missing values by using a specified list of alternative matching criteria.
-
-***NOTE. `to_s4` and `to_s4()` changes its output from a data.frame (current default) to `pid` objects. `pid` objects will be made the default output in the next major release.***
++ `record_group()` - Perform multistage deterministic linkages while addresses missing data using a specified list of alternative matching criteria, or range of values. ***NOTE. `to_s4` and `to_s4()` changes its output from a data.frame (current default) to `pid` objects. `pid` objects will be made the default output in the next major release.***
 
 ```{r}
 # Two or more stages of record grouping
-data(staff_records); staff_records
+data(staff_records);
 
 staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
                      data_source = sex, display = FALSE, to_s4 = TRUE)
 staff_records
-
-# Range matching
-dob <- select(staff_records, sex); dob
-
-dob$age <- c(10,8,20,5,5,9,7)
-
-# age range - age + 20 years
-dob$rng_b <- number_line(dob$age, dob$age+20, gid=dob$age)
-# age range - age +- 20 years
-dob$rng_c <- number_line(dob$age-20, dob$age+20, gid=dob$age)
-
-dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_b"), display = FALSE, to_s4 = TRUE)
-dob$pids_c <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_c"), display = FALSE, to_s4 = TRUE)
-
-dob[c("sex","age","rng_b","pids_b","rng_c","pids_c")]
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!
