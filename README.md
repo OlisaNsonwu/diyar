@@ -26,24 +26,20 @@ devtools::install_github("OlisaNsonwu/diyar")
 Cheatsheet
 ----------
 
-<a href="https://github.com/rstudio/cheatsheets/blob/master/data-transformation.pdf">Test</a>
+<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/thumbnail.png"/></a>
 
 Usage
 -----
 
-There are two main aspects of the `diyar` package; record and episode grouping. Additionally, `number_line` objects are used in both as representations of a range of values to match, and time periods respectively.
+There are two main aspects of the `diyar` package; record and episode grouping, both of which make use of `number_line` objects
 
-### Number line objects
-
-Series of real numbers on a number line. `diyar` also includes functions used to manipulate these objects. Some useful ones are shown below.
+-   Number line objects Series of real numbers on a number line. These can be manipulated and merged.
 
 ``` r
 library(diyar); library(dplyr)
 
-l <- as.Date("01/04/2019", "%d/%m/%Y")
-r <- as.Date("30/04/2019", "%d/%m/%Y")
+l <- as.Date("01/04/2019", "%d/%m/%Y"); r <- as.Date("30/04/2019", "%d/%m/%Y")
 nl <- number_line(l, r)
-
 nl
 #> [1] "2019-04-01 -> 2019-04-30"
 reverse_number_line(nl)
@@ -58,30 +54,15 @@ number_line_sequence(nl, by =3)
 #> [11] "2019-04-30"
 ```
 
-### Episode grouping
-
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis.
-
-***NOTE. `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be made the default output in the next major release.***
+-   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. ***NOTE. `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be made the default output in the next major release.***
 
 ``` r
 data(infections);
 db <- infections[c("date")]
-db
-#> # A tibble: 11 x 1
-#>    date      
-#>    <date>    
-#>  1 2018-04-01
-#>  2 2018-04-07
-#>  3 2018-04-13
-#>  4 2018-04-19
-#>  5 2018-04-25
-#>  6 2018-05-01
-#>  7 2018-05-07
-#>  8 2018-05-13
-#>  9 2018-05-19
-#> 10 2018-05-25
-#> 11 2018-05-31
+db$date
+#>  [1] "2018-04-01" "2018-04-07" "2018-04-13" "2018-04-19" "2018-04-25"
+#>  [6] "2018-05-01" "2018-05-07" "2018-05-13" "2018-05-19" "2018-05-25"
+#> [11] "2018-05-31"
 
 # Fixed episodes
 db$f_epid <- fixed_episodes(date = db$date, case_length = 15, 
@@ -108,39 +89,13 @@ db[c("f_epid","r_epid")]
 #>  9 E-07 2018-05-07 -> 2018-05-19 (D) E-1 2018-04-01 -> 2018-05-31 (D)
 #> 10 E-10 2018-05-25 -> 2018-05-31 (C) E-1 2018-04-01 -> 2018-05-31 (R)
 #> 11 E-10 2018-05-25 -> 2018-05-31 (D) E-1 2018-04-01 -> 2018-05-31 (D)
-
-# episode_group() takes column names
-db$epi_len <- 15
-db$recur <- 40
-
-db$f_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "fixed", 
-                              display = FALSE, to_s4 = TRUE)
-#> Episode grouping complete - 0 record(s) assinged a unique ID.
-
-db$r_epid.2 <- episode_group(db, date = date, case_length = epi_len, episode_type = "rolling", 
-                              recurrence_length = recur, display = FALSE, to_s4 = TRUE)
-#> Episode grouping complete - 0 record(s) assinged a unique ID.
 ```
 
-### Record grouping
-
-`record_group()` - Multistage deterministic linkages that addresses missing values by using a specified list of alternative matching criteria.
-
-***NOTE. `to_s4` and `to_s4()` changes its output from a data.frame (current default) to `pid` objects. `pid` objects will be made the default output in the next major release.***
+-   `record_group()` - Perform multistage deterministic linkages while addresses missing data using a specified list of alternative matching criteria, or range of values. ***NOTE. `to_s4` and `to_s4()` changes its output from a data.frame (current default) to `pid` objects. `pid` objects will be made the default output in the next major release.***
 
 ``` r
 # Two or more stages of record grouping
-data(staff_records); staff_records
-#> # A tibble: 7 x 5
-#>    r_id forename surname  sex   dataset   
-#>   <int> <chr>    <chr>    <chr> <chr>     
-#> 1     1 James    Green    M     Staff list
-#> 2     2 <NA>     Anderson M     Staff list
-#> 3     3 Jamey    Green    M     Pay slips 
-#> 4     4 ""       <NA>     F     Pay slips 
-#> 5     5 Derrick  Anderson M     Staff list
-#> 6     6 Darrack  Anderson M     Pay slips 
-#> 7     7 Christie Green    F     Staff list
+data(staff_records);
 
 staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
                      data_source = sex, display = FALSE, to_s4 = TRUE)
@@ -156,43 +111,6 @@ staff_records
 #> 5     5 Derrick  Anderson M     Staff list P-2 (CRI 02)
 #> 6     6 Darrack  Anderson M     Pay slips  P-2 (CRI 02)
 #> 7     7 Christie Green    F     Staff list P-1 (CRI 02)
-
-# Range matching
-dob <- select(staff_records, sex); dob
-#> # A tibble: 7 x 1
-#>   sex  
-#>   <chr>
-#> 1 M    
-#> 2 M    
-#> 3 M    
-#> 4 F    
-#> 5 M    
-#> 6 M    
-#> 7 F
-
-dob$age <- c(10,8,20,5,5,9,7)
-
-# age range - age + 20 years
-dob$rng_b <- number_line(dob$age, dob$age+20, gid=dob$age)
-# age range - age +- 20 years
-dob$rng_c <- number_line(dob$age-20, dob$age+20, gid=dob$age)
-
-dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_b"), display = FALSE, to_s4 = TRUE)
-#> Record grouping complete - 1 record(s) assigned a group unique ID.
-dob$pids_c <- record_group(dob, criteria = sex, sub_criteria = list(s1a="rng_c"), display = FALSE, to_s4 = TRUE)
-#> Record grouping complete - 0 record(s) assigned a group unique ID.
-
-dob[c("sex","age","rng_b","pids_b","rng_c","pids_c")]
-#> # A tibble: 7 x 6
-#>   sex     age rng_b      pids_b       rng_c      pids_c      
-#>   <chr> <dbl> <numbr_ln> <pid>        <numbr_ln> <pid>       
-#> 1 M        10 10 -> 30   P-2 (CRI 01) -10 -> 30  P-1 (CRI 01)
-#> 2 M         8 8 -> 28    P-2 (CRI 01) -12 -> 28  P-1 (CRI 01)
-#> 3 M        20 20 -> 40   P-2 (CRI 01) 0 -> 40    P-1 (CRI 01)
-#> 4 F         5 5 -> 25    P-4 (CRI 01) -15 -> 25  P-4 (CRI 01)
-#> 5 M         5 5 -> 25    P-5 (No Hit) -15 -> 25  P-1 (CRI 01)
-#> 6 M         9 9 -> 29    P-2 (CRI 01) -11 -> 29  P-1 (CRI 01)
-#> 7 F         7 7 -> 27    P-4 (CRI 01) -13 -> 27  P-4 (CRI 01)
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!
