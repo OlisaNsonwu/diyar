@@ -153,6 +153,21 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
   cri_no <- length(cri_lst)
 
+  for(i in 1:cri_no){
+    if(is.number_line(df[[cri_lst[i]]])){
+      #dummy criteria
+      rp_vr <- paste("dmvr_d",i,sep="")
+      df[[rp_vr]] <- 1
+      # make nl a sub_criteria for the dummy criteria
+      if(is.null(sub_criteria)) sub_criteria <- list()
+      sub_criteria[paste("s",i,"zr",sep="")] <- cri_lst[i]
+      # update criteria list
+      cri_lst[i] <- rp_vr
+    }
+  }
+  #update 'sub_cri_lst'
+  sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
+
   range_match <- function(x, tr_x) {
     if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) stop("Actual value (gid) is outside the range created in a number_line object")
     if(utils::packageVersion("dplyr") < package_version("0.8.0.1")) stop("dplyr >= v0.8.0.1 is required for range matching")
