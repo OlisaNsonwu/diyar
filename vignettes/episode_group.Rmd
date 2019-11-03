@@ -53,7 +53,7 @@ A recurrence period is a specified period (`recurrence_length`) after the last e
 
 The examples below demonstrates the difference;
 
-***NOTE. `to_s4` and `to_s4()` changes these functions' output from a data.frame (current default) to `epid` objects. `epid` objects will be made the default output in the next major release.***
+***NOTE; `to_s4` and `to_s4()` changes these functions' output from a data.frame (current default) to `epid` objects. `epid` objects will become the default output in the next major release.***
 
 ```{r message=FALSE, warning=FALSE}
 library(dplyr); library(lubridate); library(diyar)

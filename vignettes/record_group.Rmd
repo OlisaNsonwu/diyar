@@ -41,7 +41,7 @@ Each `sub_criteria` should be paired with a corresponding `criteria`. To do this
 
 At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record. 
 
-***NOTE. `to_s4` and `to_s4()` changes the function's output from a data.frame (current default) to `pid` objects. `pid` objects will be made the default output in the next major release.***
+***NOTE; `to_s4` and `to_s4()` changes the function's output from a data.frame (current default) to `pid` objects. `pid` objects will become the default output in the next major release.***
 
 ```{r warning=FALSE, message=FALSE}
 library(diyar); library(dplyr)
@@ -156,7 +156,6 @@ Records can be matched in two ways; exact matches as in the examples above, or m
 ```{r message=FALSE, warning=FALSE}
 library(lubridate)
 Opes_c <- Opes["date_of_birth"]
-Opes_c$dummy_cri <- 1
 Opes_c
 
 # Match on date of birth + 3 months
@@ -164,7 +163,7 @@ Opes_c$date_of_birth <- dmy(Opes_c$date_of_birth)
 Opes_c$range_a <- expand_number_line(as.number_line(Opes_c$date_of_birth), period(2, "years"), "end")
 Opes_c$range_a@gid <- as.numeric(Opes_c$date_of_birth)
 
-Opes_c$pids_a <- record_group(Opes_c, criteria = dummy_cri, sub_criteria = list(s1="range_a"), to_s4 =TRUE)
+Opes_c$pids_a <- record_group(Opes_c, criteria = range_a, to_s4 =TRUE)
 
 Opes_c[c("date_of_birth","range_a","pids_a")]
 
@@ -173,12 +172,10 @@ Opes_c$age <- as.numeric(round((Sys.Date() - Opes_c$date_of_birth)/365.5)) # app
 Opes_c$range_b <- expand_number_line(as.number_line(Opes_c$age), 5, "both")
 Opes_c$range_b@gid <- Opes_c$age
 
-Opes_c$pids_b <- record_group(Opes_c, criteria = dummy_cri, sub_criteria = list(s1="range_b"), to_s4 =TRUE)
+Opes_c$pids_b <- record_group(Opes_c, criteria = range_b, to_s4 =TRUE)
 
 Opes_c[c("age","range_b","pids_b")]
 ```
-
-Only use `number_line` objects as a `sub_criteria`. **Do not directly use `number_line` objects as a `criteria`!** Instead, create a dummy `criteria` (e.g. `1` for every row), and then use the `number_line` object as a `sub_criteria` paired to the dummy `criteria`.
 
 <a id = "record_expansion"></a>
 

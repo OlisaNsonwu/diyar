@@ -9,7 +9,7 @@ Overview
 
 Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in epidemiological analysis and other fields of research.
 
-The `diyar` package aims to provide a simple and flexible implementation of deterministic record linkage, and episode grouping for the application of case definitions in epidemiological analysis.
+The `diyar` package aims to provide a simple and flexible implementation of deterministic record linkage and episode grouping for the application of case definitions in epidemiological analysis.
 
 Installation
 ------------
@@ -31,9 +31,9 @@ Cheatsheet
 Usage
 -----
 
-There are two main aspects of the `diyar` package; record and episode grouping, both of which make use of `number_line` objects
+There are two main aspects of the `diyar` package; record and episode grouping, both of which use of `number_line` objects
 
--   Number line objects Series of real numbers on a number line. These can be manipulated and merged.
+-   `number_line` object are series of real numbers on a number line. These can be manipulated and merged.
 
 ``` r
 library(diyar); library(dplyr)
@@ -54,7 +54,7 @@ number_line_sequence(nl, by =3)
 #> [11] "2019-04-30"
 ```
 
--   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. ***NOTE. `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be made the default output in the next major release.***
+-   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will become the default in the next major release.***
 
 ``` r
 data(infections);
@@ -91,10 +91,10 @@ db[c("f_epid","r_epid")]
 #> 11 E-10 2018-05-25 -> 2018-05-31 (D) E-1 2018-04-01 -> 2018-05-31 (D)
 ```
 
--   `record_group()` - Perform multistage deterministic linkages while addresses missing data using a specified list of alternative matching criteria, or range of values. ***NOTE. `to_s4` and `to_s4()` changes its output from a data.frame (current default) to `pid` objects. `pid` objects will be made the default output in the next major release.***
+-   `record_group()` - Perform multistage deterministic linkages while addressing missing data with a specified list of alternative matching criteria, or range of values. ***NOTE; `to_s4` and `to_s4()` changes the output from a data.frame (current default) to `pid` objects. `pid` objects will become the default in the next major release.***
 
 ``` r
-# Two or more stages of record grouping
+# Two stages of record grouping
 data(staff_records);
 
 staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),

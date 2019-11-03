@@ -7,10 +7,10 @@
 #' @param sn Unique \code{numeric} record identifier. Optional.
 #' @param criteria Column names of attributes to match. Records with matching values in these columns are grouped together.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
-#' @param data_source Unique dataset identifier. Useful when \code{ds} contains data from multiple sources.
+#' @param data_source Unique dataset identifier. Useful when \code{df} contains data from multiple sources.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
-#' @param to_s4 if \code{TRUE}, changes the returned value to an \code{\link[=pid-class]{pid}} object.
+#' @param to_s4 if \code{TRUE}, changes the returned value to a \code{\link[=pid-class]{pid}} object.
 #'
 #' @return \code{data.frame} (\code{\link[=pid-class]{pid}} objects if \code{to_s4} is \code{TRUE})
 #'
@@ -22,14 +22,14 @@
 #' \item \code{pid_total} - number of records in each group
 #' }
 #'
-#' @seealso \code{\link{episode_group}}, \code{\link{overlap}} and \code{\link{number_line}}
+#' @seealso \code{\link{episode_group}} and \code{\link{number_line}}
 #'
 #' @details
 #' Record grouping occurs in stages of matching \code{criteria}.
 #'
 #' Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of numeric values.
 #' An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-#' To do this, create a \code{\link{number_line}} object with the range of values with the actual value assigned to \code{gid}.
+#' To do this, create a \code{\link{number_line}} object with the range of values and the actual value assigned to \code{gid}.
 #' Then use the \code{\link{number_line}} as a \code{sub_criteria}.
 #'
 #' A match at each stage is considered more relevant than those at subsequent stages.
@@ -50,16 +50,18 @@
 #' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
 #'                            stringsAsFactors = FALSE)
 #'
-#' # Current default output (will be changed in next major release)
+#' # Old way - merging or binding results back to the data.frame
 #' output <-  bind_cols(three_people, record_group(three_people, criteria= forename))
 #' output
-#' # New pid_object
+#'
+#' # New way - pid_object
 #' three_people$pids_a <- output$pids <- record_group(three_people, criteria= forename, to_s4 = TRUE)
 #' output
 #'
 #' # To handle missing or unknown data, recode missing or unknown values to NA or "".
 #' three_people$forename[c(1,4)] <- NA
 #' three_people$pids_b <- record_group(three_people, criteria= forename, to_s4 =TRUE)
+#' three_people
 #'
 #' data(staff_records); staff_records
 #'
@@ -75,10 +77,8 @@
 #' dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
 #' dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), to_s4 = TRUE)
 #'
-#' # Do not directly use number_line objects as criterias.
-#' # Instead, use it as the sub_criteria to a 'dummy criteria'
-#' dob$dum_var <- 1
-#' dob$pids_c <- record_group(dob, criteria = dum_var, sub_criteria = list(s1a="range"), to_s4 = TRUE)
+#' dob$pids_c <- record_group(dob, criteria = range, to_s4 = TRUE)
+#' dob
 #'
 #' # Two or more stages of record grouping
 #' staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),

@@ -10,13 +10,14 @@ New feature
 -   `to_s4()` and `to_s4` argument in `record_group()`, `episode_group()`, `fixed_episodes()` and `rolling_episodes()`. Changes their output from a `data.frame` (current deault) to `epid` or `pid` objects
 -   `to_df()` changes `epid` or `pid` objects to a `data.frame`
 -   `deduplicate` argument from `fixed_episodes()` and `rolling_episodes()` added to `episode_group()`
--   `record_group()` - columns can now be used as `criteria` multiple times
 
 Changes
 -------
 
 -   `fixed_episodes()` and `rolling_episodes()` are now wrapper functions of `episode_group()`. Their functionality, including ease of use remains the same but now includes all arguments available to `episode_group()`
 -   `pid_cri` column retunred in `record_group` is now `numeric`. `0` indicates no match.
+-   columns can now be used as `criteria` multiple times `record_group()`
+-   [\#6](https://github.com/OlisaNsonwu/diyar/issues/6) `number_line` objects can now be used as a `criteria` in `record_group()`
 
 Bug fixes
 ---------

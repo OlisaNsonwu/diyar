@@ -5,19 +5,19 @@
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique \code{numeric} record identifier. Optional.
-#' @param strata Episode grouping will be do separately for these subsets (\code{strata}) of the dataset. \code{episode_group} support the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.
-#' @param date Record date (\code{date} or \code{datetime}) or interval (\code{\link{number_line}}) objects.
-#' @param case_length Period after a \code{"Case"} (C) within which another record from the same \code{strata} is considered a \code{"Duplicate"} (D) record.
+#' @param strata Episode grouping will be done separately for these subsets (\code{strata}) of the dataset. \code{episode_group} support the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.
+#' @param date Record date (\code{date} or \code{datetime}) or period (\code{\link{number_line}}) objects.
+#' @param case_length Period after a \code{"Case (C)"} within which another record from the same \code{strata} is considered a \code{"Duplicate (D) "}record.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Period after the last record (\code{"Case"} (C), \code{"Duplicate"} (D) or \code{"Recurrent"} (R)) of an episode within which another record from the same \code{strata} is considered a \code{"Recurrent"} (R) record. If \code{recurrence_length} is not supplied, \code{case_length} is also taken as \code{recurrence_length}.
+#' @param recurrence_length Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) of an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, the \code{case_length} is used as \code{recurrence_length}.
 #' @param episode_unit Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.
-#' @param rolls_max Maximum number of recurrence permitted within each episode. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param rolls_max Maximum number of times an event an reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources. \code{episode_group} support the use of multiple columns supplied as column names.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.
 #' @param overlap_method A set of ways for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.
-#' @param custom_sort If \code{TRUE}, \code{"Case"} (C) assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at a particular kind of record regardless of chronological order.
-#' @param bi_direction If \code{FALSE}, \code{"Duplicate"} (D) records will be those within the \code{case_length} period, before or after the \code{"Case"} (C) as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate"} (D) records will be those within the same period before and after the \code{"Case"} (C).
+#' @param custom_sort If \code{TRUE}, \code{"Case (C)"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at particular records regardless of chronological order.
+#' @param bi_direction If \code{FALSE}, \code{"Duplicate (D)"} records will be those within the \code{case_length} period, before or after the \code{"Case (C)"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate (D)"} records will be those within the same period before and after the \code{"Case (C)"}.
 #' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #' @param to_s4 if \code{TRUE}, changes the returned value to an \code{\link[=epid-class]{epid}} object.
@@ -30,7 +30,7 @@
 #' \item \code{case_nm} - record type in regards to case assignment
 #' \item \code{epid_dataset} - datasets contained in each episode
 #' \item \code{epid_interval} - Episode start and end dates. \code{\link{number_line}} object.
-#' \item \code{epid_length} - Difference between episode start and end dates. \code{difftime} object. If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
+#' \item \code{epid_length} - Difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each episode
 #' }
 #'
@@ -38,10 +38,10 @@
 #' \code{\link{record_group}}, \code{\link{overlap}} and \code{\link{number_line}}
 #'
 #' @details
-#' Episode grouping begins at a reference record (\code{"Case"} (C)) and proceeds forward or backward in time depending on \code{from_last}.
+#' Episode grouping begins at a reference record (\code{"Case (C)"}) and proceeds forward or backward in time depending on \code{from_last}.
 #' If \code{custom_sort} is used, episode grouping can be forced to begin at certain records before proceeding forward or backwards in time.
 #' The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
-#' \code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record in episode.
+#' \code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record in an episode.
 #'
 #' @examples
 #' library(dplyr)
@@ -60,10 +60,10 @@
 #' #2. Rolling episodes
 #' # Case length and recurrence periods of 15 days
 #' db_1$rd_a <- rolling_episodes(db_1$date, case_length = 15, to_s4 = TRUE, display = FALSE)
-#' # Case length of 15 days and recurrence periods of 5 days
+#' # Case length of 15 days and recurrence periods of 10 days
 #' db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
 #' recurrence_length = 10, to_s4 = TRUE, display = FALSE)
-#' # Case length of 15 days and 2 recurrence periods of 5 days
+#' # Case length of 15 days and 2 recurrence periods of 10 days
 #' db_1$rd_c <- rolling_episodes(db_1$date, case_length = 15,
 #' recurrence_length = 10, rolls_max = 2, to_s4 = TRUE, display = FALSE)
 #' db_1
@@ -75,6 +75,7 @@
 #' # One 16-day episode per patient
 #' db_3$epids_p <- fixed_episodes(date=db_3$date, strata = db_3$patient_id,
 #' case_length = 15, episodes_max = 1, to_s4 = TRUE, display = FALSE)
+#' db_3
 #'
 #' # 4. Case assignment
 #' db_4 <- infections
@@ -102,7 +103,7 @@
 #' db_4b
 #'
 #' #5. Interval grouping
-#' data(hospital_admissions);
+#' data(hospital_admissions)
 #'
 #' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 #' hospital_admissions$discharge_dt)
@@ -455,8 +456,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' @param deduplicate if \code{TRUE}, retains only one the \code{"Case"} (C) record in an episode.
 #' @param x Record date or interval. Deprecated. Please use \code{date}
 #' @details
-#' \code{fixed_episodes} and \code{rolling_episodes} are wrapper functions of \code{episode_group}.
-#' They can be more convenient to use and has the same functions as \code{episode_group}.
+#' \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group}.
+#' They can be more convenient options with the same functionalities as \code{episode_group()}.
 #'
 #' @export
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
