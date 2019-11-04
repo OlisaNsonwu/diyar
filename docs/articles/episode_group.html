@@ -78,7 +78,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">03 November 2019</h4>
+            <h4 class="date">04 November 2019</h4>
       
       
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -130,7 +130,7 @@
 <p>An episode window (<code>epid_interval</code>) is the period between the <code>"Case"</code> and the last event in the episode (or the end point of the last period). A <code>"fixed"</code> episode is never longer than its <code>"case_length"</code>.</p>
 <p>A recurrence period is a specified period (<code>recurrence_length</code>) after the last event in an epsiode. The first new record within this <code>recurrence_length</code> is taken as a <code>"Recurrent (R)"</code> record. Others after that period are taken as a duplicates <code>"(D)"</code> of that recurrent <code>"(R)"</code> record. This means that a rolling episode will continue to expand as far as there’s a record within the recurrence period of the last event in the episode. The last event could be a <code>"Case (C)"</code>, <code>"Duplicate (C)"</code> or <code>"Recurrent (R)"</code> record. As a result, a rolling episode can be longer than its <code>case_length</code>.</p>
 <p>The examples below demonstrates the difference;</p>
-<p><strong><em>NOTE; <code>to_s4</code> and <code><a href="../reference/to_s4.html">to_s4()</a></code> changes these functions’ output from a data.frame (current default) to <code>epid</code> objects. <code>epid</code> objects will become the default output in the next major release.</em></strong></p>
+<p><strong><em>NOTE; <code>to_s4</code> and <code><a href="../reference/to_s4.html">to_s4()</a></code> changes these functions’ output from a data.frame (current default) to <code>epid</code> objects. <code>epid</code> objects will be the default output in the next release.</em></strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(lubridate); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar)
 
 <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"infections_2"</span>)

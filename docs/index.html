@@ -104,7 +104,7 @@
 
 <span class="co"># Or, install the development version from GitHub</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/install.packages">install.packages</a></span>(<span class="st">"devtools"</span>)
-devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/remote-reexports">install_github</a></span>(<span class="st">"OlisaNsonwu/diyar"</span>)</code></pre></div>
+devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/devtools/topics/reexports">install_github</a></span>(<span class="st">"OlisaNsonwu/diyar"</span>)</code></pre></div>
 </div>
 <div id="cheatsheet" class="section level2">
 <h2 class="hasAnchor">
@@ -114,12 +114,12 @@ devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumen
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
-<p>There are two main aspects of the <code>diyar</code> package; record and episode grouping, both of which use of <code>number_line</code> objects</p>
+<p>There are two main aspects of the <code>diyar</code> package; record and episode grouping, both of which use <code>number_line</code> objects</p>
 <ul>
 <li>
 <code>number_line</code> object are series of real numbers on a number line. These can be manipulated and merged.</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar)
 
 l &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"%d/%m/%Y"</span>); r &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">"30/04/2019"</span>, <span class="st">"%d/%m/%Y"</span>)
 nl &lt;-<span class="st"> </span><span class="kw"><a href="reference/number_line.html">number_line</a></span>(l, r)
@@ -137,7 +137,7 @@ nl
 <span class="co">#&gt; [11] "2019-04-30"</span></code></pre></div>
 <ul>
 <li>
-<code><a href="reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="reference/episode_group.html">episode_group()</a></code> - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes their output from a data.frame (current default) to <code>epid</code> objects. <code>epid</code> objects will become the default in the next major release.</em></strong>
+<code><a href="reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="reference/episode_group.html">episode_group()</a></code> - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes their output from a data.frame (current default) to <code>epid</code> objects. <code>epid</code> objects will be the default output in the next release.</em></strong>
 </li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections);
@@ -174,7 +174,7 @@ db[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics
 <span class="co">#&gt; 11 E-10 2018-05-25 -&gt; 2018-05-31 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span></code></pre></div>
 <ul>
 <li>
-<code><a href="reference/record_group.html">record_group()</a></code> - Perform multistage deterministic linkages while addressing missing data with a specified list of alternative matching criteria, or range of values. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes the output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will become the default in the next major release.</em></strong>
+<code><a href="reference/record_group.html">record_group()</a></code> - Perform multistage deterministic linkages while addressing missing data with a specified list of alternative matching criteria, or range of values. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes the output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will be the default output in the next release.</em></strong>
 </li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Two stages of record grouping</span>

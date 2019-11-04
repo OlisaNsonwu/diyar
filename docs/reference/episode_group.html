@@ -159,7 +159,7 @@
     </tr>
     <tr>
       <th>strata</th>
-      <td><p>Episode grouping will be done separately for these subsets (<code>strata</code>) of the dataset. <code>episode_group</code> support the use of multiple columns supplied as column names. <code><a href='record_group.html'>record_group</a></code> can be used to create <code>strata</code>.</p></td>
+      <td><p>Episode grouping will be done separately for these subsets (<code>strata</code>) of the dataset. <code>episode_group</code> supports the use of multiple columns supplied as column names. <code><a href='record_group.html'>record_group</a></code> can be used to create <code>strata</code>.</p></td>
     </tr>
     <tr>
       <th>date</th>
@@ -167,7 +167,7 @@
     </tr>
     <tr>
       <th>case_length</th>
-      <td><p>Period after a <code>"Case (C)"</code> within which another record from the same <code>strata</code> is considered a <code>"Duplicate (D) "</code>record.</p></td>
+      <td><p>Period after a <code>"Case (C)"</code> within which another record from the same <code>strata</code> is considered a <code>"Duplicate (D)"</code> record.</p></td>
     </tr>
     <tr>
       <th>episode_type</th>
@@ -183,7 +183,7 @@
     </tr>
     <tr>
       <th>recurrence_length</th>
-      <td><p>Period after the last record (<code>"Case (C)"</code> , <code>"Duplicate (D)"</code> or <code>"Recurrent (R)"</code>) of an episode within which another record from the same <code>strata</code> is considered a <code>"Recurrent (R)"</code> record. If <code>recurrence_length</code> is not supplied, the <code>case_length</code> is used as <code>recurrence_length</code>.</p></td>
+      <td><p>Period after the last record (<code>"Case (C)"</code> , <code>"Duplicate (D)"</code> or <code>"Recurrent (R)"</code>) in an episode within which another record from the same <code>strata</code> is considered a <code>"Recurrent (R)"</code> record. If <code>recurrence_length</code> is not supplied, <code>case_length</code> is used as <code>recurrence_length</code>.</p></td>
     </tr>
     <tr>
       <th>rolls_max</th>
@@ -195,7 +195,7 @@
     </tr>
     <tr>
       <th>custom_sort</th>
-      <td><p>If <code>TRUE</code>, <code>"Case (C)"</code> assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at particular records regardless of chronological order.</p></td>
+      <td><p>If <code>TRUE</code>, <code>"Case (C)"</code> assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at particular records regardless of chronological order. <code>episode_group</code> supports the use of multiple columns supplied as column names.</p></td>
     </tr>
     <tr>
       <th>from_last</th>
@@ -244,6 +244,7 @@
 <li><p><code>epid_total</code> - number of records in each episode</p></li>
 </ul>
 
+<p><code>epid</code> objects will be the default output from the next release onwards</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
@@ -252,7 +253,7 @@ If <code>custom_sort</code> is used, episode grouping can be forced to begin at 
 The maximum duration of a <code>"fixed"</code> episode is the <code>case_length</code> while, the maximum duration of a <code>"rolling"</code> episode is the
 <code>case_length</code> plus all recurrence periods. A recurrence period is a fixed period (<code>recurrence_length</code>) after the last record in an episode.</p>
 <p><code>fixed_episodes()</code> and <code>rolling_episodes()</code> are wrapper functions of <code>episode_group</code>.
-They can be more convenient options with the same functionalities as <code>episode_group()</code>.</p>
+They can be more convenient options and have the same functionalities as <code>episode_group()</code>.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
@@ -260,14 +261,14 @@ They can be more convenient options with the same functionalities as <code>episo
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'dplyr' was built under R version 3.5.3</span></div><div class='output co'>#&gt; <span class='message'></span>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'dplyr' was built under R version 3.5.2</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: 'dplyr'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:testthat':</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    matches</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:stats':</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    filter, lag</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:base':</span>
 #&gt; <span class='message'></span>
-#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lubridate</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'lubridate' was built under R version 3.5.3</span></div><div class='output co'>#&gt; <span class='message'></span>
+#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lubridate</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'lubridate' was built under R version 3.5.1</span></div><div class='output co'>#&gt; <span class='message'></span>
 #&gt; <span class='message'>Attaching package: 'lubridate'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:base':</span>
 #&gt; <span class='message'></span>
 #&gt; <span class='message'>    date</span></div><div class='input'>

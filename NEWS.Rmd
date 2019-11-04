@@ -9,10 +9,10 @@ knitr::opts_chunk$set(
 )
 ```
 
-#Version 0.0.1.900
+#Version 0.0.2
 ##New feature
 + `pid` S4 object class for results of `record_group()`. This will replace the current default (`data.frame`) in the next major release
-+ `epid` S4 object class for results of `episode_group()`, `fixed_episodes()` and `rolling_episodes()`. This will replace the current default (`data.frame`) in the next major release
++ `epid` S4 object class for results of `episode_group()`, `fixed_episodes()` and `rolling_episodes()`. This will replace the current default (`data.frame`) in the next release
 + `to_s4()` and `to_s4` argument in `record_group()`, `episode_group()`, `fixed_episodes()` and `rolling_episodes()`. Changes their output from a `data.frame` (current deault) to `epid` or `pid` objects
 + `to_df()` changes `epid` or `pid` objects to a `data.frame`
 + `deduplicate` argument from `fixed_episodes()` and `rolling_episodes()` added to `episode_group()`

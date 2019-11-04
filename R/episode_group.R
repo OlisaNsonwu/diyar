@@ -5,24 +5,26 @@
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique \code{numeric} record identifier. Optional.
-#' @param strata Episode grouping will be done separately for these subsets (\code{strata}) of the dataset. \code{episode_group} support the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.
+#' @param strata Episode grouping will be done separately for these subsets (\code{strata}) of the dataset. \code{episode_group} supports the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.
 #' @param date Record date (\code{date} or \code{datetime}) or period (\code{\link{number_line}}) objects.
-#' @param case_length Period after a \code{"Case (C)"} within which another record from the same \code{strata} is considered a \code{"Duplicate (D) "}record.
+#' @param case_length Period after a \code{"Case (C)"} within which another record from the same \code{strata} is considered a \code{"Duplicate (D)"} record.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) of an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, the \code{case_length} is used as \code{recurrence_length}.
+#' @param recurrence_length Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) in an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, \code{case_length} is used as \code{recurrence_length}.
 #' @param episode_unit Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.
 #' @param rolls_max Maximum number of times an event an reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources. \code{episode_group} support the use of multiple columns supplied as column names.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.
 #' @param overlap_method A set of ways for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.
-#' @param custom_sort If \code{TRUE}, \code{"Case (C)"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at particular records regardless of chronological order.
+#' @param custom_sort If \code{TRUE}, \code{"Case (C)"} assignment will be in preference to this sort order. Useful in specifying that episode grouping begins at particular records regardless of chronological order. \code{episode_group} supports the use of multiple columns supplied as column names.
 #' @param bi_direction If \code{FALSE}, \code{"Duplicate (D)"} records will be those within the \code{case_length} period, before or after the \code{"Case (C)"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate (D)"} records will be those within the same period before and after the \code{"Case (C)"}.
 #' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #' @param to_s4 if \code{TRUE}, changes the returned value to an \code{\link[=epid-class]{epid}} object.
 #'
-#' @return \code{data.frame} (\code{\link[=epid-class]{epid}} objects if \code{to_s4} is \code{TRUE})
+#' @return
+#'
+#' \code{data.frame} (\code{\link[=epid-class]{epid}} objects if \code{to_s4} is \code{TRUE})
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
@@ -33,6 +35,8 @@
 #' \item \code{epid_length} - Difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each episode
 #' }
+#'
+#' \code{epid} objects will be the default output from the next release onwards
 #'
 #' @seealso
 #' \code{\link{record_group}}, \code{\link{overlap}} and \code{\link{number_line}}
@@ -161,26 +165,28 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   if(!episode_type %in% c("rolling","fixed") ) stop(paste("`episode_type` must be either 'rolling' or 'fixed'"))
 
-  enq_vr <- function(x, vr){
-    x <- names(dplyr::select(x, !!vr))
-
-    if(length(x)==0){
-      x <- NULL
-    }else{
-      x
-    }
-    return(x)
+  enq_vr <- function(x){
+    x <- as.character(x)
+    if(x[1]=="c" & length(x)>1) x <- x[2:length(x)]
+    if(length(x)==0) x <- NULL
+    x
   }
 
   fmt <- function(g) formatC(g, format="d", big.mark=",")
 
-  rd_sn <- enq_vr(df, dplyr::enquo(sn))
-  ds <- enq_vr(df, dplyr::enquo(data_source))
-  epl <- enq_vr(df, dplyr::enquo(case_length))
-  r_epl <- enq_vr(df, dplyr::enquo(recurrence_length))
-  st <- enq_vr(df, dplyr::enquo(strata))
-  ref_sort <- enq_vr(df, dplyr::enquo(custom_sort))
-  dt <- enq_vr(df, dplyr::enquo(date))
+  rd_sn <- enq_vr(substitute(sn))
+  ds <- enq_vr(rlang::enexpr(data_source))
+  epl <- enq_vr(substitute(case_length))
+  r_epl <- enq_vr(substitute(recurrence_length))
+  st <- enq_vr(substitute(strata))
+  ref_sort <- enq_vr(substitute(custom_sort))
+  dt <- enq_vr(substitute(date))
+
+  if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df))){
+    missing_cols <- subset(unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)), !unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt)) %in% names(df))
+    missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
+    stop(paste(missing_cols, "not found"))
+  }
 
   if(!is.null(rd_sn)){
     if(!(all(df[[rd_sn]] > 0) & is.numeric(as.numeric(df[[rd_sn]])))) stop(paste("'",rd_sn,"' as 'sn' must be > 0", sep=""))
@@ -457,7 +463,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' @param x Record date or interval. Deprecated. Please use \code{date}
 #' @details
 #' \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group}.
-#' They can be more convenient options with the same functionalities as \code{episode_group()}.
+#' They can be more convenient options and have the same functionalities as \code{episode_group()}.
 #'
 #' @export
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,

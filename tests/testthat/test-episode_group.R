@@ -584,7 +584,7 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(as.list(dft_8), date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = TRUE), "A dataframe is required")
   expect_error(episode_group(dft_8, date=admin_periods, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "object 'admin_periods' not found")
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'admin_periods' not found")
   expect_error(episode_group(dft_8, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'rd_id' as 'sn' must be > 0")
   expect_error(episode_group(dft_9, date=admin_period, sn=rd_id,

@@ -175,13 +175,14 @@
 <li><p><code>pid_total</code> - number of records in each group</p></li>
 </ul>
 
+<p><code>pid</code> objects will be the default output from the next release onwards</p>
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
     <p>Record grouping occurs in stages of matching <code>criteria</code>.</p>
 <p>Records are matched in two ways; an exact match - the equivalent of <code>(==)</code>, or matching a range of numeric values.
 An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-To do this, create a <code><a href='number_line.html'>number_line</a></code> object with the range of values and the actual value assigned to <code>gid</code>.
+To do this, create a <code><a href='number_line.html'>number_line</a></code> object based on the range of values, and assign the actual value assigned to <code>gid</code>.
 Then use the <code><a href='number_line.html'>number_line</a></code> as a <code>sub_criteria</code>.</p>
 <p>A match at each stage is considered more relevant than those at subsequent stages.
 Therefore, <code>criteria</code> should be listed in order of decreasing relevance or certainty.</p>
@@ -199,8 +200,7 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>tidyr</span>)
-
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>tidyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'tidyr' was built under R version 3.5.2</span></div><div class='input'>
 <span class='no'>three_people</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>forename</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Obinna"</span>,<span class='st'>"James"</span>,<span class='st'>"Ojay"</span>,<span class='st'>"James"</span>,<span class='st'>"Obinna"</span>),
                            <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 

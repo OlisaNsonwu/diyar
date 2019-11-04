@@ -62,7 +62,7 @@ as.number_line <- function(x){
 
   if(all(!diyar::is.number_line(x))){
     x[!is.finite(as.numeric(x))] <- NA
-    x <- methods::new("number_line", .Data = rep(0,length(x)), start= x, id = 1:length(x), gid = 1:length(x))
+    x <- methods::new("number_line", .Data = as.numeric(x-x), start= x, id = 1:length(x), gid = 1:length(x))
   }
 
   return(x)

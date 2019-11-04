@@ -78,7 +78,7 @@
     <div class="page-header toc-ignore">
       <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">03 November 2019</h4>
+            <h4 class="date">04 November 2019</h4>
       
       
       <div class="hidden name"><code>record_group.Rmd</code></div>
@@ -117,7 +117,7 @@
 <p>One or more <code>sub_criteria</code> can be used at each stage to include additional conditions for a match. This is provided as a <code>list</code> of named <code>vectors</code>. Each named vector contains column names. When a <code>sub_criteria</code> is used, records will only be assigned a group ID when they match on the <code>criteria</code>, and at least one named column in each <code>sub_criteria</code>.</p>
 <p>Each <code>sub_criteria</code> should be paired with a corresponding <code>criteria</code>. To do this, the vector name for each <code>sub_criteria</code> should be prefixed with <code>"s"</code> and the corresponding <code>criteria</code> number e.g. <code>"s1"</code> or <code>"s4"</code>. When a <code>criteria</code> is paired to more than one <code>sub_criteria</code>, include a suffix after the <code>criteria</code> number e.g. <code>"s1a"</code>, <code>"s1b"</code> and <code>"s1c"</code>. <a href="#sub_cri_example">See examples</a>. Any <code>sub_criteria</code> not paired to a <code>criteria</code> will be ignored. The <code>sub_criteria</code> argument does not support quasiquotation.</p>
 <p>At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record.</p>
-<p><strong><em>NOTE; <code>to_s4</code> and <code><a href="../reference/to_s4.html">to_s4()</a></code> changes the function’s output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will become the default output in the next major release.</em></strong></p>
+<p><strong><em>NOTE; <code>to_s4</code> and <code><a href="../reference/to_s4.html">to_s4()</a></code> changes the function’s output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will be the default output in the next release.</em></strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)
 <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(patient_list); 
 dbs &lt;-<span class="st"> </span>patient_list[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"sex"</span>)]; dbs

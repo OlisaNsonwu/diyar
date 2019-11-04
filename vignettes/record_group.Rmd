@@ -41,7 +41,7 @@ Each `sub_criteria` should be paired with a corresponding `criteria`. To do this
 
 At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record. 
 
-***NOTE; `to_s4` and `to_s4()` changes the function's output from a data.frame (current default) to `pid` objects. `pid` objects will become the default output in the next major release.***
+***NOTE; `to_s4` and `to_s4()` changes the function's output from a data.frame (current default) to `pid` objects. `pid` objects will be the default output in the next release.***
 
 ```{r warning=FALSE, message=FALSE}
 library(diyar); library(dplyr)

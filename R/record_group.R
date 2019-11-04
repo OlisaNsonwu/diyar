@@ -22,6 +22,8 @@
 #' \item \code{pid_total} - number of records in each group
 #' }
 #'
+#' \code{pid} objects will be the default output from the next release onwards
+#'
 #' @seealso \code{\link{episode_group}} and \code{\link{number_line}}
 #'
 #' @details
@@ -29,7 +31,7 @@
 #'
 #' Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of numeric values.
 #' An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-#' To do this, create a \code{\link{number_line}} object with the range of values and the actual value assigned to \code{gid}.
+#' To do this, create a \code{\link{number_line}} object based on the range of values, and assign the actual value assigned to \code{gid}.
 #' Then use the \code{\link{number_line}} as a \code{sub_criteria}.
 #'
 #' A match at each stage is considered more relevant than those at subsequent stages.
