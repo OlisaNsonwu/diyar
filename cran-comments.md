@@ -1,4 +1,11 @@
 ## Resubmission
+This is a resubmission. Summary of changes below:
+*Corrected some bugs 
+*Uupdated documentation and vignette
+*Updated package to v.0.02
+*Checked downstream dependencies - All passed
+
+## Resubmission
 This is a resubmission. In this version I have:
 * Addressed these CRAN comment
     + Thanks, please add a few more details about the methods used in this package in your Description text.
