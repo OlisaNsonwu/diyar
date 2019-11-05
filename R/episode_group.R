@@ -151,15 +151,25 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), bi_direction = FALSE,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = FALSE){
   . <- NULL
-  if (is.null(getOption("diyar.episode_group.output"))){
-    options("diyar.episode_group.output"= TRUE)
-  }
-  if (getOption("diyar.episode_group.output")){
-    message(paste("The default output of episode_group() will be changed to epid objects in the next release.",
-                  "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-                  "This message is displayed once per session.", sep = "\n"))
-  }
-  options("diyar.episode_group.output"= FALSE)
+    # check if episode_group() was called by fixed_episodes() or rolling_episodes()
+    wrap_func <- c("rolling_episodes","fixed_episodes")
+    call <- deparse(sys.call(-(sys.nframe()-1)))
+    lg <- unlist(lapply(wrap_func, function(x){
+      grepl(paste("^",x,"\\(",sep=""), call)
+    }))
+
+    # if not, display the message
+    if(all(!lg)){
+      if (is.null(getOption("diyar.episode_group.output"))){
+        options("diyar.episode_group.output"= TRUE)
+      }
+      if (getOption("diyar.episode_group.output")){
+        message(paste("The default output of episode_group() will be changed to epid objects in the next release.",
+                      "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                      "This message is displayed once per session.", sep = "\n"))
+      }
+      options("diyar.episode_group.output"= FALSE)
+    }
 
   episodes_max <- ifelse(is.numeric(episodes_max) & !is.na(episodes_max) & !is.infinite(episodes_max), as.integer(episodes_max), episodes_max)
   rolls_max <- ifelse(is.numeric(rolls_max) & !is.na(rolls_max) & !is.infinite(rolls_max), as.integer(rolls_max), rolls_max)
