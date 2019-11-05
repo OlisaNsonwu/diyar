@@ -23,8 +23,8 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-Cheatsheet
-----------
+Cheat sheet
+-----------
 
 <a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
 
@@ -67,12 +67,21 @@ db$date
 # Fixed episodes
 db$f_epid <- fixed_episodes(date = db$date, case_length = 15, 
                               display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+#> The default output of fixed_episodes() will be changed to epid objects in the next release.
+#> Please consider switching earlier by using 'to_s4=TRUE' or to_s4()
+#> This message is displayed once per session.
+#> The default output of episode_group() will be changed to epid objects in the next release.
+#> Please consider switching earlier by using 'to_s4=TRUE' or to_s4()
+#> This message is displayed once per session.
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 
 # Rolling episodes
 db$r_epid <- rolling_episodes(date = db$date, case_length = 15, 
                               recurrence_length = 40, display = FALSE, to_s4 = TRUE, 
                               group_stats = TRUE)
+#> The default output of rolling_episodes() will be changed to epid objects in the next release.
+#> Please consider switching earlier by using 'to_s4=TRUE' or to_s4()
+#> This message is displayed once per session.
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 db[c("f_epid","r_epid")]
 #> # A tibble: 11 x 2
@@ -99,6 +108,9 @@ data(staff_records);
 
 staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
                      data_source = sex, display = FALSE, to_s4 = TRUE)
+#> The default output of record_group() will be changed to pid objects in the next release.
+#> Please consider switching earlier by using 'to_s4=TRUE' or to_s4()
+#> This message is displayed once per session.
 #> Record grouping complete - 1 record(s) assigned a group unique ID.
 staff_records
 #> # A tibble: 7 x 6

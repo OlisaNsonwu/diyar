@@ -49,7 +49,7 @@ Two type of episodes can be produced;
 ##Episode windows and recurrence periods
 An episode window (`epid_interval`) is the period between the `"Case"` and the last event in the episode (or the end point of the last period). A `"fixed"` episode is never longer than its `"case_length"`.
 
-A recurrence period is a specified period (`recurrence_length`) after the last event in an epsiode. The first new record within this `recurrence_length` is taken as a `"Recurrent (R)"` record. Others after that period are taken as a duplicates `"(D)"` of that recurrent `"(R)"` record. This means that a rolling episode will continue to expand as far as there's a record within the recurrence period of the last event in the episode. The last event could be a `"Case (C)"`, `"Duplicate (C)"` or `"Recurrent (R)"` record. As a result, a rolling episode can be longer than its `case_length`.
+A recurrence period is a specified period (`recurrence_length`) after the last event in an episode. The first new record within this `recurrence_length` is taken as a `"Recurrent (R)"` record. Others after that period are taken as a duplicates `"(D)"` of that recurrent `"(R)"` record. This means that a rolling episode will continue to expand as far as there's a record within the recurrence period of the last event in the episode. The last event could be a `"Case (C)"`, `"Duplicate (C)"` or `"Recurrent (R)"` record. As a result, a rolling episode can be longer than its `case_length`.
 
 The examples below demonstrates the difference;
 
@@ -74,9 +74,9 @@ f # fixed episode identifiers
 r # rolling episode identifiers
 ```
 
-In the `"fixed"` episodes example, records 1 to 3 are assigned a unique episode ID (`"E-1"`). In this instance, record 1 is the `"Case (C)"` and records 2 and 3 its duplicates `"(D)"`. This is because records 2 and 3 are within 15 days (difference of 14 days) of record 1. Record 4 occured after this 15-day period and so begins a new `"Case (C)"` which is assigned a new episode ID (`"E-4"`). Record 5 is within 15 days of record 4, so is considered a `"Duplicate (D)"` of record 4 and assigned the same episode ID as record 4 (`"E-4"`). This process continues chronologically until all records have been assigned an episode ID.
+In the `"fixed"` episodes example, records 1 to 3 are assigned a unique episode ID (`"E-1"`). In this instance, record 1 is the `"Case (C)"` and records 2 and 3 its duplicates `"(D)"`. This is because records 2 and 3 are within 15 days (difference of 14 days) of record 1. Record 4 occurred after this 15-day period and so begins a new `"Case (C)"` which is assigned a new episode ID (`"E-4"`). Record 5 is within 15 days of record 4, so is considered a `"Duplicate (D)"` of record 4 and assigned the same episode ID as record 4 (`"E-4"`). This process continues chronologically until all records have been assigned an episode ID.
 
-In the `"rolling"` episodes example, records 1 to 3 are also grouped together as episode `"E-1"` however, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case (C)"`. Instead its assigned to episode `"E-1"` again as a `"Recurrent (R)"` record. This occured because it was within 8 days (difference of 7 days) of the last `"Duplicate (D)"` (record 3). Record 5 is also assigned to episode `"E-1"` because it's within 8 days of record 4. Record 6 is not within 15 days of the initial `"Case (C)"` (record 1) and not within 8 days of the last record at this stage (record 5), so it's now considered a new `"Case (C)"` and assigned a new episode ID (`"E-6"`).
+In the `"rolling"` episodes example, records 1 to 3 are also grouped together as episode `"E-1"` however, unlike the `"fixed"` episode example, record 4 is not considered a new `"Case (C)"`. Instead its assigned to episode `"E-1"` again as a `"Recurrent (R)"` record. This occurred because it was within 8 days (difference of 7 days) of the last `"Duplicate (D)"` (record 3). Record 5 is also assigned to episode `"E-1"` because it's within 8 days of record 4. Record 6 is not within 15 days of the initial `"Case (C)"` (record 1) and not within 8 days of the last record at this stage (record 5), so it's now considered a new `"Case (C)"` and assigned a new episode ID (`"E-6"`).
 
 \newline
 
@@ -229,9 +229,9 @@ fixed_episodes(date=dates, case_length=6, to_s4=TRUE, custom_sort = user_sort, d
 
 ```
 
-In the second example above, even though the second record occured after the first, episode grouping began at the second one and continued chronologically in the direction specified by `from_last`. 
+In the second example above, even though the second record occurred after the first, episode grouping began at the second one and continued chronologically in the direction specified by `from_last`. 
 
-A consequence of using `custom_sort` was that record 1 was not grouped together with record 2 even though its within the `case_length` of record 2. This is because duplicates are tracked in one direction which is determined by `from_last`. To track dupliciates from both directions use `bi_direction` as shown in the third example.   
+A consequence of using `custom_sort` was that record 1 was not grouped together with record 2 even though its within the `case_length` of record 2. This is because duplicates are tracked in one direction which is determined by `from_last`. To track duplicates from both directions use `bi_direction` as shown in the third example.   
 
 Note that example 1 and 3 now have the same number of duplicates (and episodes) but different cases - records 1 and 2 respectively.
 
@@ -260,7 +260,7 @@ dbs
 
 In `epids_2`, after changing the sort preference using factor levels, record 1 (*E. coli* BSI)  and record 2 (*E. coli* UTI) are no longer part of the same episode. This is because record 2, is now the reference record where episode grouping began, and since record 1 occurred before record 2, they are not grouped together. `epids_3` is episode grouping when `bi_direction` is used.
 
-***In `episode_group()`, you can implement `custom_sort` in levels. You do this by creating a colum for each level. The column names, listed in the prefered order (level) is then supplied to `custom_sort`.***
+***In `episode_group()`, you can implement `custom_sort` in levels. You do this by creating a column for each level. The column names, listed in the preferred order (level) is then supplied to `custom_sort`.***
 
 <a id="interval_grouping"></a>
 
