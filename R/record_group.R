@@ -105,18 +105,20 @@
 
 record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = FALSE){
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
-  if(!(is.logical(group_stats) & is.logical(display))) stop(paste("'group_stats' and 'display' must be TRUE or FALSE"))
+  if(!(is.logical(group_stats) & is.logical(display) & is.logical(to_s4))) stop(paste("'group_stats', 'display' and 'to_s4' must be TRUE or FALSE"))
 
   . <- NULL
-  if (is.null(getOption("diyar.record_group.output"))){
-    options("diyar.record_group.output"= TRUE)
+  if(to_s4 == FALSE){
+    if (is.null(getOption("diyar.record_group.output"))){
+      options("diyar.record_group.output"= TRUE)
+    }
+    if (getOption("diyar.record_group.output")){
+      message(paste("The default output of record_group() will be changed to pid objects in the next release.",
+                    "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                    "This message is displayed once per session.", sep = "\n"))
+    }
+    options("diyar.record_group.output"= FALSE)
   }
-  if (getOption("diyar.record_group.output")){
-    message(paste("The default output of record_group() will be changed to pid objects in the next release.",
-                  "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-                  "This message is displayed once per session.", sep = "\n"))
-  }
-  options("diyar.record_group.output"= FALSE)
   enq_vr <- function(x){
     x <- as.character(x)
     if(x[1]=="c" & length(x)>1) x <- x[2:length(x)]

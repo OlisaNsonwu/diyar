@@ -151,6 +151,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), bi_direction = FALSE,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = FALSE){
   . <- NULL
+  if(!(is.logical(group_stats) & is.logical(from_last) & is.logical(display) & is.logical(to_s4))) stop(paste("'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE"))
+  if(to_s4 == FALSE){
     # check if episode_group() was called by fixed_episodes() or rolling_episodes()
     wrap_func <- c("rolling_episodes","fixed_episodes")
     call <- deparse(sys.call(-(sys.nframe()-1)))
@@ -170,6 +172,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       }
       options("diyar.episode_group.output"= FALSE)
     }
+  }
 
   episodes_max <- ifelse(is.numeric(episodes_max) & !is.na(episodes_max) & !is.infinite(episodes_max), as.integer(episodes_max), episodes_max)
   rolls_max <- ifelse(is.numeric(rolls_max) & !is.na(rolls_max) & !is.infinite(rolls_max), as.integer(rolls_max), rolls_max)
@@ -489,17 +492,17 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
                            from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"),
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = FALSE){
-
-  if (is.null(getOption("diyar.fixed_episodes.output"))){
-    options("diyar.fixed_episodes.output"= TRUE)
+  if(to_s4 == FALSE){
+    if (is.null(getOption("diyar.fixed_episodes.output"))){
+      options("diyar.fixed_episodes.output"= TRUE)
+    }
+    if (getOption("diyar.fixed_episodes.output")){
+      message(paste("The default output of fixed_episodes() will be changed to epid objects in the next release.",
+                    "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                    "This message is displayed once per session.", sep = "\n"))
+    }
+    options("diyar.fixed_episodes.output"= FALSE)
   }
-  if (getOption("diyar.fixed_episodes.output")){
-    message(paste("The default output of fixed_episodes() will be changed to epid objects in the next release.",
-                  "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-                  "This message is displayed once per session.", sep = "\n"))
-  }
-  options("diyar.fixed_episodes.output"= FALSE)
-
   if (!missing(x)) {
     warning("'x' is deprecated; please use 'date' instead."); date <- x
     }
@@ -554,16 +557,17 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
                            from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"),
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = FALSE){
 
-  if (is.null(getOption("diyar.rolling_episodes.output"))){
-    options("diyar.rolling_episodes.output"= TRUE)
+  if(to_s4 == FALSE){
+    if (is.null(getOption("diyar.rolling_episodes.output"))){
+      options("diyar.rolling_episodes.output"= TRUE)
+    }
+    if (getOption("diyar.rolling_episodes.output")){
+      message(paste("The default output of rolling_episodes() will be changed to epid objects in the next release.",
+                    "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                    "This message is displayed once per session.", sep = "\n"))
+    }
+    options("diyar.rolling_episodes.output"= FALSE)
   }
-  if (getOption("diyar.rolling_episodes.output")){
-    message(paste("The default output of rolling_episodes() will be changed to epid objects in the next release.",
-                  "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-                  "This message is displayed once per session.", sep = "\n"))
-  }
-  options("diyar.rolling_episodes.output"= FALSE)
-
   if (!missing(x)) {
     warning("'x' is deprecated; please use 'date' instead."); date <- x
   }

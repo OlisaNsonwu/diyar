@@ -152,8 +152,8 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_ranges"), group_stats = TRUE), "'age_ranges' not found")
   expect_error(record_group(df_8, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must be > 0")
   expect_error(record_group(df_9, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must not have duplicate values")
-  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats' and 'display' must be TRUE or FALSE")
-  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats' and 'display' must be TRUE or FALSE")
+  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats', 'display' and 'to_s4' must be TRUE or FALSE")
+  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE"), "'group_stats', 'display' and 'to_s4' must be TRUE or FALSE")
 })
 
 

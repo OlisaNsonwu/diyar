@@ -592,9 +592,9 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(admissions, date=epi_len, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'epi_len' as 'date' must be a date, datetime or number_line object, and not have missing values")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last' and 'display' must be TRUE or FALSE")
+                             case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", from_last = "TRUE"), "'group_stats', 'from_last' and 'display' must be TRUE or FALSE")
+                             case_length = epi_len, episode_unit = "months", from_last = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = 1), "'episode_unit' must be a character of length 1")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
