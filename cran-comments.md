@@ -1,4 +1,14 @@
 ## Resubmission
+This is a resubmission. In this version I have:
+* Addressed these CRAN comment
+    + The Date field is over a month old
+
+### Response to CRAN comments
+* Is there some reference about the method you can add in the Description 
+field in the form Authors (year) <doi:.....>?
+    + No reference
+
+## Resubmission
 This is a resubmission. Summary of changes below:
 *Corrected some bugs 
 *Updated documentation and vignette
