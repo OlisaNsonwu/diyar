@@ -569,7 +569,7 @@ Stratified grouping is the same as a separate analysis for each subset (`strata`
 
 <a id="tips"></a>
 
-## Useful ways of using episode_group 
+## Useful ways of using these function 
 ### Episode grouping across other units of time
 In the examples above, episode grouping was done by days (`episode_unit`). However, it can be done in other units of time e.g. hours, days or weeks. Acceptable options are those supported by `lubridate's duration()` function. Below is an example of episode grouping by the hour.
 

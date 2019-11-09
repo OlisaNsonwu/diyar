@@ -154,7 +154,11 @@ from the current default (<code>data.frame</code>) to <a href='pid-class.html'>p
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>infections</span>)
 <span class='no'>dates</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>$<span class='no'>date</span>
-<span class='no'>output</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episode_group.html'>fixed_episodes</a></span>(<span class='no'>dates</span>, <span class='kw'>case_length</span><span class='kw'>=</span><span class='fl'>30</span>)</div><div class='output co'>#&gt; Episode or recurrence window 1.
+<span class='no'>output</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episode_group.html'>fixed_episodes</a></span>(<span class='no'>dates</span>, <span class='kw'>case_length</span><span class='kw'>=</span><span class='fl'>30</span>)</div><div class='output co'>#&gt; <span class='message'>The default output of fixed_episodes() will be changed to epid objects in the next release.</span>
+#&gt; <span class='message'>Please consider switching earlier by using 'to_s4=TRUE' or to_s4()</span>
+#&gt; <span class='message'>This message is displayed once per session.</span></div><div class='output co'>#&gt; <span class='message'>The default output of episode_group() will be changed to epid objects in the next release.</span>
+#&gt; <span class='message'>Please consider switching earlier by using 'to_s4=TRUE' or to_s4()</span>
+#&gt; <span class='message'>This message is displayed once per session.</span></div><div class='output co'>#&gt; Episode or recurrence window 1.
 #&gt; 6 of 11 record(s) grouped into episodes. 5 records not yet grouped.
 #&gt; Episode or recurrence window 2.
 #&gt; 5 of 5 record(s) grouped into episodes. 0 records not yet grouped.
