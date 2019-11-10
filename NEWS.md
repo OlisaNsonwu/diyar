@@ -14,7 +14,8 @@ New feature
 Changes
 -------
 
--   `fixed_episodes()` and `rolling_episodes()` are now wrapper functions of `episode_group()`. Their functionality, including ease of use remains the same but now includes all arguments available to `episode_group()`
+-   `fixed_episodes()` and `rolling_episodes()` are now wrapper functions of `episode_group()`. Functionality remains the same but now includes all arguments available to `episode_group()`
+-   Changed the output of `fixed_episodes()` and `rolling_episodes()` from `number_line` to `data.frame`, pending the change to `epid` objects
 -   `pid_cri` column returned in `record_group` is now `numeric`. `0` indicates no match.
 -   columns can now be used as `criteria` multiple times `record_group()`
 -   [\#6](https://github.com/OlisaNsonwu/diyar/issues/6) `number_line` objects can now be used as a `criteria` in `record_group()`
