@@ -1,6 +1,11 @@
 ## Resubmission
 This is a resubmission. In this version I have:
 * Addressed these CRAN comment
+    + CRAN URL not in canonical form
+
+## Resubmission
+This is a resubmission. In this version I have:
+* Addressed these CRAN comment
     + The Date field is over a month old
 
 ### Response to CRAN comments
