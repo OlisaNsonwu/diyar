@@ -8,6 +8,11 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+#Version 0.0.2.9000
+##New feature
+##Changes
+##Bug fixes
+
 
 #Version 0.0.2
 ##New feature
