@@ -8,6 +8,8 @@ New feature
 Changes
 -------
 
+-   [\#7](https://github.com/OlisaNsonwu/diyar/issues/7) - `episode_group()`, `fixed_episodes()` and `rolling_episodes()` have been optimized to reduce processing time.
+
 Bug fixes
 ---------
 
