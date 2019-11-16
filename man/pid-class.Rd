@@ -9,6 +9,7 @@
 \alias{rep,pid-method}
 \alias{[,pid-method}
 \alias{[[,pid-method}
+\alias{c,pid-method}
 \title{\code{pid} objects}
 \usage{
 \method{format}{pid}(x, ...)
@@ -22,6 +23,8 @@
 \S4method{[}{pid}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{pid}(x, i, j, ..., exact = TRUE)
+
+\S4method{c}{pid}(x, ...)
 }
 \arguments{
 \item{x}{x}

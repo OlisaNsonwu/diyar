@@ -9,6 +9,7 @@
 \alias{rep,epid-method}
 \alias{[,epid-method}
 \alias{[[,epid-method}
+\alias{c,epid-method}
 \title{\code{epid} object}
 \usage{
 \method{format}{epid}(x, ...)
@@ -22,6 +23,8 @@
 \S4method{[}{epid}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{epid}(x, i, j, ..., exact = TRUE)
+
+\S4method{c}{epid}(x, ...)
 }
 \arguments{
 \item{x}{x}

@@ -296,13 +296,17 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df$int_l <- diyar::number_line_width(diyar::number_line(df$rec_dt_ai, df$rec_dt_zi))
   c <- 1
+  h.epids.lst <- data.frame()
   while (min_tag != 2 & min_episodes_nm <= episodes_max){
+    h.epids.lst <- dplyr::filter(df, (.data$tag ==2 & !is.na(.data$tag))) %>%
+      dplyr::select(-.data$epi_len, -.data$rc_len) %>%
+      dplyr::bind_rows(h.epids.lst)
+
+    df <- dplyr::filter(df, .data$tag !=2 & !is.na(.data$tag))
+
     TR <- df %>%
-      # preference to exisitng episodes
       dplyr::arrange(.data$cri,  dplyr::desc(.data$tag), .data$user_ord, .data$ord, dplyr::desc(.data$int_l), .data$sn) %>%
-      # exclude records that will create 1 episode more than episodes_max
       dplyr::filter(!(.data$tag==0 & .data$episodes + 1 > episodes_max )) %>%
-      dplyr::filter(.data$tag !=2 & !is.na(.data$tag)) %>%
       dplyr::filter(duplicated(.data$cri) == FALSE & !is.na(.data$cri)) %>%
       dplyr::select(.data$sn, .data$cri, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len) %>%
       dplyr::rename_at(dplyr::vars(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len), list(~paste("tr_",.,sep="")))
@@ -393,7 +397,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$fg_c <- ifelse(df$fg_a==df$fg_x & df$tag==2, 1,0)
     df$case_nm = ifelse(df$case_nm=="Recurrent" & df$fg_y!=1 & df$n_hit==1, "Duplicate", df$case_nm)
 
-    if(min(df$fg_c)==1) {break}
+    if(min(df$fg_c)==1) {
+      df <- dplyr::select(df, -dplyr::starts_with("tr"), -dplyr::starts_with("fg"), -dplyr::starts_with("mrk"))
+      break
+    }
 
     df <- df %>%
       dplyr::mutate(
@@ -410,6 +417,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     c = c+1
   }
+  df <- dplyr::bind_rows(df, h.epids.lst)
+  rm(h.epids.lst)
+
   df <- df %>%
     dplyr::mutate(
       case_nm= ifelse(.data$epid==0, "Case", .data$case_nm),

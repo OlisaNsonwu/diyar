@@ -142,7 +142,7 @@ format.number_line <- function(x, ...){
 #' @importFrom "utils" "head"
 #' @export
 setClass("epid", contains = "numeric", representation(sn = "numeric", case_nm= "character", epid_interval = "number_line",
-                                                     epid_length= "ANY", epid_total = "numeric", epid_dataset ="character"))
+                                                      epid_length= "ANY", epid_total = "numeric", epid_dataset ="character"))
 
 #' @rdname epid-class
 #' @export
@@ -194,6 +194,27 @@ setMethod("[[", signature(x = "epid"),
                          epid_length = x@epid_length[i], epid_total = x@epid_total[i], epid_dataset = x@epid_dataset[i],
                          epid_interval = x@epid_interval[i])
           })
+
+#' @rdname epid-class
+setMethod("c", signature(x = "epid"), function(x,...) {
+  e <- lapply(list(x, ...), function(y) y@epid_interval)
+  for(i in 1:length(e)){
+    if(i==1) ei <- e[[i]]
+    if(i>1) ei <- c(ei, e[[i]])
+  }
+
+  sn <- unlist(lapply(list(x, ...), function(y) y@sn))
+  case_nm <- unlist(lapply(list(x, ...), function(y) y@case_nm))
+  epid_length <- unlist(lapply(list(x, ...), function(y) y@epid_length))
+  epid_total <- unlist(lapply(list(x, ...), function(y) y@epid_total))
+  epid_dataset <- unlist(lapply(list(x, ...), function(y) y@epid_dataset))
+  zi <- unlist(list(x, ...))
+
+  methods::new("epid", zi, case_nm = case_nm, sn = sn,
+               epid_length = epid_length, epid_total = epid_total, epid_dataset = epid_dataset,
+               epid_interval = ei)
+
+})
 
 #' @name pid-class
 #'
@@ -260,3 +281,17 @@ setMethod("[[", signature(x = "pid"),
             methods::new("pid", x@.Data[i], pid_cri = x@pid_cri[i], sn = x@sn[i],
                          pid_total = x@pid_total[i], pid_dataset = x@pid_dataset[i])
           })
+
+#' @rdname pid-class
+setMethod("c", signature(x = "pid"), function(x,...) {
+
+  sn <- unlist(lapply(list(x, ...), function(y) y@sn))
+  pid_cri <- unlist(lapply(list(x, ...), function(y) y@pid_cri))
+  pid_total <- unlist(lapply(list(x, ...), function(y) y@pid_total))
+  pid_dataset <- unlist(lapply(list(x, ...), function(y) y@pid_dataset))
+  zi <- unlist(list(x, ...))
+
+  methods::new("pid", zi, pid_cri = pid_cri, sn = sn,
+               pid_total = pid_total, pid_dataset = pid_dataset)
+
+})
