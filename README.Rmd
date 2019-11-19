@@ -36,7 +36,7 @@ devtools::install_github("OlisaNsonwu/diyar")
 ## Usage
 There are two main aspects of the `diyar` package; record and episode grouping, both of which use `number_line` objects 
 
-+ `number_line` object are series of real numbers on a number line. These can be manipulated and merged.
++ `number_line` objects - series of real numbers on a number line. These can be manipulated and merged.
 ```{r number_line, message=FALSE, warning=FALSE}
 library(diyar)
 
