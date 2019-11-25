@@ -28,6 +28,7 @@ Imports:
 RoxygenNote: 6.1.1
 Suggests:
     ggplot2,
+    phonics,
     janitor,
     knitr,
     rmarkdown,

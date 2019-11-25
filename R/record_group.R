@@ -228,10 +228,10 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       curr_sub_cri_lst <- "sn"
     }
 
-    df$skip <- df$m_tag <- c <- min_m_tag <- min_pid <- 0
+    df$force_check <- df$skip <- df$m_tag <- c <- min_m_tag <- min_pid <- 0
 
     while (min_pid==0 | min_m_tag==-1) {
-      df$force_check <- ifelse(df$m_tag==-1,2,df$tag)
+      #df$force_check <- ifelse(df$m_tag==-1,2,df$tag)
       if(c+1 >1 & display ) cat(paste("\nMatching criteria ",i,": iteration ",c+1, sep=""))
 
       TR <- df %>%
@@ -244,13 +244,15 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       df <- dplyr::left_join(df,TR, by="cri")
 
       df$sub_cri_match <- ifelse(!sub_crx_func(df) %in% c(NA, FALSE),1,0)
-      df$skip <- ifelse(df$sub_cri_match==1,1,df$skip)
+
+      # no need to check again
+      df$m_tag <- ifelse(df$sub_cri_match==1 & df$m_tag==-1 & df$pid==df$tr_pid & !is.na(df$tr_pid),1,df$m_tag)
 
       df <- df %>%
         dplyr::mutate(
           m_tag = ifelse(.data$m_tag==1 & .data$tr_pid ==0 & .data$sub_cri_match==1 & .data$pid_cri <= .data$tr_pid_cri, -1, .data$m_tag),
           pid = ifelse(
-            .data$tr_m_tag==-1 & .data$pid!=0 & !.data$tr_pid %in% c(0,NA) & .data$pid_cri >= .data$tr_pid_cri &  .data$sub_cri_match==1,
+            (.data$m_tag==-1 & .data$pid!=0) | (.data$sub_cri_match==1 & .data$pid==0 & !is.na(.data$tr_pid)),
             .data$tr_pid, .data$pid
           ),
           #inherit pid
@@ -264,8 +266,10 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
             .data$tr_sn, .data$pid
           ),
           m_tag = ifelse(.data$pid !=0 & .data$m_tag != -1,1, .data$m_tag),
-          m_tag = ifelse(.data$sn==.data$tr_sn & .data$m_tag ==-1, 1, .data$m_tag )
+          m_tag = ifelse(.data$sn==.data$tr_sn & !is.na(.data$tr_sn) & .data$m_tag ==-1, 1, .data$m_tag )
         )
+
+      df$skip <- ifelse(df$m_tag ==-1 & !is.na(df$m_tag), 0, ifelse(df$sub_cri_match==1, 1, df$skip))
 
       min_pid <- df %>%
         dplyr::filter(!.data$cri %in% c("",NA)) %>%
