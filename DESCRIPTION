@@ -27,6 +27,7 @@ Imports:
     tidyr (>= 0.8.2) 
 RoxygenNote: 6.1.1
 Suggests:
+    phonics,
     ggplot2,
     janitor,
     knitr,
