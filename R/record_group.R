@@ -244,13 +244,15 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       df <- dplyr::left_join(df,TR, by="cri")
 
       df$sub_cri_match <- ifelse(!sub_crx_func(df) %in% c(NA, FALSE),1,0)
-
       # no need to check again
-      df$m_tag <- ifelse(df$sub_cri_match==1 & df$m_tag==-1 & df$pid==df$tr_pid & !is.na(df$tr_pid),1,df$m_tag)
+      # df$m_tag <- ifelse(df$sub_cri_match==1 & df$m_tag==-1 & df$pid==df$tr_pid & !is.na(df$tr_pid),1,df$m_tag)
 
       df <- df %>%
         dplyr::mutate(
-          m_tag = ifelse(.data$m_tag==1 & .data$tr_pid ==0 & .data$sub_cri_match==1 & .data$pid_cri <= .data$tr_pid_cri, -1, .data$m_tag),
+          m_tag = ifelse(.data$m_tag==1 &
+                           #.data$tr_pid ==0 &
+                           .data$sub_cri_match==1 & .data$pid_cri <= .data$tr_pid_cri, -1, .data$m_tag),
+          m_tag = ifelse(.data$sub_cri_match==1 & .data$m_tag==-1 & .data$pid==.data$tr_pid & !is.na(.data$tr_pid),1,.data$m_tag),
           pid = ifelse(
             (.data$m_tag==-1 & .data$pid!=0) | (.data$sub_cri_match==1 & .data$pid==0 & !is.na(.data$tr_pid)),
             .data$tr_pid, .data$pid
