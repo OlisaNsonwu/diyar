@@ -9,6 +9,7 @@ Changes
 -------
 
 -   [\#7](https://github.com/OlisaNsonwu/diyar/issues/7) - `episode_group()`, `fixed_episodes()` and `rolling_episodes()` have been optimized to reduce processing time.
+-   The `date` argument for `episode_group()`, `fixed_episodes()` and `rolling_episodes()` now supports numeric values. Used this way, they are the equivalent of `compress_number_line(., collapse = T)`.
 
 Bug fixes
 ---------

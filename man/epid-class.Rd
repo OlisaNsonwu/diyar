@@ -3,6 +3,7 @@
 \docType{class}
 \name{epid-class}
 \alias{epid-class}
+\alias{as.epid}
 \alias{format.epid}
 \alias{unique.epid}
 \alias{show,epid-method}
@@ -12,6 +13,8 @@
 \alias{c,epid-method}
 \title{\code{epid} object}
 \usage{
+as.epid(x)
+
 \method{format}{epid}(x, ...)
 
 \method{unique}{epid}(x, ...)
@@ -42,5 +45,5 @@
 \item{exact}{exact}
 }
 \description{
-An S4 object to store the results of \code{\link{fixed_episodes}}, \code{\link{rolling_episodes}} and \code{\link{episode_group}}
+S4 objects to store the results of \code{\link{fixed_episodes}}, \code{\link{rolling_episodes}} and \code{\link{episode_group}}
 }

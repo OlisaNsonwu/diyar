@@ -128,14 +128,15 @@ format.number_line <- function(x, ...){
   s <- ifelse(x@start + x@.Data == x@start, "==",s)
   s <- ifelse(!is.finite(x@start + x@.Data) , "??",s)
 
-  paste(x@start, s, x@start + x@.Data, sep=" ")
+  if (length(x)==0) return("number_line(0)")
+  else return(paste(x@start, s, x@start + x@.Data, sep=" "))
 }
 
 #' @name epid-class
 #' @title \code{epid} object
 #'
 #' @description
-#' An S4 object to store the results of \code{\link{fixed_episodes}}, \code{\link{rolling_episodes}} and \code{\link{episode_group}}
+#' S4 objects to store the results of \code{\link{fixed_episodes}}, \code{\link{rolling_episodes}} and \code{\link{episode_group}}
 #'
 #' @aliases epid-class
 #' @importFrom "methods" "new"
@@ -146,8 +147,24 @@ setClass("epid", contains = "numeric", representation(sn = "numeric", case_nm= "
 
 #' @rdname epid-class
 #' @export
+as.epid <- function(x){
+  er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
+  er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
+
+  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `epid``  object",sep=""))
+
+  x[!is.finite(as.numeric(x))] <- NA
+  x <- methods::new("epid", .Data = as.numeric(x), sn = 1:length(x), case_nm = rep(NA_character_, length(x)),
+                    epid_interval = as.number_line(rep(NA_real_, length(x))), epid_total = rep(NA_real_, length(x)),
+                    epid_dataset = rep(NA_character_, length(x)))
+  return(x)
+}
+
+#' @rdname epid-class
+#' @export
 format.epid <- function(x, ...){
-  paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1), ")", sep="")
+  if (length(x)==0) return("epid(0)")
+  else return(paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1), ")", sep=""))
 }
 
 #' @rdname epid-class
@@ -221,7 +238,7 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 #' @title \code{pid} objects
 #'
 #' @description
-#' An S4 object to store the results of \code{\link{record_group}}
+#' S4 objects to store the results of \code{\link{record_group}}
 #'
 #' @aliases pid-class
 #' @importFrom "methods" "new"
@@ -232,11 +249,25 @@ setClass("pid", contains = "numeric", representation(sn = "numeric", pid_cri= "n
 
 #' @rdname pid-class
 #' @export
-format.pid <- function(x, ...){
+as.pid <- function(x, ...){
+  er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
+  er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
-  paste("P-", formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), " (",
-        ifelse(x@pid_cri==0,"No Hit", paste("CRI ", formatC(x@pid_cri, width = 2, flag=0), sep="")),
-        ")", sep="")
+  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `pid``  object",sep=""))
+
+  x[!is.finite(as.numeric(x))] <- NA
+  x <- methods::new("pid", .Data = as.numeric(x), sn = 1:length(x), pid_cri = rep(NA_character_, length(x)),
+                    pid_total = rep(NA_real_, length(x)), pid_dataset = rep(NA_character_, length(x)))
+  return(x)
+}
+
+#' @rdname pid-class
+#' @export
+format.pid <- function(x, ...){
+  if (length(x)==0) return("pid(0)")
+  else return(paste("P-", formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), " (",
+                    ifelse(x@pid_cri==0,"No Hit", paste("CRI ", formatC(x@pid_cri, width = 2, flag=0), sep="")),
+                    ")", sep=""))
 }
 
 #' @rdname pid-class

@@ -32,11 +32,11 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
 
-\item{sn}{Unique \code{numeric} record identifier. Optional.}
+\item{sn}{Unique numerical record identifier. Optional.}
 
-\item{strata}{Episode grouping will be done separately for these subsets (\code{strata}) of the dataset. \code{episode_group} supports the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.}
+\item{strata}{Subsets of the dataset within which episode grouping will be done separately. \code{episode_group} supports the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.}
 
-\item{date}{Record date (\code{date} or \code{datetime}) or period (\code{\link{number_line}}) objects.}
+\item{date}{Date (\code{date} or \code{datetime}) or period (\code{\link{number_line}}) of events.}
 
 \item{case_length}{Period after a \code{"Case (C)"} within which another record from the same \code{strata} is considered a \code{"Duplicate (D)"} record.}
 
@@ -46,9 +46,9 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{episodes_max}{Maximum number of times to group episodes within each \code{strata}.}
 
-\item{recurrence_length}{Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) in an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, \code{case_length} is used as \code{recurrence_length}.}
+\item{recurrence_length}{Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) of an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.}
 
-\item{rolls_max}{Maximum number of times an event an reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.}
+\item{rolls_max}{Maximum number of times an event can reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.}
 
 \item{data_source}{Unique dataset identifier. Useful when the dataset contains data from multiple sources. \code{episode_group} support the use of multiple columns supplied as column names.}
 
@@ -64,9 +64,9 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{deduplicate}{if \code{TRUE}, retains only one the \code{"Case"} (C) record in an episode.}
+\item{deduplicate}{if \code{TRUE}, \code{"Dupilcate (D)"} recordS are excluded from the output.}
 
-\item{to_s4}{if \code{TRUE}, changes the returned value to an \code{\link[=epid-class]{epid}} object.}
+\item{to_s4}{if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.}
 
 \item{x}{Record date or interval. Deprecated. Please use \code{date}}
 }
@@ -77,9 +77,9 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 \item \code{sn} - unique record identifier as provided
 \item \code{epid} - unique episode identifier
 \item \code{case_nm} - record type in regards to case assignment
-\item \code{epid_dataset} - datasets contained in each episode
-\item \code{epid_interval} - Episode start and end dates. \code{\link{number_line}} object.
-\item \code{epid_length} - Difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
+\item \code{epid_dataset} - data sources in each episode
+\item \code{epid_interval} - episode start and end dates. \code{\link{number_line}} object.
+\item \code{epid_length} - difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 \item \code{epid_total} - number of records in each episode
 }
 
@@ -92,10 +92,10 @@ Group records into chronological episodes
 Episode grouping begins at a reference record (\code{"Case (C)"}) and proceeds forward or backward in time depending on \code{from_last}.
 If \code{custom_sort} is used, episode grouping can be forced to begin at certain records before proceeding forward or backwards in time.
 The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
-\code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record in an episode.
+\code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record in an episode within which records are taken to be from the same episode
 
 \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group}.
-They can be more convenient options and have the same functionalities as \code{episode_group()}.
+They are convenient alternatives with the same functionalities as \code{episode_group()}.
 }
 \examples{
 library(dplyr)

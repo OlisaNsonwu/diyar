@@ -29,13 +29,13 @@ Each argument in `record_group()` controls separate aspects of the linkage proce
 - Linking datasets with missing group identifiers. See [handling missing values](#missing_values) 
 
 #Implementation 
-Record linkage is done in stages. A match at each stage is considered more relevant than the subsequent one. Matching records are assigned a unique group ID. The group ID is essentially a record ID (`sn`) of one of the matching records. Therefore, using a familiar record ID (`sn`) allows you to link the results back to the original dataset.
+Record linkage is done in stages. A match at each stage is considered more relevant than matches at subsequent stages. Matching records are assigned a unique group ID. The group ID is essentially a record ID (`sn`) of one of the matching records. Therefore, using a familiar record ID (`sn`) allows you to link the results back to the original dataset.
 
-Each stage has matching `criteria` (column). This is passed to the function as column names. The argument supports quasiquotation.
+Each stage has a matching `criteria` (column). These are passed to the function as column names. The argument supports quasiquotation.
 
-`sub_criteria` are additional matching conditions (columns) that can be paired with each `criteria`. This is provided as a `list` of named `vectors`. Each named vector contains a set of column names. When a `sub_criteria` is used, records will only be assigned a group ID when they match on the `criteria`, and at least one named column in each `sub_criteria`. 
+`sub_criteria` are additional matching conditions (columns) that can be paired with each `criteria`. This is provided as a `list` of named `vectors`. Each named `vector` contains a set of column names. When a `sub_criteria` is used, records will only be assigned a group ID when they match on the `criteria`, and at least one named column in each `sub_criteria`. 
 
-Each `sub_criteria` should be paired with a corresponding `criteria`. To do this, the vector name for each `sub_criteria` should be; `"s"` followed by the corresponding `criteria` number e.g. `"s1"` or `"s4"`. When a `criteria` is paired to more than one `sub_criteria`, include a suffix after the `criteria` number e.g. `"s1a"`, `"s1b"` and `"s1c"`. [See examples](#sub_cri_example). Any `sub_criteria` not paired with a `criteria` will be ignored. The `sub_criteria` argument does not support quasiquotation.
+Each `sub_criteria` should be paired with a corresponding `criteria`. To do this, the vector name for each `sub_criteria` should be - `"s"` followed by the corresponding `criteria` number e.g. `"s1"` or `"s4"`. When a `criteria` is paired to more than one `sub_criteria`, include a suffix after the `criteria` number e.g. `"s1a"`, `"s1b"` and `"s1c"`. [See examples](#sub_cri_example). Any `sub_criteria` not paired with a `criteria` will be ignored. The `sub_criteria` argument does not support quasiquotation.
 
 At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record. 
 ***NOTE; `to_s4` and `to_s4()` changes the function's output from a data.frame (current default) to `pid` objects. `pid` objects will be the default output in the next release.***
@@ -151,7 +151,7 @@ Opes[c("name","department","hair_colour","date_of_birth","pids_e","pids_f")]
 ```
 
 ###Range matching
-Records can be matched in two ways; exact matches as in the examples above, or range matching. In range matching, records are matched if the value in one record is within the a range of values in another. To do this, convert each value to the required range using `number_line()`. Then assign the actual value to the `gid` slot of the resulting `number_line` object. The `number_line` object can then be used as a `criteria` or `sub_criteria`. `number_line` objects are considered a match if they overlap. See the example below.
+Records can be matched in two ways - exact matches as in the examples above, or range matching. In range matching, records are matched if the value in one record are within a range of values in another. To do this, convert each value to the required range using `number_line()`. Then assign the actual value to the `gid` slot of the resulting `number_line` object. The `number_line` object can then be used as a `criteria` or `sub_criteria`. `number_line` objects are considered a match if they overlap. See the example below.
 
 ```{r message=FALSE, warning=FALSE}
 library(lubridate)
@@ -183,16 +183,15 @@ Opes_c[c("age","range_b","pids_b")]
 At each stage of record linkage, records are either assigned a new group ID or inherit an existing one. The following scenario explain how these happen;
 
 - If a record only matches others that have not yet been assigned a group ID, it and the others will then be assigned a new group ID 
-- If a record matches others which already have a group ID, the record will inherit the existing group ID. Note that if it's matched with different records from different group IDs, it will inherit the group ID assigned at the earliest stage
-
+- If a record matches others which already have a group ID, the record will inherit the existing group ID. Note that if it's matched with different records from different group IDs, it will inherit the group ID that was assigned at the earlier stage
 - If a record does not match any other record, it will not be assigned a group ID. If by the last stage, it still has not matched any other record, it is assigned a unique group ID
 
-It's worth reiterating that `record_group()` expects the `criteria` to be listed in order of decreasing relevance. Therefore, existing group IDs can be inherited but will not be overwritten. This is because groups formed at earlier stages are considered more "certain" than those formed at subsequent stages. 
+Existing group IDs can be inherited but will not be overwritten. This is because groups formed at earlier stages are considered more "certain" than those formed at subsequent stages. Therefore, it's worth reiterating that `record_group()` expects the `criteria` to be listed in order of decreasing relevance. 
 
 The example below with `patient_list` demonstrates this behaviour.
 
 - Stage 1 - Only records 3 and 4 are grouped together and therefore assigned a new group ID (`3`). Records 1 and 2 are excluded from grouping at this stage because of [missing values](#missing_values). Record 5 is not assigned a group ID because it doesn't match any other record. 
-- Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they've previously been matched on forenames, which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID since it doesn't match any other record on surnames. 
+- Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they've previously been matched on forenames, which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID because it doesn't match any other record on surnames. 
 - Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3's group ID (`3`) because that was assigned at stage 1 (`"CRI 01"`) as opposed to record 2's group ID which was assigned at stage 2 (`"CRI 02"`).
 
 ```{r warning=FALSE, message=FALSE}
@@ -208,7 +207,7 @@ patient_list_2
 ## Handling missing values
 Records with missing values for a particular `criteria` are excluded from that stage of record linkage. If a record has missing values for every listed `criteria`, it's assigned a unique group ID at the end of record linkage. 
 
-It's common for databases to use specific characters or numbers to represent missing or unknown data e.g. `N/A`, `Nil`, `01/01/1100`, `111111` etc. These pseudo-missing values will need to be recoded to one of the two recognised by `record_group()` - `NA` or an empty string (`""`). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.
+It's common for databases to use specific characters or numbers to represent missing or unknown data e.g. `N/A`, `Nil`, `01/01/1100`, `111111` etc. These pseudo-missing values will need to be re-coded to one of the two recognised by `record_group()` - `NA` or an empty string (`""`). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.
 
 ```{r warning=FALSE, message=FALSE}
 patient_list_2$forename <- ifelse(patient_list_2$rd_id %in% 1:3, "Nil", patient_list_2$forename)
@@ -240,7 +239,7 @@ patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, surname
 patient_list_2[c("forename","surname","pids_d","pids_e")]
 ```
 
-Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. You can create some wiggle room when matching values by using a less exact proxy of the matching crietria. For example, using surname initials or surname soundex instead of the actual surname.
+Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to adressing thi s is to use a less exact but reasonable proxies of the matching crietria. For example, using surname initials or surname soundex instead of the actual surname.
 
 ```{r warning=FALSE, message=FALSE}
 library(phonics)
@@ -253,4 +252,4 @@ patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, soundex
 patient_list_2[c("forename","surname","soundex","pids_d","pids_e")]
 ```
 #Conclusion
-As a general rule, the more unique a criteria, the earlier it should be listed in `criteria`. Also, the set and ordering of `criteria` is a personal choice but should also be practical given the dataset. For example, when linking a vehicular database with no existing identifier, vehicle colour alone is less practical than colour and brand name, which in turn is less practical than colour, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and would need to be relaxed. On the other hand, the dataset could be so small that vehicle colour alone is a sufficient `criteria`. `record_group()` aims to minimize false mismatches due to random errors in data collection or missing values. The choice and ordering of `criteria` and `sub_criteria` should balance the availability of alternative identifiers with their practicality as group identifiers.
+As a general rule, the more unique a criteria, the earlier it should be listed in `criteria`. Also, the set and ordering of `criteria` is a personal choice but should also be a practical one for any given dataset. For example, when linking a vehicular database with no existing identifier, vehicle colour alone is less practical than colour and brand name, which in turn is less practical than colour, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and may need to be relaxed. On the other hand, the dataset could be so small that vehicle colour alone is a sufficient `criteria`. `record_group()` aims to minimize false mismatches due to random data entry errors or missing values. The choice and ordering of `criteria` and `sub_criteria` should balance the availability of alternative identifiers with their practicality as a group identifier.

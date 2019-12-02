@@ -3,6 +3,7 @@
 \docType{class}
 \name{pid-class}
 \alias{pid-class}
+\alias{as.pid}
 \alias{format.pid}
 \alias{unique.pid}
 \alias{show,pid-method}
@@ -12,6 +13,8 @@
 \alias{c,pid-method}
 \title{\code{pid} objects}
 \usage{
+as.pid(x, ...)
+
 \method{format}{pid}(x, ...)
 
 \method{unique}{pid}(x, ...)
@@ -42,5 +45,5 @@
 \item{exact}{exact}
 }
 \description{
-An S4 object to store the results of \code{\link{record_group}}
+S4 objects to store the results of \code{\link{record_group}}
 }

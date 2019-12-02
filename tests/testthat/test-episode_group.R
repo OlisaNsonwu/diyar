@@ -579,18 +579,18 @@ dft_9$rd_id <- c(1,1,3:9)
 
 dft_10$epi_len <- -3
 dft_11$recur <- "A"
-
+admissions$pid <- "PID"
 test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(as.list(dft_8), date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = TRUE), "A dataframe is required")
   expect_error(episode_group(dft_8, date=admin_periods, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'admin_periods' not found")
   expect_error(episode_group(dft_8, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'rd_id' as 'sn' must be > 0")
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'sn' must be > 0")
   expect_error(episode_group(dft_9, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'rd_id' as 'sn' must not have duplicate values")
-  expect_error(episode_group(admissions, date=epi_len, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'epi_len' as 'date' must be a date, datetime or number_line object, and not have missing values")
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'sn' must not have duplicate values")
+  expect_error(episode_group(admissions, date=pid, sn=rd_id,
+                             case_length = epi_len, episode_unit = "months", group_stats = TRUE), "'date' must be a date, datetime, numeric or number_line object, and not have missing values")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
@@ -610,9 +610,9 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = "rolling", rolls_max = NA, episodes_max = NA), "'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf")
   expect_error(episode_group(dft_10, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_type = "rolling"), "'epi_len' as 'case_length' must be -1 or a positive integer, numeric or double data type")
+                             case_length = epi_len, episode_type = "rolling"), "'case_length' must be -1 or a positive integer, numeric or double data type")
   expect_error(episode_group(dft_11, date=admin_period, sn=rd_id,
-                             case_length = epi_len, recurrence_length = recur, episode_type = "rolling"), "'recur' as 'recurrence_length' must be -1 or a positive integer, numeric or double data type")
+                             case_length = epi_len, recurrence_length = recur, episode_type = "rolling"), "recurrence_length' must be -1 or a positive integer, numeric or double data type")
 })
 
 t_ds <- hospital_infections

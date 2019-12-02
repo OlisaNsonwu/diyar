@@ -151,7 +151,7 @@ number_line_sequence(number_line(1, 5))
 number_line_sequence(number_line(5, 1), .5)
 number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
 
-# The length of the vector depends on the object class
+# The length of the resulting vector will depend on the object class
 number_line_sequence(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
 
 nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))

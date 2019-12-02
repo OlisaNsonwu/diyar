@@ -4,15 +4,15 @@
 #' @description Group records into chronological episodes
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
-#' @param sn Unique \code{numeric} record identifier. Optional.
-#' @param strata Episode grouping will be done separately for these subsets (\code{strata}) of the dataset. \code{episode_group} supports the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.
-#' @param date Record date (\code{date} or \code{datetime}) or period (\code{\link{number_line}}) objects.
+#' @param sn Unique numerical record identifier. Optional.
+#' @param strata Subsets of the dataset within which episode grouping will be done separately. \code{episode_group} supports the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create \code{strata}.
+#' @param date Date (\code{date} or \code{datetime}) or period (\code{\link{number_line}}) of events.
 #' @param case_length Period after a \code{"Case (C)"} within which another record from the same \code{strata} is considered a \code{"Duplicate (D)"} record.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) in an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, \code{case_length} is used as \code{recurrence_length}.
+#' @param recurrence_length Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) of an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.
 #' @param episode_unit Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.
-#' @param rolls_max Maximum number of times an event an reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param rolls_max Maximum number of times an event can reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources. \code{episode_group} support the use of multiple columns supplied as column names.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.
 #' @param overlap_method A set of ways for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.
@@ -20,7 +20,7 @@
 #' @param bi_direction If \code{FALSE}, \code{"Duplicate (D)"} records will be those within the \code{case_length} period, before or after the \code{"Case (C)"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate (D)"} records will be those within the same period before and after the \code{"Case (C)"}.
 #' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
-#' @param to_s4 if \code{TRUE}, changes the returned value to an \code{\link[=epid-class]{epid}} object.
+#' @param to_s4 if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.
 #'
 #' @return
 #'
@@ -30,9 +30,9 @@
 #' \item \code{sn} - unique record identifier as provided
 #' \item \code{epid} - unique episode identifier
 #' \item \code{case_nm} - record type in regards to case assignment
-#' \item \code{epid_dataset} - datasets contained in each episode
-#' \item \code{epid_interval} - Episode start and end dates. \code{\link{number_line}} object.
-#' \item \code{epid_length} - Difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
+#' \item \code{epid_dataset} - data sources in each episode
+#' \item \code{epid_interval} - episode start and end dates. \code{\link{number_line}} object.
+#' \item \code{epid_length} - difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each episode
 #' }
 #'
@@ -45,7 +45,7 @@
 #' Episode grouping begins at a reference record (\code{"Case (C)"}) and proceeds forward or backward in time depending on \code{from_last}.
 #' If \code{custom_sort} is used, episode grouping can be forced to begin at certain records before proceeding forward or backwards in time.
 #' The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
-#' \code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record in an episode.
+#' \code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record in an episode within which records are taken to be from the same episode
 #'
 #' @examples
 #' library(dplyr)
@@ -168,6 +168,12 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       if (getOption("diyar.episode_group.output")){
         message(paste("The default output of episode_group() will be changed to epid objects in the next release.",
                       "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                      "",
+                      "# Old way - merge or bind (col) results back to `df`",
+                      "df <- cbind(df, episode_group(df, case_length= x))",
+                      "",
+                      "# New way - `epid` objects",
+                      "df$epids <- episode_group(df, case_length= x, to_s4 = TRUE)",
                       "This message is displayed once per session.", sep = "\n"))
       }
       options("diyar.episode_group.output"= FALSE)
@@ -213,16 +219,16 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   if(!is.null(rd_sn)){
     if(!(all(df[[rd_sn]] > 0) & is.numeric(as.numeric(df[[rd_sn]])))) stop(paste("'",rd_sn,"' as 'sn' must be > 0", sep=""))
-    if(any(duplicated(df[[rd_sn]]))) stop(paste("'",rd_sn,"' as 'sn' must not have duplicate values", sep=""))
+    if(any(duplicated(df[[rd_sn]]))) stop(paste("'sn' must not have duplicate values", sep=""))
   }
 
-  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste("'",epl,"' as 'case_length' must be -1 or a positive integer, numeric or double data type", sep=""))
+  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste("'case_length' must be -1 or a positive integer, numeric or double data type", sep=""))
 
   if(!is.null(r_epl)){
-    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste("'",r_epl,"' as 'recurrence_length' must be -1 or a positive integer, numeric or double data type", sep=""))
+    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste("'recurrence_length' must be -1 or a positive integer, numeric or double data type", sep=""))
   }
 
-  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line")) & all(!is.na(df[[dt]])))) stop(paste("'",dt,"' as 'date' must be a date, datetime or number_line object, and not have missing values", sep=""))
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer")) & all(!is.na(df[[dt]])))) stop(paste("'date' must be a date, datetime, numeric or number_line object, and not have missing values", sep=""))
 
   df_list <- names(df)
 
@@ -260,10 +266,19 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$rec_dt_zi <- df[[dt]]
   }
 
+  dt_grp <- ifelse(!any(class(df$rec_dt_ai) %in% c("Date","POSIXct","POSIXt","POSIXlt")) |
+                  !any(class(df$rec_dt_zi) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
+
+  if(dt_grp){
+    df <- dplyr::mutate_at(df, c("rec_dt_ai", "rec_dt_zi"), ~ lubridate::dmy_hms(format(., "%d/%m/%Y %H:%M:%S")))
+  }else{
+    df <- dplyr::mutate_at(df, c("rec_dt_ai", "rec_dt_zi"), ~ as.numeric(.))
+  }
+
   df <- df %>%
     dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort)) %>%
-    dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0) %>%
-    dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ lubridate::dmy_hms(format(., "%d/%m/%Y %H:%M:%S")))
+    dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0) # %>%
+    #dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ lubridate::dmy_hms(format(., "%d/%m/%Y %H:%M:%S")))
 
   if(from_last==TRUE){
     df$ord <- abs(max(df$rec_dt_ai) - df$rec_dt_ai)
@@ -457,8 +472,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
         dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord), !duplicated(.data$epid)), var ="a" ),
         dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord_z), !duplicated(.data$epid, fromLast = TRUE)), var ="z" )
       ) %>%
-      dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ format(., "%d/%m/%Y %H:%M:%S")) %>%
-      dplyr::mutate(val = ifelse(.data$var=="a", .data$rec_dt_ai,.data$rec_dt_zi)) %>%
+      dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ ifelse(dt_grp==rep(T,length(.)), format(., "%d/%m/%Y %H:%M:%S"),.)) %>%
+      dplyr::mutate(val = ifelse(.data$var=="a", .data$rec_dt_ai, .data$rec_dt_zi)) %>%
       dplyr::select(.data$epid, .data$var, .data$val)
 
     epid_l <- epid_l %>%
@@ -469,14 +484,21 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     diff_unit <- gsub("s$","",tolower(episode_unit))
     diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
 
-    df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$z), lubridate::dmy_hms(.data$a), units = "secs"), units = diff_unit))
-
+    if(dt_grp == T){
+      df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$z), lubridate::dmy_hms(.data$a), units = "secs"), units = diff_unit))
+      }else{
+        df <- dplyr::mutate(df, epid_length = .data$z - .data$a)
+        }
     df <- dplyr::arrange(df, .data$epid)
 
     df$epid_total <- rep(rle(df$epid)$lengths, rle(df$epid)$lengths)
     df <- dplyr::arrange(df, .data$pr_sn)
 
-    df <- dplyr::mutate(df, epid_interval = diyar::number_line(lubridate::dmy_hms(.data$a), lubridate::dmy_hms(.data$z), id=.data$sn, gid = .data$epid))
+    if(dt_grp == T){
+      df <- dplyr::mutate(df, epid_interval = diyar::number_line(lubridate::dmy_hms(.data$a), lubridate::dmy_hms(.data$z), id=.data$sn, gid = .data$epid))
+    }else{
+      df <- dplyr::mutate(df, epid_interval = diyar::number_line(.data$a, .data$z, id=.data$sn, gid = .data$epid))
+    }
 
     df <- dplyr::select(df, -c(.data$a, .data$z))
   }
@@ -492,11 +514,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 }
 
 #' @rdname episode_group
-#' @param deduplicate if \code{TRUE}, retains only one the \code{"Case"} (C) record in an episode.
+#' @param deduplicate if \code{TRUE}, \code{"Dupilcate (D)"} recordS are excluded from the output.
 #' @param x Record date or interval. Deprecated. Please use \code{date}
 #' @details
 #' \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group}.
-#' They can be more convenient options and have the same functionalities as \code{episode_group()}.
+#' They are convenient alternatives with the same functionalities as \code{episode_group()}.
 #'
 #' @export
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
@@ -509,6 +531,10 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
     if (getOption("diyar.fixed_episodes.output")){
       message(paste("The default output of fixed_episodes() will be changed to epid objects in the next release.",
                     "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                    "",
+                    "# New way - `epid` objects",
+                    "df$epids <- fixed_episodes(case_length= df$x, to_s4 = TRUE)",
+                    "",
                     "This message is displayed once per session.", sep = "\n"))
     }
     options("diyar.fixed_episodes.output"= FALSE)
@@ -574,6 +600,10 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
     if (getOption("diyar.rolling_episodes.output")){
       message(paste("The default output of rolling_episodes() will be changed to epid objects in the next release.",
                     "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                    "",
+                    "# New way - `epid` objects",
+                    "df$epids <- rolling_episodes(case_length= df$x, to_s4 = TRUE)",
+                    "",
                     "This message is displayed once per session.", sep = "\n"))
     }
     options("diyar.rolling_episodes.output"= FALSE)

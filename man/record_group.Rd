@@ -11,7 +11,7 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
 
-\item{sn}{Unique \code{numeric} record identifier. Optional.}
+\item{sn}{Unique numerical record identifier. Optional.}
 
 \item{criteria}{Column names of attributes to match. Records with matching values in these columns are grouped together.}
 
@@ -23,7 +23,7 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{to_s4}{if \code{TRUE}, changes the returned value to a \code{\link[=pid-class]{pid}} object.}
+\item{to_s4}{if \code{TRUE}, changes the returned output to a \code{\link[=pid-class]{pid}} object.}
 }
 \value{
 \code{data.frame} (\code{\link[=pid-class]{pid}} objects if \code{to_s4} is \code{TRUE})
@@ -58,7 +58,7 @@ If a record has missing values for any \code{criteria}, it's skipped at that sta
 If all \code{criteria} values are missing, that record is assigned a unique group ID.
 
 When a \code{data_source} identifier is included,
-\code{pid_dataset} is included in the output. This shows the data sources included in each group.
+\code{pid_dataset} is included in the output. This lists the source of every record in each record group.
 }
 \examples{
 library(dplyr)
@@ -67,13 +67,8 @@ library(tidyr)
 three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
                            stringsAsFactors = FALSE)
 
-# Old way - merging or binding results back to the data.frame
-output <-  bind_cols(three_people, record_group(three_people, criteria= forename))
-output
-
-# New way - pid_object
-three_people$pids_a <- output$pids <- record_group(three_people, criteria= forename, to_s4 = TRUE)
-output
+three_people$pids_a <- record_group(three_people, criteria= forename, to_s4 = TRUE)
+three_people
 
 # To handle missing or unknown data, recode missing or unknown values to NA or "".
 three_people$forename[c(1,4)] <- NA
@@ -84,25 +79,28 @@ data(staff_records); staff_records
 
 # Range matching
 dob <- staff_records["sex"]
-dob$age <- c(10,8,20,5,5,9,7)
+dob$age <- c(30,28,40,25,25,29,27)
 
 # age range - age + 20 years
-dob$range <- number_line(dob$age, dob$age+20, gid=dob$age)
-dob$pids_a <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), to_s4 = TRUE)
+dob$range_a <- number_line(dob$age, dob$age+20, gid=dob$age)
+dob$pids_a <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range_a"), to_s4 = TRUE)
+dob[c("sex","age","range_a","pids_a")]
 
 # age range - age +- 20 years
-dob$range <- number_line(dob$age-20, dob$age+20, gid=dob$age)
-dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range"), to_s4 = TRUE)
+dob$range_b <- number_line(dob$age-20, dob$age+20, gid=dob$age)
+dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range_b"), to_s4 = TRUE)
+dob[c("sex","age","range_b","pids_b")]
 
-dob$pids_c <- record_group(dob, criteria = range, to_s4 = TRUE)
-dob
+dob$pids_c <- record_group(dob, criteria = range_b, to_s4 = TRUE)
+dob[c("age","range_b","pids_c")]
 
-# Two or more stages of record grouping
+
+# Multistage record grouping
 staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
                                      data_source = sex, display = FALSE, to_s4 = TRUE)
 staff_records
 
-# Add sex to the second stage to be more certain
+# Add `sex` to the second stage (`cri`) to be more certain
 staff_records <- unite(staff_records, cri_2, c(surname, sex), sep ="-")
 staff_records$pids_b <- record_group(staff_records, r_id, c(forename, cri_2),
                                      data_source = dataset, display = FALSE, to_s4 = TRUE)
