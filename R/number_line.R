@@ -35,6 +35,7 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   er2 <- try(as.numeric(r), silent = TRUE)
   er3 <- try(as.numeric(r) - as.numeric(l), silent = TRUE)
 
+  if(missing(l) & missing(r) & missing(id) & missing(gid)) return(new("number_line"))
   if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""))
   if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
   if(!(is.numeric(gid) | is.null(gid))) stop(paste("'gid' must be numeric",sep=""))

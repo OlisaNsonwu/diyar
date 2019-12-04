@@ -277,8 +277,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df <- df %>%
     dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort)) %>%
-    dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0) # %>%
-    #dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ lubridate::dmy_hms(format(., "%d/%m/%Y %H:%M:%S")))
+    dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0)
 
   if(from_last==TRUE){
     df$ord <- abs(max(df$rec_dt_ai) - df$rec_dt_ai)
@@ -476,8 +475,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       dplyr::mutate(val = ifelse(.data$var=="a", .data$rec_dt_ai, .data$rec_dt_zi)) %>%
       dplyr::select(.data$epid, .data$var, .data$val)
 
-    epid_l <- epid_l %>%
-      tidyr::spread("var","val")
+    epid_l <- tidyr::spread(epid_l, "var","val")
 
     df <- dplyr::left_join(df, epid_l, by="epid")
 

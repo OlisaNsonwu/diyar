@@ -123,13 +123,15 @@ sort.number_line <- function(x, decreasing = FALSE, ...){
 #' @rdname number_line-class
 #' @export
 format.number_line <- function(x, ...){
-  x <- x[1:length(x@start)]
-  s <- ifelse(x@start + x@.Data > x@start, "->","<-")
-  s <- ifelse(x@start + x@.Data == x@start, "==",s)
-  s <- ifelse(!is.finite(x@start + x@.Data) , "??",s)
+  if (length(x)==0) "number_line(0)"
+  else{
+    x <- x[1:length(x@start)]
+    s <- ifelse(x@start + x@.Data > x@start,"->","<-")
+    s <- ifelse(x@start + x@.Data == x@start, "==",s)
+    s <- ifelse(!is.finite(x@start + x@.Data) , "??",s)
 
-  if (length(x)==0) return("number_line(0)")
-  else return(paste(x@start, s, x@start + x@.Data, sep=" "))
+    paste(x@start, s, x@start + x@.Data, sep=" ")
+  }
 }
 
 #' @name epid-class
@@ -151,7 +153,7 @@ as.epid <- function(x){
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
   er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
-  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `epid``  object",sep=""))
+  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `epid` object",sep=""))
 
   x[!is.finite(as.numeric(x))] <- NA
   x <- methods::new("epid", .Data = as.numeric(x), sn = 1:length(x), case_nm = rep(NA_character_, length(x)),
@@ -163,7 +165,7 @@ as.epid <- function(x){
 #' @rdname epid-class
 #' @export
 format.epid <- function(x, ...){
-  if (length(x)==0) return("epid(0)")
+  if (length(x)==0) "epid(0)"
   else return(paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1), ")", sep=""))
 }
 
@@ -264,7 +266,7 @@ as.pid <- function(x, ...){
 #' @rdname pid-class
 #' @export
 format.pid <- function(x, ...){
-  if (length(x)==0) return("pid(0)")
+  if (length(x)==0) "pid(0)"
   else return(paste("P-", formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), " (",
                     ifelse(x@pid_cri==0,"No Hit", paste("CRI ", formatC(x@pid_cri, width = 2, flag=0), sep="")),
                     ")", sep=""))
@@ -282,7 +284,7 @@ unique.pid <- function(x, ...){
 #' @rdname pid-class
 #' @param object object
 setMethod("show", signature(object="pid"), function(object){
-  print(format.pid(object))
+  show(format.pid(object))
 })
 
 #' @rdname pid-class
