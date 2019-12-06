@@ -284,7 +284,7 @@ unique.pid <- function(x, ...){
 #' @rdname pid-class
 #' @param object object
 setMethod("show", signature(object="pid"), function(object){
-  show(format.pid(object))
+  print(format.pid(object))
 })
 
 #' @rdname pid-class
