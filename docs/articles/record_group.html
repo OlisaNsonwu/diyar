@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Multistage deterministic linkage in R • diyar</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Multistage deterministic linkage in R">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -38,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -73,6 +74,7 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -116,9 +118,9 @@
 <p><code>sub_criteria</code> are additional matching conditions (columns) that can be paired with each <code>criteria</code>. This is provided as a <code>list</code> of named <code>vectors</code>. Each named <code>vector</code> contains a set of column names. When a <code>sub_criteria</code> is used, records will only be assigned a group ID when they match on the <code>criteria</code>, and at least one named column in each <code>sub_criteria</code>.</p>
 <p>Each <code>sub_criteria</code> should be paired with a corresponding <code>criteria</code>. To do this, the vector name for each <code>sub_criteria</code> should be - <code>"s"</code> followed by the corresponding <code>criteria</code> number e.g. <code>"s1"</code> or <code>"s4"</code>. When a <code>criteria</code> is paired to more than one <code>sub_criteria</code>, include a suffix after the <code>criteria</code> number e.g. <code>"s1a"</code>, <code>"s1b"</code> and <code>"s1c"</code> (<a href="#sub_cri_example">See examples</a>). Any <code>sub_criteria</code> not paired with a <code>criteria</code> will be ignored. The <code>sub_criteria</code> argument does not support quasiquotation.</p>
 <p>At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record. <strong><em>NOTE; <code>to_s4</code> and <code><a href="../reference/to_s4.html">to_s4()</a></code> changes the function’s output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will be the default output in the next release.</em></strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(patient_list); 
-dbs &lt;-<span class="st"> </span>patient_list[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"sex"</span>)]; dbs
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(diyar); <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr)
+<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(patient_list); 
+dbs &lt;-<span class="st"> </span>patient_list[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"sex"</span>)]; dbs
 <span class="co">#&gt; # A tibble: 6 x 3</span>
 <span class="co">#&gt;   forename surname sex  </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;</span>
@@ -139,7 +141,7 @@ dbs<span class="op">$</span>pids_a &lt;-<span class="kw"><a href="../reference/r
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 <span class="co"># 2 stage - Matching surname, then matching sex</span>
-dbs<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(surname, sex), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+dbs<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(surname, sex), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 dbs
@@ -159,7 +161,7 @@ dbs
 <a href="#record-matching" class="anchor"></a>Record matching</h2>
 <p>The choice and ordering of column names in <code>criteria</code> and <code>sub_criteria</code> determines the relevance of matches. This flexibility allows you to link records in different ways. However, you should always consider the most practical combination to get more true matches than false one.</p>
 <p>For example, in <code>patient_list</code> above, linking on surnames and then sex (<code>pid_b</code>) leads to a different result compared to when linking on sex before surnames (<code>pid_c</code>) (See <a href="#record_expansion">Record group expansion</a>). In <code>pid_b</code>, a match on the individual’s surname was considered more relevant than a match on their sex. The opposite can be done like in <code>pid_c</code> below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span>  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(sex, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span>  <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(sex, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 dbs
@@ -184,8 +186,8 @@ dbs
 <span class="co">#&gt; 5     5 Daniel   Kulmar  M    </span>
 <span class="co">#&gt; 6     6 Henry    OBI     M</span>
 
-dbs_<span class="dv">2</span><span class="op">$</span>cri_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(dbs_<span class="dv">2</span><span class="op">$</span>surname, dbs_<span class="dv">2</span><span class="op">$</span>sex,<span class="dt">sep=</span><span class="st">"-"</span>)
-dbs_<span class="dv">2</span><span class="op">$</span>pid_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, cri_<span class="dv">2</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+dbs_<span class="dv">2</span><span class="op">$</span>cri_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(dbs_<span class="dv">2</span><span class="op">$</span>surname, dbs_<span class="dv">2</span><span class="op">$</span>sex,<span class="dt">sep=</span><span class="st">"-"</span>)
+dbs_<span class="dv">2</span><span class="op">$</span>pid_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(forename, cri_<span class="dv">2</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 4 record(s) assigned a group unique ID.</span>
 
 dbs_<span class="dv">2</span>
@@ -201,8 +203,8 @@ dbs_<span class="dv">2</span>
 <p>As mentioned earlier, at each stage of record linkage, a <code>sub_criteria</code> can be used for additional matching conditions. Just like <code>criteria</code>, any column in the dataset can be used as a <code>sub_criteria</code>.</p>
 <p><a id="sub_cri_example"></a></p>
 <p>Below are examples of record linkage using different combinations of the same <code>criteria</code> and <code>sub_criteria</code></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tidyr)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(Opes); Opes
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(tidyr)
+<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(Opes); Opes
 <span class="co">#&gt; # A tibble: 8 x 8</span>
 <span class="co">#&gt;   rd_id name  department  hair_colour date_of_birth db_pt1 db_pt2  db_pt3 </span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  </span>
@@ -218,12 +220,12 @@ dbs_<span class="dv">2</span>
 <span class="co"># 1 stage linkage</span>
   <span class="co"># stage 1 - name AND (department OR hair_colour OR date_of_birth)</span>
 Opes<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteria =</span> name, 
-                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>)),
+                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
+                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>)),
                             <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
-Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_a"</span>)]
+Opes[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_a"</span>)]
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_a      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
@@ -239,13 +241,13 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department OR hair_colour) AND (date_of_birth)) </span>
 Opes<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteria =</span> name, 
-                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>),
-                              <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>)),
+                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
+                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>),
+                              <span class="st">"s1b"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date_of_birth"</span>)),
                             <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 4 record(s) assigned a group unique ID.</span>
 
-Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_b"</span>)]
+Opes[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_b"</span>)]
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_b      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
@@ -261,13 +263,13 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department OR hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
 Opes<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteria =</span> name, 
-                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>),
-                              <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),
+                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
+                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>),
+                              <span class="st">"s1b"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),
                             <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
 
-Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_c"</span>)]
+Opes[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_c"</span>)]
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_c      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
@@ -283,14 +285,14 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
 Opes<span class="op">$</span>pids_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteria =</span>name, 
-               <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-                 <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>),
-                 <span class="st">"s1c"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"hair_colour"</span>),
-                 <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),  
+               <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
+                 <span class="st">"s1a"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"department"</span>),
+                 <span class="st">"s1c"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"hair_colour"</span>),
+                 <span class="st">"s1b"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),  
                <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 6 record(s) assigned a group unique ID.</span>
 
-Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_d"</span>)]
+Opes[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_d"</span>)]
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_d      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
@@ -306,10 +308,10 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (date_of_birth))</span>
 Opes<span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteri =</span> name, 
-                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
-                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>), 
-                              <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"hair_colour"</span>), 
-                              <span class="st">"s1c"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>)),
+                            <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
+                              <span class="st">"s1a"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"department"</span>), 
+                              <span class="st">"s1b"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"hair_colour"</span>), 
+                              <span class="st">"s1c"</span>=<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date_of_birth"</span>)),
                             <span class="dt">display =</span> <span class="ot">TRUE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Group criteria 1 - `name`</span>
@@ -325,7 +327,7 @@ Opes<span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="k
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 8 record(s) assigned a group unique ID.</span>
 
-Opes<span class="op">$</span>cri &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(Opes<span class="op">$</span>name, Opes<span class="op">$</span>date_of_birth, Opes<span class="op">$</span>department, Opes<span class="op">$</span>hair_colour, <span class="dt">sep=</span><span class="st">"-"</span>)
+Opes<span class="op">$</span>cri &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(Opes<span class="op">$</span>name, Opes<span class="op">$</span>date_of_birth, Opes<span class="op">$</span>department, Opes<span class="op">$</span>hair_colour, <span class="dt">sep=</span><span class="st">"-"</span>)
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND department AND hair_colour AND date_of_birth</span>
@@ -337,7 +339,7 @@ Opes<span class="op">$</span>pids_f &lt;-<span class="st"> </span><span class="k
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 8 record(s) assigned a group unique ID.</span>
 
-Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_e"</span>,<span class="st">"pids_f"</span>)]
+Opes[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_e"</span>,<span class="st">"pids_f"</span>)]
 <span class="co">#&gt; # A tibble: 8 x 6</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_e       pids_f      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;        &lt;pid&gt;       </span>
@@ -353,7 +355,7 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <h3 class="hasAnchor">
 <a href="#range-matching" class="anchor"></a>Range matching</h3>
 <p>Records can be matched in two ways - exact matches as in the examples above, or range matching. In range matching, records are matched if the value in one record are within a range of values in another. To do this, convert each value to the required range using <code><a href="../reference/number_line.html">number_line()</a></code>. Then assign the actual value to the <code>gid</code> slot of the resulting <code>number_line</code> object. The <code>number_line</code> object can then be used as a <code>criteria</code> or <code>sub_criteria</code>. <code>number_line</code> objects are considered a match if they overlap. See the examples below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(lubridate)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(lubridate)
 Opes_c &lt;-<span class="st"> </span>Opes[<span class="st">"date_of_birth"</span>]
 Opes_c
 <span class="co">#&gt; # A tibble: 8 x 1</span>
@@ -371,7 +373,7 @@ Opes_c
 <span class="co"># Match on date of birth + 2 years</span>
 Opes_c<span class="op">$</span>date_of_birth &lt;-<span class="st"> </span><span class="kw">dmy</span>(Opes_c<span class="op">$</span>date_of_birth)
 Opes_c<span class="op">$</span>range_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="kw"><a href="../reference/number_line.html">as.number_line</a></span>(Opes_c<span class="op">$</span>date_of_birth), <span class="kw">period</span>(<span class="dv">2</span>, <span class="st">"years"</span>), <span class="st">"end"</span>)
-Opes_c<span class="op">$</span>range_a<span class="op">@</span>gid &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(Opes_c<span class="op">$</span>date_of_birth)
+Opes_c<span class="op">$</span>range_a<span class="op">@</span>gid &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(Opes_c<span class="op">$</span>date_of_birth)
 
 Opes_c<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes_c, <span class="dt">criteria =</span> range_a, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; </span>
@@ -388,7 +390,7 @@ Opes_c<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class=
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
 
-Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>,<span class="st">"range_a"</span>,<span class="st">"pids_a"</span>)]
+Opes_c[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date_of_birth"</span>,<span class="st">"range_a"</span>,<span class="st">"pids_a"</span>)]
 <span class="co">#&gt; # A tibble: 8 x 3</span>
 <span class="co">#&gt;   date_of_birth range_a                  pids_a      </span>
 <span class="co">#&gt;   &lt;date&gt;        &lt;numbr_ln&gt;               &lt;pid&gt;       </span>
@@ -402,7 +404,7 @@ Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/to
 <span class="co">#&gt; 8 1985-10-11    1985-10-11 -&gt; 1987-10-11 P-5 (CRI 01)</span>
 
 <span class="co"># Match on age +/- 5 years</span>
-Opes_c<span class="op">$</span>age &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>() <span class="op">-</span><span class="st"> </span>Opes_c<span class="op">$</span>date_of_birth)<span class="op">/</span><span class="fl">365.5</span>)) <span class="co"># approximate age</span>
+Opes_c<span class="op">$</span>age &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/numeric.html">as.numeric</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/Round.html">round</a></span>((<span class="kw"><a href="https://rdrr.io/r/base/Sys.time.html">Sys.Date</a></span>() <span class="op">-</span><span class="st"> </span>Opes_c<span class="op">$</span>date_of_birth)<span class="op">/</span><span class="fl">365.5</span>)) <span class="co"># approximate age</span>
 Opes_c<span class="op">$</span>range_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="kw"><a href="../reference/number_line.html">as.number_line</a></span>(Opes_c<span class="op">$</span>age), <span class="dv">5</span>, <span class="st">"both"</span>)
 Opes_c<span class="op">$</span>range_b<span class="op">@</span>gid &lt;-<span class="st"> </span>Opes_c<span class="op">$</span>age
 
@@ -415,7 +417,7 @@ Opes_c<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class=
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
-Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"age"</span>,<span class="st">"range_b"</span>,<span class="st">"pids_b"</span>)]
+Opes_c[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"age"</span>,<span class="st">"range_b"</span>,<span class="st">"pids_b"</span>)]
 <span class="co">#&gt; # A tibble: 8 x 3</span>
 <span class="co">#&gt;     age range_b    pids_b      </span>
 <span class="co">#&gt;   &lt;dbl&gt; &lt;numbr_ln&gt; &lt;pid&gt;       </span>
@@ -446,7 +448,7 @@ Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/to
 <li>Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (<code>1</code>). Records 3 and 4 do not match on surnames but remain grouped together since they’ve already matched on forenames, which is more “certain” as listed in <code>criteria</code>. Record 5 is still not assigned a group ID because it doesn’t match any other record on surnames.</li>
 <li>Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3’s group ID (<code>3</code>) because that was assigned at stage 1 (<code>"CRI 01"</code>) as opposed to record 2’s group ID which was assigned at stage 2 (<code>"CRI 02"</code>).</li>
 </ul>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(patient_list_<span class="dv">2</span>); patient_list_<span class="dv">2</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(patient_list_<span class="dv">2</span>); patient_list_<span class="dv">2</span>
 <span class="co">#&gt; # A tibble: 5 x 4</span>
 <span class="co">#&gt;   rd_id forename surname     sex   </span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; </span>
@@ -456,7 +458,7 @@ Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/to
 <span class="co">#&gt; 4     4 Tomi     Abdulkareem Female</span>
 <span class="co">#&gt; 5     5 &lt;NA&gt;     &lt;NA&gt;        Male</span>
 
-patient_list_<span class="dv">2</span><span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname, sex), <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+patient_list_<span class="dv">2</span><span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(forename, surname, sex), <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Group criteria 1 - `forename`</span>
 <span class="co">#&gt; 2 of 5 record(s) have been assigned a group ID. 3 record(s) not yet grouped.</span>
@@ -488,16 +490,16 @@ patient_list_<span class="dv">2</span>
 <a href="#handling-missing-values" class="anchor"></a>Handling missing values</h2>
 <p>Records with missing values for a particular <code>criteria</code> are excluded from that stage of record linkage. If a record has missing values for every listed <code>criteria</code>, it’s assigned a unique group ID at the end of the process.</p>
 <p>It’s common for databases to use specific characters or numbers to represent missing or unknown data e.g. <code>N/A</code>, <code>Nil</code>, <code>01/01/1100</code>, <code>111111</code> etc. These pseudo-missing values will need to be re-coded to one of the two recognised by <code><a href="../reference/record_group.html">record_group()</a></code> - <code>NA</code> or an empty string (<code>""</code>). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_list_<span class="dv">2</span><span class="op">$</span>forename &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(patient_list_<span class="dv">2</span><span class="op">$</span>rd_id <span class="op">%in%</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="st">"Nil"</span>, patient_list_<span class="dv">2</span><span class="op">$</span>forename)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_list_<span class="dv">2</span><span class="op">$</span>forename &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(patient_list_<span class="dv">2</span><span class="op">$</span>rd_id <span class="op">%in%</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="st">"Nil"</span>, patient_list_<span class="dv">2</span><span class="op">$</span>forename)
 <span class="co"># 2 stage linkage</span>
     <span class="co"># Stage 1 - forename</span>
     <span class="co"># Stage 2 - surname</span>
 
-patient_list_<span class="dv">2</span><span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), 
+patient_list_<span class="dv">2</span><span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, <span class="dt">criteria =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(forename, surname), 
                                       <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 2 record(s) assigned a group unique ID.</span>
 
-patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"pids_b"</span>)]
+patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"pids_b"</span>)]
 <span class="co">#&gt; # A tibble: 5 x 3</span>
 <span class="co">#&gt;   forename surname     pids_b      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;pid&gt;       </span>
@@ -508,20 +510,20 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <span class="co">#&gt; 5 &lt;NA&gt;     &lt;NA&gt;        P-5 (No Hit)</span></code></pre></div>
 <p>In the example above, records 1-3 are assigned a single group ID even though record 3 is clearly a different individual. This issue can be addressed by recoding <code>"Nil"</code> to <code>NA</code> or <code>""</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using NA as the proxy for missing value</span>
-patient_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_<span class="dv">2</span>,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(forename<span class="op">==</span><span class="st">"Nil"</span>,<span class="ot">NA</span>,forename))
+patient_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_<span class="dv">2</span>,<span class="dt">forename =</span> <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(forename<span class="op">==</span><span class="st">"Nil"</span>,<span class="ot">NA</span>,forename))
 
-patient_list_<span class="dv">2</span><span class="op">$</span>pids_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), 
+patient_list_<span class="dv">2</span><span class="op">$</span>pids_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(forename, surname), 
                                       <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
 
 <span class="co"># Using "" as the proxy for missing value</span>
-patient_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_<span class="dv">2</span>,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(forename),<span class="st">""</span>,forename))  
+patient_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_<span class="dv">2</span>,<span class="dt">forename =</span> <span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="kw"><a href="https://rdrr.io/r/base/NA.html">is.na</a></span>(forename),<span class="st">""</span>,forename))  
 
-patient_list_<span class="dv">2</span><span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), 
+patient_list_<span class="dv">2</span><span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(forename, surname), 
                                       <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
 
-patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"pids_d"</span>,<span class="st">"pids_e"</span>)]
+patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"pids_d"</span>,<span class="st">"pids_e"</span>)]
 <span class="co">#&gt; # A tibble: 5 x 4</span>
 <span class="co">#&gt;   forename surname     pids_d       pids_e      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;pid&gt;        &lt;pid&gt;       </span>
@@ -531,15 +533,15 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <span class="co">#&gt; 4 Tomi     Abdulkareem P-4 (No Hit) P-4 (No Hit)</span>
 <span class="co">#&gt; 5 ""       &lt;NA&gt;        P-5 (No Hit) P-5 (No Hit)</span></code></pre></div>
 <p>Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching critetria. For example, using surname initials or surname soundex instead of the actual surname.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(phonics)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(phonics)
 
 patient_list_<span class="dv">2</span><span class="op">$</span>soundex &lt;-<span class="st"> </span><span class="kw">soundex</span>(patient_list_<span class="dv">2</span><span class="op">$</span>surname)
 
-patient_list_<span class="dv">2</span><span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, soundex), 
+patient_list_<span class="dv">2</span><span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(forename, soundex), 
                                       <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
 
-patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"soundex"</span>,<span class="st">"pids_d"</span>,<span class="st">"pids_e"</span>)]
+patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"soundex"</span>,<span class="st">"pids_d"</span>,<span class="st">"pids_e"</span>)]
 <span class="co">#&gt; # A tibble: 5 x 5</span>
 <span class="co">#&gt;   forename surname     soundex pids_d       pids_e      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;pid&gt;        &lt;pid&gt;       </span>
@@ -558,6 +560,7 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -579,17 +582,20 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>

@@ -7,8 +7,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Implementing case definitions for epidemiological analysis in R • diyar</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous">
-<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- sticky kit --><script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/all.min.css" integrity="sha256-nAmazAk6vS34Xqo0BSrTb+abbtFlgsFK7NKSi6o7Y78=" crossorigin="anonymous">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.7.1/css/v4-shims.min.css" integrity="sha256-6qHlizsOWFskGlwVOKuns+D1nB6ssZrHQrNj1wGplHc=" crossorigin="anonymous">
+<!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/headroom.min.js" integrity="sha256-DJFC1kqIhelURkuza0AvYal5RxMtpzLjFhsnVIeuk+U=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.9.4/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
 <script src="../pkgdown.js"></script><meta property="og:title" content="Implementing case definitions for epidemiological analysis in R">
 <meta property="og:description" content="">
 <meta name="twitter:card" content="summary">
@@ -38,7 +39,7 @@
       <ul class="nav navbar-nav">
 <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -73,6 +74,7 @@
 <!--/.navbar -->
 
       
+
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
@@ -131,9 +133,9 @@
 <p>A recurrence period (<code>recurrence_length</code>) is the period after the <code>case_length</code> within which repeat events are taken as a recurrence of the same episode. The first new record within this period is taken as a <code>"Recurrent (R)"</code> record while the rest are taken as duplicates <code>"(D)"</code> of that recurrent <code>"(R)"</code> record. This means that a rolling episode will continue to expand as far as there’s a record within the recurrence period of the last event in the episode. The last event could be a <code>"Case (C)"</code>, <code>"Duplicate (C)"</code> or <code>"Recurrent (R)"</code> record. As a result, rolling episodes can be longer than their <code>case_length</code>. Records grouped into the same episode are assigned an episode ID. The episode ID is essentially a record ID (<code>sn</code>) of one of the matching records. Therefore, using a familiar record ID (<code>sn</code>) allows you to link the results back to the original dataset</p>
 <p>The examples below demonstrates this difference;</p>
 <p><strong><em>NOTE; <code>to_s4</code> and <code><a href="../reference/to_s4.html">to_s4()</a></code> changes these functions’ output from a data.frame (current default) to <code>epid</code> objects. <code>epid</code> objects will be the default output in the next release.</em></strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(lubridate); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(dplyr); <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(lubridate); <span class="kw"><a href="https://rdrr.io/r/base/library.html">library</a></span>(diyar)
 
-<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"infections_2"</span>)
+<span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"infections_2"</span>)
 dates &lt;-<span class="st"> </span>infections_<span class="dv">2</span><span class="op">$</span>date
 
 <span class="co"># Fixed episodes</span>
@@ -180,8 +182,8 @@ r <span class="co"># rolling episode identifiers</span>
 <h3 class="hasAnchor">
 <a href="#number-of-recurrence-periods-and-episodes" class="anchor"></a>Number of recurrence periods and episodes</h3>
 <p>You can choose to have a certain number of episodes per <code>strata</code> by using <code>episode_max</code>. When <code>episode_max</code> is reached, any record not yet grouped is assigned a unique episode ID, making them unique cases <code>"(C)"</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"infections_3"</span>);
-dbs &lt;-<span class="st"> </span>infections_<span class="dv">3</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"pid"</span>,<span class="st">"date"</span>)]; dbs
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"infections_3"</span>);
+dbs &lt;-<span class="st"> </span>infections_<span class="dv">3</span>[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"pid"</span>,<span class="st">"date"</span>)]; dbs
 <span class="co">#&gt; # A tibble: 11 x 2</span>
 <span class="co">#&gt;      pid date      </span>
 <span class="co">#&gt;    &lt;dbl&gt; &lt;date&gt;    </span>
@@ -259,7 +261,7 @@ dbs
 <h3 class="hasAnchor">
 <a href="#chronological-order-of-events" class="anchor"></a>Chronological order of events</h3>
 <p>By default, episode grouping begins at the earliest event (or period of event) and proceeds to the most recent one, making the earliest event the <code>"Case (C)"</code>. The opposite of this is to begin episode grouping at the most recent record and proceed backwards in time. As a result, the most recent record is taken as the <code>"Case (C)"</code>. To do this, change <code>from_last</code> to <code>TRUE</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>infections_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>)]; dbs
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>infections_<span class="dv">2</span>[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>)]; dbs
 <span class="co">#&gt; # A tibble: 6 x 1</span>
 <span class="co">#&gt;   date      </span>
 <span class="co">#&gt;   &lt;date&gt;    </span>
@@ -280,7 +282,7 @@ dbs<span class="op">$</span>backward &lt;-<span class="st"> </span><span class="
                                <span class="dt">from_last=</span><span class="ot">TRUE</span>, <span class="dt">to_s4=</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
 
-dbs[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forward"</span>,<span class="st">"backward"</span>)]
+dbs[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forward"</span>,<span class="st">"backward"</span>)]
 <span class="co">#&gt; # A tibble: 6 x 2</span>
 <span class="co">#&gt;   forward                          backward                        </span>
 <span class="co">#&gt;   &lt;epid&gt;                           &lt;epid&gt;                          </span>
@@ -296,9 +298,9 @@ dbs[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topic
 <h3 class="hasAnchor">
 <a href="#user-defined-case-assignment" class="anchor"></a>User defined case assignment</h3>
 <p>You can use a specific preference for case assignment by using <code>custom_sort</code>. In <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>, this is a vector whose values when sorted in ascending order specifies the required preference. For example, records with a <code>custom_sort</code> value of <code>1</code> will be preferentially taken as the start of an episode over one with a value of <code>2</code>. This is prioritised over the chronological order of those records. See the example below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>, <span class="st">"07/04/2019"</span>)
-dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(dates,<span class="st">"%d/%m/%Y"</span>)
-user_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">2</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dates &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>, <span class="st">"07/04/2019"</span>)
+dates &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(dates,<span class="st">"%d/%m/%Y"</span>)
+user_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">2</span>)
 
 <span class="co"># preference determined by from_last </span>
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dates, <span class="dt">case_length=</span><span class="dv">6</span>, <span class="dt">to_s4=</span><span class="ot">TRUE</span>, <span class="dt">display=</span><span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
@@ -324,7 +326,7 @@ user_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rd
 <p>Note that examples 1 and 3 now have the same number of duplicates (and episodes) but different cases - records 1 and 2 respectively.</p>
 <p><strong><em><code>custom_sort</code> will follow <code>R</code> standard sort behaviour. For example, a <code>factor</code> will sort on its levels not the descriptive label.</em></strong></p>
 <p>For a practical example, we’ll use this feature on a case definition where <em>E. coli</em> urinary tract infections (UTI) are considered precursors to <em>E. coli</em> bloodstream infections (BSI). This means that episodes need to be created in such a way that; if there are UTI and BSI records within the same <code>case_length</code>, the UTI record will be taken as the <code>"Case (C)"</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>infections_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infx"</span>)]; dbs
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>infections_<span class="dv">2</span>[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>,<span class="st">"infx"</span>)]; dbs
 <span class="co">#&gt; # A tibble: 6 x 2</span>
 <span class="co">#&gt;   date       infx       </span>
 <span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt;      </span>
@@ -334,14 +336,14 @@ user_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rd
 <span class="co">#&gt; 4 2019-04-16 E. coli BSI</span>
 <span class="co">#&gt; 5 2019-04-21 E. coli BSI</span>
 <span class="co">#&gt; 6 2019-06-04 E. coli BSI</span>
-dbs<span class="op">$</span>infx &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"E. coli "</span>,<span class="st">""</span>,dbs<span class="op">$</span>infx)
-dbs<span class="op">$</span>infx[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">5</span>)] &lt;-<span class="st"> "UTI"</span>
+dbs<span class="op">$</span>infx &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/grep.html">gsub</a></span>(<span class="st">"E. coli "</span>,<span class="st">""</span>,dbs<span class="op">$</span>infx)
+dbs<span class="op">$</span>infx[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">2</span>,<span class="dv">5</span>)] &lt;-<span class="st"> "UTI"</span>
 
 dbs<span class="op">$</span>epids_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span><span class="dv">14</span>, 
                 <span class="dt">custom_sort =</span> dbs<span class="op">$</span>infx, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
 
-dbs<span class="op">$</span>infx_f &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">factor</a></span>(dbs<span class="op">$</span>infx, <span class="dt">levels =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"UTI"</span>,<span class="st">"BSI"</span>))
+dbs<span class="op">$</span>infx_f &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(dbs<span class="op">$</span>infx, <span class="dt">levels =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"UTI"</span>,<span class="st">"BSI"</span>))
 
 dbs<span class="op">$</span>epids_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span><span class="dv">14</span>, 
                 <span class="dt">custom_sort =</span> dbs<span class="op">$</span>infx_f, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
@@ -371,9 +373,9 @@ dbs
 <a href="#interval-grouping" class="anchor"></a>Interval grouping</h2>
 <p>In this section we discuss the process of grouping periods of events into episodes. Each period/interval is essentially a record with a start and end point in time. For the purpose of episode grouping, these periods are created as <code>number_line</code> objects and supplied to the <code>date</code> argument.</p>
 <p>Below are simple examples;</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">date=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>))
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span><span class="kw">tibble</span>(<span class="dt">date=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>))
 
-dbs<span class="op">$</span>date &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(dbs<span class="op">$</span>date, <span class="st">"%d/%M/%Y"</span>)
+dbs<span class="op">$</span>date &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(dbs<span class="op">$</span>date, <span class="st">"%d/%M/%Y"</span>)
 
 <span class="co"># 10-day periods beginning with the `date`</span>
 dbs<span class="op">$</span>period &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(dbs<span class="op">$</span>date, dbs<span class="op">$</span>date <span class="op">+</span><span class="st"> </span><span class="dv">10</span>)
@@ -493,7 +495,7 @@ inbetween
 
 <span class="co"># Chained intervals and those occurring completely within others</span>
 chain_inbetween &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">sn=</span>hos_admin<span class="op">$</span>rd_id, <span class="dt">case_length =</span> <span class="dv">0</span>, 
-               <span class="dt">overlap_method =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"chain"</span>,<span class="st">"inbetween"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
+               <span class="dt">overlap_method =</span> <span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"chain"</span>,<span class="st">"inbetween"</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 
 chain_inbetween
@@ -518,11 +520,11 @@ chain_inbetween
 <li>BSI has a <code>case_length</code> of 14 days and no recurrence period</li>
 </ul>
 <p>In the example below, adding <code>infection</code> to the <code>strata</code> argument means that <code>"UTI"</code> and <code>"BSI"</code> records will not be in the same episode. Furthermore, the <code>case_length</code> and <code>recurrence_length</code> for each will be different as specified in the <code>epi</code> and <code>recur</code> columns respectively</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections)
-dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]
-dbs &lt;-<span class="st"> </span>dbs[dbs<span class="op">$</span>infection<span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"UTI"</span>,<span class="st">"BSI"</span>),]
-dbs<span class="op">$</span>epi &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">7</span>, <span class="dv">14</span>)
-dbs<span class="op">$</span>recur &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">30</span>, <span class="dv">0</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(infections)
+dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]
+dbs &lt;-<span class="st"> </span>dbs[dbs<span class="op">$</span>infection<span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"UTI"</span>,<span class="st">"BSI"</span>),]
+dbs<span class="op">$</span>epi &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">7</span>, <span class="dv">14</span>)
+dbs<span class="op">$</span>recur &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">30</span>, <span class="dv">0</span>)
 
 dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span>dbs<span class="op">$</span>epi, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>,
                             <span class="dt">recurrence_length =</span> dbs<span class="op">$</span>recur, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
@@ -553,10 +555,10 @@ dbs
 <li>Respiratory tract infections (RTI) have a <code>case_length</code> of 28 days and recurrence period of 5 days</li>
 </ul>
 <p>In this example, whether or not the infection is treated should be viewed as the sub-strata, and the source of infection as the <code>strata</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"infections_4"</span>); 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"infections_4"</span>); 
 dbs &lt;-<span class="st"> </span>infections_<span class="dv">4</span>
 
-dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections_<span class="dv">4</span>, <span class="dt">sn=</span>rid, <span class="dt">strata=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(pid, organism, source), <span class="dt">date=</span>date, 
+dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(infections_<span class="dv">4</span>, <span class="dt">sn=</span>rid, <span class="dt">strata=</span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(pid, organism, source), <span class="dt">date=</span>date, 
                 <span class="dt">case_length =</span>epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">recurrence_length =</span> recur,
                 <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
@@ -593,9 +595,9 @@ dbs
 <h3 class="hasAnchor">
 <a href="#episode-grouping-across-other-units-of-time" class="anchor"></a>Episode grouping across other units of time</h3>
 <p>In the examples above, episode grouping was done by days (<code>episode_unit</code>). However, it can be done by other units of time e.g. hours, days or weeks. Acceptable options are those supported by <code>lubridate's duration()</code> function. Below is an example of episode grouping by the hour.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"hourly_data"</span>); dbs &lt;-<span class="st"> </span>hourly_data
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="st">"hourly_data"</span>); dbs &lt;-<span class="st"> </span>hourly_data
 
-dbs[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"datetime"</span>, <span class="st">"category"</span>)]
+dbs[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"datetime"</span>, <span class="st">"category"</span>)]
 <span class="co">#&gt;               datetime category</span>
 <span class="co">#&gt; 1  2019-04-01 00:00:00      GP1</span>
 <span class="co">#&gt; 2  2019-04-01 02:00:00      GP2</span>
@@ -632,8 +634,8 @@ dbs[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topic
 <h3 class="hasAnchor">
 <a href="#limit-episode-grouping-to-a-subset-of-the-dataframe" class="anchor"></a>Limit episode grouping to a subset of the dataframe</h3>
 <p>For example, with the <code>hourly_data</code> dataset, you can decide to exclude <code>"GP1"</code> and <code>"GP2"</code> records from episode grouping as shown below. These records will be excluded from episode grouping and assigned unique episode IDs.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(hourly_data[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"datetime"</span>,<span class="st">"category"</span>)], <span class="dv">10</span>)
-dbs<span class="op">$</span>subset &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>category<span class="op">!=</span><span class="st">"GP3"</span>, <span class="ot">NA</span>, <span class="st">"group"</span>)
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/utils/head.html">head</a></span>(hourly_data[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"datetime"</span>,<span class="st">"category"</span>)], <span class="dv">10</span>)
+dbs<span class="op">$</span>subset &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(dbs<span class="op">$</span>category<span class="op">!=</span><span class="st">"GP3"</span>, <span class="ot">NA</span>, <span class="st">"group"</span>)
 
 dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata=</span> dbs<span class="op">$</span>subset, <span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, 
                         <span class="dt">recurrence_length =</span> <span class="dv">9</span>, <span class="dt">display =</span> <span class="ot">TRUE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
@@ -668,12 +670,12 @@ dbs
 </div>
 <div id="use-a-strata-from-record_group" class="section level3">
 <h3 class="hasAnchor">
-<a href="#use-a-strata-from-record_group" class="anchor"></a>Use a <code>strata</code> from <code><a href="../reference/record_group.html">record_group()</a></code>
+<a href="#use-a-strata-from-record_group" class="anchor"></a>Use a <code>strata</code> from <code>record_group()</code>
 </h3>
 <p>You can used <code>pid</code> objects from <code><a href="../reference/record_group.html">record_group()</a></code> as a <code>strata</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections) 
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(infections) 
 
-dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]; dbs
+dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]; dbs
 <span class="co">#&gt; # A tibble: 11 x 2</span>
 <span class="co">#&gt;    date       infection</span>
 <span class="co">#&gt;    &lt;date&gt;     &lt;chr&gt;    </span>
@@ -690,7 +692,7 @@ dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://w
 <span class="co">#&gt; 11 2018-05-31 BSI</span>
 
 <span class="co"># familiar unique record ids for reference</span>
-rd_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">640</span>,<span class="dv">17</span>,<span class="dv">58</span>,<span class="dv">21</span>,<span class="dv">130</span>,<span class="dv">79</span>,<span class="dv">45</span>,<span class="dv">300</span>,<span class="dv">40</span>,<span class="dv">13</span>,<span class="dv">31</span>)
+rd_id &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="dv">640</span>,<span class="dv">17</span>,<span class="dv">58</span>,<span class="dv">21</span>,<span class="dv">130</span>,<span class="dv">79</span>,<span class="dv">45</span>,<span class="dv">300</span>,<span class="dv">40</span>,<span class="dv">13</span>,<span class="dv">31</span>)
 
 <span class="co"># strata based on matching sources of infection</span>
 dbs<span class="op">$</span>pids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span> infection, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
@@ -720,8 +722,8 @@ dbs
 <div id="use-numeric-values-for-the-date-argument" class="section level3">
 <h3 class="hasAnchor">
 <a href="#use-numeric-values-for-the-date-argument" class="anchor"></a>Use <code>numeric</code> values for the <code>date</code> argument</h3>
-<p><code>date</code> and <code>datetime</code> objects are fundamentally numeric values within the context of a reference point (<code><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date(..., origin)</a></code>). The episode grouping process ignores this context and instead uses each value as a reference point for others. Therefore, it will allow you use <code>numeric</code> values such as <code>0-2</code> instead of <code>date</code> or <code>datetime</code> values for the <code>date</code> argument. It does not matter what <code>0-2</code> actually represent i.e. number of days from a particular date or number of seconds from a particular time. It only matters that <code>0</code> is before <code>1</code>, which in turn is before <code>2</code>. When used this way, the <code>episode_unit</code> argument is ignored.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vals &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">8.1</span>,<span class="dv">6</span>,<span class="dv">12</span>,<span class="fl">8.5</span>,<span class="dv">12</span>,<span class="dv">3</span>,<span class="dv">8</span>,<span class="dv">15</span>,<span class="dv">5</span>,<span class="dv">7</span>)
+<p><code>date</code> and <code>datetime</code> objects are fundamentally numeric values within the context of a reference point (<code><a href="https://rdrr.io/r/base/as.Date.html">as.Date(..., origin)</a></code>). The episode grouping process ignores this context and instead uses each value as a reference point for others. Therefore, it will allow you use <code>numeric</code> values such as <code>0-2</code> instead of <code>date</code> or <code>datetime</code> values for the <code>date</code> argument. It does not matter what <code>0-2</code> actually represent i.e. number of days from a particular date or number of seconds from a particular time. It only matters that <code>0</code> is before <code>1</code>, which in turn is before <code>2</code>. When used this way, the <code>episode_unit</code> argument is ignored.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vals &lt;-<span class="st"> </span><span class="kw"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">8.1</span>,<span class="dv">6</span>,<span class="dv">12</span>,<span class="fl">8.5</span>,<span class="dv">12</span>,<span class="dv">3</span>,<span class="dv">8</span>,<span class="dv">15</span>,<span class="dv">5</span>,<span class="dv">7</span>)
 
 vals
 <span class="co">#&gt;  [1]  8.1  6.0 12.0  8.5 12.0  3.0  8.0 15.0  5.0  7.0</span>
@@ -772,6 +774,7 @@ vals
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
+
         <div id="tocnav">
       <h2 class="hasAnchor">
 <a href="#tocnav" class="anchor"></a>Contents</h2>
@@ -796,17 +799,20 @@ vals
 </div>
 
 
+
       <footer><div class="copyright">
   <p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.4.1.</p>
 </div>
+
       </footer>
 </div>
 
   
+
 
   </body>
 </html>
