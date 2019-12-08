@@ -30,13 +30,13 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
-\item \code{pid} - unique group identifier
+\item \code{pid | .Data} - unique group identifier
 \item \code{pid_cri} - matched criteria for each record in the group
 \item \code{pid_dataset} - data sources in each group
 \item \code{pid_total} - number of records in each group
 }
 
-\code{pid} objects will be the default output from the next release onwards
+\code{pid} objects will be the default output from the next release.
 }
 \description{
 Group matching records from one or more datasets.
@@ -81,12 +81,12 @@ data(staff_records); staff_records
 dob <- staff_records["sex"]
 dob$age <- c(30,28,40,25,25,29,27)
 
-# age range - age + 20 years
+# age range: age + 20 years
 dob$range_a <- number_line(dob$age, dob$age+20, gid=dob$age)
 dob$pids_a <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range_a"), to_s4 = TRUE)
 dob[c("sex","age","range_a","pids_a")]
 
-# age range - age +- 20 years
+# age range: age +- 20 years
 dob$range_b <- number_line(dob$age-20, dob$age+20, gid=dob$age)
 dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range_b"), to_s4 = TRUE)
 dob[c("sex","age","range_b","pids_b")]

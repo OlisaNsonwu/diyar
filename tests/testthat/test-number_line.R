@@ -31,6 +31,8 @@ test_that("test direction of number line", {
   expect_equal(show(t4), "NA ?? NA")
   expect_equal(show(t5), "20 == 20")
 
+  expect_equal(format(number_line()), "number_line(0)")
+
    s1<- t1$start
    s2<- t2$start
    s3<- t3$start

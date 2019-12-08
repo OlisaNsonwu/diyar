@@ -130,12 +130,18 @@ df_7 <- data.frame(
 df_7$age_range <- number_line(df_7$age-5, df_7$age+5, gid = df_7$age)
 df_7$corrupt_range <- number_line(df_7$age-5, df_7$age+5)
 test_7 <- cbind(df_7, record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE))
+test_7b <- cbind(df_7, record_group(df_7, r_id, age_range, group_stats = TRUE))
 
-test_that("test record grouping using range matching", {
+test_that("test record grouping using range matching in criteria", {
   expect_equal(test_7$pid, c(1,1,1,4,4,8,7,8,8,10,11,10,10,14,11))
   expect_equal(test_7$pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
   expect_equal(test_7$pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
-  #expect_error(record_group(df_7, r_id, cri_1, list(s1a="corrupt_range"), group_stats = TRUE), "Actual value (gid) is outside the range created in a number_line object")
+})
+
+test_that("test record grouping using range matching in sub_criteria", {
+  expect_equal(test_7b$pid, c(14,14,14,10,10,8,7,8,8,10,14,10,10,14,14))
+  expect_equal(test_7b$pid_cri, c(rep(1,6),0, rep(1, 8)))
+  expect_equal(test_7b$pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
 })
 
 # Special case. An error i've created but can't test for some reason
@@ -166,4 +172,10 @@ test_that("test pid methods", {
                              "P-9 (CRI 01)","P-9 (CRI 01)","P-1 (CRI 01)"))
   expect_equal(rep(pids,2), rep(pids,2))
   expect_equal(unique(pids), unique(pids))
+})
+
+
+test_that("test some generic functions", {
+  expect_equal(show(new("pid")), "pid(0)")
+  expect_equal(c(as.pid(5), as.pid(5)), rep(as.pid(5), 2))
 })

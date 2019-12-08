@@ -83,7 +83,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 \item \code{epid_total} - number of records in each episode
 }
 
-\code{epid} objects will be the default output in the next release onwards
+\code{epid} objects will be the default output in the next release.
 }
 \description{
 Group records into chronological episodes
@@ -93,6 +93,9 @@ Episode grouping begins at a reference record (\code{"Case (C)"}) and proceeds f
 If \code{custom_sort} is used, episode grouping can be forced to begin at certain records before proceeding forward or backwards in time.
 The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
 \code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record of an episode. Records within this period are taken an a \code{"Recurrent (R)"} record of the inital \code{"Case"}
+
+#' When a \code{data_source} identifier is included,
+\code{epid_dataset} is included in the output. This lists the source of every record in each record group.
 
 \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group()}.
 They are convenient alternatives with the same functionalities.

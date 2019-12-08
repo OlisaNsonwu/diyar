@@ -188,7 +188,7 @@ setMethod("show", signature(object="epid"), function(object){
 #' @param x x
 #' @param ... ...
 setMethod("rep", signature(x = "epid"), function(x, ...) {
-  methods::new("epid", rep(x@.Data, ...), case_nm = rep(x@case_nm, ...), epid_interval = rep(x@epid_interval, ...),
+  methods::new("epid", rep(x@.Data, ...), sn = rep(x@sn, ...), case_nm = rep(x@case_nm, ...), epid_interval = rep(x@epid_interval, ...),
                epid_length = rep(x@epid_length, ...), epid_total = rep(x@epid_total, ...), epid_dataset = rep(x@epid_dataset, ...))
 })
 
@@ -258,7 +258,7 @@ as.pid <- function(x, ...){
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `pid``  object",sep=""))
 
   x[!is.finite(as.numeric(x))] <- NA
-  x <- methods::new("pid", .Data = as.numeric(x), sn = 1:length(x), pid_cri = rep(NA_character_, length(x)),
+  x <- methods::new("pid", .Data = as.numeric(x), sn = 1:length(x), pid_cri = rep(NA_real_, length(x)),
                     pid_total = rep(NA_real_, length(x)), pid_dataset = rep(NA_character_, length(x)))
   return(x)
 }
