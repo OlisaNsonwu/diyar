@@ -37,11 +37,11 @@ test_that("test direction of number line", {
    s4<- t4$start
    s5<- t5$start
 
-  expect_equal(s1, 1)
-  expect_equal(s2, 10)
-  expect_equal(s3, 5)
-  expect_equal(s4, NA)
-  expect_equal(s5, 20)
+   expect_equal(s1, 1)
+   expect_equal(s2, 10)
+   expect_equal(s3, 5)
+   expect_equal(s4, NA)
+   expect_equal(s5, 20)
 
 })
 
@@ -106,6 +106,7 @@ test_that("test changing the number line", {
   expect_equal(number_line_width(number_line(5,10)), 5)
   expect_equal(number_line_width(number_line(25,10)), -15)
   expect_equal(shift_number_line(number_line(5,6), 2), number_line(7,8))
+  expect_equal(number_line(), new("number_line"))
 })
 
 test_that("test that error and warning messages are returned correctly", {

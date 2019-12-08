@@ -31,7 +31,7 @@ Cheat sheet
 Usage
 -----
 
-There are two main aspects of the `diyar` package; record and episode grouping, both of which use `number_line` objects
+There are two main aspects of the `diyar` package; multistage record grouping (`record_group()`) and episode grouping (`fixed_episodes()`, `rolling_episodes()` and `episode_group()`) for applying case definitions in epidemiological analysis. `number_line` objects are used for both.
 
 -   `number_line` objects - series of real numbers on a number line. These can be manipulated and merged.
 
@@ -54,7 +54,7 @@ number_line_sequence(nl, by =3)
 #> [11] "2019-04-30"
 ```
 
--   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be the default output in the next release.***
+-   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be the default output in the next release.***
 
 ``` r
 data(infections);
@@ -91,7 +91,7 @@ db[c("f_epid","r_epid")]
 #> 11 E-10 2018-05-25 -> 2018-05-31 (D) E-1 2018-04-01 -> 2018-05-31 (D)
 ```
 
--   `record_group()` - Perform multistage deterministic linkages while addressing missing data with a specified list of alternative matching criteria, or range of values. ***NOTE; `to_s4` and `to_s4()` changes the output from a data.frame (current default) to `pid` objects. `pid` objects will be the default output in the next release.***
+-   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***NOTE; `to_s4` and `to_s4()` changes the output from a data.frame (current default) to `pid` objects. `pid` objects will be the default output in the next release.***
 
 ``` r
 # Two stages of record grouping

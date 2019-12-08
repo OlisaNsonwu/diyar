@@ -199,14 +199,14 @@ expand_number_line <- function(x, by=1, point ="both"){
   if(!all(is.character(point)) | length(point)!=1) stop(paste("'point' must be a character object of length 1"))
   if(all(!tolower(point) %in% c("both","start","end"))) stop(paste("`point` must be either 'start','end' or 'both'"))
 
-    by[!is.finite(by)] <- NA_real_
-    n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
-    by <- by * n
-    if(point == "both") x <- diyar::number_line(x@start - by, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
-    if(point == "start") x <- diyar::number_line(x@start - by, (x@start + x@.Data), id = x@id, gid = x@gid)
-    if(point == "end") x <- diyar::number_line(x@start, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
+  by[!is.finite(by)] <- NA_real_
+  n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
+  by <- by * n
+  if(point == "both") x <- diyar::number_line(x@start - by, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
+  if(point == "start") x <- diyar::number_line(x@start - by, (x@start + x@.Data), id = x@id, gid = x@gid)
+  if(point == "end") x <- diyar::number_line(x@start, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
 
-    return(x)
+  return(x)
 }
 
 #' @rdname number_line
@@ -248,6 +248,7 @@ compress_number_line <- function(x, method = c("across","chain","aligns_start","
     h <- (x@id == l@id | diyar::overlap(l, x, method=method)) & ifelse(collapse, TRUE, (t!=1))
     x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
+    x[which(h)]@gid <- sort(x[which(h),])[1]@id
     t[which(h)] <- 1
     if(min(t)==1) break
     j <- j + 1
