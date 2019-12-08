@@ -1,4 +1,10 @@
 ## Resubmission
+This is a resubmission. Summary of changes below:
+*Corrected some bugs 
+*Updated documentation and vignette
+*Updated package to v.0.0.3
+
+## Resubmission
 This is a resubmission. In this version I have:
 * Addressed these CRAN comment
     + CRAN URL not in canonical form
