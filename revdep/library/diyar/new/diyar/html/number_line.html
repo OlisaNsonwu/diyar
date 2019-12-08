@@ -1,0 +1,199 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Number line objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for number_line {diyar}"><tr><td>number_line {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Number line objects</h2>
+
+<h3>Description</h3>
+
+<p>A set of functions to create and manipulate <code>number_line</code> objects.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+number_line(l, r, id = NULL, gid = NULL)
+
+as.number_line(x)
+
+is.number_line(x)
+
+left_point(x)
+
+right_point(x)
+
+start_point(x)
+
+end_point(x)
+
+number_line_width(x)
+
+reverse_number_line(x, direction = "both")
+
+shift_number_line(x, by = 1)
+
+expand_number_line(x, by = 1, point = "both")
+
+compress_number_line(x, method = c("across", "chain", "aligns_start",
+  "aligns_end", "inbetween"), collapse = FALSE, deduplicate = TRUE)
+
+number_line_sequence(x, by = 1)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>l</code></td>
+<td>
+<p>Left point of the <code>number_line</code> object. Should be, or can be coerced to a <code>numeric</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>r</code></td>
+<td>
+<p>Right point of the <code>number_line</code> object. Should be, or can be coerced to a <code>numeric</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>id</code></td>
+<td>
+<p>Unique <code>numeric</code> ID. Providing this is optional</p>
+</td></tr>
+<tr valign="top"><td><code>gid</code></td>
+<td>
+<p>Unique <code>numeric</code> Group ID. Providing this is optional</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>number_line</code> object</p>
+</td></tr>
+<tr valign="top"><td><code>direction</code></td>
+<td>
+<p>Type of <code>"number_line"</code> objects whose direction are to be reversed. Options are; <code>"increasing"</code>, <code>"decreasing"</code> or <code>"both"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>by</code></td>
+<td>
+<p>increment or decrement</p>
+</td></tr>
+<tr valign="top"><td><code>point</code></td>
+<td>
+<p><code>"start"</code> or <code>"start"</code> point</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Method of overlap</p>
+</td></tr>
+<tr valign="top"><td><code>collapse</code></td>
+<td>
+<p>If <code>TRUE</code>, collapse the compressed results based on <code>method</code> of overlaps</p>
+</td></tr>
+<tr valign="top"><td><code>deduplicate</code></td>
+<td>
+<p>if <code>TRUE</code>, retains only one <code>number_line</code> object among duplicates</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>A <code>number_line</code> object represents a series of real numbers on a number line.
+</p>
+<p>Visually, it's presented as the left (<code>l</code>) and right (<code>r</code>) points of the series. This may differ from start and end points.
+The start point is the lowest number in the series, regardless of whether it's at the left or right point..
+</p>
+<p>The location of the start point - left or right, indicate if it's an <code>"increasing"</code> or <code>"decreasing"</code> series.
+This is referred to as the <code>direction</code> of the <code>number_line</code> object.
+</p>
+<p><code>reverse_number_line()</code> - reverses the direction of a <code>number_line</code> object. A reversed <code>number_line</code> object has its <code>l</code> and <code>r</code> points swapped but maintains the same width or length.
+The <code>direction</code> argument determines which type of <code>number_line</code> objects will be reversed.
+<code>number_line</code> objects with non-finite numeric starts or end points i.e. (<code>NA</code>, <code>NaN</code> and <code>Inf</code>) can't be reversed.
+</p>
+<p><code>shift_number_line()</code> - a convenience function to shift a <code>number_line</code> object towards the positive or negative end of the number line.
+</p>
+<p><code>expand_number_line()</code> - a convenience function to increase or decrease the width or length of a <code>number_line</code> object.
+</p>
+<p><code>compress_number_line()</code> - Collapses overlapping <code>number_line</code> objects into a new <code>number_line</code> objects that covers the start and end points of the originals.
+This results in duplicate <code>number_line</code> objects with start and end points of the new expanded <code>number_line</code> object.
+See <code><a href="overlap.html">overlap</a></code> for further details on overlapping <code>number_line</code> objects.
+If a familiar (but unique) <code>id</code> is used when creating the <code>number_line</code> objects,
+<code>compress_number_line()</code> can be a simple alternative to <code><a href="record_group.html">record_group</a></code> or <code><a href="episode_group.html">episode_group</a></code>.
+</p>
+<p><code>number_line_sequence()</code> - a convenience function to convert a <code>number_line</code> object into a sequence of finite numbers. The sequence will also include the start and end points.
+The direction of the sequence will correspond to that of the <code>number_line</code> object.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>number_line</code> object
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(lubridate)
+
+number_line(-100, 100); number_line(10, 11.2)
+
+# Other numeric based object classes are also compatible for numeric_line objects
+number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
+
+# A warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected
+number_line(2, dmy("05/01/2019"))
+
+# Convert numeric based objects to number_line objects
+as.number_line(5.1); as.number_line(dmy("21/10/2019"))
+
+# Test for number_line objects
+a &lt;- number_line(0, -100)
+b &lt;- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
+is.number_line(a); is.number_line(b)
+
+# Structure of a number_line object
+left_point(a); right_point(a); start_point(a); end_point(a)
+
+# Reverse number_line objects
+reverse_number_line(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+reverse_number_line(number_line(200,-100), "increasing")
+reverse_number_line(number_line(200,-100), "decreasing")
+
+# Shift number_line objects
+number_line(5,6)
+# Towards the positive end of the number line
+shift_number_line(number_line(5,6), 2)
+# Towards the negative end of the number line
+shift_number_line(number_line(6,1), -2)
+
+# Increase or reduce the width or length of a \code{number_line} object
+c(number_line(3,6), number_line(6,3))
+expand_number_line(c(number_line(3,6), number_line(6,3)), 2)
+expand_number_line(c(number_line(3,6), number_line(6,3)), -1)
+expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start")
+expand_number_line(c(number_line(3,6), number_line(6,3)), -2, "end")
+
+# Collapse number line objects
+x &lt;- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
+compress_number_line(x, deduplicate = FALSE)
+compress_number_line(x)
+compress_number_line(x, collapse=TRUE)
+compress_number_line(x, collapse=TRUE, method = "inbetween")
+
+# Convert a number line object to its series of real numbers
+number_line_sequence(number_line(1, 5))
+number_line_sequence(number_line(5, 1), .5)
+number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
+
+# The length of the resulting vector will depend on the object class
+number_line_sequence(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+
+nl &lt;- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
+head(number_line_sequence(nl, 1.5), 15)
+d &lt;- duration(1.5,"days")
+number_line_sequence(nl, d)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.0.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: 'number_line' object</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for number_line-class {diyar}"><tr><td>number_line-class {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2><code>number_line</code> object</h2>
+
+<h3>Description</h3>
+
+<p>S4 objects representing a series of finite numbers on a number line
+Used for range matching in <code><a href="record_group.html">record_group</a></code> and interval grouping in <code><a href="episode_group.html">fixed_episodes</a></code>, <code><a href="episode_group.html">rolling_episodes</a></code> and <code><a href="episode_group.html">episode_group</a></code>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+## S4 method for signature 'number_line'
+show(object)
+
+## S4 method for signature 'number_line'
+rep(x, ...)
+
+## S4 method for signature 'number_line'
+x[i, j, ..., drop = TRUE]
+
+## S4 method for signature 'number_line'
+x[[i, j, ..., exact = TRUE]]
+
+## S4 replacement method for signature 'number_line,ANY,ANY,ANY'
+x[i, j, ...] &lt;- value
+
+## S4 replacement method for signature 'number_line,ANY,ANY,ANY'
+x[[i, j, ...]] &lt;- value
+
+## S4 method for signature 'number_line'
+x$name
+
+## S4 replacement method for signature 'number_line'
+x$name &lt;- value
+
+## S4 method for signature 'number_line'
+c(x, ...)
+
+## S3 method for class 'number_line'
+unique(x, ...)
+
+## S3 method for class 'number_line'
+sort(x, decreasing = FALSE, ...)
+
+## S3 method for class 'number_line'
+format(x, ...)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>object</code></td>
+<td>
+<p>object</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>x</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>...</p>
+</td></tr>
+<tr valign="top"><td><code>i</code></td>
+<td>
+<p>i</p>
+</td></tr>
+<tr valign="top"><td><code>j</code></td>
+<td>
+<p>j</p>
+</td></tr>
+<tr valign="top"><td><code>drop</code></td>
+<td>
+<p>drop</p>
+</td></tr>
+<tr valign="top"><td><code>exact</code></td>
+<td>
+<p>exact</p>
+</td></tr>
+<tr valign="top"><td><code>value</code></td>
+<td>
+<p>value</p>
+</td></tr>
+<tr valign="top"><td><code>name</code></td>
+<td>
+<p>slot name</p>
+</td></tr>
+<tr valign="top"><td><code>decreasing</code></td>
+<td>
+<p>logical. Should the sort be increasing or decreasing</p>
+</td></tr>
+</table>
+
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>start</code></dt><dd><p>Start of the number line</p>
+</dd>
+<dt><code>id</code></dt><dd><p>Unique <code>numeric</code> ID. Providing this is optional.</p>
+</dd>
+<dt><code>gid</code></dt><dd><p>Unique <code>numeric</code> Group ID. Providing this is optional.</p>
+</dd>
+<dt><code>.Data</code></dt><dd><p>Length/with and direction of the <code>number_line</code> object.</p>
+</dd>
+</dl>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.0.3 <a href="00Index.html">Index</a>]</div>
+</body></html>

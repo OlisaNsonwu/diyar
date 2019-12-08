@@ -1,0 +1,32 @@
+Package: diyar
+Type: Package
+Title: Multistage Record Linkage and Case Definition for
+        Epidemiological Analysis
+Date: 2019-11-09
+Version: 0.0.2
+URL: https://cran.r-project.org/package=diyar
+BugReports: https://github.com/OlisaNsonwu/diyar/issues
+Author: Olisaeloka Nsonwu
+Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
+Description: Perform multistage deterministic linkages, apply case definitions to datasets, and deduplicate records.
+    Records (rows) from datasets are linked by different matching criteria and sub-criteria (columns) in a specified order of certainty. 
+    The linkage process handles missing data and conflicting matches based on this same order of certainty.
+    For episode grouping, rows of dated events (e.g. sample collection) or interval of events (e.g. hospital admission) are 
+    grouped into chronological episodes beginning with a "Case". The process permits several options such as 
+    episode lengths and recurrence periods which are used to build custom preferences for case assignment (definition).
+    The record linkage and episode grouping processes assign unique group IDs to matching records or those grouped into episodes. 
+    This then allows for record deduplication or sub-analysis within these groups.  
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+Imports: methods, utils, rlang, dplyr (>= 0.7.5), lubridate (>= 1.7.4),
+        tidyr (>= 0.8.2)
+RoxygenNote: 6.1.1
+Suggests: ggplot2, janitor, knitr, rmarkdown, testthat, covr
+VignetteBuilder: knitr
+Language: en-GB
+NeedsCompilation: no
+Packaged: 2019-11-10 23:40:23 UTC; Loky
+Repository: CRAN
+Date/Publication: 2019-11-11 08:50:10 UTC
+Built: R 3.6.1; ; 2019-12-04 02:30:44 UTC; windows
