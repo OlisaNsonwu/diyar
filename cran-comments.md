@@ -11,9 +11,6 @@ This is a resubmission. Summary of changes below:
 ## R CMD check results
 There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments. 
 
-There was 1 NOTE:
-Could not eliminate this. Updated maintainer's name.
-
 ## Downstream dependencies
 *Checked downstream dependencies - All passed
 
