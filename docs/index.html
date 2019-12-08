@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.3</span>
       </span>
     </div>
 
@@ -114,7 +114,7 @@ devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumen
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
-<p>There are two main aspects of the <code>diyar</code> package; record and episode grouping, both of which use <code>number_line</code> objects</p>
+<p>There are two main aspects of the <code>diyar</code> package; multistage record grouping (<code><a href="reference/record_group.html">record_group()</a></code>) and episode grouping (<code><a href="reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="reference/episode_group.html">episode_group()</a></code>) for applying case definitions in epidemiological analysis. <code>number_line</code> objects are used for both.</p>
 <ul>
 <li>
 <code>number_line</code> objects - series of real numbers on a number line. These can be manipulated and merged.</li>
@@ -137,7 +137,7 @@ nl
 <span class="co">#&gt; [11] "2019-04-30"</span></code></pre></div>
 <ul>
 <li>
-<code><a href="reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="reference/episode_group.html">episode_group()</a></code> - Group records into chronological episodes for the purpose of record deduplication and implementing case definitions in epidemiological analysis. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes their output from a data.frame (current default) to <code>epid</code> objects. <code>epid</code> objects will be the default output in the next release.</em></strong>
+<code><a href="reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="reference/episode_group.html">episode_group()</a></code> - Group records into chronological episodes. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes their output from a data.frame (current default) to <code>epid</code> objects. <code>epid</code> objects will be the default output in the next release.</em></strong>
 </li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections);
@@ -174,7 +174,7 @@ db[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics
 <span class="co">#&gt; 11 E-10 2018-05-25 -&gt; 2018-05-31 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span></code></pre></div>
 <ul>
 <li>
-<code><a href="reference/record_group.html">record_group()</a></code> - Perform multistage deterministic linkages while addressing missing data with a specified list of alternative matching criteria, or range of values. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes the output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will be the default output in the next release.</em></strong>
+<code><a href="reference/record_group.html">record_group()</a></code> - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes the output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will be the default output in the next release.</em></strong>
 </li>
 </ul>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Two stages of record grouping</span>

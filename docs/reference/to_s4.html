@@ -64,7 +64,7 @@ from the current default (data.frame) to pid or epid objects, and vice versa." /
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.3</span>
       </span>
     </div>
 
@@ -153,8 +153,18 @@ from the current default (<code>data.frame</code>) to <a href='pid-class.html'>p
 <span class='no'>dates</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>$<span class='no'>date</span>
 <span class='no'>output</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episode_group.html'>fixed_episodes</a></span>(<span class='no'>dates</span>, <span class='kw'>case_length</span><span class='kw'>=</span><span class='fl'>30</span>)</div><div class='output co'>#&gt; <span class='message'>The default output of fixed_episodes() will be changed to epid objects in the next release.</span>
 #&gt; <span class='message'>Please consider switching earlier by using 'to_s4=TRUE' or to_s4()</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'># New way - `epid` objects</span>
+#&gt; <span class='message'>df$epids &lt;- fixed_episodes(case_length= df$x, to_s4 = TRUE)</span>
+#&gt; <span class='message'></span>
 #&gt; <span class='message'>This message is displayed once per session.</span></div><div class='output co'>#&gt; <span class='message'>The default output of episode_group() will be changed to epid objects in the next release.</span>
 #&gt; <span class='message'>Please consider switching earlier by using 'to_s4=TRUE' or to_s4()</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'># Old way - merge or bind (col) results back to `df`</span>
+#&gt; <span class='message'>df &lt;- cbind(df, episode_group(df, case_length= x))</span>
+#&gt; <span class='message'></span>
+#&gt; <span class='message'># New way - `epid` objects</span>
+#&gt; <span class='message'>df$epids &lt;- episode_group(df, case_length= x, to_s4 = TRUE)</span>
 #&gt; <span class='message'>This message is displayed once per session.</span></div><div class='output co'>#&gt; Episode or recurrence window 1.
 #&gt; 6 of 11 record(s) grouped into episodes. 5 records not yet grouped.
 #&gt; Episode or recurrence window 2.

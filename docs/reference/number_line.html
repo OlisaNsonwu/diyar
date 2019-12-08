@@ -63,7 +63,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.2.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.0.3</span>
       </span>
     </div>
 
@@ -254,7 +254,7 @@ The direction of the sequence will correspond to that of the <code>number_line</
 <span class='co'># Convert a number line object to its series of real numbers</span>
 <span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>1</span>, <span class='fl'>5</span>))</div><div class='output co'>#&gt; [1] 1 2 3 4 5</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>5</span>, <span class='fl'>1</span>), <span class='fl'>.5</span>)</div><div class='output co'>#&gt; [1] 5.0 4.5 4.0 3.5 3.0 2.5 2.0 1.5 1.0</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"01/04/2019"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"10/04/2019"</span>)), <span class='fl'>1</span>)</div><div class='output co'>#&gt;  [1] "2019-04-01" "2019-04-02" "2019-04-03" "2019-04-04" "2019-04-05"
 #&gt;  [6] "2019-04-06" "2019-04-07" "2019-04-08" "2019-04-09" "2019-04-10"</div><div class='input'>
-<span class='co'># The length of the vector depends on the object class</span>
+<span class='co'># The length of the resulting vector will depend on the object class</span>
 <span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"01/04/2019"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd.html'>dmy</a></span>(<span class='st'>"04/04/2019"</span>)), <span class='fl'>1.5</span>)</div><div class='output co'>#&gt; [1] "2019-04-01" "2019-04-02" "2019-04-04"</div><div class='input'>
 <span class='no'>nl</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"01/04/2019 00:00:00"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"04/04/2019 00:00:00"</span>))
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/head'>head</a></span>(<span class='fu'>number_line_sequence</span>(<span class='no'>nl</span>, <span class='fl'>1.5</span>), <span class='fl'>15</span>)</div><div class='output co'>#&gt;  [1] "2019-04-01 00:00:00 UTC" "2019-04-01 00:00:01 UTC"
