@@ -70,7 +70,7 @@ test_that("test that error and warning messages are returned correctly", {
 test_that("test compress function", {
   expect_equal(compress_number_line(c(number_line(1, 20), number_line(5, 7))), number_line(1,20))
   expect_equal(compress_number_line(c(number_line(20, 1), number_line(5, 7))), number_line(1,20))
-  expect_equal(compress_number_line(c(number_line(2, 5), number_line(3, 3), number_line(6, 7))), c(number_line(2,5, id=1, gid =1), number_line(6,7, id=3, gid =1)))
+  expect_equal(compress_number_line(c(number_line(2, 5), number_line(3, 3), number_line(6, 7))), c(number_line(2,5, id=1, gid =1), number_line(6,7, id=3, gid =3)))
 
   #warnings and errors
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), method = 2), "'method' must be a character object")

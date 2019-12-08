@@ -610,9 +610,9 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = "rolling", rolls_max = NA, episodes_max = NA), "'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf")
   expect_error(episode_group(dft_10, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_type = "rolling"), "'case_length' must be -1 or a positive integer, numeric or double data type")
+                             case_length = epi_len, episode_type = "rolling"), "'case_length' must be positive integer or numeric values")
   expect_error(episode_group(dft_11, date=admin_period, sn=rd_id,
-                             case_length = epi_len, recurrence_length = recur, episode_type = "rolling"), "recurrence_length' must be -1 or a positive integer, numeric or double data type")
+                             case_length = epi_len, recurrence_length = recur, episode_type = "rolling"), "recurrence_length' must be positive integer or numeric values")
 })
 
 t_ds <- hospital_infections

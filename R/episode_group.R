@@ -223,10 +223,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     if(any(duplicated(df[[rd_sn]]))) stop(paste("'sn' must not have duplicate values", sep=""))
   }
 
-  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & all(df[[epl]] >= -1))) stop(paste("'case_length' must be -1 or a positive integer, numeric or double data type", sep=""))
+  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & (min(df[[epl]]) >= 0)))  stop(paste("'case_length' must be positive integer or numeric values", sep=""))
 
   if(!is.null(r_epl)){
-    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & all(df[[r_epl]] >= -1))) stop(paste("'recurrence_length' must be -1 or a positive integer, numeric or double data type", sep=""))
+    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & (min(df[[r_epl]]) >= 0))) stop(paste("'recurrence_length' must be positive integer or numeric values", sep=""))
   }
 
   if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer")) & all(!is.na(df[[dt]])))) stop(paste("'date' must be a date, datetime, numeric or number_line object, and not have missing values", sep=""))
