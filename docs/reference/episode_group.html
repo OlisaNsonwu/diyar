@@ -251,7 +251,7 @@
     <p>Episode grouping begins at a reference record (<code>"Case (C)"</code>) and proceeds forward or backward in time depending on <code>from_last</code>.
 If <code>custom_sort</code> is used, episode grouping can be forced to begin at certain records before proceeding forward or backwards in time.
 The maximum duration of a <code>"fixed"</code> episode is the <code>case_length</code> while, the maximum duration of a <code>"rolling"</code> episode is the
-<code>case_length</code> plus all recurrence periods. A recurrence period is a fixed period (<code>recurrence_length</code>) after the last record of an episode. Records within this period are taken an a <code>"Recurrent (R)"</code> record of the inital <code>"Case"</code></p>
+<code>case_length</code> plus all recurrence periods. A recurrence period is a fixed period (<code>recurrence_length</code>) after the last record of an episode. Records within this period are taken an a <code>"Recurrent (R)"</code> record of the initial <code>"Case"</code></p>
 <p>#' When a <code>data_source</code> identifier is included,
 <code>epid_dataset</code> is included in the output. This lists the source of every record in each record group.</p>
 <p><code>fixed_episodes()</code> and <code>rolling_episodes()</code> are wrapper functions of <code>episode_group()</code>.

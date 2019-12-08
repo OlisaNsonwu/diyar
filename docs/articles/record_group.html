@@ -158,7 +158,7 @@ dbs
 <h2 class="hasAnchor">
 <a href="#record-matching" class="anchor"></a>Record matching</h2>
 <p>The choice and ordering of column names in <code>criteria</code> and <code>sub_criteria</code> determines the relevance of matches. This flexibility allows you to link records in different ways. However, you should always consider the most practical combination to get more true matches than false one.</p>
-<p>For example, in <code>patient_list</code> above, linking on surnames and then sex (<code>pid_b</code>) leads to a different result compared to when linking on sex before surnames (<code>pid_c</code>) (See <a href="#record_expansion">Record group expansion</a>). In <code>pid_b</code>, a match on the invidual’s surname was considered more relevant than a match on their sex. The opposite can be done like in <code>pid_c</code> below.</p>
+<p>For example, in <code>patient_list</code> above, linking on surnames and then sex (<code>pid_b</code>) leads to a different result compared to when linking on sex before surnames (<code>pid_c</code>) (See <a href="#record_expansion">Record group expansion</a>). In <code>pid_b</code>, a match on the individual’s surname was considered more relevant than a match on their sex. The opposite can be done like in <code>pid_c</code> below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span>  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(sex, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
@@ -530,7 +530,7 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <span class="co">#&gt; 3 ""       Abdul       P-3 (No Hit) P-3 (No Hit)</span>
 <span class="co">#&gt; 4 Tomi     Abdulkareem P-4 (No Hit) P-4 (No Hit)</span>
 <span class="co">#&gt; 5 ""       &lt;NA&gt;        P-5 (No Hit) P-5 (No Hit)</span></code></pre></div>
-<p>Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching crietria. For example, using surname initials or surname soundex instead of the actual surname.</p>
+<p>Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching critetria. For example, using surname initials or surname soundex instead of the actual surname.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(phonics)
 
 patient_list_<span class="dv">2</span><span class="op">$</span>soundex &lt;-<span class="st"> </span><span class="kw">soundex</span>(patient_list_<span class="dv">2</span><span class="op">$</span>surname)

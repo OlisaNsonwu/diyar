@@ -59,7 +59,7 @@ dbs
 ##Record matching
 The choice and ordering of column names in `criteria` and `sub_criteria` determines the relevance of matches. This flexibility allows you to link records in different ways. However, you should always consider the most practical combination to get more true matches than false one.
 
-For example, in `patient_list` above, linking on surnames and then sex (`pid_b`) leads to a different result compared to when linking on sex before surnames (`pid_c`) (See [Record group expansion](#record_expansion)). In `pid_b`, a match on the invidual's surname was considered more relevant than a match on their sex. The opposite can be done like in `pid_c` below. 
+For example, in `patient_list` above, linking on surnames and then sex (`pid_b`) leads to a different result compared to when linking on sex before surnames (`pid_c`) (See [Record group expansion](#record_expansion)). In `pid_b`, a match on the individual's surname was considered more relevant than a match on their sex. The opposite can be done like in `pid_c` below. 
 
 ```{r warning=FALSE, message=FALSE}
 dbs$pids_c <- record_group(dbs, criteria =  c(sex, surname), display = FALSE, to_s4 = TRUE)
@@ -239,7 +239,7 @@ patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, surname
 patient_list_2[c("forename","surname","pids_d","pids_e")]
 ```
 
-Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching crietria. For example, using surname initials or surname soundex instead of the actual surname.
+Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching critetria. For example, using surname initials or surname soundex instead of the actual surname.
 
 ```{r warning=FALSE, message=FALSE}
 library(phonics)
