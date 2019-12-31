@@ -166,7 +166,7 @@ as.epid <- function(x){
 #' @export
 format.epid <- function(x, ...){
   if (length(x)==0) "epid(0)"
-  else return(paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1), ")", sep=""))
+  else return(paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1), ")", sep=""))
 }
 
 #' @rdname epid-class
@@ -267,8 +267,8 @@ as.pid <- function(x, ...){
 #' @export
 format.pid <- function(x, ...){
   if (length(x)==0) "pid(0)"
-  else return(paste("P-", formatC(x@.Data, width= nchar(max(x@.Data)), flag="0"), " (",
-                    ifelse(x@pid_cri==0,"No Hit", paste("CRI ", formatC(x@pid_cri, width = 2, flag=0), sep="")),
+  else return(paste("P-", formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), " (",
+                    ifelse(x@pid_cri==0,"No Hit", paste("CRI ", formatC(x@pid_cri, width = 2, flag=0, format = "fg"), sep="")),
                     ")", sep=""))
 }
 
