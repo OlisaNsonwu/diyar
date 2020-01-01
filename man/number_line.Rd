@@ -39,7 +39,8 @@ shift_number_line(x, by = 1)
 expand_number_line(x, by = 1, point = "both")
 
 compress_number_line(x, method = c("across", "chain", "aligns_start",
-  "aligns_end", "inbetween"), collapse = FALSE, deduplicate = TRUE)
+  "aligns_end", "inbetween"), collapse = FALSE, deduplicate = TRUE,
+  methods = "across|chain|aligns_start|aligns_end|inbetween")
 
 number_line_sequence(x, by = 1)
 }

@@ -230,12 +230,25 @@ expand_number_line <- function(x, by=1, point ="both"){
 #'
 #' @export
 
-compress_number_line <- function(x, method = c("across","chain","aligns_start","aligns_end","inbetween"), collapse =FALSE, deduplicate = TRUE){
+compress_number_line <- function(x, method = c("across","chain","aligns_start","aligns_end","inbetween"), collapse =FALSE, deduplicate = TRUE, methods = "across|chain|aligns_start|aligns_end|inbetween"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(!(is.logical(collapse) & is.logical(deduplicate) )) stop(paste("'collapse' and 'deduplicate' must be TRUE or FALSE"))
   if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
   if(!(length(collapse) %in% c(1, length(x)))) stop(paste("length of 'collapse' must be 1 or the same as 'x'",sep=""))
+  if(!(length(methods) %in% c(1, length(x)))) stop(paste("length of 'methods' must be 1 or the same as 'x' or 'y'",sep=""))
+  o <- unique(unlist(strsplit(methods, split="\\|")))
+  o <- o[!o %in% c("across","chain","aligns_start","aligns_end","inbetween")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+                              "Syntax ~ \"method1|method2|method3...\" \n",
+                              "                 OR                   \n",
+                              "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
+  if(missing(methods) & !missing(method)) {
+    m <- paste(method,sep="", collapse = "|")
+    warning("'method' is deprecated. Please use 'methods' instead.")
+  }else{
+    m <- methods
+  }
 
   if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
   x <- diyar::reverse_number_line(x, "decreasing")
@@ -245,7 +258,7 @@ compress_number_line <- function(x, method = c("across","chain","aligns_start","
   if(length(collapse)==1) collapse <- rep(collapse, length(x))
   while (min(t) ==0 & j<=length(x)){
     l <- x[t==0][1]
-    h <- (x@id == l@id | diyar::overlap(l, x, method=method)) & ifelse(collapse, TRUE, (t!=1))
+    h <- (x@id == l@id | diyar::overlap(x, l, methods=m)) & ifelse(collapse, TRUE, (t!=1))
     x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
     x[which(h)]@gid <- sort(x[which(h),])[1]@id

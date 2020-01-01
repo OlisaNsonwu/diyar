@@ -11,13 +11,14 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
-  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
-  deduplicate = FALSE, to_s4 = FALSE)
+  overlap_methods = NULL, bi_direction = FALSE, group_stats = FALSE,
+  display = TRUE, deduplicate = FALSE, to_s4 = FALSE)
 
 fixed_episodes(date, sn = NULL, strata = NULL, case_length,
   episode_unit = "days", episodes_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
+  overlap_methods = "across|chain|aligns_start|aligns_end|inbetween",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
   deduplicate = FALSE, x, to_s4 = FALSE)
 
@@ -26,6 +27,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   episodes_max = Inf, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("across",
   "inbetween", "aligns_start", "aligns_end", "chain"),
+  overlap_methods = "across|chain|aligns_start|aligns_end|inbetween",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
   deduplicate = FALSE, x, to_s4 = FALSE)
 }
@@ -56,7 +58,9 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.}
 
-\item{overlap_method}{A set of ways for grouped intervals to overlap. Options are; \code{"across"}, \code{"aligns_start"}, \code{"aligns_end"}, \code{"inbetween"}, \code{"chain"}. See \code{\link{overlap}} functions.}
+\item{overlap_method}{Method of overlap considered when grouping intervals. Check multiple pairs of intervals by the same \code{overlap_method}. Deprecated use \code{overlap_methods} instead.}
+
+\item{overlap_methods}{Methods of overlap considered when grouping intervals. Check multiple pairs of intervals by the different \code{overlap_methods}}
 
 \item{bi_direction}{If \code{FALSE}, \code{"Duplicate (D)"} records will be those within the \code{case_length} period, before or after the \code{"Case (C)"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate (D)"} records will be those within the same period before and after the \code{"Case (C)"}.}
 
