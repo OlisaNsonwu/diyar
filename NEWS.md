@@ -7,9 +7,11 @@ New feature
 
 Changes
 -------
+- `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - Negative numeric values now accepted for  `case_length` and `recurrence_length`.
 
 Bug fixes
 ---------
+- [#8](https://github.com/OlisaNsonwu/diyar/issues/8) - Minor aesthetic correction to the display formats of `pid` and `epid` objects
 
 Version 0.0.3
 =============

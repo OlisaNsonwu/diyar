@@ -225,10 +225,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     if(any(duplicated(df[[rd_sn]]))) stop(paste("'sn' must not have duplicate values", sep=""))
   }
 
-  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric")) & (min(df[[epl]]) >= 0)))  stop(paste("'case_length' must be positive integer or numeric values", sep=""))
+  if(!( any(class(df[[epl]]) %in% c("integer","double","numeric"))))  stop(paste("'case_length' must be integer or numeric values", sep=""))
 
   if(!is.null(r_epl)){
-    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")) & (min(df[[r_epl]]) >= 0))) stop(paste("'recurrence_length' must be positive integer or numeric values", sep=""))
+    if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")))) stop(paste("'recurrence_length' must be integer or numeric values", sep=""))
   }
 
   if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer")) & all(!is.na(df[[dt]])))) stop(paste("'date' must be a date, datetime, numeric or number_line object, and not have missing values", sep=""))
@@ -549,7 +549,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
   if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
   if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
-  if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be positive integer or numeric values",sep=""))
+  if(!all(is.finite(case_length)) ) stop(paste("'case_length' must be integer or numeric values",sep=""))
   if(!all(is.finite(date))) stop(paste("All 'date' values must be a date, datetime, numeric or number_line object",sep=""))
   if(!(length(case_length) %in% c(1, length(date)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
   if(!(length(strata) %in% c(1, length(date)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'date'",sep=""))
@@ -618,8 +618,8 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
   if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
   if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
-  if(!all(is.finite(case_length) & case_length >= 0) ) stop(paste("'case_length' must be positive integer or numeric values",sep=""))
-  if(!(all(is.finite(recurrence_length) & recurrence_length >= 0) | is.null(recurrence_length)) ) stop(paste("'recurrence_length' must be positive integer or numeric values",sep=""))
+  if(!all(is.finite(case_length)) ) stop(paste("'case_length' must be integer or numeric values",sep=""))
+  if(!(all(is.finite(recurrence_length)) | is.null(recurrence_length)) ) stop(paste("'recurrence_length' must be integer or numeric values",sep=""))
   if(!all(is.finite(date))) stop(paste("All 'date' values must be a date, datetime, numeric or number_line object",sep=""))
   if(!(length(case_length) %in% c(1, length(date)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
   if(!(length(recurrence_length) %in% c(1, length(date)) | (length(recurrence_length) ==0 & is.null(recurrence_length)))) stop(paste("length of 'recurrence_length' must be 1 or the same as 'date'",sep=""))
