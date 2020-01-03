@@ -24,8 +24,6 @@ overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
-  #if(!(length(x) %in% c(1, length(y)))) stop(paste("length of 'x' must be 1 or the same as 'y'",sep=""))
-  if(!(length(methods) %in% c(1, length(x)))) stop(paste("length of 'methods' must be 1 or the same as 'x'",sep=""))
   o <- unique(unlist(strsplit(methods, split="\\|")))
   o <- o[!o %in% c("across","chain","aligns_start","aligns_end","inbetween")]
   if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
@@ -39,14 +37,19 @@ overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end
     m <- methods
   }
 
-  c <- rep(F, length(x))
-  if(length(m)==1) m <- rep(m, length(x))
-  c <- ifelse(grepl("across", tolower(m)) & c == F, diyar::across(x, y),c)
-  c <- ifelse(grepl("chain", tolower(m)) & c == F, diyar::chain(x, y),c)
-  c <- ifelse(grepl("aligns_start", tolower(m)) & c == F, diyar::aligns_start(x, y),c)
-  c <- ifelse(grepl("aligns_end", tolower(m)) & c == F, diyar::aligns_end(x, y),c)
-  c <- ifelse(grepl("inbetween", tolower(m)) & c == F, diyar::inbetween(x, y),c)
-  c <- ifelse(grepl("across", tolower(m)) & c == F, diyar::across(x, y),c)
+  if(length(x) != length(y) & (max(length(x), length(y))/min(length(x), length(y))) %% 1 !=0 ) warning("\n  length('x') != length('y')\n  longer object length is not a multiple of shorter object length")
+  if(!all(c(length(x),length(y) %in% length(m))) &
+     ((max(length(m), length(y))/min(length(m), length(y))) %% 1 !=0 |
+      (max(length(m), length(x))/min(length(m), length(x))) %% 1 !=0
+     )) warning("\n  length('method') != length('y') OR length('method') != length('x')\n  longer object length is not a multiple of shorter object length")
+
+  c <- rep(F, max(length(x), length(y)))
+  c <- suppressWarnings(ifelse(grepl("across", tolower(m)) & c == F, diyar::across(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("chain", tolower(m)) & c == F, diyar::chain(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("aligns_start", tolower(m)) & c == F, diyar::aligns_start(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("aligns_end", tolower(m)) & c == F, diyar::aligns_end(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("inbetween", tolower(m)) & c == F, diyar::inbetween(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("across", tolower(m)) & c == F, diyar::across(x, y),c))
 
   return(c)
 }
@@ -159,9 +162,9 @@ overlap_method <- function(x, y){
 #' @export
 include_overlap_method <- function(methods){
   lst <- c( "across", "chain", "aligns_start", "aligns_end", "inbetween")
-  method <- method[method %in% lst]
-  method <- paste(method,sep="", collapse = "|")
-  method
+  methods <- methods[methods %in% lst]
+  methods <- paste(methods,sep="", collapse = "|")
+  methods
 }
 
 #' @rdname overlap
@@ -171,8 +174,8 @@ include_overlap_method <- function(methods){
 #' @export
 exclude_overlap_method <- function(methods){
   lst <- c( "across", "chain", "aligns_start", "aligns_end", "inbetween")
-  method <- lst[!lst %in% method]
-  method <- paste(method,sep="", collapse = "|")
-  method
+  methods <- lst[!lst %in% methods]
+  methods <- paste(methods,sep="", collapse = "|")
+  methods
 }
 

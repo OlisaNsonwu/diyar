@@ -61,11 +61,13 @@ number_line_sequence(x, by = 1)
 
 \item{point}{\code{"start"} or \code{"start"} point}
 
-\item{method}{Method of overlap}
+\item{method}{Method of overlap. Check multiple pairs of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.}
 
 \item{collapse}{If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps}
 
 \item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object among duplicates}
+
+\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different \code{methods}}
 }
 \value{
 \code{number_line} object

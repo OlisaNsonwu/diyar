@@ -82,3 +82,16 @@ test_that("test compress function", {
 
 
 })
+
+test_that("test set overlap functions", {
+  expect_equal(exclude_overlap_method(""),"across|chain|aligns_start|aligns_end|inbetween")
+  expect_equal(exclude_overlap_method("chain"),"across|aligns_start|aligns_end|inbetween")
+  expect_equal(exclude_overlap_method(c("chain","aligns_end")),"across|aligns_start|inbetween")
+  expect_equal(include_overlap_method(""),"")
+  expect_equal(include_overlap_method("chain"),"chain")
+  expect_equal(include_overlap_method(c("chain","aligns_end")),"chain|aligns_end")
+
+  # errors
+  expect_error(overlap(number_line(6, 7), number_line(3, 3), methods = rep(exclude_overlap_method(""), 3))  , "length of 'methods' must be 1 or the same as 'x'")
+
+})
