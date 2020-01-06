@@ -153,7 +153,7 @@
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
-                          custom_sort = NULL, from_last=FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"),
+                          custom_sort = NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                           overlap_methods = NULL, bi_direction = FALSE,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = FALSE){
   . <- NULL
@@ -191,7 +191,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
-  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(all(!tolower(overlap_method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
   if(!((is.infinite(rolls_max) | is.integer(rolls_max) ) & (is.infinite(episodes_max) | is.integer(episodes_max)) & length(rolls_max)==1 & length(episodes_max)==1) ) stop(paste("'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf"))
 
   if(length(episode_type)!=1 | !is.character(episode_type)) stop(paste("'episode_type' must be a character of length 1"))
@@ -288,15 +288,15 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     warning("'overlap_method' is deprecated. Please use 'overlap_method' instead.")
   }else{
     if(is.null(methods)){
-      df$methods <- "across|chain|aligns_start|aligns_end|inbetween"
+      df$methods <- "exact|across|chain|aligns_start|aligns_end|inbetween"
     }else {
       df$methods <- df[[methods]]
     }
   }
 
   o <- unique(unlist(strsplit(df$methods, split="\\|")))
-  o <- o[!o %in% c("across","chain","aligns_start","aligns_end","inbetween")]
-  if (length(o)>0) stop(paste("\n'", "Valid 'overlap_methods' are 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+  o <- o[!o %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'overlap_methods' are 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
@@ -546,7 +546,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' @export
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
-                           from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "across|chain|aligns_start|aligns_end|inbetween",
+                           from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = FALSE){
   if(to_s4 == FALSE){
     if (is.null(getOption("diyar.fixed_episodes.output"))){
@@ -568,7 +568,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
     }
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
-  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(all(!tolower(overlap_method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
   if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
   if(!all(is.finite(case_length)) ) stop(paste("'case_length' must be integer or numeric values",sep=""))
   if(!all(is.finite(date))) stop(paste("All 'date' values must be a date, datetime, numeric or number_line object",sep=""))
@@ -579,8 +579,8 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 
   if(!(length(overlap_methods) %in% c(1, length(date)))) stop(paste("length of 'overlap_methods' must be 1 or the same as 'date'",sep=""))
   o <- unique(unlist(strsplit(overlap_methods, split="\\|")))
-  o <- o[!o %in% c("across","chain","aligns_start","aligns_end","inbetween")]
-  if (length(o)>0) stop(paste("\n'", "Valid 'overlap_methods' are 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+  o <- o[!o %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'overlap_methods' are 'exact','across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
@@ -629,7 +629,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 #' @rdname episode_group
 #' @export
 rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, data_source = NULL, custom_sort = NULL,
-                           from_last = FALSE, overlap_method = c("across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "across|chain|aligns_start|aligns_end|inbetween",
+                           from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = FALSE){
 
   if(to_s4 == FALSE){
@@ -652,7 +652,7 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   }
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
-  if(all(!tolower(overlap_method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(all(!tolower(overlap_method) %in% c("exact","across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
   if(!(is.logical(from_last) & is.logical(display) & is.logical(deduplicate) )) stop(paste("'from_last', 'deduplicate' and 'display' must be TRUE or FALSE"))
   if(!all(is.finite(case_length)) ) stop(paste("'case_length' must be integer or numeric values",sep=""))
   if(!(all(is.finite(recurrence_length)) | is.null(recurrence_length)) ) stop(paste("'recurrence_length' must be integer or numeric values",sep=""))
@@ -665,8 +665,8 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
   if(!(length(overlap_methods) %in% c(1, length(date)))) stop(paste("length of 'overlap_methods' must be 1 or the same as 'date'",sep=""))
   o <- unique(unlist(strsplit(overlap_methods, split="\\|")))
-  o <- o[!o %in% c("across","chain","aligns_start","aligns_end","inbetween")]
-  if (length(o)>0) stop(paste("\n'", "Valid 'overlap_methods' are 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+  o <- o[!o %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'overlap_methods' are 'exact','across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))

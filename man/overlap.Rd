@@ -2,6 +2,7 @@
 % Please edit documentation in R/overlap.R
 \name{overlap}
 \alias{overlap}
+\alias{exact}
 \alias{across}
 \alias{chain}
 \alias{aligns_start}
@@ -15,6 +16,8 @@
 overlap(x, y, method = c("across", "chain", "aligns_start", "aligns_end",
   "inbetween"),
   methods = "across|chain|aligns_start|aligns_end|inbetween")
+
+exact(x, y)
 
 across(x, y)
 
@@ -56,6 +59,8 @@ c <- number_line(100, 200)
 d <- number_line(100, 120)
 e <- number_line(50, 120)
 g <- number_line(100,100)
+exact(a, g)
+exact(a, a)
 across(a, b)
 across(a, e)
 chain(c, d)
