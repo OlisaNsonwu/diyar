@@ -4,8 +4,8 @@
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
-#' @param method Method of overlap. Check multiple pairs of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.
-#' @param methods Methods of overlap. Check multiple pairs of \code{number_line} objects with the different \code{methods}
+#' @param method Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.
+#' @param methods Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}
 #' @aliases overlap
 #' @return \code{logical} object
 #'

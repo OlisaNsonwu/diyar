@@ -13,9 +13,9 @@
 \alias{exclude_overlap_method}
 \title{Overlapping number line objects}
 \usage{
-overlap(x, y, method = c("across", "chain", "aligns_start", "aligns_end",
-  "inbetween"),
-  methods = "across|chain|aligns_start|aligns_end|inbetween")
+overlap(x, y, method = c("exact", "across", "chain", "aligns_start",
+  "aligns_end", "inbetween"),
+  methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
 
 exact(x, y)
 
@@ -40,9 +40,9 @@ exclude_overlap_method(methods)
 
 \item{y}{\code{number_line} object}
 
-\item{method}{Method of overlap. Check multiple pairs of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.}
+\item{method}{Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.}
 
-\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different \code{methods}}
+\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}}
 }
 \value{
 \code{logical} object

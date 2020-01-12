@@ -15,8 +15,8 @@
 #' @param rolls_max Maximum number of times an event can reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources. \code{\link{episode_group}} support the use of multiple columns supplied as column names.
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.
-#' @param overlap_method Method of overlap considered when grouping intervals. Check multiple pairs of intervals by the same \code{overlap_method}. Deprecated use \code{overlap_methods} instead.
-#' @param overlap_methods Methods of overlap considered when grouping intervals. Check multiple pairs of intervals by the different \code{overlap_methods}
+#' @param overlap_method Method of overlap considered when grouping intervals. Each pair of intervals are checked by the same set of \code{overlap_method}. Deprecated use \code{overlap_methods} instead.
+#' @param overlap_methods Methods of overlap considered when grouping intervals. Different pairs of intervals can be check by different sets \code{overlap_methods}
 #' @param custom_sort If \code{TRUE}, \code{"Case (C)"} assignment will be done with preference to this sort order. Useful in specifying that episode grouping begins at particular records regardless of chronological order. \code{\link{episode_group}} supports the use of multiple columns supplied as column names.
 #' @param bi_direction If \code{FALSE}, \code{"Duplicate (D)"} records will be those within the \code{case_length} period, before or after the \code{"Case (C)"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate (D)"} records will be those within the same period before and after the \code{"Case (C)"}.
 #' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.

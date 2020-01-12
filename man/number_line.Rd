@@ -38,9 +38,10 @@ shift_number_line(x, by = 1)
 
 expand_number_line(x, by = 1, point = "both")
 
-compress_number_line(x, method = c("across", "chain", "aligns_start",
-  "aligns_end", "inbetween"), collapse = FALSE, deduplicate = TRUE,
-  methods = "across|chain|aligns_start|aligns_end|inbetween")
+compress_number_line(x, method = c("exact", "across", "chain",
+  "aligns_start", "aligns_end", "inbetween"), collapse = FALSE,
+  deduplicate = TRUE,
+  methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
 
 number_line_sequence(x, by = 1)
 }
@@ -61,13 +62,13 @@ number_line_sequence(x, by = 1)
 
 \item{point}{\code{"start"} or \code{"start"} point}
 
-\item{method}{Method of overlap. Check multiple pairs of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.}
+\item{method}{Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.}
 
 \item{collapse}{If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps}
 
 \item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object among duplicates}
 
-\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different \code{methods}}
+\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}}
 }
 \value{
 \code{number_line} object

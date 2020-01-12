@@ -217,8 +217,8 @@ expand_number_line <- function(x, by=1, point ="both"){
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 #'
-#' @param method Method of overlap. Check multiple pairs of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.
-#' @param methods Methods of overlap. Check multiple pairs of \code{number_line} objects with the different \code{methods}
+#' @param method Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.
+#' @param methods Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}
 #' @param collapse If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps
 #' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object among duplicates
 #' @examples
