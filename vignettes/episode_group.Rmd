@@ -272,28 +272,30 @@ In this section we discuss the process of grouping periods of events into episod
 Below are simple examples;
 
 ```{r message=FALSE, warning=FALSE}
-dbs <- tibble(date=c("01/04/2019", "05/04/2019"))
+dates <- as.Date(c("01/04/2019", "05/04/2019"), "%d/%M/%Y")
+dates
 
-dbs$date <- as.Date(dbs$date, "%d/%M/%Y")
-
-# 10-day periods beginning with the `date`
-dbs$period <- number_line(dbs$date, dbs$date + 10)
-
-dbs
+# A 10-day period from each date
+periods <- number_line(dates, dates + 10)
+periods
 
 # Grouping events
-fixed_episodes(date=dbs$date, case_length=30, to_s4=TRUE, display=FALSE, group_stat=TRUE)
+fixed_episodes(date=dates, case_length=30, to_s4=TRUE, display=FALSE, group_stat=TRUE)
 
-# Grouping the 10-day periods
-fixed_episodes(date=dbs$period, case_length=30, to_s4=TRUE, display=FALSE, group_stat=TRUE)
+# Grouping periods
+fixed_episodes(date=periods, case_length=30, to_s4=TRUE, display=FALSE, group_stat=TRUE)
 ```
 
-As a practical example, we will group periods of hospital stay into episodes. This is different from grouping the actual admission or discharge events.
+Notice that when two periods/intervals overlap they are merged into one. This new period will envelope the two overlapped periods/intervals i.e. start of one and end of the other.
+
+For a practical example, below are periods of hospital stay which are grouped into episodes - in this context defined as hospital spells. This is different from grouping the actual admission or discharge events.
 
 ```{r message=FALSE, warning=FALSE}
-hos_admin <- diyar::hospital_admissions; hos_admin
+hos_admin <- diyar::hospital_admissions
 
 hos_admin$admin_period <- number_line(hos_admin$admin_dt, hos_admin$discharge_dt)
+
+hos_admin
 
 # Grouping the actual admissions into episodes
 fixed_episodes(date=hos_admin$admin_dt, sn=hos_admin$rd_id, case_length=0, 
@@ -305,214 +307,174 @@ fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length = 0,
 
 ```
 
-Periods are grouped into the same episode if they overlap. Since this can happen in different ways, you can choose which methods (`overlap_method`) should be considered in your analysis. The options available are; `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all. Below are examples demonstrating each method.
+Since periods can overlap in different ways, you can choose from a set of methods (`overlap_methods`) which should be considered in your analysis. The options available are; `"exact"`, `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all. Below are examples demonstrating each method.
 
 ```{r warning=FALSE}
-# Overlapping intervals
-across <- fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length = 0, 
-               overlap_method = "across", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+# wrapper function to use with lapply
+epi_grp_func <- function(x){
+  fixed_episodes(date=hos_admin$admin_period, 
+                 sn=hos_admin$rd_id, 
+                 case_length = 0, 
+                 overlap_methods = x, 
+                 display = FALSE, 
+                 to_s4 = TRUE, 
+                 group_stats = TRUE)
+}
 
-across
+# Methods 
+methods <- list(
+  # Identical intervals
+  exact = "exact",
+  # Overlapping intervals
+  across= "across",
+  # Intervals with aligned start points
+  aligns_start = "aligns_start",
+  # Intervals with aligned end points
+  aligns_end = "aligns_end",
+  # Chained intervals
+  chain = "chain",
+  # Intervals occurring completely within others
+  inbetween = "inbetween",
+  # Chained intervals and those occurring completely within others
+  cb1 = "chain|inbetween",
+  # Chained intervals, identical intervals and those occurring completely within others
+  cb2 = "exact|chain|inbetween",
+  # Chained intervals, identical intervals and those with aligned end point
+  cb3 = "across|chain|aligns_end"
+)
 
-# Chained intervals
-chain <- fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length = 0, 
-               overlap_method = "chain", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids <- lapply(methods, epi_grp_func)
+names(epids) <- names(methods)
 
-chain
+# Results
+epids["chain"]
 
-# Intervals with aligned end points
-aligns_end <- fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length = 0, 
-               overlap_method = "aligns_end", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids["cb2"]
 
-aligns_end
-
-# Intervals with aligned start points
-aligns_start <- fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length=0, 
-               overlap_method = "aligns_start", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
-
-aligns_start
-
-# Intervals occurring completely within others
-inbetween <- fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length = 0, 
-               overlap_method = "inbetween", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
-
-inbetween
-
-# Chained intervals and those occurring completely within others
-chain_inbetween <- fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length = 0, 
-               overlap_method = c("chain","inbetween"), display = FALSE, to_s4 = TRUE, group_stats = TRUE)
-
-chain_inbetween
-
+# All results in the figure below  
 ```
 
-**Figure 2: Different options for `overlap_method` using a case_length of `"0"` days.**
-```{r echo=FALSE, fig.height=5, fig.width=8, message=FALSE, warning=FALSE}
-across <- cbind(hos_admin, to_df(across))
-chain <- cbind(hos_admin, to_df(chain))
-aligns_start <- cbind(hos_admin, to_df(aligns_start))
-chain_inbetween <- cbind(hos_admin, to_df(chain_inbetween))
-inbetween <- cbind(hos_admin, to_df(inbetween))
-aligns_end <- cbind(hos_admin, to_df(aligns_end))
-
-plot <- rbind(
-  mutate(across, method="across"),
-  mutate(chain, method="chain"),
-  mutate(aligns_start, method="aligns_start"),
-  mutate(aligns_end, method="aligns_end"),
-  mutate(inbetween, method="inbetween"), 
-  mutate(chain_inbetween, method="chain and inbetween")
+**Figure 2: Different options for `overlap_methods`**
+```{r echo=FALSE, fig.height=5.8, fig.width=8, message=FALSE, warning=FALSE}
+clean_func <- function(x, e){
+  k <- cbind(hos_admin, diyar::to_df(x))
+  k <- k[k$epid_total >1,]
+  k <- left_join(
+    rename(k[k$case_nm=="Case", c("epid","admin_period")], a = admin_period),
+    k, by="epid"
   )
 
-plot <- mutate(plot,
-  mrk=paste(epid, method,sep="_"),
-  admin_dt = dmy(format(left_point(admin_period), "%d/%m/%Y")),
-  discharge_dt = dmy(format(right_point(admin_period), "%d/%m/%Y"))
-  ) %>% select(-admin_period)
+  k$om <- overlap_method(k$admin_period, k$a)
+  k <- select(k, sn, admin_dt, discharge_dt, epid, case_nm, om)
+  k$len_dt <- k$discharge_dt + e
+  k$e_len <- k$discharge_dt - k$admin_dt
+  k <- gather(k, var, val, -c(epid, case_nm, om, sn, e_len))
+  k$sn <- as.character(k$sn)
+  k$epid <- as.character(k$epid)
+  k
+}
 
-plot <- dplyr::arrange(plot, .data$mrk)
-plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)
+epids_df <- lapply(epids, function(x){
+  clean_func(x, 0)
+})
 
-plot <- plot %>%
-  mutate(epid_2 = paste(method, ": epid ",epid, sep="" )) %>% 
-  select(rd_id, epid, epid_2, admin_dt, discharge_dt, method, N, epid, case_nm) %>%
-  filter(N>1) %>%
-  select(rd_id, admin_dt, discharge_dt, method, epid, epid_2, case_nm) %>%
-  gather(var, val, -c(rd_id, method, epid, epid_2, case_nm)) %>%
-  mutate(
-    rd_id = as.character(rd_id), 
-    lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
-    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "inbetween", "chain and inbetween"))
-    )
 
-ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
-  geom_line(aes(colour=epid_2)) +
+epids_db <- NULL
+for(i in 1:length(epids_df)){
+  epids_df[[i]]$grp <- names(epids_df[i])
+  epids_db <- rbind(epids_db, epids_df[[i]])
+}
+
+epids_db$label <- ifelse(epids_db$var!="admin_dt", "", epids_db$case_nm)
+epids_db$col <- paste(epids_db$grp, epids_db$epid, sep="_")
+
+epids_db$grp_l <- factor(epids_db$grp, levels = c("exact", "across","aligns_start","aligns_end","chain", "inbetween", "cb1", "cb2", "cb3"))
+
+ggplot(epids_db[epids_db$var!="len_dt",], aes(x=val, y=sn, group=sn, colour=col)) +
+  geom_line(aes(colour=col)) +
   geom_point() +
-  geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
+  geom_text(aes(hjust="right", label=label), nudge_x = -2, nudge_y = .05, show.legend = FALSE, size =3) +
+  # geom_text(aes(hjust="left", label=match_cd), nudge_x = -1.5, nudge_y = .22, show.legend = FALSE, size=3) +
   scale_y_discrete("Record ID") +
   scale_x_date("Admitted period", limits = c(dmy("15/12/2018"), dmy("10/02/2019")), date_breaks = "20 days", date_labels = "%d %b") +
-  guides(col = guide_legend(nrow = 2)) +
-  facet_wrap(~method, scales = "free_y") +
+  guides(col = guide_legend(nrow = 3)) +
+  facet_wrap(~grp_l, scales = "free_y") +
   theme(
     strip.background = element_rect(fill="transparent"),
     axis.line = element_line(colour = "black"),
     panel.grid = element_blank(),
-    legend.position = "bottom",
-    legend.title = element_blank()
+    legend.position="none"
   )
 
+
 ```
+
+`case_length` in interval grouping is used in a similar manner. A negative `case_length` shortens the `"Case (C)"` interval before comparing it with other intervals. See results below (grouped episodes only).
 
 ```{r warning=FALSE, include=FALSE}
+epi_grp_func2 <- function(f){
+  fixed_episodes(date=hos_admin$admin_period, 
+                 sn=hos_admin$rd_id, 
+                 case_length = f, 
+                 overlap_methods = "inbetween", 
+                 display = FALSE, 
+                 to_s4 = TRUE, 
+                 group_stats = TRUE)
+}
 
-# Overlapping intervals
-ha2 <- hos_admin
-ha2$epi_len <- 30
-ha2$shift <- ifelse(ha2$rd_id %in% c(2,8,5,7), 0, 30)
-ha2$admin_period <- shift_number_line(ha2$admin_period, duration(ha2$shift, "days"))
 
-# Overlapping intervals
-across <- fixed_episodes(date=ha2$admin_period, sn=ha2$rd_id, case_length = 30, 
-               overlap_method = "across", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids2 <- lapply(29, epi_grp_func2) 
+epids_df2 <- lapply(epids2, function(x){
+  clean_func(x, 29)
+})
 
-# Chained intervals
-chain <- fixed_episodes(date=ha2$admin_period, sn=ha2$rd_id, case_length = 30, 
-               overlap_method = "chain", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids3 <- lapply(-1, epi_grp_func2) 
+epids_df3 <- lapply(epids3, function(x){
+  clean_func(x, -1)
+})
 
-# Intervals with aligned end points
-aligns_end <- fixed_episodes(date=ha2$admin_period, sn=ha2$rd_id, case_length = 30, 
-               overlap_method = "aligns_end", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids4 <- lapply(-3, epi_grp_func2) 
+epids_df4 <- lapply(epids4, function(x){
+  clean_func(x, -3)
+})
 
-# Intervals with aligned start points
-aligns_start <- fixed_episodes(date=ha2$admin_period, sn=ha2$rd_id, case_length = 30, 
-               overlap_method = "aligns_start", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids_df2[2] <- epids_df4[1]  
+epids_df2[3] <- epids_df3[1]
 
-# Intervals occurring completely within others
-inbetween <- fixed_episodes(date=ha2$admin_period, sn=ha2$rd_id, case_length = 30, 
-               overlap_method = "inbetween", display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+names(epids_df2) <- c("a","b","c")
+epids_db2 <- NULL
+for(i in 1:length(epids_df2)){
+  epids_df2[[i]]$grp <- names(epids_df2[i])
+  epids_db2 <- rbind(epids_db2, epids_df2[[i]])
+}
 
-# Chained intervals and those occurring completely within others
-chain_inbetween <- fixed_episodes(date=ha2$admin_period, sn=ha2$rd_id, case_length = 30, 
-               overlap_method = c("chain","inbetween"), display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids_db2$label <- ifelse(epids_db2$var!="admin_dt", "", epids_db2$case_nm)
+epids_db2$col <- paste(epids_db2$grp, epids_db2$epid, sep="_")
 
-# Chained intervals and those with aligned end points
-chain_aligns_end <- fixed_episodes(date=ha2$admin_period, sn=ha2$rd_id, case_length = 30, 
-               overlap_method = c("chain","aligns_end"), display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+epids_db2$grp_l <- factor(epids_db2$grp, levels = c("a","c","b"), labels = c("inbetween: 30-day episode length","inbetween: -1-day episode length","inbetween: -4-day episode length"))
 
 ```
 
-**Figure 3: Different options for `overlap_method` using a case_length of `"30"` days**
-```{r echo=FALSE, fig.height=5.5, fig.width=8, message=FALSE, warning=FALSE}
-across <- cbind(ha2, to_df(across))
-chain <- cbind(ha2, to_df(chain))
-aligns_start <- cbind(ha2, to_df(aligns_start))
-chain_inbetween <- cbind(ha2, to_df(chain_inbetween))
-chain_aligns_end <- cbind(ha2, to_df(chain_aligns_end))
-inbetween <- cbind(ha2, to_df(inbetween))
-aligns_end <- cbind(ha2, to_df(aligns_end))
-
-plot <- rbind(
-  mutate(across, method="across"),
-  mutate(chain, method="chain"),
-  mutate(aligns_start, method="aligns_start"),
-  mutate(aligns_end, method="aligns_end"),
-  mutate(inbetween, method="inbetween"), 
-  mutate(chain_inbetween, method="chain and inbetween"), 
-  mutate(chain_aligns_end, method="chain and aligns_end")
-  )
-
-plot <- mutate(plot,
-  mrk=paste(epid, method,sep="_"),
-  admin_dt = dmy(format(left_point(admin_period), "%d/%m/%Y")),
-  discharge_dt = dmy(format(right_point(admin_period), "%d/%m/%Y"))
-  ) %>% select(-admin_period)
-
-plot <- dplyr::arrange(plot, .data$mrk)
-plot$N <- rep(rle(plot$mrk)$lengths, rle(plot$mrk)$lengths)
-
-plot <- plot %>%
-  mutate(epid_2 = paste(method, ": epid ",epid, sep="" )) %>% 
-  select(rd_id, epid, epid_2, admin_dt, discharge_dt, method, N, epid, case_nm, epi_len) %>%
-  filter(N>1) %>%
-  select(rd_id, admin_dt, discharge_dt, method, epid, epid_2, case_nm, epi_len) %>%
-  gather(var, val, -c(rd_id, method, epid, epid_2, case_nm, epi_len)) %>%
-  mutate(
-    rd_id = as.character(rd_id), 
-    lab =ifelse(case_nm=="Case" & var=="admin_dt", case_nm, ""), 
-    method = factor(method, levels = c("across","aligns_start","aligns_end","chain", "inbetween",
-                                       "chain and inbetween", "chain and aligns_end","aligns_start and aligns_end"))
-    )
-
-ep_plot <- filter(plot, var=="discharge_dt" & case_nm == "Case") %>% 
-  mutate(var="start")
-
-#ep_plot$k <- ifelse(ep_plot$case_nm=="Case", ep_plot$epi_len, ep_plot$recur_len)
-
-ep_plot <- mutate(ep_plot, val= val + duration(epi_len,"days"), var="end") %>% 
-  bind_rows(ep_plot)
-
-ep_plot$lab <- ifelse(ep_plot$var=="start", paste(ep_plot$epi_len, "days"),"")
-                      
-ggplot(plot, aes(x=val, y=rd_id, group=rd_id, label=lab, colour=epid_2)) +
-  geom_line() +
+**Figure 3: Positive and negative `case_length` in interval grouping**
+```{r echo=FALSE, fig.height=3, fig.width=8, message=FALSE, warning=FALSE}
+ggplot(epids_db2[epids_db2$var!="len_dt",], aes(x=val, y=sn, group=sn, colour=col)) +
+  geom_line(data=epids_db2[!(epids_db2$case_nm=="Case" & epids_db2$grp %in% c("b","c")) & epids_db2$var!="len_dt",], aes(colour=col), linetype=1) +
+  geom_line(data=epids_db2[epids_db2$case_nm=="Case" & epids_db2$var!="discharge_dt" & epids_db2$grp=="a",], aes(colour=col), linetype=2) +
+  geom_line(data=epids_db2[epids_db2$case_nm=="Case" & epids_db2$var!="discharge_dt" & epids_db2$grp %in% c("b","c"),], aes(colour=col), linetype=1) +
   geom_point() +
-  geom_text(aes(hjust="right"), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
-  geom_line(data=ep_plot, aes(x=val, y=rd_id, group=rd_id, colour=epid_2), linetype=2) +
-  #geom_text(data=ep_plot, aes(hjust="left", label=lab), nudge_x = 2, nudge_y = .18, show.legend = FALSE, size =2.5) +
+  geom_text(aes(hjust="right", label=label), nudge_x = -2, nudge_y = .05, show.legend = FALSE, size =3) +
+  # geom_text(aes(hjust="left", label=match_cd), nudge_x = -1.5, nudge_y = .22, show.legend = FALSE, size=3) +
   scale_y_discrete("Record ID") +
-  scale_x_date("Admitted period", limits = c(dmy("15/12/2018"), dmy("01/04/2019")), date_breaks = "35 days", date_labels = "%d %b") +
-  guides(col = guide_legend(nrow = 4)) +
-  facet_wrap(~method, scales = "free_y") +
+  scale_x_date("Admitted period", limits = c(dmy("15/12/2018"), dmy("10/02/2019")), date_breaks = "20 days", date_labels = "%d %b") +
+  guides(col = guide_legend(nrow = 3)) +
+  facet_wrap(~grp_l) +
   theme(
     strip.background = element_rect(fill="transparent"),
     axis.line = element_line(colour = "black"),
     panel.grid = element_blank(),
-    legend.position = "bottom",
-    legend.title = element_blank()
+    legend.position="none"
   )
-
 ```
-
 
 <a id="stratified_grouping"></a>
 
