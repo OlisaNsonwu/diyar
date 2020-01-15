@@ -82,7 +82,7 @@ In the `"rolling"` episodes example, records 1 to 3 are also grouped together as
 
 **Figure 1: `"Fixed"` and `"rolling"` episodes with their respective `case_lenth` and `recurrence_length`**
 
-```{r echo=FALSE, fig.height=4, fig.width=7, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=3, fig.width=6, message=FALSE, warning=FALSE}
 library(tidyr); library(ggplot2)
 
 r_epids <- f_epids <- infections_2[c("rid","pid","date")]
@@ -132,8 +132,8 @@ g_area$rid <- max(plot$rid)
 ggplot(plot, aes(x=date, y=rid, group=rid, colour=epid)) +
   geom_point() +
   geom_segment(aes(x=date,xend=dash_range,y=rid,yend=rid), linetype=2) +
-  geom_text(aes(hjust="right", label=case_nm), nudge_x = -2, nudge_y = .05, show.legend = FALSE) +
-  geom_text(aes(hjust="left", label=dash_num), nudge_x = 2, nudge_y = .18, show.legend = FALSE, size =2.5) +
+  geom_text(aes(hjust="right", label=case_nm), nudge_x = -2, nudge_y = .05, show.legend = FALSE, size =3) +
+  geom_text(aes(hjust="left", label=dash_num), nudge_x = 2, nudge_y = .18, show.legend = FALSE, size =2) +
   scale_y_continuous("Record ID", breaks = 1:6) +
   scale_x_date("Specimen date", limits = c(dmy("15/03/2019"), dmy("01/07/2019") ), date_breaks = "25 days", date_labels = "%d %b") +
   facet_wrap(~method, scales = "free_y") +
@@ -142,7 +142,7 @@ ggplot(plot, aes(x=date, y=rid, group=rid, colour=epid)) +
     strip.background = element_rect(fill="transparent"),
     axis.line = element_line(colour = "black"),
     panel.grid = element_blank(),
-    legend.position = "bottom",
+    legend.position = "none",
     legend.title = element_blank()
   )
 ```
@@ -267,7 +267,7 @@ In `epids_2`, after changing the sort preference using factor levels (`infx_f`),
 <a id="interval_grouping"></a>
 
 ## Interval grouping
-In this section we discuss the process of grouping periods of events into episodes. Each period/interval is essentially a record with a start and end point in time. For the purpose of episode grouping, these periods are created as `number_line` objects and supplied to the `date` argument.
+In this section we discuss the process of grouping periods of events into episodes. Each period/interval is essentially a record with a start and end point in time. For the purpose of episode grouping, these periods are created as `number_line` objects and supplied to the `date` argument. Overlapping periods/intervals are merged into one.
 
 Below are simple examples;
 
@@ -286,9 +286,7 @@ fixed_episodes(date=dates, case_length=30, to_s4=TRUE, display=FALSE, group_stat
 fixed_episodes(date=periods, case_length=30, to_s4=TRUE, display=FALSE, group_stat=TRUE)
 ```
 
-Notice that when two periods/intervals overlap they are merged into one. This new period will envelope the two overlapped periods/intervals i.e. start of one and end of the other.
-
-For a practical example, below are periods of hospital stay which are grouped into episodes - in this context defined as hospital spells. This is different from grouping the actual admission or discharge events.
+For a practical example, below are periods of hospital stay which have been grouped into episodes - hospital spells. This is different from grouping the actual admission or discharge events.
 
 ```{r message=FALSE, warning=FALSE}
 hos_admin <- diyar::hospital_admissions
@@ -307,7 +305,7 @@ fixed_episodes(date=hos_admin$admin_period, sn=hos_admin$rd_id, case_length = 0,
 
 ```
 
-Since periods can overlap in different ways, you can choose from a set of methods (`overlap_methods`) which should be considered in your analysis. The options available are; `"exact"`, `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. The default option is to use all. Below are examples demonstrating each method.
+There are 6 ways periods/intervals can overlap (`overlap_methods`). These are `"exact"`, `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. Only periods that overlap  by the specified method will be grouped into the same episode. You can use any combination of 6 methods but the default option is to use all 6. The examples below demonstrates this.
 
 ```{r warning=FALSE}
 # wrapper function to use with lapply
@@ -409,7 +407,7 @@ ggplot(epids_db[epids_db$var!="len_dt",], aes(x=val, y=sn, group=sn, colour=col)
 
 ```
 
-`case_length` in interval grouping is used in a similar manner. A negative `case_length` shortens the `"Case (C)"` interval before comparing it with other intervals. See results below (grouped episodes only).
+`case_length` in interval grouping works in a similar manner. See results below (grouped episodes only).
 
 ```{r warning=FALSE, include=FALSE}
 epi_grp_func2 <- function(f){
@@ -479,15 +477,15 @@ ggplot(epids_db2[epids_db2$var!="len_dt",], aes(x=val, y=sn, group=sn, colour=co
 <a id="stratified_grouping"></a>
 
 ## Stratified episode grouping
-Episode grouping can be done separately for different subsets (`strata`) of the dataset. Examples of a `strata` could be patient IDs, pathogen, source of infection or any combination of these. Episodes will be limited to each `strata` however, episodes from different `strata` can have different `case_length` and/or `recurrence_length`.
+Episode grouping can be done separately for different subsets (`strata`) of a dataset. Examples of a `strata` could be patient IDs, pathogen, source of infection or any combination of these. Episodes will be limited to each `strata` however, episodes from different `strata` can have different `case_length` and/or `recurrence_length`.
 
 **`record_group()` is useful for creating group identifiers which can be used as a `strata`. See [record group](record_group.html) for further details.**
 
 As an example, using the `infections` dataset, a case definition may specify the following;
 
 - UTI and BSI records are considered different episodes regardless of when they occur
-- UTI has a `case_length` of 7 days and recurrence period of 30 days
-- BSI has a `case_length` of 14 days and no recurrence period
+- UTI has a `case_length` of 8 days and recurrence period of 31 days
+- BSI has a `case_length` of 15 days and no recurrence period
 
 In the example below, adding `infection` to the `strata` argument means that `"UTI"` and `"BSI"` records will not be in the same episode. Furthermore, the `case_length` and `recurrence_length` for each will be different as specified in the `epi` and `recur` columns respectively 
 ```{r warning=FALSE}
@@ -509,9 +507,9 @@ dbs
 A sub-strata is created when records within a `strata` have a different `case_length` or `recurrence_length`. The case definition below demonstrates how you can take advantage of this.
 
 - UTI and BSI records are different episodes regardless of when they occur. 
-- UTIs have a `case_length` of 7 days and recurrence period of 30 days
-- BSIs have a `case_length` of 14 days if not treated **OR** a `case_length` of 4 days if treated. In both situations there is no recurrence period.
-- Respiratory tract infections (RTI) have a `case_length` of 28 days and recurrence period of 5 days
+- UTIs have a `case_length` of 8 days and recurrence period of 31 days
+- BSIs have a `case_length` of 15 days if not treated **OR** a `case_length` of 5 days if treated. In both situations there is no recurrence period.
+- Respiratory tract infections (RTI) have a `case_length` of 29 days and recurrence period of 6 days
 
 In this example, whether or not the infection is treated should be viewed as the sub-strata, and the source of infection as the `strata`.
 
@@ -529,7 +527,7 @@ dbs
 There are a few things to note with stratified grouping;
 
 - Unless required, `case_length` and `recurrence_length` should be consistent across each `strata` otherwise, you'll inadvertently create a sub-strata
-- Episode grouping with and without a sub-strata is different and could lead to different results
+- Episode grouping with and without a sub-strata are different and could lead to different results
 - Using sub-strata is not the same as adding that sub-strata to the `strata` argument. In the example above, adding `treated` to `strata` will group treated infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not required treated and untreated infections to be grouped separately, only that the treated infections last longer.
 
 Stratified grouping is the same as doing a separate analysis for each subset (`strata`) of the dataset.
@@ -550,7 +548,7 @@ rolling_episodes(strata = dbs$category, date = dbs$datetime, case_length = 5,
 ```
 
 ### Limit episode grouping to a subset of the dataframe
-For example, with the `hourly_data` dataset, you can decide to exclude `"GP1"` and `"GP2"` records from episode grouping as shown below. These records will be excluded from episode grouping and assigned unique episode IDs.
+For example, with the `hourly_data` dataset, you can decide to exclude `"GP1"` and `"GP2"` records from episode grouping as shown below. Records excluded from episode grouping this way are assigned unique episode IDs.
 
 ```{r warning=FALSE, message=FALSE}
 dbs <- head(hourly_data[c("datetime","category")], 10)
@@ -570,21 +568,21 @@ data(infections)
 
 dbs <- infections[c("date","infection")]; dbs
 
-# familiar unique record ids for reference
-rd_id <- c(640,17,58,21,130,79,45,300,40,13,31)
+# familiar unique record ids for reference - optional
+dbs$rd_id <- c(640,17,58,21,130,79,45,300,40,13,31)
 
 # strata based on matching sources of infection
-dbs$pids <- record_group(dbs, criteria = infection, to_s4 = TRUE, display = FALSE)
+dbs$pids <- record_group(dbs, sn = rd_id,  criteria = infection, to_s4 = TRUE, display = FALSE)
 
 # stratified grouping 
-dbs$epids <- fixed_episodes(sn = rd_id, date = dbs$date, strata = dbs$pids, 
+dbs$epids <- fixed_episodes(sn = dbs$rd_id, date = dbs$date, strata = dbs$pids, 
                              to_s4 = TRUE, display = FALSE, group_stats = TRUE, case_length = 10)
 
 dbs
 ```
 
 ### Use `numeric` values for the `date` argument 
-`date` and `datetime` objects are fundamentally numeric values within the context of a reference point (`as.Date(..., origin)`). The episode grouping process ignores this context and instead uses each value as a reference point for others. Therefore, it will allow you use `numeric` values such as `0-2` instead of `date` or `datetime` values for the `date` argument. It does not matter what `0-2` actually represent i.e. number of days from a particular date or number of seconds from a particular time. It only matters that `0` is before `1`, which in turn is before `2`. When used this way, the `episode_unit` argument is ignored.
+`date` and `datetime` objects are fundamentally numeric values within the context of a reference point (`as.Date(..., origin)`). The episode grouping process ignores this context and instead uses each value as a reference point for others. Therefore, it will allow you use `numeric` values instead of `date` or `datetime` values for the `date` argument. For example, if you use `0-2`, it does not matter what they represent i.e. number of days from a particular date or number of seconds from a particular time. It only matters that `0` is before `1`, which in turn is before `2`. When the functions are used this way, the `episode_unit` argument is ignored.
 
 ```{r warning=FALSE, message=FALSE}
 vals <- c(8.1,6,12,8.5,12,3,8,15,5,7)
@@ -597,14 +595,15 @@ fixed_episodes(vals, case_length = 5, group_stats = T, to_s4 = T, display = F)
 
 fixed_episodes(vals, case_length = 100, group_stats = T, to_s4 = T, display = F)
 ```
+
 # Conclusion
 There are a variety of ways to use these function. Before beginning, It's worth reviewing your case definition and its implication on the dataset. In general, the following steps will guide you on how to use them;
 
 1. Work out which columns should be the `strata`
 2. Choose whether you need `"fixed"` or `"rolling"` episodes
-3. Choose whether you are grouping individual events or a duration of events by supply a date, datetime or `number_liine` objects as required. See [interval grouping](#interval_grouping)
-4. Create a column for `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata)
-5. Change `from_last` to `TRUE` if you want to start episode grouping at the most recent record thereby making it the `"Case"`. Note that this is not the same as starting episode grouping at the earliest record (`from_last` is `FALSE`) and then picking the most recent record in that episode as the `"Case"`. See [case assignment](#case_assignment)
+3. Choose whether you are grouping individual events or a duration of events by supplying a date, datetime or `number_line` object as required. See [interval grouping](#interval_grouping)
+4. Choose the required `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata)
+5. Change `from_last` to `TRUE` if you want to start episode grouping at the most recent record thereby making it the `"Case"`. Note that this is not the same as starting episode grouping at the earliest record (`from_last` is `FALSE`) and then picking the most recent record in that episode as the `"case"`. See [case assignment](#case_assignment)
 6. If you require the `"Case"` to be the earliest or most recent record of a particular type of record, use `custom_sort` in combination with `from_last`. If not, ignore this argument. See [user defined case assignment](#custom_sort)
 7. If you require episodes to include records on either side of the `"Case"` use `bi_direction`. If not, ignore this argument
-8. Determine if you are measuring episodes by the minute, hour or day etc., and set `episode_unit` accordingly. Be sure to supply a datetime to the `date` argument if `episode_unit` is less than "days"
+8. Determine if you are measuring episodes by the minute, hour or day etc., and set `episode_unit` accordingly. Be sure to supply a `datetime` to the `date` argument if `episode_unit` is less than "days"
