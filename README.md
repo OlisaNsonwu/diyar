@@ -26,7 +26,7 @@ devtools::install_github("OlisaNsonwu/diyar")
 Cheat sheet
 -----------
 
-<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
+<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar2.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail2.png?raw=true"/></a>
 
 Usage
 -----
