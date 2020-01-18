@@ -1,17 +1,18 @@
 
-Version 0.0.3.9000
+Version 0.1.0.9000
 ==================
 
 New feature
 -----------
 
+-   `overlap_methods` and `methods` arguments added to replace `overlap_method` and `method` respectively. When grouping episodes or collapsing `number_line` objects, `overlap_methods` and `methods` allow you to use different sets of methods for different subsets of a dataset. `overlap_method` and `method` could only use 1 set of methods per dataset.
+
 Changes
 -------
-- `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - Negative numeric values now accepted for  `case_length` and `recurrence_length`.
 
-Bug fixes
----------
-- [#8](https://github.com/OlisaNsonwu/diyar/issues/8) - Minor aesthetic correction to the display formats of `pid` and `epid` objects
+-   overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. Eg.
+    -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap
+    -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap \#\#Bug fixes
 
 Version 0.0.3
 =============
