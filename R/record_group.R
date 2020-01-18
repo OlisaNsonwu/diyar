@@ -104,7 +104,7 @@
 record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = FALSE){
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   if(!(is.logical(group_stats) & is.logical(display) & is.logical(to_s4))) stop(paste("'group_stats', 'display' and 'to_s4' must be TRUE or FALSE"))
-
+  rng_d <- as.character(substitute(df))
   . <- NULL
   if(to_s4 == FALSE){
     if (is.null(getOption("diyar.record_group.output"))){
@@ -182,11 +182,16 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       cri_lst[i] <- rp_vr
     }
   }
-  #update 'sub_cri_lst'
+  # update 'sub_cri_lst'
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
 
   range_match <- function(x, tr_x) {
-    if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) stop("Actual value (gid) is outside the range created in a number_line object")
+    if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) {
+      rng_i <- paste(which(!diyar::overlap(diyar::as.number_line(x@gid), x)), collapse = ",", sep="")
+      rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
+
+      stop(paste("Actual value (gid) is outside the range supplied in '",rng_d,"$",rng_v,"[c(",rng_i,")]'",sep=""))
+    }
     if(utils::packageVersion("dplyr") < package_version("0.8.0.1")) stop("dplyr >= v0.8.0.1 is required for range matching")
     diyar::overlap(diyar::as.number_line(x@gid), tr_x)
   }
