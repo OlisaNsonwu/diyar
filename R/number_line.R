@@ -23,10 +23,11 @@
 #'
 #' number_line(-100, 100); number_line(10, 11.2)
 #'
-#' # Other numeric based object classes are also compatible for numeric_line objects
+#' # Other numeric based object classes are also compatible
 #' number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 #'
-#' # A warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected
+#' # However, a warning is given if 'l' and 'r' have different classes.
+#' # Consider if this needs to be corrected.
 #' number_line(2, dmy("05/01/2019"))
 #'
 #' @export
@@ -71,7 +72,7 @@ as.number_line <- function(x){
 
 #' @rdname number_line
 #' @examples
-#' # Test for number_line objects
+#' # A test for number_line objects
 #' a <- number_line(0, -100)
 #' b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
 #' is.number_line(a); is.number_line(b)
@@ -86,21 +87,21 @@ is.number_line <- function(x) class(x)=="number_line"
 #'
 #' @export
 left_point <- function(x){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
   x@start
 }
 
 #' @rdname number_line
 #' @export
 right_point <- function(x){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
   x@start + x@.Data
 }
 
 #' @rdname number_line
 #' @export
 start_point <- function(x){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start
 }
@@ -108,7 +109,7 @@ start_point <- function(x){
 #' @rdname number_line
 #' @export
 end_point <- function(x){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start + x@.Data
 }
@@ -116,7 +117,7 @@ end_point <- function(x){
 #' @rdname number_line
 #' @export
 number_line_width <- function(x){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
   diyar::right_point(x) - diyar::left_point(x)
 }
 
@@ -135,11 +136,11 @@ number_line_width <- function(x){
 #'
 #' @export
 reverse_number_line <- function(x, direction = "both"){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!(length(direction)==1 & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!(length(direction) %in% c(1, length(x)) & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
   if(!tolower(direction) %in% c("increasing","decreasing","both") ) stop(paste("`direction` must be either 'increasing', 'decreasing', or 'both'"))
-  f <- x
 
+  f <- x
   if(tolower(direction) == "decreasing"){
     f@.Data <- ifelse(x@.Data <0 & is.finite(x@.Data), -x@.Data, x@.Data)
     c <- ifelse(x@.Data <0 & is.finite(x@.Data), x@.Data, 0)
@@ -161,16 +162,16 @@ reverse_number_line <- function(x, direction = "both"){
 #' \code{shift_number_line()} - a convenience function to shift a \code{number_line} object towards the positive or negative end of the number line.
 #' @examples
 #' # Shift number_line objects
-#' number_line(5,6)
+#' c <- number_line(5, 6)
 #' # Towards the positive end of the number line
-#' shift_number_line(number_line(5,6), 2)
+#' shift_number_line(x=c(c,c), by=c(2,3))
 #' # Towards the negative end of the number line
-#' shift_number_line(number_line(6,1), -2)
+#' shift_number_line(x=c(c,c), by=c(-2,-3))
 #'
 #' @export
 shift_number_line <- function(x, by=1){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  #if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric based object of length 1",sep=""))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
 
   by[!is.finite(by)] <- NA_real_
   n <- ifelse(is.finite(x@start) & is.finite(x@.Data),1,0)
@@ -181,30 +182,41 @@ shift_number_line <- function(x, by=1){
 }
 
 #' @rdname number_line
-#' @param point \code{"start"} or \code{"start"} point
+#' @param point \code{"start"} or \code{"end"} point
 #' @details
 #' \code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
 #' @examples
-#' # Increase or reduce the width or length of a \code{number_line} object
-#' c(number_line(3,6), number_line(6,3))
-#' expand_number_line(c(number_line(3,6), number_line(6,3)), 2)
-#' expand_number_line(c(number_line(3,6), number_line(6,3)), -1)
-#' expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start")
-#' expand_number_line(c(number_line(3,6), number_line(6,3)), -2, "end")
+#' # Change the width or length of a number_line object
+#' d <- c(number_line(3,6), number_line(6,3))
+#'
+#' expand_number_line(d, 2)
+#' expand_number_line(d, -2)
+#' expand_number_line(d, c(2,-1))
+#' expand_number_line(d, 2, "start")
+#' expand_number_line(d, 2, "end")
 #'
 #' @export
 expand_number_line <- function(x, by=1, point ="both"){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  #if(!all(is.finite(by))) stop(paste("'by' must be a numeric based object",sep=""))
-  if(!all(is.character(point)) | length(point)!=1) stop(paste("'point' must be a character object of length 1"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!all(is.character(point))) stop(paste("'point' must be a character object"))
   if(all(!tolower(point) %in% c("both","start","end"))) stop(paste("`point` must be either 'start','end' or 'both'"))
+  if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
 
   by[!is.finite(by)] <- NA_real_
   n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
   by <- by * n
-  if(point == "both") x <- diyar::number_line(x@start - by, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
-  if(point == "start") x <- diyar::number_line(x@start - by, (x@start + x@.Data), id = x@id, gid = x@gid)
-  if(point == "end") x <- diyar::number_line(x@start, (x@start + x@.Data) + by, id = x@id, gid = x@gid)
+
+  if(point == "both"){
+    x@start <- x@start - by
+    x@.Data <- x@.Data + (by *2)
+  }
+  if(point == "start"){
+    x@start <- x@start - by
+    x@.Data <- x@.Data + by
+  }
+  if(point == "end"){
+    x@.Data <- x@.Data + by
+  }
 
   return(x)
 }
@@ -217,7 +229,8 @@ expand_number_line <- function(x, by=1, point ="both"){
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be a simple alternative to \code{\link{record_group}} or \code{\link{episode_group}}.
 #'
-#' @param method Method of overlap
+#' @param method Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.
+#' @param methods Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}
 #' @param collapse If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps
 #' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object among duplicates
 #' @examples
@@ -230,12 +243,24 @@ expand_number_line <- function(x, by=1, point ="both"){
 #'
 #' @export
 
-compress_number_line <- function(x, method = c("across","chain","aligns_start","aligns_end","inbetween"), collapse =FALSE, deduplicate = TRUE){
+compress_number_line <- function(x, method = c("exact", "across","chain","aligns_start","aligns_end","inbetween"), collapse =FALSE, deduplicate = TRUE, methods = "exact|across|chain|aligns_start|aligns_end|inbetween"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(!(is.logical(collapse) & is.logical(deduplicate) )) stop(paste("'collapse' and 'deduplicate' must be TRUE or FALSE"))
-  if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
   if(!(length(collapse) %in% c(1, length(x)))) stop(paste("length of 'collapse' must be 1 or the same as 'x'",sep=""))
+  o <- unique(unlist(strsplit(methods, split="\\|")))
+  o <- o[!o %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'exact', 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+                              "Syntax ~ \"method1|method2|method3...\" \n",
+                              "                 OR                   \n",
+                              "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
+  if(missing(methods) & !missing(method)) {
+    m <- paste(method,sep="", collapse = "|")
+    warning("'method' is deprecated. Please use 'methods' instead.")
+  }else{
+    m <- methods
+  }
 
   if(any(duplicated(x@id) | is.na(x@id))) x@id <- 1:length(x@id)
   x <- diyar::reverse_number_line(x, "decreasing")
@@ -245,7 +270,7 @@ compress_number_line <- function(x, method = c("across","chain","aligns_start","
   if(length(collapse)==1) collapse <- rep(collapse, length(x))
   while (min(t) ==0 & j<=length(x)){
     l <- x[t==0][1]
-    h <- (x@id == l@id | diyar::overlap(l, x, method=method)) & ifelse(collapse, TRUE, (t!=1))
+    h <- (x@id == l@id | diyar::overlap(x, l, methods=m)) & ifelse(collapse, TRUE, (t!=1))
     x[which(h)]@.Data <- as.numeric(max(x[which(h),]@start + x[which(h),]@.Data)) - as.numeric(min(x[which(h),]@start))
     x[which(h)]@start <- min(x[which(h),]@start)
     x[which(h)]@gid <- sort(x[which(h),])[1]@id
@@ -267,28 +292,27 @@ compress_number_line <- function(x, method = c("across","chain","aligns_start","
 #' # Convert a number line object to its series of real numbers
 #' number_line_sequence(number_line(1, 5))
 #' number_line_sequence(number_line(5, 1), .5)
-#' number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
-#'
-#' # The length of the resulting vector will depend on the object class
-#' number_line_sequence(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+#' number_line_sequence(number_line(5:1, 1:5), 1:5)
 #'
 #' nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
-#' head(number_line_sequence(nl, 1.5), 15)
-#' d <- duration(1.5,"days")
-#' number_line_sequence(nl, d)
+#' number_line_sequence(c(nl, nl), c(duration(1.5,"days"), duration(12,"hours")))
 #'
 #' @export
 number_line_sequence <- function(x, by=1){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!(is.finite(by) & length(by) ==1)) stop(paste("'by' must be a numeric object of length 1",sep=""))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!is.finite(by)) stop(paste("'by' must be a finite number",sep=""))
 
-  if(!is.finite(x@start) | !is.finite(x@.Data)){
-    s <- c(x@start, x@.Data)
-  }else{
-    by <- ifelse(x@.Data>0, abs(by), -abs(by))
-    s <- unique(c(x@start, seq(x@start, x@start + x@.Data, by), x@start + x@.Data))
+  h <- !is.finite(x@start) | !is.finite(x@.Data)
+  func1 <- function(x, by, h){
+    if(h==T){
+      s <- c(x@start, x@.Data)
+    }else{
+      by <- ifelse(x@.Data>0, abs(by), -abs(by))
+      s <- unique(c(x@start, seq(x@start, x@start + x@.Data, by), x@start + x@.Data))
+    }
+    s
   }
-
-  return(s)
+  mapply(func1, x=x, by=by, h=h, SIMPLIFY = F)
 }
+
 

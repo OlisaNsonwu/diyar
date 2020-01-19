@@ -604,15 +604,11 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = "moving"), "`episode_type` must be either 'rolling' or 'fixed'")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
+                             case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, overlap_method = 10), "'overlap_method' must be a character object")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = "rolling", rolls_max = NA, episodes_max = NA), "'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf")
-  expect_error(episode_group(dft_10, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_type = "rolling"), "'case_length' must be positive integer or numeric values")
-  expect_error(episode_group(dft_11, date=admin_period, sn=rd_id,
-                             case_length = epi_len, recurrence_length = recur, episode_type = "rolling"), "recurrence_length' must be positive integer or numeric values")
 })
 
 t_ds <- hospital_infections
@@ -621,8 +617,8 @@ t_ds$date <- dmy_hms(format(t_ds$date, "%d/%m/%Y 00:00:00"))
 t_ds$epi_len <- as.numeric(duration(t_ds$epi_len, "days"))
 
 test_that("test fixed and rolling episode funcs errors", {
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'")
+  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
+  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
 
   expect_error(rolling_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
   expect_error(fixed_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
@@ -633,8 +629,7 @@ test_that("test fixed and rolling episode funcs errors", {
   expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
   expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
   expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = -1, strata = t_ds$patient_id), "'case_length' must be positive integer or numeric values")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = Inf, strata = t_ds$patient_id), "'case_length' must be positive integer or numeric values")
+  expect_error(fixed_episodes(date=t_ds$date, case_length = Inf, strata = t_ds$patient_id), "'case_length' must be integer or numeric values")
   expect_error(rolling_episodes(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
   expect_error(fixed_episodes(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
 
@@ -643,7 +638,6 @@ test_that("test fixed and rolling episode funcs errors", {
   expect_error(rolling_episodes(date=t_ds$date, case_length = 30, custom_sort = c(1,1), strata = t_ds$patient_id), "length of 'custom_sort' must be 1 or the same as 'date'")
   expect_error(fixed_episodes(date=t_ds$date, case_length = 30, custom_sort = c(1,1), strata = t_ds$patient_id), "length of 'custom_sort' must be 1 or the same as 'date'")
 
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, recurrence_length = -1, strata = t_ds$patient_id), "'recurrence_length' must be positive integer or numeric values")
   expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, recurrence_length = t_ds$epi_len[1:2],strata = t_ds$patient_id), "length of 'recurrence_length' must be 1 or the same as 'date'")
   expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'date'")
   expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'date'")

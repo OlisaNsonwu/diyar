@@ -1,12 +1,20 @@
 
-Version 0.0.3.9000
+Version 0.1.0.9000
 ==================
 
 New feature
 -----------
 
+-   `overlap_methods` and `methods` arguments added to replace `overlap_method` and `method` respectively. When grouping episodes or collapsing `number_line` objects, `overlap_methods` and `methods` allow you to use different sets of methods for different subsets of a dataset. `overlap_method` and `method` could only use 1 set of methods per dataset.
+
 Changes
 -------
+
+-   overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. Eg.
+    -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap
+    -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
+-   Output for `number_line_sequence()` is now a `list` object.
+-   `number_line_sequence()` now works across multiple `number_line` objects.
 
 Bug fixes
 ---------

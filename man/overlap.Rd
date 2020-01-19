@@ -2,16 +2,22 @@
 % Please edit documentation in R/overlap.R
 \name{overlap}
 \alias{overlap}
+\alias{exact}
 \alias{across}
 \alias{chain}
 \alias{aligns_start}
 \alias{aligns_end}
 \alias{inbetween}
 \alias{overlap_method}
+\alias{include_overlap_method}
+\alias{exclude_overlap_method}
 \title{Overlapping number line objects}
 \usage{
-overlap(x, y, method = c("across", "chain", "aligns_start", "aligns_end",
-  "inbetween"))
+overlap(x, y, method = c("exact", "across", "chain", "aligns_start",
+  "aligns_end", "inbetween"),
+  methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
+
+exact(x, y)
 
 across(x, y)
 
@@ -24,13 +30,19 @@ aligns_end(x, y)
 inbetween(x, y)
 
 overlap_method(x, y)
+
+include_overlap_method(methods)
+
+exclude_overlap_method(methods)
 }
 \arguments{
 \item{x}{\code{number_line} object}
 
 \item{y}{\code{number_line} object}
 
-\item{method}{Method of overlap}
+\item{method}{Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.}
+
+\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}}
 }
 \value{
 \code{logical} object
@@ -47,6 +59,8 @@ c <- number_line(100, 200)
 d <- number_line(100, 120)
 e <- number_line(50, 120)
 g <- number_line(100,100)
+exact(a, g)
+exact(a, a)
 across(a, b)
 across(a, e)
 chain(c, d)
@@ -61,4 +75,8 @@ overlap_method(a, c)
 overlap_method(d, c)
 overlap_method(a, g)
 overlap_method(b, e)
+include_overlap_method("across")
+include_overlap_method(c("across", "chain"))
+exclude_overlap_method("across")
+exclude_overlap_method(c("across", "chain"))
 }

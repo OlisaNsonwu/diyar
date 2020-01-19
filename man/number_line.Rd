@@ -38,8 +38,10 @@ shift_number_line(x, by = 1)
 
 expand_number_line(x, by = 1, point = "both")
 
-compress_number_line(x, method = c("across", "chain", "aligns_start",
-  "aligns_end", "inbetween"), collapse = FALSE, deduplicate = TRUE)
+compress_number_line(x, method = c("exact", "across", "chain",
+  "aligns_start", "aligns_end", "inbetween"), collapse = FALSE,
+  deduplicate = TRUE,
+  methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
 
 number_line_sequence(x, by = 1)
 }
@@ -58,13 +60,15 @@ number_line_sequence(x, by = 1)
 
 \item{by}{increment or decrement}
 
-\item{point}{\code{"start"} or \code{"start"} point}
+\item{point}{\code{"start"} or \code{"end"} point}
 
-\item{method}{Method of overlap}
+\item{method}{Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.}
 
 \item{collapse}{If \code{TRUE}, collapse the compressed results based on \code{method} of overlaps}
 
 \item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object among duplicates}
+
+\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}}
 }
 \value{
 \code{number_line} object
@@ -103,16 +107,17 @@ library(lubridate)
 
 number_line(-100, 100); number_line(10, 11.2)
 
-# Other numeric based object classes are also compatible for numeric_line objects
+# Other numeric based object classes are also compatible
 number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 
-# A warning is given if 'l' and 'r' have different classes. Consider if these need to be corrected
+# However, a warning is given if 'l' and 'r' have different classes.
+# Consider if this needs to be corrected.
 number_line(2, dmy("05/01/2019"))
 
 # Convert numeric based objects to number_line objects
 as.number_line(5.1); as.number_line(dmy("21/10/2019"))
 
-# Test for number_line objects
+# A test for number_line objects
 a <- number_line(0, -100)
 b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
 is.number_line(a); is.number_line(b)
@@ -126,18 +131,20 @@ reverse_number_line(number_line(200,-100), "increasing")
 reverse_number_line(number_line(200,-100), "decreasing")
 
 # Shift number_line objects
-number_line(5,6)
+c <- number_line(5, 6)
 # Towards the positive end of the number line
-shift_number_line(number_line(5,6), 2)
+shift_number_line(x=c(c,c), by=c(2,3))
 # Towards the negative end of the number line
-shift_number_line(number_line(6,1), -2)
+shift_number_line(x=c(c,c), by=c(-2,-3))
 
-# Increase or reduce the width or length of a \\code{number_line} object
-c(number_line(3,6), number_line(6,3))
-expand_number_line(c(number_line(3,6), number_line(6,3)), 2)
-expand_number_line(c(number_line(3,6), number_line(6,3)), -1)
-expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start")
-expand_number_line(c(number_line(3,6), number_line(6,3)), -2, "end")
+# Change the width or length of a number_line object
+d <- c(number_line(3,6), number_line(6,3))
+
+expand_number_line(d, 2)
+expand_number_line(d, -2)
+expand_number_line(d, c(2,-1))
+expand_number_line(d, 2, "start")
+expand_number_line(d, 2, "end")
 
 # Collapse number line objects
 x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
@@ -149,14 +156,9 @@ compress_number_line(x, collapse=TRUE, method = "inbetween")
 # Convert a number line object to its series of real numbers
 number_line_sequence(number_line(1, 5))
 number_line_sequence(number_line(5, 1), .5)
-number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)
-
-# The length of the resulting vector will depend on the object class
-number_line_sequence(number_line(dmy("01/04/2019"), dmy("04/04/2019")), 1.5)
+number_line_sequence(number_line(5:1, 1:5), 1:5)
 
 nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
-head(number_line_sequence(nl, 1.5), 15)
-d <- duration(1.5,"days")
-number_line_sequence(nl, d)
+number_line_sequence(c(nl, nl), c(duration(1.5,"days"), duration(12,"hours")))
 
 }

@@ -4,7 +4,8 @@
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
-#' @param method Method of overlap
+#' @param method Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.
+#' @param methods Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}
 #' @aliases overlap
 #' @return \code{logical} object
 #'
@@ -17,20 +18,54 @@
 #' g <- number_line(100,100)
 #' @export
 
-overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end","inbetween")){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+overlap <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
+                    methods = "exact|across|chain|aligns_start|aligns_end|inbetween"){
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
-  if(all(!tolower(method) %in% c("across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'across','chain','aligns_start','aligns_end' or 'inbetween'"))
+  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
+  o <- unique(unlist(strsplit(methods, split="\\|")))
+  o <- o[!o %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'exact', 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+                              "Syntax ~ \"method1|method2|method3...\" \n",
+                              "                 OR                   \n",
+                              "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
+  if(missing(methods) & !missing(method)) {
+    m <- paste(method,sep="", collapse = "|")
+    warning("'method' is deprecated. Please use 'methods' instead.")
+  }else{
+    m <- methods
+  }
 
-  c <- FALSE
-  if ("across" %in% tolower(method)) c <- ifelse(diyar::across(x, y), TRUE, c)
-  if ("chain" %in% tolower(method)) c <- ifelse(diyar::chain(x, y), TRUE, c)
-  if ("aligns_start" %in% tolower(method)) c <- ifelse(diyar::aligns_start(x, y), TRUE, c)
-  if ("aligns_end" %in% tolower(method)) c <- ifelse(diyar::aligns_end(x, y), TRUE, c)
-  if ("inbetween" %in% tolower(method)) c <- ifelse(diyar::inbetween(x, y), TRUE, c)
+  if(length(x) != length(y) & (max(length(x), length(y))/min(length(x), length(y))) %% 1 !=0 ) warning("\n  length('x') != length('y')\n  longer object length is not a multiple of shorter object length")
+  if(!all(c(length(x),length(y) %in% length(m))) &
+     ((max(length(m), length(y))/min(length(m), length(y))) %% 1 !=0 |
+      (max(length(m), length(x))/min(length(m), length(x))) %% 1 !=0
+     )) warning("\n  length('method') != length('y') OR length('method') != length('x')\n  longer object length is not a multiple of shorter object length")
+
+  c <- rep(F, max(length(x), length(y)))
+  c <- suppressWarnings(ifelse(grepl("exact", tolower(m)) & c == F, diyar::exact(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("across", tolower(m)) & c == F, diyar::across(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("chain", tolower(m)) & c == F, diyar::chain(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("aligns_start", tolower(m)) & c == F, diyar::aligns_start(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("aligns_end", tolower(m)) & c == F, diyar::aligns_end(x, y),c))
+  c <- suppressWarnings(ifelse(grepl("inbetween", tolower(m)) & c == F, diyar::inbetween(x, y),c))
 
   return(c)
+}
+
+#' @rdname overlap
+#' @examples
+#' exact(a, g)
+#' exact(a, a)
+#' @export
+exact <- function(x, y){
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
+
+  r <- y@start == x@start & x@.Data == y@.Data
+  r <- ifelse(!is.finite(r), FALSE, r)
+  return(r)
 }
 
 #' @rdname overlap
@@ -39,8 +74,8 @@ overlap <- function(x, y, method = c("across","chain","aligns_start","aligns_end
 #' across(a, e)
 #' @export
 across <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   r <- (y@start > x@start & y@start < (x@start + x@.Data) & (y@start + y@.Data) > (x@start + x@.Data) ) |
     (x@start > y@start & x@start < (y@start + y@.Data) & (x@start + x@.Data) > (y@start + y@.Data) )
@@ -54,11 +89,12 @@ across <- function(x, y){
 #' chain(a, c)
 #' @export
 chain <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
-  r <- x@start == (y@start + y@.Data) | (x@start + x@.Data) == y@start
-  r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
+    ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
+  r <- ifelse(!is.finite(r) | x@.Data * y@.Data <0, FALSE, r)
   return(r)
 }
 
@@ -68,10 +104,10 @@ chain <- function(x, y){
 #' aligns_start(a, c)
 #' @export
 aligns_start <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
-  r <- x@start==y@start
+  r <- x@start==y@start & !diyar::exact(x, y)
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -82,10 +118,10 @@ aligns_start <- function(x, y){
 #' aligns_end(a, c)
 #' @export
 aligns_end <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
-  r <- (x@start + x@.Data) == (y@start + y@.Data)
+  r <- (x@start + x@.Data) == (y@start + y@.Data) & !diyar::exact(x, y)
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -96,8 +132,11 @@ aligns_end <- function(x, y){
 #' inbetween(b, a)
 #' @export
 inbetween <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
+
+  x <- diyar::reverse_number_line(x, direction = "decreasing")
+  y <- diyar::reverse_number_line(y, direction = "decreasing")
 
   r <- (x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data)) | (y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data))
   r <- ifelse(!is.finite(r), FALSE, r)
@@ -113,17 +152,44 @@ inbetween <- function(x, y){
 #' overlap_method(b, e)
 #' @export
 overlap_method <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   m <- ""
-  m <- ifelse(diyar::across(x, y), paste(m,"across", sep=","), m)
-  m <- ifelse(diyar::chain(x, y), paste(m,"chain", sep=","), m)
-  m <- ifelse(diyar::aligns_start(x, y), paste(m,"aligns_start", sep=","), m)
-  m <- ifelse(diyar::aligns_end(x, y), paste(m,"aligns_end", sep=","), m)
-  m <- ifelse(diyar::inbetween(x, y), paste(m,"inbetween", sep=","), m)
+  m <- ifelse(diyar::exact(x, y), paste(m,"exact", sep="|"), m)
+  m <- ifelse(diyar::across(x, y), paste(m,"across", sep="|"), m)
+  m <- ifelse(diyar::chain(x, y), paste(m,"chain", sep="|"), m)
+  m <- ifelse(diyar::aligns_start(x, y), paste(m,"aligns_start", sep="|"), m)
+  m <- ifelse(diyar::aligns_end(x, y), paste(m,"aligns_end", sep="|"), m)
+  m <- ifelse(diyar::inbetween(x, y), paste(m,"inbetween", sep="|"), m)
 
-  m <- gsub("^,","",m)
+
+  m <- gsub("^\\|","",m)
   m <- ifelse(m=="", "none", m)
   m
 }
+
+#' @rdname overlap
+#' @examples
+#' include_overlap_method("across")
+#' include_overlap_method(c("across", "chain"))
+#' @export
+include_overlap_method <- function(methods){
+  lst <- c("exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
+  methods <- methods[methods %in% lst]
+  methods <- paste(methods,sep="", collapse = "|")
+  methods
+}
+
+#' @rdname overlap
+#' @examples
+#' exclude_overlap_method("across")
+#' exclude_overlap_method(c("across", "chain"))
+#' @export
+exclude_overlap_method <- function(methods){
+  lst <- c("exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
+  methods <- lst[!lst %in% methods]
+  methods <- paste(methods,sep="", collapse = "|")
+  methods
+}
+

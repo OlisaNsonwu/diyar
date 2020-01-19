@@ -31,7 +31,7 @@ devtools::install_github("OlisaNsonwu/diyar")
 ```
 
 ##Cheat sheet
-<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
+<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar2.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail2.png?raw=true"/></a>
 
 ## Usage
 There are two main aspects of the `diyar` package; multistage record grouping (`record_group()`) and episode grouping (`fixed_episodes()`, `rolling_episodes()` and `episode_group()`) for applying case definitions in epidemiological analysis. `number_line` objects are used for both.
