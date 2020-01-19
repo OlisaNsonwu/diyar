@@ -234,7 +234,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     if(!( any(class(df[[r_epl]]) %in% c("integer","double","numeric")))) stop(paste("'recurrence_length' must be integer or numeric values", sep=""))
   }
 
-  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer")) & all(!is.na(df[[dt]])))) stop(paste("'date' must be a date, datetime, numeric or number_line object, and not have missing values", sep=""))
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer","Interval")) & all(!is.na(df[[dt]])))) stop(paste("'date' must be a date, datetime, numeric or number_line object, and not have missing values", sep=""))
 
   df_list <- names(df)
 
@@ -264,7 +264,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- tidyr::unite(df, "cri", c(!!dplyr::enquo(strata)), remove=FALSE)
   }
 
-  if(all(diyar::is.number_line(df[[dt]]))){
+  if(all(diyar::is.number_line(df[[dt]]) | lubridate::is.interval(df[[dt]]))){
     df$rec_dt_ai <- diyar::left_point(df[[dt]])
     df$rec_dt_zi <- diyar::right_point(df[[dt]])
   }else{

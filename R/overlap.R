@@ -20,8 +20,8 @@
 
 overlap <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
                     methods = "exact|across|chain|aligns_start|aligns_end|inbetween"){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
   o <- unique(unlist(strsplit(methods, split="\\|")))
@@ -60,8 +60,8 @@ overlap <- function(x, y, method = c("exact","across","chain","aligns_start","al
 #' exact(a, a)
 #' @export
 exact <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   r <- y@start == x@start & x@.Data == y@.Data
   r <- ifelse(!is.finite(r), FALSE, r)
@@ -74,8 +74,8 @@ exact <- function(x, y){
 #' across(a, e)
 #' @export
 across <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   r <- (y@start > x@start & y@start < (x@start + x@.Data) & (y@start + y@.Data) > (x@start + x@.Data) ) |
     (x@start > y@start & x@start < (y@start + y@.Data) & (x@start + x@.Data) > (y@start + y@.Data) )
@@ -89,8 +89,8 @@ across <- function(x, y){
 #' chain(a, c)
 #' @export
 chain <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
     ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
@@ -104,8 +104,8 @@ chain <- function(x, y){
 #' aligns_start(a, c)
 #' @export
 aligns_start <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   r <- x@start==y@start & !diyar::exact(x, y)
   r <- ifelse(!is.finite(r), FALSE, r)
@@ -118,8 +118,8 @@ aligns_start <- function(x, y){
 #' aligns_end(a, c)
 #' @export
 aligns_end <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   r <- (x@start + x@.Data) == (y@start + y@.Data) & !diyar::exact(x, y)
   r <- ifelse(!is.finite(r), FALSE, r)
@@ -132,8 +132,8 @@ aligns_end <- function(x, y){
 #' inbetween(b, a)
 #' @export
 inbetween <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   x <- diyar::reverse_number_line(x, direction = "decreasing")
   y <- diyar::reverse_number_line(y, direction = "decreasing")
@@ -152,8 +152,8 @@ inbetween <- function(x, y){
 #' overlap_method(b, e)
 #' @export
 overlap_method <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
   m <- ""
   m <- ifelse(diyar::exact(x, y), paste(m,"exact", sep="|"), m)

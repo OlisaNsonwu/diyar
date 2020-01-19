@@ -12,7 +12,12 @@ Changes
 
 -   overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. Eg.
     -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap
-    -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap \#\#Bug fixes
+    -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
+-   Output for `number_line_sequence()` is now a `list` object.
+-   `number_line_sequence()` now works across multiple `number_line` objects.
+
+Bug fixes
+---------
 
 Version 0.0.3
 =============
