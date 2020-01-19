@@ -453,7 +453,7 @@ for(i in 1:length(epids_df2)){
 epids_db2$label <- ifelse(epids_db2$var!="admin_dt", "", epids_db2$case_nm)
 epids_db2$col <- paste(epids_db2$grp, epids_db2$epid, sep="_")
 
-epids_db2$grp_l <- factor(epids_db2$grp, levels = c("a","c","b"), labels = c("inbetween: 30-day episode length","inbetween: -1-day episode length","inbetween: -4-day episode length"))
+epids_db2$grp_l <- factor(epids_db2$grp, levels = c("a","c","b"), labels = c("inbetween: 30-day case_length","inbetween: -1-day case_length","inbetween: -4-day case_length"))
 
 ```
 
