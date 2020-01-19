@@ -110,7 +110,8 @@ number_line(-100, 100); number_line(10, 11.2)
 # Other numeric based object classes are also compatible
 number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 
-# However, a warning is given if 'l' and 'r' have different classes. Consider if this needs to be corrected
+# However, a warning is given if 'l' and 'r' have different classes.
+# Consider if this needs to be corrected.
 number_line(2, dmy("05/01/2019"))
 
 # Convert numeric based objects to number_line objects

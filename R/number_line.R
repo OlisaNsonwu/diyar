@@ -26,7 +26,8 @@
 #' # Other numeric based object classes are also compatible
 #' number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
 #'
-#' # However, a warning is given if 'l' and 'r' have different classes. Consider if this needs to be corrected
+#' # However, a warning is given if 'l' and 'r' have different classes.
+#' # Consider if this needs to be corrected.
 #' number_line(2, dmy("05/01/2019"))
 #'
 #' @export
@@ -205,9 +206,17 @@ expand_number_line <- function(x, by=1, point ="both"){
   n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
   by <- by * n
 
-  if(point == "both") x@start <- x@start - by; x@.Data <- x@.Data + by
-  if(point == "start") x@start <- x@start - by
-  if(point == "end") x@.Data <- x@.Data + by
+  if(point == "both"){
+    x@start <- x@start - by
+    x@.Data <- x@.Data + (by *2)
+  }
+  if(point == "start"){
+    x@start <- x@start - by
+    x@.Data <- x@.Data + by
+  }
+  if(point == "end"){
+    x@.Data <- x@.Data + by
+  }
 
   return(x)
 }
@@ -291,6 +300,8 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
 #' @export
 number_line_sequence <- function(x, by=1){
   if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!is.finite(by)) stop(paste("'by' must be a finite number",sep=""))
+
   h <- !is.finite(x@start) | !is.finite(x@.Data)
   func1 <- function(x, by, h){
     if(h==T){
