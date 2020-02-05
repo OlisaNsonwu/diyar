@@ -470,57 +470,61 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(deduplicate) df <- subset(df, df$case_nm!="Duplicate")
 
   df <- df[c("sn", "epid", "case_nm", "pr_sn", "rec_dt_ai", "rec_dt_zi", "dsvr")]
-  if(group_stats){
-    vl <- paste(format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"), format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"), df$dsvr, sep="|")
+  if(group_stats == T){
+    vl <- paste0("*",format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"),"^",format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"),"!",df$dsvr,"+")
 
     if(dt_grp == T){
       pds2 <- lapply(split(vl, df$epid), function(x){
         paste0(
-          "*", format(min(lubridate::dmy_hms(strsplit(x, split="\\|")[[1]][1])), "%d/%m/%Y %H:%M:%S"),
-          "^" format(max(lubridate::dmy_hms(strsplit(x, split="\\|")[[1]][2]) ), "%d/%m/%Y %H:%M:%S"),
-          "!" length(x),
-          paste0(sort(unique(strsplit(x, split="\\|")[[1]][3])), collapse=","), sep="|"),
-         "*"
+          "*", format(min(lubridate::dmy_hms(substr(stringr::str_extract(x, "\\*.*\\^"), 2, nchar(stringr::str_extract(x, "\\*.*\\^"))-1))), "%d/%m/%Y %H:%M:%S"),
+          "^", format(max(lubridate::dmy_hms(substr(stringr::str_extract(x, "\\*.*\\^"), 2, nchar(stringr::str_extract(x, "\\*.*\\^"))-1)) ), "%d/%m/%Y %H:%M:%S"),
+          "!", length(x),
+          "+", paste0(sort(unique(substr(stringr::str_extract(x, "\\!.*\\+"), 2, nchar(stringr::str_extract(x, "\\!.*\\+"))-1))), collapse=","),
+          "*")
       })
       vl <- unlist(pds2[as.character(df$epid)])
-      df$a <- lubridate::dmy_hms(strsplit(vl, split="\\|")[[1]][1])
-      df$z <- lubridate::dmy_hms(strsplit(vl, split="\\|")[[1]][2])
+      df$a <- lubridate::dmy_hms(substr(stringr::str_extract(vl, "\\*.*\\^"), 2, nchar(stringr::str_extract(vl, "\\*.*\\^"))-1))
+      df$z <- lubridate::dmy_hms(substr(stringr::str_extract(vl, "\\^.*\\!"), 2, nchar(stringr::str_extract(vl, "\\^.*\\!"))-1))
+
+      diff_unit <- gsub("s$","",tolower(episode_unit))
+      diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
+      df$epid_length <- lubridate::make_difftime(difftime(df$z, df$a, units = "secs"), units = diff_unit)
     }else{
       pds2 <- lapply(split(vl, df$epid), function(x){
-        paste(min(strsplit(x, split="\\|")[[1]][1]), max(strsplit(x, split="\\|")[[1]][2]), length(x), sep="|")
+        paste0(
+          "*", min(strsplit(x, split="\\|")[[1]][1]),
+          "^", max(strsplit(x, split="\\|")[[1]][2]),
+          "!", length(x),
+          "+", paste0(sort(unique(strsplit(x, split="\\|")[[1]][3])), collapse=","),
+          "*")
       })
       vl <- unlist(pds2[as.character(df$epid)])
-      df$a <- strsplit(vl, split="\\|")[1:2][[1]]
-      df$z <- strsplit(vl, split="\\|")[[1]][2]
+      df$a <- substr(stringr::str_extract(vl, "\\*.*\\^"), 2, nchar(stringr::str_extract(vl, "\\*.*\\^"))-1)
+      df$z <- substr(stringr::str_extract(vl, "\\^.*\\!"), 2, nchar(stringr::str_extract(vl, "\\^.*\\!"))-1)
+      df$epid_length <- df$z - df$a
     }
 
-    df$epid_total <- as.numeric(strsplit(vl, split="\\|")[[1]][3])
-    df$epid_dataset <- as.numeric(strsplit(vl, split="\\|")[[1]][3])
+    df$epid_total <- as.numeric(substr(stringr::str_extract(vl, "\\!.*\\+"), 2, nchar(stringr::str_extract(vl, "\\!.*\\+"))-1))
+    df$epid_dataset <- substr(stringr::str_extract(vl, "\\+.*\\*"), 2, nchar(stringr::str_extract(vl, "\\+.*\\*"))-1)
+    df$epid_interval <- diyar::number_line(df$a, df$z, id=df$sn, gid = df$epid)
 
-    diff_unit <- gsub("s$","",tolower(episode_unit))
-    diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
-
-    if(dt_grp == T){
-      df <- dplyr::mutate(df, epid_length = lubridate::make_difftime(difftime(lubridate::dmy_hms(.data$z), lubridate::dmy_hms(.data$a), units = "secs"), units = diff_unit))
-    }else{
-      df <- dplyr::mutate(df, epid_length = .data$z - .data$a)
-    }
-    df <- dplyr::arrange(df, .data$epid)
-
-    if(dt_grp == T){
-      df <- dplyr::mutate(df, epid_interval = diyar::number_line(lubridate::dmy_hms(.data$a), lubridate::dmy_hms(.data$z), id=.data$sn, gid = .data$epid))
-    }else{
-      df <- dplyr::mutate(df, epid_interval = diyar::number_line(.data$a, .data$z, id=.data$sn, gid = .data$epid))
-    }
-
-    df <- dplyr::select(df, -c(.data$a, .data$z))
+    cols <- c("sn", "epid", "case_nm", "epid_length", "epid_total", "epid_interval")
+  }else{
+    cols <- c("sn", "epid", "case_nm")
   }
 
-  df <- dplyr::select(df, -c(.data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len))
+  if(from_last == T){
+    df$epid_interval <- diyar::reverse_number_line(df$epid_interval)
+    df$epid_length <- -df$epid_length
+  }
 
+  if(!is.null(ds)) cols <- c(cols, "epid_dataset")
+
+
+  df <- df[order(df$pr_sn), cols]
   unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = TRUE),]$epid)
 
-  pd <- ifelse(display,"\n","")
+  pd <- ifelse(display==T,"\n","")
   cat(paste(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID. \n" , sep =""))
   if(to_s4) df <- diyar::to_s4(df)
   df
