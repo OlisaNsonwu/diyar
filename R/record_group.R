@@ -98,7 +98,7 @@
 #' list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1, to_s4 = TRUE)
 #'
 #' missing_staff_id
-#'
+#' @aliases record_group
 #' @export
 record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = FALSE){
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
@@ -354,7 +354,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   df
 }
 
-#' @export
+#' @rdname record_group
 record_group_old <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = FALSE){
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   if(!(is.logical(group_stats) & is.logical(display) & is.logical(to_s4))) stop(paste("'group_stats', 'display' and 'to_s4' must be TRUE or FALSE"))

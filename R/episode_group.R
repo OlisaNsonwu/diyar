@@ -131,7 +131,7 @@
 #'
 #' # Episodes of chained admission periods, and those with aligned end periods
 #' admissions$epi_0b <- fixed_episodes(date=admissions$admin_period, case_length = 0,
-#' overlap_method = c("chain","aligns_end"), group_stats = TRUE, to_s4 = TRUE, display = FALSE)
+#' overlap_methods = c("chain|aligns_end"), group_stats = TRUE, to_s4 = TRUE, display = FALSE)
 #' admissions["epi_0b"]
 #'
 #'
@@ -303,10 +303,13 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                               "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
 
   df <- df %>%
-    dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort), .data$methods) %>%
-    dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0)
+    dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort), .data$methods)
 
-  if(from_last==TRUE){
+  df$tag <- df$epid <- df$roll <- df$episodes <-0
+  df$case_nm <- ""
+  df$pr_sn <- 1:nrow(df)
+
+  if(from_last==T){
     df$ord <- abs(max(df$rec_dt_ai) - df$rec_dt_ai)
     df$ord_z <- abs(max(df$rec_dt_zi) - df$rec_dt_zi)
   }else{
@@ -461,23 +464,19 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   df <- dplyr::bind_rows(df, h.epids.lst)
   rm(h.epids.lst)
 
-  df <- df %>%
-    dplyr::mutate(
-      case_nm= ifelse(.data$epid==0, "Case", .data$case_nm),
-      epid= ifelse(.data$epid==0, .data$sn, .data$epid)
-    )
+  df$case_nm <- ifelse(df$epid==0, "Case", df$case_nm)
+  df$epid <- ifelse(df$epid==0, df$sn, df$epid)
 
-  if(deduplicate) df <- subset(df, df$case_nm!="Duplicate")
+  if(deduplicate==T) df <- subset(df, df$case_nm!="Duplicate")
 
   df <- df[c("sn", "epid", "case_nm", "pr_sn", "rec_dt_ai", "rec_dt_zi", "dsvr")]
-  if(group_stats == T){
-    vl <- paste0("*",format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"),"^",format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"),"!",df$dsvr,"+")
-
+  if(group_stats == T | !is.null(ds)){
     if(dt_grp == T){
+      vl <- paste0("*",format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"),"^",format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"),"!",df$dsvr,"+")
       pds2 <- lapply(split(vl, df$epid), function(x){
         paste0(
           "*", format(min(lubridate::dmy_hms(substr(stringr::str_extract(x, "\\*.*\\^"), 2, nchar(stringr::str_extract(x, "\\*.*\\^"))-1))), "%d/%m/%Y %H:%M:%S"),
-          "^", format(max(lubridate::dmy_hms(substr(stringr::str_extract(x, "\\*.*\\^"), 2, nchar(stringr::str_extract(x, "\\*.*\\^"))-1)) ), "%d/%m/%Y %H:%M:%S"),
+          "^", format(max(lubridate::dmy_hms(substr(stringr::str_extract(x, "\\^.*\\!"), 2, nchar(stringr::str_extract(x, "\\^.*\\!"))-1)) ), "%d/%m/%Y %H:%M:%S"),
           "!", length(x),
           "+", paste0(sort(unique(substr(stringr::str_extract(x, "\\!.*\\+"), 2, nchar(stringr::str_extract(x, "\\!.*\\+"))-1))), collapse=","),
           "*")
@@ -490,17 +489,18 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
       df$epid_length <- lubridate::make_difftime(difftime(df$z, df$a, units = "secs"), units = diff_unit)
     }else{
+      vl <- paste0("*", format(df$rec_dt_ai, scientific = F) ,"^", format(df$rec_dt_zi, scientific = F) ,"!",df$dsvr,"+")
       pds2 <- lapply(split(vl, df$epid), function(x){
         paste0(
-          "*", min(strsplit(x, split="\\|")[[1]][1]),
-          "^", max(strsplit(x, split="\\|")[[1]][2]),
+          "*", min(as.numeric(substr(stringr::str_extract(x, "\\*.*\\^"), 2, nchar(stringr::str_extract(x, "\\*.*\\^"))-1))),
+          "^", max(as.numeric(substr(stringr::str_extract(x, "\\^.*\\!"), 2, nchar(stringr::str_extract(x, "\\^.*\\!"))-1))),
           "!", length(x),
-          "+", paste0(sort(unique(strsplit(x, split="\\|")[[1]][3])), collapse=","),
+          "+", paste0(sort(unique(substr(stringr::str_extract(x, "\\!.*\\+"), 2, nchar(stringr::str_extract(x, "\\!.*\\+"))-1))), collapse=","),
           "*")
       })
       vl <- unlist(pds2[as.character(df$epid)])
-      df$a <- substr(stringr::str_extract(vl, "\\*.*\\^"), 2, nchar(stringr::str_extract(vl, "\\*.*\\^"))-1)
-      df$z <- substr(stringr::str_extract(vl, "\\^.*\\!"), 2, nchar(stringr::str_extract(vl, "\\^.*\\!"))-1)
+      df$a <- as.numeric(substr(stringr::str_extract(vl, "\\*.*\\^"), 2, nchar(stringr::str_extract(vl, "\\*.*\\^"))-1))
+      df$z <- as.numeric(substr(stringr::str_extract(vl, "\\^.*\\!"), 2, nchar(stringr::str_extract(vl, "\\^.*\\!"))-1))
       df$epid_length <- df$z - df$a
     }
 
@@ -508,21 +508,20 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$epid_dataset <- substr(stringr::str_extract(vl, "\\+.*\\*"), 2, nchar(stringr::str_extract(vl, "\\+.*\\*"))-1)
     df$epid_interval <- diyar::number_line(df$a, df$z, id=df$sn, gid = df$epid)
 
-    cols <- c("sn", "epid", "case_nm", "epid_length", "epid_total", "epid_interval")
-  }else{
-    cols <- c("sn", "epid", "case_nm")
+    if(from_last == T){
+      df$epid_interval <- diyar::reverse_number_line(df$epid_interval)
+      df$epid_length <- -df$epid_length
+    }
   }
 
-  if(from_last == T){
-    df$epid_interval <- diyar::reverse_number_line(df$epid_interval)
-    df$epid_length <- -df$epid_length
-  }
 
+
+  cols <- c("sn", "epid", "case_nm")
+  if(group_stats==T) cols <- c(cols, c("epid_length", "epid_total", "epid_interval"))
   if(!is.null(ds)) cols <- c(cols, "epid_dataset")
 
-
   df <- df[order(df$pr_sn), cols]
-  unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = TRUE),]$epid)
+  unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = T),]$epid)
 
   pd <- ifelse(display==T,"\n","")
   cat(paste(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID. \n" , sep =""))
@@ -530,8 +529,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   df
 }
 
-
-#' @export
+#' @rdname episode_group
 episode_group_old <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
@@ -551,7 +549,7 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
     # if not, display the message
     if(all(!lg)){
       if (is.null(getOption("diyar.episode_group.output"))){
-        options("diyar.episode_group.output"= TRUE)
+        options("diyar.episode_group.output"= T)
       }
       if (getOption("diyar.episode_group.output")){
         message(paste("The default output of episode_group() will be changed to epid objects in the next release.",
@@ -687,7 +685,7 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
     dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort), .data$methods) %>%
     dplyr::mutate(tag = 0, epid = 0, case_nm="", pr_sn = dplyr::row_number(), roll=0, episodes=0)
 
-  if(from_last==TRUE){
+  if(from_last==T){
     df$ord <- abs(max(df$rec_dt_ai) - df$rec_dt_ai)
     df$ord_z <- abs(max(df$rec_dt_zi) - df$rec_dt_zi)
   }else{
@@ -773,11 +771,11 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
     df <- df %>%
       dplyr::mutate(
         epid_type = ifelse(
-          .data$r_range == TRUE & !is.na(.data$r_range) & .data$tr_tag!=0 & !is.na(.data$tr_tag),
+          .data$r_range == T & !is.na(.data$r_range) & .data$tr_tag!=0 & !is.na(.data$tr_tag),
           ifelse(.data$case_nm=="Duplicate", 2,3), 0
         ),
         epid_type = ifelse(
-          .data$tag==0 & .data$c_range == TRUE & !is.na(.data$c_range) & .data$tr_tag==0 & !is.na(.data$tr_tag),
+          .data$tag==0 & .data$c_range == T & !is.na(.data$c_range) & .data$tr_tag==0 & !is.na(.data$tr_tag),
           ifelse(.data$tr_sn==.data$sn & !is.na(.data$sn), 1,2), .data$epid_type
         ),
         c_hit = ifelse(.data$epid==0 & .data$epid_type %in% 1:3 | (.data$tr_sn ==.data$sn & !is.na(.data$tr_sn)), 1, 0),
@@ -828,7 +826,7 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
       dplyr::mutate(
         mrk_z= ifelse(.data$c_hit==1, paste(.data$epid, .data$epid_type, sep="_"), ""),
         tag=ifelse(episode_type == "rolling" & .data$roll < rolls_max & .data$epid_type %in% 2:3 &
-                     !duplicated(.data$mrk_z, fromLast=TRUE) & .data$fg_c !=1 &
+                     !duplicated(.data$mrk_z, fromLast=T) & .data$fg_c !=1 &
                      !(.data$tr_sn == .data$sn & .data$tr_tag %in% c(1, 1.5)),
                    ifelse(.data$epid_type == 2, 1.5, 1), .data$tag)
       ) %>%
@@ -877,7 +875,7 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
     epid_l <-
       dplyr::bind_rows(
         dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord), !duplicated(.data$epid)), var ="a" ),
-        dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord_z), !duplicated(.data$epid, fromLast = TRUE)), var ="z" )
+        dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord_z), !duplicated(.data$epid, fromLast = T)), var ="z" )
       ) %>%
       dplyr::mutate_at(c("rec_dt_ai", "rec_dt_zi"), ~ ifelse(dt_grp==rep(T,length(.)), format(., "%d/%m/%Y %H:%M:%S"),.)) %>%
       dplyr::mutate(val = ifelse(.data$var=="a", .data$rec_dt_ai, .data$rec_dt_zi)) %>%
@@ -911,7 +909,7 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
 
   df <- dplyr::select(df, -c(.data$pr_sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$ord, .data$ord_z, .data$epi_len))
 
-  unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = TRUE),]$epid)
+  unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = T),]$epid)
 
   pd <- ifelse(display,"\n","")
   cat(paste(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID. \n" , sep =""))
