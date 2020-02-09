@@ -2,11 +2,20 @@
 % Please edit documentation in R/episode_group.R
 \name{episode_group}
 \alias{episode_group}
+\alias{episode_group_old}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
+  episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
+  recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
+  "across", "inbetween", "aligns_start", "aligns_end", "chain"),
+  overlap_methods = NULL, bi_direction = FALSE, group_stats = FALSE,
+  display = TRUE, deduplicate = FALSE, to_s4 = FALSE)
+
+episode_group_old(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
@@ -184,7 +193,7 @@ admissions
 
 # Episodes of chained admission periods, and those with aligned end periods
 admissions$epi_0b <- fixed_episodes(date=admissions$admin_period, case_length = 0,
-overlap_method = c("chain","aligns_end"), group_stats = TRUE, to_s4 = TRUE, display = FALSE)
+overlap_methods = c("chain|aligns_end"), group_stats = TRUE, to_s4 = TRUE, display = FALSE)
 admissions["epi_0b"]
 
 

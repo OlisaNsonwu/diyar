@@ -2,9 +2,14 @@
 % Please edit documentation in R/record_group.R
 \name{record_group}
 \alias{record_group}
+\alias{record_group_old}
 \title{Multistage deterministic record linkage}
 \usage{
 record_group(df, sn = NULL, criteria, sub_criteria = NULL,
+  data_source = NULL, group_stats = FALSE, display = TRUE,
+  to_s4 = FALSE)
+
+record_group_old(df, sn = NULL, criteria, sub_criteria = NULL,
   data_source = NULL, group_stats = FALSE, display = TRUE,
   to_s4 = FALSE)
 }
@@ -113,7 +118,6 @@ missing_staff_id$pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
 list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1, to_s4 = TRUE)
 
 missing_staff_id
-
 }
 \seealso{
 \code{\link{episode_group}} and \code{\link{number_line}}
