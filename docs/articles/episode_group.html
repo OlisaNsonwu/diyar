@@ -78,7 +78,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">19 January 2020</h4>
+            <h4 class="date">10 February 2020</h4>
       
       
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -378,22 +378,22 @@ dbs
 <p>Below are simple examples;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>), <span class="st">"%d/%M/%Y"</span>)
 dates
-<span class="co">#&gt; [1] "2019-01-01" "2019-01-05"</span>
+<span class="co">#&gt; [1] "2019-02-01" "2019-02-05"</span>
 
 <span class="co"># A 10-day period from each date</span>
 periods &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(dates, dates <span class="op">+</span><span class="st"> </span><span class="dv">10</span>)
 periods
-<span class="co">#&gt; [1] "2019-01-01 -&gt; 2019-01-11" "2019-01-05 -&gt; 2019-01-15"</span>
+<span class="co">#&gt; [1] "2019-02-01 -&gt; 2019-02-11" "2019-02-05 -&gt; 2019-02-15"</span>
 
 <span class="co"># Grouping events</span>
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dates, <span class="dt">case_length=</span><span class="dv">30</span>, <span class="dt">to_s4=</span><span class="ot">TRUE</span>, <span class="dt">display=</span><span class="ot">FALSE</span>, <span class="dt">group_stat=</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E-1 2019-01-01 -&gt; 2019-01-05 (C)" "E-1 2019-01-01 -&gt; 2019-01-05 (D)"</span>
+<span class="co">#&gt; [1] "E-1 2019-02-01 -&gt; 2019-02-05 (C)" "E-1 2019-02-01 -&gt; 2019-02-05 (D)"</span>
 
 <span class="co"># Grouping periods</span>
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>periods, <span class="dt">case_length=</span><span class="dv">30</span>, <span class="dt">to_s4=</span><span class="ot">TRUE</span>, <span class="dt">display=</span><span class="ot">FALSE</span>, <span class="dt">group_stat=</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E-1 2019-01-01 -&gt; 2019-01-15 (C)" "E-1 2019-01-01 -&gt; 2019-01-15 (D)"</span></code></pre></div>
+<span class="co">#&gt; [1] "E-1 2019-02-01 -&gt; 2019-02-15 (C)" "E-1 2019-02-01 -&gt; 2019-02-15 (D)"</span></code></pre></div>
 <p>For a practical example, below are periods of hospital stay which have been grouped into episodes. This is different from grouping the actual admission or discharge events.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hos_admin &lt;-<span class="st"> </span>diyar<span class="op">::</span>hospital_admissions
 

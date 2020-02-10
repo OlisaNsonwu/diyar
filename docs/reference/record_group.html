@@ -125,6 +125,10 @@
 
     <pre class="usage"><span class='fu'>record_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>criteria</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+
+<span class='fu'>record_group_old</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>criteria</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -357,8 +361,7 @@ If all <code>criteria</code> values are missing, that record is assigned a uniqu
 #&gt; </span><span style='color: #555555;'>5</span><span>     5       </span><span style='color: #BB0000;'>NA</span><span>    30 </span><span style='color: #BB0000;'>NA</span><span>       Green       France        A               1
 #&gt; </span><span style='color: #555555;'>6</span><span>     6        2    30 G.D.     Dark brown  Ghana         A               1
 #&gt; </span><span style='color: #555555;'>7</span><span>     7        2    30 G.D.     Brown       Republic of ~ B               2
-#&gt; </span><span style='color: #555555;'># ... with 1 more variable: pids </span><span style='color: #555555;font-style: italic;'>&lt;pid&gt;</span><span></div><div class='input'>
-</div></span></pre>
+#&gt; </span><span style='color: #555555;'># ... with 1 more variable: pids </span><span style='color: #555555;font-style: italic;'>&lt;pid&gt;</span><span></div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
