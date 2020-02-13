@@ -14,8 +14,8 @@ data$d <- as.numeric(duration(data$episode_len, "days"))
 data <- mutate(data, rd_id = row_number())
 data$date_int <- as.number_line(data$date)
 data$date_int@id <- 1
-# episode grouping with episode_group()
-test_1 <- episode_group(head(data,10), strata = pid, date = date, case_length = episode_len, group_stats = T)
+# episode grouping with episode_group_xx()
+test_1 <- episode_group_xx(head(data,10), strata = pid, date = date, case_length = episode_len, group_stats = T)
 
 t_ds <- head(data,10)
 
@@ -28,7 +28,7 @@ e_int <- c(
   rep(number_line(dmy_hms("10/04/2018 00:00:00"), dmy_hms("16/04/2018  00:00:00")), 3),
   rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("25/04/2018  00:00:00")), 3),
   rep(number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018  00:00:00")), 1)
-  )
+)
 
 test_that("test that test episode identifier is as expected for fixed episodes", {
   expect_equal(test_1$epid, c(1,1,1,4,4,4,7,7,7,10))
@@ -46,8 +46,8 @@ data_2 <- mutate(head(data,10), episode_len_s=13, d = as.numeric(duration(13, "d
 
 test_2 <-
   cbind(data_2,
-        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = F, group_stats = T), funs(paste(.,1,sep="."))),
-        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = T, group_stats = T), funs(paste(.,2,sep=".")))
+        rename_all(episode_group_xx(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = F, group_stats = T), funs(paste(.,1,sep="."))),
+        rename_all(episode_group_xx(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = T, group_stats = T), funs(paste(.,2,sep=".")))
   )
 
 e_int.1 <- c(
@@ -82,8 +82,8 @@ test_that("test reverse episode grouping", {
 
 # Test 3 - Rolling episodes
 test_3 <- cbind(data_2,
-                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = T, group_stats = T), funs(paste(.,2,sep=".")))
+                rename_all(episode_group_xx(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = F, group_stats = T), funs(paste(.,1,sep="."))),
+                rename_all(episode_group_xx(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = T, group_stats = T), funs(paste(.,2,sep=".")))
 )
 
 e_int.1 <- c(
@@ -117,8 +117,8 @@ test_that("test rolling/recurring episodes", {
 # Test 3 - Rolls max
 data_4 <- mutate(data_2, recurrence=3, r = as.numeric(duration(3,"days")))
 test_4 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = F, group_stats = T), funs(paste(.,2,sep=".")))
+                rename_all(episode_group_xx(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = F, group_stats = T), funs(paste(.,1,sep="."))),
+                rename_all(episode_group_xx(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = F, group_stats = T), funs(paste(.,2,sep=".")))
 )
 
 e_int.1 <- c(
@@ -133,7 +133,7 @@ e_int.2 <- c(
 test_that("test user defined recurrence length and roll_max", {
   expect_equal(test_4$epid.1, rep(1,10))
   expect_equal(test_4$epid.2, c(rep(1,6), rep(7,4)))
-  expect_equal(test_4$case_nm.1, c("Case",rep("Duplicate",4), c("Recurrent","Duplicate","Recurrent","Duplicate","Recurrent") ))
+  expect_equal(test_4$case_nm.1, c("Case",rep("Duplicate",4),rep("Recurrent",5)))
   expect_equal(test_4$case_nm.2, c("Case",rep("Duplicate",4),"Recurrent","Case",rep("Duplicate",3)))
 
   e_int.2@id <- e_int.1@id <- 1:10
@@ -151,8 +151,8 @@ test_that("test user defined recurrence length and roll_max", {
 
 # Test 5 - Episodes max
 test_5 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 1, display = F, group_stats = T), list(~paste(.,1,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 2,  display = F, group_stats = T), list(~paste(.,2,sep=".")))
+                rename_all(episode_group_xx(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 1, display = F, group_stats = T), list(~paste(.,1,sep="."))),
+                rename_all(episode_group_xx(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 2,  display = F, group_stats = T), list(~paste(.,2,sep=".")))
 )
 
 e_int.1 <- c(
@@ -191,10 +191,10 @@ test_that("testing user defined episodes_max", {
 
 # Test 6 - Combining rolls_max and episodes_max
 test_6 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 1, rolls_max = 1, display = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), funs(paste(.,2,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), funs(paste(.,3,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 3, display = F, group_stats = T), funs(paste(.,4,sep=".")))
+                rename_all(episode_group_xx(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 1, rolls_max = 1, display = F, group_stats = T), funs(paste(.,1,sep="."))),
+                rename_all(episode_group_xx(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), funs(paste(.,2,sep="."))),
+                rename_all(episode_group_xx(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), funs(paste(.,3,sep="."))),
+                rename_all(episode_group_xx(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 3, display = F, group_stats = T), funs(paste(.,4,sep=".")))
 
 )
 
@@ -227,7 +227,7 @@ test_that("testing episodes_max and rolls_max combinations", {
   expect_equal(test_6$epid.3, c(rep(1,6),rep(7,4)))
   expect_equal(test_6$epid.4, c(rep(1,8), rep(9,2)))
   expect_equal(test_6$case_nm.3, c("Case",rep("Duplicate",4),"Recurrent", "Case", rep("Duplicate",3)))
-  expect_equal(test_6$case_nm.4, rep(c("Case",rep("Duplicate",4),c("Recurrent","Duplicate","Recurrent")),2)[1:10])
+  expect_equal(test_6$case_nm.4, rep(c("Case",rep("Duplicate",4),rep("Recurrent",3)),2)[1:10])
 
   e_int.4@id <- e_int.3@id <- e_int.2@id <- e_int.1@id <- 1:10
   e_int.1@gid <- c(rep(1,6),7:10)
@@ -255,8 +255,8 @@ data_7 <-  mutate(data_4, recurrence=2)
 data_7$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,3)), sep="")
 
 test_7 <- cbind(data_7,
-                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = dataset, display = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = c(dataset, episode_len_s), display = F, group_stats = T), funs(paste(.,2,sep=".")))
+                rename_all(episode_group_xx(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = dataset, display = F, group_stats = T), funs(paste(.,1,sep="."))),
+                rename_all(episode_group_xx(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = c(dataset, episode_len_s), display = F, group_stats = T), funs(paste(.,2,sep=".")))
 )
 
 e_int.1 <- c(
@@ -294,12 +294,13 @@ hospital_infections <- tibble(
   epi_len = 15
 )
 
-hospital_infections <- diyar::infections
+data(infections)
+hospital_infections <- infections
 # Test 8 - Episode unit
 # 16-hour (difference of 15 hours) episodes, and the most recent record defined as the "Case"
 test_8a <- bind_cols(hospital_infections,
-                     episode_group(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
-                                   from_last = T, episode_unit = "hours", display = F, group_stats = T)) %>%
+                     episode_group_xx(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
+                                      from_last = T, episode_unit = "hours", display = F, group_stats = T)) %>%
   select(-sn)
 
 e_int <- number_line(test_8a$date, test_8a$date)
@@ -317,8 +318,8 @@ test_that("testing; episode grouping by the hour", {
 
 # 15-week (difference of 9072000 seconds) episodes , and the most recent record defined as the "Case"
 test_8b <- bind_cols(hospital_infections,
-                     episode_group(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
-                                   from_last = T, episode_unit = "weeks", display = F, group_stats = T)) %>%
+                     episode_group_xx(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
+                                      from_last = T, episode_unit = "weeks", display = F, group_stats = T)) %>%
   select(-sn)
 
 e_int <- rep(number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 11)
@@ -351,8 +352,8 @@ hospital_infections <- mutate(
 
 # n-day episodes beginning with the earliest record with the specified preference; UTI > BSI > RTI
 test_9a <- bind_cols(hospital_infections,
-                     episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
-                                   custom_sort = infection,  display = F, group_stats = T)) %>% select(-sn)
+                     episode_group_xx(hospital_infections, rd_id, date=date, case_length = epi_len,
+                                      custom_sort = infection,  display = F, group_stats = T)) %>% select(-sn)
 
 e_int <- c(
   number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")),
@@ -378,11 +379,11 @@ hospital_infections$infection_ord <- ifelse(hospital_infections$infection =="RTI
 
 # n-day episodes with duplicates before and after the most recent "RTI" record, otherwise begin at the most recent record
 test_9b <- bind_cols(hospital_infections,
-                     rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
-                                              custom_sort = infection_ord, from_last = T, bi_direction = T, display = F, group_stats = T), funs(paste(.,1,sep="."))),
+                     rename_all(episode_group_xx(hospital_infections, rd_id, date=date, case_length = epi_len,
+                                                 custom_sort = infection_ord, from_last = T, bi_direction = T, display = F, group_stats = T), funs(paste(.,1,sep="."))),
 
-                     rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
-                                              custom_sort = infection_ord, from_last = T, bi_direction = F, display = F, group_stats = T), funs(paste(.,2,sep=".")))
+                     rename_all(episode_group_xx(hospital_infections, rd_id, date=date, case_length = epi_len,
+                                                 custom_sort = infection_ord, from_last = T, bi_direction = F, display = F, group_stats = T), funs(paste(.,2,sep=".")))
 ) %>%
   select(-starts_with("sn"))
 
@@ -418,8 +419,8 @@ hospital_infections$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Only one n-day episode per patient_id
 test_10a <- bind_cols(hospital_infections,
-                      episode_group(hospital_infections, rd_id, date=date, strata = patient_id, case_length = epi_len,
-                                    episodes_max = 1, from_last = F, display = F, data_source = infection, group_stats = T)) %>%
+                      episode_group_xx(hospital_infections, rd_id, date=date, strata = patient_id, case_length = epi_len,
+                                       episodes_max = 1, from_last = F, display = F, data_source = infection, group_stats = T)) %>%
   select(-sn)
 
 e_int <- c(
@@ -447,42 +448,42 @@ test_that("testing; stratified grouping", {
 
 
 test_10a.1 <- bind_cols(hospital_infections,
-                        episode_group(hospital_infections, rd_id, date=date, strata = patient_id, case_length = epi_len,
-                                      episode_type="rolling", display = FALSE, data_source = infection, group_stats = T)) %>%
+                        episode_group_xx(hospital_infections, rd_id, date=date, strata = patient_id, case_length = epi_len,
+                                         episode_type="rolling", display = F, data_source = infection, group_stats = T)) %>%
   select(-sn)
 
 # Only three 9-day (difference of 8 days) rolling episode per patient and infection.
 hospital_infections$epi_len <- 8
 hospital_infections$recur <- 30
 test_10b <- bind_cols(hospital_infections,
-                      episode_group(hospital_infections, rd_id, date=date, strata = c(patient_id, infection), case_length = epi_len,
-                                    episode_type = "rolling", recurrence_length = recur, episodes_max = 3, data_source = c(patient_id, infection),
-                                    display = FALSE, group_stats = T)) %>%
+                      episode_group_xx(hospital_infections, rd_id, date=date, strata = c(patient_id, infection), case_length = epi_len,
+                                       episode_type = "rolling", recurrence_length = recur, episodes_max = 3, data_source = c(patient_id, infection),
+                                       display = F, group_stats = T)) %>%
   select(-sn)
 
 e_int <- c(
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
+  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")),
   rep(number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")), 3),
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
+  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")),
   number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")),
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
+  number_line(dmy_hms("07/05/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
+  number_line(dmy_hms("07/05/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
   rep(number_line(dmy_hms("19/05/2018 00:00:00"), dmy_hms("25/05/2018 00:00:00")), 2),
   number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"))
 )
 
 test_that("testing; stratified grouping 2", {
-  expect_equal(test_10b$epid, c(1,2,2,2,1,2,1,1,9,9, 11))
+  expect_equal(test_10b$epid, c(1, rep(2,3), 5,2, 7,7,9,9, 11))
   expect_equal(test_10b$case_nm, c("Case","Case","Duplicate","Recurrent",
-                                   "Recurrent", "Duplicate", "Duplicate",
+                                   "Case", "Duplicate", "Case",
                                    "Duplicate","Case","Duplicate","Case"
   ))
   e_int@id <- 1:11
-  e_int@gid <- c(1,2,2,2,1,2,1,1,9,9, 11)
+  e_int@gid <- c(1, rep(2,3), 5,2, 7,7,9,9, 11)
 
   expect_equal(test_10b$epid_interval, e_int)
-  expect_equal(test_10b$epid_total, c(rep(4,8),2,2,1))
-  expect_equal(test_10b$epid_length, as.difftime(c(42, rep(24,3), 42, 24, 42, 42, rep(6,2), 0), units = "days" ))
+  expect_equal(test_10b$epid_total, c(1, rep(4,3), 1,4, rep(2,4),1))
+  expect_equal(test_10b$epid_length, as.difftime(c(0, rep(24,3), 0, 24, rep(6,4), 0), units = "days" ))
 })
 
 #Test 11 - Interval grouping
@@ -507,7 +508,7 @@ admissions
 # episodes of overlaping intervals of admission
 test_11a <- bind_cols(
   admissions,
-  episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, group_stats = T)) %>%
+  episode_group_xx(admissions, date=admin_period, sn=rd_id, case_length = epi_len, group_stats = T)) %>%
   select(-c(admin_dt, discharge_dt, sn))
 
 e_int <- c(
@@ -533,8 +534,8 @@ admissions$recur <- 1
 
 test_11b <- bind_cols(
   admissions,
-  episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len,
-                episode_type = "rolling", recurrence_length = recur, episode_unit = "months", group_stats = T)) %>%
+  episode_group_xx(admissions, date=admin_period, sn=rd_id, case_length = epi_len,
+                   episode_type = "rolling", recurrence_length = recur, episode_unit = "months", group_stats = T)) %>%
   select(-c(admin_dt, discharge_dt, sn))
 
 e_int <- c(
@@ -557,7 +558,7 @@ test_that("testing; intervals grouping for rolling intervals", {
 admissions$epi_len <- 1
 
 test_11c <- bind_cols(admissions,
-                      episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, episode_unit = "months", group_stats = T)) %>%
+                      episode_group_xx(admissions, date=admin_period, sn=rd_id, case_length = epi_len, episode_unit = "months", group_stats = T)) %>%
   select(-c(admin_dt, discharge_dt, sn))
 
 e_int <- c(
@@ -582,34 +583,34 @@ dft_10$epi_len <- -3
 dft_11$recur <- "A"
 admissions$pid <- "PID"
 test_that("test that error and warning messages are returned correctly", {
-  expect_error(episode_group(as.list(dft_8), date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "A dataframe is required")
-  expect_error(episode_group(dft_8, date=admin_periods, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "'admin_periods' not found")
-  expect_error(episode_group(dft_8, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "'sn' must be > 0")
-  expect_error(episode_group(dft_9, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "'sn' must not have duplicate values")
-  expect_error(episode_group(admissions, date=pid, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "'date' must be a date, datetime, numeric or number_line object, and not have missing values")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", from_last = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = 1), "'episode_unit' must be a character of length 1")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_type = 1), "'episode_type' must be a character of length 1")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_type = c("rolling","fixed")), "'episode_type' must be a character of length 1")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_type = "moving"), "`episode_type` must be either 'rolling' or 'fixed'")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, overlap_method = 10), "'overlap_method' must be a character object")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_type = "rolling", rolls_max = NA, episodes_max = NA), "'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf")
+  expect_error(episode_group_xx(as.list(dft_8), date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_unit = "months", group_stats = T), "A dataframe is required")
+  expect_error(episode_group_xx(dft_8, date=admin_periods, sn=rd_id,
+                                case_length = epi_len, episode_unit = "months", group_stats = T), "'admin_periods' not found")
+  expect_error(episode_group_xx(dft_8, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_unit = "months", group_stats = T), "'sn' must be > 0")
+  expect_error(episode_group_xx(dft_9, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_unit = "months", group_stats = T), "'sn' must not have duplicate values")
+  expect_error(episode_group_xx(admissions, date=pid, sn=rd_id,
+                                case_length = epi_len, episode_unit = "months", group_stats = T), "'date' must be a date, datetime, numeric or number_line object, and not have missing values")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_unit = "months", from_last = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_unit = 1), "'episode_unit' must be a character of length 1")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_type = 1), "'episode_type' must be a character of length 1")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_type = c("rolling","fixed")), "'episode_type' must be a character of length 1")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_type = "moving"), "`episode_type` must be either 'rolling' or 'fixed'")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, overlap_method = 10), "'overlap_method' must be a character object")
+  expect_error(episode_group_xx(admissions, date=admin_period, sn=rd_id,
+                                case_length = epi_len, episode_type = "rolling", rolls_max = NA, episodes_max = NA), "'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf")
 })
 
 t_ds <- hospital_infections
@@ -618,68 +619,68 @@ t_ds$date <- dmy_hms(format(t_ds$date, "%d/%m/%Y 00:00:00"))
 t_ds$epi_len <- as.numeric(duration(t_ds$epi_len, "days"))
 
 test_that("test fixed and rolling episode funcs errors", {
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
 
-  expect_error(rolling_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
-  expect_error(fixed_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
+  expect_error(rolling_episodes_xx(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
+  expect_error(fixed_episodes_xx(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
 
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 1), "'overlap_method' must be a character object")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 2), "'overlap_method' must be a character object")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = Inf, strata = t_ds$patient_id), "'case_length' must be integer or numeric values")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 1), "'overlap_method' must be a character object")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 2), "'overlap_method' must be a character object")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = Inf, strata = t_ds$patient_id), "'case_length' must be integer or numeric values")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
 
-  expect_error(rolling_episodes(date=t_ds$date, case_length = 30, data_source = c(1,1), strata = t_ds$patient_id), "length of 'data_source' must be 1 or the same as 'date'")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = 30, data_source = c(1,1), strata = t_ds$patient_id), "length of 'data_source' must be 1 or the same as 'date'")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = 30, custom_sort = c(1,1), strata = t_ds$patient_id), "length of 'custom_sort' must be 1 or the same as 'date'")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = 30, custom_sort = c(1,1), strata = t_ds$patient_id), "length of 'custom_sort' must be 1 or the same as 'date'")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = 30, data_source = c(1,1), strata = t_ds$patient_id), "length of 'data_source' must be 1 or the same as 'date'")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = 30, data_source = c(1,1), strata = t_ds$patient_id), "length of 'data_source' must be 1 or the same as 'date'")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = 30, custom_sort = c(1,1), strata = t_ds$patient_id), "length of 'custom_sort' must be 1 or the same as 'date'")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = 30, custom_sort = c(1,1), strata = t_ds$patient_id), "length of 'custom_sort' must be 1 or the same as 'date'")
 
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, recurrence_length = t_ds$epi_len[1:2],strata = t_ds$patient_id), "length of 'recurrence_length' must be 1 or the same as 'date'")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'date'")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'date'")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, recurrence_length = t_ds$epi_len[1:2],strata = t_ds$patient_id), "length of 'recurrence_length' must be 1 or the same as 'date'")
+  expect_error(rolling_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'date'")
+  expect_error(fixed_episodes_xx(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id[1:2]), "length of 'strata' must be 1 or the same as 'date'")
 
-  expect_warning(fixed_episodes(x=t_ds$date, case_length = t_ds$epi_len), "'x' is deprecated; please use 'date' instead.")
-  expect_warning(rolling_episodes(x=t_ds$date, case_length = t_ds$epi_len), "'x' is deprecated; please use 'date' instead.")
+  expect_warning(fixed_episodes_xx(x=t_ds$date, case_length = t_ds$epi_len), "'x' is deprecated; please use 'date' instead.")
+  expect_warning(rolling_episodes_xx(x=t_ds$date, case_length = t_ds$epi_len), "'x' is deprecated; please use 'date' instead.")
 
 })
 
 
-infections <- diyar::infections
+data("infections")
 
-fixed_epids_1 <- episode_group(infections, case_length = epi_len, date=date, to_s4=T)
-fixed_epids_2 <- fixed_episodes(date = infections$date, case_length = 15, to_s4=T)
-fixed_epids_2b <- fixed_episodes(sn= 1:length(infections$date), date = infections$date, case_length = 15, to_s4=T)
+fixed_epids_1 <- episode_group_xx(infections, case_length = epi_len, date=date, to_s4=T)
+fixed_epids_2 <- fixed_episodes_xx(date = infections$date, case_length = 15, to_s4=T)
+fixed_epids_2b <- fixed_episodes_xx(sn= 1:length(infections$date), date = infections$date, case_length = 15, to_s4=T)
 
-fixed_epids_3 <- episode_group(infections, case_length = epi_len, date=date, data_source = infection, to_s4=T)
-fixed_epids_4 <- fixed_episodes(date = infections$date, case_length = 15, data_source = infections$infection, to_s4=T)
+fixed_epids_3 <- episode_group_xx(infections, case_length = epi_len, date=date, data_source = infection, to_s4=T)
+fixed_epids_4 <- fixed_episodes_xx(date = infections$date, case_length = 15, data_source = infections$infection, to_s4=T)
 
-fixed_epids_5 <- episode_group(infections, case_length = epi_len, date=date, strata = infection, to_s4=T)
-fixed_epids_6 <- fixed_episodes(date = infections$date, case_length = 15, strata = infections$infection, to_s4=T)
+fixed_epids_5 <- episode_group_xx(infections, case_length = epi_len, date=date, strata = infection, to_s4=T)
+fixed_epids_6 <- fixed_episodes_xx(date = infections$date, case_length = 15, strata = infections$infection, to_s4=T)
 
-fixed_epids_7 <- episode_group(infections, case_length = epi_len, date=date, custom_sort = infection, to_s4=T)
-fixed_epids_8 <- fixed_episodes(date = infections$date, case_length = 15, custom_sort = infections$infection, to_s4=T)
+fixed_epids_7 <- episode_group_xx(infections, case_length = epi_len, date=date, custom_sort = infection, to_s4=T)
+fixed_epids_8 <- fixed_episodes_xx(date = infections$date, case_length = 15, custom_sort = infections$infection, to_s4=T)
 
 
-rolling_epids_1 <- episode_group(infections, case_length = epi_len, date=date, episode_type = "rolling", to_s4=T)
-rolling_epids_2 <- rolling_episodes(date = infections$date, case_length = 15, to_s4=T)
-rolling_epids_2b <- rolling_episodes(sn= 1:length(infections$date), date = infections$date, case_length = 15, to_s4=T)
+rolling_epids_1 <- episode_group_xx(infections, case_length = epi_len, date=date, episode_type = "rolling", to_s4=T)
+rolling_epids_2 <- rolling_episodes_xx(date = infections$date, case_length = 15, to_s4=T)
+rolling_epids_2b <- rolling_episodes_xx(sn= 1:length(infections$date), date = infections$date, case_length = 15, to_s4=T)
 
-rolling_epids_3 <- episode_group(infections, case_length = epi_len, date=date, data_source = infection, episode_type = "rolling", to_s4=T)
-rolling_epids_4 <- rolling_episodes(date = infections$date, case_length = 15, data_source = infections$infection, to_s4=T)
+rolling_epids_3 <- episode_group_xx(infections, case_length = epi_len, date=date, data_source = infection, episode_type = "rolling", to_s4=T)
+rolling_epids_4 <- rolling_episodes_xx(date = infections$date, case_length = 15, data_source = infections$infection, to_s4=T)
 
-rolling_epids_5 <- episode_group(infections, case_length = epi_len, date=date, strata = infection, episode_type = "rolling", to_s4=T)
-rolling_epids_6 <- rolling_episodes(date = infections$date, case_length = 15, strata = infections$infection, to_s4=T)
+rolling_epids_5 <- episode_group_xx(infections, case_length = epi_len, date=date, strata = infection, episode_type = "rolling", to_s4=T)
+rolling_epids_6 <- rolling_episodes_xx(date = infections$date, case_length = 15, strata = infections$infection, to_s4=T)
 
-rolling_epids_7 <- episode_group(infections, case_length = epi_len, date=date, custom_sort = infection, episode_type = "rolling", to_s4=T)
-rolling_epids_8 <- rolling_episodes(date = infections$date, case_length = 15, custom_sort = infections$infection, to_s4=T)
-rolling_epids_8b <- rolling_episodes(date = infections$date, case_length = 15, recurrence_length = 15, custom_sort = infections$infection, to_s4=T)
+rolling_epids_7 <- episode_group_xx(infections, case_length = epi_len, date=date, custom_sort = infection, episode_type = "rolling", to_s4=T)
+rolling_epids_8 <- rolling_episodes_xx(date = infections$date, case_length = 15, custom_sort = infections$infection, to_s4=T)
+rolling_epids_8b <- rolling_episodes_xx(date = infections$date, case_length = 15, recurrence_length = 15, custom_sort = infections$infection, to_s4=T)
 
-dup_f_epid <- episode_group(infections, case_length = epi_len, date=date, to_s4=T, deduplicate = T)
+dup_f_epid <- episode_group_xx(infections, case_length = epi_len, date=date, to_s4=T, deduplicate = T)
 
 test_that("test fixed and rolling episode values", {
   expect_equal(fixed_epids_1, fixed_epids_2)
@@ -698,8 +699,8 @@ test_that("test fixed and rolling episode values", {
 })
 
 
-test_that("test that fixed_episodes() with numeric 'date' works the same as compress_number_line()", {
-  a <- fixed_episodes(date = c(1,1,4,4,1,4,3,2), case_length = 0, to_s4 = T, group_stats = T, display = T, deduplicate = F)
+test_that("test that fixed_episodes_xx() with numeric 'date' works the same as compress_number_line()", {
+  a <- fixed_episodes_xx(date = c(1,1,4,4,1,4,3,2), case_length = 0, to_s4 = T, group_stats = T, display = T, deduplicate = F)
   b <- compress_number_line(x = as.number_line(c(1,1,4,4,1,4,3,2)), collapse =T, deduplicate = F)
   expect_equal(a@epid_interval, b)
 })

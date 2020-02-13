@@ -2,10 +2,21 @@
 % Please edit documentation in R/episode_group.R
 \name{episode_group}
 \alias{episode_group}
+\alias{episode_group_xx}
+\alias{fixed_episodes_xx}
 \alias{fixed_episodes}
+\alias{rolling_episodes_xx}
 \alias{rolling_episodes}
 \title{Episode grouping for record deduplication and case assignment}
 \usage{
+episode_group_xx(df, sn = NULL, strata = NULL, date, case_length,
+  episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
+  recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
+  "across", "inbetween", "aligns_start", "aligns_end", "chain"),
+  overlap_methods = NULL, bi_direction = FALSE, group_stats = FALSE,
+  display = TRUE, deduplicate = FALSE, to_s4 = FALSE)
+
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
@@ -14,8 +25,25 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   overlap_methods = NULL, bi_direction = FALSE, group_stats = FALSE,
   display = TRUE, deduplicate = FALSE, to_s4 = FALSE)
 
+fixed_episodes_xx(date, sn = NULL, strata = NULL, case_length,
+  episode_unit = "days", episodes_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
+  "across", "inbetween", "aligns_start", "aligns_end", "chain"),
+  overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, x, to_s4 = FALSE)
+
 fixed_episodes(date, sn = NULL, strata = NULL, case_length,
   episode_unit = "days", episodes_max = Inf, data_source = NULL,
+  custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
+  "across", "inbetween", "aligns_start", "aligns_end", "chain"),
+  overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, x, to_s4 = FALSE)
+
+rolling_episodes_xx(date, sn = NULL, strata = NULL, case_length,
+  recurrence_length = NULL, episode_unit = "days",
+  episodes_max = Inf, rolls_max = Inf, data_source = NULL,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
   "across", "inbetween", "aligns_start", "aligns_end", "chain"),
   overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
