@@ -23,7 +23,8 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
   "across", "inbetween", "aligns_start", "aligns_end", "chain"),
   overlap_methods = NULL, bi_direction = FALSE, group_stats = FALSE,
-  display = TRUE, deduplicate = FALSE, to_s4 = FALSE)
+  display = TRUE, deduplicate = FALSE, to_s4 = FALSE,
+  recurrence_from_last = TRUE)
 
 fixed_episodes_xx(date, sn = NULL, strata = NULL, case_length,
   episode_unit = "days", episodes_max = Inf, data_source = NULL,
