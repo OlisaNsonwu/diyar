@@ -837,10 +837,13 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$d <- unlist(pds2[as.character(df$epid)])
 
     # rolls count
-    rolls_tk <- ifelse(df$case_nm=="Recurrent" & (df$tag==2 | (df$tag ==1 & df$d !=1)),1,0)
-    names(rolls_tk) <- as.character(df$epid)
-    rolls_tk <- rolls_tk[rolls_tk==1 & !duplicated(paste0(rolls_tk,"-", df$epid))]
-    if(length(rolls_tk)>0) df$roll <- ifelse(is.na(rolls_tk[as.character(df$epid)]), 0, 1) + df$tr_roll
+    df$r <- ifelse(df$case_nm=="Recurrent" & (df$tag==2 | (df$tag ==1 & df$d !=1)),1,0)
+    pds2 <- lapply(split(df$r, df$epid), function(x){
+      max(x)
+    })
+    df$r <- unlist(pds2[as.character(df$epid)])
+
+    df$roll <- df$r + df$tr_roll
 
     df <- df %>%
       dplyr::mutate(
