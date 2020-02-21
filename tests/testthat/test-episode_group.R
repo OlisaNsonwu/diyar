@@ -46,8 +46,8 @@ data_2 <- mutate(head(data,10), episode_len_s=13, d = as.numeric(duration(13, "d
 
 test_2 <-
   cbind(data_2,
-        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = F, group_stats = T), funs(paste(.,1,sep="."))),
-        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = T, group_stats = T), funs(paste(.,2,sep=".")))
+        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = F, group_stats = T), list(~paste(.,1,sep="."))),
+        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = T, group_stats = T), list(~paste(.,2,sep=".")))
   )
 
 e_int.1 <- c(
@@ -82,8 +82,8 @@ test_that("test reverse episode grouping", {
 
 # Test 3 - Rolling episodes
 test_3 <- cbind(data_2,
-                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = T, group_stats = T), funs(paste(.,2,sep=".")))
+                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = F, group_stats = T), list(~paste(.,1,sep="."))),
+                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = T, group_stats = T), list(~paste(.,2,sep=".")))
 )
 
 e_int.1 <- c(
@@ -117,8 +117,8 @@ test_that("test rolling/recurring episodes", {
 # Test 3 - Rolls max
 data_4 <- mutate(data_2, recurrence=3, r = as.numeric(duration(3,"days")))
 test_4 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = F, group_stats = T), funs(paste(.,2,sep=".")))
+                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = F, group_stats = T), list(~paste(.,1,sep="."))),
+                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = F, group_stats = T), list(~paste(.,2,sep=".")))
 )
 
 e_int.1 <- c(
@@ -191,10 +191,10 @@ test_that("testing user defined episodes_max", {
 
 # Test 6 - Combining rolls_max and episodes_max
 test_6 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 1, rolls_max = 1, display = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), funs(paste(.,2,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), funs(paste(.,3,sep="."))),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 3, display = F, group_stats = T), funs(paste(.,4,sep=".")))
+                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 1, rolls_max = 1, display = F, group_stats = T), list(~paste(.,1,sep="."))),
+                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), list(~paste(.,2,sep="."))),
+                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T), list(~paste(.,3,sep="."))),
+                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 3, display = F, group_stats = T), list(~paste(.,4,sep=".")))
 
 )
 
@@ -255,8 +255,8 @@ data_7 <-  mutate(data_4, recurrence=2)
 data_7$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,3)), sep="")
 
 test_7 <- cbind(data_7,
-                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = dataset, display = F, group_stats = T), funs(paste(.,1,sep="."))),
-                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = c(dataset, episode_len_s), display = F, group_stats = T), funs(paste(.,2,sep=".")))
+                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = dataset, display = F, group_stats = T), list(~paste(.,1,sep="."))),
+                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = c(dataset, episode_len_s), display = F, group_stats = T), list(~paste(.,2,sep=".")))
 )
 
 e_int.1 <- c(
@@ -379,10 +379,10 @@ hospital_infections$infection_ord <- ifelse(hospital_infections$infection =="RTI
 # n-day episodes with duplicates before and after the most recent "RTI" record, otherwise begin at the most recent record
 test_9b <- bind_cols(hospital_infections,
                      rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
-                                              custom_sort = infection_ord, from_last = T, bi_direction = T, display = F, group_stats = T), funs(paste(.,1,sep="."))),
+                                              custom_sort = infection_ord, from_last = T, bi_direction = T, display = F, group_stats = T), list(~paste(.,1,sep="."))),
 
                      rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
-                                              custom_sort = infection_ord, from_last = T, bi_direction = F, display = F, group_stats = T), funs(paste(.,2,sep=".")))
+                                              custom_sort = infection_ord, from_last = T, bi_direction = F, display = F, group_stats = T), list(~paste(.,2,sep=".")))
 ) %>%
   select(-starts_with("sn"))
 

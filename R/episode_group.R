@@ -538,7 +538,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                           overlap_methods = NULL, bi_direction = FALSE,
-                          group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = FALSE, recurrence_from_last = TRUE){
+                          group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = FALSE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
   . <- NULL
   if(!(is.logical(group_stats) & is.logical(from_last) & is.logical(display) & is.logical(to_s4))) stop(paste("'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE"))
   if(to_s4 == FALSE){
@@ -778,20 +778,29 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- df %>%
       dplyr::mutate(
         epid_type = ifelse(
-          .data$r_range == T & !is.na(.data$r_range),
+          .data$r_range == T & !is.na(.data$r_range) & .data$tr_tag %in% c(1,1.5,0),
           ifelse(.data$case_nm=="Duplicate", 2,3), 0
-        ),
+        )
+        ,
         epid_type = ifelse(
-          .data$tag==0 & .data$c_range == T & !is.na(.data$c_range) & .data$tr_tag==0 & !is.na(.data$tr_tag),
-          ifelse(.data$lr==1, 1,2), .data$epid_type
-        ),
+          .data$c_range == T & !is.na(.data$c_range) &
+            #(.data$tag==0 | (.data$tag!=0 & .data$tr_tag==1.4)) &
+            ((.data$tr_tag==0 & !is.na(.data$tr_tag)) | (.data$tr_tag %in% c(1.4,1.6) & !is.na(.data$tr_tag))),
+          ifelse(.data$tr_tag==0,
+                 ifelse(.data$lr==1, 1,2),
+                 ifelse(.data$lr==1, 10, 2)),
+          .data$epid_type
+        )
+        ,
         c_hit = ifelse(.data$epid_type %in% 1:3 | (.data$lr==1), 1, 0),
         epid = ifelse(
           .data$c_hit==1, ifelse(.data$tr_tag ==0 & !is.na(.data$tr_tag), .data$tr_sn, .data$tr_epid),
           .data$epid
         ),
         case_nm = ifelse(
-          .data$c_hit==1, ifelse(.data$epid_type %in% c(1,0), "Case", ifelse(.data$epid_type==3 & episode_type=="rolling","Recurrent","Duplicate")),
+          .data$c_hit==1 & !.data$tr_tag %in% c(1.4,1.6),
+          ifelse(.data$epid_type %in% c(1,0), "Case",
+                 ifelse(.data$epid_type==3 & episode_type=="rolling","Recurrent","Duplicate")),
           .data$case_nm
         )
       )
@@ -831,26 +840,44 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     # duplicate among c_hit ?
     df$d <- ifelse(df$case_nm=="Duplicate" & df$sn != df$tr_sn & !is.na(df$tr_sn), 1, 0)
+    df$d_dt <- ifelse(df$case_nm=="Duplicate" & df$sn != df$tr_sn & !is.na(df$tr_sn), df$rec_dt_ai, 0)
+
     pds2 <- lapply(split(df$d, df$epid), function(x){
       max(x)
     })
     df$d <- unlist(pds2[as.character(df$epid)])
 
-    # rolls count
-    df$r <- ifelse(df$case_nm=="Recurrent" & (df$tag==2 | (df$tag ==1 & df$d !=1)),1,0)
-    pds2 <- lapply(split(df$r, df$epid), function(x){
+    pds2 <- lapply(split(df$ord, df$epid), function(x){
       max(x)
     })
-    df$r <- unlist(pds2[as.character(df$epid)])
+    df$d_ord <- unlist(pds2[as.character(df$epid)])
 
-    df$roll <- df$r + df$tr_roll
+    # rolls count
+    # df$r <- ifelse(df$case_nm=="Recurrent" & (df$tag==2 | (df$tag ==1 & df$d !=1)),1,0)
+    # pds2 <- lapply(split(df$r, df$epid), function(x){
+    #   max(x)
+    # })
+    # df$r <- unlist(pds2[as.character(df$epid)])
+
+    df$roll <- ifelse((df$tr_case_nm == "Recurrent" & !is.na(df$tr_case_nm)) |
+                        (df$tr_tag== 1.5 & !is.na(df$tr_tag)),
+                      df$tr_roll + 1,  df$roll)
 
     df <- df %>%
       dplyr::mutate(
         mrk_z = paste0(.data$case_nm, .data$epid),
-        tag=ifelse(episode_type == "rolling" & .data$roll < rolls_max &
+        tag=ifelse(episode_type == "rolling" &
+                     (.data$roll < rolls_max |(case_for_recurrence==T & .data$roll < rolls_max+1) )&
                      !(.data$tr_sn == .data$sn & .data$tr_tag %in% c(1, 1.5)) & .data$case_nm %in% c("Duplicate","Recurrent"),
-                   ifelse(.data$case_nm == "Duplicate", ifelse(!duplicated(.data$mrk_z, fromLast = T) & recurrence_from_last == T, 1.5, 2), ifelse(.data$case_nm=="Recurrent" & .data$d ==1  & .data$tr_case_nm %in% c("Duplicate") & recurrence_from_last ==T, 2, 1)), .data$tag)
+                   ifelse(.data$case_nm == "Duplicate",
+                          ifelse(!duplicated(.data$mrk_z, fromLast = T) & recurrence_from_last == T, ifelse(case_for_recurrence==F, 1.5,1.6), 2),
+                          ifelse(.data$case_nm=="Recurrent" &
+                                   .data$d ==1  &
+                                   .data$ord < .data$d_ord &
+                                   .data$tr_case_nm %in% c("Duplicate","") &
+                                   recurrence_from_last ==T, 2,
+                                 ifelse(case_for_recurrence==F, 1,1.4))),
+                   .data$tag)
       ) %>%
       dplyr::select(-dplyr::starts_with("tr"), -dplyr::starts_with("fg"), -dplyr::starts_with("mrk"))
 
