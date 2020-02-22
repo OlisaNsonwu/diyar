@@ -593,10 +593,6 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(admissions, date=pid, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = T), "'date' must be a date, datetime, numeric or number_line object, and not have missing values")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", from_last = "TRUE"), "'group_stats', 'from_last', 'display' and 'to_s4' must be TRUE or FALSE")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = 1), "'episode_unit' must be a character of length 1")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = 1), "'episode_type' must be a character of length 1")
@@ -626,10 +622,7 @@ test_that("test fixed and rolling episode funcs errors", {
 
   expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 1), "'overlap_method' must be a character object")
   expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 2), "'overlap_method' must be a character object")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, from_last = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, display = 1), "'from_last', 'deduplicate' and 'display' must be TRUE or FALSE")
+
   expect_error(fixed_episodes(date=t_ds$date, case_length = Inf, strata = t_ds$patient_id), "'case_length' must be integer or numeric values")
   expect_error(rolling_episodes(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
   expect_error(fixed_episodes(date=t_ds$date, case_length = c(1,1), strata = t_ds$patient_id), "length of 'case_length' must be 1 or the same as 'date'")
@@ -707,4 +700,82 @@ test_that("test that fixed_episodes() with numeric 'date' works the same as comp
 test_that("test some generic functions", {
   expect_equal(show(new("epid")), "epid(0)")
   expect_equal(c(as.epid(5), as.epid(5)), rep(as.epid(5), 2))
+})
+
+
+x <- c("01/04/2019", "04/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")
+x <- dmy(x)
+df <- data.frame(x=x, c=5, r=10)
+epids_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling", group_stats = T)
+epids_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling", group_stats = T)
+
+x <- c("01/04/2019", "04/04/2019", "8/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")
+x <- dmy(x)
+df <- data.frame(x=x, c=5, r=10)
+epids2_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling")
+epids2_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling")
+
+x <- c("01/04/2019", "04/04/2019", "12/04/2019",  "14/04/2019", "16/04/2019", "19/04/2019")
+x <- dmy(x)
+df <- data.frame(x=x, c=5, r=10)
+epids3_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
+epids3_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = F, rolls_max = 2, episode_type = "rolling")
+
+x <- c(lubridate::dmy("01/01/2007"), lubridate::dmy("07/01/2007"), lubridate::dmy("09/01/2007"), lubridate::dmy("19/01/2007"))
+df <- data.frame(x=x, c=5, r=10)
+epids6_a <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling", recurrence_from_last = T, rolls_max = 2)
+epids6_b <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling", recurrence_from_last = F, rolls_max = 2)
+
+x <- c("01/04/2019", "07/04/2019", "12/04/2019","21/04/2019","26/04/2019","29/04/2019")
+x <- dmy(x)
+df <- data.frame(x=x, c=5, r=20)
+
+epids4_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
+epids4_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = F, rolls_max = 2, episode_type = "rolling")
+epids4_c <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = F, case_for_recurrence =T, rolls_max = 2, episode_type = "rolling")
+
+
+test_that("test 'case_for_recurrence' in rolling_episodes", {
+  expect_equal(epids_a@.Data, rep(1,5))
+  expect_equal(epids_a@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Duplicate"))
+  expect_equal(epids_b@.Data, c(1,1,1,4,4))
+  expect_equal(epids_b@case_nm, c("Case","Duplicate","Recurrent","Case","Duplicate"))
+
+  expect_equal(epids2_a@.Data, rep(1,6))
+  expect_equal(epids2_a@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Duplicate","Duplicate"))
+  expect_equal(epids2_b@.Data, c(1,1,1,1,5,5))
+  expect_equal(epids2_b@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Case","Duplicate"))
+
+  expect_equal(epids3_a@.Data, rep(1,6))
+  expect_equal(epids3_a@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Recurrent","Duplicate"))
+  expect_equal(epids3_b@.Data, c(1,1,3,3,3,3))
+  expect_equal(epids3_b@case_nm, c("Case","Duplicate","Case","Duplicate","Duplicate","Recurrent"))
+
+  expect_equal(epids6_a@.Data, rep(1,4))
+  expect_equal(epids6_a@case_nm, c("Case","Recurrent","Duplicate","Recurrent"))
+  expect_equal(epids6_b@.Data, c(1,1,1,4))
+  expect_equal(epids6_b@case_nm, c("Case","Recurrent","Duplicate","Case"))
+
+  expect_equal(epids4_a@.Data, rep(1,6))
+  expect_equal(epids4_a@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Recurrent","Duplicate"))
+  expect_equal(epids4_b@.Data, c(rep(1,5),6))
+  expect_equal(epids4_b@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Duplicate","Case"))
+  expect_equal(epids4_c@.Data, c(rep(1,4),5,5))
+  expect_equal(epids4_c@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Case","Duplicate"))
+})
+
+
+x <- lubridate::dmy(c("01/01/2007","04/01/2007","12/01/2007","15/01/2007","22/01/2007"))
+df <- data.frame(x=x, c=5, r=10)
+epids_r <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling")
+
+x <- c(lubridate::dmy("01/01/2007"), lubridate::dmy("10/01/2007"), lubridate::dmy("12/01/2007"), lubridate::dmy("15/01/2007"), lubridate::dmy("22/01/2007"))
+df <- data.frame(x=x, c=5, r=10)
+epids2_r <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling")
+
+test_that("test rolling_episodes", {
+  expect_equal(epids_r@.Data, rep(1,5))
+  expect_equal(epids_r@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Duplicate"))
+  expect_equal(epids2_r@.Data, rep(1,5))
+  expect_equal(epids2_r@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Recurrent"))
 })
