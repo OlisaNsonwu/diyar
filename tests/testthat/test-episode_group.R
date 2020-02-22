@@ -601,8 +601,6 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = "moving"), "`episode_type` must be either 'rolling' or 'fixed'")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
-                             case_length = epi_len, overlap_method = c("aligning")), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
-  expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, overlap_method = 10), "'overlap_method' must be a character object")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_type = "rolling", rolls_max = NA, episodes_max = NA), "'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf")
@@ -614,10 +612,7 @@ t_ds$date <- dmy_hms(format(t_ds$date, "%d/%m/%Y 00:00:00"))
 t_ds$epi_len <- as.numeric(duration(t_ds$epi_len, "days"))
 
 test_that("test fixed and rolling episode funcs errors", {
-  expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
-  expect_error(fixed_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = "XX"), "`overlap_method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
-
-  expect_error(rolling_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
+   expect_error(rolling_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
   expect_error(fixed_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
 
   expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 1), "'overlap_method' must be a character object")
@@ -779,3 +774,39 @@ test_that("test rolling_episodes", {
   expect_equal(epids2_r@.Data, rep(1,5))
   expect_equal(epids2_r@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Recurrent"))
 })
+
+x <- c(lubridate::dmy("01/01/2007"), lubridate::dmy("10/01/2007"), lubridate::dmy("12/01/2007"), lubridate::dmy("15/01/2007"), lubridate::dmy("22/01/2007"))
+df <- data.frame(x=x, c=5, a="a", r=10)
+df$method <- "F"
+ov_err <- paste0("\n",
+                 "'F' is not a valid overlap method \n\n",
+                 "Valid 'overlap_methods' are 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
+                 "Syntax ~ \"method1|method2|method3...\" \n",
+                 "                 OR                   \n",
+                 "Use ~ include_overlap_method() or exclude_overlap_method()")
+
+test_that("test rolling_episodes", {
+  expect_error(fixed_episodes(date=df$x, case_length = 1, display = "F", to_s4 = "T", group_stats = "T", from_last = "F", bi_direction="F", deduplicate = "F"),
+               "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate' and 'to_s4' must be either TRUE OR FALSE")
+  expect_error(rolling_episodes(date=df$x, case_length = 1, display = "F", to_s4 = "T", group_stats = "T", from_last = "F", bi_direction="F", deduplicate = "F", case_for_recurrence ="T", recurrence_from_last="T"),
+  "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate', 'to_s4', 'recurrence_from_last' and 'case_for_recurrence' must be either TRUE OR FALSE")
+  expect_error(episode_group(df, date=x, case_length = c,  display = "F", to_s4 = "T", group_stats = "T", from_last = "F", bi_direction="F", deduplicate = "F", case_for_recurrence ="T", recurrence_from_last="T"),
+               "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate', 'to_s4', 'recurrence_from_last' and 'case_for_recurrence' must be either TRUE OR FALSE")
+
+  expect_error(fixed_episodes(date=df$x, case_length = 1, display = "F"),"'display' must be either TRUE OR FALSE")
+  expect_error(rolling_episodes(date=df$x, case_length = 1, display = "F"),"'display' must be either TRUE OR FALSE")
+  expect_error(episode_group(df, date=x, case_length = c, display = "F"),"'display' must be either TRUE OR FALSE")
+
+  expect_error(fixed_episodes(date=df$x, case_length = "A"), "'case_length' must be integer or numeric values")
+  expect_error(rolling_episodes(date=df$x, case_length = 1, recurrence_length = "A"), "'recurrence_length' must be integer or numeric values")
+  expect_warning(fixed_episodes(date=df$x, case_length = 1, overlap_method = "exact", display = F), "'overlap_method' is deprecated. Please use 'overlap_methods' instead.")
+  expect_error(rolling_episodes(date=df$x, case_length = 1, overlap_method = "F", display = F), ov_err)
+  expect_error(fixed_episodes(date=df$x, case_length = 1, overlap_methods = "F", display = F), ov_err)
+  expect_error(fixed_episodes(date=df$x, case_length = 1, overlap_methods = "F", display = F), ov_err)
+  expect_error(episode_group(df, date=x, case_length = c, overlap_methods = method, display = F), ov_err)
+
+  expect_error(episode_group(df, date=x, case_length = a), "'case_length' must be integer or numeric values")
+  expect_error(rolling_episodes(date=df$x, case_length = "a"), "'case_length' must be integer or numeric values")
+  expect_error(episode_group(df, date=x, case_length = c, recurrence_length = a), "'recurrence_length' must be integer or numeric values")
+})
+
