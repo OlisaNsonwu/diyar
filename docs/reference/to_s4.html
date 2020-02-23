@@ -168,38 +168,37 @@ from the current default (<code>data.frame</code>) to <a href='pid-class.html'>p
 #&gt; <span class='message'>This message is displayed once per session.</span></div><div class='output co'>#&gt; Episode or recurrence window 1.
 #&gt; 6 of 11 record(s) grouped into episodes. 5 records not yet grouped.
 #&gt; Episode or recurrence window 2.
-#&gt; 5 of 5 record(s) grouped into episodes. 0 records not yet grouped.
 #&gt; 
-#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;    sn epid   case_nm
-#&gt; 6   1    1      Case
-#&gt; 7   2    1 Duplicate
-#&gt; 8   3    1 Duplicate
-#&gt; 9   4    1 Duplicate
-#&gt; 10  5    1 Duplicate
-#&gt; 11  6    1 Duplicate
-#&gt; 1   7    7      Case
-#&gt; 2   8    7 Duplicate
-#&gt; 3   9    7 Duplicate
-#&gt; 4  10    7 Duplicate
-#&gt; 5  11    7 Duplicate</div><div class='input'>
+#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;    sn epid window   case_nm
+#&gt; 6   1    1      1      Case
+#&gt; 7   2    1      1 Duplicate
+#&gt; 8   3    1      1 Duplicate
+#&gt; 9   4    1      1 Duplicate
+#&gt; 10  5    1      1 Duplicate
+#&gt; 11  6    1      1 Duplicate
+#&gt; 1   7    7      7      Case
+#&gt; 2   8    7      7 Duplicate
+#&gt; 3   9    7      7 Duplicate
+#&gt; 4  10    7      7 Duplicate
+#&gt; 5  11    7      7 Duplicate</div><div class='input'>
 <span class='co'># from a data.frame to pid/epid object</span>
 <span class='no'>output_2</span> <span class='kw'>&lt;-</span> <span class='fu'>to_s4</span>(<span class='no'>output</span>)
-<span class='no'>output_2</span></div><div class='output co'>#&gt;  [1] "E-1 (C)" "E-1 (D)" "E-1 (D)" "E-1 (D)" "E-1 (D)" "E-1 (D)" "E-7 (C)"
-#&gt;  [8] "E-7 (D)" "E-7 (D)" "E-7 (D)" "E-7 (D)"</div><div class='input'>
+<span class='no'>output_2</span></div><div class='output co'>#&gt;  [1] "E-1 (C-1)" "E-1 (D-1)" "E-1 (D-1)" "E-1 (D-1)" "E-1 (D-1)" "E-1 (D-1)"
+#&gt;  [7] "E-7 (C-7)" "E-7 (D-7)" "E-7 (D-7)" "E-7 (D-7)" "E-7 (D-7)"</div><div class='input'>
 <span class='co'># from the a pid/epid object to a data.frame</span>
 <span class='no'>output_3</span> <span class='kw'>&lt;-</span> <span class='fu'>to_df</span>(<span class='no'>output_2</span>)
-<span class='no'>output_3</span></div><div class='output co'>#&gt;    epid sn   case_nm
-#&gt; 1     1  1      Case
-#&gt; 2     1  2 Duplicate
-#&gt; 3     1  3 Duplicate
-#&gt; 4     1  4 Duplicate
-#&gt; 5     1  5 Duplicate
-#&gt; 6     1  6 Duplicate
-#&gt; 7     7  7      Case
-#&gt; 8     7  8 Duplicate
-#&gt; 9     7  9 Duplicate
-#&gt; 10    7 10 Duplicate
-#&gt; 11    7 11 Duplicate</div><div class='input'>
+<span class='no'>output_3</span></div><div class='output co'>#&gt;    epid sn window   case_nm
+#&gt; 1     1  1      1      Case
+#&gt; 2     1  2      1 Duplicate
+#&gt; 3     1  3      1 Duplicate
+#&gt; 4     1  4      1 Duplicate
+#&gt; 5     1  5      1 Duplicate
+#&gt; 6     1  6      1 Duplicate
+#&gt; 7     7  7      7      Case
+#&gt; 8     7  8      7 Duplicate
+#&gt; 9     7  9      7 Duplicate
+#&gt; 10    7 10      7 Duplicate
+#&gt; 11    7 11      7 Duplicate</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
