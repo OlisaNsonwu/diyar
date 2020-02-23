@@ -102,9 +102,20 @@
 #' @export
 record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = FALSE){
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
-  if(!(is.logical(group_stats) & is.logical(display) & is.logical(to_s4))) stop(paste("'group_stats', 'display' and 'to_s4' must be TRUE or FALSE"))
   rng_d <- as.character(substitute(df))
   . <- NULL
+
+  log_vals <-  lapply(list(group_stats, display, to_s4), function(x){
+    is.logical(x)
+  })
+
+  log_vals <- c("group_stats", "display", "to_s4")[unlist(log_vals)==F]
+  if(length(log_vals)==1) {
+    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
+  }else if (length(log_vals)>1){
+    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
+  }
+
   if(to_s4 == FALSE){
     if (is.null(getOption("diyar.record_group.output"))){
       options("diyar.record_group.output"= TRUE)

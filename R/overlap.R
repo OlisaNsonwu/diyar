@@ -24,8 +24,8 @@ overlap <- function(x, y, method = c("exact","across","chain","aligns_start","al
   if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
-  o <- unique(unlist(strsplit(methods, split="\\|")))
-  o <- o[!o %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  o <- unique(unlist(strsplit(unique(methods), split="\\|")))
+  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
   if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'exact', 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
