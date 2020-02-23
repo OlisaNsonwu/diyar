@@ -166,9 +166,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   log_vals <- c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence")[unlist(log_vals)==F]
   if(length(log_vals)==1) {
-    stop(paste0("'", log_vals[1], "' must be either TRUE OR FALSE"))
+    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
   }else if (length(log_vals)>1){
-    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE OR FALSE"))
+    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
   }
 
   if(to_s4 == FALSE){
@@ -618,9 +618,9 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 
   log_vals <- c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4")[unlist(log_vals)==F]
   if(length(log_vals)==1) {
-    stop(paste0("'", log_vals[1], "' must be either TRUE OR FALSE"))
+    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
   }else if (length(log_vals)>1){
-    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE OR FALSE"))
+    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
   }
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
@@ -715,9 +715,9 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
   log_vals <- c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence")[unlist(log_vals)==F]
   if(length(log_vals)==1) {
-    stop(paste0("'", log_vals[1], "' must be either TRUE OR FALSE"))
+    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
   }else if (length(log_vals)>1){
-    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE OR FALSE"))
+    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
   }
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))

@@ -787,15 +787,15 @@ ov_err <- paste0("\n",
 
 test_that("test rolling_episodes", {
   expect_error(fixed_episodes(date=df$x, case_length = 1, display = "F", to_s4 = "T", group_stats = "T", from_last = "F", bi_direction="F", deduplicate = "F"),
-               "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate' and 'to_s4' must be either TRUE OR FALSE")
+               "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate' and 'to_s4' must be either TRUE or FALSE")
   expect_error(rolling_episodes(date=df$x, case_length = 1, display = "F", to_s4 = "T", group_stats = "T", from_last = "F", bi_direction="F", deduplicate = "F", case_for_recurrence ="T", recurrence_from_last="T"),
-  "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate', 'to_s4', 'recurrence_from_last' and 'case_for_recurrence' must be either TRUE OR FALSE")
+  "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate', 'to_s4', 'recurrence_from_last' and 'case_for_recurrence' must be either TRUE or FALSE")
   expect_error(episode_group(df, date=x, case_length = c,  display = "F", to_s4 = "T", group_stats = "T", from_last = "F", bi_direction="F", deduplicate = "F", case_for_recurrence ="T", recurrence_from_last="T"),
-               "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate', 'to_s4', 'recurrence_from_last' and 'case_for_recurrence' must be either TRUE OR FALSE")
+               "'from_last', 'bi_direction', 'group_stats', 'display', 'deduplicate', 'to_s4', 'recurrence_from_last' and 'case_for_recurrence' must be either TRUE or FALSE")
 
-  expect_error(fixed_episodes(date=df$x, case_length = 1, display = "F"),"'display' must be either TRUE OR FALSE")
-  expect_error(rolling_episodes(date=df$x, case_length = 1, display = "F"),"'display' must be either TRUE OR FALSE")
-  expect_error(episode_group(df, date=x, case_length = c, display = "F"),"'display' must be either TRUE OR FALSE")
+  expect_error(fixed_episodes(date=df$x, case_length = 1, display = "F"),"'display' must be either TRUE or FALSE")
+  expect_error(rolling_episodes(date=df$x, case_length = 1, display = "F"),"'display' must be either TRUE or FALSE")
+  expect_error(episode_group(df, date=x, case_length = c, display = "F"),"'display' must be either TRUE or FALSE")
 
   expect_error(fixed_episodes(date=df$x, case_length = "A"), "'case_length' must be integer or numeric values")
   expect_error(rolling_episodes(date=df$x, case_length = 1, recurrence_length = "A"), "'recurrence_length' must be integer or numeric values")
