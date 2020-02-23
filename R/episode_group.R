@@ -318,7 +318,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   df <- df %>%
     dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort), .data$methods)
 
-  df$tag <- df$epid <- df$roll <- df$episodes <- 0
+  df$window <- df$tag <- df$epid <- df$roll <- df$episodes <- 0
   df$case_nm <- ""
   df$pr_sn = 1:nrow(df)
 
@@ -427,6 +427,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
           .data$c_hit==1, ifelse(.data$tr_tag ==0 & !is.na(.data$tr_tag), .data$tr_sn, .data$tr_epid),
           .data$epid
         ),
+        window = ifelse(.data$c_hit==1, .data$tr_sn, .data$window),
         case_nm = ifelse(
           .data$c_hit==1 & !.data$tag %in% c(1.4,1.6),
           ifelse(.data$epid_type %in% c(1,0), "Case",
@@ -513,14 +514,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   df <- dplyr::bind_rows(df, h.epids.lst)
   rm(h.epids.lst)
 
-  df$case_nm= ifelse(df$epid==0, "Case", df$case_nm)
-  df$epid <- ifelse(df$epid==0, df$sn, df$epid)
+  df$case_nm[df$epid==0] <- "Case"
+  df$window[df$epid==0] <- df$epid[df$epid==0] <- df$sn[df$epid==0]
 
 
   if(deduplicate) df <- subset(df, df$case_nm!="Duplicate")
 
   if(is.null(ds)){
-    df <- df[c("sn","epid","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z", "epi_len")]
+    df <- df[c("sn","epid","window","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z", "epi_len")]
     df <- df[order(df$pr_sn),]
   }else{
     pds2 <- lapply(split(df$dsvr, df$epid), function(x){
@@ -528,7 +529,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     })
 
     df$epid_dataset <- unlist(pds2[as.character(df$epid)])
-    df <- df[c("sn","epid","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z", "epi_len")]
+    df <- df[c("sn","epid","window","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z", "epi_len")]
   }
 
   if(group_stats){
