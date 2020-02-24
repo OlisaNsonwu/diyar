@@ -290,9 +290,12 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   episode_unit <- ifelse(dt_grp==F,"seconds", episode_unit)
 
   if(dt_grp){
-    df <- dplyr::mutate_at(df, c("rec_dt_ai", "rec_dt_zi"), ~ lubridate::dmy_hms(format(., "%d/%m/%Y %H:%M:%S")))
+    df$rec_dt_ai <- lubridate::dmy_hms(format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"))
+    df$rec_dt_zi <- lubridate::dmy_hms(format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"))
+
   }else{
-    df <- dplyr::mutate_at(df, c("rec_dt_ai", "rec_dt_zi"), ~ as.numeric(.))
+    df$rec_dt_ai <- as.numeric(df$rec_dt_ai)
+    df$rec_dt_zi <- as.numeric(df$rec_dt_zi)
   }
 
   if(missing(overlap_methods) & !missing(overlap_method)) {
@@ -462,18 +465,22 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       break
     }
 
-    # duplicate among c_hit ?
-    df$d <- ifelse(df$case_nm=="Duplicate" & df$sn != df$tr_sn & !is.na(df$tr_sn), 1, 0)
+    if (episode_type=="rolling"){
+      # duplicate among c_hit ?
+      df$d <- ifelse(df$case_nm=="Duplicate" & df$sn != df$tr_sn & !is.na(df$tr_sn), 1, 0)
 
-    pds2 <- lapply(split(df$d, df$epid), function(x){
-      max(x)
-    })
-    df$d <- unlist(pds2[as.character(df$epid)])
+      pds2 <- lapply(split(df$d, df$epid), function(x){
+        max(x)
+      })
+      df$d <- unlist(pds2[as.character(df$epid)])
 
-    pds2 <- lapply(split(df$ord, df$epid), function(x){
-      max(x)
-    })
-    df$d_ord <- unlist(pds2[as.character(df$epid)])
+      pds2 <- lapply(split(df$ord, df$epid), function(x){
+        max(x)
+      })
+      df$d_ord <- unlist(pds2[as.character(df$epid)])
+    }else{
+      df$d_ord <- df$d <- 0
+    }
 
     df$roll <- ifelse((df$tr_case_nm == "Recurrent" & !is.na(df$tr_case_nm)) |
                         (df$tr_tag== 1.5 & !is.na(df$tr_tag)),
@@ -529,6 +536,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     })
 
     df$epid_dataset <- unlist(pds2[as.character(df$epid)])
+    df <- df[order(df$pr_sn),]
     df <- df[c("sn","epid","window","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z", "epi_len")]
   }
 
