@@ -160,19 +160,19 @@ db<span class="op">$</span>r_epid &lt;-<span class="st"> </span><span class="kw"
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
 db[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"f_epid"</span>,<span class="st">"r_epid"</span>)]
 <span class="co">#&gt; # A tibble: 11 x 2</span>
-<span class="co">#&gt;    f_epid                            r_epid                          </span>
-<span class="co">#&gt;    &lt;epid&gt;                            &lt;epid&gt;                          </span>
-<span class="co">#&gt;  1 E-01 2018-04-01 -&gt; 2018-04-13 (C) E-1 2018-04-01 -&gt; 2018-05-31 (C)</span>
-<span class="co">#&gt;  2 E-01 2018-04-01 -&gt; 2018-04-13 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span>
-<span class="co">#&gt;  3 E-01 2018-04-01 -&gt; 2018-04-13 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span>
-<span class="co">#&gt;  4 E-04 2018-04-19 -&gt; 2018-05-01 (C) E-1 2018-04-01 -&gt; 2018-05-31 (R)</span>
-<span class="co">#&gt;  5 E-04 2018-04-19 -&gt; 2018-05-01 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span>
-<span class="co">#&gt;  6 E-04 2018-04-19 -&gt; 2018-05-01 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span>
-<span class="co">#&gt;  7 E-07 2018-05-07 -&gt; 2018-05-19 (C) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span>
-<span class="co">#&gt;  8 E-07 2018-05-07 -&gt; 2018-05-19 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span>
-<span class="co">#&gt;  9 E-07 2018-05-07 -&gt; 2018-05-19 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span>
-<span class="co">#&gt; 10 E-10 2018-05-25 -&gt; 2018-05-31 (C) E-1 2018-04-01 -&gt; 2018-05-31 (R)</span>
-<span class="co">#&gt; 11 E-10 2018-05-25 -&gt; 2018-05-31 (D) E-1 2018-04-01 -&gt; 2018-05-31 (D)</span></code></pre></div>
+<span class="co">#&gt;    f_epid                               r_epid                            </span>
+<span class="co">#&gt;    &lt;epid&gt;                               &lt;epid&gt;                            </span>
+<span class="co">#&gt;  1 E-01 2018-04-01 -&gt; 2018-04-13 (C-01) E-1 2018-04-01 -&gt; 2018-05-31 (C-1)</span>
+<span class="co">#&gt;  2 E-01 2018-04-01 -&gt; 2018-04-13 (D-01) E-1 2018-04-01 -&gt; 2018-05-31 (D-1)</span>
+<span class="co">#&gt;  3 E-01 2018-04-01 -&gt; 2018-04-13 (D-01) E-1 2018-04-01 -&gt; 2018-05-31 (D-1)</span>
+<span class="co">#&gt;  4 E-04 2018-04-19 -&gt; 2018-05-01 (C-04) E-1 2018-04-01 -&gt; 2018-05-31 (R-1)</span>
+<span class="co">#&gt;  5 E-04 2018-04-19 -&gt; 2018-05-01 (D-04) E-1 2018-04-01 -&gt; 2018-05-31 (D-1)</span>
+<span class="co">#&gt;  6 E-04 2018-04-19 -&gt; 2018-05-01 (D-04) E-1 2018-04-01 -&gt; 2018-05-31 (D-1)</span>
+<span class="co">#&gt;  7 E-07 2018-05-07 -&gt; 2018-05-19 (C-07) E-1 2018-04-01 -&gt; 2018-05-31 (D-7)</span>
+<span class="co">#&gt;  8 E-07 2018-05-07 -&gt; 2018-05-19 (D-07) E-1 2018-04-01 -&gt; 2018-05-31 (R-7)</span>
+<span class="co">#&gt;  9 E-07 2018-05-07 -&gt; 2018-05-19 (D-07) E-1 2018-04-01 -&gt; 2018-05-31 (D-7)</span>
+<span class="co">#&gt; 10 E-10 2018-05-25 -&gt; 2018-05-31 (C-10) E-1 2018-04-01 -&gt; 2018-05-31 (D-7)</span>
+<span class="co">#&gt; 11 E-10 2018-05-25 -&gt; 2018-05-31 (D-10) E-1 2018-04-01 -&gt; 2018-05-31 (D-7)</span></code></pre></div>
 <ul>
 <li>
 <code><a href="reference/record_group.html">record_group()</a></code> - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. <strong><em>NOTE; <code>to_s4</code> and <code><a href="reference/to_s4.html">to_s4()</a></code> changes the output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will be the default output in the next release.</em></strong>
