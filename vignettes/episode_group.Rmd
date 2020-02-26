@@ -49,8 +49,7 @@ See the illustration below.
 
 **Figure 1: Illustration of some key terms**
 
-![](../figures/terms.png)
-
+![](https://raw.githubusercontent.com/OlisaNsonwu/diyar/master/figures/terms.png)
 
 ### Let's try an example of each
 ```{r message=FALSE, warning=FALSE}
