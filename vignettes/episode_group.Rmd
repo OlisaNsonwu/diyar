@@ -47,8 +47,123 @@ All `events` within a `case_length` or `recurrence_length` form a `window`. A `w
 
 See the illustration below.
 
-**Figure 1: Illustration of some key terms**
+**Figure 1a: Illustration of key terms - fixed episodes**
+```{r message=FALSE, warning=FALSE}
+library(tidyr); library(ggplot2);
+library(diyar)
 
+ds <- c("01/04/2019", "03/04/2019", "13/04/2019","16/04/2019")
+ds <- data.frame(date= as.Date(ds, "%d/%m/%Y"))
+ds$f1 <- fixed_episodes(ds$date, case_length = 5, to_s4 = T)
+ds
+```
+
+```{r echo=FALSE, fig.height=3, fig.width=7, message=FALSE, warning=FALSE}
+df <- ds
+df$c <- 5
+df <- cbind(df, to_df(df$f1))
+df$epid <- as.character(df$epid)
+
+pts <- df[c("date", "epid", "window", "case_nm")]
+pts$y <- 1
+pts$e_lab <- ifelse(pts$case_nm=="Case", paste0("Episode ", as.numeric(as.factor(pts$epid)), ""),"")
+pts$w_lab <- ifelse(pts$case_nm=="Case", paste0("Window ", as.numeric(as.factor(pts$window)), ""),"")
+pts$y2 <- 0.9
+pts$y3 <- 0.8
+
+cl <- df[df$case_nm=="Case",c("date", "epid", "c")] 
+cl$end_dt <- cl$date + 5
+cl <- gather(cl, vr, date, -c(epid, c))  
+cl$y <- 1.08
+cl$lab <- ifelse(cl$vr=="date", paste0("Case length (",cl$c,"-day difference)"), "") 
+
+pts$case_nm <- ifelse(pts$case_nm =="Case", "Case\n(Reference)", paste0(pts$case_nm,"\nEvent"))
+
+ggplot(data= pts) +
+  geom_point(aes(x=date, y=y, group=epid, colour =epid)) +
+  geom_text(aes(x=date, y=y, group=epid, colour =epid, label=case_nm, hjust="left"), nudge_x = .1, size=3) +
+  geom_line(aes(x=date, y=y3, group=epid, colour =epid), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
+  geom_text(aes(x=date, y=y3, group=epid, colour =epid, label=e_lab, hjust="left"), nudge_y = -.03, nudge_x = .1, size=3) +
+  geom_line(aes(x=date, y=y2, group=epid, colour =epid), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
+  geom_text(aes(x=date, y=y2, group=epid, colour =epid, label=w_lab, hjust="left"), nudge_y = -.03, nudge_x = .1, size=3) +
+  geom_line(data=cl, aes(x=date, y=y, group=epid, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed")) +
+  geom_text(data=cl, aes(x=date, y=y, group=epid, colour =epid, label=lab, hjust="left"),  nudge_y = .03, size=3) +
+  scale_x_date("", date_breaks = "1 day", date_labels = "%d") +
+  lims(y=c(0.6,1.25)) +
+  theme(
+    axis.ticks.y = element_blank(),
+    axis.title.y = element_blank(),
+    strip.background = element_rect(fill="transparent"),
+    axis.line = element_line(colour = "black"),
+    axis.text.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none",
+    legend.title = element_blank()
+  )
+```
+
+**Figure 1b: Illustration of key terms - rolling episodes**
+```{r message=FALSE, warning=FALSE}
+ds$r1 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = 10, to_s4 = T, display = F)
+ds
+```
+
+```{r echo=FALSE, fig.height=4, fig.width=7, message=FALSE, warning=FALSE}
+library(lubridate)
+df <- ds
+df$r <- 10
+df$c <- 5
+
+df <- cbind(df, to_df(df$r1))
+df$epid <- as.character(df$epid)
+df$window <- paste0("W",as.character(df$window))
+
+pts <- df[c("date", "epid", "window")]
+pts$case_nm <- c("Case\n(Reference)", "Duplicate\n(Reference) Event", "Recurrent\nEvent","Duplicate\nEvent")
+pts$y <- 1
+pts$e_lab <- ifelse(!duplicated(pts$epid, fromLast = T), paste0("Episode ", as.numeric(as.factor(pts$epid)), ""),"")
+pts$w_lab <- ifelse(!duplicated(pts$window, fromLast = T), paste0("Window ", as.numeric(as.factor(pts$window)), ""),"")
+pts$y2 <- 0.7
+pts$y3 <- 0.6
+
+cl <- df[df$case_nm=="Case",c("date", "epid", "c")] 
+cl$end_dt <- cl$date + cl$c
+cl <- gather(cl, vr, date, -c(epid, c))  
+cl$y <- 1.1
+cl$lab <- ifelse(cl$vr=="date", paste0("Case length (",cl$c,"-day difference)"), "") 
+
+rl <- df[2:3, c("date", "epid", "r", "window")] 
+rl$end_dt <- rl$date + c(10,3)
+rl <- gather(rl, vr, date, -c(epid, window, r))  
+rl$y <- 0.8
+rl$lab <- ifelse(rl$vr=="date", paste0("Recurrence length (",rl$r,"-day difference)"), "") 
+
+ggplot(data= pts) +
+  geom_point(aes(x=date, y=y, group=epid, colour =epid)) +
+  geom_text(aes(x=date, y=y, group=epid, colour =epid, label=case_nm, hjust="left"), nudge_x = .2, size=3) +
+  geom_line(aes(x=date, y=y3, group=epid, colour =epid), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
+  geom_text(aes(x=date, y=y3, group=epid, colour =epid, label=e_lab, hjust="left"), nudge_y = -.03, nudge_x = -5, size=3) +
+  geom_line(aes(x=date, y=y2, group=epid, colour =window), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
+  geom_text(aes(x=date, y=y2, group=window, colour =epid, label=w_lab, hjust="left"), nudge_y = -.03, nudge_x = -1.6, size=3) +
+  geom_line(data=cl, aes(x=date, y=y, group=epid, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed")) +
+  geom_text(data=cl, aes(x=date, y=y, group=epid, colour =epid, label=lab, hjust="left"),  nudge_y = .04, size=3) +
+  
+  geom_line(data=rl, aes(x=date, y=y, group=window, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed"), linetype=2) +
+  geom_text(data=rl, aes(x=date, y=y, group=epid, colour =epid, label=lab, hjust="left"),  nudge_y = .04, size=3) +
+  
+  scale_x_date("", date_breaks = "1 day", date_labels = "%d", limits = c(dmy("01/04/2019"), dmy("18/04/2019") )) +
+  lims(y=c(0.5,1.25)) +
+  theme(
+    axis.ticks.y = element_blank(),
+    axis.title.y = element_blank(),
+    strip.background = element_rect(fill="transparent"),
+    axis.line = element_line(colour = "black"),
+    axis.text.y = element_blank(),
+    panel.grid = element_blank(),
+    legend.position = "none",
+    legend.title = element_blank()
+  )
+```
 ![](https://raw.githubusercontent.com/OlisaNsonwu/diyar/master/figures/terms.png)
 
 ### Let's try an example of each
@@ -144,7 +259,7 @@ ggplot(plot, aes(x=date, y=rid, group=rid, colour=epid)) +
   )
 ```
 
-***If your case definition does not explicitly require a rolling episode, use `fixed_episode()`. It takes less time to complete.***
+***If your case definition does not explicitly require a rolling episode, use `fixed_episode()`. It takes less time.***
 
 For `rolling` episodes, it may be useful to imagine the `windows` as mini-`episodes` that will eventually be collapsed into one main `episode` should they overlap. Each mini-episode is either a `case window` or `recurrence window` and will have one `event` flagged as the `case` or `recurrent event` respectively. Here I say 'flagged' and not `reference event` because by default `recurrent events` are not `reference events`. Strictly speaking, the `reference event` for `recurrence windows` is the **last** `event` from the previous `window` and is where the `recurrence_length` starts from. In the example above, that is record 3 not 4. 
 

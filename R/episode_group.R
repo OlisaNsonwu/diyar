@@ -430,7 +430,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
           .data$c_hit==1, ifelse(.data$tr_tag ==0 & !is.na(.data$tr_tag), .data$tr_sn, .data$tr_epid),
           .data$epid
         ),
-        window = ifelse(.data$c_hit==1, .data$tr_sn, .data$window),
+        window = ifelse(.data$c_hit==1 & (.data$lr !=1 | (.data$lr ==1 & .data$tr_case_nm=="")), .data$tr_sn, .data$window),
         case_nm = ifelse(
           .data$c_hit==1 & !.data$tag %in% c(1.4,1.6),
           ifelse(.data$epid_type %in% c(1,0), "Case",
