@@ -26,7 +26,7 @@ You can use [`record_group()`](record_group.html) and these episode grouping fun
 1. Episodes from events that occur at a point in time e.g. medical diagnoses or traffic incidents
 2. Episodes from events that occur within a period of time e.g. hospital stay. See [interval grouping](#interval_grouping)
 3. Episodes with defined periods of reccurence (`recurrence_length`)
-3. Episodes with specific events as their reference event. See ["Making a case definition"](#case_assignment)
+3. Episodes with specific events as their reference event (case). See ["Making a case definition"](#case_assignment)
 4. Episodes with different durations (`case_length`) or recurrence periods (`recurrence_length`) per subset (`strata`) of a dataset. See [stratified grouping](#stratified_grouping)
 
 #Implementation 
@@ -41,9 +41,9 @@ There are two main type of episodes - `"fixed"` episodes which do not include pe
 <a id ="recurrence" ><a/> 
 
 ## Episodes, windows, case lengths and recurrence periods
-Before we begin, let's go over some terms which will pop up now and again. An `event` is simply a dated record. A `period of event` or `event period` is a record with a start and end points in time. The "lengths" - `case_length` and `recurrence_length` are specific durations starting with an `event`. More specifically, the `case_length` is the duration starting with the `reference event` (first `event` of an `episode`) while `recurrence_length` is the duration starting from any other `event` subsequent to the `referenece event`. 
+Before we begin, let's go over some terms which will pop up now and again. An `event` is simply a dated record. A `period of event` or `event period` is a record with a start and end point in time. The "lengths" - `case_length` and `recurrence_length` are specific durations begining from an `event`. More specifically, the `case_length` is the duration begining from the `reference event` (first `event` of an `episode`) while `recurrence_length` is the duration begining from the other `events` subsequent to the `referenece event`. 
 
-All `events` within a `case_length` or `recurrence_length` form a `window`. A `window` equates to an `episode`. `events` outside a `window` belong to a different episode and are assigned accordingly. What differetiates `rolling episodes` from `fixed episodes` is that when two or more `windows` overlap, they are `collpased` into one longer `window`. As a result, every `event` that belonged to the overlapping `windows` will now belong to this new and longer `window` (and by definition `episode`). So by definition, a `"fixed episode"` is never longer than its `case_length` where as a `rolling episode` becomes longer than its `case_length` if the first `window` (also refered to `case window`) overlaps with another.
+All `events` within a `case_length` or `recurrence_length` form a `window`. A `window` equates to an `episode`. `events` outside a `window` belong to a different episode and are assigned accordingly. What differentiates `rolling episodes` from `fixed episodes` is that when two or more `windows` overlap, they are `collpased` into one longer `window`. As a result, every `event` that belonged to the overlapping `windows` will now belong to this new and longer `window` (and by definition `episode`). Consequently, a `"fixed episode"` is never longer than its `case_length` while a `rolling episode` becomes longer than its `case_length` if the first `window` (also referred to `case window`) overlaps with another.
 
 See the illustration below.
 
@@ -104,7 +104,8 @@ ggplot(data= pts) +
 
 **Figure 1b: Illustration of key terms - rolling episodes**
 ```{r message=FALSE, warning=FALSE}
-ds$r1 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = 10, to_s4 = T, display = F)
+ds$r1 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = 10, to_s4 = T,
+                          display = F)
 ds
 ```
 
@@ -185,7 +186,7 @@ f # fixed episode identifiers
 r # rolling episode identifiers
 ```
 
-In the `fixed episodes` example, records 1 to 3 are assigned to a `window` - eventual episode ID `"E-1"` (Figure 2). In this window, record 1 is the `reference event` (`"(C)"`) and records 2 and 3 are `duplicates` (`"(D)"`) because they are within 15 days (difference of 14 days) of record 1. Record 4 is not within this 15-day period after record 3 and so begins a new window (and epsiode i.e. episode ID `"E-4"`) as its `reference event`. Record 5 is within 15 days of record 4 and so is assinged to the same windone and thus episode (`"E-4"`). This process continues chronologically until all records have been assigned an episode ID.
+In the `fixed episodes` example, records 1 to 3 are assigned to a `window` - eventual episode ID `"E-1"` (Figure 2). In this window, record 1 is the `reference event` (`"(C)"`) and records 2 and 3 are `duplicates` (`"(D)"`) since they are within 15 days (difference of 14 days) of record 1. Record 4 is not within this 15-day period after record 3 and so begins a new window (and epsiode i.e. episode ID `"E-4"`) as its `reference event`. Record 5 is within 15 days of record 4 and so is assinged to the same window and episode (`"E-4"`). This process continues chronologically until all records have been assigned an episode ID.
 
 In the `rolling episodes` example, records 1 to 3 are also assigned to one window - episode `"E-1"` however, unlike the `fixed episode` example, since records 4 and 5 both fall within 15 days (difference of 14 days) of the last `event` (record 3) of the previous `window` (`E-1`), they are folded into the `E1 window` which becomes longer as a result. Since record 4 is the earliest of the two, it's flagged as the `recurrent (R) event` while record 5 is taken as `duplicate`. 
 
@@ -260,12 +261,12 @@ ggplot(plot, aes(x=date, y=rid, group=rid, colour=epid)) +
 
 ***If your case definition does not explicitly require a rolling episode, use `fixed_episode()`. It takes less time.***
 
-For `rolling` episodes, it may be useful to imagine the `windows` as mini-`episodes` that will eventually be collapsed into one main `episode` should they overlap. Each mini-episode is either a `case window` or `recurrence window` and will have one `event` flagged as the `case` or `recurrent event` respectively. Here I say 'flagged' and not `reference event` because by default `recurrent events` are not `reference events`. Strictly speaking, the `reference event` for `recurrence windows` is the **last** `event` from the previous `window` and is where the `recurrence_length` starts from. In the example above, that is record 3 not 4. 
+For `rolling` episodes, it may be useful to imagine the `windows` as mini-`episodes` that will eventually be collapsed into one main `episode` should they overlap. Each mini-episode is either a `case window` or `recurrence window` and will have one `event` flagged as the `case` or `recurrent event` respectively. Here I say 'flagged' and not `reference event` because by default `recurrent events` are not `reference events`. Strictly speaking, the `reference event` for `recurrence windows` is the **last** `event` from the previous `window` and is where the `recurrence_length` starts from. In the example above, that is record 3. 
 
 <a id="case_assignment"></a> 
 
 ## Making a case definition
-Manipulating most arguments in `fixed_episodes()`, `rolling_episodes()` and `episode_group()` affects which `events` are taken as the `case` and `recurrent event` and this ultimately allows you apply a variety of case definitions to your datasets. This section covers the main parts of this process and which behaviours you can control or change.  
+Manipulating most arguments in `fixed_episodes()`, `rolling_episodes()` and `episode_group()` affects which `events` are taken as the `case` and `recurrent event`, and this ultimately allows you apply a variety of case definitions to your datasets. This section covers the main parts of this process and which of these you can control or change.  
 
 ### Reference events
 From `diyar v0.1.0`, you can use the `recurrence_from_last` argument to specify that the `reference event` for a `recurrence window` should be the **first** `event` from the previous `window` and not the **last** which is the default option. This means that after flagging a `recurrent event`, the `recurrence window` is re-calculated from it. This new option is only really useful if your `case_length` and `recurrence_length` are different. If they are the same (which is also the default behaviour), you'll have essentially created a `fixed episode`. See a demonstration of this below.
@@ -300,7 +301,7 @@ df$r5 <- rolling_episodes(df$date, case_length = 10, case_for_recurrence = T,
 df
 ```
 
-Notice that all `events` have been assigned to the same `episode` in both examples but the second one has 1 less `recurrent event`.
+Notice that all `events` have been assigned to the same `episode` in the examples above but the second one has 1 less `recurrent event`.
 
 ### Number of recurrence periods and episodes
 You can choose how many times to check for `episodes` using `episode_max`. When `episode_max` is reached, any `event` not yet grouped is assigned a unique episode ID, making them unique `cases`.
