@@ -336,11 +336,17 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(is.null(ref_sort)){
     df$user_ord <- 0
   }else{
-    ord_ls <- dplyr::select(df, ref_sort) %>%
-      dplyr::mutate_all(list(~as.numeric(as.factor(.)))) %>%
-      dplyr::mutate_all(list(~formatC(., width = max(nchar(.)), flag=0))) %>%
-      tidyr::unite("ord")
+    # ord_ls <- dplyr::select(df, ref_sort) %>%
+    #   dplyr::mutate_all(list(~as.numeric(as.factor(.)))) %>%
+    #   dplyr::mutate_all(list(~formatC(., width = max(nchar(.)), flag=0))) %>%
+    #   tidyr::unite("ord")
 
+    ord_ls <- df[ref_sort]
+    ord_ls <- lapply(as.list(ord_ls), function(x){
+      x <- as.numeric(as.factor(x))
+      x <- formatC(x, width = max(nchar(x)), flag=0)
+    })
+    ord_ls <- tidyr::unite(as.data.frame(ord_ls, stringsAsFactors = T),"ord")
     df$user_ord <- ord_ls[[1]]
   }
 
@@ -497,26 +503,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$roll <- ifelse((df$tr_case_nm == "Recurrent" & !is.na(df$tr_case_nm)) |
                         (df$tr_tag== 1.5 & !is.na(df$tr_tag)),df$tr_roll + 1,  df$roll)
 
-    # df <- df %>%
-    #   dplyr::mutate(
-    #     mrk_z = paste0(.data$case_nm, .data$epid),
-    #     tag=ifelse(episode_type == "rolling" &
-    #                  (.data$roll < rolls_max |(case_for_recurrence==T & .data$roll < rolls_max+1) )&
-    #                  !(.data$lr==1 & .data$tr_tag %in% c(1, 1.5, 1.4, 1.6)) & .data$case_nm %in% c("Duplicate","Recurrent"),
-    #                #ifelse(grepl("^Duplicate",.data$mrk_z2),
-    #                ifelse(grepl("^Duplicate",.data$case_nm) | grepl("^Duplicate",.data$mrk_z2),
-    #                       ifelse(((.data$case_nm =="Duplicate" & !duplicated(.data$mrk_z, fromLast = T) ) | (grepl("^Duplicate",.data$mrk_z2) & !duplicated(.data$mrk_z2, fromLast = T))) &
-    #                                recurrence_from_last == T,
-    #                              ifelse(case_for_recurrence==T & .data$tr_tag==1.5, 1.6,1.5), 2),
-    #                       ifelse(.data$case_nm=="Recurrent" &
-    #                                .data$d ==1  &
-    #                                .data$ord < .data$d_ord &
-    #                                .data$tr_case_nm %in% c("Duplicate","") &
-    #                                recurrence_from_last ==T, 2,
-    #                              ifelse(case_for_recurrence==F, 1,1.4))),
-    #                .data$tag)
-    #   )
-
     df <- df %>%
       dplyr::mutate(
         mrk_z = paste0(.data$case_nm, .data$epid),
@@ -535,18 +521,18 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                                  ifelse(case_for_recurrence==F, 1,1.4))),
                    .data$tag)
       )
-
-    fx <- df[df$epid!=0 & df$lr!=1 & df$tag!=2 & df$tr_case_nm=="", c("epid","case_nm","tag")]
-    fx <- fx[order(-fx$tag),]
-    fx <- fx[fx$case_nm=="Recurrent" & !duplicated(fx$epid),]
-    fx <- fx$epid
-
-    df$roll[df$epid %in% fx] <- df$roll[df$epid %in% fx] + 1
+    if(episode_type=="rolling"){
+      fx <- df[df$epid!=0 & df$lr!=1 & df$tag!=2 & df$tr_case_nm=="", c("epid","case_nm","tag")]
+      fx <- fx[order(-fx$tag),]
+      fx <- fx[fx$case_nm=="Recurrent" & !duplicated(fx$epid),]
+      fx <- fx$epid
+      df$roll[df$epid %in% fx] <- df$roll[df$epid %in% fx] + 1
+    }
 
     tagged_1 <- length(df$epid[!df$epid %in% c(0,NA) & df$tag==2])
     total_1 <- nrow(df)
 
-    df <- dplyr::select(df, -dplyr::starts_with("tr"), -dplyr::starts_with("fg"), -dplyr::starts_with("mrk"))
+    df <- df[names(df)[!grepl("^tr|^fg|^mrk", names(df))]]
 
     if(display){
       cat(paste(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n", sep =""))
