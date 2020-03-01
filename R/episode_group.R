@@ -345,9 +345,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   }
 
   df$epid <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$epid)
+  df$window <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$window)
   df$tag <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 2, df$tag)
   df$case_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), "Case", df$case_nm)
   df$episodes <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 1, 0)
+
 
   df$roll <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), rolls_max, df$roll)
 
@@ -455,13 +457,22 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$fg_c <- ifelse(df$fg_a==df$fg_x & df$tag==2, 1,0)
 
     df$mrk_z <- paste0(df$case_nm, df$epid, df$lr)
+    df$mrk_z2 <- paste0(df$case_nm, df$epid)
     df$case_nm <- ifelse(df$lr !=1 &
                            df$case_nm=="Recurrent" &
-                           ((df$tr_case_nm=="Recurrent" & !is.na(df$tr_case_nm)) | (df$tr_case_nm != "Recurrent" & !is.na(df$tr_case_nm) & duplicated(df$mrk_z)))
+                           #((df$tr_case_nm=="Recurrent" & !is.na(df$tr_case_nm)) | (df$tr_case_nm != "Recurrent" & !is.na(df$tr_case_nm) & duplicated(df$mrk_z)))
+                           # (df$tr_case_nm != "Recurrent" & !is.na(df$tr_case_nm) & duplicated(df$mrk_z))
+                           (duplicated(df$mrk_z))
                          ,"Duplicate", df$case_nm)
 
     if(min(df$fg_c)==1) {
       df <- dplyr::select(df, -dplyr::starts_with("tr"), -dplyr::starts_with("fg"), -dplyr::starts_with("mrk"))
+      tagged_1 <- length(df$epid[!df$epid %in% c(0,NA) & df$tag==2])
+      total_1 <- nrow(df)
+
+      if(display){
+        cat(paste(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n", sep =""))
+      }
       break
     }
 
@@ -474,8 +485,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       })
       df$d <- unlist(pds2[as.character(df$epid)])
 
-      pds2 <- lapply(split(df$ord, df$epid), function(x){
-        max(x)
+      df$d_ord <- ifelse(df$case_nm=="Duplicate" & df$lr !=1, df$ord, NA)
+      pds2 <- lapply(split(df$d_ord, df$epid), function(x){
+        suppressWarnings(min(x, na.rm=T))
       })
       df$d_ord <- unlist(pds2[as.character(df$epid)])
     }else{
@@ -483,8 +495,27 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     }
 
     df$roll <- ifelse((df$tr_case_nm == "Recurrent" & !is.na(df$tr_case_nm)) |
-                        (df$tr_tag== 1.5 & !is.na(df$tr_tag)),
-                      df$tr_roll + 1,  df$roll)
+                        (df$tr_tag== 1.5 & !is.na(df$tr_tag)),df$tr_roll + 1,  df$roll)
+
+    # df <- df %>%
+    #   dplyr::mutate(
+    #     mrk_z = paste0(.data$case_nm, .data$epid),
+    #     tag=ifelse(episode_type == "rolling" &
+    #                  (.data$roll < rolls_max |(case_for_recurrence==T & .data$roll < rolls_max+1) )&
+    #                  !(.data$lr==1 & .data$tr_tag %in% c(1, 1.5, 1.4, 1.6)) & .data$case_nm %in% c("Duplicate","Recurrent"),
+    #                #ifelse(grepl("^Duplicate",.data$mrk_z2),
+    #                ifelse(grepl("^Duplicate",.data$case_nm) | grepl("^Duplicate",.data$mrk_z2),
+    #                       ifelse(((.data$case_nm =="Duplicate" & !duplicated(.data$mrk_z, fromLast = T) ) | (grepl("^Duplicate",.data$mrk_z2) & !duplicated(.data$mrk_z2, fromLast = T))) &
+    #                                recurrence_from_last == T,
+    #                              ifelse(case_for_recurrence==T & .data$tr_tag==1.5, 1.6,1.5), 2),
+    #                       ifelse(.data$case_nm=="Recurrent" &
+    #                                .data$d ==1  &
+    #                                .data$ord < .data$d_ord &
+    #                                .data$tr_case_nm %in% c("Duplicate","") &
+    #                                recurrence_from_last ==T, 2,
+    #                              ifelse(case_for_recurrence==F, 1,1.4))),
+    #                .data$tag)
+    #   )
 
     df <- df %>%
       dplyr::mutate(
@@ -492,17 +523,25 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
         tag=ifelse(episode_type == "rolling" &
                      (.data$roll < rolls_max |(case_for_recurrence==T & .data$roll < rolls_max+1) )&
                      !(.data$lr==1 & .data$tr_tag %in% c(1, 1.5, 1.4, 1.6)) & .data$case_nm %in% c("Duplicate","Recurrent"),
-                   ifelse(.data$case_nm == "Duplicate",
-                          ifelse(!duplicated(.data$mrk_z, fromLast = T) & recurrence_from_last == T,
+                   ifelse(grepl("^Duplicate",.data$case_nm),
+                          ifelse(.data$case_nm =="Duplicate" & !duplicated(.data$mrk_z, fromLast = T) &
+                                   recurrence_from_last == T,
                                  ifelse(case_for_recurrence==T & .data$tr_tag==1.5, 1.6,1.5), 2),
                           ifelse(.data$case_nm=="Recurrent" &
                                    .data$d ==1  &
-                                   .data$ord < .data$d_ord &
+                                   .data$ord < .data$d_ord & .data$d_ord != Inf &
                                    .data$tr_case_nm %in% c("Duplicate","") &
                                    recurrence_from_last ==T, 2,
                                  ifelse(case_for_recurrence==F, 1,1.4))),
                    .data$tag)
       )
+
+    fx <- df[df$epid!=0 & df$lr!=1 & df$tag!=2 & df$tr_case_nm=="", c("epid","case_nm","tag")]
+    fx <- fx[order(-fx$tag),]
+    fx <- fx[fx$case_nm=="Recurrent" & !duplicated(fx$epid),]
+    fx <- fx$epid
+
+    df$roll[df$epid %in% fx] <- df$roll[df$epid %in% fx] + 1
 
     tagged_1 <- length(df$epid[!df$epid %in% c(0,NA) & df$tag==2])
     total_1 <- nrow(df)
@@ -522,7 +561,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   rm(h.epids.lst)
 
   df$case_nm[df$epid==0] <- "Case"
-  df$window[df$epid==0] <- df$epid[df$epid==0] <- df$sn[df$epid==0]
+  df$epid[df$epid==0] <- df$window[df$epid==0] <- df$sn[df$epid==0]
 
 
   if(deduplicate) df <- subset(df, df$case_nm!="Duplicate")

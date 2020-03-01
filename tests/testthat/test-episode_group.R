@@ -98,7 +98,7 @@ test_that("test rolling/recurring episodes", {
   expect_equal(test_3$epid.1, rep(1,10))
   expect_equal(test_3$epid.2, rep(10,10))
   expect_equal(test_3$case_nm.1, c("Case",rep("Duplicate",4),"Recurrent",rep("Duplicate",3),"Recurrent"))
-  expect_equal(test_3$case_nm.2, rev(c("Case",rep("Duplicate",4),"Recurrent",rep("Duplicate",3),"Recurrent")))
+  expect_equal(test_3$case_nm.2, rev(c("Case",rep("Duplicate",4),"Recurrent",rep("Duplicate",3), "Recurrent")))
 
   e_int.2@id <- e_int.1@id <- 1:10
   e_int.1@gid <- rep(1,10)
@@ -133,7 +133,7 @@ e_int.2 <- c(
 test_that("test user defined recurrence length and roll_max", {
   expect_equal(test_4$epid.1, rep(1,10))
   expect_equal(test_4$epid.2, c(rep(1,6), rep(7,4)))
-  expect_equal(test_4$case_nm.1, c("Case",rep("Duplicate",4), c("Recurrent","Duplicate","Recurrent","Duplicate","Recurrent") ))
+  expect_equal(test_4$case_nm.1, c("Case",rep("Duplicate",4), rep("Recurrent",5) ))
   expect_equal(test_4$case_nm.2, c("Case",rep("Duplicate",4),"Recurrent","Case",rep("Duplicate",3)))
 
   e_int.2@id <- e_int.1@id <- 1:10
@@ -227,7 +227,7 @@ test_that("testing episodes_max and rolls_max combinations", {
   expect_equal(test_6$epid.3, c(rep(1,6),rep(7,4)))
   expect_equal(test_6$epid.4, c(rep(1,8), rep(9,2)))
   expect_equal(test_6$case_nm.3, c("Case",rep("Duplicate",4),"Recurrent", "Case", rep("Duplicate",3)))
-  expect_equal(test_6$case_nm.4, rep(c("Case",rep("Duplicate",4),c("Recurrent","Duplicate","Recurrent")),2)[1:10])
+  expect_equal(test_6$case_nm.4, rep(c("Case",rep("Duplicate",4),rep("Recurrent",3)),2)[1:10])
 
   e_int.4@id <- e_int.3@id <- e_int.2@id <- e_int.1@id <- 1:10
   e_int.1@gid <- c(rep(1,6),7:10)
@@ -474,7 +474,7 @@ e_int <- c(
 test_that("testing; stratified grouping 2", {
   expect_equal(test_10b$epid, c(1,2,2,2,1,2,1,1,9,9, 11))
   expect_equal(test_10b$case_nm, c("Case","Case","Duplicate","Recurrent",
-                                   "Recurrent", "Duplicate", "Duplicate",
+                                   "Recurrent", "Duplicate", "Recurrent",
                                    "Duplicate","Case","Duplicate","Case"
   ))
   e_int@id <- 1:11
@@ -754,7 +754,7 @@ test_that("test 'case_for_recurrence' in rolling_episodes", {
   expect_equal(epids4_a@.Data, rep(1,6))
   expect_equal(epids4_a@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Recurrent","Duplicate"))
   expect_equal(epids4_b@.Data, c(rep(1,5),6))
-  expect_equal(epids4_b@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Duplicate","Case"))
+  expect_equal(epids4_b@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Recurrent","Case"))
   expect_equal(epids4_c@.Data, c(rep(1,4),5,5))
   expect_equal(epids4_c@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Case","Duplicate"))
 })
@@ -770,9 +770,9 @@ epids2_r <- episode_group(df, date = x, case_length = c,  recurrence_length = r,
 
 test_that("test rolling_episodes", {
   expect_equal(epids_r@.Data, rep(1,5))
-  expect_equal(epids_r@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Duplicate"))
+  expect_equal(epids_r@case_nm, c("Case","Duplicate","Recurrent","Recurrent","Duplicate"))
   expect_equal(epids2_r@.Data, rep(1,5))
-  expect_equal(epids2_r@case_nm, c("Case","Recurrent","Duplicate","Duplicate","Recurrent"))
+  expect_equal(epids2_r@case_nm, c("Case","Recurrent","Recurrent","Duplicate","Duplicate"))
 })
 
 x <- c(lubridate::dmy("01/01/2007"), lubridate::dmy("10/01/2007"), lubridate::dmy("12/01/2007"), lubridate::dmy("15/01/2007"), lubridate::dmy("22/01/2007"))
@@ -810,3 +810,15 @@ test_that("test rolling_episodes", {
   expect_error(episode_group(df, date=x, case_length = c, recurrence_length = a), "'recurrence_length' must be integer or numeric values")
 })
 
+
+d <- seq.Date(dmy("01/04/2019"), dmy("18/04/2019"), "3 day" )
+df<- data.frame(date=d)
+df$r1 <- rolling_episodes(d, case_length = 3, case_for_recurrence = F, to_s4 = T, display = F)
+df$r2 <- rolling_episodes(d, case_length = 3, case_for_recurrence = T, to_s4 = T, display = F)
+
+test_that("test case_for_recurrence", {
+  expect_equal(df$r1@.Data, rep(1,6))
+  expect_equal(df$r1@case_nm, c("Case","Duplicate","Recurrent","Recurrent","Recurrent", "Recurrent"))
+  expect_equal(df$r2@.Data, rep(1,6))
+  expect_equal(df$r2@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Recurrent","Duplicate"))
+})
