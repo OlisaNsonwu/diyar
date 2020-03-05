@@ -348,6 +348,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     })
     ord_ls <- tidyr::unite(as.data.frame(ord_ls, stringsAsFactors = T),"ord")
     df$user_ord <- ord_ls[[1]]
+
+    #df$user_ord <- eval(parse(text = paste0("order(",paste0("df$", ref_sort, collapse = ", "),")")))
   }
 
   df$epid <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$epid)
