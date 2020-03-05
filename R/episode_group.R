@@ -318,8 +318,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                                "                 OR                   \n",
                                "Use ~ include_overlap_method() or exclude_overlap_method()"))
 
-  df <- df %>%
-    dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort), .data$methods)
+  # df <- df %>%
+  #   dplyr::select(.data$sn, .data$rec_dt_ai, .data$rec_dt_zi, .data$epi_len, .data$rc_len, .data$dsvr, .data$cri, !!dplyr::enquo(custom_sort), .data$methods)
+
+  df <- df[c("sn","rec_dt_ai","rec_dt_zi","epi_len","rc_len","dsvr","cri",ref_sort,"methods")]
 
   df$window <- df$tag <- df$epid <- df$roll <- df$episodes <- 0
   df$case_nm <- ""
@@ -333,32 +335,36 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$ord_z <- abs(min(df$rec_dt_zi) - df$rec_dt_zi)
   }
 
-  if(is.null(ref_sort)){
-    df$user_ord <- 0
-  }else{
-    # ord_ls <- dplyr::select(df, ref_sort) %>%
-    #   dplyr::mutate_all(list(~as.numeric(as.factor(.)))) %>%
-    #   dplyr::mutate_all(list(~formatC(., width = max(nchar(.)), flag=0))) %>%
-    #   tidyr::unite("ord")
+  # if(is.null(ref_sort)){
+  #   df$user_ord <- 0
+  # }else{
+  #   # ord_ls <- dplyr::select(df, ref_sort) %>%
+  #   #   dplyr::mutate_all(list(~as.numeric(as.factor(.)))) %>%
+  #   #   dplyr::mutate_all(list(~formatC(., width = max(nchar(.)), flag=0))) %>%
+  #   #   tidyr::unite("ord")
+  #
+  #   # ord_ls <- df[ref_sort]
+  #   # ord_ls <- lapply(as.list(ord_ls), function(x){
+  #   #   x <- as.numeric(as.factor(x))
+  #   #   x <- formatC(x, width = max(nchar(x)), flag=0)
+  #   # })
+  #   # ord_ls <- tidyr::unite(as.data.frame(ord_ls, stringsAsFactors = T),"ord")
+  #   # df$user_ord <- ord_ls[[1]]
+  #
+  #   user_ord <- eval(parse(text = paste0("order(",paste0("df$", c(ref_sort, "ord","ord_z"), collapse = ", "),")")))
+  #   names(user_ord) <- 1:length(user_ord)
+  #   df$user_ord <- as.numeric(names(sort(user_ord)))
+  # }
 
-    ord_ls <- df[ref_sort]
-    ord_ls <- lapply(as.list(ord_ls), function(x){
-      x <- as.numeric(as.factor(x))
-      x <- formatC(x, width = max(nchar(x)), flag=0)
-    })
-    ord_ls <- tidyr::unite(as.data.frame(ord_ls, stringsAsFactors = T),"ord")
-    df$user_ord <- ord_ls[[1]]
-
-    #df$user_ord <- eval(parse(text = paste0("order(",paste0("df$", ref_sort, collapse = ", "),")")))
-  }
+  user_ord <- eval(parse(text = paste0("order(",paste0("df$", c(ref_sort, "ord"), collapse = ", "),", -df$ord_z)")))
+  names(user_ord) <- 1:length(user_ord)
+  df$user_ord <- as.numeric(names(sort(user_ord)))
 
   df$epid <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$epid)
   df$window <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$window)
   df$tag <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 2, df$tag)
   df$case_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), "Case", df$case_nm)
   df$episodes <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 1, 0)
-
-
   df$roll <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), rolls_max, df$roll)
 
   min_tag <- min(df$tag)
@@ -368,14 +374,19 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   c <- 1
   h.epids.lst <- data.frame()
   while (min_tag != 2 & min_episodes_nm <= episodes_max){
-    h.epids.lst <- dplyr::filter(df, (.data$tag ==2 & !is.na(.data$tag))) %>%
-      dplyr::select(-.data$epi_len, -.data$rc_len) %>%
-      dplyr::bind_rows(h.epids.lst)
+    # h.epids.lst <- dplyr::filter(df, (.data$tag ==2 & !is.na(.data$tag))) %>%
+    #   dplyr::select(-.data$epi_len, -.data$rc_len) %>%
+    #   dplyr::bind_rows(h.epids.lst)
+
+    h.epids.lst_vrs <- names(df)[!names(df) %in% c(c("epi_len","rc_len"))]
+    h.epids.lst <- dplyr::bind_rows(h.epids.lst,
+                    df[df$tag ==2 & !is.na(df$tag), h.epids.lst_vrs] )
 
     df <- df[df$tag !=2 & !is.na(df$tag),]
 
     TR <- df %>%
-      dplyr::arrange(.data$cri,  dplyr::desc(.data$tag), .data$user_ord, .data$ord, dplyr::desc(.data$int_l), .data$sn) %>%
+      #dplyr::arrange(.data$cri,  dplyr::desc(.data$tag), .data$user_ord, .data$ord, dplyr::desc(.data$int_l), .data$sn) %>%
+      dplyr::arrange(.data$cri,  dplyr::desc(.data$tag), .data$user_ord, dplyr::desc(.data$int_l), .data$sn) %>%
       dplyr::filter(!(.data$tag==0 & .data$episodes + 1 > episodes_max )) %>%
       dplyr::filter(duplicated(.data$cri) == FALSE & !is.na(.data$cri)) %>%
       dplyr::select(.data$sn, .data$cri, .data$rec_dt_ai, .data$rec_dt_zi, .data$epid, .data$tag, .data$roll, .data$epi_len, .data$rc_len, .data$case_nm) %>%
