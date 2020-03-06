@@ -46,7 +46,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{episode_type}{\code{"fixed"} or \code{"rolling"}.}
 
-\item{episode_unit}{Time units as supported by lubridate's \code{\link[lubridate]{duration}} function.}
+\item{episode_unit}{Time units. "seconds", "minutes", "hours", "days", "weeks", "months" or "years".}
 
 \item{episodes_max}{Maximum number of times to group episodes within each \code{strata}.}
 

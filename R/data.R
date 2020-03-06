@@ -51,7 +51,7 @@
 #' data(hospital_admissions)
 "hospital_admissions"
 
-#' @title Dummy datasets for \code{diyar} package
+#' @title Datasets in \code{diyar} package
 #' @details patient_list & patient_list_2 - Patient list with some missing data
 #' @docType data
 #' @usage data(patient_list)
@@ -83,3 +83,11 @@
 #' @examples
 #' data(Opes)
 "Opes"
+
+#' @details Duration in seconds for each 'episode_unit'
+#' @usage data(episode_unit)
+#' @format list
+#' @rdname patient_list
+#' @examples
+#' data(episode_unit)
+"episode_unit"

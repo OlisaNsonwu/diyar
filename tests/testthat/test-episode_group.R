@@ -586,12 +586,10 @@ test_that("test that error and warning messages are returned correctly", {
                              case_length = epi_len, episode_unit = "months", group_stats = T), "A dataframe is required")
   expect_error(episode_group(dft_8, date=admin_periods, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = T), "'admin_periods' not found")
-  expect_error(episode_group(dft_8, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "'sn' must be > 0")
-  expect_error(episode_group(dft_9, date=admin_period, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "'sn' must not have duplicate values")
+  # expect_error(episode_group(dft_9, date=admin_period, sn=rd_id,
+  #                            case_length = epi_len, episode_unit = "months", group_stats = T), "duplicate record indentifier ('sn') in indexes c(1,2)")
   expect_error(episode_group(admissions, date=pid, sn=rd_id,
-                             case_length = epi_len, episode_unit = "months", group_stats = T), "'date' must be a date, datetime, numeric or number_line object, and not have missing values")
+                             case_length = epi_len, episode_unit = "months", group_stats = T), "'date' must be a date, datetime, numeric or number_line object")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = 1), "'episode_unit' must be a character of length 1")
   expect_error(episode_group(admissions, date=admin_period, sn=rd_id,
