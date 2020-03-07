@@ -92,9 +92,9 @@
 #'
 #' ## 4.1 Chronological order
 #' db_4$forward_time <- fixed_episodes(db_4$date, case_length = 1,
-#' episode_unit = "month", to_s4 = TRUE, display = FALSE)
+#' episode_unit = "months", to_s4 = TRUE, display = FALSE)
 #' db_4$backward_time <- fixed_episodes(db_4$date, case_length = 1,
-#' episode_unit = "month", from_last = TRUE, to_s4 = TRUE, display = FALSE)
+#' episode_unit = "months", from_last = TRUE, to_s4 = TRUE, display = FALSE)
 #' db_4
 #'
 #' ## 4.2 User defined order
@@ -215,14 +215,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(!episode_unit %in% names(diyar::episode_unit)) stop(paste("'episode_unit' must be either 'seconds', 'minutes', 'hours', 'days', 'weeks', 'months' or 'years'"))
   if(!episode_type %in% c("rolling","fixed")) stop(paste("`episode_type` must be either 'rolling' or 'fixed'"))
 
-  rd_sn <- diyar:::enq_vr(substitute(sn))
-  ds <- diyar:::enq_vr(rlang::enexpr(data_source))
-  epl <- diyar:::enq_vr(substitute(case_length))
-  r_epl <- diyar:::enq_vr(substitute(recurrence_length))
-  st <- diyar:::enq_vr(substitute(strata))
-  ref_sort <- diyar:::enq_vr(substitute(custom_sort))
-  dt <- diyar:::enq_vr(substitute(date))
-  methods <- diyar:::enq_vr(substitute(overlap_methods))
+  rd_sn <- enq_vr(substitute(sn))
+  ds <- enq_vr(substitute(data_source))
+  epl <- enq_vr(substitute(case_length))
+  r_epl <- enq_vr(substitute(recurrence_length))
+  st <- enq_vr(substitute(strata))
+  ref_sort <- enq_vr(substitute(custom_sort))
+  dt <- enq_vr(substitute(date))
+  methods <- enq_vr(substitute(overlap_methods))
 
   # Check that col names exist
   if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods)) %in% names(df))){
@@ -241,7 +241,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(is.null(rd_sn)){
     df$sn <- 1:nrow(df)
   }else{
-    dp_check <- diyar:::duplicates_check(df[[rd_sn]])
+    dp_check <- duplicates_check(df[[rd_sn]])
     if(dp_check!=T) stop(paste0("duplicate record indentifier ('sn') in indexes ",dp_check))
     df$sn <- df[[rd_sn]]
   }
@@ -269,6 +269,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$cri <- eval(parse(text = paste0("paste0(",paste0("df$", st, collapse = ",'-',"),")")))
   }
 
+  # Date
   if(any(class(df[[dt]]) %in% c("number_line","Interval"))){
     df$rec_dt_ai <- diyar::left_point(df[[dt]])
     df$rec_dt_zi <- diyar::right_point(df[[dt]])
@@ -276,6 +277,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$rec_dt_ai <- df[[dt]]
     df$rec_dt_zi <- df[[dt]]
   }
+
+  fn_check <- finite_check(df$rec_dt_zi)
+  if(fn_check!=T) stop(paste0("Finite values of 'date' required in indexes ",fn_check))
 
   # Class of 'date'
   dt_grp <- ifelse(!any(class(df$rec_dt_ai) %in% c("Date","POSIXct","POSIXt","POSIXlt")) |
@@ -347,9 +351,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   c <- 1
   grouped_epids <- df[0,0]
   while (min_tag != 2 & min_episodes <= episodes_max){
-    vrs <- names(df)[!names(df) %in% c(c("epi_len","rc_len"))]
+    #vrs <- names(df)[!names(df) %in% c(c("epi_len","rc_len"))]
+    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","window","case_nm","user_ord","ord","ord_z")
     grouped_epids <- rbind(grouped_epids,
-                         df[df$tag ==2 & !is.na(df$tag), vrs] )
+                         df[df$tag ==2 & !is.na(df$tag), g_vrs] )
 
     # exclude grouped episodes
     df <- df[df$tag !=2 & !is.na(df$tag),]
@@ -525,8 +530,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   }
 
   # Combine all episodes again
-  df <- df[names(df)[!grepl("^epi_len|^rc_len", names(df))]]
-  df <- rbind(df, grouped_epids)
+  df <- rbind(df[g_vrs], grouped_epids)
   rm(grouped_epids)
 
   # Assign ungrouped episodes to unique IDs
@@ -537,7 +541,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(deduplicate) df <- subset(df, df$case_nm!="Duplicate")
 
   if(is.null(ds)){
-    df <- df[c("sn","epid","window","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
+    #df <- df[c("sn","epid","window","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
     df <- df[order(df$pr_sn),]
   }else{
     pds2 <- lapply(split(df$dsvr, df$epid), function(x){
@@ -546,7 +550,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df$epid_dataset <- unlist(pds2[as.character(df$epid)])
     df <- df[order(df$pr_sn),]
-    df <- df[c("sn","epid","window","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
+    #df <- df[c("sn","epid","window","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
   }
 
   # Episode stats if required
@@ -569,13 +573,17 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$a <- as.numeric(lapply(split(as.numeric(df$rec_dt_ai), df$epid), ifelse(from_last==F, min, max))[as.character(df$epid)])
     df$z <- as.numeric(lapply(split(as.numeric(df$rec_dt_zi), df$epid), ifelse(from_last==F, max, min))[as.character(df$epid)])
 
-    diff_unit <- gsub("s$","",tolower(episode_unit))
-    diff_unit <- ifelse(!diff_unit %in% c("second","minute","hour","day"), "day", diff_unit)
+    diff_unit <- ifelse(tolower(episode_unit) %in% c("second","minutes"),
+                        paste0(substr(tolower(episode_unit),1,3),"s"),
+                        tolower(episode_unit))
+
+    diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
 
     if(dt_grp == T){
       df$a <- as.POSIXct(df$a, "UTC", origin = as.POSIXlt("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
       df$z <- as.POSIXct(df$z, "UTC", origin = as.POSIXlt("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
-      df$epid_length <- lubridate::make_difftime(difftime(df$z, df$a, units = "secs"), units = diff_unit)
+      #df$epid_length <- lubridate::make_difftime(difftime(df$z, df$a, units = "secs"), units = diff_unit)
+      df$epid_length <- difftime(df$z, df$a, units = diff_unit)
     }else{
       df$epid_length <- df$z - df$a
     }
@@ -683,7 +691,6 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
   }
 
   if(is.null(data_source)){
-    df$ds <- 1
     ds <- NULL
   }else{
     df$ds <- data_source
@@ -698,11 +705,19 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 
   df$method <- m
 
-  diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
-                       bi_direction = bi_direction , data_source = !!ds, custom_sort = "user_srt",
-                       from_last = from_last, overlap_methods = "method",
-                       display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
+  if(is.null(data_source)){
+    diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
+                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt",
+                         from_last = from_last, overlap_methods = "method",
+                         display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
+  }else{
+    diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
+                         bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt",
+                         from_last = from_last, overlap_methods = "method",
+                         display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
+  }
 }
+
 
 #' @rdname episode_group
 #' @export
@@ -782,7 +797,6 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   }
 
   if(is.null(data_source)){
-    df$ds <- 1
     ds <- NULL
   }else{
     df$ds <- data_source
@@ -802,9 +816,19 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   }
 
   df$method <- m
-  diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
-                       bi_direction = bi_direction , data_source = !!ds, custom_sort = "user_srt",
-                       from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
-                       display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
-                       recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence)
+
+  if(is.null(data_source)){
+    diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
+                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt",
+                         from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
+                         display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
+                         recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence)
+    }else{
+      diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
+                           bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt",
+                           from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
+                           display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
+                           recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence)
+  }
+
 }

@@ -469,7 +469,7 @@ In this example, whether or not the infection is treated should be viewed as the
 data("infections_4"); 
 dbs <- infections_4
 
-dbs$epids <- episode_group(infections_4, sn=rid, strata=c(pid, organism, source), date=date, 
+dbs$epids <- episode_group(dbs, sn=rid, strata=c(pid, organism, source), date=date, 
                 case_length =epi, episode_type = "rolling", recurrence_length = recur,
                 display = FALSE, to_s4 = TRUE)
 

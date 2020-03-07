@@ -332,7 +332,7 @@ test_that("testing; episode grouping by weeks", {
   expect_equal(test_8b$case_nm, c(rep("Duplicate",10),"Case"))
   expect_equal(test_8b$epid_interval, e_int)
   expect_equal(test_8b$epid_total, rep(11,11))
-  expect_equal(test_8b$epid_length, as.difftime(rep(-60,11), units = "days" ))
+  expect_equal(round(test_8b$epid_length,6), as.difftime(rep(-8.571429,11), units = "weeks"))
 })
 
 # Test 9 - User defined case assignment

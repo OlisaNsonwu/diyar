@@ -133,14 +133,6 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     }
     options("diyar.record_group.output"= FALSE)
   }
-  enq_vr <- function(x){
-    x <- as.character(x)
-    if(x[1]=="c" & length(x)>1) x <- x[2:length(x)]
-    if(length(x)==0) x <- NULL
-    x
-  }
-
-  fmt <- function(g) formatC(g, format="d", big.mark=",")
 
   ds <- enq_vr(substitute(data_source))
 
@@ -163,31 +155,34 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   }
 
   if(is.null(rd_sn)){
-    df <- dplyr::mutate(df, sn= dplyr::row_number())
+    df$sn <- 1:nrow(df)
   }else{
-    df$sn <- dplyr::select(df, sn = !!dplyr::enquo(sn))[[1]]
+    dp_check <- duplicates_check(df[[rd_sn]])
+    if(dp_check!=T) stop(paste0("duplicate record indentifier ('sn') in indexes ",dp_check))
+    df$sn <- df[[rd_sn]]
   }
 
   if(is.null(ds)){
     df$dsvr <- "A"
   }else{
-    df <- tidyr::unite(df, "dsvr", ds, remove=FALSE, sep="-")
+    df$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
   }
 
-  df <- df %>%
-    dplyr::select(sn, !!dplyr::enquo(criteria), sub_cri_lst, .data$dsvr) %>%
-    dplyr::mutate(pr_sn = dplyr::row_number(), m_tag=0, tag = 0, pid = 0, pid_cri = Inf)
+  df <- df[c("sn",cri_lst,sub_cri_lst,"dsvr")]
+  df$pr_sn <- 1:nrow(df)
+  df$m_tag <- df$tag <- df$pid <- 0
+  df$pid_cri <- Inf
 
   cri_no <- length(cri_lst)
 
   for(i in 1:cri_no){
     if(is.number_line(df[[cri_lst[i]]])){
       #dummy criteria
-      rp_vr <- paste("dmvr_d",i,sep="")
+      rp_vr <- paste0("dmvr_d",i)
       df[[rp_vr]] <- 1
       # make nl a sub_criteria for the dummy criteria
       if(is.null(sub_criteria)) sub_criteria <- list()
-      sub_criteria[paste("s",i,"zr",sep="")] <- cri_lst[i]
+      sub_criteria[paste0("s",i,"zr")] <- cri_lst[i]
       # update criteria list
       cri_lst[i] <- rp_vr
     }
@@ -225,8 +220,8 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     if(curr_attr){
       func_1 <- function(x){
         ifelse(class(df[[x]]) == "number_line",
-               paste("range_match(df2$",x, ", ", "df2$tr_",x,")",sep=""),
-               paste("exact_match(df2$",x, ", ", "df2$tr_",x,")",sep=""))
+               paste0("range_match(df2$",x, ", ", "df2$tr_",x,")"),
+               paste0("exact_match(df2$",x, ", ", "df2$tr_",x,")"))
       }
 
       func_1b <- function(x) unlist(lapply(x, func_1))
@@ -250,64 +245,56 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     df$force_check <- df$skip <- df$m_tag <- c <- min_m_tag <- min_pid <- 0
 
     while (min_pid==0 | min_m_tag==-1) {
-      #df$force_check <- ifelse(df$m_tag==-1,2,df$tag)
       if(c+1 >1 & display ) cat(paste("\nMatching criteria ",i,": iteration ",c+1, sep=""))
 
-      TR <- df %>%
-        dplyr::filter(!.data$cri %in% c("",NA))  %>%
-        dplyr::arrange(.data$cri, .data$skip, dplyr::desc(.data$force_check), dplyr::desc(.data$tag), .data$m_tag, .data$pid_cri, .data$sn) %>%
-        dplyr::filter(duplicated(.data$cri) == FALSE) %>%
-        dplyr::select_at(c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst)) %>%
-        dplyr::rename_at(c("pid","m_tag", "tag", "sn","pid_cri",curr_sub_cri_lst), list(~paste("tr_",.,sep="")))
+      TR <- df[!df$cri %in% c("",NA),]
+      TR <- TR[order(TR$cri, TR$skip, -TR$force_check, -TR$tag, TR$m_tag, TR$pid_cri, TR$sn),]
+      TR <- TR[!duplicated(TR$cri),]
+      TR <- TR[c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst)]
+      names(TR) <- paste0("tr_", names(TR))
 
-      df <- dplyr::left_join(df,TR, by="cri")
+      df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)
 
       df$sub_cri_match <- ifelse(!sub_crx_func(df) %in% c(NA, FALSE),1,0)
-      # no need to check again
-      # df$m_tag <- ifelse(df$sub_cri_match==1 & df$m_tag==-1 & df$pid==df$tr_pid & !is.na(df$tr_pid),1,df$m_tag)
 
-      df <- df %>%
-        dplyr::mutate(
-          m_tag = ifelse(.data$m_tag==1 &
-                           #.data$tr_pid ==0 &
-                           .data$sub_cri_match==1 & .data$pid_cri <= .data$tr_pid_cri, -1, .data$m_tag),
-          m_tag = ifelse(.data$sub_cri_match==1 & .data$m_tag==-1 & .data$pid==.data$tr_pid & !is.na(.data$tr_pid),1,.data$m_tag),
-          pid = ifelse(
-            (.data$m_tag==-1 & .data$pid!=0) | (.data$sub_cri_match==1 & .data$pid==0 & !is.na(.data$tr_pid)),
-            .data$tr_pid, .data$pid
-          ),
-          #inherit pid
-          pid = ifelse(
-            .data$pid==0 & !.data$tr_pid %in% c(0,NA) & .data$sub_cri_match==1,
-            .data$tr_pid, .data$pid
-          ),
-          #assign new pid
-          pid = ifelse(
-            .data$pid==0 & .data$tr_pid == 0 & !is.na(.data$tr_pid) & .data$sub_cri_match==1,
-            .data$tr_sn, .data$pid
-          ),
-          m_tag = ifelse(.data$pid !=0 & .data$m_tag != -1,1, .data$m_tag),
-          m_tag = ifelse(.data$sn==.data$tr_sn & !is.na(.data$tr_sn) & .data$m_tag ==-1, 1, .data$m_tag )
-        )
+      df$m_tag <- ifelse(df$m_tag==1 &
+                           df$sub_cri_match==1 & df$pid_cri <= df$tr_pid_cri,
+                         -1, df$m_tag)
+      df$m_tag <- ifelse(df$sub_cri_match==1 & df$m_tag==-1 & df$pid==df$tr_pid & !is.na(df$tr_pid),
+                         1,df$m_tag)
+      df$pid <- ifelse(
+        (df$m_tag==-1 & df$pid!=0) | (df$sub_cri_match==1 & df$pid==0 & !is.na(df$tr_pid)),
+        df$tr_pid, df$pid
+      )
+
+      #inherit pid
+      df$pid <- ifelse(
+        df$pid==0 & !df$tr_pid %in% c(0,NA) & df$sub_cri_match==1,
+        df$tr_pid, df$pid
+      )
+
+      #assign new pid
+      df$pid <- ifelse(
+        df$pid==0 & df$tr_pid == 0 & !is.na(df$tr_pid) & df$sub_cri_match==1,
+        df$tr_sn, df$pid
+      )
+      df$m_tag <- ifelse(df$pid !=0 & df$m_tag != -1,1, df$m_tag)
+      df$m_tag <- ifelse(df$sn==df$tr_sn & !is.na(df$tr_sn) & df$m_tag ==-1, 1, df$m_tag )
+
 
       df$skip <- ifelse(df$m_tag ==-1 & !is.na(df$m_tag), 0, ifelse(df$sub_cri_match==1, 1, df$skip))
 
-      min_pid <- df %>%
-        dplyr::filter(!.data$cri %in% c("",NA)) %>%
-        dplyr::select(.data$pid) %>% min()
+      min_pid <- min(df$pid[!df$cri %in% c("",NA)])
 
-      min_m_tag <- df %>%
-        dplyr::filter(!.data$cri %in% c("",NA)) %>%
-        dplyr::select(.data$m_tag) %>% min()
+      min_m_tag <- min(df$m_tag[!df$cri %in% c("",NA)])
 
-      df <- dplyr::select(df, .data$sn, .data$pr_sn, .data$pid, .data$pid_cri, .data$cri, cri_lst, sub_cri_lst,
-                          .data$ tag, .data$m_tag, .data$skip, .data$dsvr, .data$force_check)
+      df <- df[c("sn", "pr_sn", "pid", "pid_cri", "cri", cri_lst, sub_cri_lst, "tag", "m_tag", "skip", "dsvr", "force_check")]
 
       c <- c+1
     }
 
-    tagged_1 <- length(subset(df$pid, !df$pid %in% c(0,NA) & df$tag ==0 ))
-    total_1 <- length(subset(df$pid, df$tag ==0 ))
+    tagged_1 <- length(df$pid[!df$pid %in% c(0,NA) & df$tag ==0])
+    total_1 <- length(df$pid[df$tag ==0])
 
     if(display) {
       cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," record(s) not yet grouped.", sep =""))
@@ -340,24 +327,23 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   df <- df[c("sn","pid","pid_cri","dsvr","pr_sn")]
 
   if(is.null(ds)){
-    df <- dplyr::arrange(df, .data$pr_sn)
-    df <- df[c("sn","pid","pid_cri","pr_sn")]
+    df <- df[order(df$pr_sn), c("sn","pid","pid_cri","pr_sn")]
   }else{
     pds2 <- lapply(split(df$dsvr, df$pid), function(x){
       paste0(sort(unique(x)), collapse=",")
     })
 
-    df$pid_dataset <- unlist(pds2[as.character(df$pid)])
-    df <- df[c("sn","pid","pid_cri","pid_dataset","pr_sn")]
+    df$pid_dataset <- as.character(pds2[as.character(df$pid)])
+    df <- df[order(df$pr_sn), c("sn","pid","pid_cri","pid_dataset","pr_sn")]
   }
 
   if(group_stats){
-    df <- dplyr::arrange(df, .data$pid)
+    df <- df[order(df$pid),]
     df$pid_total <- rep(rle(df$pid)$lengths, rle(df$pid)$lengths)
+    df <- df[order(df$pr_sn),]
   }
 
-  df <- dplyr::arrange(df, .data$pr_sn)
-  df <- dplyr::select(df, -.data$pr_sn)
+  df$pr_sn <- NULL
 
   pd <- ifelse(display,"\n","")
   cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a group unique ID. \n" , sep =""))

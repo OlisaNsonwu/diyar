@@ -149,9 +149,9 @@ db_4 <- infections
 
 ## 4.1 Chronological order
 db_4$forward_time <- fixed_episodes(db_4$date, case_length = 1,
-episode_unit = "month", to_s4 = TRUE, display = FALSE)
+episode_unit = "months", to_s4 = TRUE, display = FALSE)
 db_4$backward_time <- fixed_episodes(db_4$date, case_length = 1,
-episode_unit = "month", from_last = TRUE, to_s4 = TRUE, display = FALSE)
+episode_unit = "months", from_last = TRUE, to_s4 = TRUE, display = FALSE)
 db_4
 
 ## 4.2 User defined order
