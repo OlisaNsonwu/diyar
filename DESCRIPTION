@@ -21,12 +21,12 @@ LazyData: true
 Imports: 
     methods,
     utils,
-    rlang,
-    dplyr (>= 0.7.5),
-    lubridate (>= 1.7.4),
-    tidyr (>= 0.8.2) 
+    rlang
 RoxygenNote: 6.1.1
 Suggests:
+    dplyr,
+    lubridate,
+    tidyr,
     phonics,
     ggplot2,
     janitor,

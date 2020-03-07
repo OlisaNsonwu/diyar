@@ -300,20 +300,14 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," record(s) not yet grouped.", sep =""))
     }
 
-    # untag record groups with only one record to attempt matching in the next criteria
-    df <- df %>%
-      dplyr::mutate(
-        # keeping track of cases that have not been tagged for the print output
-        tag = ifelse(.data$pid %in% c(0,NA),0,1),
-        pid = ifelse(duplicated(.data$pid) == FALSE & duplicated(.data$pid, fromLast=TRUE) == FALSE,0,.data$pid))
+    # keeping track of cases that have not been tagged for the print output
+    df$tag <- ifelse(df$pid %in% c(0,NA),0,1)
+    df$pid <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,0,df$pid)
 
     removed <- length(subset(df$pid, df$pid %in% c(0,NA) & df$tag ==1 ))
 
-    df <- df %>%
-      dplyr::mutate(
-        tag = ifelse(.data$pid!=0,1,0),
-        pid_cri = ifelse(.data$tag ==1 & .data$pid_cri == Inf,i, .data$pid_cri)
-      )
+    df$tag <- ifelse(df$pid!=0,1,0)
+    df$pid_cri <- ifelse(df$tag ==1 & df$pid_cri == Inf,i, df$pid_cri)
 
     if(display) {
       cat(paste("\n",fmt(removed), " record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now ", fmt(removed + (total_1-tagged_1)),".\n", sep =""))

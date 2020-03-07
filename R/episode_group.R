@@ -1,37 +1,38 @@
 #' @name episode_group
-#' @title Episode grouping for record deduplication and case assignment
+#' @title Episode grouping for case definitions and record deduplication
 #'
-#' @description Group records into chronological episodes
+#' @description Group events into chronological episodes
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.
-#' @param strata Subsets of the dataset within which episode grouping will be done separately. \code{\link{episode_group}} supports the use of multiple columns supplied as column names. \code{\link{record_group}} can be used to create the \code{strata}.
+#' @param strata Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{stratas}.
 #' @param date Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.
-#' @param case_length Period after a \code{"Case (C)"} within which another record from the same \code{strata} is considered a \code{"Duplicate (D)"} record.
+#' @param case_length Duration after a \code{"case"} within which subsequent events are considred \code{duplicate (D)} events. This period is the \code{case window}.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Period after the last record (\code{"Case (C)"} , \code{"Duplicate (D)"} or \code{"Recurrent (R)"}) of an episode within which another record from the same \code{strata} is considered a \code{"Recurrent (R)"} record. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.
+#' @param recurrence_length Duration after the last or first events (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period is the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.
 #' @param episode_unit Time units. "seconds", "minutes", "hours", "days", "weeks", "months" or "years".
 #' @param rolls_max Maximum number of times an event can reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources. \code{\link{episode_group}} support the use of multiple columns supplied as column names.
-#' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent record and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest record and proceeding to the most recent one.
-#' @param overlap_method Method of overlap considered when grouping intervals. Each pair of intervals are checked by the same set of \code{overlap_method}. Deprecated use \code{overlap_methods} instead.
-#' @param overlap_methods Methods of overlap considered when grouping intervals. Different pairs of intervals can be check by different sets \code{overlap_methods}
-#' @param custom_sort If \code{TRUE}, \code{"Case (C)"} assignment will be done with preference to this sort order. Useful in specifying that episode grouping begins at particular records regardless of chronological order. \code{\link{episode_group}} supports the use of multiple columns supplied as column names.
-#' @param bi_direction If \code{FALSE}, \code{"Duplicate (D)"} records will be those within the \code{case_length} period, before or after the \code{"Case (C)"} as determined by \code{from_last}. If \code{TRUE}, \code{"Duplicate (D)"} records will be those within the same period before and after the \code{"Case (C)"}.
-#' @param group_stats If \code{TRUE}, the output will include additional columns with useful stats for each episode group.
+#' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources. In \code{\link{episode_group}}, you can use multiple columns supplied as column names.
+#' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent event and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.
+#' @param overlap_method Method of overlap considered when grouping periods of events. Each pair of periods are checked with the same set of \code{overlap_method}. Deprecated use \code{overlap_methods} instead.
+#' @param overlap_methods Methods of overlap considered when grouping intervals. Different pairs of periods can be checked with different sets \code{overlap_methods}
+#' @param custom_sort If \code{TRUE}, \code{"case"} assignment will be done with preference to this sort order. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In \code{\link{episode_group}}, you can use multiple columns as sort levels.
+#' @param bi_direction If \code{FALSE}, \code{"duplicate"} events will be those within the \code{case_length} period, before or after the \code{"case"} as determined by \code{from_last}. If \code{TRUE}, \code{"duplicate"} events will be those within the same period before and after the \code{"case"}.
+#' @param group_stats If \code{TRUE}, the output will include additional information with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #' @param to_s4 if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.
-#' @param recurrence_from_last if \code{TRUE}, the
-#' @param case_for_recurrence if \code{TRUE}, the
+#' @param recurrence_from_last if \code{TRUE}, the reference event for a \code{recurrence window} should be the last event from the previous \code{window}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param case_for_recurrence if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
 #'
 #' @return
 #'
-#' \code{data.frame} (\code{\link[=epid-class]{epid}} objects if \code{to_s4} is \code{TRUE})
+#' (\code{\link[=epid-class]{epid}} objects, \code{data.frame} if \code{to_s4} is \code{FALSE})
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
 #' \item \code{epid | .Data} - unique episode identifier
+#' \item \code{window} - unique window identifier
 #' \item \code{case_nm} - record type in regards to case assignment
 #' \item \code{epid_dataset} - data sources in each episode
 #' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
@@ -39,19 +40,18 @@
 #' \item \code{epid_total} - number of records in each episode
 #' }
 #'
-#' \code{epid} objects will be the default output in the next release.
 #'
 #' @seealso
 #' \code{\link{record_group}}, \code{\link{overlap}} and \code{\link{number_line}}
 #'
 #' @details
-#' Episode grouping begins at a reference record (\code{"Case (C)"}) and proceeds forward or backward in time depending on \code{from_last}.
-#' If \code{custom_sort} is used, episode grouping can be forced to begin at certain records before proceeding forward or backwards in time.
-#' The maximum duration of a \code{"fixed"} episode is the \code{case_length} while, the maximum duration of a \code{"rolling"} episode is the
-#' \code{case_length} plus all recurrence periods. A recurrence period is a fixed period (\code{recurrence_length}) after the last record of an episode. Records within this period are taken an a \code{"Recurrent (R)"} record of the initial \code{"Case"}
+#' Episode grouping begins at a reference event (\code{"case"}) and proceeds forward or backward in time depending on \code{from_last}.
+#' If \code{custom_sort} is used, episode grouping can be forced to begin at certain events before proceeding forward or backwards in time.
+#' The maximum duration of a \code{"fixed"} episode is the \code{case_length}. This period is refered to as the \code{case window}. The maximum duration of a \code{"rolling"} episode is the
+#' \code{case_length} plus all recurrence periods. The recurrence periods are refered to as \code{recurrence windows}. This is specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event from the pervious window. Events within this period are considered \code{"recurrent"} events.
 #'
-#' #' When a \code{data_source} identifier is included,
-#' \code{epid_dataset} is included in the output. This lists the source of every record in each record group.
+#' When a \code{data_source} identifier is provided,
+#' \code{epid_dataset} is included in the output. This lists the source of every event in each episode.
 #'
 #' @examples
 #' library(dplyr)
@@ -147,8 +147,6 @@
 #' case_length = epi_len, recurrence_length = recur, to_s4 = TRUE, display = FALSE)
 #' db_5
 #'
-#' @importFrom dplyr %>%
-#' @importFrom rlang .data
 #' @aliases episode_group
 #' @export
 #' @rdname episode_group
