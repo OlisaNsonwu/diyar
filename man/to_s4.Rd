@@ -29,12 +29,14 @@ dates <- infections$date
 output <- fixed_episodes(dates, case_length=30)
 output
 
-# from a data.frame to pid/epid object
-output_2 <- to_s4(output)
-output_2
-
 # from the a pid/epid object to a data.frame
-output_3 <- to_df(output_2)
-output_3
+df_output <- to_df(output)
+df_output
+
+# from a data.frame to pid/epid object
+s4_output <- to_s4(df_output)
+s4_output
+
+all(s4_output == output)
 
 }

@@ -61,21 +61,21 @@
 #' data(infections); infections
 #' db_1 <- infections
 #' # 16-day (difference of 15 days) episodes beginning from the earliest record
-#' db_1$fd <- fixed_episodes(db_1$date, case_length = 15, to_s4 = TRUE, display = FALSE)
+#' db_1$fd <- fixed_episodes(db_1$date, case_length = 15, display = FALSE)
 #' # 16-hour (difference of 15 hours) episodes beginning from the earliest record
 #' db_1$fh <- fixed_episodes(db_1$date, case_length = 15,
-#' episode_unit = "hours", to_s4 = TRUE, display = FALSE)
+#' episode_unit = "hours", display = FALSE)
 #' db_1
 #'
 #' #2. Rolling episodes
 #' # Case length and recurrence periods of 16 days
-#' db_1$rd_a <- rolling_episodes(db_1$date, case_length = 15, to_s4 = TRUE, display = FALSE)
+#' db_1$rd_a <- rolling_episodes(db_1$date, case_length = 15, display = FALSE)
 #' # Case length of 16 days and recurrence periods of 11 days
 #' db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
-#' recurrence_length = 10, to_s4 = TRUE, display = FALSE)
+#' recurrence_length = 10, display = FALSE)
 #' # Case length of 16 days and 2 recurrence periods of 11 days
 #' db_1$rd_c <- rolling_episodes(db_1$date, case_length = 15,
-#' recurrence_length = 10, rolls_max = 2, to_s4 = TRUE, display = FALSE)
+#' recurrence_length = 10, rolls_max = 2, display = FALSE)
 #' db_1
 #'
 #' # 3. Stratified episode grouping
@@ -84,7 +84,7 @@
 #' db_3$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 #' # One 16-day episode per patient
 #' db_3$epids_p <- fixed_episodes(date=db_3$date, strata = db_3$patient_id,
-#' case_length = 15, episodes_max = 1, to_s4 = TRUE, display = FALSE)
+#' case_length = 15, episodes_max = 1, display = FALSE)
 #' db_3
 #'
 #' # 4. Case assignment
@@ -92,9 +92,9 @@
 #'
 #' ## 4.1 Chronological order
 #' db_4$forward_time <- fixed_episodes(db_4$date, case_length = 1,
-#' episode_unit = "months", to_s4 = TRUE, display = FALSE)
+#' episode_unit = "months", display = FALSE)
 #' db_4$backward_time <- fixed_episodes(db_4$date, case_length = 1,
-#' episode_unit = "months", from_last = TRUE, to_s4 = TRUE, display = FALSE)
+#' episode_unit = "months", from_last = TRUE, display = FALSE)
 #' db_4
 #'
 #' ## 4.2 User defined order
@@ -106,11 +106,11 @@
 #' db_4b$ord2 <- factor(db_4b$infection, levels = c("UTI","BSI","RTI"))
 #'
 #' db_4b$epids_1 <- fixed_episodes(db_4b$date, case_length = 15,
-#' custom_sort = db_4b$ord1, to_s4 = TRUE, display = FALSE)
+#' custom_sort = db_4b$ord1, display = FALSE)
 #' db_4b$epids_2 <- fixed_episodes(db_4b$date, case_length = 15,
-#' custom_sort = db_4b$ord2, to_s4 = TRUE, display = FALSE)
+#' custom_sort = db_4b$ord2, display = FALSE)
 #' db_4b$epids_2b <- fixed_episodes(db_4b$date, case_length = 15,
-#' custom_sort = db_4b$ord2, bi_direction = TRUE, to_s4 = TRUE, display = FALSE)
+#' custom_sort = db_4b$ord2, bi_direction = TRUE, display = FALSE)
 #' db_4b
 #'
 #' #5. Interval grouping
@@ -128,12 +128,12 @@
 #'
 #' # Overlaping periods of admission seperated by 1 month
 #' admissions$epi_1 <- fixed_episodes(date=admissions$admin_period, case_length = 1,
-#' episode_unit = "months", group_stats = TRUE, to_s4 = TRUE, display = FALSE)
+#' episode_unit = "months", group_stats = TRUE, display = FALSE)
 #' admissions
 #'
 #' # Episodes of chained admission periods, and those with aligned end periods
 #' admissions$epi_0b <- fixed_episodes(date=admissions$admin_period, case_length = 0,
-#' overlap_methods = c("chain|aligns_end"), group_stats = TRUE, to_s4 = TRUE, display = FALSE)
+#' overlap_methods = c("chain|aligns_end"), group_stats = TRUE, display = FALSE)
 #' admissions["epi_0b"]
 #'
 #'
@@ -142,9 +142,9 @@
 #'
 #' db_5$recur <- 20
 #' db_5$epids_f <- episode_group(db_5, date=date, episode_type = "fixed",
-#' case_length = epi_len, to_s4 = TRUE, display = FALSE)
+#' case_length = epi_len, display = FALSE)
 #' db_5$epids_r <- episode_group(db_5, date=date, episode_type = "rolling",
-#' case_length = epi_len, recurrence_length = recur, to_s4 = TRUE, display = FALSE)
+#' case_length = epi_len, recurrence_length = recur, display = FALSE)
 #' db_5
 #'
 #' @aliases episode_group
