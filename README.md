@@ -55,7 +55,7 @@ number_line_sequence(nl, by =3)
 #> [11] "2019-04-30"
 ```
 
--   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame to `epid` objects (current default). `epid` objects is now the default output***
+-   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***NOTE -`epid` objects are now the default output. Use `to_s4` or `to_df()` to change this to data.frames***
 
 ``` r
 data(infections);
@@ -66,13 +66,12 @@ db$date
 #> [11] "2018-05-31"
 
 # Fixed episodes
-db$f_epid <- fixed_episodes(date = db$date, case_length = 15, 
-                              display = FALSE, group_stats = TRUE)
+db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = FALSE, group_stats = TRUE)
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 
 # Rolling episodes
-db$r_epid <- rolling_episodes(date = db$date, case_length = 15, 
-                              recurrence_length = 40, display = FALSE, group_stats = TRUE)
+db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = FALSE, 
+                              group_stats = TRUE)
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 db[c("f_epid","r_epid")]
 #>                                  f_epid                             r_epid
@@ -89,7 +88,7 @@ db[c("f_epid","r_epid")]
 #> 11 E-10 2018-05-25 -> 2018-05-31 (D-10) E-1 2018-04-01 -> 2018-05-31 (D-7)
 ```
 
--   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame to `pid` objects (current default). `pid` objects is now the default output***
+-   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***NOTE -`pid` objects are now the default output. Use `to_s4` or `to_df()` to change this to a data.frames***
 
 ``` r
 # Two stages of record grouping
