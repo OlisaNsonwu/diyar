@@ -42,15 +42,15 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{date}{Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.}
 
-\item{case_length}{Duration after a \code{"case"} within which subsequent events are considred \code{duplicate (D)} events. This period is the \code{case window}.}
+\item{case_length}{Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case window}.}
 
 \item{episode_type}{\code{"fixed"} or \code{"rolling"}.}
 
-\item{episode_unit}{Time units. "seconds", "minutes", "hours", "days", "weeks", "months" or "years".}
+\item{episode_unit}{Time units. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years".}
 
 \item{episodes_max}{Maximum number of times to group episodes within each \code{strata}.}
 
-\item{recurrence_length}{Duration after the last or first events (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period is the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.}
+\item{recurrence_length}{Duration after the last or first event (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period refered to as the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.}
 
 \item{rolls_max}{Maximum number of times an event can reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.}
 
@@ -70,11 +70,11 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{display}{If \code{TRUE}, status messages are printed on screen.}
 
-\item{deduplicate}{if \code{TRUE}, \code{"Dupilcate (D)"} records are excluded from the output.}
+\item{deduplicate}{if \code{TRUE}, \code{"dupilcate"} records are excluded from the output.}
 
 \item{to_s4}{if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.}
 
-\item{recurrence_from_last}{if \code{TRUE}, the reference event for a \code{recurrence window} should be the last event from the previous \code{window}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.}
+\item{recurrence_from_last}{if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous \code{window}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.}
 
 \item{case_for_recurrence}{if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
@@ -103,10 +103,10 @@ Group events into chronological episodes
 Episode grouping begins at a reference event (\code{"case"}) and proceeds forward or backward in time depending on \code{from_last}.
 If \code{custom_sort} is used, episode grouping can be forced to begin at certain events before proceeding forward or backwards in time.
 The maximum duration of a \code{"fixed"} episode is the \code{case_length}. This period is refered to as the \code{case window}. The maximum duration of a \code{"rolling"} episode is the
-\code{case_length} plus all recurrence periods. The recurrence periods are refered to as \code{recurrence windows}. This is specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event from the pervious window. Events within this period are considered \code{"recurrent"} events.
+\code{case_length} plus all recurrence periods. The recurrence periods are refered to as \code{recurrence windows}. This is a specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event from the pervious window. Events within this period are considered \code{"recurrent"} events.
 
 When a \code{data_source} identifier is provided,
-\code{epid_dataset} is included in the output. This lists the source of every event in each episode.
+\code{epid_dataset} is included in the output. This has the source of every event in each episode.
 
 \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group()}.
 They are convenient alternatives with the same functionalities.

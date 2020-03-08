@@ -26,12 +26,12 @@ test_that("test that test record identifier is as expected for one criteria", {
 })
 
 # Test 2 - Missing values
-df_2b <- df_2a <- df
-df_2a$cri_1 <- ifelse(df_2a$cri_1=="A", NA, df_2a$cri_1 )
-df_2b$cri_1 <- ifelse(df_2b$cri_1=="A", "", df_2b$cri_1 )
+test_2b <- test_2a <- df
+test_2a$cri_1 <- ifelse(test_2a$cri_1=="A", NA, test_2a$cri_1 )
+test_2b$cri_1 <- ifelse(test_2b$cri_1=="A", "", test_2b$cri_1 )
 
-test_2a$pids <- record_group(df_2a, criteria = cri_1, group_stats = TRUE)
-test_2b$pids <- record_group(df_2b, criteria = cri_1, group_stats = TRUE)
+test_2a$pids <- record_group(test_2a, criteria = cri_1, group_stats = TRUE)
+test_2b$pids <- record_group(test_2b, criteria = cri_1, group_stats = TRUE)
 
 test_that("test that test blank space or NAs criteria are treated as unique record groups", {
   expect_equal(test_2a$pids@.Data, c(1,2,3,2,5))
@@ -41,7 +41,7 @@ test_that("test that test blank space or NAs criteria are treated as unique reco
 })
 
 # Test 3 - Decreasing order of certainty
-df_3a <- data.frame(
+test_3a <- data.frame(
   cri_1 = c("A","C","Z","V","F","G","G"),
   cri_2 = c("CC","AA","CC","VV","AA","CB","CC"),
   r_id = c(1:7),
@@ -49,12 +49,12 @@ df_3a <- data.frame(
   stringsAsFactors = FALSE
 )
 
-df_3b <- df_3a
+test_3b <- test_3a
 
-df_3b$cri_1 <- ifelse(df_3b$r_id==7, NA, df_3b$cri_1 )
+test_3b$cri_1 <- ifelse(test_3b$r_id==7, NA, test_3b$cri_1 )
 
-test_3a$pids <- record_group(df_3a,r_id, c(cri_1, cri_2), group_stats = TRUE)
-test_3b$pids <- record_group(df_3b,r_id, c(cri_1, cri_2), group_stats = TRUE)
+test_3a$pids <- record_group(test_3a,r_id, c(cri_1, cri_2), group_stats = TRUE)
+test_3b$pids <- record_group(test_3b,r_id, c(cri_1, cri_2), group_stats = TRUE)
 
 test_that("test that record grouping with >1 criteria follows an order of decreasing certaintity", {
   expect_equal(test_3a$pids@.Data, c(6,2,6,4,2,6,6))

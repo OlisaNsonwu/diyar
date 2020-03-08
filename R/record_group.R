@@ -42,8 +42,8 @@
 #' If a record has missing values for any \code{criteria}, that record skipped at that stage, and another attempt is made at the next stage.
 #' If there are no matches for a record at every stage, that record is assigned a unique group ID.
 #'
-#' When a \code{data_source} identifier is included,
-#' \code{pid_dataset} is included in the output. This lists the source of every record in each record group.
+#' When a \code{data_source} identifier is provided,
+#' \code{pid_dataset} is included in the output. This has the source of every record in each record group.
 #'
 #' @examples
 #' library(dplyr)
