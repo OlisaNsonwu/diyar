@@ -615,7 +615,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
                            from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE){
 
-  if(missing(date)) stop("argument 'date' is missing, with no default")
+  if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
 
   # if(to_s4 == FALSE){
@@ -722,7 +722,7 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
                              from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                              bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
 
-  if(missing(date)) stop("argument 'date' is missing, with no default")
+  if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
 
   # if(to_s4 == FALSE){
