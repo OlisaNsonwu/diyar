@@ -5,7 +5,7 @@
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.
-#' @param criteria Column names of attributes to match. Records with matching values in these columns are grouped together.
+#' @param criteria Column names of attributes to match. Each column is one stage of the process and the the order in which they are listed determines the relevance of matches. Matching records are assigned to a record group.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
 #' @param data_source Unique dataset identifier. Useful when \code{df} contains data from multiple sources.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
@@ -31,16 +31,16 @@
 #'
 #' Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of numeric values.
 #' An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-#' To do this, create a \code{\link{number_line}} object based on the range of values, and assign the actual value assigned to \code{gid}.
-#' Then use the \code{\link{number_line}} as a \code{sub_criteria}.
+#' To do this, create a \code{\link{number_line}} object to represent the range and supply this to \code{criteria} or \code{sub_criteria}.
+#' The actual value within each range must be assigned to the \code{gid} slot of the \code{number_line} object.
 #'
 #' A match at each stage is considered more relevant than those at subsequent stages.
 #' Therefore, \code{criteria} should be listed in order of decreasing relevance or certainty.
 #'
 #' \code{sub_criteria} can be used to force additional matching conditions at each stage.
 #' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-#' If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
-#' If all \code{criteria} values are missing, that record is assigned a unique group ID.
+#' If a record has missing values for any \code{criteria}, that record skipped at that stage, and another attempt is made at the next stage.
+#' If there are no matches for a record at every stage, that record is assigned a unique group ID.
 #'
 #' When a \code{data_source} identifier is included,
 #' \code{pid_dataset} is included in the output. This lists the source of every record in each record group.
@@ -100,7 +100,7 @@
 #' missing_staff_id
 #' @aliases record_group
 #' @export
-record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = FALSE){
+record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = TRUE){
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   rng_d <- as.character(substitute(df))
   . <- NULL
@@ -110,23 +110,23 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   if(logs_check!=T) stop(logs_check)
 
   # Suggesting the use `epid` objects
-  if(to_s4 == FALSE){
-    if (is.null(getOption("diyar.record_group.output"))){
-      options("diyar.record_group.output"= TRUE)
-    }
-    if (getOption("diyar.record_group.output")){
-      message(paste("The default output of record_group() will be changed to pid objects in the next release.",
-                    "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-                    "",
-                    "# Old way - merge or bind (col) results back to the `df`",
-                    "df <- cbind(df, record_group(df, criteria= x))",
-                    "",
-                    "# New way - `pid` objects",
-                    "df$pids <- record_group(df, criteria= x, to_s4 = TRUE)",
-                    "This message is displayed once per session.", sep = "\n"))
-    }
-    options("diyar.record_group.output"= FALSE)
-  }
+  # if(to_s4 == FALSE){
+  #   if (is.null(getOption("diyar.record_group.output"))){
+  #     options("diyar.record_group.output"= TRUE)
+  #   }
+  #   if (getOption("diyar.record_group.output")){
+  #     message(paste("The default output of record_group() will be changed to pid objects in the next release.",
+  #                   "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+  #                   "",
+  #                   "# Old way - merge or bind (col) results back to the `df`",
+  #                   "df <- cbind(df, record_group(df, criteria= x))",
+  #                   "",
+  #                   "# New way - `pid` objects",
+  #                   "df$pids <- record_group(df, criteria= x, to_s4 = TRUE)",
+  #                   "This message is displayed once per session.", sep = "\n"))
+  #   }
+  #   options("diyar.record_group.output"= FALSE)
+  # }
 
   # validations
   ds <- enq_vr(substitute(data_source))

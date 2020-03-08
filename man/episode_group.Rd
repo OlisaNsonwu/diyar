@@ -81,7 +81,9 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 \item{x}{Record date or interval. Deprecated. Please use \code{date}}
 }
 \value{
-(\code{\link[=epid-class]{epid}} objects, \code{data.frame} if \code{to_s4} is \code{FALSE})
+
+
+\code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 
 \itemize{
 \item \code{sn} - unique record identifier as provided

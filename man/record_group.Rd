@@ -6,14 +6,14 @@
 \usage{
 record_group(df, sn = NULL, criteria, sub_criteria = NULL,
   data_source = NULL, group_stats = FALSE, display = TRUE,
-  to_s4 = FALSE)
+  to_s4 = TRUE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
 
 \item{sn}{Unique numerical record identifier. Optional.}
 
-\item{criteria}{Column names of attributes to match. Records with matching values in these columns are grouped together.}
+\item{criteria}{Column names of attributes to match. Each column is one stage of the process and the the order in which they are listed determines the relevance of matches. Matching records are assigned to a record group.}
 
 \item{sub_criteria}{Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).}
 
@@ -26,7 +26,7 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 \item{to_s4}{if \code{TRUE}, changes the returned output to a \code{\link[=pid-class]{pid}} object.}
 }
 \value{
-\code{data.frame} (\code{\link[=pid-class]{pid}} objects if \code{to_s4} is \code{TRUE})
+\code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
@@ -46,16 +46,16 @@ Record grouping occurs in stages of matching \code{criteria}.
 
 Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of numeric values.
 An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-To do this, create a \code{\link{number_line}} object based on the range of values, and assign the actual value assigned to \code{gid}.
-Then use the \code{\link{number_line}} as a \code{sub_criteria}.
+To do this, create a \code{\link{number_line}} object to represent the range and supply this to \code{criteria} or \code{sub_criteria}.
+The actual value within each range must be assigned to the \code{gid} slot of the \code{number_line} object.
 
 A match at each stage is considered more relevant than those at subsequent stages.
 Therefore, \code{criteria} should be listed in order of decreasing relevance or certainty.
 
 \code{sub_criteria} can be used to force additional matching conditions at each stage.
 If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-If a record has missing values for any \code{criteria}, it's skipped at that stage, and another attempt is made at the next stage.
-If all \code{criteria} values are missing, that record is assigned a unique group ID.
+If a record has missing values for any \code{criteria}, that record skipped at that stage, and another attempt is made at the next stage.
+If there are no matches for a record at every stage, that record is assigned a unique group ID.
 
 When a \code{data_source} identifier is included,
 \code{pid_dataset} is included in the output. This lists the source of every record in each record group.
