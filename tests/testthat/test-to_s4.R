@@ -5,8 +5,8 @@ data("infections")
 df <- fixed_episodes(infections$date, case_length = 30)
 s4 <- fixed_episodes(infections$date, case_length = 30, to_s4=TRUE)
 
-df_2 <- record_group(infections, criteria = infection)
-s4_2 <- record_group(infections, criteria = infection, to_s4 = TRUE)
+df_2 <- record_group(infections, criteria = infection, to_s4 = F)
+s4_2 <- record_group(infections, criteria = infection, to_s4 = T)
 
 test_that("test to_s4", {
   expect_equal(to_s4(df), s4)
