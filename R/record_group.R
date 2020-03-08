@@ -239,7 +239,8 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       curr_sub_cri_lst <- "sn"
     }
 
-    df$force_check <- df$skip <- df$m_tag <- c <- min_m_tag <- min_pid <- 0
+    df$force_check <- df$skip <- df$m_tag <- c <- min_m_tag <- 0
+    min_pid <- sn_ref
 
     while (min_pid==sn_ref | min_m_tag==-1) {
       if(c+1 >1 & display ) cat(paste("\nMatching criteria ",i,": iteration ",c+1, sep=""))

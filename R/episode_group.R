@@ -5,7 +5,7 @@
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.
-#' @param strata Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{stratas}.
+#' @param strata Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{strata}.
 #' @param date Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.
 #' @param case_length Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case window}.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.

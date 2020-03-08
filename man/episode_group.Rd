@@ -38,7 +38,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{sn}{Unique numerical record identifier. Optional.}
 
-\item{strata}{Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{stratas}.}
+\item{strata}{Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{strata}.}
 
 \item{date}{Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.}
 

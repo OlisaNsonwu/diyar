@@ -1,10 +1,9 @@
-#' @title Check for numeric values that are not finite
+#' @title Convenience funcitons
 #'
-#' @description Check for numeric values that are not finite
+#' @description Convenience funcitons
 #'
-#' @param x \code{numeric} object or can be coerced to \code{numeric} object
-#' @aliases conv_funcs
-#' @return \code{character} object
+#' @param x x
+#' @aliases finite_check
 #'
 finite_check <- function(x){
   e <- which(!is.finite(as.numeric(x)))
@@ -16,7 +15,7 @@ finite_check <- function(x){
     TRUE
   }
 
-#' @rdname conv_funcs
+#' @rdname finite_check
 enq_vr <- function(x){
   x <- as.character(x)
   if(x[1]=="c" & length(x)>1) x <- x[2:length(x)]
@@ -24,12 +23,12 @@ enq_vr <- function(x){
   x
 }
 
-#' @rdname conv_funcs
+#' @rdname finite_check
 fmt <- function(g){
   formatC(g, format="d", big.mark=",")
 }
 
-#' @rdname conv_funcs
+#' @rdname finite_check
 listr <- function(x){
   p <- x[length(x)]
   f <- x[1:(length(x)-1)]
@@ -38,7 +37,7 @@ listr <- function(x){
   return(x)
 }
 
-#' @rdname conv_funcs
+#' @rdname finite_check
 duplicates_check <- function(x){
   names(x) <- 1:length(x)
   x <- head(sort(x[x %in% x[duplicated(x)]]), 10)
@@ -58,7 +57,7 @@ duplicates_check <- function(x){
   }
 }
 
-#' @rdname conv_funcs
+#' @rdname finite_check
 logicals_check <- function(x){
   log_vals <-  lapply(x, function(y){
     is.logical(eval(parse(text=y), envir = parent.frame(3)))

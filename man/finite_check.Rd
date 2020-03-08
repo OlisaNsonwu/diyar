@@ -2,17 +2,28 @@
 % Please edit documentation in R/conv_funcs.R
 \name{finite_check}
 \alias{finite_check}
-\alias{conv_funcs}
-\title{Check for numeric values that are not finite}
+\alias{enq_vr}
+\alias{fmt}
+\alias{listr}
+\alias{duplicates_check}
+\alias{logicals_check}
+\title{Convenience funcitons}
 \usage{
 finite_check(x)
+
+enq_vr(x)
+
+fmt(g)
+
+listr(x)
+
+duplicates_check(x)
+
+logicals_check(x)
 }
 \arguments{
-\item{x}{\code{numeric} object or can be coerced to \code{numeric} object}
-}
-\value{
-\code{character} object
+\item{x}{x}
 }
 \description{
-Check for numeric values that are not finite
+Convenience funcitons
 }
