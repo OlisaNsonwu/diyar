@@ -2,8 +2,8 @@ library(testthat)
 library(dplyr)
 
 data("infections")
-df <- fixed_episodes(infections$date, case_length = 30)
-s4 <- fixed_episodes(infections$date, case_length = 30, to_s4=TRUE)
+df <- fixed_episodes(infections$date, case_length = 30, to_s4=F)
+s4 <- fixed_episodes(infections$date, case_length = 30, to_s4=T)
 
 df_2 <- record_group(infections, criteria = infection, to_s4 = F)
 s4_2 <- record_group(infections, criteria = infection, to_s4 = T)

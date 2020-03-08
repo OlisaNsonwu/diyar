@@ -12,7 +12,7 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
   "across", "inbetween", "aligns_start", "aligns_end", "chain"),
   overlap_methods = NULL, bi_direction = FALSE, group_stats = FALSE,
-  display = TRUE, deduplicate = FALSE, to_s4 = FALSE,
+  display = TRUE, deduplicate = FALSE, to_s4 = TRUE,
   recurrence_from_last = TRUE, case_for_recurrence = FALSE)
 
 fixed_episodes(date, sn = NULL, strata = NULL, case_length,
@@ -21,7 +21,7 @@ fixed_episodes(date, sn = NULL, strata = NULL, case_length,
   "across", "inbetween", "aligns_start", "aligns_end", "chain"),
   overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
-  deduplicate = FALSE, x, to_s4 = FALSE)
+  deduplicate = FALSE, x, to_s4 = TRUE)
 
 rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   recurrence_length = NULL, episode_unit = "days",
@@ -30,7 +30,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   "across", "inbetween", "aligns_start", "aligns_end", "chain"),
   overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
-  deduplicate = FALSE, x, to_s4 = FALSE, recurrence_from_last = TRUE,
+  deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE)
 }
 \arguments{

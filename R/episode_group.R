@@ -155,7 +155,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
                           custom_sort = NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                           overlap_methods = NULL, bi_direction = FALSE,
-                          group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = FALSE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
+                          group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
   . <- NULL
 
   # check that only logicals are passed to arguments that expect logicals.
@@ -610,7 +610,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' @export
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
                            from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
-                           bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = FALSE){
+                           bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE){
   if(to_s4 == FALSE){
     if (is.null(getOption("diyar.fixed_episodes.output"))){
       options("diyar.fixed_episodes.output"= TRUE)
@@ -713,7 +713,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 #' @export
 rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, data_source = NULL, custom_sort = NULL,
                              from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
-                             bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = FALSE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
+                             bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
 
   if(to_s4 == FALSE){
     if (is.null(getOption("diyar.rolling_episodes.output"))){
