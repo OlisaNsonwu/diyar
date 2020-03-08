@@ -55,7 +55,7 @@ number_line_sequence(nl, by =3)
 #> [11] "2019-04-30"
 ```
 
--   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***epid`objects are now the default output. Use`to\_s4`or`to\_df()\` to change this to data.frames***
+-   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***`epid` objects are now the default output. Use `to_s4` or `to_df()` to change this to data.frames***
 
 ``` r
 data(infections);
