@@ -55,7 +55,7 @@ number_line_sequence(nl, by =3)
 #> [11] "2019-04-30"
 ```
 
--   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame (current default) to `epid` objects. `epid` objects will be the default output in the next release.***
+-   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame to `epid` objects (current default). `epid` objects is now the default output***
 
 ``` r
 data(infections);
@@ -67,51 +67,46 @@ db$date
 
 # Fixed episodes
 db$f_epid <- fixed_episodes(date = db$date, case_length = 15, 
-                              display = FALSE, to_s4 = TRUE, group_stats = TRUE)
+                              display = FALSE, group_stats = TRUE)
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 
 # Rolling episodes
 db$r_epid <- rolling_episodes(date = db$date, case_length = 15, 
-                              recurrence_length = 40, display = FALSE, to_s4 = TRUE, 
-                              group_stats = TRUE)
+                              recurrence_length = 40, display = FALSE, group_stats = TRUE)
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 db[c("f_epid","r_epid")]
-#> # A tibble: 11 x 2
-#>    f_epid                               r_epid                            
-#>    <epid>                               <epid>                            
-#>  1 E-01 2018-04-01 -> 2018-04-13 (C-01) E-1 2018-04-01 -> 2018-05-31 (C-1)
-#>  2 E-01 2018-04-01 -> 2018-04-13 (D-01) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#>  3 E-01 2018-04-01 -> 2018-04-13 (D-01) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#>  4 E-04 2018-04-19 -> 2018-05-01 (C-04) E-1 2018-04-01 -> 2018-05-31 (R-1)
-#>  5 E-04 2018-04-19 -> 2018-05-01 (D-04) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#>  6 E-04 2018-04-19 -> 2018-05-01 (D-04) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#>  7 E-07 2018-05-07 -> 2018-05-19 (C-07) E-1 2018-04-01 -> 2018-05-31 (D-7)
-#>  8 E-07 2018-05-07 -> 2018-05-19 (D-07) E-1 2018-04-01 -> 2018-05-31 (R-7)
-#>  9 E-07 2018-05-07 -> 2018-05-19 (D-07) E-1 2018-04-01 -> 2018-05-31 (D-7)
+#>                                  f_epid                             r_epid
+#> 1  E-01 2018-04-01 -> 2018-04-13 (C-01) E-1 2018-04-01 -> 2018-05-31 (C-1)
+#> 2  E-01 2018-04-01 -> 2018-04-13 (D-01) E-1 2018-04-01 -> 2018-05-31 (D-1)
+#> 3  E-01 2018-04-01 -> 2018-04-13 (D-01) E-1 2018-04-01 -> 2018-05-31 (D-1)
+#> 4  E-04 2018-04-19 -> 2018-05-01 (C-04) E-1 2018-04-01 -> 2018-05-31 (R-1)
+#> 5  E-04 2018-04-19 -> 2018-05-01 (D-04) E-1 2018-04-01 -> 2018-05-31 (D-1)
+#> 6  E-04 2018-04-19 -> 2018-05-01 (D-04) E-1 2018-04-01 -> 2018-05-31 (D-1)
+#> 7  E-07 2018-05-07 -> 2018-05-19 (C-07) E-1 2018-04-01 -> 2018-05-31 (D-1)
+#> 8  E-07 2018-05-07 -> 2018-05-19 (D-07) E-1 2018-04-01 -> 2018-05-31 (D-7)
+#> 9  E-07 2018-05-07 -> 2018-05-19 (D-07) E-1 2018-04-01 -> 2018-05-31 (D-7)
 #> 10 E-10 2018-05-25 -> 2018-05-31 (C-10) E-1 2018-04-01 -> 2018-05-31 (D-7)
 #> 11 E-10 2018-05-25 -> 2018-05-31 (D-10) E-1 2018-04-01 -> 2018-05-31 (D-7)
 ```
 
--   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***NOTE; `to_s4` and `to_s4()` changes the output from a data.frame (current default) to `pid` objects. `pid` objects will be the default output in the next release.***
+-   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***NOTE; `to_s4` and `to_s4()` changes their output from a data.frame to `pid` objects (current default). `pid` objects is now the default output***
 
 ``` r
 # Two stages of record grouping
 data(staff_records);
 
 staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
-                     data_source = sex, display = FALSE, to_s4 = TRUE)
+                     data_source = sex, display = FALSE)
 #> Record grouping complete - 1 record(s) assigned a group unique ID.
 staff_records
-#> # A tibble: 7 x 6
-#>    r_id forename surname  sex   dataset    pids_a      
-#>   <int> <chr>    <chr>    <chr> <chr>      <pid>       
-#> 1     1 James    Green    M     Staff list P-1 (CRI 02)
-#> 2     2 <NA>     Anderson M     Staff list P-2 (CRI 02)
-#> 3     3 Jamey    Green    M     Pay slips  P-1 (CRI 02)
-#> 4     4 ""       <NA>     F     Pay slips  P-4 (No Hit)
-#> 5     5 Derrick  Anderson M     Staff list P-2 (CRI 02)
-#> 6     6 Darrack  Anderson M     Pay slips  P-2 (CRI 02)
-#> 7     7 Christie Green    F     Staff list P-1 (CRI 02)
+#>   r_id forename  surname sex    dataset       pids_a
+#> 1    1    James    Green   M Staff list P-1 (CRI 02)
+#> 2    2     <NA> Anderson   M Staff list P-2 (CRI 02)
+#> 3    3    Jamey    Green   M  Pay slips P-1 (CRI 02)
+#> 4    4              <NA>   F  Pay slips P-4 (No Hit)
+#> 5    5  Derrick Anderson   M Staff list P-2 (CRI 02)
+#> 6    6  Darrack Anderson   M  Pay slips P-2 (CRI 02)
+#> 7    7 Christie    Green   F Staff list P-1 (CRI 02)
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!
