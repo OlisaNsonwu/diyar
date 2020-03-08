@@ -12,7 +12,7 @@
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #' @param to_s4 if \code{TRUE}, changes the returned output to a \code{\link[=pid-class]{pid}} object.
 #'
-#' @return \code{data.frame} (\code{\link[=pid-class]{pid}} objects if \code{to_s4} is \code{TRUE})
+#' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
@@ -164,8 +164,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   df$pr_sn <- 1:nrow(df)
   df$m_tag <- df$tag <- 0
   df$pid_cri <- Inf
-  df$pid <- 0
-  #df$pid <- sn_ref <- min(df$sn)-1
+  df$pid <- sn_ref <- min(df$sn)-1
   cri_no <- length(cri_lst)
 
   # `number_line` object as subcriteria
@@ -242,7 +241,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
     df$force_check <- df$skip <- df$m_tag <- c <- min_m_tag <- min_pid <- 0
 
-    while (min_pid==0 | min_m_tag==-1) {
+    while (min_pid==sn_ref | min_m_tag==-1) {
       if(c+1 >1 & display ) cat(paste("\nMatching criteria ",i,": iteration ",c+1, sep=""))
 
       # Reference records
@@ -263,50 +262,46 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       df$m_tag <- ifelse(df$sub_cri_match==1 & df$m_tag==-1 & df$pid==df$tr_pid & !is.na(df$tr_pid),
                          1,df$m_tag)
       df$pid <- ifelse(
-        (df$m_tag==-1 & df$pid!=0) | (df$sub_cri_match==1 & df$pid==0 & !is.na(df$tr_pid)),
+        (df$m_tag==-1 & df$pid!=sn_ref) | (df$sub_cri_match==1 & df$pid==sn_ref & !is.na(df$tr_pid)),
         df$tr_pid, df$pid
       )
 
       #inherit pid
       df$pid <- ifelse(
-        df$pid==0 & !df$tr_pid %in% c(0,NA) & df$sub_cri_match==1,
+        df$pid==sn_ref & !df$tr_pid %in% c(sn_ref,NA) & df$sub_cri_match==1,
         df$tr_pid, df$pid
       )
 
       #assign new pid
       df$pid <- ifelse(
-        df$pid==0 & df$tr_pid == 0 & !is.na(df$tr_pid) & df$sub_cri_match==1,
+        df$pid==sn_ref & df$tr_pid == sn_ref & !is.na(df$tr_pid) & df$sub_cri_match==1,
         df$tr_sn, df$pid
       )
-      df$m_tag <- ifelse(df$pid !=0 & df$m_tag != -1,1, df$m_tag)
+      df$m_tag <- ifelse(df$pid !=sn_ref & df$m_tag != -1,1, df$m_tag)
       df$m_tag <- ifelse(df$sn==df$tr_sn & !is.na(df$tr_sn) & df$m_tag ==-1, 1, df$m_tag )
 
 
       df$skip <- ifelse(df$m_tag ==-1 & !is.na(df$m_tag), 0, ifelse(df$sub_cri_match==1, 1, df$skip))
-
       min_pid <- min(df$pid[!df$cri %in% c("",NA)])
-
       min_m_tag <- min(df$m_tag[!df$cri %in% c("",NA)])
-
       df <- df[c("sn", "pr_sn", "pid", "pid_cri", "cri", cri_lst, sub_cri_lst, "tag", "m_tag", "skip", "dsvr", "force_check")]
-
       c <- c+1
     }
 
-    tagged_1 <- length(df$pid[!df$pid %in% c(0,NA) & df$tag ==0])
+    tagged_1 <- length(df$pid[!df$pid %in% c(sn_ref,NA) & df$tag ==0])
     total_1 <- length(df$pid[df$tag ==0])
 
     if(display) {
       cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," record(s) not yet grouped.", sep =""))
     }
 
-    # keeping track of cases that have not been tagged for the print output
-    df$tag <- ifelse(df$pid %in% c(0,NA),0,1)
-    df$pid <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,0,df$pid)
+    # Cases that have not been tagged for the print output
+    df$tag <- ifelse(df$pid %in% c(sn_ref,NA),0,1)
+    df$pid <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,sn_ref,df$pid)
 
-    removed <- length(subset(df$pid, df$pid %in% c(0,NA) & df$tag ==1 ))
+    removed <- length(subset(df$pid, df$pid %in% c(sn_ref,NA) & df$tag ==1 ))
 
-    df$tag <- ifelse(df$pid!=0,1,0)
+    df$tag <- ifelse(df$pid!=sn_ref,1,0)
     df$pid_cri <- ifelse(df$tag ==1 & df$pid_cri == Inf,i, df$pid_cri)
 
     if(display) {
@@ -317,7 +312,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   df$pid_cri <- ifelse(df$pid_cri==Inf, 0, df$pid_cri)
 
   # records not yet assigned a group ID are assigned new unique group IDs
-  df$pid <- ifelse(df$pid==0, df$sn, df$pid)
+  df$pid <- ifelse(df$pid==sn_ref, df$sn, df$pid)
   df <- df[c("sn","pid","pid_cri","dsvr","pr_sn")]
 
   if(is.null(ds)){
