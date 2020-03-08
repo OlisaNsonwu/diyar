@@ -158,6 +158,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
   . <- NULL
 
+  if(missing(date)) stop("argument 'date' is missing, with no default")
+  if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
+
   # check that only logicals are passed to arguments that expect logicals.
   logs_check <- logicals_check(c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence"))
   if(logs_check!=T) stop(logs_check)
@@ -611,21 +614,25 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
                            from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE){
-  if(to_s4 == FALSE){
-    if (is.null(getOption("diyar.fixed_episodes.output"))){
-      options("diyar.fixed_episodes.output"= TRUE)
-    }
-    if (getOption("diyar.fixed_episodes.output")){
-      message(paste("The default output of fixed_episodes() will be changed to epid objects in the next release.",
-                    "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-                    "",
-                    "# New way - `epid` objects",
-                    "df$epids <- fixed_episodes(case_length= df$x, to_s4 = TRUE)",
-                    "",
-                    "This message is displayed once per session.", sep = "\n"))
-    }
-    options("diyar.fixed_episodes.output"= FALSE)
-  }
+
+  if(missing(date)) stop("argument 'date' is missing, with no default")
+  if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
+
+  # if(to_s4 == FALSE){
+  #   if (is.null(getOption("diyar.fixed_episodes.output"))){
+  #     options("diyar.fixed_episodes.output"= TRUE)
+  #   }
+  #   if (getOption("diyar.fixed_episodes.output")){
+  #     message(paste("The default output of fixed_episodes() will be changed to epid objects in the next release.",
+  #                   "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+  #                   "",
+  #                   "# New way - `epid` objects",
+  #                   "df$epids <- fixed_episodes(case_length= df$x, to_s4 = TRUE)",
+  #                   "",
+  #                   "This message is displayed once per session.", sep = "\n"))
+  #   }
+  #   options("diyar.fixed_episodes.output"= FALSE)
+  # }
   if (!missing(x)) {
     warning("'x' is deprecated; please use 'date' instead."); date <- x
   }
@@ -715,21 +722,24 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
                              from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                              bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
 
-  if(to_s4 == FALSE){
-    if (is.null(getOption("diyar.rolling_episodes.output"))){
-      options("diyar.rolling_episodes.output"= TRUE)
-    }
-    if (getOption("diyar.rolling_episodes.output")){
-      message(paste("The default output of rolling_episodes() will be changed to epid objects in the next release.",
-                    "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-                    "",
-                    "# New way - `epid` objects",
-                    "df$epids <- rolling_episodes(case_length= df$x, to_s4 = TRUE)",
-                    "",
-                    "This message is displayed once per session.", sep = "\n"))
-    }
-    options("diyar.rolling_episodes.output"= FALSE)
-  }
+  if(missing(date)) stop("argument 'date' is missing, with no default")
+  if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
+
+  # if(to_s4 == FALSE){
+  #   if (is.null(getOption("diyar.rolling_episodes.output"))){
+  #     options("diyar.rolling_episodes.output"= TRUE)
+  #   }
+  #   if (getOption("diyar.rolling_episodes.output")){
+  #     message(paste("The default output of rolling_episodes() will be changed to epid objects in the next release.",
+  #                   "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+  #                   "",
+  #                   "# New way - `epid` objects",
+  #                   "df$epids <- rolling_episodes(case_length= df$x, to_s4 = TRUE)",
+  #                   "",
+  #                   "This message is displayed once per session.", sep = "\n"))
+  #   }
+  #   options("diyar.rolling_episodes.output"= FALSE)
+  # }
   if (!missing(x)) {
     warning("'x' is deprecated; please use 'date' instead."); date <- x
   }
