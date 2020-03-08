@@ -57,3 +57,17 @@ duplicates_check <- function(x){
     TRUE
   }
 }
+
+#' @rdname conv_funcs
+logicals_check <- function(x){
+  log_vals <-  lapply(x, function(y){
+    is.logical(eval(parse(text=y), envir = parent.frame(3)))
+  })
+
+  log_vals <- x[as.logical(log_vals)==F]
+  if(length(log_vals) ==0){
+    TRUE
+  }else{
+    paste0(listr(paste0("'",log_vals,"'")), " must be either TRUE or FALSE")
+  }
+}

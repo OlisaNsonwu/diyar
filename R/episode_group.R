@@ -159,16 +159,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   . <- NULL
 
   # check that only logicals are passed to arguments that expect logicals.
-  log_vals <-  lapply(list(from_last, bi_direction, group_stats, display, deduplicate, to_s4, recurrence_from_last, case_for_recurrence), function(x){
-    is.logical(x)
-  })
-
-  log_vals <- c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence")[unlist(log_vals)==F]
-  if(length(log_vals)==1) {
-    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
-  }else if (length(log_vals)>1){
-    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
-  }
+  logs_check <- logicals_check(c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence"))
+  if(logs_check!=T) stop(logs_check)
 
   # Suggesting the use `epid` objects
   if(to_s4 == FALSE){

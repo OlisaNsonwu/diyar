@@ -105,17 +105,11 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   rng_d <- as.character(substitute(df))
   . <- NULL
 
-  log_vals <-  lapply(list(group_stats, display, to_s4), function(x){
-    is.logical(x)
-  })
+  # check that only logicals are passed to arguments that expect logicals.
+  logs_check <- logicals_check(c("group_stats", "display", "to_s4"))
+  if(logs_check!=T) stop(logs_check)
 
-  log_vals <- c("group_stats", "display", "to_s4")[unlist(log_vals)==F]
-  if(length(log_vals)==1) {
-    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
-  }else if (length(log_vals)>1){
-    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
-  }
-
+  # Suggesting the use `epid` objects
   if(to_s4 == FALSE){
     if (is.null(getOption("diyar.record_group.output"))){
       options("diyar.record_group.output"= TRUE)
@@ -134,26 +128,22 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     options("diyar.record_group.output"= FALSE)
   }
 
+  # validations
   ds <- enq_vr(substitute(data_source))
-
   df_vars <- names(df)
-
   rd_sn <- enq_vr(substitute(sn))
 
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
   cri_lst <- enq_vr(substitute(criteria))
 
-  if(!is.null(rd_sn)){
-    if(!(all(df[[rd_sn]] > 0) & is.numeric(as.numeric(df[[rd_sn]])))) stop(paste("'",rd_sn,"' as 'sn' must be > 0", sep=""))
-    if(any(duplicated(df[[rd_sn]]))) stop(paste("'",rd_sn,"' as 'sn' must not have duplicate values", sep=""))
-  }
-
+  # Check that col names exist
   if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))){
     missing_cols <- subset(unique(c(rd_sn, ds, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
     missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
     stop(paste(missing_cols, "not found"))
   }
 
+  # Record indentifier
   if(is.null(rd_sn)){
     df$sn <- 1:nrow(df)
   }else{
@@ -162,45 +152,52 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     df$sn <- df[[rd_sn]]
   }
 
+  # Dataset identifier
   if(is.null(ds)){
     df$dsvr <- "A"
   }else{
     df$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
   }
 
+  # Prep
   df <- df[c("sn",cri_lst,sub_cri_lst,"dsvr")]
   df$pr_sn <- 1:nrow(df)
-  df$m_tag <- df$tag <- df$pid <- 0
+  df$m_tag <- df$tag <- 0
   df$pid_cri <- Inf
-
+  df$pid <- 0
+  #df$pid <- sn_ref <- min(df$sn)-1
   cri_no <- length(cri_lst)
 
+  # `number_line` object as subcriteria
   for(i in 1:cri_no){
     if(is.number_line(df[[cri_lst[i]]])){
-      #dummy criteria
+      #dummy var
       rp_vr <- paste0("dmvr_d",i)
       df[[rp_vr]] <- 1
-      # make nl a sub_criteria for the dummy criteria
+      # make `number_line` object a sub_criteria for the dummy criteria
       if(is.null(sub_criteria)) sub_criteria <- list()
       sub_criteria[paste0("s",i,"zr")] <- cri_lst[i]
       # update criteria list
       cri_lst[i] <- rp_vr
     }
   }
+
   # update 'sub_cri_lst'
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
 
+  # Range matching
   range_match <- function(x, tr_x) {
     if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) {
       rng_i <- paste(which(!diyar::overlap(diyar::as.number_line(x@gid), x)), collapse = ",", sep="")
       rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
 
-      stop(paste("Actual value (gid) is outside the range supplied in '",rng_d,"$",rng_v,"[c(",rng_i,")]'",sep=""))
+      stop(paste("Range matching error: Actual value (gid) is out of range in '",rng_d,"$",rng_v,"[c(",rng_i,")]'",sep=""))
     }
-    if(utils::packageVersion("dplyr") < package_version("0.8.0.1")) stop("dplyr >= v0.8.0.1 is required for range matching")
+    #if(utils::packageVersion("dplyr") < package_version("0.8.0.1")) stop("dplyr >= v0.8.0.1 is required for range matching")
     diyar::overlap(diyar::as.number_line(x@gid), tr_x)
   }
 
+  # Exact matching
   exact_match <- function(x, tr_x) {
     x <- ifelse(is.na(x), "", as.character(x))
     tr_x <- ifelse(is.na(tr_x), "", as.character(tr_x))
@@ -210,11 +207,12 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   for(i in 1:cri_no){
     if(display) cat(paste("\nGroup criteria ",i," - ","`",cri_lst[i],"`", sep=""))
 
+    # Current matching criteria
     df$cri <- df[[cri_lst[i]]]
 
+    # Fetch corresponding matching criteria
     attr <- attributes(sub_criteria)[["names"]]
     attr <- subset(attr, grepl(paste("s",i,sep=""), attr))
-
     curr_attr <- ifelse(length(attr)==0, FALSE, TRUE)
 
     if(curr_attr){
@@ -247,6 +245,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     while (min_pid==0 | min_m_tag==-1) {
       if(c+1 >1 & display ) cat(paste("\nMatching criteria ",i,": iteration ",c+1, sep=""))
 
+      # Reference records
       TR <- df[!df$cri %in% c("",NA),]
       TR <- TR[order(TR$cri, TR$skip, -TR$force_check, -TR$tag, TR$m_tag, TR$pid_cri, TR$sn),]
       TR <- TR[!duplicated(TR$cri),]
@@ -255,6 +254,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
       df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)
 
+      # Matches in subcriteria
       df$sub_cri_match <- ifelse(!sub_crx_func(df) %in% c(NA, FALSE),1,0)
 
       df$m_tag <- ifelse(df$m_tag==1 &
