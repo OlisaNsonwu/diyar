@@ -55,7 +55,7 @@ number_line_sequence(nl, by =3)
 #> [11] "2019-04-30"
 ```
 
--   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***NOTE -`epid` objects are now the default output. Use `to_s4` or `to_df()` to change this to data.frames***
+-   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***epid`objects are now the default output. Use`to\_s4`or`to\_df()\` to change this to data.frames***
 
 ``` r
 data(infections);
@@ -88,7 +88,7 @@ db[c("f_epid","r_epid")]
 #> 11 E-10 2018-05-25 -> 2018-05-31 (D-10) E-1 2018-04-01 -> 2018-05-31 (D-7)
 ```
 
--   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***NOTE -`pid` objects are now the default output. Use `to_s4` or `to_df()` to change this to a data.frames***
+-   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***`pid` objects are now the default output. Use `to_s4` or `to_df()` to change this to a data.frames***
 
 ``` r
 # Two stages of record grouping
