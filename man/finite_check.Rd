@@ -13,7 +13,7 @@ finite_check(x)
 
 enq_vr(x)
 
-fmt(g)
+fmt(x)
 
 listr(x)
 

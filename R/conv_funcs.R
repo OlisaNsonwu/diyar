@@ -24,8 +24,8 @@ enq_vr <- function(x){
 }
 
 #' @rdname finite_check
-fmt <- function(g){
-  formatC(g, format="d", big.mark=",")
+fmt <- function(x){
+  formatC(x, format="d", big.mark=",")
 }
 
 #' @rdname finite_check
