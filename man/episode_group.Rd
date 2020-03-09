@@ -83,7 +83,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 \value{
 
 
-\code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
+\code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 
 \itemize{
 \item \code{sn} - unique record identifier as provided
