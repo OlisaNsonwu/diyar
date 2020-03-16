@@ -42,7 +42,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{date}{Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.}
 
-\item{case_length}{Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case window}.}
+\item{case_length}{Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case win_id}.}
 
 \item{episode_type}{\code{"fixed"} or \code{"rolling"}.}
 
@@ -74,7 +74,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{to_s4}{if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.}
 
-\item{recurrence_from_last}{if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous \code{window}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.}
+\item{recurrence_from_last}{if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous \code{win_id}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.}
 
 \item{case_for_recurrence}{if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
@@ -88,7 +88,8 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 \itemize{
 \item \code{sn} - unique record identifier as provided
 \item \code{epid | .Data} - unique episode identifier
-\item \code{window} - unique window identifier
+\item \code{win_id} - unique window identifier
+\item \code{win_nm} - type of window i.e. "Case" or "Recurrence"
 \item \code{case_nm} - record type in regards to case assignment
 \item \code{epid_dataset} - data sources in each episode
 \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.

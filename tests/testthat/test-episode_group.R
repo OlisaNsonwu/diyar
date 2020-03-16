@@ -172,7 +172,7 @@ e_int.2 <- c(
 test_that("testing user defined episodes_max", {
   expect_equal(test_5$epid.1, c(rep(1,5),6:10))
   expect_equal(test_5$epid.2, c(rep(1,5), rep(6,5)))
-  expect_equal(test_5$case_nm.1, c("Case",rep("Duplicate",4),rep("Case",5)))
+  expect_equal(test_5$case_nm.1, c("Case",rep("Duplicate",4),rep("Skipped",5)))
   expect_equal(test_5$case_nm.2, rep(c("Case",rep("Duplicate",4)),2))
 
   e_int.2@id <- e_int.1@id <- 1:10
@@ -221,7 +221,7 @@ e_int.4 <- c(
 test_that("testing episodes_max and rolls_max combinations", {
   expect_equal(test_6$epid.1, c(rep(1,6),7:10))
   expect_equal(test_6$epid.2, c(rep(1,6), rep(7,4)))
-  expect_equal(test_6$case_nm.1, c("Case",rep("Duplicate",4),"Recurrent",rep("Case",4)))
+  expect_equal(test_6$case_nm.1, c("Case",rep("Duplicate",4),"Recurrent",rep("Skipped",4)))
   expect_equal(test_6$case_nm.2, rep(c("Case",rep("Duplicate",4),"Recurrent"),2)[1:10])
 
   expect_equal(test_6$epid.3, c(rep(1,6),rep(7,4)))
@@ -434,7 +434,7 @@ e_int <- c(
 
 test_that("testing; stratified grouping", {
   expect_equal(test_10a$epid, c(rep(1,3), 4:8, rep(9,3)))
-  expect_equal(test_10a$case_nm, c("Case",rep("Duplicate",2), rep("Case",6), rep("Duplicate",2)))
+  expect_equal(test_10a$case_nm, c("Case",rep("Duplicate",2), rep("Skipped",5), "Case", rep("Duplicate",2)))
 
   e_int@id <- 1:11
   e_int@gid <- c(rep(1,3), 4:8, rep(9,3))

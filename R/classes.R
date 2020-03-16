@@ -144,7 +144,7 @@ format.number_line <- function(x, ...){
 #' @importFrom "methods" "new"
 #' @importFrom "utils" "head"
 #' @export
-setClass("epid", contains = "numeric", representation(sn = "numeric", window = "numeric", case_nm= "character", epid_interval = "number_line",
+setClass("epid", contains = "numeric", representation(sn = "numeric", win_id = "numeric", win_nm= "character", case_nm= "character", epid_interval = "number_line",
                                                       epid_length= "ANY", epid_total = "numeric", epid_dataset ="character"))
 
 #' @rdname epid-class
@@ -156,8 +156,9 @@ as.epid <- function(x){
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `epid` object",sep=""))
 
   x[!is.finite(as.numeric(x))] <- NA
-  x <- methods::new("epid", .Data = as.numeric(x), sn = 1:length(x), window = rep(NA_real_, length(x)),
+  x <- methods::new("epid", .Data = as.numeric(x), sn = 1:length(x), win_id = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),
+                    win_nm = rep(NA_character_, length(x)),
                     epid_interval = as.number_line(rep(NA_real_, length(x))), epid_total = rep(NA_real_, length(x)),
                     epid_dataset = rep(NA_character_, length(x)))
   return(x)
@@ -167,7 +168,7 @@ as.epid <- function(x){
 #' @export
 format.epid <- function(x, ...){
   if (length(x)==0) "epid(0)"
-  else return(paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1), "-",formatC(x@window, width= nchar(max(x@window)), flag=0, format = "fg"),")", sep=""))
+  else return(paste0("E.",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste0(" ",format.number_line(x@epid_interval))), " (", substr(x@case_nm,1,1),") ", substr(x@win_nm,1,1), ".",formatC(x@win_id, width= nchar(max(x@.Data)), flag=0, format = "fg")))
   #else return(paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1),")", sep=""))
 }
 
@@ -190,7 +191,7 @@ setMethod("show", signature(object="epid"), function(object){
 #' @param x x
 #' @param ... ...
 setMethod("rep", signature(x = "epid"), function(x, ...) {
-  methods::new("epid", rep(x@.Data, ...), sn = rep(x@sn, ...), window = rep(x@window, ...), case_nm = rep(x@case_nm, ...), epid_interval = rep(x@epid_interval, ...),
+  methods::new("epid", rep(x@.Data, ...), sn = rep(x@sn, ...), win_id = rep(x@win_id, ...), win_nm = rep(x@win_nm, ...), case_nm = rep(x@case_nm, ...), epid_interval = rep(x@epid_interval, ...),
                epid_length = rep(x@epid_length, ...), epid_total = rep(x@epid_total, ...), epid_dataset = rep(x@epid_dataset, ...))
 })
 
@@ -201,7 +202,7 @@ setMethod("rep", signature(x = "epid"), function(x, ...) {
 #' @param drop drop
 setMethod("[", signature(x = "epid"),
           function(x, i, j, ..., drop = TRUE) {
-            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], window = x@window[i],
+            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], win_id = x@win_id[i], win_nm = x@win_nm[i],
                          epid_length = x@epid_length[i], epid_total = x@epid_total[i], epid_dataset = x@epid_dataset[i],
                          epid_interval = x@epid_interval[i])
           })
@@ -211,7 +212,7 @@ setMethod("[", signature(x = "epid"),
 #' @param exact exact
 setMethod("[[", signature(x = "epid"),
           function(x, i, j, ..., exact = TRUE) {
-            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], window = x@window[i],
+            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], win_id = x@win_id[i], win_nm = x@win_nm[i],
                          epid_length = x@epid_length[i], epid_total = x@epid_total[i], epid_dataset = x@epid_dataset[i],
                          epid_interval = x@epid_interval[i])
           })
@@ -225,14 +226,15 @@ setMethod("c", signature(x = "epid"), function(x,...) {
   }
 
   sn <- unlist(lapply(list(x, ...), function(y) y@sn))
-  window <- unlist(lapply(list(x, ...), function(y) y@window))
+  win_id <- unlist(lapply(list(x, ...), function(y) y@win_id))
+  win_nm <- unlist(lapply(list(x, ...), function(y) y@win_nm))
   case_nm <- unlist(lapply(list(x, ...), function(y) y@case_nm))
   epid_length <- unlist(lapply(list(x, ...), function(y) y@epid_length))
   epid_total <- unlist(lapply(list(x, ...), function(y) y@epid_total))
   epid_dataset <- unlist(lapply(list(x, ...), function(y) y@epid_dataset))
   zi <- unlist(list(x, ...))
 
-  methods::new("epid", zi, case_nm = case_nm, sn = sn, window = window,
+  methods::new("epid", zi, case_nm = case_nm, sn = sn, win_id = win_id, win_nm = win_nm,
                epid_length = epid_length, epid_total = epid_total, epid_dataset = epid_dataset,
                epid_interval = ei)
 
@@ -270,7 +272,7 @@ as.pid <- function(x, ...){
 #' @export
 format.pid <- function(x, ...){
   if (length(x)==0) "pid(0)"
-  else return(paste("P-", formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), " (",
+  else return(paste("P.", formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), " (",
                     ifelse(x@pid_cri==0,"No Hit", paste("CRI ", formatC(x@pid_cri, width = 2, flag=0, format = "fg"), sep="")),
                     ")", sep=""))
 }

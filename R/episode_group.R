@@ -7,7 +7,7 @@
 #' @param sn Unique numerical record identifier. Optional.
 #' @param strata Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{strata}.
 #' @param date Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.
-#' @param case_length Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case window}.
+#' @param case_length Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case win_id}.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
 #' @param recurrence_length Duration after the last or first event (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period refered to as the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.
@@ -22,7 +22,7 @@
 #' @param group_stats If \code{TRUE}, the output will include additional information with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #' @param to_s4 if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.
-#' @param recurrence_from_last if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous \code{window}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param recurrence_from_last if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous \code{win_id}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param case_for_recurrence if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
 #'
 #' @return
@@ -32,7 +32,8 @@
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
 #' \item \code{epid | .Data} - unique episode identifier
-#' \item \code{window} - unique window identifier
+#' \item \code{win_id} - unique window identifier
+#' \item \code{win_nm} - type of window i.e. "Case" or "Recurrence"
 #' \item \code{case_nm} - record type in regards to case assignment
 #' \item \code{epid_dataset} - data sources in each episode
 #' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
@@ -311,7 +312,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df <- df[c("sn","rec_dt_ai","rec_dt_zi","epi_len","rc_len","dsvr","cri",ref_sort,"methods")]
 
-  df$window <- df$tag <- df$roll <- df$episodes <- 0
+  df$win_id <- df$tag <- df$roll <- df$episodes <- 0
+  df$win_nm <- ""
   df$epid <- sn_ref <- min(df$sn)-1
   df$case_nm <- ""
   df$pr_sn = 1:nrow(df)
@@ -332,9 +334,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   # Skip from episode grouping
   df$epid <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$epid)
-  df$window <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$window)
+  df$win_id <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$win_id)
+  df$win_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , "Skipped", df$win_nm)
   df$tag <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 2, df$tag)
-  df$case_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), "Case", df$case_nm)
+  df$case_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), "Skipped", df$case_nm)
   df$episodes <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 1, 0)
   df$roll <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), rolls_max, df$roll)
 
@@ -345,7 +348,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   grouped_epids <- df[0,0]
   while (min_tag != 2 & min_episodes <= episodes_max){
     #vrs <- names(df)[!names(df) %in% c(c("epi_len","rc_len"))]
-    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","window","case_nm","user_ord","ord","ord_z")
+    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","win_id","win_nm","case_nm","user_ord","ord","ord_z")
     grouped_epids <- rbind(grouped_epids,
                          df[df$tag ==2 & !is.na(df$tag), g_vrs] )
 
@@ -402,10 +405,17 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       df$r_range <- ifelse(df$tr_rec_dt_ai < df$rec_dt_ai, FALSE, df$r_range)
     }
 
-    # Episode assingment -------
+    # event type
+    # 1 - Reference event (Case)
+    # 2 - Duplicate of a case event
+    # 6 - Recurrent event
+    # 7 - Duplicate of a recurrent event
+    # 9 - Reference event for a case window. - 1 & 9 are case windows
+    # 10 - Duplicate event for a case window. - 2 & 10 are duplicates in case windows
+    # Episode assignment -------
     df$epid_type <- ifelse(
       df$r_range == T & !is.na(df$r_range) & df$tr_tag %in% c(1,1.5,0),
-      ifelse(df$case_nm=="Duplicate", 2,3), 0
+      ifelse(df$case_nm=="Duplicate", 7,6), 0
     )
 
     df$epid_type <- ifelse(
@@ -413,23 +423,24 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
         ((df$tr_tag==0 & !is.na(df$tr_tag)) | (df$tr_tag %in% c(1.4,1.6) & !is.na(df$tr_tag))),
       ifelse(df$tr_tag==0,
              ifelse(df$lr==1, 1,2),
-             ifelse(df$lr==1, 10, 2)),
+             ifelse(df$lr==1, 9, 10)),
       df$epid_type
     )
 
-    df$c_hit <- ifelse(df$epid_type %in% 1:3 | (df$lr==1), 1, 0)
+    df$c_hit <- ifelse(df$epid_type %in% c(1,2,7,6,10) | (df$lr==1), 1, 0)
 
     df$epid <- ifelse(
       df$c_hit==1, ifelse(df$tr_tag ==0 & !is.na(df$tr_tag), df$tr_sn, df$tr_epid),
       df$epid
     )
 
-    df$window <- ifelse(df$c_hit==1 & (df$lr !=1 | (df$lr ==1 & df$tr_case_nm=="")), df$tr_sn, df$window)
+    df$win_id <- ifelse(df$c_hit==1 & (df$lr !=1 | (df$lr ==1 & df$tr_case_nm=="")), df$tr_sn, df$win_id)
+    df$win_nm <- ifelse(df$epid_type %in% c(1,2,9,10) & df$win_nm=="", "Case", ifelse(df$epid_type!=0 & df$win_nm=="", "Recurrence", df$win_nm))
 
     df$case_nm <- ifelse(
       df$c_hit==1 & !df$tag %in% c(1.4,1.6),
       ifelse(df$epid_type %in% c(1,0), "Case",
-             ifelse(df$epid_type==3 & episode_type=="rolling","Recurrent","Duplicate")),
+             ifelse(df$epid_type==6 & episode_type=="rolling","Recurrent","Duplicate")),
       df$case_nm
     )
     # ---------
@@ -527,14 +538,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   rm(grouped_epids)
 
   # Assign ungrouped episodes to unique IDs
-  df$case_nm[df$epid==sn_ref] <- "Case"
-  df$epid[df$epid==sn_ref] <- df$window[df$epid==sn_ref] <- df$sn[df$epid==sn_ref]
+  df$win_nm[df$epid==sn_ref] <- df$case_nm[df$epid==sn_ref] <- "Skipped"
+  df$epid[df$epid==sn_ref] <- df$win_id[df$epid==sn_ref] <- df$sn[df$epid==sn_ref]
 
   # Drop 'duplicate' events if required
   if(deduplicate) df <- subset(df, df$case_nm!="Duplicate")
 
   if(is.null(ds)){
-    #df <- df[c("sn","epid","window","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
+    #df <- df[c("sn","epid","win_id","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
     df <- df[order(df$pr_sn),]
   }else{
     pds2 <- lapply(split(df$dsvr, df$epid), function(x){
@@ -543,7 +554,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df$epid_dataset <- unlist(pds2[as.character(df$epid)])
     df <- df[order(df$pr_sn),]
-    #df <- df[c("sn","epid","window","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
+    #df <- df[c("sn","epid","win_id","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
   }
 
   # Episode stats if required
