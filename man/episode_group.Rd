@@ -4,6 +4,7 @@
 \alias{episode_group}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
+\alias{plot_epid}
 \title{Episode grouping for case definitions and record deduplication}
 \usage{
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
@@ -32,6 +33,9 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
   deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE)
+
+plot_epid(epid, date, strata = NULL, case_length,
+  recurrence_length = NULL)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
@@ -79,6 +83,8 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 \item{case_for_recurrence}{if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
 \item{x}{Record date or interval. Deprecated. Please use \code{date}}
+
+\item{epid}{\code{epid} object}
 }
 \value{
 
@@ -111,6 +117,12 @@ When a \code{data_source} identifier is provided,
 
 \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group()}.
 They are convenient alternatives with the same functionalities.
+
+\code{plot_epid()} visulaises how an episode has been created. It works backwards, using the episode (\code{epid}) and corresponding
+ \code{date}, \code{case_length} and \code{recurrence_length} to show why/how events or event periods have been grouped in each episode.
+ This is then shown on a plots (one per \code{strata}) captured in an \code{R} object (\code{list} is there are multiple plots).
+ The plots can then be saved and shared.
+ \code{date}, \code{case_length} and \code{recurrence_length} must match those used in creating \code{epid} otherwise, the plot will not reflect what actually happened.
 }
 \examples{
 library(dplyr)

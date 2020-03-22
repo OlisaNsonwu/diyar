@@ -20,6 +20,8 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     methods,
+    grDevices,
+    graphics,
     utils,
     rlang
 RoxygenNote: 6.1.1
