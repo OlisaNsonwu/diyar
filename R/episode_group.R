@@ -923,16 +923,31 @@ plot_epid <- function(epid, date, strata = NULL, case_length, recurrence_length 
     # Space out (along Y-axis) overlapping event labels
     # Order the longer periods above shorter ones
     # Event mid-pont. Where labels will be plotted
+
+    # To save space, only one event is shown among same day duplicates
+    # Below is the preference for which to show
+    dfp$ord <- ifelse(dfp$case_nm=="Skipped",1,5)
+    dfp$ord <- ifelse(dfp$case_nm=="Case",2,dfp$ord)
+    dfp$ord <- ifelse(dfp$case_nm=="Recurrent",3,dfp$ord)
+    dfp$ord <- ifelse(dfp$case_nm=="Duplicate",4,dfp$ord)
+    dfp$cri <- paste0(dfp$dt_a, dfp$dt_z)
+    dfp <- dfp[order(dfp$cri, dfp$ord),]
+    dfp$event_nm <- ifelse(duplicated(dfp$cri), "", dfp$event_nm)
+
     dfp$dt_c <- (as.numeric(dfp$dt_a) + as.numeric(dfp$dt_z)) * .5
+    dfp$event_length <- diyar::number_line(dfp$dt_a, dfp$dt_z)@.Data
+    dfp$p_ord <- order(-dfp$event_length, dfp$ord)
+
     mid_pts <- dfp$dt_c
     names(mid_pts) <- 1:length(mid_pts)
     mid_pts <- mid_pts[dfp$event_nm!=""]
-    event_length <- diyar::number_line(dfp$dt_a, dfp$dt_z)@.Data[dfp$event_nm!=""]
+    p_ord <- dfp$p_ord[dfp$event_nm!=""]
+
     # Check mid-points that are too close (0.04) as this will overlap in the plot.
     chck <- diyar::compress_number_line(diyar::expand_number_line(as.number_line(mid_pts), 1), deduplicate = F, collapse = T)
     # Per overlaping group, order events based on size/length of period
-    ord <- lapply(split(event_length,  chck@gid), function(x){
-      order(x)
+    ord <- lapply(split(p_ord,  chck@gid), function(x){
+      order(-x)
     })
     ord <- unsplit(ord, chck@gid)
     names(ord) <- names(mid_pts)
@@ -944,7 +959,8 @@ plot_epid <- function(epid, date, strata = NULL, case_length, recurrence_length 
     # Among overlapping events/period, space out the 2nd/more event incrementally (0.17)
     dfp$e_y[ord>1] <- max(dfp$e_y) + ((ord[ord>1]-1) * 0.25 * scale_fac)
     # Some number_lines may overlap by chance so, space out again incrementally (0.01)
-    dfp$e_y <- dfp$e_y  - (1:nrow(dfp) * (scale_fac * 0.01))
+    dfp$e_y <- dfp$e_y  - (1:nrow(dfp) * (scale_fac * 0.02))
+    dfp$xrd <- ord
 
     # recurrence_length is supplied, strip out the reference events for recurrence periods
     if(!is.null(recurrence_length)){
@@ -973,15 +989,6 @@ plot_epid <- function(epid, date, strata = NULL, case_length, recurrence_length 
     # Case_lengths
     dfp$case_len_y_axis <- max(dfp$e_y) + (scale_fac * 0.35)
 
-    # To save space, only one event is shown among same day duplicates
-    # Below is the preference for which to show
-    dfp$ord <- ifelse(dfp$case_nm=="Skipped",1,5)
-    dfp$ord <- ifelse(dfp$case_nm=="Case",2,dfp$ord)
-    dfp$ord <- ifelse(dfp$case_nm=="Recurrent",3,dfp$ord)
-    dfp$ord <- ifelse(dfp$case_nm=="Duplicate",4,dfp$ord)
-    dfp$cri <- paste0(dfp$dt_a, dfp$dt_z)
-    dfp <- dfp[order(dfp$cri, dfp$ord),]
-    dfp$event_nm <- ifelse(duplicated(dfp$cri), "", dfp$event_nm)
     dfp <- dfp[order(dfp$epid, dfp$dt_a, dfp$dt_z),]
 
     # See if there's an alternative.
