@@ -34,7 +34,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE)
 
-plot_epid(epid, date, strata = NULL, case_length,
+plot_epid(epid, date = NULL, strata = NULL, case_length = NULL,
   recurrence_length = NULL)
 }
 \arguments{
