@@ -31,6 +31,8 @@ to_s4 <- function(df){
     s4 <- methods::new("epid", .Data=df$epid)
   }else if(any(names(df)=="pid")){
     s4 <- methods::new("pid", .Data=df$pid)
+  }else if(any(names(df)=="gid")){
+    s4 <- methods::new("number_line", .Data= as.numeric(df$start - df$end))
   }
 
   vrs <- subset(names(df), names(df) %in% methods::slotNames(s4))
@@ -46,11 +48,13 @@ to_s4 <- function(df){
 #' @return to_df - \code{data.frame} object
 #' @export
 to_df <- function(s4){
-  if(!class(s4) %in% c("epid","pid")) stop("'s4' must be an epid or pid object")
+  if(!class(s4) %in% c("epid","pid","number_line")) stop("'s4' must be an epid or pid object")
   if(all(class(s4)=="epid")){
     df <- data.frame(epid = s4@.Data, stringsAsFactors = FALSE)
   }else if(all(class(s4)=="pid")){
     df <- data.frame(pid = s4@.Data, stringsAsFactors = FALSE)
+  }else if(all(class(s4)=="number_line")){
+    df <- data.frame(end = s4@start + s4@.Data, stringsAsFactors = FALSE)
   }
 
   vrs <- methods::slotNames(s4)
