@@ -162,7 +162,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   }
 
   # Prep
-  df <- df[c("sn",cri_lst,sub_cri_lst,"dsvr")]
+  df <- df[unique(c("sn",cri_lst,sub_cri_lst,"dsvr"))]
   df$pr_sn <- 1:nrow(df)
   df$m_tag <- df$tag <- 0
   df$pid_cri <- Inf
@@ -251,7 +251,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       TR <- df[!df$cri %in% c("",NA),]
       TR <- TR[order(TR$cri, TR$skip, -TR$force_check, -TR$tag, TR$m_tag, TR$pid_cri, TR$sn),]
       TR <- TR[!duplicated(TR$cri),]
-      TR <- TR[c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst)]
+      TR <- TR[unique(c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst))]
       names(TR) <- paste0("tr_", names(TR))
 
       df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)
