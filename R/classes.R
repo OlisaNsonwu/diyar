@@ -154,13 +154,20 @@ as.epid <- function(x){
   er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `epid` object",sep=""))
-
+  y <- x
+  x <- as.numeric(x)
   x[!is.finite(as.numeric(x))] <- NA
-  x <- methods::new("epid", .Data = as.numeric(x), sn = 1:length(x), win_id = rep(NA_real_, length(x)),
+  x <- methods::new("epid", .Data = x, sn = 1:length(x), win_id = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),
                     win_nm = rep(NA_character_, length(x)),
                     epid_interval = as.number_line(rep(NA_real_, length(x))), epid_total = rep(NA_real_, length(x)),
                     epid_dataset = rep(NA_character_, length(x)))
+
+  if(class(y) =="number_line"){
+    x@epid_interval <- y
+    x@sn <- y@id
+    x@.Data <- y@gid
+  }
   return(x)
 }
 
@@ -169,7 +176,6 @@ as.epid <- function(x){
 format.epid <- function(x, ...){
   if (length(x)==0) "epid(0)"
   else return(paste0("E.",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste0(" ",format.number_line(x@epid_interval))), " (", substr(x@case_nm,1,1),") ", substr(x@win_nm,1,1), ".",formatC(x@win_id, width= nchar(max(x@.Data)), flag=0, format = "fg")))
-  #else return(paste("E-",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste(" ",format.number_line(x@epid_interval),sep="")), " (", substr(x@case_nm,1,1),")", sep=""))
 }
 
 #' @rdname epid-class
