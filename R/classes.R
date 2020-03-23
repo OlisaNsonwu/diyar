@@ -144,7 +144,7 @@ format.number_line <- function(x, ...){
 #' @importFrom "methods" "new"
 #' @importFrom "utils" "head"
 #' @export
-setClass("epid", contains = "numeric", representation(sn = "numeric", win_id = "numeric", win_nm= "character", case_nm= "character", epid_interval = "number_line",
+setClass("epid", contains = "numeric", representation(sn = "numeric", wind_id = "numeric", wind_nm= "character", case_nm= "character", dist_from_wind = "ANY", dist_from_epid = "ANY", epid_interval = "number_line",
                                                       epid_length= "ANY", epid_total = "numeric", epid_dataset ="character"))
 
 #' @rdname epid-class
@@ -157,9 +157,11 @@ as.epid <- function(x){
   y <- x
   x <- as.numeric(x)
   x[!is.finite(as.numeric(x))] <- NA
-  x <- methods::new("epid", .Data = x, sn = 1:length(x), win_id = rep(NA_real_, length(x)),
+  x <- methods::new("epid", .Data = x, sn = 1:length(x), wind_id = rep(NA_real_, length(x)),
+                    dist_from_wind = rep(NA_real_, length(x)),
+                    dist_from_epid = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),
-                    win_nm = rep(NA_character_, length(x)),
+                    wind_nm = rep(NA_character_, length(x)),
                     epid_interval = as.number_line(rep(NA_real_, length(x))), epid_total = rep(NA_real_, length(x)),
                     epid_dataset = rep(NA_character_, length(x)))
 
@@ -175,7 +177,7 @@ as.epid <- function(x){
 #' @export
 format.epid <- function(x, ...){
   if (length(x)==0) "epid(0)"
-  else return(paste0("E.",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste0(" ",format.number_line(x@epid_interval))), " (", substr(x@case_nm,1,1),") ", substr(x@win_nm,1,1), ".",formatC(x@win_id, width= nchar(max(x@.Data)), flag=0, format = "fg")))
+  else return(paste0("E.",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste0(" ",format.number_line(x@epid_interval))), " (", substr(x@case_nm,1,1),") ", substr(x@wind_nm,1,1), ".",formatC(x@wind_id, width= nchar(max(x@.Data)), flag=0, format = "fg")))
 }
 
 #' @rdname epid-class
@@ -197,7 +199,9 @@ setMethod("show", signature(object="epid"), function(object){
 #' @param x x
 #' @param ... ...
 setMethod("rep", signature(x = "epid"), function(x, ...) {
-  methods::new("epid", rep(x@.Data, ...), sn = rep(x@sn, ...), win_id = rep(x@win_id, ...), win_nm = rep(x@win_nm, ...), case_nm = rep(x@case_nm, ...), epid_interval = rep(x@epid_interval, ...),
+  methods::new("epid", rep(x@.Data, ...), sn = rep(x@sn, ...), wind_id = rep(x@wind_id, ...),
+               dist_from_epid = rep(x@dist_from_epid, ...), dist_from_wind = rep(x@dist_from_wind, ...),
+               wind_nm = rep(x@wind_nm, ...), case_nm = rep(x@case_nm, ...), epid_interval = rep(x@epid_interval, ...),
                epid_length = rep(x@epid_length, ...), epid_total = rep(x@epid_total, ...), epid_dataset = rep(x@epid_dataset, ...))
 })
 
@@ -208,7 +212,8 @@ setMethod("rep", signature(x = "epid"), function(x, ...) {
 #' @param drop drop
 setMethod("[", signature(x = "epid"),
           function(x, i, j, ..., drop = TRUE) {
-            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], win_id = x@win_id[i], win_nm = x@win_nm[i],
+            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], wind_id = x@wind_id[i], wind_nm = x@wind_nm[i],
+                         dist_from_epid = x@dist_from_epid[i], dist_from_wind = x@dist_from_wind[i],
                          epid_length = x@epid_length[i], epid_total = x@epid_total[i], epid_dataset = x@epid_dataset[i],
                          epid_interval = x@epid_interval[i])
           })
@@ -218,7 +223,8 @@ setMethod("[", signature(x = "epid"),
 #' @param exact exact
 setMethod("[[", signature(x = "epid"),
           function(x, i, j, ..., exact = TRUE) {
-            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], win_id = x@win_id[i], win_nm = x@win_nm[i],
+            methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], wind_id = x@wind_id[i], wind_nm = x@wind_nm[i],
+                         dist_from_epid = x@dist_from_epid[i], dist_from_wind = x@dist_from_wind[i],
                          epid_length = x@epid_length[i], epid_total = x@epid_total[i], epid_dataset = x@epid_dataset[i],
                          epid_interval = x@epid_interval[i])
           })
@@ -232,17 +238,19 @@ setMethod("c", signature(x = "epid"), function(x,...) {
   }
 
   sn <- unlist(lapply(list(x, ...), function(y) y@sn))
-  win_id <- unlist(lapply(list(x, ...), function(y) y@win_id))
-  win_nm <- unlist(lapply(list(x, ...), function(y) y@win_nm))
+  wind_id <- unlist(lapply(list(x, ...), function(y) y@wind_id))
+  dist_from_epid <- unlist(lapply(list(x, ...), function(y) y@dist_from_epid))
+  dist_from_wind <- unlist(lapply(list(x, ...), function(y) y@dist_from_wind))
+  wind_nm <- unlist(lapply(list(x, ...), function(y) y@wind_nm))
   case_nm <- unlist(lapply(list(x, ...), function(y) y@case_nm))
   epid_length <- unlist(lapply(list(x, ...), function(y) y@epid_length))
   epid_total <- unlist(lapply(list(x, ...), function(y) y@epid_total))
   epid_dataset <- unlist(lapply(list(x, ...), function(y) y@epid_dataset))
   zi <- unlist(list(x, ...))
 
-  methods::new("epid", zi, case_nm = case_nm, sn = sn, win_id = win_id, win_nm = win_nm,
+  methods::new("epid", zi, case_nm = case_nm, sn = sn, wind_id = wind_id, wind_nm = wind_nm,
                epid_length = epid_length, epid_total = epid_total, epid_dataset = epid_dataset,
-               epid_interval = ei)
+               epid_interval = ei, dist_from_epid = dist_from_epid, dist_from_wind = dist_from_wind)
 
 })
 

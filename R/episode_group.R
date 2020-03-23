@@ -7,7 +7,7 @@
 #' @param sn Unique numerical record identifier. Optional.
 #' @param strata Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{strata}.
 #' @param date Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.
-#' @param case_length Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case win_id}.
+#' @param case_length Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case wind_id}.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
 #' @param recurrence_length Duration after the last or first event (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period refered to as the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.
@@ -22,7 +22,7 @@
 #' @param group_stats If \code{TRUE}, the output will include additional information with useful stats for each episode group.
 #' @param display If \code{TRUE}, status messages are printed on screen.
 #' @param to_s4 if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.
-#' @param recurrence_from_last if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous \code{win_id}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param recurrence_from_last if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous \code{wind_id}. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param case_for_recurrence if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
 #'
 #' @return
@@ -32,8 +32,8 @@
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
 #' \item \code{epid | .Data} - unique episode identifier
-#' \item \code{win_id} - unique window identifier
-#' \item \code{win_nm} - type of window i.e. "Case" or "Recurrence"
+#' \item \code{wind_id} - unique window identifier
+#' \item \code{wind_nm} - type of window i.e. "Case" or "Recurrence"
 #' \item \code{case_nm} - record type in regards to case assignment
 #' \item \code{epid_dataset} - data sources in each episode
 #' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
@@ -281,7 +281,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   episode_unit <- ifelse(dt_grp==F,"seconds", episode_unit)
 
-  if(dt_grp){
+  if(dt_grp==T){
     df$rec_dt_ai <- as.POSIXlt(format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
     df$rec_dt_zi <- as.POSIXlt(format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
   }else{
@@ -312,8 +312,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   df <- df[c("sn","rec_dt_ai","rec_dt_zi","epi_len","rc_len","dsvr","cri",ref_sort,"methods")]
 
-  df$win_id <- df$tag <- df$roll <- df$episodes <- 0
-  df$win_nm <- ""
+  df$dist_from_epid <- df$dist_from_wind <- df$wind_id <- df$tag <- df$roll <- df$episodes <- 0
+  df$wind_nm <- ""
   df$epid <- sn_ref <- min(df$sn)-1
   df$case_nm <- ""
   df$pr_sn = 1:nrow(df)
@@ -334,8 +334,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   # Skip from episode grouping
   df$epid <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$epid)
-  df$win_id <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$win_id)
-  df$win_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , "Skipped", df$win_nm)
+  df$wind_id <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$wind_id)
+  df$wind_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , "Skipped", df$wind_nm)
   df$tag <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 2, df$tag)
   df$case_nm <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), "Skipped", df$case_nm)
   df$episodes <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 1, 0)
@@ -348,7 +348,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   grouped_epids <- df[0,0]
   while (min_tag != 2 & min_episodes <= episodes_max){
     #vrs <- names(df)[!names(df) %in% c(c("epi_len","rc_len"))]
-    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","win_id","win_nm","case_nm","user_ord","ord","ord_z")
+    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","user_ord","ord","ord_z", "dist_from_wind", "dist_from_epid")
     grouped_epids <- rbind(grouped_epids,
                          df[df$tag ==2 & !is.na(df$tag), g_vrs] )
 
@@ -396,6 +396,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$c_range <- diyar::overlap(df$c_int, df$tr_c_int, methods = df$methods)
     df$r_range <- diyar::overlap(df$r_int, df$tr_r_int, methods = df$methods)
 
+    # distance from window's ref event
+    df$dist_from_wind <- ((as.numeric(df$rec_dt_ai) + as.numeric(df$rec_dt_zi)) *.5) - ((as.numeric(df$tr_rec_dt_ai) + as.numeric(df$tr_rec_dt_zi)) *.5)
+    # distance from episodes's ref event
+    df$dist_from_epid <- ifelse(df$tr_case_nm=="", ((as.numeric(df$rec_dt_ai) + as.numeric(df$rec_dt_zi)) *.5) - ((as.numeric(df$tr_rec_dt_ai) + as.numeric(df$tr_rec_dt_zi)) *.5), df$dist_from_epid)
+
     if(!bi_direction & !from_last){
       df$c_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$c_range)
       df$r_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$r_range)
@@ -434,8 +439,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       df$epid
     )
 
-    df$win_id <- ifelse(df$c_hit==1 & (df$lr !=1 | (df$lr ==1 & df$tr_case_nm=="")), df$tr_sn, df$win_id)
-    df$win_nm <- ifelse((df$epid_type %in% c(1,2,9,10) | (df$epid_type==0 & df$lr==1))  & df$win_nm=="", "Case", ifelse(df$epid_type!=0 & df$win_nm=="", "Recurrence", df$win_nm))
+    df$wind_id <- ifelse(df$c_hit==1 & (df$lr !=1 | (df$lr ==1 & df$tr_case_nm=="")), df$tr_sn, df$wind_id)
+    df$wind_nm <- ifelse((df$epid_type %in% c(1,2,9,10) | (df$epid_type==0 & df$lr==1))  & df$wind_nm=="", "Case", ifelse(df$epid_type!=0 & df$wind_nm=="", "Recurrence", df$wind_nm))
 
     df$case_nm <- ifelse(
       df$c_hit==1 & !df$tag %in% c(1.4,1.6),
@@ -538,14 +543,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   rm(grouped_epids)
 
   # Assign ungrouped episodes to unique IDs
-  df$win_nm[df$epid==sn_ref] <- df$case_nm[df$epid==sn_ref] <- "Skipped"
-  df$epid[df$epid==sn_ref] <- df$win_id[df$epid==sn_ref] <- df$sn[df$epid==sn_ref]
+  df$wind_nm[df$epid==sn_ref] <- df$case_nm[df$epid==sn_ref] <- "Skipped"
+  df$epid[df$epid==sn_ref] <- df$wind_id[df$epid==sn_ref] <- df$sn[df$epid==sn_ref]
 
   # Drop 'duplicate' events if required
   if(deduplicate) df <- subset(df, df$case_nm!="Duplicate")
 
   if(is.null(ds)){
-    #df <- df[c("sn","epid","win_id","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
+    #df <- df[c("sn","epid","wind_id","case_nm","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
     df <- df[order(df$pr_sn),]
   }else{
     pds2 <- lapply(split(df$dsvr, df$epid), function(x){
@@ -554,8 +559,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     df$epid_dataset <- unlist(pds2[as.character(df$epid)])
     df <- df[order(df$pr_sn),]
-    #df <- df[c("sn","epid","win_id","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
+    #df <- df[c("sn","epid","wind_id","case_nm","epid_dataset","pr_sn", "rec_dt_ai", "rec_dt_zi", "ord", "ord_z","user_ord")]
   }
+
+  diff_unit <- ifelse(tolower(episode_unit) %in% c("second","minutes"),
+                      paste0(substr(tolower(episode_unit),1,3),"s"),
+                      tolower(episode_unit))
+
+  diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
 
   # Episode stats if required
   if(group_stats){
@@ -576,12 +587,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # df <- dplyr::left_join(df, epid_l, by="epid")
     df$a <- as.numeric(lapply(split(as.numeric(df$rec_dt_ai), df$epid), ifelse(from_last==F, min, max))[as.character(df$epid)])
     df$z <- as.numeric(lapply(split(as.numeric(df$rec_dt_zi), df$epid), ifelse(from_last==F, max, min))[as.character(df$epid)])
-
-    diff_unit <- ifelse(tolower(episode_unit) %in% c("second","minutes"),
-                        paste0(substr(tolower(episode_unit),1,3),"s"),
-                        tolower(episode_unit))
-
-    diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
 
     if(dt_grp == T){
       df$a <- as.POSIXct(df$a, "UTC", origin = as.POSIXlt("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
@@ -604,6 +609,15 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   vrs <- names(df)[!grepl("^pr_sn|^rec_dt_|^ord|^epi_len|^user_ord", names(df))]
   df <- df[vrs]
+
+  if(dt_grp==T){
+    df$dist_from_wind <- df$dist_from_wind / diyar::episode_unit[[episode_unit]]
+    df$dist_from_wind <- as.difftime(df$dist_from_wind, units = diff_unit)
+
+    df$dist_from_epid <- df$dist_from_epid / diyar::episode_unit[[episode_unit]]
+    df$dist_from_epid <- as.difftime(df$dist_from_epid, units = diff_unit)
+  }
+
 
   unique_ids <- length(df[!duplicated(df$epid) & !duplicated(df$epid, fromLast = T),]$epid)
 
@@ -889,9 +903,9 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
   # event labels - Event/period date(s), case_nm and referent event per window
   # Same day periods are shown as time points to save spac
   if(is.null(date)){
-    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped", paste0("SN-", format(dfp$sn, scientific=F), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$win_id), "\n(reference)", ""), "\nevent"))
+    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped", paste0("SN-", format(dfp$sn, scientific=F), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$wind_id), "\n(reference)", ""), "\nevent"))
   }else{
-    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped", paste0(ifelse(dfp$dt_z-dfp$dt_a==0, format(dfp$dt_a), format(dfp$date)), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$win_id), "\n(reference)", ""), "\nevent"))
+    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped", paste0(ifelse(dfp$dt_z-dfp$dt_a==0, format(dfp$dt_a), format(dfp$date)), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$wind_id), "\n(reference)", ""), "\nevent"))
   }
 
 
@@ -921,9 +935,9 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     xlims <- c((min(dfp$dt_a) - max(c(max(dfp$c), max(dfp$r)))), (max(dfp$dt_z) + max(c(max(dfp$c), max(dfp$r)))))
 
     # Colors groups for windows
-    dfp$win_cols <- rev(pl_cols)[as.numeric(as.factor(dfp$win_id))]
+    dfp$win_cols <- rev(pl_cols)[as.numeric(as.factor(dfp$wind_id))]
     cols <- dfp$win_cols
-    names(cols) <- dfp$win_id
+    names(cols) <- dfp$wind_id
     cols <- cols[!duplicated(cols)]
 
     # Colors groups for episodes.
@@ -979,9 +993,9 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     # recurrence_length is supplied, strip out the reference events for recurrence periods
     if(!is.null(recurrence_length)){
       dfp$rec_len_y_axis <- min(dfp$e_y) - (scale_fac * 0.2)
-      rl <- dfp[dfp$sn %in% unique(dfp$win_id[dfp$win_nm!="Case"]),]
-      rl$e_dt_a <- as.numeric(lapply(split(rl$dt_a, rl$win_id), min)[as.character(rl$win_id)])
-      rl$e_dt_z <- as.numeric(lapply(split(rl$dt_z, rl$win_id), max)[as.character(rl$win_id)])
+      rl <- dfp[dfp$sn %in% unique(dfp$wind_id[dfp$wind_nm!="Case"]),]
+      rl$e_dt_a <- as.numeric(lapply(split(rl$dt_a, rl$wind_id), min)[as.character(rl$wind_id)])
+      rl$e_dt_z <- as.numeric(lapply(split(rl$dt_z, rl$wind_id), max)[as.character(rl$wind_id)])
       # Space out their position on Y-axis
       rl$rec_len_y_axis <- rl$rec_len_y_axis - (1:nrow(rl) * (scale_fac * 0.03))
 
@@ -993,7 +1007,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     # Windows
     dfp$windows_y_axis <- rep((min(dfp$rec_len_y_axis) - (scale_fac * 0.15)), nrow(dfp))
     # Space out their position on Y-axis
-    dfp$windows_y_axis <- dfp$windows_y_axis - (scale_fac * 0.04 * (as.numeric(as.factor(dfp$win_id))-1))
+    dfp$windows_y_axis <- dfp$windows_y_axis - (scale_fac * 0.04 * (as.numeric(as.factor(dfp$wind_id))-1))
 
     # Episodes
     dfp$episode_y_axis <- min(dfp$windows_y_axis) - (scale_fac * 0.25)
@@ -1022,7 +1036,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       # left_point() tracer
       graphics::lines(y=c(dfp$e_y[i] - (scale_fac * 0.06), dfp$windows_y_axis[i]), x = rep(dfp$dt_a[i],2), col = dfp$win_cols[i], lty = 2)
 
-      if(dfp$c[i]<0 & dfp$win_id[i] == dfp$sn[i]){
+      if(dfp$c[i]<0 & dfp$wind_id[i] == dfp$sn[i]){
         if(dfp$dt_a[i] < dfp$dt_z[i] + dfp$c[i]){
           # Period "completely changed" due to the negative case_length
           graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i] + dfp$c[i]), col = dfp$win_cols[i], lty = 1)
@@ -1042,7 +1056,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     }
 
     # case lengths
-    cl <- dfp[dfp$sn %in% unique(dfp$win_id[dfp$win_nm=="Case"]),]
+    cl <- dfp[dfp$sn %in% unique(dfp$wind_id[dfp$wind_nm=="Case"]),]
     if(nrow(cl)>0 & !is.null(case_length)){
       # episode start and end dates
       # re-calculated because it may not be supplied
@@ -1106,19 +1120,19 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     # Windows
     win <- dfp
 
-    win$w_dt_z <- as.numeric(lapply(split(win$dt_z, win$win_id), max)[as.character(win$win_id)])
-    win <- win[!duplicated(win$win_id),]
+    win$w_dt_z <- as.numeric(lapply(split(win$dt_z, win$wind_id), max)[as.character(win$wind_id)])
+    win <- win[!duplicated(win$wind_id),]
     dt_as <- as.numeric(dfp$dt_a)
     names(dt_as) <- dfp$sn
-    win$w_dt_a <- dt_as[as.character(win$win_id)]
+    win$w_dt_a <- dt_as[as.character(win$wind_id)]
 
-    win$win_nm_l <- paste0("Window ", as.numeric(as.factor(win$win_id)), "\n(", tolower(win$win_nm), "\nwindow)")
+    win$wind_nm_l <- paste0("Window ", as.numeric(as.factor(win$wind_id)), "\n(", tolower(win$wind_nm), "\nwindow)")
     for(i in 1:nrow(win)){
       graphics::lines(y=rep(win$windows_y_axis[i],2), x = c(win$w_dt_a[i], win$w_dt_z[i]), col=win$win_col[i])
       graphics::lines(y=c(win$windows_y_axis[i], win$windows_y_axis[i] + (scale_fac * 0.02)), x = rep(win$w_dt_a[i],2), col=win$win_col[i])
       graphics::lines(y=c(win$windows_y_axis[i], win$windows_y_axis[i] + (scale_fac * 0.02)), x = rep(win$w_dt_z[i],2), col=win$win_col[i])
 
-      graphics::text(cex = .7 * scale_fac, y=win$windows_y_axis[i] - (scale_fac * 0.2), x= mean(c(win$w_dt_a[i], win$w_dt_z[i])), labels = win$win_nm_l[i], col=win$win_col[i], adj =c(.5,0))
+      graphics::text(cex = .7 * scale_fac, y=win$windows_y_axis[i] - (scale_fac * 0.2), x= mean(c(win$w_dt_a[i], win$w_dt_z[i])), labels = win$wind_nm_l[i], col=win$win_col[i], adj =c(.5,0))
       graphics::lines(y=c(win$windows_y_axis[i] - (scale_fac * 0.23), win$episode_y_axis[i]), x = rep(mean(c(win$w_dt_a[i], win$w_dt_z[i])), 2), col=win$epd_col[i])
       graphics::lines(y=c(win$windows_y_axis[i] - (scale_fac * 0.13), win$windows_y_axis[i] - (scale_fac * (0))), x = rep(mean(c(win$w_dt_a[i], win$w_dt_z[i])), 2), col=win$epd_col[i])
 
@@ -1132,14 +1146,14 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     epd$e_dt_a <- as.numeric(lapply(split(epd$dt_a, epd$epid), min)[as.character(epd$epid)])
     epd$e_dt_z <- as.numeric(lapply(split(epd$dt_z, epd$epid), max)[as.character(epd$epid)])
     epd <- epd[!duplicated(epd$epid),]
-    epd$win_nm_l <- paste0("Episode ", as.numeric(as.factor(epd$epid)), "")
+    epd$wind_nm_l <- paste0("Episode ", as.numeric(as.factor(epd$epid)), "")
 
     for(i in 1:nrow(epd)){
       graphics::lines(y=rep(epd$episode_y_axis[i],2), x = c(epd$e_dt_a[i], epd$e_dt_z[i]), col=epd$epd_cols[i])
       graphics::lines(y=c(epd$episode_y_axis[i], epd$episode_y_axis[i] + (scale_fac * 0.02)), x = rep(epd$e_dt_a[i],2), col=epd$epd_cols[i])
       graphics::lines(y=c(epd$episode_y_axis[i], epd$episode_y_axis[i] + (scale_fac * 0.02)), x = rep(epd$e_dt_z[i],2), col=epd$epd_cols[i])
 
-      graphics::text(cex = .7 * scale_fac, y=epd$episode_y_axis[i] - (scale_fac * 0.08), x=mean(c(epd$e_dt_a[i], epd$e_dt_z[i])), labels = epd$win_nm_l[i], col=epd$epd_cols[i], adj =c(.5,0))
+      graphics::text(cex = .7 * scale_fac, y=epd$episode_y_axis[i] - (scale_fac * 0.08), x=mean(c(epd$e_dt_a[i], epd$e_dt_z[i])), labels = epd$wind_nm_l[i], col=epd$epd_cols[i], adj =c(.5,0))
 
       if(epd$e_dt_a[i]==epd$e_dt_z[i]){
         graphics::lines(y=rep(epd$episode_y_axis[i],2), x = c(epd$e_dt_a[i]-.2, epd$e_dt_z[i]+.2), col=epd$win_col[i])

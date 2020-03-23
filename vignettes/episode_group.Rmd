@@ -18,36 +18,36 @@ knitr::opts_chunk$set(
 ```{r include=FALSE}
 epid_plots <- function(df1){
   df1$epid <- as.character(df1$epid)
-  df1$win_id_l <- paste0("W",as.character(df1$win_id))
+  df1$wind_id_l <- paste0("W",as.character(df1$wind_id))
 
   # Events
-  pts <- df1[c("date", "epid", "win_id","case_nm","win_id_l","sn","win_nm")]
-  pts$case_nm <- paste(pts$case_nm,"\n",ifelse(pts$sn %in% unique(pts$win_id), "(reference)", ""))
+  pts <- df1[c("date", "epid", "wind_id","case_nm","wind_id_l","sn","wind_nm")]
+  pts$case_nm <- paste(pts$case_nm,"\n",ifelse(pts$sn %in% unique(pts$wind_id), "(reference)", ""))
 
   # Episode and window labels
   pts$y <- 1
   pts$e_lab <- ifelse(!duplicated(pts$epid, fromLast = T), paste0("Episode ", as.numeric(as.factor(pts$epid)), ""),"")
-  pts$w_lab <- ifelse(!duplicated(pts$win_id, fromLast = T), paste0("Window ", as.numeric(as.factor(pts$win_id_l)), "\n(", tolower(pts$win_nm), "\nwindow)"), "")
+  pts$w_lab <- ifelse(!duplicated(pts$wind_id, fromLast = T), paste0("Window ", as.numeric(as.factor(pts$wind_id_l)), "\n(", tolower(pts$wind_nm), "\nwindow)"), "")
   pts$y2 <- 0.81
   pts$y3 <- 0.64
 
   # case length
-  cl <- df1[df1$sn %in% unique(df1$win_id[df1$win_nm=="Case"]), c("date", "epid", "c", "win_id_l")]
+  cl <- df1[df1$sn %in% unique(df1$wind_id[df1$wind_nm=="Case"]), c("date", "epid", "c", "wind_id_l")]
   cl$end_dt <- cl$date + cl$c
   cl$y <- 1.1 - (1:nrow(cl) * 0.01)
-  cl <- gather(cl, vr, date, -c(epid, c, y, win_id_l))
+  cl <- gather(cl, vr, date, -c(epid, c, y, wind_id_l))
   cl$lab <- ifelse(cl$vr=="date", paste0("Case length (",cl$c,"-day\ndifference)"), "")
 
   # recurrence lengths
-  rl <- df1[df1$sn %in% unique(df1$win_id[df1$win_nm!="Case"]), c("date", "epid", "r","win_id_l")]
+  rl <- df1[df1$sn %in% unique(df1$wind_id[df1$wind_nm!="Case"]), c("date", "epid", "r","wind_id_l")]
 
   rl$end_dt <- rl$date + rl$r
   rl$y <- 0.94 - (1:nrow(rl) * 0.01)
-  rl <- gather(rl, vr, date, -c(epid, win_id_l, r, y))
+  rl <- gather(rl, vr, date, -c(epid, wind_id_l, r, y))
   rl$lab <- ifelse(rl$vr=="date", paste0("Recurrence\nlength (",rl$r,"-day\ndifference)"), "")
 
   # windows
-  windows <- pts[grepl("Case", pts$case_nm) | !duplicated(pts$win_id, fromLast = T),]
+  windows <- pts[grepl("Case", pts$case_nm) | !duplicated(pts$wind_id, fromLast = T),]
   # episodes
   episodes <- pts[grepl("Case", pts$case_nm) | !duplicated(pts$epid, fromLast = T),]
 
@@ -57,13 +57,13 @@ epid_plots <- function(df1){
     geom_line(data=episodes, aes(x=date, y=y3, group=epid, colour =epid), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
     geom_text(data=episodes, aes(x=date, y=y3, group=epid, colour =epid, label=e_lab, hjust="left"), nudge_y = -.03, nudge_x = -5, size=3) +
 
-    geom_line(data=windows, aes(x=date, y=y2, group=epid, colour =win_id_l), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
-    geom_text(data=windows, aes(x=date, y=y2, group=win_id_l, colour =epid, label=w_lab, hjust="left"), nudge_y = -.06, nudge_x = -1.6, size=3) +
+    geom_line(data=windows, aes(x=date, y=y2, group=epid, colour =wind_id_l), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
+    geom_text(data=windows, aes(x=date, y=y2, group=wind_id_l, colour =epid, label=w_lab, hjust="left"), nudge_y = -.06, nudge_x = -1.6, size=3) +
 
-    geom_line(data=cl, aes(x=date, y=y, group=win_id_l, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed")) +
+    geom_line(data=cl, aes(x=date, y=y, group=wind_id_l, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed")) +
     geom_text(data=cl, aes(x=date, y=y, group=epid, colour =epid, label=lab, hjust="left"),  nudge_y = .04, size=3) +
 
-    geom_line(data=rl, aes(x=date, y=y, group=win_id_l, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed"), linetype=2) +
+    geom_line(data=rl, aes(x=date, y=y, group=wind_id_l, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed"), linetype=2) +
     geom_text(data=rl, aes(x=date, y=y, group=epid, colour =epid, label=lab, hjust="left"),  nudge_y = -.04, size=3) +
 
     #scale_x_date("April", date_breaks = "1 day", date_labels = "%d", limits = c(dmy("01/04/2019"), dmy("20/04/2019") )) +
@@ -130,7 +130,7 @@ df$c <- 5
 df <- cbind(df, to_df(df$f1))
 df$epid <- as.character(df$epid)
 
-pts <- df[c("date", "epid", "win_id", "case_nm")]
+pts <- df[c("date", "epid", "wind_id", "case_nm")]
 pts$y <- 1
 pts$e_lab <- ifelse(pts$case_nm=="Case", paste0("Episode ", as.numeric(as.factor(pts$epid)), ""),"")
 pts$w_lab <- ifelse(pts$case_nm=="Case", paste0("Window ", as.numeric(as.factor(pts$window)), " (case window)"),"")
@@ -182,13 +182,13 @@ df$c <- 5
 
 df <- cbind(df, to_df(df$r1))
 df$epid <- as.character(df$epid)
-df$win_id <- paste0("W",as.character(df$win_id))
+df$wind_id <- paste0("W",as.character(df$wind_id))
 
-pts <- df[c("date", "epid", "win_id")]
+pts <- df[c("date", "epid", "wind_id")]
 pts$case_nm <- c("Case\n(Reference)", "Duplicate\n(Reference) Event", "Recurrent\nEvent","Duplicate\nEvent")
 pts$y <- 1
 pts$e_lab <- ifelse(!duplicated(pts$epid, fromLast = T), paste0("Episode ", as.numeric(as.factor(pts$epid)), ""),"")
-pts$w_lab <- ifelse(!duplicated(pts$win_id, fromLast = T), paste0("Window ", as.numeric(as.factor(pts$win_id)), "\n", c("(case window", rep("(recurrence window)",3))),"")
+pts$w_lab <- ifelse(!duplicated(pts$wind_id, fromLast = T), paste0("Window ", as.numeric(as.factor(pts$wind_id)), "\n", c("(case window", rep("(recurrence window)",3))),"")
 pts$y2 <- 0.7
 pts$y3 <- 0.6
 
@@ -198,9 +198,9 @@ cl <- gather(cl, vr, date, -c(epid, c))
 cl$y <- 1.1
 cl$lab <- ifelse(cl$vr=="date", paste0("Case length (",cl$c,"-day difference)"), "") 
 
-rl <- df[2:3, c("date", "epid", "r", "win_id")] 
+rl <- df[2:3, c("date", "epid", "r", "wind_id")] 
 rl$end_dt <- rl$date + c(10,3)
-rl <- gather(rl, vr, date, -c(epid, win_id, r))  
+rl <- gather(rl, vr, date, -c(epid, wind_id, r))  
 rl$y <- 0.8
 rl$lab <- ifelse(rl$vr=="date", paste0("Recurrence length (",rl$r,"-day difference)"), "") 
 
@@ -209,12 +209,12 @@ ggplot(data= pts) +
   geom_text(aes(x=date, y=y, group=epid, colour =epid, label=case_nm, hjust="left"), nudge_x = .2, size=3) +
   geom_line(aes(x=date, y=y3, group=epid, colour =epid), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
   geom_text(aes(x=date, y=y3, group=epid, colour =epid, label=e_lab, hjust="left"), nudge_y = -.03, nudge_x = -5, size=3) +
-  geom_line(aes(x=date, y=y2, group=epid, colour =win_id), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
-  geom_text(aes(x=date, y=y2, group=win_id, colour =epid, label=w_lab, hjust="left"), nudge_y = -.03, nudge_x = -1.6, size=3) +
+  geom_line(aes(x=date, y=y2, group=epid, colour =wind_id), arrow = arrow(length=unit(0.1,"cm"), ends="both", type = "closed")) +
+  geom_text(aes(x=date, y=y2, group=wind_id, colour =epid, label=w_lab, hjust="left"), nudge_y = -.03, nudge_x = -1.6, size=3) +
   geom_line(data=cl, aes(x=date, y=y, group=epid, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed")) +
   geom_text(data=cl, aes(x=date, y=y, group=epid, colour =epid, label=lab, hjust="left"),  nudge_y = .04, size=3) +
   
-  geom_line(data=rl, aes(x=date, y=y, group=win_id, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed"), linetype=2) +
+  geom_line(data=rl, aes(x=date, y=y, group=wind_id, colour =epid), arrow = arrow(length=unit(0.2,"cm"), ends="last", type = "closed"), linetype=2) +
   geom_text(data=rl, aes(x=date, y=y, group=epid, colour =epid, label=lab, hjust="left"),  nudge_y = .04, size=3) +
   
   scale_x_date("", date_breaks = "1 day", date_labels = "%d", limits = c(dmy("01/04/2019"), dmy("18/04/2019") )) +
