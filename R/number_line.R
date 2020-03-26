@@ -319,7 +319,8 @@ number_line_sequence <- function(x, by=1){
 #' @details
 #' \code{plot_number_line()} visulaises \code{number_line} objects and how they've overlapped with each other.
 #' @examples
-#' d <- c(number_line(1,5), number_line(1,2), number_line(2,3), number_line(4,7), number_line(4,5), number_line(1,5))
+#' d <- c(number_line(1,5), number_line(1,2), number_line(2,3),
+#' number_line(4,7), number_line(4,5), number_line(1,5))
 #' diyar:::plot_number_line(d[c(1,6)])
 #' diyar:::plot_number_line(d[c(2,3)])
 #' diyar:::plot_number_line(d[c(1,3)])
@@ -338,12 +339,12 @@ plot_number_line <- function(x){
   df$cols <- ifelse(gid==rep(T, nrow(df)), rev(pl_cols)[as.numeric(as.factor(df$gid))], rev(pl_cols)[1:nrow(df)])
 
   x_lim <- c(floor(min(df$start)), ceiling(max(df$end)))
-  y_lim <- c(min(df$sn), max(df$sn) * 5)
+  y_lim <- c(min(df$sn), max(df$sn) * 3)
 
   graphics::par(bg="black")
-  graphics::par(mar=rep(0,4))
+  graphics::par(mar=c(2,2,2,2))
   graphics::plot(x =x_lim, y=y_lim, type="n")
-  graphics::axis(1,  at=x_lim[1]:x_lim[2], labels= format(x_lim[1]:x_lim[2]), col="white", col.axis="white")
+  graphics::axis(1,  at=x_lim[1]:x_lim[2], labels= format(x_lim[1]:x_lim[2]), col="white", col.axis="white", cex.axis = .8)
 
   for (i in 1:nrow(df)) {
     if (df$start[i]!=df$end[i]){

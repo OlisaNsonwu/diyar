@@ -166,7 +166,8 @@ number_line_sequence(number_line(5:1, 1:5), 1:5)
 nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
 number_line_sequence(c(nl, nl), c(duration(1.5,"days"), duration(12,"hours")))
 
-d <- c(number_line(1,5), number_line(1,2), number_line(2,3), number_line(4,7), number_line(4,5), number_line(1,5))
+d <- c(number_line(1,5), number_line(1,2), number_line(2,3),
+number_line(4,7), number_line(4,5), number_line(1,5))
 diyar:::plot_number_line(d[c(1,6)])
 diyar:::plot_number_line(d[c(2,3)])
 diyar:::plot_number_line(d[c(1,3)])
