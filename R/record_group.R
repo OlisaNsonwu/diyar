@@ -186,6 +186,19 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   # update 'sub_cri_lst'
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
 
+  nls <- lapply(names(df), function(x){
+    is.number_line(df[[x]])
+  })
+
+  nls_nms <- names(df)[as.logical(nls)]
+  if(length(nls_nms) >0){
+    nls <- df[nls_nms]
+
+    for(i in nls_nms){
+      df[[i]] <- df$pr_sn
+    }
+  }
+
   # Range matching
   range_match <- function(x, tr_x) {
     if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) {
@@ -218,8 +231,8 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
     if(curr_attr){
       func_1 <- function(x){
-        ifelse(class(df[[x]]) == "number_line",
-               paste0("range_match(df2$",x, ", ", "df2$tr_",x,")"),
+        ifelse(class(nls[[x]]) == "number_line",
+               paste0("range_match(nls$",x,"[df2$",x, "], ", "nls$",x,"[df2$tr_",x,"])"),
                paste0("exact_match(df2$",x, ", ", "df2$tr_",x,")"))
       }
 
