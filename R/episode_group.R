@@ -903,9 +903,14 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
   # event labels - Event/period date(s), case_nm and referent event per window
   # Same day periods are shown as time points to save spac
   if(is.null(date)){
-    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped", paste0("SN-", format(dfp$sn, scientific=F), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$wind_id), "\n(reference)", ""), "\nevent"))
+    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped",
+                           paste0("SN-", format(dfp$sn, scientific=F), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$wind_id), "\n(reference)", ""), "\nevent"),
+                           paste0("SN-", format(dfp$sn, scientific=F), "\n", dfp$case_nm))
   }else{
-    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped", paste0(ifelse(dfp$dt_z-dfp$dt_a==0, format(dfp$dt_a), format(dfp$date)), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$wind_id), "\n(reference)", ""), "\nevent"))
+    dfp$event_nm <- ifelse(dfp$case_nm!="Skipped",
+                           paste0(ifelse(dfp$dt_z-dfp$dt_a==0, format(dfp$dt_a), format(dfp$date)), "\n", dfp$case_nm, ifelse(dfp$sn %in% unique(dfp$wind_id), "\n(reference)", ""), "\nevent"),
+                           paste0(ifelse(dfp$dt_z-dfp$dt_a==0, format(dfp$dt_a), format(dfp$date)), "\n", dfp$case_nm)
+                           )
   }
 
 
