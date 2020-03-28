@@ -35,7 +35,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   case_for_recurrence = FALSE)
 
 plot_epid(epid, date = NULL, strata = NULL, case_length = NULL,
-  recurrence_length = NULL)
+  recurrence_length = NULL, from_last = FALSE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}

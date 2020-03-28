@@ -867,7 +867,7 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 #'  The plots can then be saved and shared.
 #'  \code{date}, \code{case_length} and \code{recurrence_length} must match those used in creating \code{epid} otherwise, the plot will not reflect what actually happened.
 #'
-plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recurrence_length = NULL){
+plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recurrence_length = NULL, from_last=FALSE){
   if(!(length(epid) == length(date) | is.null(date))) stop(paste0("lenght(epid) should be equal to length(date)"))
   if(!(length(case_length) %in% c(1, length(epid)) | (length(case_length) ==0 & is.null(case_length)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
   if(!(length(recurrence_length) %in% c(1, length(epid)) | (length(recurrence_length) ==0 & is.null(recurrence_length)))) stop(paste("length of 'recurrence_length' must be 1 or the same as 'date'",sep=""))
@@ -998,7 +998,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     # recurrence_length is supplied, strip out the reference events for recurrence periods
     if(!is.null(recurrence_length)){
       dfp$rec_len_y_axis <- min(dfp$e_y) - (scale_fac * 0.2)
-      rl <- dfp[dfp$sn %in% unique(dfp$wind_id[dfp$wind_nm!="Case"]),]
+      rl <- dfp[dfp$sn %in% unique(dfp$wind_id[dfp$wind_nm!="Case" & dfp$case_nm!="Skipped"]),]
       rl$e_dt_a <- as.numeric(lapply(split(rl$dt_a, rl$wind_id), min)[as.character(rl$wind_id)])
       rl$e_dt_z <- as.numeric(lapply(split(rl$dt_z, rl$wind_id), max)[as.character(rl$wind_id)])
       # Space out their position on Y-axis
@@ -1069,10 +1069,10 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       cl$e_dt_z <- as.numeric(lapply(split(cl$dt_z, cl$epid), max)[as.character(cl$epid)])
 
       cl$dt <- as.numeric(cl$dt_z)
-      cl$end_dt <- as.numeric(cl$dt + cl$c)
+      cl$end_dt <- as.numeric(cl$dt + ifelse(from_last==F, cl$c, -cl$c))
 
       cl$dt2 <- as.numeric(cl$dt_a)
-      cl$end_dt2 <- as.numeric(cl$dt2 - cl$c)
+      cl$end_dt2 <- as.numeric(cl$dt2 - ifelse(from_last==F, cl$c, -cl$c))
 
       # spacing
       dfp$case_len_y_axis <- dfp$case_len_y_axis + (0.02 * ((1:nrow(dfp))-1))
@@ -1086,10 +1086,11 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
 
         # Trying to guess when bi_direction has been used.
         # Doesn't capture all scenarios yet.
+          # Stopped for now. Need's another approach
         if(cl$dt2[i]!= cl$e_dt_a[i]){
           # Surpressed warning from 0 length arrows
-          suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$dt2[i], x1 = cl$end_dt2[i], col ="white"))
-          graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(cl$dt2[i], cl$end_dt2[i])), labels = cl$lab[i], col ="white", adj =c(.5,0))
+          # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$dt2[i], x1 = cl$end_dt2[i], col ="white"))
+          # graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(cl$dt2[i], cl$end_dt2[i])), labels = cl$lab[i], col ="white", adj =c(.5,0))
         }
       }
     }
@@ -1099,10 +1100,10 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     # Recurrence lengths
     if(nrow(rl)>0 & !is.null(recurrence_length)){
       rl$dt <- as.numeric(rl$dt_z)
-      rl$end_dt <- as.numeric(rl$dt + rl$r)
+      rl$end_dt <- as.numeric(rl$dt + ifelse(from_last==F, rl$r, -rl$r))
 
       rl$dt2 <- as.numeric(rl$dt_a)
-      rl$end_dt2 <- as.numeric(rl$dt2 - rl$r)
+      rl$end_dt2 <- as.numeric(rl$dt2 - ifelse(from_last==F, rl$r, -rl$r))
       rl$lab <- paste0("Recurrence length\n(",rl$c,"-day\ndifference)")
 
       for(i in 1:nrow(rl)){
@@ -1115,35 +1116,43 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       # Trying to guess when bi_direction has been used.
       # Doesn't capture all scenarios yet.
       # Should it apply to recurrence length?
+        # Stopped for now. Need's another approach
       if(rl$dt2[i]!= rl$e_dt_a[i]){
         # Surpressed warning from 0 length arrows
-        suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = rl$dt2[i], x1 = rl$end_dt2[i], col ="white"))
-        graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(rl$dt2[i], rl$end_dt2[i])), labels = rl$lab[i], col ="white", adj =c(.5,0))
+        # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = rl$dt2[i], x1 = rl$end_dt2[i], col ="white"))
+        # graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(rl$dt2[i], rl$end_dt2[i])), labels = rl$lab[i], col ="white", adj =c(.5,0))
       }
     }
 
     # Windows
     win <- dfp
 
-    win$w_dt_z <- as.numeric(lapply(split(win$dt_z, win$wind_id), max)[as.character(win$wind_id)])
+    win$w_dt_z <- as.numeric(lapply(split(win$dt_z, win$wind_id), ifelse(from_last==F, max, min))[as.character(win$wind_id)])
     win <- win[!duplicated(win$wind_id),]
     dt_as <- as.numeric(dfp$dt_a)
     names(dt_as) <- dfp$sn
     win$w_dt_a <- dt_as[as.character(win$wind_id)]
 
-    win$wind_nm_l <- paste0("Window ", as.numeric(as.factor(win$wind_id)), "\n(", tolower(win$wind_nm), "\nwindow)")
+    # window ord as label
+      win$wind_nm_l <- paste0("Window ", as.numeric(as.factor(win$wind_id)), "\n(", tolower(win$wind_nm), "\nwindow)")
+    # window ID as label
+      win$wind_nm_l <- paste0("Window ID: ", win$wind_id, ifelse(win$wind_nm=="Skipped","", paste0("\n(", tolower(win$wind_nm), "\nwindow)")))
+
     for(i in 1:nrow(win)){
-      graphics::lines(y=rep(win$windows_y_axis[i],2), x = c(win$w_dt_a[i], win$w_dt_z[i]), col=win$win_col[i])
       graphics::lines(y=c(win$windows_y_axis[i], win$windows_y_axis[i] + (scale_fac * 0.02)), x = rep(win$w_dt_a[i],2), col=win$win_col[i])
       graphics::lines(y=c(win$windows_y_axis[i], win$windows_y_axis[i] + (scale_fac * 0.02)), x = rep(win$w_dt_z[i],2), col=win$win_col[i])
 
-      graphics::text(cex = .7 * scale_fac, y=win$windows_y_axis[i] - (scale_fac * 0.2), x= mean(c(win$w_dt_a[i], win$w_dt_z[i])), labels = win$wind_nm_l[i], col=win$win_col[i], adj =c(.5,0))
+      if(win$case_nm[i]!="Skipped"){
+        graphics::text(cex = .7 * scale_fac, y=win$windows_y_axis[i] - (scale_fac * 0.2), x= mean(c(win$w_dt_a[i], win$w_dt_z[i])), labels = win$wind_nm_l[i], col=win$win_col[i], adj =c(.5,0))
+        graphics::lines(y=rep(win$windows_y_axis[i],2), x = c(win$w_dt_a[i], win$w_dt_z[i]), col=win$win_col[i])
+
+        if(win$w_dt_a[i]==win$w_dt_z[i]){
+          graphics::lines(y=rep(win$windows_y_axis[i],2), x = c(win$w_dt_a[i]-.2, win$w_dt_z[i]+.2), col=win$win_col[i])
+        }
+      }
+
       graphics::lines(y=c(win$windows_y_axis[i] - (scale_fac * 0.23), win$episode_y_axis[i]), x = rep(mean(c(win$w_dt_a[i], win$w_dt_z[i])), 2), col=win$epd_col[i])
       graphics::lines(y=c(win$windows_y_axis[i] - (scale_fac * 0.13), win$windows_y_axis[i] - (scale_fac * (0))), x = rep(mean(c(win$w_dt_a[i], win$w_dt_z[i])), 2), col=win$epd_col[i])
-
-      if(win$w_dt_a[i]==win$w_dt_z[i]){
-        graphics::lines(y=rep(win$windows_y_axis[i],2), x = c(win$w_dt_a[i]-.2, win$w_dt_z[i]+.2), col=win$win_col[i])
-      }
     }
 
     # Episodes
@@ -1151,7 +1160,11 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     epd$e_dt_a <- as.numeric(lapply(split(epd$dt_a, epd$epid), min)[as.character(epd$epid)])
     epd$e_dt_z <- as.numeric(lapply(split(epd$dt_z, epd$epid), max)[as.character(epd$epid)])
     epd <- epd[!duplicated(epd$epid),]
-    epd$wind_nm_l <- paste0("Episode ", as.numeric(as.factor(epd$epid)), "")
+
+      # episode ord as label
+    epd$wind_nm_l <- paste0("Episode ", as.numeric(as.factor(epd$epid)))
+      # episode ID as label
+    epd$wind_nm_l <- paste0("Episode ID: ", epd$epid)
 
     for(i in 1:nrow(epd)){
       graphics::lines(y=rep(epd$episode_y_axis[i],2), x = c(epd$e_dt_a[i], epd$e_dt_z[i]), col=epd$epd_cols[i])
