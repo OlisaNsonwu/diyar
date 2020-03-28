@@ -402,12 +402,12 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$dist_from_epid <- ifelse(df$tr_case_nm=="", ((as.numeric(df$rec_dt_ai) + as.numeric(df$rec_dt_zi)) *.5) - ((as.numeric(df$tr_rec_dt_ai) + as.numeric(df$tr_rec_dt_zi)) *.5), df$dist_from_epid)
 
     if(!bi_direction & !from_last){
-      df$c_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$c_range)
-      df$r_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai, FALSE, df$r_range)
+      df$c_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai & df$tr_epi_len >=0, FALSE, df$c_range)
+      df$r_range <- ifelse(df$tr_rec_dt_ai > df$rec_dt_ai & df$tr_rc_len >=0, FALSE, df$r_range)
 
     }else if(!bi_direction & from_last){
-      df$c_range <- ifelse(df$tr_rec_dt_ai < df$rec_dt_ai, FALSE, df$c_range)
-      df$r_range <- ifelse(df$tr_rec_dt_ai < df$rec_dt_ai, FALSE, df$r_range)
+      df$c_range <- ifelse(df$tr_rec_dt_ai < df$rec_dt_ai & df$tr_epi_len >=0, FALSE, df$c_range)
+      df$r_range <- ifelse(df$tr_rec_dt_ai < df$rec_dt_ai & df$tr_rc_len >=0, FALSE, df$r_range)
     }
 
     # event type
