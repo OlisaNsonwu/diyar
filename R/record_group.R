@@ -47,7 +47,6 @@
 #'
 #' @examples
 #' library(dplyr)
-#' library(tidyr)
 #'
 #' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
 #'                            stringsAsFactors = FALSE)
@@ -86,7 +85,7 @@
 #' staff_records
 #'
 #' # Add `sex` to the second stage (`cri`) to be more certain
-#' staff_records <- unite(staff_records, cri_2, c(surname, sex), sep ="-")
+#' staff_records$cri_2 <- paste0(staff_records$surname,"-", staff_records$sex)
 #' staff_records$pids_b <- record_group(staff_records, r_id, c(forename, cri_2),
 #'                                      data_source = dataset, display = FALSE, to_s4 = TRUE)
 #' staff_records
@@ -162,7 +161,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   }
 
   # Prep
-  df <- df[c("sn",cri_lst,sub_cri_lst,"dsvr")]
+  df <- df[unique(c("sn",cri_lst,sub_cri_lst,"dsvr"))]
   df$pr_sn <- 1:nrow(df)
   df$m_tag <- df$tag <- 0
   df$pid_cri <- Inf
@@ -185,6 +184,19 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
   # update 'sub_cri_lst'
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
+
+  nls <- lapply(names(df), function(x){
+    is.number_line(df[[x]])
+  })
+
+  nls_nms <- names(df)[as.logical(nls)]
+  if(length(nls_nms) >0){
+    nls <- df[nls_nms]
+
+    for(i in nls_nms){
+      df[[i]] <- df$pr_sn
+    }
+  }
 
   # Range matching
   range_match <- function(x, tr_x) {
@@ -218,8 +230,8 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
     if(curr_attr){
       func_1 <- function(x){
-        ifelse(class(df[[x]]) == "number_line",
-               paste0("range_match(df2$",x, ", ", "df2$tr_",x,")"),
+        ifelse(class(nls[[x]]) == "number_line",
+               paste0("range_match(nls$",x,"[df2$",x, "], ", "nls$",x,"[df2$tr_",x,"])"),
                paste0("exact_match(df2$",x, ", ", "df2$tr_",x,")"))
       }
 
@@ -251,7 +263,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       TR <- df[!df$cri %in% c("",NA),]
       TR <- TR[order(TR$cri, TR$skip, -TR$force_check, -TR$tag, TR$m_tag, TR$pid_cri, TR$sn),]
       TR <- TR[!duplicated(TR$cri),]
-      TR <- TR[c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst)]
+      TR <- TR[unique(c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst))]
       names(TR) <- paste0("tr_", names(TR))
 
       df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)

@@ -20,16 +20,15 @@ Encoding: UTF-8
 LazyData: true
 Imports: 
     methods,
+    grDevices,
+    graphics,
     utils,
     rlang
 RoxygenNote: 6.1.1
 Suggests:
     dplyr,
     lubridate,
-    tidyr,
     phonics,
-    ggplot2,
-    janitor,
     knitr,
     rmarkdown,
     testthat,

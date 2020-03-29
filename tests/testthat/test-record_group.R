@@ -170,9 +170,9 @@ dfs <- diyar::infections
 pids <- record_group(dfs, criteria = infection, to_s4 = TRUE)
 
 test_that("test pid methods", {
-  expect_equal(show(pids), c("P-1 (CRI 01)","P-2 (CRI 01)","P-2 (CRI 01)","P-2 (CRI 01)",
-                             "P-1 (CRI 01)","P-2 (CRI 01)","P-1 (CRI 01)","P-1 (CRI 01)",
-                             "P-9 (CRI 01)","P-9 (CRI 01)","P-1 (CRI 01)"))
+  expect_equal(show(pids), c("P.1 (CRI 01)","P.2 (CRI 01)","P.2 (CRI 01)","P.2 (CRI 01)",
+                             "P.1 (CRI 01)","P.2 (CRI 01)","P.1 (CRI 01)","P.1 (CRI 01)",
+                             "P.9 (CRI 01)","P.9 (CRI 01)","P.1 (CRI 01)"))
   expect_equal(rep(pids,2), rep(pids,2))
   expect_equal(unique(pids), unique(pids))
 })

@@ -93,7 +93,7 @@ The \code{direction} argument determines which type of \code{number_line} object
 
 \code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
 
-\code{compress_number_line()} - Collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+\code{compress_number_line()} - collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
 This results in duplicate \code{number_line} objects with start and end points of the new expanded \code{number_line} object.
 See \code{\link{overlap}} for further details on overlapping \code{number_line} objects.
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,

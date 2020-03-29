@@ -1,6 +1,6 @@
-#' @title Convenience funcitons
+#' @title Convenience functions
 #'
-#' @description Convenience funcitons
+#' @description Convenience functions
 #'
 #' @param x x
 #' @aliases finite_check

@@ -223,7 +223,7 @@ expand_number_line <- function(x, by=1, point ="both"){
 
 #' @rdname number_line
 #' @details
-#' \code{compress_number_line()} - Collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+#' \code{compress_number_line()} - collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
 #' This results in duplicate \code{number_line} objects with start and end points of the new expanded \code{number_line} object.
 #' See \code{\link{overlap}} for further details on overlapping \code{number_line} objects.
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
@@ -315,4 +315,62 @@ number_line_sequence <- function(x, by=1){
   mapply(func1, x=x, by=by, h=h, SIMPLIFY = F)
 }
 
+# @rdname number_line
+# @param x \code{number_line} object
+# @details
+# \code{plot_number_line()} - visulaises \code{number_line} objects and how they've overlapped with each other.
+# @examples
+# d <- c(number_line(1,5), number_line(1,2), number_line(2,3),
+# number_line(4,7), number_line(4,5), number_line(1,5))
+# diyar:::plot_number_line(d[c(1,6)])
+# diyar:::plot_number_line(d[c(2,3)])
+# diyar:::plot_number_line(d[c(1,3)])
+# diyar:::plot_number_line(d[c(1:3)])
 
+plot_number_line <- function(x){
+  df <- diyar::to_df(x)
+  df$x <- x
+  df <- df[order(-(df$end-df$start)), ]
+  #x <- x[order(-(df$end-df$start))]
+  df$sn <- 1:nrow(df) * 1
+  gid <- F
+
+  pl_cols <- grDevices::colours()
+  pl_cols <- pl_cols[!duplicated(substr(pl_cols,1,5))]
+  df$cols <- ifelse(gid==rep(T, nrow(df)), rev(pl_cols)[as.numeric(as.factor(df$gid))], rev(pl_cols)[1:nrow(df)])
+
+  x_lim <- c(floor(min(df$start)), ceiling(max(df$end)))
+  y_lim <- c(min(df$sn), max(df$sn) * 3)
+
+  graphics::par(bg="black")
+  graphics::par(mar=c(2,2,2,2))
+  graphics::plot(x =x_lim, y=y_lim, type="n")
+  graphics::axis(1,  at=x_lim[1]:x_lim[2], labels= format(x_lim[1]:x_lim[2]), col="white", col.axis="white", cex.axis = .8)
+
+  for (i in 1:nrow(df)) {
+    if (df$start[i]!=df$end[i]){
+      graphics::arrows(length=0.1, angle=20, x0 =df$start[i], x1= df$end[i], y0 = df$sn[i], y1= df$sn[i], col = df$cols[i])
+    }
+    graphics::points(y=df$sn[i], x = df$start[i], pch = 21, bg=df$cols[i], col=df$cols[i])
+
+    for (j in 1:nrow(df)){
+      om <- overlap_method(df$x[i], df$x[j])
+      if(j>i & om != "none"){
+        if(om %in% c("exact", "inbetween")){
+          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$start[j], df$start[j]), lty=2, col=df$cols[i])
+          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$end[j], df$end[j]), lty=2, col=df$cols[i])
+          graphics::text(y = df$sn[i] + .3, x =  mean(c(df$start[j], df$end[j])), labels = om, col=df$cols[i], cex = .7)
+        }else if(om=="aligns_end"){
+          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$end[j], df$end[j]), lty=2, col=df$cols[i])
+          graphics::text(y = df$sn[i] + .3, x =  df$end[j], labels = om, col=df$cols[i], cex = .7, pos = 4, offset =.3)
+        }else{
+          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$start[j], df$start[j]), lty=2, col=df$cols[i])
+          graphics::text(y = df$sn[i] + .3, x =  df$start[j], labels = om, col=df$cols[i], cex = .7, pos = 4, offset =.3)
+        }
+      }
+    }
+  }
+
+  plt <- grDevices::recordPlot()
+  return(plt)
+}

@@ -6,8 +6,11 @@ New features
 ------------
 
 -   `overlap_methods` and `methods` arguments added to replace `overlap_method` and `method` respectively. When grouping episodes or collapsing `number_line` objects, `overlap_methods` and `methods` allow you to use different sets of methods for different subsets of a dataset. `overlap_method` and `method` could only use 1 set of methods per dataset.
--   New 'window' slot for `epid` objects. It shows the reference event for case and recurrence windows
-    -   Format of `epid` objects updated to show this window ID
+-   New `win_nm` slot for `epid` objects. Shows they type of window each event belongs to i.e. case or recurrence window
+-   New `win_id` slot for `epid` objects. Unique ID for each window. ID is the `sn` of the reference event for each window
+    -   Format of `epid` objects updated to show this `wind_id`
+-   New `dist_from_wind` slot for `epid` objects. Shows the duration of each event from its windows reference event
+-   New `dist_from_epid` slot for `epid` objects. Shows the duration of each event from its episodes reference event
 -   `recurrence_from_last` argument for `episode_group()` and `rolling_episodes()`. Determines if reference events are first or last event from the previous window.
 -   `case_for_recurrence` argument for `episode_group()` and `rolling_episodes()`. Determines if recurrent events should have their own case windows or not.
 
@@ -15,21 +18,28 @@ Changes
 -------
 
 -   overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. Eg.
-    -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap
+    -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap only
     -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
--   Output for `number_line_sequence()` is now a `list` object.
+-   Output for `number_line_sequence()` is now a `list`.
 -   `number_line_sequence()` now works across multiple `number_line` objects.
+-   `to_df()` can change `number_line` objects to data.frames.
+    -   `to_s4()` can do the reverse.
 -   `epid` objects are the default outputs of `fixed_episodes()`, `rolling_episodes()` and `episode_group()`
 -   `pid` objects are the default outputs of `record_group()`
--   `episode_group()` and `record_group()` optimised. Runs just a little bit faster ...
+-   In episode grouping, `case_nm` for events that were skipped due to `rolls_max` or `episodes_max` is now `"Skipped"`.
+-   In episode grouping, `sn` can be negative numbers but must still be unique
+-   Optimised `episode_group()` and `record_group()`. Runs just a little bit faster ...
 -   Relaxed the requirement for `x` and `y` to have the same lengths in overlap functions.
     -   The behaviour of overlap functions will now be the same as that of standard R logical tests
--   `case_length` and `recurrence_length` arguments in `episode_group` accepts negative numbers. Negative numbers means that event periods will only be collapsed if only part of their periods overlap. For example, given two periods each 5 days long, they will only be collapsed if one period overlaps with the 3 days of the other.
+-   `case_length` and `recurrence_length` arguments in `episode_group` accepts negative numbers.
+    -   negative "lengths" will collapse two periods into one, if the second one is within some days before the `end_point` of the first period.
+        -   if the "lengths" are larger than the `number_line_width()`, both will be collapsed, if the second one is within some days (or any other `episode_unit`) before the `start_point()` of the first period.
+-   cheat sheet updated
 
 Bug fixes
 ---------
 
--   Recurrence was not check if the initial case event had no duplicates. Resolved
+-   Recurrence was not checked if the initial case event had no duplicates. Resolved
 -   `case_nm` wasn't right for rolling episodes. Resolved
 
 Version 0.0.3
