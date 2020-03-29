@@ -117,12 +117,25 @@
 <h1 class="page-header">
 <a href="#version-0-1-0-9000" class="anchor"></a>Version 0.1.0.9000<small> Unreleased </small>
 </h1>
-<div id="new-feature" class="section level2">
+<div id="new-features" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-feature" class="anchor"></a>New feature</h2>
+<a href="#new-features" class="anchor"></a>New features</h2>
 <ul>
 <li>
 <code>overlap_methods</code> and <code>methods</code> arguments added to replace <code>overlap_method</code> and <code>method</code> respectively. When grouping episodes or collapsing <code>number_line</code> objects, <code>overlap_methods</code> and <code>methods</code> allow you to use different sets of methods for different subsets of a dataset. <code>overlap_method</code> and <code>method</code> could only use 1 set of methods per dataset.</li>
+<li>New <code>win_nm</code> slot for <code>epid</code> objects. Shows they type of window each event belongs to i.e. case or recurrence window</li>
+<li>New <code>win_id</code> slot for <code>epid</code> objects. Unique ID for each window. ID is the <code>sn</code> of the reference event for each window
+<ul>
+<li>Format of <code>epid</code> objects updated to show this <code>wind_id</code>
+</li>
+</ul>
+</li>
+<li>New <code>dist_from_wind</code> slot for <code>epid</code> objects. Shows the duration of each event from its windows reference event</li>
+<li>New <code>dist_from_epid</code> slot for <code>epid</code> objects. Shows the duration of each event from its episodes reference event</li>
+<li>
+<code>recurrence_from_last</code> argument for <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>. Determines if reference events are first or last event from the previous window.</li>
+<li>
+<code>case_for_recurrence</code> argument for <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>. Determines if recurrent events should have their own case windows or not.</li>
 </ul>
 </div>
 <div id="changes" class="section level2">
@@ -132,19 +145,56 @@
 <li>overlap methods has been changed such that each pair of <code>number_line</code> objects can only overlap in one way. Eg.
 <ul>
 <li>
-<code>"chain"</code> and <code>"aligns_end"</code> used to be possible but this is now considered a <code>"chain"</code> overlap</li>
+<code>"chain"</code> and <code>"aligns_end"</code> used to be possible but this is now considered a <code>"chain"</code> overlap only</li>
 <li>
 <code>"aligns_start"</code> and <code>"aligns_end"</code> use to be possible but this is now considered an <code>"exact"</code> overlap</li>
 </ul>
 </li>
-<li>Output for <code><a href="../reference/number_line.html">number_line_sequence()</a></code> is now a <code>list</code> object.</li>
+<li>Output for <code><a href="../reference/number_line.html">number_line_sequence()</a></code> is now a <code>list</code>.</li>
 <li>
 <code><a href="../reference/number_line.html">number_line_sequence()</a></code> now works across multiple <code>number_line</code> objects.</li>
+<li>
+<code><a href="../reference/to_s4.html">to_df()</a></code> can change <code>number_line</code> objects to data.frames.
+<ul>
+<li>
+<code><a href="../reference/to_s4.html">to_s4()</a></code> can do the reverse.</li>
+</ul>
+</li>
+<li>
+<code>epid</code> objects are the default outputs of <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code>
+</li>
+<li>
+<code>pid</code> objects are the default outputs of <code><a href="../reference/record_group.html">record_group()</a></code>
+</li>
+<li>In episode grouping, <code>case_nm</code> for events that were skipped due to <code>rolls_max</code> or <code>episodes_max</code> is now <code>"Skipped"</code>.</li>
+<li>In episode grouping, <code>sn</code> can be negative numbers but must still be unique</li>
+<li>Optimised <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/record_group.html">record_group()</a></code>. Runs just a little bit faster …</li>
+<li>Relaxed the requirement for <code>x</code> and <code>y</code> to have the same lengths in overlap functions.
+<ul>
+<li>The behaviour of overlap functions will now be the same as that of standard R logical tests</li>
+</ul>
+</li>
+<li>
+<code>case_length</code> and <code>recurrence_length</code> arguments in <code>episode_group</code> accepts negative numbers.
+<ul>
+<li>negative “lengths” will collapse two periods into one, if the second one is within some days before the <code>end_point</code> of the first period.
+<ul>
+<li>if the “lengths” are larger than the <code><a href="../reference/number_line.html">number_line_width()</a></code>, both will be collapsed, if the second one is within some days (or any other <code>episode_unit</code>) before the <code><a href="../reference/number_line.html">start_point()</a></code> of the first period.</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>cheat sheet updated</li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<ul>
+<li>Recurrence was not checked if the initial case event had no duplicates. Resolved</li>
+<li>
+<code>case_nm</code> wasn’t right for rolling episodes. Resolved</li>
+</ul>
 </div>
 </div>
     <div id="version-0-0-3" class="section level1">
@@ -168,9 +218,9 @@
 <h1 class="page-header">
 <a href="#version-0-0-2" class="anchor"></a>Version 0.0.2<small> 2019-11-11 </small>
 </h1>
-<div id="new-feature-1" class="section level2">
+<div id="new-feature" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-feature-1" class="anchor"></a>New feature</h2>
+<a href="#new-feature" class="anchor"></a>New feature</h2>
 <ul>
 <li>
 <code>pid</code> S4 object class for results of <code><a href="../reference/record_group.html">record_group()</a></code>. This will replace the current default (<code>data.frame</code>) in the next major release</li>

@@ -78,7 +78,7 @@
     <div class="page-header toc-ignore">
       <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">27 February 2020</h4>
+            <h4 class="date">29 March 2020</h4>
       
       
       <div class="hidden name"><code>record_group.Rmd</code></div>
@@ -146,12 +146,12 @@ dbs
 <span class="co">#&gt; # A tibble: 6 x 5</span>
 <span class="co">#&gt;   forename surname sex   pids_a       pids_b      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 James    Green   M     P-1 (CRI 01) P-1 (CRI 01)</span>
-<span class="co">#&gt; 2 ESTHER   Kulmar  F     P-2 (CRI 01) P-2 (CRI 01)</span>
-<span class="co">#&gt; 3 ""       OBI     F     P-3 (CRI 01) P-3 (CRI 01)</span>
-<span class="co">#&gt; 4 Jamey    Green   M     P-1 (CRI 01) P-1 (CRI 01)</span>
-<span class="co">#&gt; 5 Daniel   Kulmar  M     P-2 (CRI 01) P-2 (CRI 01)</span>
-<span class="co">#&gt; 6 Henry    OBI     M     P-3 (CRI 01) P-3 (CRI 01)</span>
+<span class="co">#&gt; 1 James    Green   M     P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 2 ESTHER   Kulmar  F     P.2 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 3 ""       OBI     F     P.3 (CRI 01) P.3 (CRI 01)</span>
+<span class="co">#&gt; 4 Jamey    Green   M     P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 5 Daniel   Kulmar  M     P.2 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 6 Henry    OBI     M     P.3 (CRI 01) P.3 (CRI 01)</span>
 <span class="co"># Note that exact matching is case sensitive. See range matching.</span></code></pre></div>
 <p><a id="record_matching"></a></p>
 <div id="record-matching" class="section level2">
@@ -166,12 +166,12 @@ dbs
 <span class="co">#&gt; # A tibble: 6 x 6</span>
 <span class="co">#&gt;   forename surname sex   pids_a       pids_b       pids_c      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;pid&gt;        &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 James    Green   M     P-1 (CRI 01) P-1 (CRI 01) P-1 (CRI 01)</span>
-<span class="co">#&gt; 2 ESTHER   Kulmar  F     P-2 (CRI 01) P-2 (CRI 01) P-2 (CRI 01)</span>
-<span class="co">#&gt; 3 ""       OBI     F     P-3 (CRI 01) P-3 (CRI 01) P-2 (CRI 01)</span>
-<span class="co">#&gt; 4 Jamey    Green   M     P-1 (CRI 01) P-1 (CRI 01) P-1 (CRI 01)</span>
-<span class="co">#&gt; 5 Daniel   Kulmar  M     P-2 (CRI 01) P-2 (CRI 01) P-1 (CRI 01)</span>
-<span class="co">#&gt; 6 Henry    OBI     M     P-3 (CRI 01) P-3 (CRI 01) P-1 (CRI 01)</span></code></pre></div>
+<span class="co">#&gt; 1 James    Green   M     P.1 (CRI 01) P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 2 ESTHER   Kulmar  F     P.2 (CRI 01) P.2 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 3 ""       OBI     F     P.3 (CRI 01) P.3 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 4 Jamey    Green   M     P.1 (CRI 01) P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 5 Daniel   Kulmar  M     P.2 (CRI 01) P.2 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 6 Henry    OBI     M     P.3 (CRI 01) P.3 (CRI 01) P.1 (CRI 01)</span></code></pre></div>
 <p>Both result are logically correct considering the <code>criteria</code> used however, <code>pids_b</code> is not the most practical option given the dataset. For instance, records 3 and 6 which have been grouped together could actually be cousins not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See <code>pid_d</code> below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs_<span class="dv">2</span> &lt;-<span class="st"> </span>patient_list; dbs_<span class="dv">2</span>
 <span class="co">#&gt; # A tibble: 6 x 4</span>
@@ -192,17 +192,16 @@ dbs_<span class="dv">2</span>
 <span class="co">#&gt; # A tibble: 6 x 6</span>
 <span class="co">#&gt;   rd_id forename surname sex   cri_2    pid_d       </span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;pid&gt;       </span>
-<span class="co">#&gt; 1     1 James    Green   M     Green-M  P-1 (CRI 02)</span>
-<span class="co">#&gt; 2     2 ESTHER   Kulmar  F     Kulmar-F P-2 (No Hit)</span>
-<span class="co">#&gt; 3     3 ""       OBI     F     OBI-F    P-3 (No Hit)</span>
-<span class="co">#&gt; 4     4 Jamey    Green   M     Green-M  P-1 (CRI 02)</span>
-<span class="co">#&gt; 5     5 Daniel   Kulmar  M     Kulmar-M P-5 (No Hit)</span>
-<span class="co">#&gt; 6     6 Henry    OBI     M     OBI-M    P-6 (No Hit)</span></code></pre></div>
+<span class="co">#&gt; 1     1 James    Green   M     Green-M  P.1 (CRI 02)</span>
+<span class="co">#&gt; 2     2 ESTHER   Kulmar  F     Kulmar-F P.2 (No Hit)</span>
+<span class="co">#&gt; 3     3 ""       OBI     F     OBI-F    P.3 (No Hit)</span>
+<span class="co">#&gt; 4     4 Jamey    Green   M     Green-M  P.1 (CRI 02)</span>
+<span class="co">#&gt; 5     5 Daniel   Kulmar  M     Kulmar-M P.5 (No Hit)</span>
+<span class="co">#&gt; 6     6 Henry    OBI     M     OBI-M    P.6 (No Hit)</span></code></pre></div>
 <p>As mentioned earlier, at each stage of record linkage, a <code>sub_criteria</code> can be used for additional matching conditions. Just like <code>criteria</code>, any column in the dataset can be used as a <code>sub_criteria</code>.</p>
 <p><a id="sub_cri_example"></a></p>
 <p>Below are examples of record linkage using different combinations of the same <code>criteria</code> and <code>sub_criteria</code></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(tidyr)
-<span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(Opes); Opes
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(Opes); Opes
 <span class="co">#&gt; # A tibble: 8 x 8</span>
 <span class="co">#&gt;   rd_id name  department  hair_colour date_of_birth db_pt1 db_pt2  db_pt3 </span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  </span>
@@ -227,14 +226,14 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_a      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P-1 (CRI 01)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P-1 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P-1 (CRI 01)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P-4 (CRI 01)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P-4 (CRI 01)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P-4 (CRI 01)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P-4 (CRI 01)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P-1 (CRI 01)</span>
+<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (CRI 01)</span>
+<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.1 (CRI 01)</span>
+<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.1 (CRI 01)</span>
+<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (CRI 01)</span>
+<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.4 (CRI 01)</span>
+<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.4 (CRI 01)</span>
+<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.4 (CRI 01)</span>
+<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.1 (CRI 01)</span>
   
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department OR hair_colour) AND (date_of_birth)) </span>
@@ -249,14 +248,14 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_b      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P-1 (CRI 01)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P-1 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P-3 (No Hit)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P-4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P-5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P-6 (CRI 01)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P-6 (CRI 01)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P-8 (No Hit)</span>
+<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (CRI 01)</span>
+<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.1 (CRI 01)</span>
+<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.3 (No Hit)</span>
+<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit)</span>
+<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit)</span>
+<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (CRI 01)</span>
+<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.6 (CRI 01)</span>
+<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit)</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department OR hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
@@ -271,14 +270,14 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_c      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P-1 (CRI 01)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P-1 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P-1 (CRI 01)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P-4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P-5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P-6 (CRI 01)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P-6 (CRI 01)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P-8 (No Hit)</span>
+<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (CRI 01)</span>
+<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.1 (CRI 01)</span>
+<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.1 (CRI 01)</span>
+<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit)</span>
+<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit)</span>
+<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (CRI 01)</span>
+<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.6 (CRI 01)</span>
+<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit)</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
@@ -294,14 +293,14 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co">#&gt; # A tibble: 8 x 5</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_d      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P-1 (No Hit)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P-2 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P-2 (CRI 01)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P-4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P-5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P-6 (No Hit)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P-7 (No Hit)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P-8 (No Hit)</span></code></pre></div>
+<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (No Hit)</span>
+<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.2 (CRI 01)</span>
+<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.2 (CRI 01)</span>
+<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit)</span>
+<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit)</span>
+<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (No Hit)</span>
+<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.7 (No Hit)</span>
+<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit)</span></code></pre></div>
 <p>Note that using <code>sub_criteria</code> costs additional processing time, so it should be avoided when not needed. For example, the two implementations below (<code>pids_e</code> and <code>pids_f</code>) will lead to the same outcome but <code>pids_f</code> will take less time.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (date_of_birth))</span>
@@ -341,14 +340,14 @@ Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topi
 <span class="co">#&gt; # A tibble: 8 x 6</span>
 <span class="co">#&gt;   name  department  hair_colour date_of_birth pids_e       pids_f      </span>
 <span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P-1 (No Hit) P-1 (No Hit)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P-2 (No Hit) P-2 (No Hit)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P-3 (No Hit) P-3 (No Hit)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P-4 (No Hit) P-4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P-5 (No Hit) P-5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P-6 (No Hit) P-6 (No Hit)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P-7 (No Hit) P-7 (No Hit)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P-8 (No Hit) P-8 (No Hit)</span></code></pre></div>
+<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (No Hit) P.1 (No Hit)</span>
+<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.2 (No Hit) P.2 (No Hit)</span>
+<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.3 (No Hit) P.3 (No Hit)</span>
+<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit) P.4 (No Hit)</span>
+<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit) P.5 (No Hit)</span>
+<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (No Hit) P.6 (No Hit)</span>
+<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.7 (No Hit) P.7 (No Hit)</span>
+<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit) P.8 (No Hit)</span></code></pre></div>
 <div id="range-matching" class="section level3">
 <h3 class="hasAnchor">
 <a href="#range-matching" class="anchor"></a>Range matching</h3>
@@ -390,14 +389,14 @@ Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/to
 <span class="co">#&gt; # A tibble: 8 x 3</span>
 <span class="co">#&gt;   date_of_birth range_a                  pids_a      </span>
 <span class="co">#&gt;   &lt;date&gt;        &lt;numbr_ln&gt;               &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 1986-03-23    1986-03-23 == 1986-03-23 P-1 (CRI 01)</span>
-<span class="co">#&gt; 2 1986-03-23    1986-03-23 == 1986-03-23 P-1 (CRI 01)</span>
-<span class="co">#&gt; 3 1968-03-23    1968-03-23 == 1968-03-23 P-3 (No Hit)</span>
-<span class="co">#&gt; 4 1985-02-01    1985-02-01 == 1985-02-01 P-4 (No Hit)</span>
-<span class="co">#&gt; 5 1985-01-02    1985-01-02 == 1985-01-02 P-5 (No Hit)</span>
-<span class="co">#&gt; 6 1964-03-11    1964-03-11 == 1964-03-11 P-6 (CRI 01)</span>
-<span class="co">#&gt; 7 1964-03-11    1964-03-11 == 1964-03-11 P-6 (CRI 01)</span>
-<span class="co">#&gt; 8 1985-10-11    1985-10-11 == 1985-10-11 P-8 (No Hit)</span>
+<span class="co">#&gt; 1 1986-03-23    1986-03-23 == 1986-03-23 P.1 (CRI 01)</span>
+<span class="co">#&gt; 2 1986-03-23    1986-03-23 == 1986-03-23 P.1 (CRI 01)</span>
+<span class="co">#&gt; 3 1968-03-23    1968-03-23 == 1968-03-23 P.3 (No Hit)</span>
+<span class="co">#&gt; 4 1985-02-01    1985-02-01 == 1985-02-01 P.4 (No Hit)</span>
+<span class="co">#&gt; 5 1985-01-02    1985-01-02 == 1985-01-02 P.5 (No Hit)</span>
+<span class="co">#&gt; 6 1964-03-11    1964-03-11 == 1964-03-11 P.6 (CRI 01)</span>
+<span class="co">#&gt; 7 1964-03-11    1964-03-11 == 1964-03-11 P.6 (CRI 01)</span>
+<span class="co">#&gt; 8 1985-10-11    1985-10-11 == 1985-10-11 P.8 (No Hit)</span>
 
 <span class="co"># Match on age +/- 5 years</span>
 Opes_c<span class="op">$</span>age &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>() <span class="op">-</span><span class="st"> </span>Opes_c<span class="op">$</span>date_of_birth)<span class="op">/</span><span class="fl">365.5</span>)) <span class="co"># approximate age</span>
@@ -417,14 +416,14 @@ Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/to
 <span class="co">#&gt; # A tibble: 8 x 3</span>
 <span class="co">#&gt;     age range_b    pids_b      </span>
 <span class="co">#&gt;   &lt;dbl&gt; &lt;numbr_ln&gt; &lt;pid&gt;       </span>
-<span class="co">#&gt; 1    34 29 -&gt; 39   P-1 (CRI 01)</span>
-<span class="co">#&gt; 2    34 29 -&gt; 39   P-1 (CRI 01)</span>
-<span class="co">#&gt; 3    52 47 -&gt; 57   P-3 (CRI 01)</span>
-<span class="co">#&gt; 4    35 30 -&gt; 40   P-1 (CRI 01)</span>
-<span class="co">#&gt; 5    35 30 -&gt; 40   P-1 (CRI 01)</span>
-<span class="co">#&gt; 6    56 51 -&gt; 61   P-3 (CRI 01)</span>
-<span class="co">#&gt; 7    56 51 -&gt; 61   P-3 (CRI 01)</span>
-<span class="co">#&gt; 8    34 29 -&gt; 39   P-1 (CRI 01)</span></code></pre></div>
+<span class="co">#&gt; 1    34 29 -&gt; 39   P.1 (CRI 01)</span>
+<span class="co">#&gt; 2    34 29 -&gt; 39   P.1 (CRI 01)</span>
+<span class="co">#&gt; 3    52 47 -&gt; 57   P.3 (CRI 01)</span>
+<span class="co">#&gt; 4    35 30 -&gt; 40   P.1 (CRI 01)</span>
+<span class="co">#&gt; 5    35 30 -&gt; 40   P.1 (CRI 01)</span>
+<span class="co">#&gt; 6    56 51 -&gt; 61   P.3 (CRI 01)</span>
+<span class="co">#&gt; 7    56 51 -&gt; 61   P.3 (CRI 01)</span>
+<span class="co">#&gt; 8    34 29 -&gt; 39   P.1 (CRI 01)</span></code></pre></div>
 <p><a id="record_expansion"></a></p>
 </div>
 </div>
@@ -474,18 +473,18 @@ patient_list_<span class="dv">2</span>
 <span class="co">#&gt; # A tibble: 5 x 5</span>
 <span class="co">#&gt;   rd_id forename surname     sex    pids_a      </span>
 <span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;  &lt;pid&gt;       </span>
-<span class="co">#&gt; 1     1 ""       Jefferson   Male   P-1 (CRI 02)</span>
-<span class="co">#&gt; 2     2 ""       Jefferson   Female P-1 (CRI 02)</span>
-<span class="co">#&gt; 3     3 Tomi     Abdul       Male   P-3 (CRI 01)</span>
-<span class="co">#&gt; 4     4 Tomi     Abdulkareem Female P-3 (CRI 01)</span>
-<span class="co">#&gt; 5     5 &lt;NA&gt;     &lt;NA&gt;        Male   P-3 (CRI 03)</span></code></pre></div>
+<span class="co">#&gt; 1     1 ""       Jefferson   Male   P.1 (CRI 02)</span>
+<span class="co">#&gt; 2     2 ""       Jefferson   Female P.1 (CRI 02)</span>
+<span class="co">#&gt; 3     3 Tomi     Abdul       Male   P.3 (CRI 01)</span>
+<span class="co">#&gt; 4     4 Tomi     Abdulkareem Female P.3 (CRI 01)</span>
+<span class="co">#&gt; 5     5 &lt;NA&gt;     &lt;NA&gt;        Male   P.3 (CRI 03)</span></code></pre></div>
 <p><a id="missing_values"></a></p>
 </div>
 <div id="handling-missing-values" class="section level2">
 <h2 class="hasAnchor">
 <a href="#handling-missing-values" class="anchor"></a>Handling missing values</h2>
 <p>Records with missing values for a particular <code>criteria</code> are excluded from that stage of record linkage. If a record has missing values for every listed <code>criteria</code>, it’s assigned a unique group ID at the end of the process.</p>
-<p>It’s common for databases to use specific characters or numbers to represent missing or unknown data e.g. <code>N/A</code>, <code>Nil</code>, <code>01/01/1100</code>, <code>111111</code> etc. These pseudo-missing values will need to be re-coded to one of the two recognised by <code><a href="../reference/record_group.html">record_group()</a></code> - <code>NA</code> or an empty string (<code>""</code>). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.</p>
+<p>It’s common for databases to use specific characters or numbers to represent missing or unknown data e.g. <code>N/A</code>, <code>Nil</code>, <code>01/01/1100</code>, <code>111111</code> e.t.c. These pseudo-missing values will need to be re-coded to one of the two recognised by <code><a href="../reference/record_group.html">record_group()</a></code> - <code>NA</code> or an empty string (<code>""</code>). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_list_<span class="dv">2</span><span class="op">$</span>forename &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(patient_list_<span class="dv">2</span><span class="op">$</span>rd_id <span class="op">%in%</span><span class="st"> </span><span class="dv">1</span><span class="op">:</span><span class="dv">3</span>, <span class="st">"Nil"</span>, patient_list_<span class="dv">2</span><span class="op">$</span>forename)
 <span class="co"># 2 stage linkage</span>
     <span class="co"># Stage 1 - forename</span>
@@ -499,11 +498,11 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <span class="co">#&gt; # A tibble: 5 x 3</span>
 <span class="co">#&gt;   forename surname     pids_b      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Nil      Jefferson   P-1 (CRI 01)</span>
-<span class="co">#&gt; 2 Nil      Jefferson   P-1 (CRI 01)</span>
-<span class="co">#&gt; 3 Nil      Abdul       P-1 (CRI 01)</span>
-<span class="co">#&gt; 4 Tomi     Abdulkareem P-4 (No Hit)</span>
-<span class="co">#&gt; 5 &lt;NA&gt;     &lt;NA&gt;        P-5 (No Hit)</span></code></pre></div>
+<span class="co">#&gt; 1 Nil      Jefferson   P.1 (CRI 01)</span>
+<span class="co">#&gt; 2 Nil      Jefferson   P.1 (CRI 01)</span>
+<span class="co">#&gt; 3 Nil      Abdul       P.1 (CRI 01)</span>
+<span class="co">#&gt; 4 Tomi     Abdulkareem P.4 (No Hit)</span>
+<span class="co">#&gt; 5 &lt;NA&gt;     &lt;NA&gt;        P.5 (No Hit)</span></code></pre></div>
 <p>In the example above, records 1-3 are assigned a single group ID even though record 3 is clearly a different individual. This issue can be addressed by recoding <code>"Nil"</code> to <code>NA</code> or <code>""</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using NA as the proxy for missing value</span>
 patient_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_<span class="dv">2</span>,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(forename<span class="op">==</span><span class="st">"Nil"</span>,<span class="ot">NA</span>,forename))
@@ -523,12 +522,12 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <span class="co">#&gt; # A tibble: 5 x 4</span>
 <span class="co">#&gt;   forename surname     pids_d       pids_e      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 ""       Jefferson   P-1 (CRI 02) P-1 (CRI 02)</span>
-<span class="co">#&gt; 2 ""       Jefferson   P-1 (CRI 02) P-1 (CRI 02)</span>
-<span class="co">#&gt; 3 ""       Abdul       P-3 (No Hit) P-3 (No Hit)</span>
-<span class="co">#&gt; 4 Tomi     Abdulkareem P-4 (No Hit) P-4 (No Hit)</span>
-<span class="co">#&gt; 5 ""       &lt;NA&gt;        P-5 (No Hit) P-5 (No Hit)</span></code></pre></div>
-<p>Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching critetria. For example, using surname initials or surname soundex instead of the actual surname.</p>
+<span class="co">#&gt; 1 ""       Jefferson   P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 2 ""       Jefferson   P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 3 ""       Abdul       P.3 (No Hit) P.3 (No Hit)</span>
+<span class="co">#&gt; 4 Tomi     Abdulkareem P.4 (No Hit) P.4 (No Hit)</span>
+<span class="co">#&gt; 5 ""       &lt;NA&gt;        P.5 (No Hit) P.5 (No Hit)</span></code></pre></div>
+<p>Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching criteria. For example, using surname initials or surname Soundex instead of the actual surname.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(phonics)
 
 patient_list_<span class="dv">2</span><span class="op">$</span>soundex &lt;-<span class="st"> </span><span class="kw">soundex</span>(patient_list_<span class="dv">2</span><span class="op">$</span>surname)
@@ -541,11 +540,11 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <span class="co">#&gt; # A tibble: 5 x 5</span>
 <span class="co">#&gt;   forename surname     soundex pids_d       pids_e      </span>
 <span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 ""       Jefferson   J162    P-1 (CRI 02) P-1 (CRI 02)</span>
-<span class="co">#&gt; 2 ""       Jefferson   J162    P-1 (CRI 02) P-1 (CRI 02)</span>
-<span class="co">#&gt; 3 ""       Abdul       A134    P-3 (No Hit) P-3 (CRI 02)</span>
-<span class="co">#&gt; 4 Tomi     Abdulkareem A134    P-4 (No Hit) P-3 (CRI 02)</span>
-<span class="co">#&gt; 5 ""       &lt;NA&gt;        &lt;NA&gt;    P-5 (No Hit) P-5 (No Hit)</span></code></pre></div>
+<span class="co">#&gt; 1 ""       Jefferson   J162    P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 2 ""       Jefferson   J162    P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 3 ""       Abdul       A134    P.3 (No Hit) P.3 (CRI 02)</span>
+<span class="co">#&gt; 4 Tomi     Abdulkareem A134    P.4 (No Hit) P.3 (CRI 02)</span>
+<span class="co">#&gt; 5 ""       &lt;NA&gt;        &lt;NA&gt;    P.5 (No Hit) P.5 (No Hit)</span></code></pre></div>
 </div>
 </div>
 <div id="conclusion" class="section level1">
