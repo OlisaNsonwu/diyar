@@ -267,7 +267,7 @@ dbs$eps_1
 plot_epid(epid = dbs$eps_1, date = dbs$date, case_length =3)
 ```
 
-**Figure 6b: Maximum of one rolling episode grouping per strata**
+**Figure 6b: Maximum of two fixed episode grouping per strata**
 ```{r message=FALSE, warning=FALSE}
 dbs$eps_2 <- fixed_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, display = FALSE, episodes_max = 2)
 
