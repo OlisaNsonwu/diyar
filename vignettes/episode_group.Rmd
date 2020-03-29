@@ -259,6 +259,8 @@ dbs$date
 **Figure 6a: Maximum of one fixed episode grouping per strata**
 ```{r message=FALSE, warning=FALSE}
 dbs$eps_1 <- fixed_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, display = F, episodes_max = 1)
+
+dbs$eps_1
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=7, message=FALSE, warning=FALSE}
@@ -267,11 +269,13 @@ plot_epid(epid = dbs$eps_1, date = dbs$date, case_length =3)
 
 **Figure 6b: Maximum of one rolling episode grouping per strata**
 ```{r message=FALSE, warning=FALSE}
-dbs$eps_2 <- rolling_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, display = FALSE, episodes_max = 1)
+dbs$eps_2 <- fixed_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, display = FALSE, episodes_max = 2)
+
+dbs$eps_2
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=7, message=FALSE, warning=FALSE}
-plot_epid(epid = dbs$eps_1, date = dbs$date, case_length =3, recurrence_length = 3)
+plot_epid(epid = dbs$eps_2, date = dbs$date, case_length =3)
 ```
 
 Similarly, you can choose how many `periods of recurrence` your case definition should permit i.e. how many times to check for `recurrent events`. You do this with `rolls_max`. The default is `Inf` i.e. check until there are no more `events` within the `recurrence period` of the `reference event`. See below.
@@ -345,7 +349,7 @@ dbs$backward
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=7, message=FALSE, warning=FALSE}
-plot_epid(epid = dbs$backward, date = dbs$date, case_length = 14)
+plot_epid(epid = dbs$backward, date = dbs$date, case_length = 14, from_last =T)
 ```
 
 <a id ="custom_sort"></a>
@@ -594,7 +598,7 @@ From `diyar v0.1.0`, you can use negative `case_lengths` and `recurrence_lengths
 
 + Using positive "lengths" will collapse two periods into one, if the second one is within (or any other method of `overlap`) the first one or `n`-days (or any other `episode_unit`) after the `end_point()` of the first period. 
 + Using negative "lengths" will collapse two periods into one, if the second one is within (or any other method of `overlap`) the `start_point()` and `n`-days (or any other `episode_unit`) before the `end_point()` of the first.
-+ Using negative "lengths" that's larger than the `number_line_width()` will collapse two periods into one, if the second one is within (or any other method of `overlap`) `(n - number_line_width())`-days (or any other `episode_unit`) before the `start_point()` and the `start_point()`of the first.
++ Using negative "lengths" that's larger than the `number_line_width()` will collapse two periods into one, if the second one is within (or any other method of `overlap`) `(n + 1 + number_line_width())`-days (or any other `episode_unit`) before the `start_point()` and the `start_point()`of the first.
     + **note that this will happen even if `from_last` is TRUE**
 
 *Examples below*
