@@ -7,7 +7,7 @@
 \alias{listr}
 \alias{duplicates_check}
 \alias{logicals_check}
-\title{Convenience funcitons}
+\title{Convenience functions}
 \usage{
 finite_check(x)
 
@@ -25,5 +25,5 @@ logicals_check(x)
 \item{x}{x}
 }
 \description{
-Convenience funcitons
+Convenience functions
 }

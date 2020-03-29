@@ -7,10 +7,10 @@
 #' @param sn Unique numerical record identifier. Optional.
 #' @param strata Subsets of the dataset within which episode grouping will be done separately. In \code{\link{episode_group}}, you can use multiple columns supplied as column names. \code{\link{record_group}} can create useful \code{strata}.
 #' @param date Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.
-#' @param case_length Duration after a \code{"case"} within which subsequent events are considred \code{duplicate} events. This period is refered to as the the \code{case wind_id}.
+#' @param case_length Duration after a \code{"case"} within which subsequent events are considered \code{duplicate} events. This period is referred to as the the \code{case wind_id}.
 #' @param episodes_max Maximum number of times to group episodes within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Duration after the last or first event (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period refered to as the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.
+#' @param recurrence_length Duration after the last or first event (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period referred to as the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.
 #' @param episode_unit Time units. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years".
 #' @param rolls_max Maximum number of times an event can reoccur within an episode. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources. In \code{\link{episode_group}}, you can use multiple columns supplied as column names.
@@ -48,8 +48,8 @@
 #' @details
 #' Episode grouping begins at a reference event (\code{"case"}) and proceeds forward or backward in time depending on \code{from_last}.
 #' If \code{custom_sort} is used, episode grouping can be forced to begin at certain events before proceeding forward or backwards in time.
-#' The maximum duration of a \code{"fixed"} episode is the \code{case_length}. This period is refered to as the \code{case window}. The maximum duration of a \code{"rolling"} episode is the
-#' \code{case_length} plus all recurrence periods. The recurrence periods are refered to as \code{recurrence windows}. This is a specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event from the pervious window. Events within this period are considered \code{"recurrent"} events.
+#' The maximum duration of a \code{"fixed"} episode is the \code{case_length}. This period is referred to as the \code{case window}. The maximum duration of a \code{"rolling"} episode is the
+#' \code{case_length} plus all recurrence periods. The recurrence periods are referred to as \code{recurrence windows}. This is a specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event from the previous window. Events within this period are considered \code{"recurrent"} events.
 #'
 #' When a \code{data_source} identifier is provided,
 #' \code{epid_dataset} is included in the output. This has the source of every event in each episode.

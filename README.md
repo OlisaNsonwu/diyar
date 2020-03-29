@@ -74,18 +74,30 @@ db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_lengt
                               group_stats = TRUE)
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 db[c("f_epid","r_epid")]
-#>                                  f_epid                             r_epid
-#> 1  E-01 2018-04-01 -> 2018-04-13 (C-01) E-1 2018-04-01 -> 2018-05-31 (C-1)
-#> 2  E-01 2018-04-01 -> 2018-04-13 (D-01) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#> 3  E-01 2018-04-01 -> 2018-04-13 (D-01) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#> 4  E-04 2018-04-19 -> 2018-05-01 (C-04) E-1 2018-04-01 -> 2018-05-31 (R-1)
-#> 5  E-04 2018-04-19 -> 2018-05-01 (D-04) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#> 6  E-04 2018-04-19 -> 2018-05-01 (D-04) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#> 7  E-07 2018-05-07 -> 2018-05-19 (C-07) E-1 2018-04-01 -> 2018-05-31 (D-1)
-#> 8  E-07 2018-05-07 -> 2018-05-19 (D-07) E-1 2018-04-01 -> 2018-05-31 (D-7)
-#> 9  E-07 2018-05-07 -> 2018-05-19 (D-07) E-1 2018-04-01 -> 2018-05-31 (D-7)
-#> 10 E-10 2018-05-25 -> 2018-05-31 (C-10) E-1 2018-04-01 -> 2018-05-31 (D-7)
-#> 11 E-10 2018-05-25 -> 2018-05-31 (D-10) E-1 2018-04-01 -> 2018-05-31 (D-7)
+#>                                    f_epid
+#> 1  E.01 2018-04-01 -> 2018-04-13 (C) C.01
+#> 2  E.01 2018-04-01 -> 2018-04-13 (D) C.01
+#> 3  E.01 2018-04-01 -> 2018-04-13 (D) C.01
+#> 4  E.04 2018-04-19 -> 2018-05-01 (C) C.04
+#> 5  E.04 2018-04-19 -> 2018-05-01 (D) C.04
+#> 6  E.04 2018-04-19 -> 2018-05-01 (D) C.04
+#> 7  E.07 2018-05-07 -> 2018-05-19 (C) C.07
+#> 8  E.07 2018-05-07 -> 2018-05-19 (D) C.07
+#> 9  E.07 2018-05-07 -> 2018-05-19 (D) C.07
+#> 10 E.10 2018-05-25 -> 2018-05-31 (C) C.10
+#> 11 E.10 2018-05-25 -> 2018-05-31 (D) C.10
+#>                                  r_epid
+#> 1  E.1 2018-04-01 -> 2018-05-31 (C) C.1
+#> 2  E.1 2018-04-01 -> 2018-05-31 (D) C.1
+#> 3  E.1 2018-04-01 -> 2018-05-31 (D) C.1
+#> 4  E.1 2018-04-01 -> 2018-05-31 (R) R.1
+#> 5  E.1 2018-04-01 -> 2018-05-31 (D) R.1
+#> 6  E.1 2018-04-01 -> 2018-05-31 (D) R.1
+#> 7  E.1 2018-04-01 -> 2018-05-31 (D) R.1
+#> 8  E.1 2018-04-01 -> 2018-05-31 (D) R.7
+#> 9  E.1 2018-04-01 -> 2018-05-31 (D) R.7
+#> 10 E.1 2018-04-01 -> 2018-05-31 (D) R.7
+#> 11 E.1 2018-04-01 -> 2018-05-31 (D) R.7
 ```
 
 -   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***`pid` objects are now the default output. Use `to_s4` or `to_df()` to change this to a data.frames***
@@ -99,13 +111,13 @@ staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(fore
 #> Record grouping complete - 1 record(s) assigned a group unique ID.
 staff_records
 #>   r_id forename  surname sex    dataset       pids_a
-#> 1    1    James    Green   M Staff list P-1 (CRI 02)
-#> 2    2     <NA> Anderson   M Staff list P-2 (CRI 02)
-#> 3    3    Jamey    Green   M  Pay slips P-1 (CRI 02)
-#> 4    4              <NA>   F  Pay slips P-4 (No Hit)
-#> 5    5  Derrick Anderson   M Staff list P-2 (CRI 02)
-#> 6    6  Darrack Anderson   M  Pay slips P-2 (CRI 02)
-#> 7    7 Christie    Green   F Staff list P-1 (CRI 02)
+#> 1    1    James    Green   M Staff list P.1 (CRI 02)
+#> 2    2     <NA> Anderson   M Staff list P.2 (CRI 02)
+#> 3    3    Jamey    Green   M  Pay slips P.1 (CRI 02)
+#> 4    4              <NA>   F  Pay slips P.4 (No Hit)
+#> 5    5  Derrick Anderson   M Staff list P.2 (CRI 02)
+#> 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 02)
+#> 7    7 Christie    Green   F Staff list P.1 (CRI 02)
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!

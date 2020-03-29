@@ -34,7 +34,7 @@ Changes
 -   `case_length` and `recurrence_length` arguments in `episode_group` accepts negative numbers.
     -   negative "lengths" will collapse two periods into one, if the second one is within some days before the `end_point` of the first period.
         -   if the "lengths" are larger than the `number_line_width()`, both will be collapsed, if the second one is within some days (or any other `episode_unit`) before the `start_point()` of the first period.
--   cheatsheet updated
+-   cheat sheet updated
 
 Bug fixes
 ---------
