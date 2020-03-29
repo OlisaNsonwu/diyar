@@ -47,7 +47,6 @@
 #'
 #' @examples
 #' library(dplyr)
-#' library(tidyr)
 #'
 #' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
 #'                            stringsAsFactors = FALSE)
@@ -86,7 +85,7 @@
 #' staff_records
 #'
 #' # Add `sex` to the second stage (`cri`) to be more certain
-#' staff_records <- unite(staff_records, cri_2, c(surname, sex), sep ="-")
+#' staff_records$cri_2 <- paste0(staff_records$surname,"-", staff_records$sex)
 #' staff_records$pids_b <- record_group(staff_records, r_id, c(forename, cri_2),
 #'                                      data_source = dataset, display = FALSE, to_s4 = TRUE)
 #' staff_records

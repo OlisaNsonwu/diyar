@@ -85,7 +85,6 @@ As mentioned earlier, at each stage of record linkage, a `sub_criteria` can be u
 Below are examples of record linkage using different combinations of the same `criteria` and `sub_criteria`
 
 ```{r message=FALSE, warning=FALSE}
-library(tidyr)
 data(Opes); Opes
 
 # 1 stage linkage
