@@ -51,9 +51,7 @@ All `events` within the same `case_length` or `recurrence_length` form a `window
 The examples below demonstrate this difference with 4 events/records.
 
 ```{r message=FALSE, warning=FALSE}
-library(tidyr)
-library(diyar); library(lubridate);
-library(dplyr)
+library(diyar)
 
 # Events
 ds <- c("01/04/2019", "03/04/2019", "13/04/2019","16/04/2019")
@@ -389,7 +387,7 @@ Note that examples 1 and 3 results in the same number of `duplicates` (and `epis
 For a practical example, see a case definition where *E. coli* urinary tract infections (UTI) are considered precursors to *E. coli* bloodstream infections (BSI). This means that `episodes` need to be created in such a way that; if there are UTI and BSI records within the same `case_length`, the UTI record will be taken as the `case`. 
 
 ```{r message=FALSE, warning=FALSE}
-dbs <- infections_2[c("date","infx")]
+dbs <- diyar::infections_2[c("date","infx")]
 dbs$infx <- gsub("E. coli ","",dbs$infx)
 dbs$infx[c(2,5)] <- "UTI"
 
