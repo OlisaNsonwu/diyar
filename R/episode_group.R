@@ -970,7 +970,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
 
     dfp$dt_c <- (as.numeric(dfp$dt_a) + as.numeric(dfp$dt_z)) * .5
     dfp$event_length <- diyar::number_line(dfp$dt_a, dfp$dt_z)@.Data
-    dfp$p_ord <- order(-dfp$event_length, dfp$ord)
+    dfp$p_ord <- order(-dfp$event_length, -as.numeric(dfp$dt_a),  dfp$ord)
 
     mid_pts <- dfp$dt_c
     names(mid_pts) <- 1:length(mid_pts)
