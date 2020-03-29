@@ -502,7 +502,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # Chose the next reference event
     df$mrk_z <- paste0(df$case_nm, df$epid)
     df$tag <- ifelse(episode_type == "rolling" &
-                       (df$roll < rolls_max |(case_for_recurrence==T & df$roll < rolls_max+1) )&
+                       (df$roll < rolls_max |(case_for_recurrence==T & df$roll < rolls_max+1 & df$tr_tag != 1.6) )&
                        !(df$lr==1 & df$tr_tag %in% c(1, 1.5, 1.4, 1.6)) & df$case_nm %in% c("Duplicate","Recurrent"),
                      ifelse(grepl("^Duplicate",df$case_nm),
                             ifelse(df$case_nm =="Duplicate" & !duplicated(df$mrk_z, fromLast = T) &
