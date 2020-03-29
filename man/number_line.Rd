@@ -14,7 +14,6 @@
 \alias{expand_number_line}
 \alias{compress_number_line}
 \alias{number_line_sequence}
-\alias{plot_number_line}
 \title{Number line objects}
 \usage{
 number_line(l, r, id = NULL, gid = NULL)
@@ -45,8 +44,6 @@ compress_number_line(x, method = c("exact", "across", "chain",
   methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
 
 number_line_sequence(x, by = 1)
-
-plot_number_line(x)
 }
 \arguments{
 \item{l}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
@@ -96,7 +93,7 @@ The \code{direction} argument determines which type of \code{number_line} object
 
 \code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
 
-\code{compress_number_line()} - Collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
+\code{compress_number_line()} - collapses overlapping \code{number_line} objects into a new \code{number_line} objects that covers the start and end points of the originals.
 This results in duplicate \code{number_line} objects with start and end points of the new expanded \code{number_line} object.
 See \code{\link{overlap}} for further details on overlapping \code{number_line} objects.
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
@@ -104,8 +101,6 @@ If a familiar (but unique) \code{id} is used when creating the \code{number_line
 
 \code{number_line_sequence()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers. The sequence will also include the start and end points.
 The direction of the sequence will correspond to that of the \code{number_line} object.
-
-\code{plot_number_line()} visulaises \code{number_line} objects and how they've overlapped with each other.
 }
 \examples{
 library(lubridate)
@@ -166,10 +161,4 @@ number_line_sequence(number_line(5:1, 1:5), 1:5)
 nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
 number_line_sequence(c(nl, nl), c(duration(1.5,"days"), duration(12,"hours")))
 
-d <- c(number_line(1,5), number_line(1,2), number_line(2,3),
-number_line(4,7), number_line(4,5), number_line(1,5))
-diyar:::plot_number_line(d[c(1,6)])
-diyar:::plot_number_line(d[c(2,3)])
-diyar:::plot_number_line(d[c(1,3)])
-diyar:::plot_number_line(d[c(1:3)])
 }

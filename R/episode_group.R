@@ -858,15 +858,15 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
 }
 
-#' @rdname episode_group
-#' @param epid \code{epid} object
-#' @details
-#' \code{plot_epid()} visulaises how an episode has been created. It works backwards, using the episode (\code{epid}) and corresponding
-#'  \code{date}, \code{case_length} and \code{recurrence_length} to show why/how events or event periods have been grouped in each episode.
-#'  This is then shown on a plots (one per \code{strata}) captured in an \code{R} object (\code{list} is there are multiple plots).
-#'  The plots can then be saved and shared.
-#'  \code{date}, \code{case_length} and \code{recurrence_length} must match those used in creating \code{epid} otherwise, the plot will not reflect what actually happened.
-#'
+# @rdname episode_group
+# @param epid \code{epid} object
+# @details
+# \code{plot_epid()} visulaises how an episode has been created. It works backwards, using the episode (\code{epid}) and corresponding
+#  \code{date}, \code{case_length} and \code{recurrence_length} to show why/how events or event periods have been grouped in each episode.
+#  This is then shown on a plots (one per \code{strata}) captured in an \code{R} object (\code{list} is there are multiple plots).
+#  The plots can then be saved and shared.
+#  \code{date}, \code{case_length} and \code{recurrence_length} must match those used in creating \code{epid} otherwise, the plot will not reflect what actually happened.
+#
 plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recurrence_length = NULL, from_last=FALSE){
   if(!(length(epid) == length(date) | is.null(date))) stop(paste0("lenght(epid) should be equal to length(date)"))
   if(!(length(case_length) %in% c(1, length(epid)) | (length(case_length) ==0 & is.null(case_length)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
