@@ -1083,7 +1083,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
         # Surpressed warning from 0 length arrows
         suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$dt[i], x1 = cl$end_dt[i], col ="white"))
 
-        if(i == nrow(cl) & i != 1 & dfp$dt_z[nrow(dfp)] < cl$end_dt[i]) x_pos <- if_else(from_last ==T, cl$dt[i] + (scale_fac * 0.5), cl$dt[i] - (scale_fac * 0.5))
+        if(i == nrow(cl) & i != 1 & cl$end_dt[i] > xlims[2]) x_pos <- if_else(from_last ==T, cl$dt[i] + (scale_fac * 0.5), cl$dt[i] - (scale_fac * 0.5))
         else x_pos <- mean(c(cl$dt[i], cl$end_dt[i]))
 
         graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=x_pos, labels = cl$lab[i], col ="white", adj =c(0.5 ,0))
@@ -1109,12 +1109,12 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
 
       rl$dt2 <- as.numeric(rl$dt_a)
       rl$end_dt2 <- as.numeric(rl$dt2 - ifelse(from_last==F, rl$r, -rl$r))
-      rl$lab <- paste0("Recurrence length\n(",rl$c,"-day\ndifference)")
+      rl$lab <- paste0("Recurrence length\n(",rl$r,"-day\ndifference)")
 
       for(i in 1:nrow(rl)){
         # Surpressed warning from 0 length arrows
 
-        if(i == nrow(rl) & i != 1 & dfp$dt_z[nrow(dfp)] < rl$end_dt[i]) x_pos <- if_else(from_last ==T, rl$dt[i] + (scale_fac * 0.5), rl$dt[i] - (scale_fac * 0.5))
+        if(i == nrow(rl) & i != 1 & rl$end_dt[i] > xlims[2]) x_pos <- if_else(from_last ==T, rl$dt[i] + (scale_fac * 0.5), rl$dt[i] - (scale_fac * 0.5))
         else x_pos <- mean(c(rl$dt[i], rl$end_dt[i]))
 
         suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = rl$dt[i], x1 = rl$end_dt[i], lty=2, col ="white"))
