@@ -371,9 +371,8 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 #  The plots can then be saved and shared.
 #
 plot_pid <- function(pid, strata = FALSE){
-  #pids_df <- to_df(pids)
+  pids_df <- to_df(pid)
   pids_df <- pid
-  #pids_df$link_id <- c(1,1, 3,3,4)
 
   network <- function(pids_df){
     # criteria order
@@ -436,7 +435,7 @@ plot_pid <- function(pid, strata = FALSE){
     )
 
     pids_df2 <- pids_df2[pids_df2$link_id!=pids_df2$sn, ]
-    arrows(length=0.1,angle=20, x0 =  pids_df2$x.y+.5, y0=pids_df2$y.y, x1 = pids_df2$x.x -.5, y1 = pids_df2$y.x, col = pids_df2$p_cols)
+    graphics::arrows(length=0.1,angle=20, x0 =  pids_df2$x.y+.5, y0=pids_df2$y.y, x1 = pids_df2$x.x -.5, y1 = pids_df2$y.x, col = pids_df2$p_cols)
 
     # criteria boxes
     x_max <- lapply(split(pids_df$x, pids_df$pid_cri), max)
