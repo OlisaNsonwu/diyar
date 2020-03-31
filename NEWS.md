@@ -17,7 +17,7 @@ New features
 Changes
 -------
 
--   overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. Eg.
+-   overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. E.g.
     -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap only
     -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
 -   Output for `number_line_sequence()` is now a `list`.

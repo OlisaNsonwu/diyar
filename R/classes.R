@@ -265,7 +265,7 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 #' @importFrom "methods" "new"
 #' @importFrom "utils" "head"
 #' @export
-setClass("pid", contains = "numeric", representation(sn = "numeric", pid_cri= "numeric",
+setClass("pid", contains = "numeric", representation(sn = "numeric", pid_cri= "numeric", link_id = "numeric",
                                                      pid_dataset ="character", pid_total = "numeric"))
 
 #' @rdname pid-class
@@ -277,7 +277,7 @@ as.pid <- function(x, ...){
   if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `pid``  object",sep=""))
 
   x[!is.finite(as.numeric(x))] <- NA
-  x <- methods::new("pid", .Data = as.numeric(x), sn = 1:length(x), pid_cri = rep(NA_real_, length(x)),
+  x <- methods::new("pid", .Data = as.numeric(x), sn = 1:length(x), pid_cri = rep(NA_real_, length(x)), link_id = rep(NA_real_, length(x)),
                     pid_total = rep(NA_real_, length(x)), pid_dataset = rep(NA_character_, length(x)))
   return(x)
 }
@@ -310,7 +310,7 @@ setMethod("show", signature(object="pid"), function(object){
 #' @param x x
 #' @param ... ...
 setMethod("rep", signature(x = "pid"), function(x, ...) {
-  methods::new("pid", rep(x@.Data, ...), sn = rep(x@sn, ...), pid_total = rep(x@pid_total, ...),
+  methods::new("pid", rep(x@.Data, ...), sn = rep(x@sn, ...), pid_total = rep(x@pid_total, ...), link_id = rep(x@link_id, ...),
                pid_dataset = rep(x@pid_dataset, ...), pid_cri = rep(x@pid_cri, ...))
 })
 
@@ -321,7 +321,7 @@ setMethod("rep", signature(x = "pid"), function(x, ...) {
 #' @param drop drop
 setMethod("[", signature(x = "pid"),
           function(x, i, j, ..., drop = TRUE) {
-            methods::new("pid", x@.Data[i], pid_cri = x@pid_cri[i], sn = x@sn[i],
+            methods::new("pid", x@.Data[i], pid_cri = x@pid_cri[i], sn = x@sn[i], link_id = x@link_id[i],
                          pid_total = x@pid_total[i], pid_dataset = x@pid_dataset[i])
           })
 
@@ -330,7 +330,7 @@ setMethod("[", signature(x = "pid"),
 #' @param exact exact
 setMethod("[[", signature(x = "pid"),
           function(x, i, j, ..., exact = TRUE) {
-            methods::new("pid", x@.Data[i], pid_cri = x@pid_cri[i], sn = x@sn[i],
+            methods::new("pid", x@.Data[i], pid_cri = x@pid_cri[i], sn = x@sn[i], link_id = x@link_id[i],
                          pid_total = x@pid_total[i], pid_dataset = x@pid_dataset[i])
           })
 
@@ -339,11 +339,12 @@ setMethod("c", signature(x = "pid"), function(x,...) {
 
   sn <- unlist(lapply(list(x, ...), function(y) y@sn))
   pid_cri <- unlist(lapply(list(x, ...), function(y) y@pid_cri))
+  link_id <- unlist(lapply(list(x, ...), function(y) y@link_id))
   pid_total <- unlist(lapply(list(x, ...), function(y) y@pid_total))
   pid_dataset <- unlist(lapply(list(x, ...), function(y) y@pid_dataset))
   zi <- unlist(list(x, ...))
 
   methods::new("pid", zi, pid_cri = pid_cri, sn = sn,
-               pid_total = pid_total, pid_dataset = pid_dataset)
+               pid_total = pid_total, pid_dataset = pid_dataset, link_id = link_id)
 
 })

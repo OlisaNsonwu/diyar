@@ -78,7 +78,7 @@
     <div class="page-header toc-ignore">
       <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">29 March 2020</h4>
+            <h4 class="date">31 March 2020</h4>
       
       
       <div class="hidden name"><code>record_group.Rmd</code></div>
@@ -111,26 +111,24 @@
 <div id="implementation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#implementation" class="anchor"></a>Implementation</h1>
-<p>Record linkage is done in stages. A match at each stage is considered more relevant than matches at subsequent stages. Matching records are assigned a unique group ID. The group ID is essentially a record ID (<code>sn</code>) of one of the matching records. Therefore, using a familiar record ID (<code>sn</code>) allows you to link the results back to the original dataset.</p>
+<p>Record linkage is done in stages. A match at each stage is considered more relevant than matches at subsequent stages. Matching records are assigned a unique group ID. The group ID is essentially a record ID (<code>sn</code>) of one of the matching records. Therefore, a familiar record ID (<code>sn</code>) can prove useful.</p>
 <p>Each stage has a matching <code>criteria</code> (column). These are passed to the function as column names. The argument supports quasiquotation.</p>
-<p><code>sub_criteria</code> are additional matching conditions (columns) that can be paired with each <code>criteria</code>. This is provided as a <code>list</code> of named <code>vectors</code>. Each named <code>vector</code> contains a set of column names. When a <code>sub_criteria</code> is used, records will only be assigned a group ID when they match on the <code>criteria</code>, and at least one named column in each <code>sub_criteria</code>.</p>
+<p><code>sub_criteria</code> are additional matching conditions (columns) that can be paired with each <code>criteria</code>. This is provided as a <code>list</code> of named <code>vectors</code>. Each named <code>vector</code> contains a set of column names. When a <code>sub_criteria</code> is used, records will only be assigned to the same group ID if they match on the <code>criteria</code>, and at least one named column in each <code>sub_criteria</code>.</p>
 <p>Each <code>sub_criteria</code> should be paired with a corresponding <code>criteria</code>. To do this, the vector name for each <code>sub_criteria</code> should be - <code>"s"</code> followed by the corresponding <code>criteria</code> number e.g. <code>"s1"</code> or <code>"s4"</code>. When a <code>criteria</code> is paired to more than one <code>sub_criteria</code>, include a suffix after the <code>criteria</code> number e.g. <code>"s1a"</code>, <code>"s1b"</code> and <code>"s1c"</code> (<a href="#sub_cri_example">See examples</a>). Any <code>sub_criteria</code> not paired with a <code>criteria</code> will be ignored. The <code>sub_criteria</code> argument does not support quasiquotation.</p>
-<p>At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record. <strong><em>NOTE; <code>to_s4</code> and <code><a href="../reference/to_s4.html">to_s4()</a></code> changes the function’s output from a data.frame (current default) to <code>pid</code> objects. <code>pid</code> objects will be the default output in the next release.</em></strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar); <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(dplyr)
+<p>At each stage, the function prints the number of records that were assigned a group ID and how many groups have only one record.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar);
 <span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(patient_list); 
 dbs &lt;-<span class="st"> </span>patient_list[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"sex"</span>)]; dbs
-<span class="co">#&gt; # A tibble: 6 x 3</span>
-<span class="co">#&gt;   forename surname sex  </span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;</span>
-<span class="co">#&gt; 1 James    Green   M    </span>
-<span class="co">#&gt; 2 ESTHER   Kulmar  F    </span>
-<span class="co">#&gt; 3 ""       OBI     F    </span>
-<span class="co">#&gt; 4 Jamey    Green   M    </span>
-<span class="co">#&gt; 5 Daniel   Kulmar  M    </span>
-<span class="co">#&gt; 6 Henry    OBI     M</span>
+<span class="co">#&gt;   forename surname sex</span>
+<span class="co">#&gt; 1    James   Green   M</span>
+<span class="co">#&gt; 2   ESTHER  Kulmar   F</span>
+<span class="co">#&gt; 3              OBI   F</span>
+<span class="co">#&gt; 4    Jamey   Green   M</span>
+<span class="co">#&gt; 5   Daniel  Kulmar   M</span>
+<span class="co">#&gt; 6    Henry     OBI   M</span>
 
 <span class="co"># 1 stage &lt;- Matching surname only</span>
-dbs<span class="op">$</span>pids_a &lt;-<span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span> surname, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+dbs<span class="op">$</span>pids_a &lt;-<span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span> surname, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Group criteria 1 - `surname`</span>
 <span class="co">#&gt; 6 of 6 record(s) have been assigned a group ID. 0 record(s) not yet grouped.</span>
@@ -139,101 +137,89 @@ dbs<span class="op">$</span>pids_a &lt;-<span class="kw"><a href="../reference/r
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 <span class="co"># 2 stage - Matching surname, then matching sex</span>
-dbs<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(surname, sex), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+dbs<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(surname, sex), <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 dbs
-<span class="co">#&gt; # A tibble: 6 x 5</span>
-<span class="co">#&gt;   forename surname sex   pids_a       pids_b      </span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 James    Green   M     P.1 (CRI 01) P.1 (CRI 01)</span>
-<span class="co">#&gt; 2 ESTHER   Kulmar  F     P.2 (CRI 01) P.2 (CRI 01)</span>
-<span class="co">#&gt; 3 ""       OBI     F     P.3 (CRI 01) P.3 (CRI 01)</span>
-<span class="co">#&gt; 4 Jamey    Green   M     P.1 (CRI 01) P.1 (CRI 01)</span>
-<span class="co">#&gt; 5 Daniel   Kulmar  M     P.2 (CRI 01) P.2 (CRI 01)</span>
-<span class="co">#&gt; 6 Henry    OBI     M     P.3 (CRI 01) P.3 (CRI 01)</span>
+<span class="co">#&gt;   forename surname sex       pids_a       pids_b</span>
+<span class="co">#&gt; 1    James   Green   M P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 2   ESTHER  Kulmar   F P.2 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 3              OBI   F P.3 (CRI 01) P.3 (CRI 01)</span>
+<span class="co">#&gt; 4    Jamey   Green   M P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 5   Daniel  Kulmar   M P.2 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 6    Henry     OBI   M P.3 (CRI 01) P.3 (CRI 01)</span>
 <span class="co"># Note that exact matching is case sensitive. See range matching.</span></code></pre></div>
 <p><a id="record_matching"></a></p>
 <div id="record-matching" class="section level2">
 <h2 class="hasAnchor">
 <a href="#record-matching" class="anchor"></a>Record matching</h2>
 <p>The choice and ordering of column names in <code>criteria</code> and <code>sub_criteria</code> determines the relevance of matches. This flexibility allows you to link records in different ways. However, you should always consider the most practical combination to get more true matches than false one.</p>
-<p>For example, in <code>patient_list</code> above, linking on surnames and then sex (<code>pid_b</code>) leads to a different result compared to when linking on sex before surnames (<code>pid_c</code>) (See <a href="#record_expansion">Record group expansion</a>). In <code>pid_b</code>, a match on the individual’s surname was considered more relevant than a match on their sex. The opposite can be done like in <code>pid_c</code> below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span>  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(sex, surname), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+<p>For example, in <code>patient_list</code> above, linking on surnames and then sex (<code>pid_b</code>) leads to a different result compared to when linking on sex before surnames (<code>pid_c</code>) (See <a href="#record_expansion">Record group expansion</a>). In <code>pid_b</code>, a match on the individual’s surname was considered more relevant than a match on their sex. The opposite was the case for <code>pid_c</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">criteria =</span>  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(sex, surname), <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 dbs
-<span class="co">#&gt; # A tibble: 6 x 6</span>
-<span class="co">#&gt;   forename surname sex   pids_a       pids_b       pids_c      </span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;pid&gt;        &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 James    Green   M     P.1 (CRI 01) P.1 (CRI 01) P.1 (CRI 01)</span>
-<span class="co">#&gt; 2 ESTHER   Kulmar  F     P.2 (CRI 01) P.2 (CRI 01) P.2 (CRI 01)</span>
-<span class="co">#&gt; 3 ""       OBI     F     P.3 (CRI 01) P.3 (CRI 01) P.2 (CRI 01)</span>
-<span class="co">#&gt; 4 Jamey    Green   M     P.1 (CRI 01) P.1 (CRI 01) P.1 (CRI 01)</span>
-<span class="co">#&gt; 5 Daniel   Kulmar  M     P.2 (CRI 01) P.2 (CRI 01) P.1 (CRI 01)</span>
-<span class="co">#&gt; 6 Henry    OBI     M     P.3 (CRI 01) P.3 (CRI 01) P.1 (CRI 01)</span></code></pre></div>
-<p>Both result are logically correct considering the <code>criteria</code> used however, <code>pids_b</code> is not the most practical option given the dataset. For instance, records 3 and 6 which have been grouped together could actually be cousins not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See <code>pid_d</code> below;</p>
+<span class="co">#&gt;   forename surname sex       pids_a       pids_b       pids_c</span>
+<span class="co">#&gt; 1    James   Green   M P.1 (CRI 01) P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 2   ESTHER  Kulmar   F P.2 (CRI 01) P.2 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 3              OBI   F P.3 (CRI 01) P.3 (CRI 01) P.2 (CRI 01)</span>
+<span class="co">#&gt; 4    Jamey   Green   M P.1 (CRI 01) P.1 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 5   Daniel  Kulmar   M P.2 (CRI 01) P.2 (CRI 01) P.1 (CRI 01)</span>
+<span class="co">#&gt; 6    Henry     OBI   M P.3 (CRI 01) P.3 (CRI 01) P.1 (CRI 01)</span></code></pre></div>
+<p>Considering the <code>criteria</code> used for each, both results are logically correct but <code>pids_b</code> is not the most practical option given the dataset. For instance, records 3 and 6 which have been grouped together could actually be cousins not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See <code>pid_d</code> below;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs_<span class="dv">2</span> &lt;-<span class="st"> </span>patient_list; dbs_<span class="dv">2</span>
-<span class="co">#&gt; # A tibble: 6 x 4</span>
-<span class="co">#&gt;   rd_id forename surname sex  </span>
-<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt;</span>
-<span class="co">#&gt; 1     1 James    Green   M    </span>
-<span class="co">#&gt; 2     2 ESTHER   Kulmar  F    </span>
-<span class="co">#&gt; 3     3 ""       OBI     F    </span>
-<span class="co">#&gt; 4     4 Jamey    Green   M    </span>
-<span class="co">#&gt; 5     5 Daniel   Kulmar  M    </span>
-<span class="co">#&gt; 6     6 Henry    OBI     M</span>
+<span class="co">#&gt;   rd_id forename surname sex</span>
+<span class="co">#&gt; 1     1    James   Green   M</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F</span>
+<span class="co">#&gt; 3     3              OBI   F</span>
+<span class="co">#&gt; 4     4    Jamey   Green   M</span>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M</span>
 
 dbs_<span class="dv">2</span><span class="op">$</span>cri_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/paste">paste</a></span>(dbs_<span class="dv">2</span><span class="op">$</span>surname, dbs_<span class="dv">2</span><span class="op">$</span>sex,<span class="dt">sep=</span><span class="st">"-"</span>)
-dbs_<span class="dv">2</span><span class="op">$</span>pid_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, cri_<span class="dv">2</span>), <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+dbs_<span class="dv">2</span><span class="op">$</span>pid_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, cri_<span class="dv">2</span>), <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 4 record(s) assigned a group unique ID.</span>
 
 dbs_<span class="dv">2</span>
-<span class="co">#&gt; # A tibble: 6 x 6</span>
-<span class="co">#&gt;   rd_id forename surname sex   cri_2    pid_d       </span>
-<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;   &lt;chr&gt; &lt;chr&gt;    &lt;pid&gt;       </span>
-<span class="co">#&gt; 1     1 James    Green   M     Green-M  P.1 (CRI 02)</span>
-<span class="co">#&gt; 2     2 ESTHER   Kulmar  F     Kulmar-F P.2 (No Hit)</span>
-<span class="co">#&gt; 3     3 ""       OBI     F     OBI-F    P.3 (No Hit)</span>
-<span class="co">#&gt; 4     4 Jamey    Green   M     Green-M  P.1 (CRI 02)</span>
-<span class="co">#&gt; 5     5 Daniel   Kulmar  M     Kulmar-M P.5 (No Hit)</span>
-<span class="co">#&gt; 6     6 Henry    OBI     M     OBI-M    P.6 (No Hit)</span></code></pre></div>
+<span class="co">#&gt;   rd_id forename surname sex    cri_2        pid_d</span>
+<span class="co">#&gt; 1     1    James   Green   M  Green-M P.1 (CRI 02)</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F Kulmar-F P.2 (No Hit)</span>
+<span class="co">#&gt; 3     3              OBI   F    OBI-F P.3 (No Hit)</span>
+<span class="co">#&gt; 4     4    Jamey   Green   M  Green-M P.1 (CRI 02)</span>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M Kulmar-M P.5 (No Hit)</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M    OBI-M P.6 (No Hit)</span></code></pre></div>
 <p>As mentioned earlier, at each stage of record linkage, a <code>sub_criteria</code> can be used for additional matching conditions. Just like <code>criteria</code>, any column in the dataset can be used as a <code>sub_criteria</code>.</p>
 <p><a id="sub_cri_example"></a></p>
 <p>Below are examples of record linkage using different combinations of the same <code>criteria</code> and <code>sub_criteria</code></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(Opes); Opes
-<span class="co">#&gt; # A tibble: 8 x 8</span>
-<span class="co">#&gt;   rd_id name  department  hair_colour date_of_birth db_pt1 db_pt2  db_pt3 </span>
-<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;chr&gt;  &lt;chr&gt;   &lt;chr&gt;  </span>
-<span class="co">#&gt; 1     1 Ope   Procurement Brown       23/03/1986    23/03  23/1986 03/1986</span>
-<span class="co">#&gt; 2     2 Ope   Security    Brown       23/03/1986    23/03  23/1986 03/1986</span>
-<span class="co">#&gt; 3     3 Ope   Security    Brown       23/03/1968    23/03  23/1968 03/1968</span>
-<span class="co">#&gt; 4     4 Ope   Publishing  Green       01/02/1985    01/02  01/1985 02/1985</span>
-<span class="co">#&gt; 5     5 Ope   Publishing  Teal        02/01/1985    02/01  02/1985 01/1985</span>
-<span class="co">#&gt; 6     6 Ope   Publishing  Grey        11/03/1964    11/03  11/1964 03/1964</span>
-<span class="co">#&gt; 7     7 Ope   Publishing  White       11/03/1964    11/03  11/1964 03/1964</span>
-<span class="co">#&gt; 8     8 Ope   Procurement Black       11/10/1985    11/10  11/1985 10/1985</span>
+<span class="co">#&gt;   rd_id name  department hair_colour date_of_birth db_pt1  db_pt2  db_pt3</span>
+<span class="co">#&gt; 1     1  Ope Procurement       Brown    23/03/1986  23/03 23/1986 03/1986</span>
+<span class="co">#&gt; 2     2  Ope    Security       Brown    23/03/1986  23/03 23/1986 03/1986</span>
+<span class="co">#&gt; 3     3  Ope    Security       Brown    23/03/1968  23/03 23/1968 03/1968</span>
+<span class="co">#&gt; 4     4  Ope  Publishing       Green    01/02/1985  01/02 01/1985 02/1985</span>
+<span class="co">#&gt; 5     5  Ope  Publishing        Teal    02/01/1985  02/01 02/1985 01/1985</span>
+<span class="co">#&gt; 6     6  Ope  Publishing        Grey    11/03/1964  11/03 11/1964 03/1964</span>
+<span class="co">#&gt; 7     7  Ope  Publishing       White    11/03/1964  11/03 11/1964 03/1964</span>
+<span class="co">#&gt; 8     8  Ope Procurement       Black    11/10/1985  11/10 11/1985 10/1985</span>
 
 <span class="co"># 1 stage linkage</span>
   <span class="co"># stage 1 - name AND (department OR hair_colour OR date_of_birth)</span>
 Opes<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteria =</span> name, 
                             <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
                               <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>)),
-                            <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+                            <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_a"</span>)]
-<span class="co">#&gt; # A tibble: 8 x 5</span>
-<span class="co">#&gt;   name  department  hair_colour date_of_birth pids_a      </span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (CRI 01)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.1 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.1 (CRI 01)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (CRI 01)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.4 (CRI 01)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.4 (CRI 01)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.4 (CRI 01)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.1 (CRI 01)</span>
+<span class="co">#&gt;   name  department hair_colour date_of_birth       pids_a</span>
+<span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (CRI 01)</span>
+<span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.1 (CRI 01)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.1 (CRI 01)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (CRI 01)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.4 (CRI 01)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.4 (CRI 01)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.4 (CRI 01)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.1 (CRI 01)</span>
   
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department OR hair_colour) AND (date_of_birth)) </span>
@@ -241,21 +227,19 @@ Opes<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="k
                             <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
                               <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>),
                               <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>)),
-                            <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+                            <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 4 record(s) assigned a group unique ID.</span>
 
 Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_b"</span>)]
-<span class="co">#&gt; # A tibble: 8 x 5</span>
-<span class="co">#&gt;   name  department  hair_colour date_of_birth pids_b      </span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (CRI 01)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.1 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.3 (No Hit)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (CRI 01)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.6 (CRI 01)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit)</span>
+<span class="co">#&gt;   name  department hair_colour date_of_birth       pids_b</span>
+<span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (CRI 01)</span>
+<span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.1 (CRI 01)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.3 (No Hit)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (No Hit)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.5 (No Hit)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.6 (CRI 01)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.6 (CRI 01)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.8 (No Hit)</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department OR hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
@@ -263,21 +247,19 @@ Opes<span class="op">$</span>pids_c &lt;-<span class="st"> </span><span class="k
                             <span class="dt">sub_criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(
                               <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>,<span class="st">"hair_colour"</span>),
                               <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),
-                            <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
+                            <span class="dt">display =</span> F, <span class="dt">to_s4 =</span>T)
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
 
 Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_c"</span>)]
-<span class="co">#&gt; # A tibble: 8 x 5</span>
-<span class="co">#&gt;   name  department  hair_colour date_of_birth pids_c      </span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (CRI 01)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.1 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.1 (CRI 01)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (CRI 01)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.6 (CRI 01)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit)</span>
+<span class="co">#&gt;   name  department hair_colour date_of_birth       pids_c</span>
+<span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (CRI 01)</span>
+<span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.1 (CRI 01)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.1 (CRI 01)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (No Hit)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.5 (No Hit)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.6 (CRI 01)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.6 (CRI 01)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.8 (No Hit)</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
@@ -286,21 +268,19 @@ Opes<span class="op">$</span>pids_d &lt;-<span class="st"> </span><span class="k
                  <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>),
                  <span class="st">"s1c"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"hair_colour"</span>),
                  <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"db_pt1"</span>,<span class="st">"db_pt2"</span>,<span class="st">"db_pt3"</span>)),  
-               <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+               <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 6 record(s) assigned a group unique ID.</span>
 
 Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_d"</span>)]
-<span class="co">#&gt; # A tibble: 8 x 5</span>
-<span class="co">#&gt;   name  department  hair_colour date_of_birth pids_d      </span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (No Hit)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.2 (CRI 01)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.2 (CRI 01)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (No Hit)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.7 (No Hit)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit)</span></code></pre></div>
+<span class="co">#&gt;   name  department hair_colour date_of_birth       pids_d</span>
+<span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (No Hit)</span>
+<span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.2 (CRI 01)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.2 (CRI 01)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (No Hit)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.5 (No Hit)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.6 (No Hit)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.7 (No Hit)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.8 (No Hit)</span></code></pre></div>
 <p>Note that using <code>sub_criteria</code> costs additional processing time, so it should be avoided when not needed. For example, the two implementations below (<code>pids_e</code> and <code>pids_f</code>) will lead to the same outcome but <code>pids_f</code> will take less time.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (date_of_birth))</span>
@@ -309,7 +289,7 @@ Opes<span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="k
                               <span class="st">"s1a"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"department"</span>), 
                               <span class="st">"s1b"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"hair_colour"</span>), 
                               <span class="st">"s1c"</span>=<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>)),
-                            <span class="dt">display =</span> <span class="ot">TRUE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+                            <span class="dt">display =</span> T, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Group criteria 1 - `name`</span>
 <span class="co">#&gt; Matching criteria 1: iteration 2</span>
@@ -328,7 +308,7 @@ Opes<span class="op">$</span>cri &lt;-<span class="st"> </span><span class="kw">
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND department AND hair_colour AND date_of_birth</span>
-Opes<span class="op">$</span>pids_f &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteria =</span> cri,  <span class="dt">display =</span> <span class="ot">TRUE</span>, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
+Opes<span class="op">$</span>pids_f &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes, <span class="dt">criteria =</span> cri,  <span class="dt">display =</span> T, <span class="dt">to_s4 =</span>T)
 <span class="co">#&gt; </span>
 <span class="co">#&gt; Group criteria 1 - `cri`</span>
 <span class="co">#&gt; 8 of 8 record(s) have been assigned a group ID. 0 record(s) not yet grouped.</span>
@@ -337,95 +317,16 @@ Opes<span class="op">$</span>pids_f &lt;-<span class="st"> </span><span class="k
 <span class="co">#&gt; Record grouping complete - 8 record(s) assigned a group unique ID.</span>
 
 Opes[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_e"</span>,<span class="st">"pids_f"</span>)]
-<span class="co">#&gt; # A tibble: 8 x 6</span>
-<span class="co">#&gt;   name  department  hair_colour date_of_birth pids_e       pids_f      </span>
-<span class="co">#&gt;   &lt;chr&gt; &lt;chr&gt;       &lt;chr&gt;       &lt;chr&gt;         &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Ope   Procurement Brown       23/03/1986    P.1 (No Hit) P.1 (No Hit)</span>
-<span class="co">#&gt; 2 Ope   Security    Brown       23/03/1986    P.2 (No Hit) P.2 (No Hit)</span>
-<span class="co">#&gt; 3 Ope   Security    Brown       23/03/1968    P.3 (No Hit) P.3 (No Hit)</span>
-<span class="co">#&gt; 4 Ope   Publishing  Green       01/02/1985    P.4 (No Hit) P.4 (No Hit)</span>
-<span class="co">#&gt; 5 Ope   Publishing  Teal        02/01/1985    P.5 (No Hit) P.5 (No Hit)</span>
-<span class="co">#&gt; 6 Ope   Publishing  Grey        11/03/1964    P.6 (No Hit) P.6 (No Hit)</span>
-<span class="co">#&gt; 7 Ope   Publishing  White       11/03/1964    P.7 (No Hit) P.7 (No Hit)</span>
-<span class="co">#&gt; 8 Ope   Procurement Black       11/10/1985    P.8 (No Hit) P.8 (No Hit)</span></code></pre></div>
-<div id="range-matching" class="section level3">
-<h3 class="hasAnchor">
-<a href="#range-matching" class="anchor"></a>Range matching</h3>
-<p>Records can be matched in two ways - exact matches as in the examples above, or range matching. In range matching, records are matched if the value in one record are within a range of values in another. To do this, convert each value to the required range using <code><a href="../reference/number_line.html">number_line()</a></code>. Then assign the actual value to the <code>gid</code> slot of the resulting <code>number_line</code> object. The <code>number_line</code> object can then be used as a <code>criteria</code> or <code>sub_criteria</code>. <code>number_line</code> objects are considered a match if they overlap. See the examples below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(lubridate)
-Opes_c &lt;-<span class="st"> </span>Opes[<span class="st">"date_of_birth"</span>]
-Opes_c
-<span class="co">#&gt; # A tibble: 8 x 1</span>
-<span class="co">#&gt;   date_of_birth</span>
-<span class="co">#&gt;   &lt;chr&gt;        </span>
-<span class="co">#&gt; 1 23/03/1986   </span>
-<span class="co">#&gt; 2 23/03/1986   </span>
-<span class="co">#&gt; 3 23/03/1968   </span>
-<span class="co">#&gt; 4 01/02/1985   </span>
-<span class="co">#&gt; 5 02/01/1985   </span>
-<span class="co">#&gt; 6 11/03/1964   </span>
-<span class="co">#&gt; 7 11/03/1964   </span>
-<span class="co">#&gt; 8 11/10/1985</span>
-
-<span class="co"># Match on date of birth + 2 years</span>
-Opes_c<span class="op">$</span>date_of_birth &lt;-<span class="st"> </span><span class="kw">dmy</span>(Opes_c<span class="op">$</span>date_of_birth)
-Opes_c<span class="op">$</span>range_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="kw"><a href="../reference/number_line.html">as.number_line</a></span>(Opes_c<span class="op">$</span>date_of_birth), <span class="kw">period</span>(<span class="dv">2</span>, <span class="st">"years"</span>), <span class="st">"end"</span>)
-Opes_c<span class="op">$</span>range_a<span class="op">@</span>gid &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(Opes_c<span class="op">$</span>date_of_birth)
-
-Opes_c<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes_c, <span class="dt">criteria =</span> range_a, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Group criteria 1 - `dmvr_d1`</span>
-<span class="co">#&gt; Matching criteria 1: iteration 2</span>
-<span class="co">#&gt; Matching criteria 1: iteration 3</span>
-<span class="co">#&gt; Matching criteria 1: iteration 4</span>
-<span class="co">#&gt; Matching criteria 1: iteration 5</span>
-<span class="co">#&gt; Matching criteria 1: iteration 6</span>
-<span class="co">#&gt; 8 of 8 record(s) have been assigned a group ID. 0 record(s) not yet grouped.</span>
-<span class="co">#&gt; 4 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 4.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Record grouping complete - 4 record(s) assigned a group unique ID.</span>
-
-Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>,<span class="st">"range_a"</span>,<span class="st">"pids_a"</span>)]
-<span class="co">#&gt; # A tibble: 8 x 3</span>
-<span class="co">#&gt;   date_of_birth range_a                  pids_a      </span>
-<span class="co">#&gt;   &lt;date&gt;        &lt;numbr_ln&gt;               &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 1986-03-23    1986-03-23 == 1986-03-23 P.1 (CRI 01)</span>
-<span class="co">#&gt; 2 1986-03-23    1986-03-23 == 1986-03-23 P.1 (CRI 01)</span>
-<span class="co">#&gt; 3 1968-03-23    1968-03-23 == 1968-03-23 P.3 (No Hit)</span>
-<span class="co">#&gt; 4 1985-02-01    1985-02-01 == 1985-02-01 P.4 (No Hit)</span>
-<span class="co">#&gt; 5 1985-01-02    1985-01-02 == 1985-01-02 P.5 (No Hit)</span>
-<span class="co">#&gt; 6 1964-03-11    1964-03-11 == 1964-03-11 P.6 (CRI 01)</span>
-<span class="co">#&gt; 7 1964-03-11    1964-03-11 == 1964-03-11 P.6 (CRI 01)</span>
-<span class="co">#&gt; 8 1985-10-11    1985-10-11 == 1985-10-11 P.8 (No Hit)</span>
-
-<span class="co"># Match on age +/- 5 years</span>
-Opes_c<span class="op">$</span>age &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>() <span class="op">-</span><span class="st"> </span>Opes_c<span class="op">$</span>date_of_birth)<span class="op">/</span><span class="fl">365.5</span>)) <span class="co"># approximate age</span>
-Opes_c<span class="op">$</span>range_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="kw"><a href="../reference/number_line.html">as.number_line</a></span>(Opes_c<span class="op">$</span>age), <span class="dv">5</span>, <span class="st">"both"</span>)
-Opes_c<span class="op">$</span>range_b<span class="op">@</span>gid &lt;-<span class="st"> </span>Opes_c<span class="op">$</span>age
-
-Opes_c<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes_c, <span class="dt">criteria =</span> range_b, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Group criteria 1 - `dmvr_d1`</span>
-<span class="co">#&gt; Matching criteria 1: iteration 2</span>
-<span class="co">#&gt; 8 of 8 record(s) have been assigned a group ID. 0 record(s) not yet grouped.</span>
-<span class="co">#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
-
-Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"age"</span>,<span class="st">"range_b"</span>,<span class="st">"pids_b"</span>)]
-<span class="co">#&gt; # A tibble: 8 x 3</span>
-<span class="co">#&gt;     age range_b    pids_b      </span>
-<span class="co">#&gt;   &lt;dbl&gt; &lt;numbr_ln&gt; &lt;pid&gt;       </span>
-<span class="co">#&gt; 1    34 29 -&gt; 39   P.1 (CRI 01)</span>
-<span class="co">#&gt; 2    34 29 -&gt; 39   P.1 (CRI 01)</span>
-<span class="co">#&gt; 3    52 47 -&gt; 57   P.3 (CRI 01)</span>
-<span class="co">#&gt; 4    35 30 -&gt; 40   P.1 (CRI 01)</span>
-<span class="co">#&gt; 5    35 30 -&gt; 40   P.1 (CRI 01)</span>
-<span class="co">#&gt; 6    56 51 -&gt; 61   P.3 (CRI 01)</span>
-<span class="co">#&gt; 7    56 51 -&gt; 61   P.3 (CRI 01)</span>
-<span class="co">#&gt; 8    34 29 -&gt; 39   P.1 (CRI 01)</span></code></pre></div>
+<span class="co">#&gt;   name  department hair_colour date_of_birth       pids_e       pids_f</span>
+<span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (No Hit) P.1 (No Hit)</span>
+<span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.2 (No Hit) P.2 (No Hit)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.3 (No Hit) P.3 (No Hit)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (No Hit) P.4 (No Hit)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.5 (No Hit) P.5 (No Hit)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.6 (No Hit) P.6 (No Hit)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.7 (No Hit) P.7 (No Hit)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.8 (No Hit) P.8 (No Hit)</span></code></pre></div>
 <p><a id="record_expansion"></a></p>
-</div>
 </div>
 <div id="record-group-expansion" class="section level2">
 <h2 class="hasAnchor">
@@ -434,51 +335,65 @@ Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/to
 <ul>
 <li>If a record only matches with others that have not yet been assigned a group ID, it and the others will then be assigned a new group ID</li>
 <li>If a record matches others which already have a group ID, the record will inherit the existing group ID. Note that if it’s matched with different records from different group IDs, it will inherit the group ID that was assigned at the earlier stage</li>
-<li>If a record does not match any other record, it will not be assigned a group ID. If by the last stage, it still has not matched any other record, it is assigned a unique group ID</li>
+<li>If a record does not match any other record, it will not be assigned a group ID at that stage. If by the last stage, it still has not matched any other record, it is assigned a unique group ID</li>
 </ul>
 <p>Existing group IDs can be inherited but will not be overwritten. This is because groups formed at earlier stages are considered more “certain” than those formed at subsequent stages. Therefore, it’s worth reiterating that <code><a href="../reference/record_group.html">record_group()</a></code> expects the <code>criteria</code> to be listed in order of decreasing relevance.</p>
-<p>The example below with <code>patient_list</code> demonstrates this behaviour.</p>
-<ul>
-<li>Stage 1 - Only records 3 and 4 are grouped together and therefore assigned a new group ID (<code>3</code>). Records 1 and 2 are excluded from grouping at this stage because of <a href="#missing_values">missing values</a>. Record 5 is not assigned a group ID because it doesn’t match any other record.</li>
-<li>Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (<code>1</code>). Records 3 and 4 do not match on surnames but remain grouped together since they’ve already matched on forenames, which is more “certain” as listed in <code>criteria</code>. Record 5 is still not assigned a group ID because it doesn’t match any other record on surnames.</li>
-<li>Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3’s group ID (<code>3</code>) because that was assigned at stage 1 (<code>"CRI 01"</code>) as opposed to record 2’s group ID which was assigned at stage 2 (<code>"CRI 02"</code>).</li>
-</ul>
+<p><strong>Example 1 - <code>patient_list</code></strong></p>
+<p><strong>Figure 1: Record group expansion</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(patient_list_<span class="dv">2</span>); patient_list_<span class="dv">2</span>
-<span class="co">#&gt; # A tibble: 5 x 4</span>
-<span class="co">#&gt;   rd_id forename surname     sex   </span>
-<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt; </span>
-<span class="co">#&gt; 1     1 ""       Jefferson   Male  </span>
-<span class="co">#&gt; 2     2 ""       Jefferson   Female</span>
-<span class="co">#&gt; 3     3 Tomi     Abdul       Male  </span>
-<span class="co">#&gt; 4     4 Tomi     Abdulkareem Female</span>
-<span class="co">#&gt; 5     5 &lt;NA&gt;     &lt;NA&gt;        Male</span>
+<span class="co">#&gt;   rd_id forename     surname    sex</span>
+<span class="co">#&gt; 1     1            Jefferson   Male</span>
+<span class="co">#&gt; 2     2            Jefferson Female</span>
+<span class="co">#&gt; 3     3     Tomi       Abdul   Male</span>
+<span class="co">#&gt; 4     4     Tomi Abdulkareem Female</span>
+<span class="co">#&gt; 5     5     &lt;NA&gt;        &lt;NA&gt;   Male</span>
 
-patient_list_<span class="dv">2</span><span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname, sex), <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Group criteria 1 - `forename`</span>
-<span class="co">#&gt; 2 of 5 record(s) have been assigned a group ID. 3 record(s) not yet grouped.</span>
-<span class="co">#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 3.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Group criteria 2 - `surname`</span>
-<span class="co">#&gt; 2 of 3 record(s) have been assigned a group ID. 1 record(s) not yet grouped.</span>
-<span class="co">#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 1.</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; Group criteria 3 - `sex`</span>
-<span class="co">#&gt; 1 of 1 record(s) have been assigned a group ID. 0 record(s) not yet grouped.</span>
-<span class="co">#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.</span>
-<span class="co">#&gt; </span>
+patient_list_<span class="dv">2</span><span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname, sex), <span class="dt">to_s4 =</span> T, <span class="dt">display =</span> F)
 <span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
 
 patient_list_<span class="dv">2</span>
-<span class="co">#&gt; # A tibble: 5 x 5</span>
-<span class="co">#&gt;   rd_id forename surname     sex    pids_a      </span>
-<span class="co">#&gt;   &lt;int&gt; &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;  &lt;pid&gt;       </span>
-<span class="co">#&gt; 1     1 ""       Jefferson   Male   P.1 (CRI 02)</span>
-<span class="co">#&gt; 2     2 ""       Jefferson   Female P.1 (CRI 02)</span>
-<span class="co">#&gt; 3     3 Tomi     Abdul       Male   P.3 (CRI 01)</span>
-<span class="co">#&gt; 4     4 Tomi     Abdulkareem Female P.3 (CRI 01)</span>
-<span class="co">#&gt; 5     5 &lt;NA&gt;     &lt;NA&gt;        Male   P.3 (CRI 03)</span></code></pre></div>
-<p><a id="missing_values"></a></p>
+<span class="co">#&gt;   rd_id forename     surname    sex       pids_a</span>
+<span class="co">#&gt; 1     1            Jefferson   Male P.1 (CRI 02)</span>
+<span class="co">#&gt; 2     2            Jefferson Female P.1 (CRI 02)</span>
+<span class="co">#&gt; 3     3     Tomi       Abdul   Male P.3 (CRI 01)</span>
+<span class="co">#&gt; 4     4     Tomi Abdulkareem Female P.3 (CRI 01)</span>
+<span class="co">#&gt; 5     5     &lt;NA&gt;        &lt;NA&gt;   Male P.3 (CRI 03)</span></code></pre></div>
+<p><img src="record_group_files/figure-html/unnamed-chunk-8-1.png" width="816"></p>
+<ul>
+<li>Stage 1 (criteria) - Only records 3 and 4 are grouped together and therefore assigned a new group ID (<code>3</code>). Records 1 and 2 are excluded from grouping at this stage because of <a href="#missing_values">missing values</a>. Record 5 is not assigned a group ID because it doesn’t match any other record.</li>
+<li>Stage 2 (criteria) - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (<code>1</code>). Records 3 and 4 do not match on surnames but remain grouped together since they’ve already matched on forenames, which is more “certain” as listed in <code>criteria</code>. Record 5 is still not assigned a group ID because it doesn’t match any other record on surnames.</li>
+<li>Stage 3 (criteria) - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3’s group ID (<code>3</code>) because that was assigned at stage 1 (<code>"CRI 01"</code>) as opposed to record 2’s group ID which was assigned at stage 2 (<code>"CRI 02"</code>).</li>
+</ul>
+<p><strong>Example 2</strong></p>
+<p><strong>Figure 2: Record group expansion</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(
+  <span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"John"</span>, <span class="st">"John"</span>, <span class="st">"Jon"</span>, <span class="st">""</span>, <span class="st">"Mary"</span>,<span class="st">"Mary"</span>,<span class="st">"Mariam"</span>, <span class="st">"John"</span>, <span class="st">"Henry"</span>, <span class="st">"Obinna"</span>, <span class="st">"Tomi"</span>),
+  <span class="dt">surname =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"Swan"</span>, <span class="st">"Swanley"</span>, <span class="st">"Swanley"</span>, <span class="st">""</span>, <span class="st">"Jane"</span>,<span class="st">"Jan"</span>,<span class="st">"Janet"</span>, <span class="st">"Swan"</span>, <span class="st">"Henderson"</span>, <span class="st">"Nelson"</span>, <span class="st">"Abdulkareem"</span>), 
+  <span class="dt">age =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">12</span>,<span class="dv">11</span>,<span class="dv">10</span>,<span class="dv">10</span>,<span class="dv">5</span>,<span class="dv">6</span>,<span class="dv">6</span>,<span class="dv">12</span>,<span class="dv">30</span>,<span class="dv">31</span>, <span class="dv">2500</span>)
+)
+
+df
+<span class="co">#&gt;    forename     surname  age</span>
+<span class="co">#&gt; 1      John        Swan   12</span>
+<span class="co">#&gt; 2      John     Swanley   11</span>
+<span class="co">#&gt; 3       Jon     Swanley   10</span>
+<span class="co">#&gt; 4                         10</span>
+<span class="co">#&gt; 5      Mary        Jane    5</span>
+<span class="co">#&gt; 6      Mary         Jan    6</span>
+<span class="co">#&gt; 7    Mariam       Janet    6</span>
+<span class="co">#&gt; 8      John        Swan   12</span>
+<span class="co">#&gt; 9     Henry   Henderson   30</span>
+<span class="co">#&gt; 10   Obinna      Nelson   31</span>
+<span class="co">#&gt; 11     Tomi Abdulkareem 2500</span>
+
+df<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(df, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname, age), <span class="dt">to_s4 =</span> T, <span class="dt">display =</span> F)
+<span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
+ 
+df<span class="op">$</span>pids_a
+<span class="co">#&gt;  [1] "P.01 (CRI 01)" "P.01 (CRI 01)" "P.01 (CRI 02)" "P.01 (CRI 03)"</span>
+<span class="co">#&gt;  [5] "P.05 (CRI 01)" "P.05 (CRI 01)" "P.05 (CRI 03)" "P.01 (CRI 01)"</span>
+<span class="co">#&gt;  [9] "P.09 (No Hit)" "P.10 (No Hit)" "P.11 (No Hit)"</span></code></pre></div>
+<p><img src="record_group_files/figure-html/unnamed-chunk-10-1.png" width="816"><a id="missing_values"></a></p>
 </div>
 <div id="handling-missing-values" class="section level2">
 <h2 class="hasAnchor">
@@ -491,60 +406,126 @@ patient_list_<span class="dv">2</span>
     <span class="co"># Stage 2 - surname</span>
 
 patient_list_<span class="dv">2</span><span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), 
-                                      <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>)
+                                      <span class="dt">display =</span> F, <span class="dt">to_s4 =</span>T)
 <span class="co">#&gt; Record grouping complete - 2 record(s) assigned a group unique ID.</span>
 
 patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"pids_b"</span>)]
-<span class="co">#&gt; # A tibble: 5 x 3</span>
-<span class="co">#&gt;   forename surname     pids_b      </span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 Nil      Jefferson   P.1 (CRI 01)</span>
-<span class="co">#&gt; 2 Nil      Jefferson   P.1 (CRI 01)</span>
-<span class="co">#&gt; 3 Nil      Abdul       P.1 (CRI 01)</span>
-<span class="co">#&gt; 4 Tomi     Abdulkareem P.4 (No Hit)</span>
-<span class="co">#&gt; 5 &lt;NA&gt;     &lt;NA&gt;        P.5 (No Hit)</span></code></pre></div>
+<span class="co">#&gt;   forename     surname       pids_b</span>
+<span class="co">#&gt; 1      Nil   Jefferson P.1 (CRI 01)</span>
+<span class="co">#&gt; 2      Nil   Jefferson P.1 (CRI 01)</span>
+<span class="co">#&gt; 3      Nil       Abdul P.1 (CRI 01)</span>
+<span class="co">#&gt; 4     Tomi Abdulkareem P.4 (No Hit)</span>
+<span class="co">#&gt; 5     &lt;NA&gt;        &lt;NA&gt; P.5 (No Hit)</span></code></pre></div>
 <p>In the example above, records 1-3 are assigned a single group ID even though record 3 is clearly a different individual. This issue can be addressed by recoding <code>"Nil"</code> to <code>NA</code> or <code>""</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using NA as the proxy for missing value</span>
-patient_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_<span class="dv">2</span>,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(forename<span class="op">==</span><span class="st">"Nil"</span>,<span class="ot">NA</span>,forename))
+patient_list_<span class="dv">2</span><span class="op">$</span>forename &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(patient_list_<span class="dv">2</span><span class="op">$</span>forename<span class="op">==</span><span class="st">"Nil"</span>, <span class="ot">NA</span>, patient_list_<span class="dv">2</span><span class="op">$</span>forename)
 
 patient_list_<span class="dv">2</span><span class="op">$</span>pids_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), 
-                                      <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+                                      <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
 
 <span class="co"># Using "" as the proxy for missing value</span>
-patient_list_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw">mutate</span>(patient_list_<span class="dv">2</span>,<span class="dt">forename =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(forename),<span class="st">""</span>,forename))  
+patient_list_<span class="dv">2</span><span class="op">$</span>forename &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/NA">is.na</a></span>(patient_list_<span class="dv">2</span><span class="op">$</span>forename),<span class="st">""</span>,patient_list_<span class="dv">2</span><span class="op">$</span>forename)  
 
 patient_list_<span class="dv">2</span><span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname), 
-                                      <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+                                      <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 3 record(s) assigned a group unique ID.</span>
 
 patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"pids_d"</span>,<span class="st">"pids_e"</span>)]
-<span class="co">#&gt; # A tibble: 5 x 4</span>
-<span class="co">#&gt;   forename surname     pids_d       pids_e      </span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 ""       Jefferson   P.1 (CRI 02) P.1 (CRI 02)</span>
-<span class="co">#&gt; 2 ""       Jefferson   P.1 (CRI 02) P.1 (CRI 02)</span>
-<span class="co">#&gt; 3 ""       Abdul       P.3 (No Hit) P.3 (No Hit)</span>
-<span class="co">#&gt; 4 Tomi     Abdulkareem P.4 (No Hit) P.4 (No Hit)</span>
-<span class="co">#&gt; 5 ""       &lt;NA&gt;        P.5 (No Hit) P.5 (No Hit)</span></code></pre></div>
-<p>Records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. A common approach to addressing this is to use a less exact but reasonable proxies of the matching criteria. For example, using surname initials or surname Soundex instead of the actual surname.</p>
+<span class="co">#&gt;   forename     surname       pids_d       pids_e</span>
+<span class="co">#&gt; 1            Jefferson P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 2            Jefferson P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 3                Abdul P.3 (No Hit) P.3 (No Hit)</span>
+<span class="co">#&gt; 4     Tomi Abdulkareem P.4 (No Hit) P.4 (No Hit)</span>
+<span class="co">#&gt; 5                 &lt;NA&gt; P.5 (No Hit) P.5 (No Hit)</span></code></pre></div>
+</div>
+<div id="inexact-matching---text-transformation-and-range-matching" class="section level2">
+<h2 class="hasAnchor">
+<a href="#inexact-matching---text-transformation-and-range-matching" class="anchor"></a>Inexact matching - text transformation and range matching</h2>
+<p>Sometimes an exact match might be too strict and a less exact but reasonable approximation can be used. For example in <code>patient_list_2</code> above, records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. An alternative approach can be to use the surname initials or a Soundex transformation of the actual surname.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(phonics)
 
 patient_list_<span class="dv">2</span><span class="op">$</span>soundex &lt;-<span class="st"> </span><span class="kw">soundex</span>(patient_list_<span class="dv">2</span><span class="op">$</span>surname)
 
 patient_list_<span class="dv">2</span><span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, soundex), 
-                                      <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>)
+                                      <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
 
 patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"soundex"</span>,<span class="st">"pids_d"</span>,<span class="st">"pids_e"</span>)]
-<span class="co">#&gt; # A tibble: 5 x 5</span>
-<span class="co">#&gt;   forename surname     soundex pids_d       pids_e      </span>
-<span class="co">#&gt;   &lt;chr&gt;    &lt;chr&gt;       &lt;chr&gt;   &lt;pid&gt;        &lt;pid&gt;       </span>
-<span class="co">#&gt; 1 ""       Jefferson   J162    P.1 (CRI 02) P.1 (CRI 02)</span>
-<span class="co">#&gt; 2 ""       Jefferson   J162    P.1 (CRI 02) P.1 (CRI 02)</span>
-<span class="co">#&gt; 3 ""       Abdul       A134    P.3 (No Hit) P.3 (CRI 02)</span>
-<span class="co">#&gt; 4 Tomi     Abdulkareem A134    P.4 (No Hit) P.3 (CRI 02)</span>
-<span class="co">#&gt; 5 ""       &lt;NA&gt;        &lt;NA&gt;    P.5 (No Hit) P.5 (No Hit)</span></code></pre></div>
+<span class="co">#&gt;   forename     surname soundex       pids_d       pids_e</span>
+<span class="co">#&gt; 1            Jefferson    J162 P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 2            Jefferson    J162 P.1 (CRI 02) P.1 (CRI 02)</span>
+<span class="co">#&gt; 3                Abdul    A134 P.3 (No Hit) P.3 (CRI 02)</span>
+<span class="co">#&gt; 4     Tomi Abdulkareem    A134 P.4 (No Hit) P.3 (CRI 02)</span>
+<span class="co">#&gt; 5                 &lt;NA&gt;    &lt;NA&gt; P.5 (No Hit) P.5 (No Hit)</span></code></pre></div>
+<p>For continuous data, you can use the function’s range matching feature. In range matching, numeric values are “matched” if they are within a specified range of other values. To do this, convert each value to the required range using <code><a href="../reference/number_line.html">number_line()</a></code>. Then assign the actual value to the <code>gid</code> slot of the resulting <code>number_line</code> object. The <code>number_line</code> object can then be used as a <code>criteria</code> or <code>sub_criteria</code>. <code>number_line</code> objects are considered a match if they overlap. See the examples below.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">Opes_c &lt;-<span class="st"> </span>Opes[<span class="st">"date_of_birth"</span>]
+Opes_c
+<span class="co">#&gt;   date_of_birth</span>
+<span class="co">#&gt; 1    23/03/1986</span>
+<span class="co">#&gt; 2    23/03/1986</span>
+<span class="co">#&gt; 3    23/03/1968</span>
+<span class="co">#&gt; 4    01/02/1985</span>
+<span class="co">#&gt; 5    02/01/1985</span>
+<span class="co">#&gt; 6    11/03/1964</span>
+<span class="co">#&gt; 7    11/03/1964</span>
+<span class="co">#&gt; 8    11/10/1985</span>
+
+<span class="co"># Match on date of birth + 2 years</span>
+Opes_c<span class="op">$</span>date_of_birth &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(Opes_c<span class="op">$</span>date_of_birth, <span class="st">"%d/%m/%Y"</span>)
+Opes_c<span class="op">$</span>range_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="kw"><a href="../reference/number_line.html">as.number_line</a></span>(Opes_c<span class="op">$</span>date_of_birth), (<span class="dv">365</span><span class="op">*</span><span class="dv">2</span>), <span class="st">"end"</span>)
+Opes_c<span class="op">$</span>range_a<span class="op">@</span>gid &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(Opes_c<span class="op">$</span>date_of_birth)
+
+Opes_c<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes_c, <span class="dt">criteria =</span> range_a, <span class="dt">to_s4 =</span>T)
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Group criteria 1 - `dmvr_d1`</span>
+<span class="co">#&gt; Matching criteria 1: iteration 2</span>
+<span class="co">#&gt; Matching criteria 1: iteration 3</span>
+<span class="co">#&gt; Matching criteria 1: iteration 4</span>
+<span class="co">#&gt; Matching criteria 1: iteration 5</span>
+<span class="co">#&gt; Matching criteria 1: iteration 6</span>
+<span class="co">#&gt; Matching criteria 1: iteration 7</span>
+<span class="co">#&gt; Matching criteria 1: iteration 8</span>
+<span class="co">#&gt; 8 of 8 record(s) have been assigned a group ID. 0 record(s) not yet grouped.</span>
+<span class="co">#&gt; 1 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 1.</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
+
+Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date_of_birth"</span>,<span class="st">"range_a"</span>,<span class="st">"pids_a"</span>)]
+<span class="co">#&gt;   date_of_birth                  range_a       pids_a</span>
+<span class="co">#&gt; 1    1986-03-23 1986-03-23 -&gt; 1988-03-22 P.5 (CRI 01)</span>
+<span class="co">#&gt; 2    1986-03-23 1986-03-23 -&gt; 1988-03-22 P.5 (CRI 01)</span>
+<span class="co">#&gt; 3    1968-03-23 1968-03-23 -&gt; 1970-03-23 P.3 (No Hit)</span>
+<span class="co">#&gt; 4    1985-02-01 1985-02-01 -&gt; 1987-02-01 P.5 (CRI 01)</span>
+<span class="co">#&gt; 5    1985-01-02 1985-01-02 -&gt; 1987-01-02 P.5 (CRI 01)</span>
+<span class="co">#&gt; 6    1964-03-11 1964-03-11 -&gt; 1966-03-11 P.6 (CRI 01)</span>
+<span class="co">#&gt; 7    1964-03-11 1964-03-11 -&gt; 1966-03-11 P.6 (CRI 01)</span>
+<span class="co">#&gt; 8    1985-10-11 1985-10-11 -&gt; 1987-10-11 P.5 (CRI 01)</span>
+
+<span class="co"># Match on age +/- 5 years</span>
+Opes_c<span class="op">$</span>age &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/numeric">as.numeric</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Round">round</a></span>((<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/Sys.time">Sys.Date</a></span>() <span class="op">-</span><span class="st"> </span>Opes_c<span class="op">$</span>date_of_birth)<span class="op">/</span><span class="fl">365.5</span>)) <span class="co"># approximate age</span>
+Opes_c<span class="op">$</span>range_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="kw"><a href="../reference/number_line.html">as.number_line</a></span>(Opes_c<span class="op">$</span>age), <span class="dv">5</span>, <span class="st">"both"</span>)
+Opes_c<span class="op">$</span>range_b<span class="op">@</span>gid &lt;-<span class="st"> </span>Opes_c<span class="op">$</span>age
+
+Opes_c<span class="op">$</span>pids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(Opes_c, <span class="dt">criteria =</span> range_b, <span class="dt">to_s4 =</span>T)
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Group criteria 1 - `dmvr_d1`</span>
+<span class="co">#&gt; Matching criteria 1: iteration 2</span>
+<span class="co">#&gt; 8 of 8 record(s) have been assigned a group ID. 0 record(s) not yet grouped.</span>
+<span class="co">#&gt; 0 record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now 0.</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
+
+Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"age"</span>,<span class="st">"range_b"</span>,<span class="st">"pids_b"</span>)]
+<span class="co">#&gt;   age  range_b       pids_b</span>
+<span class="co">#&gt; 1  34 29 -&gt; 39 P.1 (CRI 01)</span>
+<span class="co">#&gt; 2  34 29 -&gt; 39 P.1 (CRI 01)</span>
+<span class="co">#&gt; 3  52 47 -&gt; 57 P.3 (CRI 01)</span>
+<span class="co">#&gt; 4  35 30 -&gt; 40 P.1 (CRI 01)</span>
+<span class="co">#&gt; 5  35 30 -&gt; 40 P.1 (CRI 01)</span>
+<span class="co">#&gt; 6  56 51 -&gt; 61 P.3 (CRI 01)</span>
+<span class="co">#&gt; 7  56 51 -&gt; 61 P.3 (CRI 01)</span>
+<span class="co">#&gt; 8  34 29 -&gt; 39 P.1 (CRI 01)</span></code></pre></div>
 </div>
 </div>
 <div id="conclusion" class="section level1">
@@ -566,6 +547,7 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <li><a href="#record-matching">Record matching</a></li>
       <li><a href="#record-group-expansion">Record group expansion</a></li>
       <li><a href="#handling-missing-values">Handling missing values</a></li>
+      <li><a href="#inexact-matching---text-transformation-and-range-matching">Inexact matching - text transformation and range matching</a></li>
       </ul>
 </li>
       <li><a href="#conclusion">Conclusion</a></li>
