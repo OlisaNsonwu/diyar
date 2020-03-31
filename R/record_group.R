@@ -335,6 +335,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
   # records not yet assigned a group ID are assigned new unique group IDs
   df$pid <- ifelse(df$pid==sn_ref, df$sn, df$pid)
+  df$link_id <- ifelse(df$link_id==sn_ref, df$sn, df$link_id)
   df <- df[c("sn","pid","link_id", "pid_cri","dsvr","pr_sn")]
 
   if(is.null(ds)){
