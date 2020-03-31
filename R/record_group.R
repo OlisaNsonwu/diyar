@@ -372,7 +372,6 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 #
 plot_pid <- function(pid, strata = FALSE){
   pids_df <- to_df(pid)
-  pids_df <- pid
 
   network <- function(pids_df){
     # criteria order
@@ -409,7 +408,6 @@ plot_pid <- function(pid, strata = FALSE){
     pl_cols <- pl_cols[!duplicated(substr(pl_cols,1,5))]
     pids_df$p_cols <- rev(pl_cols)[as.numeric(as.factor(pids_df$pid))]
 
-    graphics::plot.new()
     xlims <-c(min(pids_df$x-2), max(pids_df$x)+2)
     ylims <-c(min(pids_df$y)-4, max(pids_df$y)+4)
 
@@ -422,7 +420,7 @@ plot_pid <- function(pid, strata = FALSE){
     # record boxes
     # half the width and length
     box_width <- .7
-    box_height <- .7
+    box_height <- .9
     graphics::segments(x0 = pids_df$x-box_width , y0=pids_df$y-box_height, x1 = pids_df$x+box_width , y1 = pids_df$y-box_height, col = pids_df$p_cols)
     graphics::segments(x0 = pids_df$x-box_width , y0=pids_df$y+box_height, x1 = pids_df$x+box_width , y1 = pids_df$y+box_height, col = pids_df$p_cols)
     graphics::segments(x0 = pids_df$x-box_width , y0=pids_df$y-box_height, x1 = pids_df$x-box_width , y1 = pids_df$y+box_height, col = pids_df$p_cols)
@@ -462,7 +460,7 @@ plot_pid <- function(pid, strata = FALSE){
     graphics::segments(x0 = cri_borders$x_min-margin_l , y0=cri_borders$y_min-margin_b, x1 = cri_borders$x_max+margin_r , y1 = cri_borders$y_min-margin_b, col = border_col)
     graphics::segments(x0 = cri_borders$x_min-margin_l , y0=cri_borders$y_max+margin_t, x1 = cri_borders$x_min-margin_l , y1 = cri_borders$y_min-margin_b, col = border_col)
     graphics::segments(x0 = cri_borders$x_max+margin_r , y0=cri_borders$y_max+margin_t, x1 = cri_borders$x_max+margin_r , y1 = cri_borders$y_min-margin_b, col = border_col)
-    graphics::text(x= (cri_borders$x_max + cri_borders$x_min)/2, y= cri_borders$y_max + (margin_t * 1.4), label= ifelse(cri_borders$pid_cri==0, "No hit", paste0("Criteria\n", cri_borders$pid_cri)), cex = .8, adj = c(.5, .5), col = border_col)
+    graphics::text(x= (cri_borders$x_max + cri_borders$x_min)/2, y= cri_borders$y_max + (margin_t * 1.7), label= ifelse(cri_borders$pid_cri==0, "No hit", paste0("Criteria ", cri_borders$pid_cri)), cex = .8, adj = c(.5, .5), col = border_col)
 
     plt <- grDevices::recordPlot()
     # graphics.off()
