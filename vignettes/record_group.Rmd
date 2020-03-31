@@ -37,11 +37,10 @@ Each stage has a matching `criteria` (column). These are passed to the function 
 
 Each `sub_criteria` should be paired with a corresponding `criteria`. To do this, the vector name for each `sub_criteria` should be - `"s"` followed by the corresponding `criteria` number e.g. `"s1"` or `"s4"`. When a `criteria` is paired to more than one `sub_criteria`, include a suffix after the `criteria` number e.g. `"s1a"`, `"s1b"` and `"s1c"` ([See examples](#sub_cri_example)). Any `sub_criteria` not paired with a `criteria` will be ignored. The `sub_criteria` argument does not support quasiquotation.
 
-At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record. 
-***NOTE; `to_s4` and `to_s4()` changes the function's output from a data.frame (current default) to `pid` objects. `pid` objects will be the default output in the next release.***
+At each stage, the function prints the number of records that have been assigned a group ID and how many groups have only one record.
 
 ```{r warning=FALSE, message=FALSE}
-library(diyar); library(dplyr)
+library(diyar);
 data(patient_list); 
 dbs <- patient_list[c("forename","surname","sex")]; dbs
 
@@ -56,7 +55,7 @@ dbs
 ```
 <a id = "record_matching"></a>
 
-##Record matching
+## Record matching
 The choice and ordering of column names in `criteria` and `sub_criteria` determines the relevance of matches. This flexibility allows you to link records in different ways. However, you should always consider the most practical combination to get more true matches than false one.
 
 For example, in `patient_list` above, linking on surnames and then sex (`pid_b`) leads to a different result compared to when linking on sex before surnames (`pid_c`) (See [Record group expansion](#record_expansion)). In `pid_b`, a match on the individual's surname was considered more relevant than a match on their sex. The opposite can be done like in `pid_c` below. 
@@ -187,13 +186,10 @@ At each stage of record linkage, records are either assigned a new group ID or i
 
 Existing group IDs can be inherited but will not be overwritten. This is because groups formed at earlier stages are considered more "certain" than those formed at subsequent stages. Therefore, it's worth reiterating that `record_group()` expects the `criteria` to be listed in order of decreasing relevance. 
 
-The example below with `patient_list` demonstrates this behaviour.
+*Example 1 - `patient_list`*
 
-- Stage 1 - Only records 3 and 4 are grouped together and therefore assigned a new group ID (`3`). Records 1 and 2 are excluded from grouping at this stage because of [missing values](#missing_values). Record 5 is not assigned a group ID because it doesn't match any other record. 
-- Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they've already matched on forenames, which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID because it doesn't match any other record on surnames. 
-- Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3's group ID (`3`) because that was assigned at stage 1 (`"CRI 01"`) as opposed to record 2's group ID which was assigned at stage 2 (`"CRI 02"`).
-
-```{r warning=FALSE, message=FALSE}
+**Figure 1: Record group expansion**
+```{r warning=FALSE}
 data(patient_list_2); patient_list_2
 
 patient_list_2$pids_a <- record_group(patient_list_2, rd_id, c(forename, surname, sex), to_s4 = TRUE)
@@ -201,6 +197,35 @@ patient_list_2$pids_a <- record_group(patient_list_2, rd_id, c(forename, surname
 patient_list_2
 ```
 
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+diyar:::plot_pid(pid = patient_list_2$pids_a)
+```
+
+- Stage 1 - Only records 3 and 4 are grouped together and therefore assigned a new group ID (`3`). Records 1 and 2 are excluded from grouping at this stage because of [missing values](#missing_values). Record 5 is not assigned a group ID because it doesn't match any other record. 
+- Stage 2 - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they've already matched on forenames, which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID because it doesn't match any other record on surnames. 
+- Stage 3 - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3's group ID (`3`) because that was assigned at stage 1 (`"CRI 01"`) as opposed to record 2's group ID which was assigned at stage 2 (`"CRI 02"`).
+
+
+*Example 2*
+
+**Figure 2: Record group expansion**
+```{r warning=FALSE}
+df <- data.frame(
+  forename = c("John", "John", "Jon", "", "Mary","Mary","Mariam", "John", "Henry", "Obinna", "Tomi"),
+  surname = c("Swan", "Swanley", "Swanley", "", "Jane","Jan","Janet", "Swan", "Henderson", "Nelson", "Abdulkareem"), 
+  age = c(12,11,10,10,5,6,6,12,30,31, 2500)
+)
+
+df
+
+df$pids_a <- record_group(df, criteria = c(forename, surname, age), to_s4 = TRUE)
+ 
+df$pids_a
+```
+
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+diyar:::plot_pid(df$pids_a)
+```
 <a id = "missing_values"></a>
 
 ## Handling missing values
@@ -224,13 +249,13 @@ In the example above, records 1-3 are assigned a single group ID even though rec
 
 ```{r warning=FALSE, message=FALSE}
 # Using NA as the proxy for missing value
-patient_list_2 <- mutate(patient_list_2,forename = ifelse(forename=="Nil",NA,forename))
+patient_list_2$forename <- ifelse(patient_list_2$forename=="Nil", NA, patient_list_2$forename)
 
 patient_list_2$pids_d <- record_group(patient_list_2, rd_id, c(forename, surname), 
                                       display = FALSE, to_s4 = TRUE)
 
 # Using "" as the proxy for missing value
-patient_list_2 <- mutate(patient_list_2,forename = ifelse(is.na(forename),"",forename))  
+patient_list_2$forename <- ifelse(is.na(patient_list_2$forename),"",patient_list_2$forename)  
 
 patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, surname), 
                                       display = FALSE, to_s4 = TRUE)
