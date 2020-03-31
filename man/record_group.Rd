@@ -31,12 +31,11 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 \itemize{
 \item \code{sn} - unique record identifier as provided
 \item \code{pid | .Data} - unique group identifier
+\item \code{link_id} - unique identifier for the record which each record has matched to
 \item \code{pid_cri} - matched criteria for each record in the group
 \item \code{pid_dataset} - data sources in each group
 \item \code{pid_total} - number of records in each group
 }
-
-\code{pid} objects will be the default output from the next release.
 }
 \description{
 Group matching records from one or more datasets.
@@ -61,8 +60,6 @@ When a \code{data_source} identifier is provided,
 \code{pid_dataset} is included in the output. This has the source of every record in each record group.
 }
 \examples{
-library(dplyr)
-
 three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
                            stringsAsFactors = FALSE)
 

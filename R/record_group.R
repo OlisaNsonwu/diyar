@@ -17,12 +17,12 @@
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided
 #' \item \code{pid | .Data} - unique group identifier
+#' \item \code{link_id} - unique identifier for the record which each record has matched to
 #' \item \code{pid_cri} - matched criteria for each record in the group
 #' \item \code{pid_dataset} - data sources in each group
 #' \item \code{pid_total} - number of records in each group
 #' }
 #'
-#' \code{pid} objects will be the default output from the next release.
 #'
 #' @seealso \code{\link{episode_group}} and \code{\link{number_line}}
 #'
@@ -46,8 +46,6 @@
 #' \code{pid_dataset} is included in the output. This has the source of every record in each record group.
 #'
 #' @examples
-#' library(dplyr)
-#'
 #' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
 #'                            stringsAsFactors = FALSE)
 #'
@@ -165,7 +163,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   df$pr_sn <- 1:nrow(df)
   df$m_tag <- df$tag <- 0
   df$pid_cri <- Inf
-  df$pid <- sn_ref <- min(df$sn)-1
+  df$link_id <- df$pid <- sn_ref <- min(df$sn)-1
   cri_no <- length(cri_lst)
 
   # `number_line` object as subcriteria
@@ -263,7 +261,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       TR <- df[!df$cri %in% c("",NA),]
       TR <- TR[order(TR$cri, TR$skip, -TR$force_check, -TR$tag, TR$m_tag, TR$pid_cri, TR$sn),]
       TR <- TR[!duplicated(TR$cri),]
-      TR <- TR[unique(c("pid","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst))]
+      TR <- TR[unique(c("pid","link_id","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst))]
       names(TR) <- paste0("tr_", names(TR))
 
       df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)
@@ -292,6 +290,14 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
         df$pid==sn_ref & df$tr_pid == sn_ref & !is.na(df$tr_pid) & df$sub_cri_match==1,
         df$tr_sn, df$pid
       )
+
+
+      df$link_id <- ifelse(
+        (df$link_id==sn_ref & !is.na(df$tr_link_id) & df$sub_cri_match==1) |
+          ((df$m_tag==-1 & df$pid!=sn_ref) | (df$sub_cri_match==1 & df$pid==sn_ref & !is.na(df$tr_pid))),
+        df$tr_sn, df$link_id
+      )
+
       df$m_tag <- ifelse(df$pid !=sn_ref & df$m_tag != -1,1, df$m_tag)
       df$m_tag <- ifelse(df$sn==df$tr_sn & !is.na(df$tr_sn) & df$m_tag ==-1, 1, df$m_tag )
 
@@ -299,7 +305,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       df$skip <- ifelse(df$m_tag ==-1 & !is.na(df$m_tag), 0, ifelse(df$sub_cri_match==1, 1, df$skip))
       min_pid <- min(df$pid[!df$cri %in% c("",NA)])
       min_m_tag <- min(df$m_tag[!df$cri %in% c("",NA)])
-      df <- df[c("sn", "pr_sn", "pid", "pid_cri", "cri", cri_lst, sub_cri_lst, "tag", "m_tag", "skip", "dsvr", "force_check")]
+      df <- df[c("sn", "pr_sn", "pid", "link_id", "pid_cri", "cri", cri_lst, sub_cri_lst, "tag", "m_tag", "skip", "dsvr", "force_check")]
       c <- c+1
     }
 
@@ -312,6 +318,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
     # Cases that have not been tagged for the print output
     df$tag <- ifelse(df$pid %in% c(sn_ref,NA),0,1)
+    df$link_id <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,sn_ref,df$link_id)
     df$pid <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,sn_ref,df$pid)
 
     removed <- length(subset(df$pid, df$pid %in% c(sn_ref,NA) & df$tag ==1 ))
@@ -328,17 +335,17 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
 
   # records not yet assigned a group ID are assigned new unique group IDs
   df$pid <- ifelse(df$pid==sn_ref, df$sn, df$pid)
-  df <- df[c("sn","pid","pid_cri","dsvr","pr_sn")]
+  df <- df[c("sn","pid","link_id", "pid_cri","dsvr","pr_sn")]
 
   if(is.null(ds)){
-    df <- df[order(df$pr_sn), c("sn","pid","pid_cri","pr_sn")]
+    df <- df[order(df$pr_sn), c("sn","pid", "link_id", "pid_cri","pr_sn")]
   }else{
     pds2 <- lapply(split(df$dsvr, df$pid), function(x){
       paste0(sort(unique(x)), collapse=",")
     })
 
     df$pid_dataset <- as.character(pds2[as.character(df$pid)])
-    df <- df[order(df$pr_sn), c("sn","pid","pid_cri","pid_dataset","pr_sn")]
+    df <- df[order(df$pr_sn), c("sn","pid","link_id", "pid_cri","pid_dataset","pr_sn")]
   }
 
   if(group_stats){
@@ -355,3 +362,121 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   df
 }
 
+# @rdname record_group
+# @param pid \code{pid} object
+# @details
+# \code{plot_pid()} visulaises how a record group has been created. It works backwards, using the record group (\code{pid})
+# to show which records matched have matched with which, and how they've been grouped together to form the record group.
+#  This is then shown on plots (one per record group if \code{strata} is TRUE) and captured in an \code{R} object (\code{list} for multiple plots).
+#  The plots can then be saved and shared.
+#
+plot_pid <- function(pid, strata = FALSE){
+  #pids_df <- to_df(pids)
+  pids_df <- pid
+  #pids_df$link_id <- c(1,1, 3,3,4)
+
+  network <- function(pids_df){
+    # criteria order
+    pids_df$p_ord <- as.numeric(as.factor(pids_df$pid_cri))
+
+    # position for record record boxes
+    pids_df <- pids_df[order(pids_df$pid_cri), ]
+    pids_df$ord <- sequence(rle(pids_df$pid_cri)$lengths)
+
+    # boxes per row
+    rec_lim <- 4
+
+    # horizontal space between record boxes
+    h_box <- 1.7
+    # vertical space between record boxes
+    v_box <- 2
+    # horizontal space between criteria box
+    h_cri <- 10
+    # vertical space between criteria box
+    v_cri <- 6
+
+    # scater v1
+    sct <- unique(pids_df$p_ord)
+    sct <- sort(rep(sct,2)) * c(1,-1)
+    sct <- c(0, sct)
+
+    # x,y coordinates
+    pids_df$x <- pids_df$y <- 0
+    pids_df$y <- (-(ceiling(pids_df$ord/rec_lim) -1) * v_box) +  (sct[pids_df$p_ord] * v_cri)
+    pids_df$x <- (((pids_df$ord-1) %% rec_lim) * h_box) + (pids_df$p_ord * h_cri)
+
+    # colours per record group
+    pl_cols <- grDevices::colours()
+    pl_cols <- pl_cols[!duplicated(substr(pl_cols,1,5))]
+    pids_df$p_cols <- rev(pl_cols)[as.numeric(as.factor(pids_df$pid))]
+
+    graphics::plot.new()
+    xlims <-c(min(pids_df$x-2), max(pids_df$x)+2)
+    ylims <-c(min(pids_df$y)-4, max(pids_df$y)+4)
+
+    graphics::par(bg="black")
+    graphics::par(mar=rep(0,4))
+    graphics::plot(x=0, y=0, type="n", xlim=xlims, ylim=ylims)
+
+    graphics::text(x=pids_df$x, y=pids_df$y, label= paste0("SN\n", pids_df$sn), cex = .7, adj = c(.5, .5), col = pids_df$p_cols)
+
+    # record boxes
+    # half the width and length
+    box_width <- .7
+    box_height <- .7
+    graphics::segments(x0 = pids_df$x-box_width , y0=pids_df$y-box_height, x1 = pids_df$x+box_width , y1 = pids_df$y-box_height, col = pids_df$p_cols)
+    graphics::segments(x0 = pids_df$x-box_width , y0=pids_df$y+box_height, x1 = pids_df$x+box_width , y1 = pids_df$y+box_height, col = pids_df$p_cols)
+    graphics::segments(x0 = pids_df$x-box_width , y0=pids_df$y-box_height, x1 = pids_df$x-box_width , y1 = pids_df$y+box_height, col = pids_df$p_cols)
+    graphics::segments(x0 = pids_df$x+box_width , y0=pids_df$y-box_height, x1 = pids_df$x+box_width , y1 = pids_df$y+box_height, col = pids_df$p_cols)
+
+    # record expansion
+    pids_df2 <- merge(pids_df,
+                      pids_df[c("sn","x","y")],
+                      by.x = "link_id", by.y ="sn", all.x = T
+    )
+
+    pids_df2 <- pids_df2[pids_df2$link_id!=pids_df2$sn, ]
+    arrows(length=0.1,angle=20, x0 =  pids_df2$x.y+.5, y0=pids_df2$y.y, x1 = pids_df2$x.x -.5, y1 = pids_df2$y.x, col = pids_df2$p_cols)
+
+    # criteria boxes
+    x_max <- lapply(split(pids_df$x, pids_df$pid_cri), max)
+    x_min <- lapply(split(pids_df$x, pids_df$pid_cri), min)
+    y_max <- lapply(split(pids_df$y, pids_df$pid_cri), max)
+    y_min <- lapply(split(pids_df$y, pids_df$pid_cri), min)
+
+    cri_borders <- data.frame(
+      pid_cri = as.numeric(names(x_max)),
+      x_max = as.numeric(x_max),
+      y_max = as.numeric(y_max),
+      x_min = as.numeric(x_min),
+      y_min = as.numeric(y_min)
+    )
+
+    # margins (half)
+    margin_l <- 1.5
+    margin_r <- 1.5
+    margin_t <- 1.5
+    margin_b <- 1.5
+
+    border_col <-"white"
+    graphics::segments(x0 = cri_borders$x_min-margin_l , y0=cri_borders$y_max+margin_t, x1 = cri_borders$x_max+margin_r , y1 = cri_borders$y_max+margin_l, col = border_col)
+    graphics::segments(x0 = cri_borders$x_min-margin_l , y0=cri_borders$y_min-margin_b, x1 = cri_borders$x_max+margin_r , y1 = cri_borders$y_min-margin_b, col = border_col)
+    graphics::segments(x0 = cri_borders$x_min-margin_l , y0=cri_borders$y_max+margin_t, x1 = cri_borders$x_min-margin_l , y1 = cri_borders$y_min-margin_b, col = border_col)
+    graphics::segments(x0 = cri_borders$x_max+margin_r , y0=cri_borders$y_max+margin_t, x1 = cri_borders$x_max+margin_r , y1 = cri_borders$y_min-margin_b, col = border_col)
+    graphics::text(x= (cri_borders$x_max + cri_borders$x_min)/2, y= cri_borders$y_max + (margin_t * 1.4), label= ifelse(cri_borders$pid_cri==0, "No hit", paste0("Criteria\n", cri_borders$pid_cri)), cex = .8, adj = c(.5, .5), col = border_col)
+
+    plt <- grDevices::recordPlot()
+    # graphics.off()
+    # dev.off()
+    return(plt)
+  }
+  if(strata ==TRUE){
+    output <- lapply(unique(pids_df$pid), function(x){
+      network(pids_df[pids_df$pid ==x,])
+    })
+    }else{
+      output <- network(pids_df)
+    }
+return(output)
+
+}
