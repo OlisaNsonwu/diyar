@@ -274,7 +274,7 @@ as.pid <- function(x, ...){
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
   er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
-  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to an `pid``  object",sep=""))
+  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("`x` can't be coerced to a `pid``  object",sep=""))
 
   x[!is.finite(as.numeric(x))] <- NA
   x <- methods::new("pid", .Data = as.numeric(x), sn = 1:length(x), pid_cri = rep(NA_real_, length(x)), link_id = rep(NA_real_, length(x)),

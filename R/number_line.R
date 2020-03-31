@@ -60,7 +60,7 @@ as.number_line <- function(x){
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
   er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
-  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a number_line object",sep=""))
+  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a `number_line` object",sep=""))
 
   if(all(!diyar::is.number_line(x))){
     x[!is.finite(as.numeric(x))] <- NA
