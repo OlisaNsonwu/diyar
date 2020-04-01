@@ -58,7 +58,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{direction}{Type of \code{"number_line"} objects whose direction are to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.}
 
-\item{by}{increment or decrement}
+\item{by}{number: increment of the sequence. Passed to \code{seq()}}
 
 \item{point}{\code{"start"} or \code{"end"} point}
 
@@ -69,6 +69,8 @@ number_line_sequence(x, by = 1, length.out = NULL)
 \item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object among duplicates}
 
 \item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}}
+
+\item{length.out}{desired length of the sequence. Passed to \code{seq()}}
 }
 \value{
 \code{number_line} object
