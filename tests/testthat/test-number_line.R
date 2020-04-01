@@ -138,7 +138,7 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(number_line(mtcars, mtcars), "'l' or 'r' aren't compatible for a number_line object")
   expect_error(number_line(1.2, 3.1, id = NA), "'id' must be numeric")
   expect_error(number_line(1.2, 3.1, gid = NA), "'gid' must be numeric")
-  expect_error(as.number_line(mtcars), "'x' can't be coerced to a number_line object")
+  expect_error(as.number_line(mtcars), "'x' can't be coerced to a `number_line` object")
 
 })
 
