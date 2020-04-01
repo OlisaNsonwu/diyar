@@ -501,7 +501,7 @@ admissions <- hospital_admissions
 admissions$epi_len <- 0
 admissions$admin_period <- number_line(admissions$admin_dt, admissions$discharge_dt)
 
-admissions <- admissions[1:11 %in% 1:9,]
+admissions <- admissions[1:9,]
 admissions
 
 # episodes of overlaping intervals of admission
