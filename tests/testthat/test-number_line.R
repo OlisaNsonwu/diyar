@@ -33,17 +33,17 @@ test_that("test direction of number line", {
 
   expect_equal(format(number_line()), "number_line(0)")
 
-   s1<- t1$start
-   s2<- t2$start
-   s3<- t3$start
-   s4<- t4$start
-   s5<- t5$start
+  s1<- t1$start
+  s2<- t2$start
+  s3<- t3$start
+  s4<- t4$start
+  s5<- t5$start
 
-   expect_equal(s1, 1)
-   expect_equal(s2, 10)
-   expect_equal(s3, 5)
-   expect_equal(s4, NA)
-   expect_equal(s5, 20)
+  expect_equal(s1, 1)
+  expect_equal(s2, 10)
+  expect_equal(s3, 5)
+  expect_equal(s4, NA)
+  expect_equal(s5, 20)
 
 })
 
@@ -145,9 +145,8 @@ test_that("test that error and warning messages are returned correctly", {
 test_that("test series function", {
   expect_equal(number_line_sequence(number_line(1, 5))[[1]], c(1:5))
   expect_equal(number_line_sequence(number_line(5, 1), .5)[[1]], seq(5,1,-.5))
-  expect_equal(number_line_sequence(number_line(1, NA), .5)[[1]], c(1, NA))
-  expect_equal(number_line_sequence(number_line(NA, 1), .5)[[1]], c(NA_real_, NA_real_))
+  # expect_error(number_line_sequence(number_line(1, NA), .5)[[1]], "Finite values of 'x' required in indexes c(1)")
+  # expect_error(number_line_sequence(number_line(1, 2), NA)[[1]], "Finite values of 'by' required in indexes c(1)")
   expect_equal(number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)[[1]], seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
   expect_error(number_line_sequence(1, .5)[[1]], "'x' is not a number_line object")
-  expect_error(number_line_sequence(number_line(1,2), NA), "'by' must be a finite number")
 })

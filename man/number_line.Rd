@@ -43,7 +43,7 @@ compress_number_line(x, method = c("exact", "across", "chain",
   deduplicate = TRUE,
   methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
 
-number_line_sequence(x, by = 1)
+number_line_sequence(x, by = 1, length.out = NULL)
 }
 \arguments{
 \item{l}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
@@ -158,7 +158,9 @@ number_line_sequence(number_line(1, 5))
 number_line_sequence(number_line(5, 1), .5)
 number_line_sequence(number_line(5:1, 1:5), 1:5)
 
-nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
-number_line_sequence(c(nl, nl), c(duration(1.5,"days"), duration(12,"hours")))
+nl <- number_line(as.POSIXlt("01/04/2019 00:00:00", "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S"),
+as.POSIXlt("04/04/2019 00:00:00", "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S"))
+
+number_line_sequence(c(nl, nl), c(episode_unit[["days"]] * 1.5, episode_unit[["hours"]] * 12))
 
 }

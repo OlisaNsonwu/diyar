@@ -87,21 +87,21 @@ is.number_line <- function(x) class(x)=="number_line"
 #'
 #' @export
 left_point <- function(x){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   x@start
 }
 
 #' @rdname number_line
 #' @export
 right_point <- function(x){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   x@start + x@.Data
 }
 
 #' @rdname number_line
 #' @export
 start_point <- function(x){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start
 }
@@ -109,7 +109,7 @@ start_point <- function(x){
 #' @rdname number_line
 #' @export
 end_point <- function(x){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start + x@.Data
 }
@@ -117,7 +117,7 @@ end_point <- function(x){
 #' @rdname number_line
 #' @export
 number_line_width <- function(x){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   diyar::right_point(x) - diyar::left_point(x)
 }
 
@@ -136,7 +136,7 @@ number_line_width <- function(x){
 #'
 #' @export
 reverse_number_line <- function(x, direction = "both"){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   if(!(length(direction) %in% c(1, length(x)) & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
   if(!tolower(direction) %in% c("increasing","decreasing","both") ) stop(paste("`direction` must be either 'increasing', 'decreasing', or 'both'"))
 
@@ -170,7 +170,7 @@ reverse_number_line <- function(x, direction = "both"){
 #'
 #' @export
 shift_number_line <- function(x, by=1){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
 
   by[!is.finite(by)] <- NA_real_
@@ -197,7 +197,7 @@ shift_number_line <- function(x, by=1){
 #'
 #' @export
 expand_number_line <- function(x, by=1, point ="both"){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   if(!all(is.character(point))) stop(paste("'point' must be a character object"))
   if(all(!tolower(point) %in% c("both","start","end"))) stop(paste("`point` must be either 'start','end' or 'both'"))
   if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
@@ -294,25 +294,28 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
 #' number_line_sequence(number_line(5, 1), .5)
 #' number_line_sequence(number_line(5:1, 1:5), 1:5)
 #'
-#' nl <- number_line(dmy_hms("01/04/2019 00:00:00"), dmy_hms("04/04/2019 00:00:00"))
-#' number_line_sequence(c(nl, nl), c(duration(1.5,"days"), duration(12,"hours")))
+#' nl <- number_line(as.POSIXlt("01/04/2019 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"),
+#' as.POSIXlt("04/04/2019 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+#'
+#' number_line_sequence(c(nl, nl), c(episode_unit[["days"]] * 1.5, episode_unit[["hours"]] * 12))
 #'
 #' @export
-number_line_sequence <- function(x, by=1){
-  if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object",sep=""))
-  if(!is.finite(by)) stop(paste("'by' must be a finite number",sep=""))
+number_line_sequence <- function(x, by=1, length.out = NULL){
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  # if(!all(is.finite(by))) stop(paste("'by' must be a finite number",sep=""))
 
-  h <- !is.finite(x@start) | !is.finite(x@.Data)
-  func1 <- function(x, by, h){
-    if(h==T){
-      s <- c(x@start, x@.Data)
-    }else{
-      by <- ifelse(x@.Data>0, abs(by), -abs(by))
-      s <- unique(c(x@start, seq(x@start, x@start + x@.Data, by), x@start + x@.Data))
-    }
-    s
+  fn_check <- finite_check(x)
+  if(fn_check!=T) stop(paste0("Finite values of 'x' required in indexes ",fn_check))
+
+  fn_check <- finite_check(by)
+  if(fn_check!=T) stop(paste0("Finite values of 'by' required in indexes ",fn_check))
+
+  by <- ifelse(is.nan(x@.Data/abs(x@.Data)), by , x@.Data/abs(x@.Data)  * abs(by))
+  if(is.null(length.out)){
+    mapply(seq, from=left_point(x), to = right_point(x), by=by, SIMPLIFY = F)
+  }else{
+    mapply(seq, from=left_point(x), to = right_point(x), by=by, length.out = length.out, SIMPLIFY = F)
   }
-  mapply(func1, x=x, by=by, h=h, SIMPLIFY = F)
 }
 
 # @rdname number_line
