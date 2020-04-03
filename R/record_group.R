@@ -5,6 +5,7 @@
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.
+#' @param strata Subsets of the dataset within which record grouping will be done separately. You can use multiple columns supplied as column names.
 #' @param criteria Column names of attributes to match. Each column is one stage of the process and the the order in which they are listed determines the relevance of matches. Matching records are assigned to a record group.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
 #' @param data_source Unique dataset identifier. Useful when \code{df} contains data from multiple sources.
@@ -97,7 +98,7 @@
 #' missing_staff_id
 #' @aliases record_group
 #' @export
-record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = TRUE){
+record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = TRUE){
   if(missing(criteria)) stop("argument 'criteria' is missing, with no default")
 
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
@@ -131,13 +132,14 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
   ds <- enq_vr(substitute(data_source))
   df_vars <- names(df)
   rd_sn <- enq_vr(substitute(sn))
+  st <- enq_vr(substitute(strata))
 
   sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
   cri_lst <- enq_vr(substitute(criteria))
 
   # Check that col names exist
-  if(any(!unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))){
-    missing_cols <- subset(unique(c(rd_sn, ds, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
+  if(any(!unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)) %in% names(df))){
+    missing_cols <- subset(unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
     missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
     stop(paste(missing_cols, "not found"))
   }
@@ -158,8 +160,15 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     df$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
   }
 
+  # Strata
+  if(is.null(st)){
+    df$strt <- "A"
+  }else{
+    df$strt <- eval(parse(text = paste0("paste0(",paste0("df$", st, collapse = ",'-',"),")")))
+  }
+
   # Prep
-  df <- df[unique(c("sn",cri_lst,sub_cri_lst,"dsvr"))]
+  df <- df[unique(c("sn",cri_lst,sub_cri_lst,"dsvr", "strt"))]
   df$pr_sn <- 1:nrow(df)
   df$m_tag <- df$tag <- 0
   df$pid_cri <- Inf
@@ -219,7 +228,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
     if(display) cat(paste("\nGroup criteria ",i," - ","`",cri_lst[i],"`", sep=""))
 
     # Current matching criteria
-    df$cri <- df[[cri_lst[i]]]
+    df$cri <- ifelse(df[[cri_lst[i]]] %in% c("", NA), NA, paste0(df$strt,"-", df[[cri_lst[i]]]))
 
     # Fetch corresponding matching criteria
     attr <- attributes(sub_criteria)[["names"]]
@@ -305,7 +314,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, data_source =
       df$skip <- ifelse(df$m_tag ==-1 & !is.na(df$m_tag), 0, ifelse(df$sub_cri_match==1, 1, df$skip))
       min_pid <- min(df$pid[!df$cri %in% c("",NA)])
       min_m_tag <- min(df$m_tag[!df$cri %in% c("",NA)])
-      df <- df[c("sn", "pr_sn", "pid", "link_id", "pid_cri", "cri", cri_lst, sub_cri_lst, "tag", "m_tag", "skip", "dsvr", "force_check")]
+      df <- df[c("sn", "pr_sn", "pid", "link_id", "pid_cri", "strt", "cri", cri_lst, sub_cri_lst, "tag", "m_tag", "skip", "dsvr", "force_check")]
       c <- c+1
     }
 

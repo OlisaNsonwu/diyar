@@ -112,7 +112,7 @@ test_that("test record grouping with >1 set of sub-criteria per criteria", {
 df_6a <- df_4a
 df_6a$dataset <- c("DS1","DS2","DS1","DS4","DS4","DS1","DS3")
 test_6a <- df_6a
-test_6a$pids <- record_group(df_6a,r_id, c(cri_1, cri_2), list(s2a=c("cri_2a","cri_2b","cri_2c")), dataset, group_stats = TRUE)
+test_6a$pids <- record_group(df_6a,r_id, c(cri_1, cri_2), list(s2a=c("cri_2a","cri_2b","cri_2c")), data_source = dataset, group_stats = TRUE)
 
 test_that("test record grouping for deterministic linkage", {
   expect_equal(test_6a$pids@.Data, c(1,1,1,1,5,6,6))

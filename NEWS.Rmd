@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
 #Version 0.1.0.9000
 ##New features
 
++ `strata` argument for `record_group()`. Perform record grouping separately within subsets of a dataset.
 + `overlap_methods` and `methods` arguments added to replace `overlap_method` and `method` respectively. When grouping episodes or collapsing `number_line` objects, `overlap_methods` and `methods` allow you to use different sets of methods for different subsets of a dataset. `overlap_method` and `method` could only use 1 set of methods per dataset.
 + New `win_nm` slot for `epid` objects. Shows they type of window each event belongs to i.e. case or recurrence window
 + New `win_id` slot for `epid` objects. Unique ID for each window. ID is the `sn` of the reference event for each window

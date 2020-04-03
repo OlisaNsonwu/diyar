@@ -5,8 +5,8 @@
 \title{Multistage deterministic record linkage}
 \usage{
 record_group(df, sn = NULL, criteria, sub_criteria = NULL,
-  data_source = NULL, group_stats = FALSE, display = TRUE,
-  to_s4 = TRUE)
+  strata = NULL, data_source = NULL, group_stats = FALSE,
+  display = TRUE, to_s4 = TRUE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
@@ -16,6 +16,8 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 \item{criteria}{Column names of attributes to match. Each column is one stage of the process and the the order in which they are listed determines the relevance of matches. Matching records are assigned to a record group.}
 
 \item{sub_criteria}{Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).}
+
+\item{strata}{Subsets of the dataset within which record grouping will be done separately. You can use multiple columns supplied as column names.}
 
 \item{data_source}{Unique dataset identifier. Useful when \code{df} contains data from multiple sources.}
 
