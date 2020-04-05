@@ -573,18 +573,18 @@ epids["cb2"]
 ```
 
 
-**Figure 9a: Grouped episodes if considering only "exact" overlap method**
+**Figure 9a: Grouped episodes when considering only "exact" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["exact"]]
 plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn] , case_length = 0)
 ```
 
-**Figure 9b: Grouped episodes if considering only "chain" overlap method**
+**Figure 9b: Grouped episodes when considering only "chain" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["chain"]]
 plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn] , case_length = 0)
 ```
-**Figure 9c: Grouped episodes if considering "chain" or "inbetween" overlap method**
+**Figure 9c: Grouped episodes when considering "chain" or "inbetween" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["cb1"]]
 plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn] , case_length = 0)
@@ -594,16 +594,20 @@ plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn] , case_length = 0)
 
 From `diyar v0.1.0`, you can use negative `case_lengths` and `recurrence_lengths`. 
 
-+ Using positive "lengths" will collapse two periods into one, if the second one is within (or any other method of `overlap`) the first one or `n`-days (or any other `episode_unit`) after the `end_point()` of the first period. 
-+ Using negative "lengths" will collapse two periods into one, if the second one is within (or any other method of `overlap`) the `start_point()` and `n`-days (or any other `episode_unit`) before the `end_point()` of the first.
-+ Using negative "lengths" that's larger than the `number_line_width()` will collapse two periods into one, if the second one is within (or any other method of `overlap`) `(n + 1 + number_line_width())`-days (or any other `episode_unit`) before the `start_point()` and the `start_point()`of the first.
++ Using positive "lengths" will collapse two periods into one, if the second one is within* the first one or `n`-days^+^ after the end of the first one. 
++ Using negative "lengths" will collapse two periods into one, if the second one is within* the start and `n`-days^+^ before the end of the first one.
++ Using negative "lengths" that's larger than the duration of the period will collapse the two periods into one, if the second one is within* `(n + 1 + number_line_width())`-days^+^ before the start of the first one.
     + **note that this will happen even if `from_last` is TRUE**
 
-*Examples below*
+*within or any other method of `overlap`
+
+*^+^ days or any other `episode_unit`*
+
+**Examples below**
 
 ```{r warning=FALSE}
-pa <- c("01/04/2019", "03/04/2019", "07/04/2019","12/04/2019")
-pz <- c("10/04/2019", "05/04/2019", "09/04/2019","13/04/2019")
+pa <- c("28/03/2019", "01/04/2019", "03/04/2019", "07/04/2019","12/04/2019")
+pz <- c("31/03/2019", "10/04/2019", "05/04/2019", "09/04/2019","13/04/2019")
 
 pa <- as.Date(pa, "%d/%m/%Y")
 pz <- as.Date(pz, "%d/%m/%Y")
@@ -616,38 +620,54 @@ periods
 **Figure 9d: Fixed episodes with a case_length of 6**
 ```{r message=FALSE, warning=FALSE}
 eps_a <- fixed_episodes(periods, case_length =6, group_stats = T, display = F)
-eps_a <- eps_a[eps_a@epid_total>1]
 
 eps_a
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_a, date = periods[eps_a@sn], case_length = 6)
+plot_epid(epid = eps_a, date = periods, case_length = 6)
 ```
+
+Use positive "lengths" when you need to capture periods within a specified duration after the end of a `reference period`. 
 
 **Figure 9e: Fixed episodes with a case_length of -2**
 ```{r message=FALSE, warning=FALSE}
 eps_b <- fixed_episodes(periods, case_length =-2, group_stats = T, display = F)
-eps_b <- eps_b[eps_b@epid_total>1]
 
 eps_b
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_b, date = periods[eps_b@sn], case_length = -2)
+plot_epid(epid = eps_b, date = periods, case_length = -2)
 ```
 
 **Figure 9f: Fixed episodes with a case_length of -6**
 ```{r message=FALSE, warning=FALSE}
 eps_c <- fixed_episodes(periods, case_length =-6, group_stats = T, display = F)
-eps_c <- eps_c[eps_c@epid_total>1]
 
 eps_c
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_c, date = periods[eps_c@sn], case_length = -6)
+plot_epid(epid = eps_c, date = periods, case_length = -6)
 ```
+
+Use negative "lengths" when you only want to capture periods that at least ended `n-days`^+^ before the end of the `reference period`.
+
+It is possible to use a negative "length" that's so large, the `reference period` will capture periods that occur before itself. Consider this a record level implementation of `bi_direction`. Just like `bi_direction`, this is only relevant when you use a `custom_sort`. See below. 
+
+**Figure 9g: Fixed episodes with a case_length of -12**
+```{r message=FALSE, warning=FALSE}
+custom_sort <- c(2,0,2,1,2)
+eps_d <- fixed_episodes(periods, case_length =-12, custom_sort = custom_sort, group_stats = T, display = F)
+
+eps_d
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_epid(epid = eps_d, date = periods, case_length = -12)
+```
+
 
 <a id="tips"></a>
 
