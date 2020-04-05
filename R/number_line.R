@@ -343,7 +343,10 @@ plot_number_line <- function(x){
   pl_cols <- pl_cols[!duplicated(substr(pl_cols,1,5))]
   df$cols <- ifelse(gid==rep(T, nrow(df)), rev(pl_cols)[as.numeric(as.factor(df$gid))], rev(pl_cols)[1:nrow(df)])
 
-  x_lim <- c(floor(min(df$start)), ceiling(max(df$end)))
+  dec_chk <- function(x) ifelse(x-floor(x)==0,F,T)
+  x_lim <- c(min(df$start, df$end), max(df$start, df$end))
+  x_lim <- c(ifelse(dec_chk(x_lim[1]), floor(x_lim[1]), x_lim[1]),
+             ifelse(dec_chk(x_lim[2]), ceiling(x_lim[2]), x_lim[2]))
   y_lim <- c(min(df$sn), max(df$sn) * 3)
 
   graphics::par(bg="black")
