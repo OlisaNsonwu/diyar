@@ -77,6 +77,9 @@ across <- function(x, y){
   if(!diyar::is.number_line(x) & !lubridate::is.interval(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y) & !lubridate::is.interval(y)) stop(paste("'y' is not a number_line object"))
 
+  x <- diyar::reverse_number_line(x, direction = "decreasing")
+  y <- diyar::reverse_number_line(y, direction = "decreasing")
+
   r <- (y@start > x@start & y@start < (x@start + x@.Data) & (y@start + y@.Data) > (x@start + x@.Data) ) |
     (x@start > y@start & x@start < (y@start + y@.Data) & (x@start + x@.Data) > (y@start + y@.Data) )
   r <- ifelse(!is.finite(r), FALSE, r)
