@@ -331,7 +331,7 @@ number_line_sequence <- function(x, by=1, length.out = NULL){
 # diyar:::plot_number_line(d[c(1,3)])
 # diyar:::plot_number_line(d[c(1:3)])
 
-plot_number_line <- function(x){
+plot_number_line <- function(x, show_overlap = FALSE){
   df <- diyar::to_df(x)
   df$x <- x
   # df <- df[order(-(df$end-df$start)), ]
@@ -360,31 +360,34 @@ plot_number_line <- function(x){
     }
     graphics::points(y=df$sn[i], x = df$start[i], pch = 21, bg=df$cols[i], col=df$cols[i])
 
-    for (j in 1:nrow(df)){
-      om <- overlap_method(df$x[i], df$x[j])
-      if(j>i & om != "none"){
-        if(om %in% c("exact", "inbetween")){
-          x1 <- ifelse(df$start[j]<df$start[i], df$start[i], df$start[j])
-          x2 <- ifelse(df$end[j]<df$end[i], df$end[j], df$end[i])
-          y <- ifelse(df$start[j]<df$start[i], df$sn[i], df$sn[j])
-          o <- ifelse(df$start[j]<df$start[i], -1, .6)
+    if(show_overlap == T){
+      for (j in 1:nrow(df)){
+        om <- overlap_method(df$x[i], df$x[j])
+        if(j>i & om != "none"){
+          if(om %in% c("exact", "inbetween")){
+            x1 <- ifelse(df$start[j]<df$start[i], df$start[i], df$start[j])
+            x2 <- ifelse(df$end[j]<df$end[i], df$end[j], df$end[i])
+            y <- ifelse(df$start[j]<df$start[i], df$sn[i], df$sn[j])
+            o <- ifelse(df$start[j]<df$start[i], -1, .6)
 
-          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x1, x1), lty=2, col=df$cols[i])
-          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x2, x2), lty=2, col=df$cols[i])
-          graphics::text(y = y, x =  mean(c(x1, x2)), labels = om, col=df$cols[i], cex = .8, pos = 1, offset =o)
-        }else if(om=="aligns_end"){
-          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$end[j], df$end[j]), lty=2, col=df$cols[i])
-          graphics::text(srt = 90, y = df$sn[i] + .3, x =  df$end[j], labels = om, col=df$cols[i], cex = .8, pos = 4, offset =.6)
-        }else if(om=="across"){
-          x <- ifelse(df$start[j]<df$start[i], df$start[i], df$start[j])
-          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x, x), lty=2, col=df$cols[i])
-          graphics::text(srt = 90, y = df$sn[i] + .3, x =  x, labels = om, col=df$cols[i], cex = .8, pos = 4, offset =.6)
-        }else{
-          graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$start[j], df$start[j]), lty=2, col=df$cols[i])
-          graphics::text(srt = 90, y = df$sn[i] + .3, x =  df$start[j], labels = om, col=df$cols[i], cex = .8, pos = 4, offset =.6)
+            graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x1, x1), lty=2, col=df$cols[i])
+            graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x2, x2), lty=2, col=df$cols[i])
+            graphics::text(y = y, x =  mean(c(x1, x2)), labels = om, col=df$cols[i], cex = .8, pos = 1, offset =o)
+          }else if(om=="aligns_end"){
+            graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$end[j], df$end[j]), lty=2, col=df$cols[i])
+            graphics::text(srt = 90, y = df$sn[i] + .3, x =  df$end[j], labels = om, col=df$cols[i], cex = .8, pos = 4, offset =.6)
+          }else if(om=="across"){
+            x <- ifelse(df$start[j]<df$start[i], df$start[i], df$start[j])
+            graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x, x), lty=2, col=df$cols[i])
+            graphics::text(srt = 90, y = df$sn[i] + .3, x =  x, labels = om, col=df$cols[i], cex = .8, pos = 4, offset =.6)
+          }else{
+            graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$start[j], df$start[j]), lty=2, col=df$cols[i])
+            graphics::text(srt = 90, y = df$sn[i] + .3, x =  df$start[j], labels = om, col=df$cols[i], cex = .8, pos = 4, offset =.6)
+          }
         }
       }
     }
+
   }
 
   plt <- grDevices::recordPlot()
