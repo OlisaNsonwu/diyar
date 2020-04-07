@@ -1,0 +1,371 @@
+---
+title: "Number lines and overlaps"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Number lines and overlaps}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+plot_number_line <- diyar:::plot_number_line
+```
+
+#Introduction
+`number_line` objects are a range of `numeric` based values. In `diyar`, they represent ranges and periods. How they overlap determine successful matches (see [range matching ](record_group.html#range_matching)) in `record_group()` and overlapping windows (see [interval grouping](episode_group.html#interval_grouping)) in `fixed_episodes()`, `rolling_episodes()` and `episode_group()`. 
+
+#Overview
+```{r include=FALSE}
+library(diyar)
+exp <- number_line(8, 1)
+
+```
+
+For a given `number_line` object e.g. ``r format(exp)``, its main components are;
+
++ `left_point()` - left side of the `number_line` `i.e.` ``r left_point(exp) `` 
++ `right_point()` - right side of the `number_line` `i.e.` ``r right_point(exp) ``
++ `start_point()` - lower end of the `number_line` `i.e.` ``r start_point(exp) ``
++ `end_point()` - upper end of the `number_line` `i.e.` ``r end_point(exp) ``
++ `direction` - `"decreasing"` `(<-)`, `"increasing"` `(->)` or no direction `(==)`
++ `number_line_width()` - difference between the left and right points `i.e.` ``r number_line_width(exp) ``
+
+In `"increasing"` `number_line` objects, the `start_point()` is on the `left_point()` while in `"decreasing"` `number_line` objects, the `start_point()` is on the `right_point()`.
+
+```{r message=FALSE, warning=FALSE}
+library(diyar)
+
+nl_a <- number_line(l=c(3,5), r = c(4,1))
+
+# `number_line` objects
+nl_a
+
+# lower end of the range
+start_point(nl_a)
+
+# start of the range
+left_point(nl_a)
+```
+
+**Figure 1: `number_line` objects **
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(nl_a)
+```
+
+You can reverse the direction of a `number_line` object with `reverse_number_line()`.
+
+```{r message=FALSE, warning=FALSE}
+# reverse only decreasing `number_line` objects
+nl_b <- reverse_number_line(nl_a, direction = "decreasing"); nl_b
+```
+
+**Figure 2: Direction of `number_line` objects **
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(nl_b)
+```
+
+## Manipulating `number_line` objects
+There are convenience functions to reverse, shrink or expand `number_line` objects, or shift them along a the number line. 
+
+```{r message=FALSE, warning=FALSE}
+nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"),
+                    as.Date("07/04/2019", "%d/%M/%Y"))
+
+nl_c
+
+# expand the `number_line` object by 2 days from both ends 
+nl_d <- expand_number_line(nl_c, 2); nl_d
+
+# expand the `number_line` object by 2 days from the lower end
+nl_e <- expand_number_line(nl_c, 2, "start"); nl_e
+
+# shrink the `number_line` object by 2 days from the upper end
+nl_f <- expand_number_line(nl_c, -2, "end"); nl_f
+
+# shrink the `number_line` object by 2 days from both ends
+nl_g <- expand_number_line(nl_c, -2); nl_g
+
+# reverse the direction of the `number_line`
+nl_h <- reverse_number_line(nl_c); nl_h
+
+# shift the `number_line` object towards the left of the number line by 2 days 
+nl_g <- shift_number_line(nl_c, -2); nl_g
+
+# shift the `number_line` object towards the right of the number line by 2 days 
+nl_i <- shift_number_line(nl_c, 2); nl_i
+```
+
+**Figure 3: Manipulated `number_line` objects **
+```{r echo=FALSE, fig.height=2.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i))
+```
+
+You can also convert `number_line` objectss to a sequence of `numeric` based values
+
+```{r message=FALSE, warning=FALSE}
+nls <- c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i)
+
+nls
+
+number_line_sequence(nls, by=2)
+```
+
+## Overlaps
+`number_line` objects can overlap with each other and do so in six ways - `"exact"`, `"inbetween"`, `"across"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. Each pair of `number_line` objects can only overlap by one these methods. For example, a `numberline` object can not have aligned start and end points, instead it's considered an `"exact"` overlap.
+
+**Figure 4a: Example of `exact` overlaps**
+
+```{r message=FALSE, warning=FALSE}
+exact <- c(number_line(1,2), number_line(1,2),
+           # negative test - start_point() and end_point() 
+           # for both must be identical to be an exact mactch
+           number_line(3,4), number_line(4,3), 
+           number_line(2.5,2.5), number_line(2.5,2.5))
+
+# positive logical test
+exact(exact[c(1,3,5)], exact[c(2,4,6)])
+# negtaive logical test
+across(exact[c(1,3,5)], exact[c(2,4,6)])
+# check overlap methods as defined in `diyar`
+overlap_method(exact[c(1,3,5)], exact[c(2,4,6)])
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(exact, show_overlap=T)
+```
+
+**Figure 4b: Example of `inbetween` overlaps**
+
+```{r message=FALSE, warning=FALSE}
+inbetween <- c(number_line(5, 8), number_line(6, 7), 
+               number_line(11, 10), number_line(9, 12), 
+               number_line(13, 15), as.number_line(14))
+
+# positive logical test
+inbetween(inbetween[c(1,3,5)], inbetween[c(2,4,6)])
+# negtaive logical test
+across(inbetween[c(1,3,5)], inbetween[c(2,4,6)])
+# check overlap methods as defined in `diyar`
+overlap_method(inbetween[c(1,3,5)], inbetween[c(2,4,6)])
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(inbetween, show_overlap=T)
+```
+
+**Figure 4c: Example of `across` overlaps **
+
+```{r message=FALSE, warning=FALSE}
+across <- c(number_line(16, 19), number_line(18, 21), 
+            number_line(22, 25), number_line(23, 26),
+            number_line(27, 30), number_line(31, 29))
+
+# positive logical test
+across(across[c(1,3,5)], across[c(2,4,6)])
+# negtaive logical test
+inbetween(across[c(1,3,5)], across[c(2,4,5)])
+# check overlap methods as defined in `diyar`
+overlap_method(across[c(1,3,5)], across[c(2,4,6)])
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(across, show_overlap=T)
+```
+
+**Figure 4d: Example of `chain` overlaps**
+
+```{r message=FALSE, warning=FALSE}
+chain <- c(number_line(32, 34), number_line(34, 36), 
+            number_line(39, 37), number_line(41, 39), 
+           # negative test - end_point() of one must lead to the start_point() 
+           # to be considered a chain overlap
+           number_line(42, 44), number_line(47, 44))
+
+# positive logical test
+chain(chain[c(1,3,5)], chain[c(2,4,6)])
+# negtaive logical test
+across(chain[c(1,3,5)], chain[c(2,4,6)])
+# check overlap methods as defined in `diyar`
+overlap_method(chain[c(1,3,5)], chain[c(2,4,6)])
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(chain, show_overlap=T)
+```
+
+
+**Figure 4e: Example of `aligns_start` overlaps**
+
+```{r message=FALSE, warning=FALSE}
+aligns_start <- c(number_line(45, 46), number_line(45, 47), 
+            number_line(48, 49.5), number_line(48, 48),
+            number_line(51, 50), number_line(51, 52))
+
+# positive logical test
+aligns_start(aligns_start[c(1,3,5)], aligns_start[c(2,4,6)])
+# negtaive logical test
+across(aligns_start[c(1,3,5)], aligns_start[c(2,4,6)])
+# check overlap methods as defined in `diyar`
+overlap_method(aligns_start[c(1,3,5)], aligns_start[c(2,4,6)])
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(aligns_start, show_overlap=T)
+```
+
+**Figure 4f: Example of `aligns_end` overlaps**
+
+```{r message=FALSE, warning=FALSE}
+aligns_end <- c(number_line(54, 55), number_line(53, 55), 
+            number_line(56, 57.5), number_line(57.5, 57.5), 
+            number_line(58, 59), number_line(60, 59))
+
+# positive logical test
+aligns_end(aligns_end[c(1,3,5)], aligns_end[c(2,4,6)])
+# negtaive logical test
+across(aligns_end[c(1,3,5)], aligns_end[c(2,4,6)])
+# check overlap methods as defined in `diyar`
+overlap_method(aligns_end[c(1,3,5)], aligns_end[c(2,4,6)])
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(aligns_end, show_overlap=T)
+```
+
+## Compressing `number_line` objects
+You can compress a pair of overlapping `number_line` objects into one using `compress_number_line()`. You can also choose to compress only those that overlap in a certain way among the 6 methods shown above.
+
+**Figure 5a: Pairs of `number_line` objects overlapping by `"inbetween"` and `"exact"` methods**
+```{r message=FALSE, warning=FALSE}
+cnl_a <- c(inbetween, exact)
+cnl_a
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(c(inbetween, exact), show_overlap=T)
+```
+
+**Figure 5b. Pairs of `number_line` objects overlapping by `"inbetween"` and `"exact"` methods compressed into one**
+```{r message=FALSE, warning=FALSE}
+cmp_a <- compress_number_line(cnl_a, deduplicate = T)
+cmp_a
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+f <- number_line(left_point(c(cnl_a, cmp_a)), right_point(c(cnl_a, cmp_a)), gid =c(cnl_a@gid, cmp_a@gid), id =c(cnl_a@id, cmp_a@id)  )
+plot_number_line(f, show_overlap=F)
+```
+
+**Figure 6a: Pairs of `number_line` objects overlapping by `"across"` and `"chain"` methods**
+```{r message=FALSE, warning=FALSE}
+cnl_b <- c(across, chain)
+cnl_b
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(c(across, chain), show_overlap=T)
+```
+
+**Figure 6b. Pairs of `number_line` objects overlapping by `"across"` and `"chain"` methods compressed into one**
+```{r message=FALSE, warning=FALSE}
+cmp_b <- compress_number_line(cnl_b, deduplicate = T)
+cmp_b
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+f <- number_line(left_point(c(cnl_b, cmp_b)), right_point(c(cnl_b, cmp_b)), gid =c(cnl_b@gid, cmp_b@gid), id =c(cnl_b@id, cmp_b@id)  )
+plot_number_line(f, show_overlap=F)
+```
+
+**Figure 7a: Pairs of `number_line` objects overlapping by `"aligns_start"` and `"aligns_end"` methods**
+```{r message=FALSE, warning=FALSE}
+cnl_c <- c(aligns_start, aligns_end)
+cnl_c
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(c(aligns_start, aligns_end), show_overlap=T)
+```
+
+You can choose to only compress `number_line` objects that overlap in a particular way using the `methods` arguement.
+
+**Figure 7b. Pairs of `number_line` objects overlapping by `"aligns_start"` and `"exact"` methods compressed into one**
+```{r message=FALSE, warning=FALSE}
+cmp_c <- compress_number_line(cnl_c, deduplicate = T, methods ="aligns_start|exact")
+cmp_c
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+f <- number_line(left_point(c(cnl_c, cmp_c)), right_point(c(cnl_c, cmp_c)), gid =c(cnl_c@gid, cmp_c@gid), id =c(cnl_c@id, cmp_c@id))
+plot_number_line(f, show_overlap=F)
+```
+
+## Collapsing `number_line` objects
+The resulting `number_line` objects from a compressed pair can yet again overlap with others, especially when not all `methods` were used. By default, resulting compressed `number_line` objects are not compressed a second time however, you can do so using the `collapse` arguement. It's worth mentioning that this process starts from the 1^st^ `number_line` object and then proceedes to the last in the set. Therefore, their position in the set can lead to different results. 
+
+In the figure below, there are `"across"`, `"chain"`, `"inbetween"` and `"aligns_end"` overlaps.
+
+**Figure 8a: Pairs of `number_line` objects overlapping by `"across"`, `"chain"`, `"inbetween"` and `"aligns_end"` methods**
+```{r message=FALSE, warning=FALSE}
+nl_z <- number_line(l= c(1,2,4,5,6), r = c(3,4,8,8,7))
+nl_z
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(nl_z, show_overlap=T)
+```
+
+In the example below, we chose to only compress the pairs that overlap by `"chain"` and `"aligns_end"` methods. The resulting `number_line` object from compressing ``r paste0(format(nl_z[1:2]), collapse=" and ")`` now overlaps with the resulting `number_line` objects from compressing ``r  paste0(format(nl_z[3:4]), collapse=" and ")``.
+ 
+**Figure 8b: Pairs of `number_line` objects overlapping by `"chain"` and `"aligns_end"` methods compressed into one**
+
+```{r message=FALSE, warning=FALSE}
+cmp_z <- compress_number_line(nl_z, methods = "across|chain")
+
+cmp_z
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(cmp_z, show_overlap=T)
+```
+
+As mentioned, if each `number_line` object's postion in the set changes, the result could also change. See below. 
+
+**Figure 8c: Rearranged pairs of `number_line` objects overlapping by `"across"`, `"chain"`, `"inbetween"` and `"aligns_end"` methods **
+
+```{r message=FALSE, warning=FALSE}
+nl_zb <- nl_z[c(2:5,1)]; nl_zb
+
+cmp_zb <- compress_number_line(nl_zb, methods = "across|chain"); cmp_zb
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(cmp_zb, show_overlap=T)
+```
+
+In Fig. 8b, ``r format(nl_z[1])`` came first, so only `number_line` objects that overlapped with ``r format(nl_z[1])`` were compressed. However in Fig. 8c, because of the new positions, ``r format(nl_zb[1])`` came first, so only those that overlapped with ``r format(nl_z[1])`` were compressed. 
+
+However, you can use the `collpase` arguement to further compress already compressed `number_line` objects if they overlap again. In the example below, we collapse (rather than compress) the inital set (`nl_zb`) which gives the same result as compressing the rearranged version. 
+
+**Figure 8d: pairs of `number_line` objects overlapping by `"chain"` and `"aligns_end" methods collapsed into one**
+
+```{r message=FALSE, warning=FALSE}
+cmp_zba <- compress_number_line(nl_z, methods = "across|chain", collapse = T); cmp_zba
+```
+
+```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_number_line(cmp_zba, show_overlap=T)
+```
+
+\newline
+
+`fixed_episodes()`, `rolling_episodes()` and `episode_group()` are more advanced implementations of `compress_number_line()`. They can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. They have additional useful features such as controlling the sequence in which pairs are compressed i.e. chronological order (`from_last`) or a user defined order (`custom_sort`), and considering add periods (`case_length` and `recurrence_length`) before and/or (`bi_direction`) after the reference `number_line` object. See [episode grouping](episode_group.html) for further details.
+
