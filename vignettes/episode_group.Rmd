@@ -467,9 +467,9 @@ There are a few things to note with stratified grouping;
 - Episode grouping with and without a sub-strata are different and could lead to different results
 - Using a sub-strata is not the same as adding that sub-strata to the `strata` argument. In the example above, adding `treated` to `strata` will group treated infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not required treated and untreated infections to be grouped separately, only that the treated infections last longer.
 
-Stratified grouping is the same as doing a separate analysis for each subset (`strata`) of the dataset.
-
 <a id="interval_grouping"></a>
+
+Stratified grouping is the same as doing a separate analysis for each subset (`strata`) of the dataset.
 
 ## Interval grouping
 Here we discuss the process of grouping `periods of events` into `episodes`. Each `event period` is essentially a record with a `start_point()` and `end_point()` in time. For the purpose of episode grouping, these `event periods` are created as `number_line()` objects and supplied to the `date` argument. Overlapping `event periods` are then grouped into episodes.

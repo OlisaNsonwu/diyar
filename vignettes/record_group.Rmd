@@ -221,6 +221,8 @@ patient_list_2$pids_b <- record_group(patient_list_2, criteria = c(forename, sur
 patient_list_2[c("forename","surname","pids_b")]
 ```
 
+<a id = "range_matching"></a>
+
 In the example above, records 1-3 are assigned a single group ID even though record 3 is clearly a different individual. This issue can be addressed by recoding `"Nil"` to `NA` or `""`.
 
 ```{r warning=F, message=F}
@@ -238,8 +240,6 @@ patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, surname
 
 patient_list_2[c("forename","surname","pids_d","pids_e")]
 ```
-
-<a id = "range_matching"></a>
 
 ## Inexact matching - text transformation and range matching
 Sometimes an exact match might be too strict and a less exact but reasonable approximation can be used. For example in `patient_list_2` above, records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. An alternative approach can be to use the surname initials or a Soundex transformation of the actual surname.
