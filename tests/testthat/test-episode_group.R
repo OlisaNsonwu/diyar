@@ -610,7 +610,7 @@ t_ds$date <- dmy_hms(format(t_ds$date, "%d/%m/%Y 00:00:00"))
 t_ds$epi_len <- as.numeric(duration(t_ds$epi_len, "days"))
 
 test_that("test fixed and rolling episode funcs errors", {
-   expect_error(rolling_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
+  expect_error(rolling_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
   expect_error(fixed_episodes(date=c(t_ds$date[1:10],NA), case_length = t_ds$epi_len, strata = t_ds$patient_id), "All 'date' values must be a date, datetime, numeric or number_line object")
 
   expect_error(rolling_episodes(date=t_ds$date, case_length = t_ds$epi_len, strata = t_ds$patient_id, overlap_method = 1), "'overlap_method' must be a character object")
@@ -692,7 +692,9 @@ test_that("test that fixed_episodes() with numeric 'date' works the same as comp
 
 test_that("test some generic functions", {
   expect_equal(show(new("epid")), "epid(0)")
-  expect_equal(c(as.epid(5), as.epid(5)), rep(as.epid(5), 2))
+  b <- rep(as.epid(5), 2)
+  b@epid_interval@gid <- b@epid_interval@id <- 1:length(b)
+  expect_equal(c(as.epid(5), as.epid(5)), b)
 })
 
 
