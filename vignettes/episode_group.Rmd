@@ -24,7 +24,7 @@ Deduplicating events is an important step in establishing a case definition in e
 `fixed_episodes()`, `rolling_episodes()` and `episode_group()` provide simple but flexible ways of grouping records from multiple datasets into episodes. This then allows for easy deduplication or a sub-analysis within each episode.
 
 #Uses
-You can use [`record_group()`](record_group.html) and these episode grouping functions to implement a variety of case definitions. For example, they can group episodes;
+You can use [record_group](record_group.html) and these episode grouping functions to implement a variety of case definitions. For example, they can group episodes;
 
 + from events that occur at points in time e.g. medical diagnoses or traffic incidents
 + from events that occur within periods of time e.g. hospital stay. See [interval grouping](#interval_grouping)
