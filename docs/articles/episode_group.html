@@ -56,6 +56,9 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
+      <a href="../articles/number_line.html">Number lines and overlaps</a>
+    </li>
+    <li>
       <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
@@ -78,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">31 March 2020</h4>
+            <h4 class="date">07 April 2020</h4>
       
       
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -96,7 +99,7 @@
 <div id="uses" class="section level1">
 <h1 class="hasAnchor">
 <a href="#uses" class="anchor"></a>Uses</h1>
-<p>You can use <a href="record_group.html"><code><a href="../reference/record_group.html">record_group()</a></code></a> and these episode grouping functions to implement a variety of case definitions. For example, they can group episodes;</p>
+<p>You can use <a href="record_group.html">record_group</a> and these episode grouping functions to implement a variety of case definitions. For example, they can group episodes;</p>
 <ul>
 <li>from events that occur at points in time e.g. medical diagnoses or traffic incidents</li>
 <li>from events that occur within periods of time e.g. hospital stay. See <a href="#interval_grouping">interval grouping</a>
@@ -539,8 +542,8 @@ dbs
 <li>Episode grouping with and without a sub-strata are different and could lead to different results</li>
 <li>Using a sub-strata is not the same as adding that sub-strata to the <code>strata</code> argument. In the example above, adding <code>treated</code> to <code>strata</code> will group treated infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not required treated and untreated infections to be grouped separately, only that the treated infections last longer.</li>
 </ul>
-<p>Stratified grouping is the same as doing a separate analysis for each subset (<code>strata</code>) of the dataset.</p>
 <p><a id="interval_grouping"></a></p>
+<p>Stratified grouping is the same as doing a separate analysis for each subset (<code>strata</code>) of the dataset.</p>
 </div>
 </div>
 <div id="interval-grouping" class="section level2">
@@ -550,24 +553,24 @@ dbs
 <p>Below is a simple examples;</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>), <span class="st">"%d/%M/%Y"</span>)
 dates
-<span class="co">#&gt; [1] "2019-03-01" "2019-03-05"</span>
+<span class="co">#&gt; [1] "2019-04-01" "2019-04-05"</span>
 
 <span class="co"># A 10-day period from each date</span>
 periods &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(dates, dates <span class="op">+</span><span class="st"> </span><span class="dv">10</span>)
 periods
-<span class="co">#&gt; [1] "2019-03-01 -&gt; 2019-03-11" "2019-03-05 -&gt; 2019-03-15"</span>
+<span class="co">#&gt; [1] "2019-04-01 -&gt; 2019-04-11" "2019-04-05 -&gt; 2019-04-15"</span>
 
 <span class="co"># Grouping events</span>
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dates, <span class="dt">case_length=</span><span class="dv">30</span>, <span class="dt">display=</span><span class="ot">FALSE</span>, <span class="dt">group_stat=</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E.1 2019-03-01 -&gt; 2019-03-05 (C) C.1"</span>
-<span class="co">#&gt; [2] "E.1 2019-03-01 -&gt; 2019-03-05 (D) C.1"</span>
+<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-05 (C) C.1"</span>
+<span class="co">#&gt; [2] "E.1 2019-04-01 -&gt; 2019-04-05 (D) C.1"</span>
 
 <span class="co"># Grouping periods</span>
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>periods, <span class="dt">case_length=</span><span class="dv">30</span>, <span class="dt">display=</span><span class="ot">FALSE</span>, <span class="dt">group_stat=</span><span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E.1 2019-03-01 -&gt; 2019-03-15 (C) C.1"</span>
-<span class="co">#&gt; [2] "E.1 2019-03-01 -&gt; 2019-03-15 (D) C.1"</span></code></pre></div>
+<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-15 (C) C.1"</span>
+<span class="co">#&gt; [2] "E.1 2019-04-01 -&gt; 2019-04-15 (D) C.1"</span></code></pre></div>
 <p>For a practical example, below are periods of hospital stay which have been grouped into <code>episodes</code>. This is different from grouping the actual admission or discharge events.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hos_admin &lt;-<span class="st"> </span>diyar<span class="op">::</span>hospital_admissions
 hos_admin<span class="op">$</span>admin_period &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(hos_admin<span class="op">$</span>admin_dt, hos_admin<span class="op">$</span>discharge_dt)
@@ -659,62 +662,83 @@ epids[<span class="st">"cb2"</span>]
 <span class="co">#&gt; [4] "E.8 2019-01-20 -&gt; 2019-01-30 (C) C.8"</span>
 <span class="co">#&gt; [5] "E.2 2019-01-01 -&gt; 2019-01-13 (D) C.2"</span>
 <span class="co">#&gt; [6] "E.8 2019-01-20 -&gt; 2019-01-30 (D) C.8"</span></code></pre></div>
-<p><strong>Figure 9a: Grouped episodes if considering only “exact” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-54-1.png" width="816"></p>
-<p><strong>Figure 9b: Grouped episodes if considering only “chain” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-55-1.png" width="816"><strong>Figure 9c: Grouped episodes if considering “chain” or “inbetween” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-56-1.png" width="816"></p>
+<p><strong>Figure 9a: Grouped episodes when considering only “exact” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-54-1.png" width="816"></p>
+<p><strong>Figure 9b: Grouped episodes when considering only “chain” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-55-1.png" width="816"><strong>Figure 9c: Grouped episodes when considering “chain” or “inbetween” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-56-1.png" width="816"></p>
 <div id="case-length-and-recurrence-length-in-interval-grouping" class="section level3">
 <h3 class="hasAnchor">
 <a href="#case-length-and-recurrence-length-in-interval-grouping" class="anchor"></a>Case length and recurrence length in interval grouping</h3>
 <p>From <code>diyar v0.1.0</code>, you can use negative <code>case_lengths</code> and <code>recurrence_lengths</code>.</p>
 <ul>
-<li>Using positive “lengths” will collapse two periods into one, if the second one is within (or any other method of <code>overlap</code>) the first one or <code>n</code>-days (or any other <code>episode_unit</code>) after the <code><a href="../reference/number_line.html">end_point()</a></code> of the first period.</li>
-<li>Using negative “lengths” will collapse two periods into one, if the second one is within (or any other method of <code>overlap</code>) the <code><a href="../reference/number_line.html">start_point()</a></code> and <code>n</code>-days (or any other <code>episode_unit</code>) before the <code><a href="../reference/number_line.html">end_point()</a></code> of the first.</li>
-<li>Using negative “lengths” that’s larger than the <code><a href="../reference/number_line.html">number_line_width()</a></code> will collapse two periods into one, if the second one is within (or any other method of <code>overlap</code>) <code>(n + 1 + number_line_width())</code>-days (or any other <code>episode_unit</code>) before the <code><a href="../reference/number_line.html">start_point()</a></code> and the <code><a href="../reference/number_line.html">start_point()</a></code>of the first.
+<li>Using positive “lengths” will collapse two periods into one, if the second one is within* the first one or <code>n</code>-days<sup>+</sup> after the end of the first one.</li>
+<li>Using negative “lengths” will collapse two periods into one, if the second one is within* the start and <code>n</code>-days<sup>+</sup> before the end of the first one.</li>
+<li>Using negative “lengths” that’s larger than the duration of the period will collapse the two periods into one, if the second one is within* <code>(n + 1 + number_line_width())</code>-days<sup>+</sup> before the start of the first one.
 <ul>
 <li><strong>note that this will happen even if <code>from_last</code> is TRUE</strong></li>
 </ul>
 </li>
 </ul>
-<p><em>Examples below</em></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pa &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"03/04/2019"</span>, <span class="st">"07/04/2019"</span>,<span class="st">"12/04/2019"</span>)
-pz &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"10/04/2019"</span>, <span class="st">"05/04/2019"</span>, <span class="st">"09/04/2019"</span>,<span class="st">"13/04/2019"</span>)
+<p>*within or any other method of <code>overlap</code></p>
+<p><em><sup>+</sup> days or any other <code>episode_unit</code></em></p>
+<p><strong>Examples below</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pa &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"28/03/2019"</span>, <span class="st">"01/04/2019"</span>, <span class="st">"03/04/2019"</span>, <span class="st">"07/04/2019"</span>,<span class="st">"12/04/2019"</span>)
+pz &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"31/03/2019"</span>, <span class="st">"10/04/2019"</span>, <span class="st">"05/04/2019"</span>, <span class="st">"09/04/2019"</span>,<span class="st">"13/04/2019"</span>)
 
 pa &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(pa, <span class="st">"%d/%m/%Y"</span>)
 pz &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(pz, <span class="st">"%d/%m/%Y"</span>)
 
 periods &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(pa, pz)
 periods
-<span class="co">#&gt; [1] "2019-04-01 -&gt; 2019-04-10" "2019-04-03 -&gt; 2019-04-05"</span>
-<span class="co">#&gt; [3] "2019-04-07 -&gt; 2019-04-09" "2019-04-12 -&gt; 2019-04-13"</span></code></pre></div>
+<span class="co">#&gt; [1] "2019-03-28 -&gt; 2019-03-31" "2019-04-01 -&gt; 2019-04-10"</span>
+<span class="co">#&gt; [3] "2019-04-03 -&gt; 2019-04-05" "2019-04-07 -&gt; 2019-04-09"</span>
+<span class="co">#&gt; [5] "2019-04-12 -&gt; 2019-04-13"</span></code></pre></div>
 <p><strong>Figure 9d: Fixed episodes with a case_length of 6</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="dv">6</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-eps_a &lt;-<span class="st"> </span>eps_a[eps_a<span class="op">@</span>epid_total<span class="op">&gt;</span><span class="dv">1</span>]
 
 eps_a
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-13 (C) C.1"</span>
-<span class="co">#&gt; [2] "E.1 2019-04-01 -&gt; 2019-04-13 (D) C.1"</span>
-<span class="co">#&gt; [3] "E.1 2019-04-01 -&gt; 2019-04-13 (D) C.1"</span>
-<span class="co">#&gt; [4] "E.1 2019-04-01 -&gt; 2019-04-13 (D) C.1"</span></code></pre></div>
+<span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-04-10 (C) C.1"</span>
+<span class="co">#&gt; [2] "E.1 2019-03-28 -&gt; 2019-04-10 (D) C.1"</span>
+<span class="co">#&gt; [3] "E.1 2019-03-28 -&gt; 2019-04-10 (D) C.1"</span>
+<span class="co">#&gt; [4] "E.4 2019-04-07 -&gt; 2019-04-13 (C) C.4"</span>
+<span class="co">#&gt; [5] "E.4 2019-04-07 -&gt; 2019-04-13 (D) C.4"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-59-1.png" width="816"></p>
+<p>Use positive “lengths” when you need to capture periods within a specified duration after the end of a <code>reference period</code>.</p>
 <p><strong>Figure 9e: Fixed episodes with a case_length of -2</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">2</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-eps_b &lt;-<span class="st"> </span>eps_b[eps_b<span class="op">@</span>epid_total<span class="op">&gt;</span><span class="dv">1</span>]
+<span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
 
 eps_b
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-10 (C) C.1"</span>
-<span class="co">#&gt; [2] "E.1 2019-04-01 -&gt; 2019-04-10 (D) C.1"</span>
-<span class="co">#&gt; [3] "E.1 2019-04-01 -&gt; 2019-04-10 (D) C.1"</span></code></pre></div>
+<span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-03-31 (C) C.1"</span>
+<span class="co">#&gt; [2] "E.2 2019-04-01 -&gt; 2019-04-10 (C) C.2"</span>
+<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D) C.2"</span>
+<span class="co">#&gt; [4] "E.2 2019-04-01 -&gt; 2019-04-10 (D) C.2"</span>
+<span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C) C.5"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-61-1.png" width="816"></p>
 <p><strong>Figure 9f: Fixed episodes with a case_length of -6</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">6</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
-eps_c &lt;-<span class="st"> </span>eps_c[eps_c<span class="op">@</span>epid_total<span class="op">&gt;</span><span class="dv">1</span>]
+<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
 
 eps_c
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-10 (C) C.1"</span>
-<span class="co">#&gt; [2] "E.1 2019-04-01 -&gt; 2019-04-10 (D) C.1"</span></code></pre></div>
+<span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-03-31 (C) C.1"</span>
+<span class="co">#&gt; [2] "E.2 2019-04-01 -&gt; 2019-04-10 (C) C.2"</span>
+<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D) C.2"</span>
+<span class="co">#&gt; [4] "E.4 2019-04-07 -&gt; 2019-04-09 (C) C.4"</span>
+<span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C) C.5"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-63-1.png" width="816"></p>
+<p>Use negative “lengths” when you only want to capture periods that at least ended <code>n-days</code><sup>+</sup> before the end of the <code>reference period</code>.</p>
+<p>It is possible to use a negative “length” that’s so large, the <code>reference period</code> will capture periods that occur before itself. Consider this a record level implementation of <code>bi_direction</code>. Just like <code>bi_direction</code>, this is only relevant when you use a <code>custom_sort</code>. See below.</p>
+<p><strong>Figure 9g: Fixed episodes with a case_length of -12</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">custom_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">2</span>)
+eps_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">12</span>, <span class="dt">custom_sort =</span> custom_sort, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+
+eps_d
+<span class="co">#&gt; [1] "E.2 2019-03-28 -&gt; 2019-04-10 (D) C.2"</span>
+<span class="co">#&gt; [2] "E.2 2019-03-28 -&gt; 2019-04-10 (C) C.2"</span>
+<span class="co">#&gt; [3] "E.4 2019-04-03 -&gt; 2019-04-09 (D) C.4"</span>
+<span class="co">#&gt; [4] "E.4 2019-04-03 -&gt; 2019-04-09 (C) C.4"</span>
+<span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C) C.5"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-65-1.png" width="816"></p>
 <p><a id="tips"></a></p>
 </div>
 </div>

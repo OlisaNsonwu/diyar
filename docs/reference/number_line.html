@@ -89,6 +89,9 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
+      <a href="../articles/number_line.html">Number lines and overlaps</a>
+    </li>
+    <li>
       <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
@@ -150,7 +153,7 @@
   <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"exact|across|chain|aligns_start|aligns_end|inbetween"</span>)
 
-<span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>)</pre>
+<span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -181,7 +184,7 @@
     </tr>
     <tr>
       <th>by</th>
-      <td><p>increment or decrement</p></td>
+      <td><p>number: increment of the sequence. Passed to <code><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq()</a></code></p></td>
     </tr>
     <tr>
       <th>point</th>
@@ -202,6 +205,10 @@
     <tr>
       <th>methods</th>
       <td><p>Methods of overlap. Check multiple pairs of <code>number_line</code> objects with the different sets of <code>methods</code></p></td>
+    </tr>
+    <tr>
+      <th>length.out</th>
+      <td><p>desired length of the sequence. Passed to <code><a href='https://www.rdocumentation.org/packages/base/topics/seq'>seq()</a></code></p></td>
     </tr>
     </table>
     
@@ -266,7 +273,7 @@ The direction of the sequence will correspond to that of the <code>number_line</
 #&gt; [1] 1 2 3 4 5
 #&gt; </div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>5</span>, <span class='fl'>1</span>), <span class='fl'>.5</span>)</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] 5.0 4.5 4.0 3.5 3.0 2.5 2.0 1.5 1.0
-#&gt; </div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>5</span>:<span class='fl'>1</span>, <span class='fl'>1</span>:<span class='fl'>5</span>), <span class='fl'>1</span>:<span class='fl'>5</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: the condition has length &gt; 1 and only the first element will be used</span></div><div class='output co'>#&gt; [[1]]
+#&gt; </div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>5</span>:<span class='fl'>1</span>, <span class='fl'>1</span>:<span class='fl'>5</span>), <span class='fl'>1</span>:<span class='fl'>5</span>)</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] 5 4 3 2 1
 #&gt; 
 #&gt; [[2]]
@@ -276,21 +283,23 @@ The direction of the sequence will correspond to that of the <code>number_line</
 #&gt; [1] 3
 #&gt; 
 #&gt; [[4]]
-#&gt; [1] 2 4
+#&gt; [1] 2
 #&gt; 
 #&gt; [[5]]
-#&gt; [1] 1 5
+#&gt; [1] 1
 #&gt; </div><div class='input'>
-<span class='no'>nl</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"01/04/2019 00:00:00"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/ymd_hms.html'>dmy_hms</a></span>(<span class='st'>"04/04/2019 00:00:00"</span>))
-<span class='fu'>number_line_sequence</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>nl</span>, <span class='no'>nl</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'><a href='http://lubridate.tidyverse.org/reference/duration.html'>duration</a></span>(<span class='fl'>1.5</span>,<span class='st'>"days"</span>), <span class='fu'><a href='http://lubridate.tidyverse.org/reference/duration.html'>duration</a></span>(<span class='fl'>12</span>,<span class='st'>"hours"</span>)))</div><div class='output co'>#&gt; <span class='warning'>Warning: the condition has length &gt; 1 and only the first element will be used</span></div><div class='output co'>#&gt; [[1]]
-#&gt; [1] "2019-04-01 00:00:00 UTC" "2019-04-02 12:00:00 UTC"
-#&gt; [3] "2019-04-04 00:00:00 UTC"
+<span class='no'>nl</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.POSIXlt'>as.POSIXlt</a></span>(<span class='st'>"01/04/2019 00:00:00"</span>, <span class='st'>"UTC"</span>,<span class='kw'>format</span><span class='kw'>=</span><span class='st'>"%d/%m/%Y %H:%M:%S"</span>),
+<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.POSIXlt'>as.POSIXlt</a></span>(<span class='st'>"04/04/2019 00:00:00"</span>, <span class='st'>"UTC"</span>,<span class='kw'>format</span><span class='kw'>=</span><span class='st'>"%d/%m/%Y %H:%M:%S"</span>))
+
+<span class='fu'>number_line_sequence</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>nl</span>, <span class='no'>nl</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>episode_unit</span><span class='kw'>[[</span><span class='st'>"days"</span>]] * <span class='fl'>1.5</span>, <span class='no'>episode_unit</span><span class='kw'>[[</span><span class='st'>"hours"</span>]] * <span class='fl'>12</span>))</div><div class='output co'>#&gt; [[1]]
+#&gt; [1] "2019-04-01 01:00:00 BST" "2019-04-02 13:00:00 BST"
+#&gt; [3] "2019-04-04 01:00:00 BST"
 #&gt; 
 #&gt; [[2]]
-#&gt; [1] "2019-04-01 00:00:00 UTC" "2019-04-01 12:00:00 UTC"
-#&gt; [3] "2019-04-02 00:00:00 UTC" "2019-04-02 12:00:00 UTC"
-#&gt; [5] "2019-04-03 00:00:00 UTC" "2019-04-03 12:00:00 UTC"
-#&gt; [7] "2019-04-04 00:00:00 UTC"
+#&gt; [1] "2019-04-01 01:00:00 BST" "2019-04-01 13:00:00 BST"
+#&gt; [3] "2019-04-02 01:00:00 BST" "2019-04-02 13:00:00 BST"
+#&gt; [5] "2019-04-03 01:00:00 BST" "2019-04-03 13:00:00 BST"
+#&gt; [7] "2019-04-04 01:00:00 BST"
 #&gt; </div><div class='input'>
 </div></pre>
   </div>

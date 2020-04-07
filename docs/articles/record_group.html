@@ -56,6 +56,9 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
+      <a href="../articles/number_line.html">Number lines and overlaps</a>
+    </li>
+    <li>
       <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
@@ -78,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">31 March 2020</h4>
+            <h4 class="date">07 April 2020</h4>
       
       
       <div class="hidden name"><code>record_group.Rmd</code></div>
@@ -416,6 +419,7 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <span class="co">#&gt; 3      Nil       Abdul P.1 (CRI 01)</span>
 <span class="co">#&gt; 4     Tomi Abdulkareem P.4 (No Hit)</span>
 <span class="co">#&gt; 5     &lt;NA&gt;        &lt;NA&gt; P.5 (No Hit)</span></code></pre></div>
+<p><a id="range_matching"></a></p>
 <p>In the example above, records 1-3 are assigned a single group ID even though record 3 is clearly a different individual. This issue can be addressed by recoding <code>"Nil"</code> to <code>NA</code> or <code>""</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Using NA as the proxy for missing value</span>
 patient_list_<span class="dv">2</span><span class="op">$</span>forename &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(patient_list_<span class="dv">2</span><span class="op">$</span>forename<span class="op">==</span><span class="st">"Nil"</span>, <span class="ot">NA</span>, patient_list_<span class="dv">2</span><span class="op">$</span>forename)

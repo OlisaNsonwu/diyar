@@ -89,6 +89,9 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
+      <a href="../articles/number_line.html">Number lines and overlaps</a>
+    </li>
+    <li>
       <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
@@ -124,8 +127,8 @@
     </div>
 
     <pre class="usage"><span class='fu'>record_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>criteria</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -145,6 +148,10 @@
     <tr>
       <th>sub_criteria</th>
       <td><p>Matching sub-criteria. Additional matching conditions for each stage (<code>criteria</code>).</p></td>
+    </tr>
+    <tr>
+      <th>strata</th>
+      <td><p>Subsets of the dataset within which record grouping will be done separately. You can use multiple columns supplied as column names.</p></td>
     </tr>
     <tr>
       <th>data_source</th>

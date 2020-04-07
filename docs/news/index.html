@@ -86,6 +86,9 @@
       <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
     </li>
     <li>
+      <a href="../articles/number_line.html">Number lines and overlaps</a>
+    </li>
+    <li>
       <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
@@ -121,6 +124,8 @@
 <h2 class="hasAnchor">
 <a href="#new-features" class="anchor"></a>New features</h2>
 <ul>
+<li>
+<code>strata</code> argument for <code><a href="../reference/record_group.html">record_group()</a></code>. Perform record grouping separately within subsets of a dataset.</li>
 <li>
 <code>overlap_methods</code> and <code>methods</code> arguments added to replace <code>overlap_method</code> and <code>method</code> respectively. When grouping episodes or collapsing <code>number_line</code> objects, <code>overlap_methods</code> and <code>methods</code> allow you to use different sets of methods for different subsets of a dataset. <code>overlap_method</code> and <code>method</code> could only use 1 set of methods per dataset.</li>
 <li>New <code>win_nm</code> slot for <code>epid</code> objects. Shows they type of window each event belongs to i.e. case or recurrence window</li>
