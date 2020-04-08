@@ -271,16 +271,25 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
   while (min(t) ==0 & j<=length(x)){
     l <- x[t==0][1]
     h <- (x@id == l@id | diyar::overlap(x, l, methods=m)) & ifelse(collapse, TRUE, (t!=1))
-    # x[which(h)]@.Data <- as.numeric(max(diyar::end_point(x)[which(h)])) - as.numeric(min(diyar::start_point(x)[which(h)]))
-    # x[which(h)]@start <- min(diyar::start_point(x)[which(h)])
-    # x[which(h)]@gid <- sort(x[which(h),])[1]@id
-    #x[which(h & l@id==x@id)] <- x[which(h & l@id==x@id)]
-    x[which(h)] <- number_line(min(diyar::start_point(x)[which(h)]),
-                               max(diyar::end_point(x)[which(h)]),
-                               gid = sort(x[which(h)])[1]@id,
-                               id = x[which(h)]@id)
 
-    t[which(h)] <- 1
+    if(length(h)>=1){
+      mx_in <- ifelse(length(x[h & x@.Data >=0]) >0, max(x[h & x@.Data >=0]@.Data), 0)
+      mx_dc <- ifelse(length(x[h & x@.Data  <0]) >0, max(abs(x[h & x@.Data <0]@.Data)), 0)
+
+      if(mx_in >= mx_dc){
+        x[h] <- number_line(min(diyar::start_point(x)[h]),
+                            max(diyar::end_point(x)[h]),
+                            gid = sort(x[h])[1]@id,
+                            id = x[h]@id)
+      }else{
+        x[h] <- number_line(max(diyar::end_point(x)[h]),
+                            min(diyar::start_point(x)[h]),
+                            gid = sort(x[h])[1]@id,
+                            id = x[h]@id)
+      }
+    }
+
+    t[h] <- 1
     if(min(t)==1) break
     j <- j + 1
   }
@@ -416,7 +425,11 @@ plot_number_line <- function(x, show_overlap = FALSE){
             graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(df$end[j], df$end[j]), lty=2, col=df$cols[i])
             graphics::text(srt = 90, y = df$sn[i] + (sf * .05), x =  df$end[j] + (sf * .05), labels = om_l, col=df$cols[i], cex = (sf * .8), pos = 4, offset =.6)
           }else if(om=="across"){
-            x <- ifelse(df$start[j]<df$start[i], df$start[i], df$start[j])
+            x <- ifelse(df$start[j] <= df$end[i] & df$start[j] >= df$start[i], df$start[j], df$end[j])
+            graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x, x), lty=2, col=df$cols[i])
+            graphics::text(srt = 90, y = df$sn[i] + (sf * .05), x =  x + (sf * .05), labels = om_l, col=df$cols[i], cex = (sf * .8), pos = 4, offset =.6)
+          }else if(om=="chain"){
+            x <- ifelse(df$start[j] <= df$end[j] & df$start[j] >= df$start[i], df$start[j], df$end[j])
             graphics::lines(y=c(df$sn[i], df$sn[j]), x=c(x, x), lty=2, col=df$cols[i])
             graphics::text(srt = 90, y = df$sn[i] + (sf * .05), x =  x + (sf * .05), labels = om_l, col=df$cols[i], cex = (sf * .8), pos = 4, offset =.6)
           }else{

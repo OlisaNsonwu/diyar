@@ -201,7 +201,6 @@ overlap_method(chain[c(1,3,5)], chain[c(2,4,6)])
 plot_number_line(chain, show_overlap=T)
 ```
 
-
 **Figure 4e: Example of `aligns_start` overlaps**
 
 ```{r message=FALSE, warning=FALSE}
@@ -261,6 +260,7 @@ cmp_a
 
 ```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
 f <- number_line(left_point(c(cnl_a, cmp_a)), right_point(c(cnl_a, cmp_a)), gid =c(cnl_a@gid, cmp_a@gid), id =c(cnl_a@id, cmp_a@id)  )
+
 plot_number_line(f, show_overlap=F)
 ```
 
@@ -353,7 +353,7 @@ plot_number_line(cmp_zb, show_overlap=T)
 
 In Fig. 8b, ``r format(nl_z[1])`` came first, so only `number_line` objects that overlapped with ``r format(nl_z[1])`` were compressed. However in Fig. 8c, because of the new positions, ``r format(nl_zb[1])`` came first, so only those that overlapped with ``r format(nl_z[1])`` were compressed. 
 
-However, you can use the `collpase` argument to further compress already compressed `number_line` objects if they overlap again. In the example below, we collapse (rather than compress) the initial set (`nl_zb`) which gives the same result as compressing the rearranged version. 
+However, you can use the `collapse` argument to further compress already compressed `number_line` objects if they overlap again. In the example below, we collapse (rather than compress) the initial set (`nl_zb`) which gives the same result as compressing the rearranged version. 
 
 **Figure 8d: pairs of `number_line` objects overlapping by `"chain"` and `"aligns_end" methods collapsed into one**
 
