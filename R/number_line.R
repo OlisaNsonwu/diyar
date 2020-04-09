@@ -365,7 +365,7 @@ plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
   sn_change <- 1
   #df <- df[nrow(df):1,]
   while (max(sn_change) ==1) {
-    df$c <- diyar::compress_number_line(df$y, deduplicate = F)
+    df$c <- diyar::compress_number_line(df$y, deduplicate = F, collapse = T)
 
     ord <- lapply(split(1:nrow(df), paste0(df$c@gid,"-", df$sn)), order)
     lk_sn <- lapply(split(df$sn, paste0(df$c@gid)), function(x){
@@ -389,8 +389,6 @@ plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
   x_lim <- c(min(df$start, df$end), max(df$start, df$end))
 
   dec_chk <- function(x) ifelse(x-floor(as.numeric(x))==0,F,T)
-  # x_lim[1 %in% 1:2 & is.numeric(x_lim[1])] <- floor(as.numeric(x_lim[1 %in% 1:2 & is.numeric(x_lim[1])]))
-  # x_lim[2 %in% 1:2 & is.numeric(x_lim[2])] <- ceiling(as.numeric(x_lim[2 %in% 1:2 & is.numeric(x_lim[2])]))
 
   x_lim[1][dec_chk(x_lim[1])] <- floor(as.numeric(x_lim[1][dec_chk(x_lim[1])]))
   x_lim[2][dec_chk(x_lim[2])] <- ceiling(as.numeric(x_lim[2][dec_chk(x_lim[2])]))
@@ -429,21 +427,21 @@ plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
 
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x1, x1), lty=2, col=xd$cols[i])
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x2, x2), lty=2, col=xd$cols[i])
-              graphics::text(y = y, x =  mean(c(x1, x2)), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 1, offset =o)
+              graphics::text(y = y, x =  mean(c(x1, x2)), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 1, offset = (sf * o))
             }else if(om=="aligns_end"){
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(xd$end[j], xd$end[j]), lty=2, col=xd$cols[i])
-              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  xd$end[j] + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset =.6)
+              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  xd$end[j] + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset = (sf *.6))
             }else if(om=="across"){
               x <- ifelse(xd$start[j] <= xd$end[i] & xd$start[j] >= xd$start[i], xd$start[j], xd$end[j])
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x, x), lty=2, col=xd$cols[i])
-              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  x + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset =.6)
+              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  x + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset = (sf *.6))
             }else if(om=="chain"){
               x <- ifelse(xd$start[j] <= xd$end[j] & xd$start[j] >= xd$start[i], xd$start[j], xd$end[j])
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x, x), lty=2, col=xd$cols[i])
-              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  x + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset =.6)
+              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  x + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset = (sf *.6))
             }else{
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(xd$start[j], xd$start[j]), lty=2, col=xd$cols[i])
-              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  xd$start[j] + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset =.6)
+              graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  xd$start[j] + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset = (sf *.6))
             }
           }
         }

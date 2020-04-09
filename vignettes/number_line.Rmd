@@ -296,7 +296,7 @@ nl_z <- number_line(l= c(1,2,4,5,6), r = c(3,4,8,8,7))
 nl_z
 ```
 
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height= 2, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_number_line(nl_z, show_overlap=T)
 ```
 
@@ -310,7 +310,7 @@ cmp_z <- compress_number_line(nl_z, methods = "across|chain")
 cmp_z
 ```
 
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height= 2, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_number_line(cmp_z, show_overlap=T)
 ```
 
