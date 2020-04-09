@@ -242,74 +242,51 @@ plot_number_line(aligns_end, show_overlap=T)
 ## Compressing `number_line` objects
 You can compress a pair of overlapping `number_line` objects into one using `compress_number_line()`. You can also choose to compress only those that overlap in a certain way among the 6 methods shown above.
 
-**Figure 5a: Pairs of `number_line` objects overlapping by `"inbetween"` and `"exact"` methods**
+When the overlapping `number_line` objects have different directions, the resulting compressed `number_line` object will inherit the direction of the widest among them. If they have the same width, the compressed `number_lines` takes on an `"increasing"` direction.
+
+**Figure 5. Pairs of `number_line` objects overlapping by `"inbetween"` and `"exact"` methods compressed into one**
 ```{r message=FALSE, warning=FALSE}
-cnl_a <- c(inbetween, exact)
-cnl_a
+cnl_a <- c(inbetween, exact); cnl_a
+
+cmp_a <- compress_number_line(cnl_a, deduplicate = T); cmp_a
 ```
 
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_number_line(c(inbetween, exact), show_overlap=T)
-```
-
-**Figure 5b. Pairs of `number_line` objects overlapping by `"inbetween"` and `"exact"` methods compressed into one**
-```{r message=FALSE, warning=FALSE}
-cmp_a <- compress_number_line(cnl_a, deduplicate = T)
-cmp_a
-```
-
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=2.5, fig.width=8.5, message=FALSE, warning=FALSE}
 f <- number_line(left_point(c(cnl_a, cmp_a)), right_point(c(cnl_a, cmp_a)), gid =c(cnl_a@gid, cmp_a@gid), id =c(cnl_a@id, cmp_a@id)  )
-
-plot_number_line(f, show_overlap=F)
+strata <- c(rep(0, length(cnl_a)), rep(1, length(cmp_a)))
+plot_number_line(f, strata = strata, show_overlap=T)
 ```
 
-**Figure 6a: Pairs of `number_line` objects overlapping by `"across"` and `"chain"` methods**
+**Figure 6. Pairs of `number_line` objects overlapping by `"across"` and `"chain"` methods compressed into one**
 ```{r message=FALSE, warning=FALSE}
-cnl_b <- c(across, chain)
-cnl_b
+cnl_b <- c(across, chain); cnl_b
+
+cmp_b <- compress_number_line(cnl_b, deduplicate = T); cmp_b
 ```
 
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_number_line(c(across, chain), show_overlap=T)
-```
-
-**Figure 6b. Pairs of `number_line` objects overlapping by `"across"` and `"chain"` methods compressed into one**
-```{r message=FALSE, warning=FALSE}
-cmp_b <- compress_number_line(cnl_b, deduplicate = T)
-cmp_b
-```
-
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=2.5, fig.width=8.5, message=FALSE, warning=FALSE}
 f <- number_line(left_point(c(cnl_b, cmp_b)), right_point(c(cnl_b, cmp_b)), gid =c(cnl_b@gid, cmp_b@gid), id =c(cnl_b@id, cmp_b@id)  )
-plot_number_line(f, show_overlap=F)
+strata <- c(rep(0, length(cnl_b)), rep(1, length(cmp_b)))
+plot_number_line(f, strata = strata, show_overlap=T)
 ```
 
-**Figure 7a: Pairs of `number_line` objects overlapping by `"aligns_start"` and `"aligns_end"` methods**
+You can choose to only compress `number_line` objects that overlap in a particular way by using the `methods` argument.
+
+**Figure 7. Pairs of `number_line` objects overlapping by `"aligns_start"` and `"exact"` methods compressed into one**
 ```{r message=FALSE, warning=FALSE}
-cnl_c <- c(aligns_start, aligns_end)
-cnl_c
+cnl_c <- c(aligns_start, aligns_end); cnl_c
+
+cmp_c <- compress_number_line(cnl_c, deduplicate = T, methods ="aligns_start|exact"); cmp_c
 ```
 
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_number_line(c(aligns_start, aligns_end), show_overlap=T)
-```
-
-You can choose to only compress `number_line` objects that overlap in a particular way using the `methods` argument.
-
-**Figure 7b. Pairs of `number_line` objects overlapping by `"aligns_start"` and `"exact"` methods compressed into one**
-```{r message=FALSE, warning=FALSE}
-cmp_c <- compress_number_line(cnl_c, deduplicate = T, methods ="aligns_start|exact")
-cmp_c
-```
-
-```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
+```{r echo=FALSE, fig.height=2.5, fig.width=8.5, message=FALSE, warning=FALSE}
 f <- number_line(left_point(c(cnl_c, cmp_c)), right_point(c(cnl_c, cmp_c)), gid =c(cnl_c@gid, cmp_c@gid), id =c(cnl_c@id, cmp_c@id))
-plot_number_line(f, show_overlap=F)
+strata <- c(rep(0, length(cnl_c)), rep(1, length(cmp_c)))
+plot_number_line(f, strata = strata, show_overlap=T)
 ```
 
 ## Collapsing `number_line` objects
-The resulting `number_line` objects from a compressed pair can yet again overlap with others, especially when not all `methods` were used. By default, resulting compressed `number_line` objects are not compressed a second time however, you can do so using the `collapse` argument. It's worth mentioning that this process starts from the 1st `number_line` object and then proceeds to the last in the set. Therefore, their position in the set can lead to different results. 
+The resulting `number_line` objects from overlapping pair can yet again overlap with others, especially when not all `methods` were used. By default, the resulting compressed `number_line` object is not compressed a second time however, you can do so by using the `collapse` argument. It's worth mentioning that this process starts from the first `number_line` object and then proceeds to the last in the set. Therefore, their position in the set can lead to different results. 
 
 In the figure below, there are `"across"`, `"chain"`, `"inbetween"` and `"aligns_end"` overlaps.
 
@@ -323,7 +300,7 @@ nl_z
 plot_number_line(nl_z, show_overlap=T)
 ```
 
-In the example below, we chose to only compress the pairs that overlap by `"chain"` and `"aligns_end"` methods. The resulting `number_line` object from compressing ``r paste0(format(nl_z[1:2]), collapse=" and ")`` now overlaps with the resulting `number_line` objects from compressing ``r  paste0(format(nl_z[3:4]), collapse=" and ")``.
+In the example below, we chose to only compress pairs that overlap by `"chain"` and `"aligns_end"` methods. The resulting `number_line` object from compressing ``r paste0(format(nl_z[1:2]), collapse=" and ")`` now overlaps with the resulting `number_line` objects from ``r  paste0(format(nl_z[3:4]), collapse=" and ")``.
  
 **Figure 8b: Pairs of `number_line` objects overlapping by `"chain"` and `"aligns_end"` methods compressed into one**
 
@@ -351,9 +328,9 @@ cmp_zb <- compress_number_line(nl_zb, methods = "across|chain"); cmp_zb
 plot_number_line(cmp_zb, show_overlap=T)
 ```
 
-In Fig. 8b, ``r format(nl_z[1])`` came first, so only `number_line` objects that overlapped with ``r format(nl_z[1])`` were compressed. However in Fig. 8c, because of the new positions, ``r format(nl_zb[1])`` came first, so only those that overlapped with ``r format(nl_z[1])`` were compressed. 
+In Fig. 8b, ``r format(nl_z[1])`` came first, so only `number_line` objects that overlapped with ``r format(nl_z[1])`` were compressed. However in Fig. 8c, because of the new positions, ``r format(nl_zb[1])`` came first, so only those that overlapped with ``r format(nl_zb[1])`` were compressed. 
 
-However, you can use the `collapse` argument to further compress already compressed `number_line` objects if they overlap again. In the example below, we collapse (rather than compress) the initial set (`nl_zb`) which gives the same result as compressing the rearranged version. 
+However, you can use the `collapse` argument to further compress already compressed `number_line` objects if they overlap again. In the example below, we collapse (rather than compress) the initial set (`nl_z`) which gives the same result as compressing the rearranged version (`nl_zb`). 
 
 **Figure 8d: pairs of `number_line` objects overlapping by `"chain"` and `"aligns_end" methods collapsed into one**
 
@@ -367,5 +344,4 @@ plot_number_line(cmp_zba, show_overlap=T)
 
 \newline
 
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` are more advanced implementations of `compress_number_line()`. They can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. They have additional useful features such as controlling the sequence in which pairs are compressed i.e. chronological order (`from_last`) or a user defined order (`custom_sort`), and considering add periods (`case_length` and `recurrence_length`) before and/or (`bi_direction`) after the reference `number_line` object. See [episode grouping](episode_group.html) for further details.
-
+`fixed_episodes()`, `rolling_episodes()` and `episode_group()` are more advanced implementations of `compress_number_line()`. They can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. They have additional useful features such as controlling the sequence in which pairs are compressed i.e. chronological order (`from_last`) or a user defined order (`custom_sort`), and considering additional periods (`case_length` and `recurrence_length`) before and/or (`bi_direction`) after the reference `number_line` object. See [episode grouping](episode_group.html) for further details.

@@ -23,6 +23,7 @@ knitr::opts_chunk$set(
 
 ##Changes
 
++ compress_number_line() - compressed `number_line` object inherits the direction of the widest `number_line` in overlapping groups
 + overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. E.g.
     + `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap only
     + `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
