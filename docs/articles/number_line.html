@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Number lines and overlaps</h1>
             
-            <h4 class="date">07 April 2020</h4>
+            <h4 class="date">09 April 2020</h4>
       
       
       <div class="hidden name"><code>number_line.Rmd</code></div>
@@ -313,63 +313,55 @@ nls
 <h2 class="hasAnchor">
 <a href="#compressing-number_line-objects" class="anchor"></a>Compressing <code>number_line</code> objects</h2>
 <p>You can compress a pair of overlapping <code>number_line</code> objects into one using <code><a href="../reference/number_line.html">compress_number_line()</a></code>. You can also choose to compress only those that overlap in a certain way among the 6 methods shown above.</p>
-<p><strong>Figure 5a: Pairs of <code>number_line</code> objects overlapping by <code>"inbetween"</code> and <code>"exact"</code> methods</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cnl_a &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(inbetween, exact)
-cnl_a
+<p>When the overlapping <code>number_line</code> objects have different directions, the resulting compressed <code>number_line</code> object will inherit the direction of the widest among them. If they have the same width, the compressed <code>number_lines</code> takes on an <code>"increasing"</code> direction.</p>
+<p><strong>Figure 5. Pairs of <code>number_line</code> objects overlapping by <code>"inbetween"</code> and <code>"exact"</code> methods compressed into one</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cnl_a &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(inbetween, exact); cnl_a
 <span class="co">#&gt;  [1] "5 -&gt; 8"     "6 -&gt; 7"     "11 &lt;- 10"   "9 -&gt; 12"    "13 -&gt; 15"  </span>
 <span class="co">#&gt;  [6] "14 == 14"   "1 -&gt; 2"     "1 -&gt; 2"     "3 -&gt; 4"     "4 &lt;- 3"    </span>
-<span class="co">#&gt; [11] "2.5 == 2.5" "2.5 == 2.5"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-23-1.png" width="816"></p>
-<p><strong>Figure 5b. Pairs of <code>number_line</code> objects overlapping by <code>"inbetween"</code> and <code>"exact"</code> methods compressed into one</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cmp_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(cnl_a, <span class="dt">deduplicate =</span> T)
-cmp_a
+<span class="co">#&gt; [11] "2.5 == 2.5" "2.5 == 2.5"</span>
+
+cmp_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(cnl_a, <span class="dt">deduplicate =</span> T); cmp_a
 <span class="co">#&gt; [1] "5 -&gt; 8"     "9 -&gt; 12"    "13 -&gt; 15"   "1 -&gt; 2"     "3 -&gt; 4"    </span>
-<span class="co">#&gt; [6] "2.5 == 2.5"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-25-1.png" width="816"></p>
-<p><strong>Figure 6a: Pairs of <code>number_line</code> objects overlapping by <code>"across"</code> and <code>"chain"</code> methods</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cnl_b &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(across, chain)
-cnl_b
+<span class="co">#&gt; [6] "4 &lt;- 3"     "2.5 == 2.5"</span></code></pre></div>
+<p><img src="number_line_files/figure-html/unnamed-chunk-23-1.png" width="816"></p>
+<p><strong>Figure 6. Pairs of <code>number_line</code> objects overlapping by <code>"across"</code> and <code>"chain"</code> methods compressed into one</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cnl_b &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(across, chain); cnl_b
 <span class="co">#&gt;  [1] "16 -&gt; 19" "18 -&gt; 21" "22 -&gt; 25" "23 -&gt; 26" "27 -&gt; 30" "31 &lt;- 29"</span>
-<span class="co">#&gt;  [7] "32 -&gt; 34" "34 -&gt; 36" "39 &lt;- 37" "41 &lt;- 39" "42 -&gt; 44" "47 &lt;- 44"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-27-1.png" width="816"></p>
-<p><strong>Figure 6b. Pairs of <code>number_line</code> objects overlapping by <code>"across"</code> and <code>"chain"</code> methods compressed into one</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cmp_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(cnl_b, <span class="dt">deduplicate =</span> T)
-cmp_b
-<span class="co">#&gt; [1] "16 -&gt; 21" "22 -&gt; 26" "27 -&gt; 31" "32 -&gt; 36" "37 -&gt; 41" "42 -&gt; 47"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-29-1.png" width="816"></p>
-<p><strong>Figure 7a: Pairs of <code>number_line</code> objects overlapping by <code>"aligns_start"</code> and <code>"aligns_end"</code> methods</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cnl_c &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(aligns_start, aligns_end)
-cnl_c
+<span class="co">#&gt;  [7] "32 -&gt; 34" "34 -&gt; 36" "39 &lt;- 37" "41 &lt;- 39" "42 -&gt; 44" "47 &lt;- 44"</span>
+
+cmp_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(cnl_b, <span class="dt">deduplicate =</span> T); cmp_b
+<span class="co">#&gt; [1] "16 -&gt; 21" "22 -&gt; 26" "27 -&gt; 31" "32 -&gt; 36" "41 &lt;- 37" "47 &lt;- 42"</span></code></pre></div>
+<p><img src="number_line_files/figure-html/unnamed-chunk-25-1.png" width="816"></p>
+<p>You can choose to only compress <code>number_line</code> objects that overlap in a particular way by using the <code>methods</code> argument.</p>
+<p><strong>Figure 7. Pairs of <code>number_line</code> objects overlapping by <code>"aligns_start"</code> and <code>"exact"</code> methods compressed into one</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cnl_c &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(aligns_start, aligns_end); cnl_c
 <span class="co">#&gt;  [1] "45 -&gt; 46"     "45 -&gt; 47"     "48 -&gt; 49.5"   "48 == 48"    </span>
 <span class="co">#&gt;  [5] "51 &lt;- 50"     "51 -&gt; 52"     "54 -&gt; 55"     "53 -&gt; 55"    </span>
-<span class="co">#&gt;  [9] "56 -&gt; 57.5"   "57.5 == 57.5" "58 -&gt; 59"     "60 &lt;- 59"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-31-1.png" width="816"></p>
-<p>You can choose to only compress <code>number_line</code> objects that overlap in a particular way using the <code>methods</code> argument.</p>
-<p><strong>Figure 7b. Pairs of <code>number_line</code> objects overlapping by <code>"aligns_start"</code> and <code>"exact"</code> methods compressed into one</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cmp_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(cnl_c, <span class="dt">deduplicate =</span> T, <span class="dt">methods =</span><span class="st">"aligns_start|exact"</span>)
-cmp_c
+<span class="co">#&gt;  [9] "56 -&gt; 57.5"   "57.5 == 57.5" "58 -&gt; 59"     "60 &lt;- 59"</span>
+
+cmp_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(cnl_c, <span class="dt">deduplicate =</span> T, <span class="dt">methods =</span><span class="st">"aligns_start|exact"</span>); cmp_c
 <span class="co">#&gt; [1] "45 -&gt; 47"     "48 -&gt; 49.5"   "50 -&gt; 52"     "54 -&gt; 55"    </span>
 <span class="co">#&gt; [5] "53 -&gt; 55"     "56 -&gt; 57.5"   "57.5 == 57.5" "58 -&gt; 59"    </span>
-<span class="co">#&gt; [9] "59 -&gt; 60"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-33-1.png" width="816"></p>
+<span class="co">#&gt; [9] "60 &lt;- 59"</span></code></pre></div>
+<p><img src="number_line_files/figure-html/unnamed-chunk-27-1.png" width="816"></p>
 </div>
 <div id="collapsing-number_line-objects" class="section level2">
 <h2 class="hasAnchor">
 <a href="#collapsing-number_line-objects" class="anchor"></a>Collapsing <code>number_line</code> objects</h2>
-<p>The resulting <code>number_line</code> objects from a compressed pair can yet again overlap with others, especially when not all <code>methods</code> were used. By default, resulting compressed <code>number_line</code> objects are not compressed a second time however, you can do so using the <code>collapse</code> argument. It’s worth mentioning that this process starts from the 1st <code>number_line</code> object and then proceeds to the last in the set. Therefore, their position in the set can lead to different results.</p>
+<p>The resulting <code>number_line</code> objects from overlapping pair can yet again overlap with others, especially when not all <code>methods</code> were used. By default, the resulting compressed <code>number_line</code> object is not compressed a second time however, you can do so by using the <code>collapse</code> argument. It’s worth mentioning that this process starts from the first <code>number_line</code> object and then proceeds to the last in the set. Therefore, their position in the set can lead to different results.</p>
 <p>In the figure below, there are <code>"across"</code>, <code>"chain"</code>, <code>"inbetween"</code> and <code>"aligns_end"</code> overlaps.</p>
 <p><strong>Figure 8a: Pairs of <code>number_line</code> objects overlapping by <code>"across"</code>, <code>"chain"</code>, <code>"inbetween"</code> and <code>"aligns_end"</code> methods</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nl_z &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dt">l=</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">1</span>,<span class="dv">2</span>,<span class="dv">4</span>,<span class="dv">5</span>,<span class="dv">6</span>), <span class="dt">r =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">3</span>,<span class="dv">4</span>,<span class="dv">8</span>,<span class="dv">8</span>,<span class="dv">7</span>))
 nl_z
 <span class="co">#&gt; [1] "1 -&gt; 3" "2 -&gt; 4" "4 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-35-1.png" width="816"></p>
-<p>In the example below, we chose to only compress the pairs that overlap by <code>"chain"</code> and <code>"aligns_end"</code> methods. The resulting <code>number_line</code> object from compressing <code>1 -&gt; 3 and 2 -&gt; 4</code> now overlaps with the resulting <code>number_line</code> objects from compressing <code>4 -&gt; 8 and 5 -&gt; 8</code>.</p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-29-1.png" width="816"></p>
+<p>In the example below, we chose to only compress pairs that overlap by <code>"chain"</code> and <code>"aligns_end"</code> methods. The resulting <code>number_line</code> object from compressing <code>1 -&gt; 3 and 2 -&gt; 4</code> now overlaps with the resulting <code>number_line</code> objects from <code>4 -&gt; 8 and 5 -&gt; 8</code>.</p>
 <p><strong>Figure 8b: Pairs of <code>number_line</code> objects overlapping by <code>"chain"</code> and <code>"aligns_end"</code> methods compressed into one</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cmp_z &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(nl_z, <span class="dt">methods =</span> <span class="st">"across|chain"</span>)
 
 cmp_z
 <span class="co">#&gt; [1] "1 -&gt; 4" "4 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-37-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-31-1.png" width="816"></p>
 <p>As mentioned, if each <code>number_line</code> object’s position in the set changes, the result could also change. See below.</p>
 <p><strong>Figure 8c: Rearranged pairs of <code>number_line</code> objects overlapping by <code>"across"</code>, <code>"chain"</code>, <code>"inbetween"</code> and <code>"aligns_end"</code> methods </strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">nl_zb &lt;-<span class="st"> </span>nl_z[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span><span class="op">:</span><span class="dv">5</span>,<span class="dv">1</span>)]; nl_zb
@@ -377,15 +369,15 @@ cmp_z
 
 cmp_zb &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(nl_zb, <span class="dt">methods =</span> <span class="st">"across|chain"</span>); cmp_zb
 <span class="co">#&gt; [1] "1 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-39-1.png" width="816"></p>
-<p>In Fig. 8b, <code>1 -&gt; 3</code> came first, so only <code>number_line</code> objects that overlapped with <code>1 -&gt; 3</code> were compressed. However in Fig. 8c, because of the new positions, <code>2 -&gt; 4</code> came first, so only those that overlapped with <code>1 -&gt; 3</code> were compressed.</p>
-<p>However, you can use the <code>collpase</code> argument to further compress already compressed <code>number_line</code> objects if they overlap again. In the example below, we collapse (rather than compress) the initial set (<code>nl_zb</code>) which gives the same result as compressing the rearranged version.</p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-33-1.png" width="816"></p>
+<p>In Fig. 8b, <code>1 -&gt; 3</code> came first, so only <code>number_line</code> objects that overlapped with <code>1 -&gt; 3</code> were compressed. However in Fig. 8c, because of the new positions, <code>2 -&gt; 4</code> came first, so only those that overlapped with <code>2 -&gt; 4</code> were compressed.</p>
+<p>However, you can use the <code>collapse</code> argument to further compress already compressed <code>number_line</code> objects if they overlap again. In the example below, we collapse (rather than compress) the initial set (<code>nl_z</code>) which gives the same result as compressing the rearranged version (<code>nl_zb</code>).</p>
 <p><strong>Figure 8d: pairs of <code>number_line</code> objects overlapping by <code>"chain"</code> and `“aligns_end” methods collapsed into one</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">cmp_zba &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">compress_number_line</a></span>(nl_z, <span class="dt">methods =</span> <span class="st">"across|chain"</span>, <span class="dt">collapse =</span> T); cmp_zba
 <span class="co">#&gt; [1] "1 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></code></pre></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-41-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-35-1.png" width="816"></p>
 
-<p><code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> are more advanced implementations of <code><a href="../reference/number_line.html">compress_number_line()</a></code>. They can compress (<code>"fixed_episodes"</code>) and collapse (<code>"rolling_episodes"</code>) overlapping <code>number_line</code> objects. They have additional useful features such as controlling the sequence in which pairs are compressed i.e. chronological order (<code>from_last</code>) or a user defined order (<code>custom_sort</code>), and considering add periods (<code>case_length</code> and <code>recurrence_length</code>) before and/or (<code>bi_direction</code>) after the reference <code>number_line</code> object. See <a href="episode_group.html">episode grouping</a> for further details.</p>
+<p><code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> are more advanced implementations of <code><a href="../reference/number_line.html">compress_number_line()</a></code>. They can compress (<code>"fixed_episodes"</code>) and collapse (<code>"rolling_episodes"</code>) overlapping <code>number_line</code> objects. They have additional useful features such as controlling the sequence in which pairs are compressed i.e. chronological order (<code>from_last</code>) or a user defined order (<code>custom_sort</code>), and considering additional periods (<code>case_length</code> and <code>recurrence_length</code>) before and/or (<code>bi_direction</code>) after the reference <code>number_line</code> object. See <a href="episode_group.html">episode grouping</a> for further details.</p>
 </div>
 </div>
   </div>

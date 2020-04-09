@@ -125,29 +125,37 @@
 <a href="#new-features" class="anchor"></a>New features</h2>
 <ul>
 <li>
-<code>strata</code> argument for <code><a href="../reference/record_group.html">record_group()</a></code>. Perform record grouping separately within subsets of a dataset.</li>
+<code><a href="../reference/record_group.html">record_group()</a></code> - <code>strata</code> argument. Perform record grouping separately within subsets of a dataset.</li>
 <li>
-<code>overlap_methods</code> and <code>methods</code> arguments added to replace <code>overlap_method</code> and <code>method</code> respectively. When grouping episodes or collapsing <code>number_line</code> objects, <code>overlap_methods</code> and <code>methods</code> allow you to use different sets of methods for different subsets of a dataset. <code>overlap_method</code> and <code>method</code> could only use 1 set of methods per dataset.</li>
-<li>New <code>win_nm</code> slot for <code>epid</code> objects. Shows they type of window each event belongs to i.e. case or recurrence window</li>
-<li>New <code>win_id</code> slot for <code>epid</code> objects. Unique ID for each window. ID is the <code>sn</code> of the reference event for each window
+<code>fixed_sepisodes()</code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> - <code>overlap_methods</code> and <code>methods</code> arguments. Replaces <code>overlap_method</code> and <code>method</code> respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing <code>number_line</code> objects. <code>overlap_method</code> and <code>method</code> only permits 1 method per per dataset.</li>
+<li>
+<code>epid</code> objects - <code>win_nm</code> slot. Shows the type of window each event belongs to i.e. case or recurrence window</li>
+<li>
+<code>epid</code> objects - <code>win_id</code> slot. Unique ID for each window. ID is the <code>sn</code> of the reference event for each window
 <ul>
-<li>Format of <code>epid</code> objects updated to show this <code>wind_id</code>
-</li>
+<li>Format of <code>epid</code> objects updated to reflect this</li>
 </ul>
 </li>
-<li>New <code>dist_from_wind</code> slot for <code>epid</code> objects. Shows the duration of each event from its windows reference event</li>
-<li>New <code>dist_from_epid</code> slot for <code>epid</code> objects. Shows the duration of each event from its episodes reference event</li>
 <li>
-<code>recurrence_from_last</code> argument for <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>. Determines if reference events are first or last event from the previous window.</li>
+<code>epid</code> objects - <code>dist_from_wind</code> slot. Shows the duration of each event from its window’s reference event</li>
 <li>
-<code>case_for_recurrence</code> argument for <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>. Determines if recurrent events should have their own case windows or not.</li>
+<code>epid</code> objects - <code>dist_from_epid</code> slot. Shows the duration of each event from its episode’s reference event</li>
+<li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>recurrence_from_last</code> argument. Determine if reference events are the first or last event from the previous window.</li>
+<li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>case_for_recurrence</code> argument. Determine if recurrent events should have their own case windows or not.</li>
+<li>
+<code>pid</code> objects - <code>link_id</code> slot. Shows the record (<code>sn</code> slot) to which every record in the dataset has matched to.</li>
 </ul>
 </div>
 <div id="changes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#changes" class="anchor"></a>Changes</h2>
 <ul>
-<li>overlap methods has been changed such that each pair of <code>number_line</code> objects can only overlap in one way. E.g.
+<li>
+<code><a href="../reference/number_line.html">compress_number_line()</a></code> - compressed <code>number_line</code> object inherits the direction of the widest <code>number_line</code> in overlapping groups</li>
+<li>
+<code>overlap_methods</code> - have been changed such that each pair of <code>number_line</code> objects can only overlap in one way. E.g.
 <ul>
 <li>
 <code>"chain"</code> and <code>"aligns_end"</code> used to be possible but this is now considered a <code>"chain"</code> overlap only</li>
@@ -155,21 +163,22 @@
 <code>"aligns_start"</code> and <code>"aligns_end"</code> use to be possible but this is now considered an <code>"exact"</code> overlap</li>
 </ul>
 </li>
-<li>Output for <code><a href="../reference/number_line.html">number_line_sequence()</a></code> is now a <code>list</code>.</li>
 <li>
-<code><a href="../reference/number_line.html">number_line_sequence()</a></code> now works across multiple <code>number_line</code> objects.</li>
+<code><a href="../reference/number_line.html">number_line_sequence()</a></code> - Output is now a <code>list</code>.</li>
 <li>
-<code><a href="../reference/to_s4.html">to_df()</a></code> can change <code>number_line</code> objects to data.frames.
+<code><a href="../reference/number_line.html">number_line_sequence()</a></code> - now works across multiple <code>number_line</code> objects.</li>
+<li>
+<code><a href="../reference/to_s4.html">to_df()</a></code> - can now change <code>number_line</code> objects to data.frames.
 <ul>
 <li>
 <code><a href="../reference/to_s4.html">to_s4()</a></code> can do the reverse.</li>
 </ul>
 </li>
 <li>
-<code>epid</code> objects are the default outputs of <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code>
+<code>epid</code> objects are the default outputs for <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code>
 </li>
 <li>
-<code>pid</code> objects are the default outputs of <code><a href="../reference/record_group.html">record_group()</a></code>
+<code>pid</code> objects are the default outputs for <code><a href="../reference/record_group.html">record_group()</a></code>
 </li>
 <li>In episode grouping, <code>case_nm</code> for events that were skipped due to <code>rolls_max</code> or <code>episodes_max</code> is now <code>"Skipped"</code>.</li>
 <li>In episode grouping, <code>sn</code> can be negative numbers but must still be unique</li>
@@ -180,11 +189,11 @@
 </ul>
 </li>
 <li>
-<code>case_length</code> and <code>recurrence_length</code> arguments in <code>episode_group</code> accepts negative numbers.
+<code>episode_group</code> - <code>case_length</code> and <code>recurrence_length</code> arguments. Now accepts negative numbers.
 <ul>
-<li>negative “lengths” will collapse two periods into one, if the second one is within some days before the <code>end_point</code> of the first period.
+<li>negative “lengths” will collapse two periods into one, if the second one is within some days before the <code><a href="../reference/number_line.html">end_point()</a></code> of the first period.
 <ul>
-<li>if the “lengths” are larger than the <code><a href="../reference/number_line.html">number_line_width()</a></code>, both will be collapsed, if the second one is within some days (or any other <code>episode_unit</code>) before the <code><a href="../reference/number_line.html">start_point()</a></code> of the first period.</li>
+<li>if the “lengths” are larger than the <code><a href="../reference/number_line.html">number_line_width()</a></code>, both will be collapsed if the second one is within some days (or any other <code>episode_unit</code>) before the <code><a href="../reference/number_line.html">start_point()</a></code> of the first period.</li>
 </ul>
 </li>
 </ul>
