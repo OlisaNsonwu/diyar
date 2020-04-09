@@ -5,37 +5,38 @@ Version 0.1.0.9000
 New features
 ------------
 
--   `strata` argument for `record_group()`. Perform record grouping separately within subsets of a dataset.
--   `overlap_methods` and `methods` arguments added to replace `overlap_method` and `method` respectively. When grouping episodes or collapsing `number_line` objects, `overlap_methods` and `methods` allow you to use different sets of methods for different subsets of a dataset. `overlap_method` and `method` could only use 1 set of methods per dataset.
--   New `win_nm` slot for `epid` objects. Shows they type of window each event belongs to i.e. case or recurrence window
--   New `win_id` slot for `epid` objects. Unique ID for each window. ID is the `sn` of the reference event for each window
-    -   Format of `epid` objects updated to show this `wind_id`
--   New `dist_from_wind` slot for `epid` objects. Shows the duration of each event from its windows reference event
--   New `dist_from_epid` slot for `epid` objects. Shows the duration of each event from its episodes reference event
--   `recurrence_from_last` argument for `episode_group()` and `rolling_episodes()`. Determines if reference events are first or last event from the previous window.
--   `case_for_recurrence` argument for `episode_group()` and `rolling_episodes()`. Determines if recurrent events should have their own case windows or not.
+-   `record_group()` - `strata` argument. Perform record grouping separately within subsets of a dataset.
+-   `fixed_sepisodes()`, `rolling_episodes()` and `episode_group()` - `overlap_methods` and `methods` arguments. Replaces `overlap_method` and `method` respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing `number_line` objects. `overlap_method` and `method` only permits 1 method per per dataset.
+-   `epid` objects - `win_nm` slot. Shows the type of window each event belongs to i.e. case or recurrence window
+-   `epid` objects - `win_id` slot. Unique ID for each window. ID is the `sn` of the reference event for each window
+    -   Format of `epid` objects updated to reflect this
+-   `epid` objects - `dist_from_wind` slot. Shows the duration of each event from its window's reference event
+-   `epid` objects - `dist_from_epid` slot. Shows the duration of each event from its episode's reference event
+-   `episode_group()` and `rolling_episodes()` - `recurrence_from_last` argument. Determine if reference events are the first or last event from the previous window.
+-   `episode_group()` and `rolling_episodes()` - `case_for_recurrence` argument. Determine if recurrent events should have their own case windows or not.
+-   `pid` objects - `link_id` slot. Shows the record (`sn` slot) to which every record in the dataset has matched to.
 
 Changes
 -------
 
--   compress\_number\_line() - compressed `number_line` object inherits the direction of the widest `number_line` in overlapping groups
--   overlap methods has been changed such that each pair of `number_line` objects can only overlap in one way. E.g.
+-   `compress_number_line()` - compressed `number_line` object inherits the direction of the widest `number_line` in overlapping groups
+-   `overlap_methods` - have been changed such that each pair of `number_line` objects can only overlap in one way. E.g.
     -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap only
     -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
--   Output for `number_line_sequence()` is now a `list`.
--   `number_line_sequence()` now works across multiple `number_line` objects.
--   `to_df()` can change `number_line` objects to data.frames.
+-   `number_line_sequence()` - Output is now a `list`.
+-   `number_line_sequence()` - now works across multiple `number_line` objects.
+-   `to_df()` - can now change `number_line` objects to data.frames.
     -   `to_s4()` can do the reverse.
--   `epid` objects are the default outputs of `fixed_episodes()`, `rolling_episodes()` and `episode_group()`
--   `pid` objects are the default outputs of `record_group()`
+-   `epid` objects are the default outputs for `fixed_episodes()`, `rolling_episodes()` and `episode_group()`
+-   `pid` objects are the default outputs for `record_group()`
 -   In episode grouping, `case_nm` for events that were skipped due to `rolls_max` or `episodes_max` is now `"Skipped"`.
 -   In episode grouping, `sn` can be negative numbers but must still be unique
 -   Optimised `episode_group()` and `record_group()`. Runs just a little bit faster ...
 -   Relaxed the requirement for `x` and `y` to have the same lengths in overlap functions.
     -   The behaviour of overlap functions will now be the same as that of standard R logical tests
--   `case_length` and `recurrence_length` arguments in `episode_group` accepts negative numbers.
-    -   negative "lengths" will collapse two periods into one, if the second one is within some days before the `end_point` of the first period.
-        -   if the "lengths" are larger than the `number_line_width()`, both will be collapsed, if the second one is within some days (or any other `episode_unit`) before the `start_point()` of the first period.
+-   `episode_group` - `case_length` and `recurrence_length` arguments. Now accepts negative numbers.
+    -   negative "lengths" will collapse two periods into one, if the second one is within some days before the `end_point()` of the first period.
+        -   if the "lengths" are larger than the `number_line_width()`, both will be collapsed if the second one is within some days (or any other `episode_unit`) before the `start_point()` of the first period.
 -   cheat sheet updated
 
 Bug fixes
