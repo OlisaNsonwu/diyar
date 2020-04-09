@@ -1,25 +1,25 @@
 #' @name record_group
 #' @title Multistage deterministic record linkage
 #'
-#' @description Group matching records from one or more datasets.
+#' @description Group matching or partially matching records on diffrent criteria with multiple stages of relevance.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.
 #' @param strata Subsets of the dataset within which record grouping will be done separately. You can use multiple columns supplied as column names.
-#' @param criteria Column names of attributes to match. Each column is one stage of the process and the the order in which they are listed determines the relevance of matches. Matching records are assigned to a record group.
+#' @param criteria Column names of attributes to match. Each \code{criteria} is a stage in the process and the order in which they are listed determines the relevance of matches.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
 #' @param data_source Unique dataset identifier. Useful when \code{df} contains data from multiple sources.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
-#' @param display If \code{TRUE}, status messages are printed on screen.
-#' @param to_s4 if \code{TRUE}, changes the returned output to a \code{\link[=pid-class]{pid}} object.
+#' @param display If \code{TRUE}, a progress message is printed on screen.
+#' @param to_s4 if \code{TRUE} (default), changes the returned output to a \code{\link[=pid-class]{pid}} object.
 #'
 #' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 #'
 #' \itemize{
-#' \item \code{sn} - unique record identifier as provided
+#' \item \code{sn} - unique record identifier as provided (or generated)
 #' \item \code{pid | .Data} - unique group identifier
-#' \item \code{link_id} - unique identifier for the record which each record has matched to
-#' \item \code{pid_cri} - matched criteria for each record in the group
+#' \item \code{link_id} - unique record identifier of matching records
+#' \item \code{pid_cri} - matching criteria
 #' \item \code{pid_dataset} - data sources in each group
 #' \item \code{pid_total} - number of records in each group
 #' }
@@ -30,12 +30,12 @@
 #' @details
 #' Record grouping occurs in stages of matching \code{criteria}.
 #'
-#' Records are matched in two ways; an exact match - the equivalent of \code{(==)}, or matching a range of numeric values.
+#' Records are matched in two ways: an exact match i.e. the equivalent of \code{(==)}, or range matching.
 #' An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-#' To do this, create a \code{\link{number_line}} object to represent the range and supply this to \code{criteria} or \code{sub_criteria}.
+#' To do this, create the range as \code{\link{number_line}} object and supply it to the \code{criteria} or \code{sub_criteria} argument.
 #' The actual value within each range must be assigned to the \code{gid} slot of the \code{number_line} object.
 #'
-#' A match at each stage is considered more relevant than those at subsequent stages.
+#' A match at each stage is considered more relevant than a match at the next stage.
 #' Therefore, \code{criteria} should be listed in order of decreasing relevance or certainty.
 #'
 #' \code{sub_criteria} can be used to force additional matching conditions at each stage.
@@ -44,9 +44,10 @@
 #' If there are no matches for a record at every stage, that record is assigned a unique group ID.
 #'
 #' When a \code{data_source} identifier is provided,
-#' \code{pid_dataset} is included in the output. This has the source of every record in each record group.
+#' \code{pid_dataset} is included in the output. This lists the source of every record in each record group.
 #'
 #' @examples
+#' library(diyar)
 #' three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
 #'                            stringsAsFactors = FALSE)
 #'
@@ -213,7 +214,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
 
       stop(paste("Range matching error: Actual value (gid) is out of range in '",rng_d,"$",rng_v,"[c(",rng_i,")]'",sep=""))
     }
-    #if(utils::packageVersion("dplyr") < package_version("0.8.0.1")) stop("dplyr >= v0.8.0.1 is required for range matching")
+
     diyar::overlap(diyar::as.number_line(x@gid), tr_x)
   }
 
