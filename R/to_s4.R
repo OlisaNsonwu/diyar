@@ -1,11 +1,11 @@
-#' @title Change the returned outputs of \code{diyar} functions from \code{data.frames} to S4 objects, and vice versa
+#' @title Change the returned outputs of \code{diyar} functions
 #'
-#' @description Convert the returned output of \code{\link{record_group}}, \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}}
-#' from the current default (\code{data.frame}) to \link[=pid-class]{pid} or \link[=epid-class]{epid} objects, and vice versa.
+#' @description Convert the returned output of \code{\link{number_line}}, \code{\link{record_group}}, \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}}
+#' from the a \code{data.frame} to \link[=number_line-class]{number_line}, \link[=pid-class]{pid} or \link[=epid-class]{epid} objects, and vice versa.
 #'
 #' @aliases to_s4
 #'
-#' @param df \code{data.frame}. Returned output of \code{\link{record_group}}, \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}}
+#' @param df \code{data.frame}
 #' @examples
 #' data(infections)
 #' dates <- infections$date

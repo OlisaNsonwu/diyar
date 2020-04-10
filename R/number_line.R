@@ -5,7 +5,7 @@
 #' @details
 #' A \code{number_line} object represents a series of real numbers on a number line.
 #'
-#' Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from \code(start) and \code{end} points.
+#' Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from \code{start} and \code{end} points.
 #' The \code{start} point is the lowest number in the series, regardless of whether it's at the \code{left} or \code{right} point.
 #'
 #' The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} series.
