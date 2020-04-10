@@ -17,7 +17,7 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 
 \item{sub_criteria}{Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).}
 
-\item{strata}{Subsets of the dataset within which record grouping will be done separately. You can use multiple columns supplied as column names.}
+\item{strata}{Subsets of the dataset. Record grouping will be done separately with each subset of the dataset. You can use multiple columns supplied as column names.}
 
 \item{data_source}{Unique dataset identifier. Useful when \code{df} contains data from multiple sources.}
 

@@ -5,7 +5,7 @@
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.
-#' @param strata Subsets of the dataset within which record grouping will be done separately. You can use multiple columns supplied as column names.
+#' @param strata Subsets of the dataset. Record grouping will be done separately with each subset of the dataset. You can use multiple columns supplied as column names.
 #' @param criteria Column names of attributes to match. Each \code{criteria} is a stage in the process and the order in which they are listed determines the relevance of matches.
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
 #' @param data_source Unique dataset identifier. Useful when \code{df} contains data from multiple sources.
