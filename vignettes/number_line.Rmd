@@ -115,6 +115,8 @@ nls <- c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i)
 nls
 
 number_line_sequence(nls, by=2)
+
+number_line_sequence(nls, length.out = 3)
 ```
 
 ## Overlaps
