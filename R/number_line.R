@@ -300,7 +300,7 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
 }
 
 #' @rdname number_line
-#' @param by number: increment of the sequence. Passed to \code{seq()}
+#' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}
 #' @param length.out desired length of the sequence. Passed to \code{seq()}
 #' @details
 #' \code{number_line_sequence()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers.

@@ -58,7 +58,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{direction}{Type of \code{"number_line"} objects to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.}
 
-\item{by}{number: increment of the sequence. Passed to \code{seq()}}
+\item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}}
 
 \item{point}{\code{"start"} or \code{"end"} point}
 
