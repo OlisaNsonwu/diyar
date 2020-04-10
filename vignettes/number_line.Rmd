@@ -20,13 +20,12 @@ plot_number_line <- diyar:::plot_number_line
 ```
 
 #Introduction
-`number_line` objects are a range of `numeric` based values. In `diyar`, they represent ranges and periods. How they overlap determine successful matches (see [range matching ](record_group.html#range_matching)) in `record_group()` and overlapping windows (see [interval grouping](episode_group.html#interval_grouping)) in `fixed_episodes()`, `rolling_episodes()` and `episode_group()`. 
+A `number_line` object is a series of `numeric` based values on a number line. In `diyar`, they represent ranges and periods. How they overlap determine successful matches (see [range matching ](record_group.html#range_matching)) in `record_group()` and overlapping windows (see [interval grouping](episode_group.html#interval_grouping)) in `fixed_episodes()`, `rolling_episodes()` and `episode_group()`. 
 
 #Overview
 ```{r include=FALSE}
 library(diyar)
 exp <- number_line(8, 1)
-
 ```
 
 For a given `number_line` object e.g. ``r format(exp)``, its main components are;
@@ -73,7 +72,7 @@ plot_number_line(nl_b)
 ```
 
 ## Manipulating `number_line` objects
-There are convenience functions to reverse, shrink or expand `number_line` objects, or shift them along a the number line. 
+There are convenience functions to reverse, shrink or expand `number_line` objects, or shift them along the number line. 
 
 ```{r message=FALSE, warning=FALSE}
 nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"),
