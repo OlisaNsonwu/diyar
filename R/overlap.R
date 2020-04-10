@@ -1,14 +1,32 @@
 #' @title Overlapping number line objects
 #'
-#' @description A set of functions to identify overlapping \code{number_line} objects
+#' @description Identify overlapping \code{number_line} objects
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
-#' @param method Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.
-#' @param methods Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}
+#' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.
+#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}
 #' @aliases overlap
 #' @return \code{logical} object
 #'
+#' @details
+#' exact() - Identical start and end points
+#'
+#' inbetween() - Start \bold{and} end points of one \code{number_line} object in between the start and end points of another.
+#'
+#' across() - Start \bold{or} end points of one \code{number_line} object in between the start and end points of another.
+#'
+#' chain() - Chained i.e. end point of one \code{number_line} object is equal to the start point of another
+#'
+#' aligns_start() - Identical start points only
+#'
+#' aligns_end() - Identical end points only
+#'
+#' overlap() - Any or all 6 methods above
+#'
+#' overlap_method() - Shows if and how a pair of  \code{number_line} object overlaps
+#'
+#' include_overlap_method() and exclude_overlap_method() - Conveniently generate the required values for the \code{method}
 #' @examples
 #' a <- number_line(-100, 100)
 #' b <- number_line(10, 11.2)
@@ -16,6 +34,9 @@
 #' d <- number_line(100, 120)
 #' e <- number_line(50, 120)
 #' g <- number_line(100,100)
+#'
+#' overlap(a, g)
+#' overlap(a, g, methods = "exact|chain")
 #' @export
 
 overlap <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
@@ -56,6 +77,7 @@ overlap <- function(x, y, method = c("exact","across","chain","aligns_start","al
 
 #' @rdname overlap
 #' @examples
+#'
 #' exact(a, g)
 #' exact(a, a)
 #' @export
@@ -70,6 +92,7 @@ exact <- function(x, y){
 
 #' @rdname overlap
 #' @examples
+#'
 #' across(a, b)
 #' across(a, e)
 #' @export
@@ -88,6 +111,7 @@ across <- function(x, y){
 
 #' @rdname overlap
 #' @examples
+#'
 #' chain(c, d)
 #' chain(a, c)
 #' @export
@@ -103,6 +127,7 @@ chain <- function(x, y){
 
 #' @rdname overlap
 #' @examples
+#'
 #' aligns_start(c, d)
 #' aligns_start(a, c)
 #' @export
@@ -117,6 +142,7 @@ aligns_start <- function(x, y){
 
 #' @rdname overlap
 #' @examples
+#'
 #' aligns_end(d, e)
 #' aligns_end(a, c)
 #' @export
@@ -131,6 +157,7 @@ aligns_end <- function(x, y){
 
 #' @rdname overlap
 #' @examples
+#'
 #' inbetween(a, g)
 #' inbetween(b, a)
 #' @export
@@ -149,6 +176,7 @@ inbetween <- function(x, y){
 #' @rdname overlap
 #' @return \code{character} object
 #' @examples
+#'
 #' overlap_method(a, c)
 #' overlap_method(d, c)
 #' overlap_method(a, g)
@@ -174,6 +202,7 @@ overlap_method <- function(x, y){
 
 #' @rdname overlap
 #' @examples
+#'
 #' include_overlap_method("across")
 #' include_overlap_method(c("across", "chain"))
 #' @export
@@ -186,6 +215,7 @@ include_overlap_method <- function(methods){
 
 #' @rdname overlap
 #' @examples
+#'
 #' exclude_overlap_method("across")
 #' exclude_overlap_method(c("across", "chain"))
 #' @export

@@ -40,9 +40,9 @@ exclude_overlap_method(methods)
 
 \item{y}{\code{number_line} object}
 
-\item{method}{Method of overlap. Check each pair of \code{number_line} objects with the same set of \code{method}. Deprecated use \code{methods} instead.}
+\item{method}{Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.}
 
-\item{methods}{Methods of overlap. Check multiple pairs of \code{number_line} objects with the different sets of \code{methods}}
+\item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}}
 }
 \value{
 \code{logical} object
@@ -50,7 +50,26 @@ exclude_overlap_method(methods)
 \code{character} object
 }
 \description{
-A set of functions to identify overlapping \code{number_line} objects
+Identify overlapping \code{number_line} objects
+}
+\details{
+exact() - Identical start and end points
+
+inbetween() - Start \bold{and} end points of one \code{number_line} object in between the start and end points of another.
+
+across() - Start \bold{or} end points of one \code{number_line} object in between the start and end points of another.
+
+chain() - Chained i.e. end point of one \code{number_line} object is equal to the start point of another
+
+aligns_start() - Identical start points only
+
+aligns_end() - Identical end points only
+
+overlap() - Any or all 6 methods above
+
+overlap_method() - Shows if and how a pair of  \code{number_line} object overlaps
+
+include_overlap_method() and exclude_overlap_method() - Conveniently generate the required values for the \code{method}
 }
 \examples{
 a <- number_line(-100, 100)
@@ -59,24 +78,36 @@ c <- number_line(100, 200)
 d <- number_line(100, 120)
 e <- number_line(50, 120)
 g <- number_line(100,100)
+
+overlap(a, g)
+overlap(a, g, methods = "exact|chain")
+
 exact(a, g)
 exact(a, a)
+
 across(a, b)
 across(a, e)
+
 chain(c, d)
 chain(a, c)
+
 aligns_start(c, d)
 aligns_start(a, c)
+
 aligns_end(d, e)
 aligns_end(a, c)
+
 inbetween(a, g)
 inbetween(b, a)
+
 overlap_method(a, c)
 overlap_method(d, c)
 overlap_method(a, g)
 overlap_method(b, e)
+
 include_overlap_method("across")
 include_overlap_method(c("across", "chain"))
+
 exclude_overlap_method("across")
 exclude_overlap_method(c("across", "chain"))
 }
