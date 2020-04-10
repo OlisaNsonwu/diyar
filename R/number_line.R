@@ -331,7 +331,7 @@ number_line_sequence <- function(x, by=1, length.out = NULL){
   if(is.null(length.out)){
     mapply(seq, from=left_point(x), to = right_point(x), by=by, SIMPLIFY = F)
   }else{
-    mapply(seq, from=left_point(x), to = right_point(x), by=by, length.out = length.out, SIMPLIFY = F)
+    mapply(seq, from=left_point(x), to = right_point(x), length.out = length.out, SIMPLIFY = F)
   }
 }
 
