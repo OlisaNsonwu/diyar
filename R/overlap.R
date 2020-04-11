@@ -97,6 +97,9 @@ exact <- function(x, y){
 #' across(a, e)
 #' @export
 across <- function(x, y){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(y)) stop("argument 'y' is missing, with no default")
+
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
@@ -116,6 +119,9 @@ across <- function(x, y){
 #' chain(a, c)
 #' @export
 chain <- function(x, y){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(y)) stop("argument 'y' is missing, with no default")
+
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
@@ -132,6 +138,9 @@ chain <- function(x, y){
 #' aligns_start(a, c)
 #' @export
 aligns_start <- function(x, y){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(y)) stop("argument 'y' is missing, with no default")
+
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
@@ -147,6 +156,9 @@ aligns_start <- function(x, y){
 #' aligns_end(a, c)
 #' @export
 aligns_end <- function(x, y){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(y)) stop("argument 'y' is missing, with no default")
+
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
@@ -162,6 +174,9 @@ aligns_end <- function(x, y){
 #' inbetween(b, a)
 #' @export
 inbetween <- function(x, y){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(y)) stop("argument 'y' is missing, with no default")
+
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
@@ -183,6 +198,9 @@ inbetween <- function(x, y){
 #' overlap_method(b, e)
 #' @export
 overlap_method <- function(x, y){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(y)) stop("argument 'y' is missing, with no default")
+
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 

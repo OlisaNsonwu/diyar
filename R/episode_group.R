@@ -159,6 +159,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
   . <- NULL
 
+  if(missing(df)) stop("argument 'df' is missing, with no default")
   if(missing(date)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
 

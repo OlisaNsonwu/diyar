@@ -102,6 +102,9 @@
 record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = TRUE){
   if(missing(criteria)) stop("argument 'criteria' is missing, with no default")
 
+  if(missing(df)) stop("argument 'df' is missing, with no default")
+  if(missing(criteria)) stop("argument 'criteria' is missing, with no default")
+
   if(!is.data.frame(df)) stop(paste("A dataframe is required"))
   rng_d <- as.character(substitute(df))
   . <- NULL

@@ -25,6 +25,7 @@
 #' @return to_s4 - \link[=pid-class]{pid} or \link[=epid-class]{epid} objects
 #' @export
 to_s4 <- function(df){
+  if(missing(df)) stop("argument 'df' is missing, with no default")
   if(!is.data.frame(df)) stop("'df' must be a data.frame")
 
   if(any(names(df)=="epid")){
@@ -48,6 +49,7 @@ to_s4 <- function(df){
 #' @return to_df - \code{data.frame} object
 #' @export
 to_df <- function(s4){
+  if(missing(s4)) stop("argument 's4' is missing, with no default")
   if(!class(s4) %in% c("epid","pid","number_line")) stop("'s4' must be an epid or pid object")
   if(all(class(s4)=="epid")){
     df <- data.frame(epid = s4@.Data, stringsAsFactors = FALSE)
