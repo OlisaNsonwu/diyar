@@ -48,6 +48,7 @@ test_that("test that test episode identifier is as expected for fixed episodes",
 })
 
 # Test 2 - Case assignment - Reverse chronological order
+data_2 <- head(data, 10)
 data_2$episode_len_s <- 13
 data_2$d <- 13 * diyar::episode_unit$days
 
@@ -122,7 +123,10 @@ test_that("test rolling/recurring episodes", {
 })
 
 # Test 3 - Rolls max
-data_4 <- mutate(data_2, recurrence=3, r = as.numeric(duration(3,"days")))
+data_4 <-data_2
+data_4$recurrence <- 3
+data_4$r <- 3 * diyar::episode_unit$days
+
 test_4 <- cbind(data_4,
                 rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = F, group_stats = T, to_s4 = F), list(~paste(.,1,sep="."))),
                 rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = F, group_stats = T, to_s4 = F), list(~paste(.,2,sep=".")))
@@ -258,7 +262,8 @@ test_that("testing episodes_max and rolls_max combinations", {
 })
 
 # Test 7 - Deterministic linkage
-data_7 <-  mutate(data_4, recurrence=2)
+data_7 <- data_4
+data_7$recurrence <- 2
 data_7$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,3)), sep="")
 
 test_7 <- cbind(data_7,
@@ -294,20 +299,12 @@ test_that("testing epid_dataset", {
   expect_equal(test_7$epid_dataset.2, c(rep("DS1-13,DS2-13,DS3-13",3),rep("DS1-13,DS2-13",3),rep("DS2-13,DS3-13",3),"DS3-13" ))
 })
 
-hospital_infections <- tibble(
-  rd_id = c(1:11),
-  date = seq.Date(dmy("01/04/2018"), dmy("31/05/2018"), by="6 days"),
-  infection = c("BSI", rep("UTI",2), "UTI", "BSI",  "UTI", rep("BSI",2), "RTI","RTI","BSI"),
-  epi_len = 15
-)
-
 hospital_infections <- diyar::infections
 # Test 8 - Episode unit
 # 16-hour (difference of 15 hours) episodes, and the most recent record defined as the "Case"
-test_8a <- bind_cols(hospital_infections,
+test_8a <- cbind(hospital_infections,
                      episode_group(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
-                                   from_last = T, episode_unit = "hours", display = F, group_stats = T, to_s4 = F)) %>%
-  select(-sn)
+                                   from_last = T, episode_unit = "hours", display = F, group_stats = T, to_s4 = F))
 
 e_int <- number_line(test_8a$date, test_8a$date)
 
@@ -323,10 +320,9 @@ test_that("testing; episode grouping by the hour", {
 })
 
 # 15-week (difference of 9072000 seconds) episodes , and the most recent record defined as the "Case"
-test_8b <- bind_cols(hospital_infections,
+test_8b <- cbind(hospital_infections,
                      episode_group(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
-                                   from_last = T, episode_unit = "weeks", display = F, group_stats = T, to_s4 = F)) %>%
-  select(-sn)
+                                   from_last = T, episode_unit = "weeks", display = F, group_stats = T, to_s4 = F))
 
 e_int <- rep(number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 11)
 
@@ -347,19 +343,15 @@ test_that("testing; episode grouping by weeks", {
 hospital_infections$infection <- factor(hospital_infections$infection, levels = c("UTI","BSI","RTI"))
 
 # Different case and recurrence lengths for different source of infection
-hospital_infections <- mutate(
-  hospital_infections,
-  epi_len = case_when(
-    infection == "BSI" ~ 14,
-    infection == "UTI" ~ 30,
-    infection == "RTI" ~ 60
-  )
-)
+hospital_infections$epi_len <- ifelse(hospital_infections$infection =="BSI", 14, 0)
+hospital_infections$epi_len <- ifelse(hospital_infections$infection =="UTI", 30, hospital_infections$epi_len)
+hospital_infections$epi_len <- ifelse(hospital_infections$infection =="RTI", 60, hospital_infections$epi_len)
+
 
 # n-day episodes beginning with the earliest record with the specified preference; UTI > BSI > RTI
-test_9a <- bind_cols(hospital_infections,
+test_9a <- cbind(hospital_infections,
                      episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
-                                   custom_sort = infection,  display = F, group_stats = T, to_s4 = F)) %>% select(-sn)
+                                   custom_sort = infection,  display = F, group_stats = T, to_s4 = F))
 
 e_int <- c(
   number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")),
@@ -384,14 +376,13 @@ test_that("testing episode; custom sort", {
 hospital_infections$infection_ord <- ifelse(hospital_infections$infection =="RTI",0,1)
 
 # n-day episodes with duplicates before and after the most recent "RTI" record, otherwise begin at the most recent record
-test_9b <- bind_cols(hospital_infections,
+test_9b <- cbind(hospital_infections,
                      rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
                                               custom_sort = infection_ord, from_last = T, bi_direction = T, display = F, group_stats = T, to_s4 = F), list(~paste(.,1,sep="."))),
 
                      rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
                                               custom_sort = infection_ord, from_last = T, bi_direction = F, display = F, group_stats = T, to_s4 = F), list(~paste(.,2,sep=".")))
-) %>%
-  select(-starts_with("sn"))
+)
 
 e_int.1 <- rep(number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 11)
 
@@ -424,10 +415,9 @@ test_that("testing; episode grouping with custom sort and bi_direction", {
 hospital_infections$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Only one n-day episode per patient_id
-test_10a <- bind_cols(hospital_infections,
+test_10a <- cbind(hospital_infections,
                       episode_group(hospital_infections, rd_id, date=date, strata = patient_id, case_length = epi_len,
-                                    episodes_max = 1, from_last = F, display = F, data_source = infection, group_stats = T, to_s4 = F)) %>%
-  select(-sn)
+                                    episodes_max = 1, from_last = F, display = F, data_source = infection, group_stats = T, to_s4 = F))
 
 e_int <- c(
   rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 3),
@@ -453,19 +443,17 @@ test_that("testing; stratified grouping", {
 })
 
 
-test_10a.1 <- bind_cols(hospital_infections,
+test_10a.1 <- cbind(hospital_infections,
                         episode_group(hospital_infections, rd_id, date=date, strata = patient_id, case_length = epi_len,
-                                      episode_type="rolling", display = FALSE, data_source = infection, group_stats = T, to_s4 = F)) %>%
-  select(-sn)
+                                      episode_type="rolling", display = FALSE, data_source = infection, group_stats = T, to_s4 = F))
 
 # Only three 9-day (difference of 8 days) rolling episode per patient and infection.
 hospital_infections$epi_len <- 8
 hospital_infections$recur <- 30
-test_10b <- bind_cols(hospital_infections,
+test_10b <- cbind(hospital_infections,
                       episode_group(hospital_infections, rd_id, date=date, strata = c(patient_id, infection), case_length = epi_len,
                                     episode_type = "rolling", recurrence_length = recur, episodes_max = 3, data_source = c(patient_id, infection),
-                                    display = FALSE, group_stats = T, to_s4 = F)) %>%
-  select(-sn)
+                                    display = FALSE, group_stats = T, to_s4 = F))
 
 e_int <- c(
   number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
@@ -493,18 +481,7 @@ test_that("testing; stratified grouping 2", {
 })
 
 #Test 11 - Interval grouping
-hospital_admissions <- tibble(
-  rd_id = 1:9,
-  admin_dt = c(dmy("01/01/2019"), dmy("01/01/2019"), dmy("10/01/2019"), dmy("05/01/2019"),
-               dmy("05/01/2019"), dmy("07/01/2019"), dmy("04/01/2019"),
-               dmy("20/01/2019"), dmy("26/01/2019")),
-  discharge_dt = c(dmy("01/01/2019"), dmy("10/01/2019"), dmy("13/01/2019"), dmy("06/01/2019"),
-                   dmy("15/01/2019"), dmy("15/01/2019"), dmy("13/01/2019"),
-                   dmy("30/01/2019"), dmy("31/01/2019"))
-)
-
-data(hospital_admissions)
-admissions <- hospital_admissions
+admissions <- diyar::hospital_admissions
 admissions$epi_len <- 0
 admissions$admin_period <- number_line(admissions$admin_dt, admissions$discharge_dt)
 
@@ -512,10 +489,9 @@ admissions <- admissions[1:9,]
 admissions
 
 # episodes of overlaping intervals of admission
-test_11a <- bind_cols(
+test_11a <- cbind(
   admissions,
-  episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, group_stats = T, to_s4 = F)) %>%
-  select(-c(admin_dt, discharge_dt, sn))
+  episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, group_stats = T, to_s4 = F))
 
 e_int <- c(
   rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("15/01/2019 00:00:00")), 7),
@@ -538,11 +514,10 @@ test_that("testing; intervals grouping", {
 admissions$epi_len <- 0
 admissions$recur <- 1
 
-test_11b <- bind_cols(
+test_11b <- cbind(
   admissions,
   episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len,
-                episode_type = "rolling", recurrence_length = recur, episode_unit = "months", group_stats = T, to_s4 = F)) %>%
-  select(-c(admin_dt, discharge_dt, sn))
+                episode_type = "rolling", recurrence_length = recur, episode_unit = "months", group_stats = T, to_s4 = F))
 
 e_int <- c(
   rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 9)
@@ -563,9 +538,8 @@ test_that("testing; intervals grouping for rolling intervals", {
 # fixed episodes of overlaping intervals of admission seperated by 1 month
 admissions$epi_len <- 1
 
-test_11c <- bind_cols(admissions,
-                      episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, episode_unit = "months", group_stats = T, to_s4 = F)) %>%
-  select(-c(admin_dt, discharge_dt, sn))
+test_11c <- cbind(admissions,
+                      episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, episode_unit = "months", group_stats = T, to_s4 = F))
 
 e_int <- c(
   rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 9)

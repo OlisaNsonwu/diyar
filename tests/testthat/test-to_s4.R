@@ -1,5 +1,5 @@
 library(testthat)
-library(dplyr)
+library(diyar)
 
 data("infections")
 df <- fixed_episodes(infections$date, case_length = 30, to_s4=F)
