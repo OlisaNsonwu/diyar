@@ -93,3 +93,25 @@ space_out_y <- function(x_axis){
 
   return(y_axis)
 }
+
+space_out_yy <- function(x_axis){
+  rows_n <- length(x_axis)
+  sn_change <- y_axis <- rep(1, rows_n)
+  while (max(sn_change) ==1) {
+    x_r <- expand_number_line(as.number_line(x_axis), 2, "end")
+    y_r <- expand_number_line(as.number_line(y_axis), 1, "end")
+
+    lag <- function(x, by=1) c(rep(as.number_line(NA), by), x[1:(length(x)-by)])
+    lead <- function(x, by=1) c(x[(by+1):length(x)], rep(as.number_line(NA), by))
+
+    x_l <- overlap(x_r, lead(x_r)) & overlap(x_r, lag(x_r))
+    y_l <- overlap(y_r, lead(y_r)) & overlap(y_r, lag(y_r))
+
+    new_y_axis <- ifelse(x_l==T & y_l ==T & !duplicated(paste0(x_l, y_l)), y_axis+2, y_axis)
+
+    sn_change <- ifelse(y_axis != new_y_axis,1,0)
+    y_axis <- new_y_axis
+  }
+
+  return(y_axis)
+}

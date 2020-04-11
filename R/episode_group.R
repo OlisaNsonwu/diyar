@@ -976,7 +976,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     mid_pts <- mid_pts[dfp$event_nm!=""]
     p_ord <- dfp$p_ord[dfp$event_nm!=""]
 
-    # Check mid-points that are too close (0.04) as this will overlap in the plot.
+    # # Check mid-points that are too close (0.04) as this will overlap in the plot.
     chck <- diyar::compress_number_line(diyar::expand_number_line(as.number_line(mid_pts), 1), deduplicate = F, collapse = T)
     # Per overlaping group, order events based on size/length of period
     ord <- lapply(split(p_ord,  chck@gid), function(x){
@@ -991,9 +991,12 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     dfp$e_y <- e_y
     # Among overlapping events/period, space out the 2nd/more event incrementally (0.17)
     dfp$e_y[ord>1] <- max(dfp$e_y) + ((ord[ord>1]-1) * 0.25 * scale_fac)
+
+    # dfp$e_y <- 1
+    # dfp$e_y[dfp$event_nm!=""] <- max(dfp$e_y) + ((space_out_yy(diyar::expand_number_line(as.number_line(dfp$dt_c[dfp$event_nm!=""]), 1))-1) * 0.05 * scale_fac)
+
     # Some number_lines may overlap by chance so, space out again incrementally (0.01)
     dfp$e_y <- dfp$e_y  - (1:nrow(dfp) * (scale_fac * 0.02))
-    dfp$xrd <- ord
 
     # recurrence_length is supplied, strip out the reference events for recurrence periods
     if(!is.null(recurrence_length)){
