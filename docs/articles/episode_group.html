@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">09 April 2020</h4>
+            <h4 class="date">11 April 2020</h4>
       
       
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -105,7 +105,7 @@
 <li>from events that occur within periods of time e.g. hospital stay. See <a href="#interval_grouping">interval grouping</a>
 </li>
 <li>with periods of recurrence (<code>recurrence_length</code>)</li>
-<li>with specific events as their reference event (case). See <a href="#case_assignment">“Making a case definition”</a>
+<li>with specific events as their reference event (case). See <a href="#custom_sort">“user defined case assignment”</a>
 </li>
 <li>with different durations (<code>case_length</code>) or recurrence periods (<code>recurrence_length</code>) per subset (<code>strata</code>) of a dataset. See <a href="#stratified_grouping">stratified grouping</a>
 </li>
@@ -118,15 +118,15 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p>An episode as produced by <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> or <code><a href="../reference/episode_group.html">episode_group()</a></code> is a set of dated records (events or periods of events) within a specific period. Each episode begins with a reference event (case) and may contain duplicate and recurrent events. Duplicate event are those that occur between cases and recurrent.</p>
-<p>These functions produce two main type of episodes - <code>"fixed"</code> episodes which do not include periods of recurrence and <code>"rolling"</code> episodes which do. <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> are wrapper functions of <code><a href="../reference/episode_group.html">episode_group()</a></code>.</p>
+<p>An episode as produced by <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> or <code><a href="../reference/episode_group.html">episode_group()</a></code> is a set of dated records (events or periods of events) within a specific period. Each episode begins with a reference event (case) and may contain duplicate and recurrent events. Duplicate event are those that occur between cases and recurrent events.</p>
+<p>These functions produce two main type of episodes - <code>"fixed"</code> episodes which do not include periods of recurrence and <code>"rolling"</code> episodes which do. These are produced by <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> respectively which are wrapper functions of <code><a href="../reference/episode_group.html">episode_group()</a></code>.</p>
 <p><a id="recurrence"></a><a></a></p>
 </div>
 <div id="episodes-windows-case-lengths-and-recurrence-periods" class="section level2">
 <h2 class="hasAnchor">
 <a href="#episodes-windows-case-lengths-and-recurrence-periods" class="anchor"></a>Episodes, windows, case lengths and recurrence periods</h2>
-<p>Before we begin, let’s go over some terms which will pop up now and again. An <code>event</code> is simply a dated record (single time point). A <code>period of event</code> or <code>event period</code> is a record with a start and end time points. The “lengths” - <code>case_length</code> and <code>recurrence_length</code> are specific durations after an <code>event</code>. More specifically, the <code>case_length</code> is a specified period after the <code>reference event</code> (first <code>event</code> of an <code>episode</code>) while <code>recurrence_length</code> is a specified duration after the other <code>events</code> subsequent to the <code>reference event</code>.</p>
-<p>All <code>events</code> within the same <code>case_length</code> or <code>recurrence_length</code> form a <code>window</code>. A <code>window</code> equates to an <code>episode</code>. <code>events</code> outside a <code>window</code> belong to separate <code>episodes</code>. What differentiates <code>rolling episodes</code> from <code>fixed episodes</code> is that when two or more <code>windows</code> overlap, they are collapsed into a larger <code>window</code>, indicating that the <code>episode</code> (first <code>window</code>) is still on-going up to the end of the second <code>window</code>. As a result, every <code>event</code> belonging to both <code>windows</code> are considered part of the same <code>"roliing episode"</code>. Consequently, a <code>"fixed episode"</code> is never longer than its <code>case_length</code> but a <code>"rolling episode"</code> becomes longer than its <code>case_length</code> if the first <code>window</code> (also referred to <code>case window</code>) overlaps with another.</p>
+<p>Before we begin, let’s go over some terms which will pop up now and again. An <code>event</code> is simply a dated record (single time point). An<code>event period</code> is a record with start and end time points. The “lengths” - <code>case_length</code> and <code>recurrence_length</code> are specific durations after an <code>event</code>. More specifically, the <code>case_length</code> is a specified period after the <code>reference event</code> (first <code>event</code> of an <code>episode</code>) while <code>recurrence_length</code> is a specified duration after the other <code>events</code> subsequent to the <code>reference event</code>.</p>
+<p>All <code>events</code> within the same <code>case_length</code> or <code>recurrence_length</code> form a <code>window</code>. A <code>window</code> equates to an <code>episode</code>. <code>events</code> outside a <code>window</code> belong to separate <code>episodes</code>. What differentiates <code>"rolling episodes"</code> from <code>"fixed episodes"</code> is that when two or more <code>windows</code> overlap, they are collapsed into a larger <code>window</code>, indicating that the <code>episode</code> is still on-going. As a result, every <code>event</code> belonging to both <code>windows</code> are considered part of the same <code>"roliing episode"</code>. Consequently, a <code>"fixed episode"</code> is never longer than its <code>case_length</code> but a <code>"rolling episode"</code> becomes longer than its <code>case_length</code> if the first <code>window</code> (also referred to <code>case window</code>) overlaps with another.</p>
 <p>The examples below demonstrate this difference with 4 events/records.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar)
 
@@ -172,7 +172,7 @@ f <span class="co"># fixed episode identifiers</span>
 <span class="co">#&gt; [5] "E.4 2019-04-16 -&gt; 2019-04-21 (D) C.4"</span>
 <span class="co">#&gt; [6] "E.6 2019-06-04 == 2019-06-04 (C) C.6"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-9-1.png" width="816"></p>
-<p>In the <code>fixed episodes</code> example, records 1 to 3 are assigned to a <code>window</code> (i.e. window ID <code>1</code>). In this window, record 1 is the <code>reference event</code> (case) and records 2 and 3 are the <code>duplicates</code>, because they are within 15 days (14-day difference) of record 1. This <code>window</code> then becomes one <code>episode</code> (episode ID <code>1</code>; Figure 2a). Record 4 is not within this 15-day period after record 3 and so begins a new <code>window</code> (and <code>episode</code> i.e. window and episode ID <code>4</code>). Record 5 is within 15 days of record 4 and so is assigned to the same window and episode (window and episode ID <code>4</code>). This process continues chronologically until all records have been assigned to an <code>episode</code>.</p>
+<p>In the <code>fixed episodes</code> example, records 1 to 3 are assigned to a <code>window</code> (i.e. window ID <code>1</code>). In this window, record 1 is the <code>reference event</code> (case) and records 2 and 3 are the <code>duplicates</code>, because they are within 15 days (14-day difference) of record 1. This <code>window</code> then becomes one <code>episode</code> (episode ID <code>1</code>; Figure 2a). Record 4 then starts a new <code>window</code> (and <code>episode</code> i.e. window and episode ID <code>4</code>). Record 5 is within 15 days of record 4 and so is assigned to the same window and episode (window and episode ID <code>4</code>). This process continues chronologically until all records have been assigned to an <code>episode</code>.</p>
 <p><strong>Figure 2b: 15-day “rolling” episodes with a 15-day recurrence period</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Rolling episodes</span>
 r &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dates, <span class="dt">case_length=</span><span class="dv">14</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F, <span class="dt">to_s4 =</span>T)
@@ -196,7 +196,7 @@ r <span class="co"># rolling episode identifiers</span>
 <div id="making-a-case-definition" class="section level2">
 <h2 class="hasAnchor">
 <a href="#making-a-case-definition" class="anchor"></a>Making a case definition</h2>
-<p>Almost every arguments in <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> can affect which <code>events</code> are taken as the <code>case</code> and <code>recurrent event</code>, and this ultimately allows you apply a variety of case definitions to your datasets. This section covers the main parts of this process and which of these you can control or change.</p>
+<p>Almost every argument in <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> can affect which <code>events</code> are taken as the <code>case</code> and <code>recurrent event</code>, and this ultimately allows you to implement a variety of case definitions to your datasets. This section covers the main parts of this process.</p>
 <div id="reference-events" class="section level3">
 <h3 class="hasAnchor">
 <a href="#reference-events" class="anchor"></a>Reference events</h3>
@@ -340,7 +340,7 @@ dbs<span class="op">$</span>eps_<span class="dv">6</span>
 <span class="co">#&gt;  [6] "E.6 (C) C.6" "E.6 (D) C.6" "E.6 (D) C.6" "E.9 (C) C.9" "E.9 (D) C.9"</span>
 <span class="co">#&gt; [11] "E.9 (D) C.9"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-35-1.png" width="816"></p>
-<p>Note that if <code>case_for_recurrence</code> is <code>TRUE</code>, after checking for <code>recurrence</code> in the last <code>recurrence period</code>, the function will also check for the for <code>duplicates</code> within the <code>case window</code> of the last <code>recurrent event</code>. See below.</p>
+<p>Note that if <code>case_for_recurrence</code> is <code>TRUE</code>, after checking for <code>recurrence</code> in the last <code>recurrence period</code>, the function will also check for <code>duplicates</code> within the <code>case window</code> of the last <code>recurrent event</code>. See below.</p>
 <p><strong>Figure 6e: Maximum of one recurrence periods per episode per strata with case_for_recurrence as TRUE</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">7</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">2</span>,<span class="dt">display =</span> F, 
                               <span class="dt">rolls_max =</span> <span class="dv">1</span>, <span class="dt">case_for_recurrence =</span> T)
@@ -599,7 +599,7 @@ hos_admin<span class="op">$</span>admin_period
                 <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-52-1.png" width="816"></p>
-<p>There are 6 ways <code>event periods</code> can overlap (<code>overlap_methods</code>). These are <code>"exact"</code>, <code>"across"</code>, <code>"inbetween"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. Only <code>event periods</code> that overlap by the specified method will be grouped into the same <code>episode</code>. You can use any combination of the 6 methods but the default option is to use all 6. See below for a demonstration of this.</p>
+<p>There are 6 ways <code>event periods</code> can overlap (<code>overlap_methods</code>). These are <code>"exact"</code>, <code>"across"</code>, <code>"inbetween"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. See <a href="number_line.html#overlaps">overlaps</a>. Only <code>event periods</code> that overlap by the specified method will be grouped into the same <code>episode</code>. You can use any combination of the 6 methods but the default option is to use all 6. See below for a demonstration of this.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># wrapper function to use with lapply</span>
 epi_grp_func &lt;-<span class="st"> </span><span class="cf">function</span>(x){
   epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, 
@@ -676,10 +676,11 @@ epids[<span class="st">"cb2"</span>]
 <li><strong>note that this will happen even if <code>from_last</code> is TRUE</strong></li>
 </ul>
 </li>
+<li>within or any other method of <code>overlap</code>
+</li>
 </ul>
-<p>*within or any other method of <code>overlap</code></p>
-<p><em><sup>+</sup> days or any other <code>episode_unit</code></em></p>
-<p><strong>Examples below</strong></p>
+<p><sup>+</sup> days or any other <code>episode_unit</code></p>
+<p><em>Examples below</em></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pa &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"28/03/2019"</span>, <span class="st">"01/04/2019"</span>, <span class="st">"03/04/2019"</span>, <span class="st">"07/04/2019"</span>,<span class="st">"12/04/2019"</span>)
 pz &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"31/03/2019"</span>, <span class="st">"10/04/2019"</span>, <span class="st">"05/04/2019"</span>, <span class="st">"09/04/2019"</span>,<span class="st">"13/04/2019"</span>)
 

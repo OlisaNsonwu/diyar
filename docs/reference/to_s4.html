@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Change the returned outputs of <code>diyar</code> functions from <code>data.frames</code> to S4 objects, and vice versa — to_s4 • diyar</title>
+<title>Change the returned outputs of <code>diyar</code> functions — to_s4 • diyar</title>
 
 <!-- jquery -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
@@ -30,10 +30,10 @@
 
 
 
-<meta property="og:title" content="Change the returned outputs of <code>diyar</code> functions from <code>data.frames</code> to S4 objects, and vice versa — to_s4" />
+<meta property="og:title" content="Change the returned outputs of <code>diyar</code> functions — to_s4" />
 
-<meta property="og:description" content="Convert the returned output of record_group, episode_group, fixed_episodes and rolling_episodes
-from the current default (data.frame) to pid or epid objects, and vice versa." />
+<meta property="og:description" content="Convert the returned output of number_line, record_group, episode_group, fixed_episodes and rolling_episodes
+from the a data.frame to number_line, pid or epid objects, and vice versa." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -116,15 +116,15 @@ from the current default (data.frame) to pid or epid objects, and vice versa." /
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Change the returned outputs of <code>diyar</code> functions from <code>data.frames</code> to S4 objects, and vice versa</h1>
+    <h1>Change the returned outputs of <code>diyar</code> functions</h1>
     
     <div class="hidden name"><code>to_s4.Rd</code></div>
     </div>
 
     <div class="ref-description">
     
-    <p>Convert the returned output of <code><a href='record_group.html'>record_group</a></code>, <code><a href='episode_group.html'>episode_group</a></code>, <code><a href='episode_group.html'>fixed_episodes</a></code> and <code><a href='episode_group.html'>rolling_episodes</a></code>
-from the current default (<code>data.frame</code>) to <a href='pid-class.html'>pid</a> or <a href='epid-class.html'>epid</a> objects, and vice versa.</p>
+    <p>Convert the returned output of <code><a href='number_line.html'>number_line</a></code>, <code><a href='record_group.html'>record_group</a></code>, <code><a href='episode_group.html'>episode_group</a></code>, <code><a href='episode_group.html'>fixed_episodes</a></code> and <code><a href='episode_group.html'>rolling_episodes</a></code>
+from the a <code>data.frame</code> to <a href='number_line-class.html'>number_line</a>, <a href='pid-class.html'>pid</a> or <a href='epid-class.html'>epid</a> objects, and vice versa.</p>
     
     </div>
 
@@ -137,7 +137,7 @@ from the current default (<code>data.frame</code>) to <a href='pid-class.html'>p
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p><code>data.frame</code>. Returned output of <code><a href='record_group.html'>record_group</a></code>, <code><a href='episode_group.html'>episode_group</a></code>, <code><a href='episode_group.html'>fixed_episodes</a></code> and <code><a href='episode_group.html'>rolling_episodes</a></code></p></td>
+      <td><p><code>data.frame</code></p></td>
     </tr>
     <tr>
       <th>s4</th>

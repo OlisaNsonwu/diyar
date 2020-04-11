@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="Overlapping number line objects — overlap" />
 
-<meta property="og:description" content="A set of functions to identify overlapping number_line objects" />
+<meta property="og:description" content="Identify overlapping number_line objects" />
 <meta name="twitter:card" content="summary" />
 
 
@@ -122,7 +122,7 @@
 
     <div class="ref-description">
     
-    <p>A set of functions to identify overlapping <code>number_line</code> objects</p>
+    <p>Identify overlapping <code>number_line</code> objects</p>
     
     </div>
 
@@ -161,11 +161,11 @@
     </tr>
     <tr>
       <th>method</th>
-      <td><p>Method of overlap. Check each pair of <code>number_line</code> objects with the same set of <code>method</code>. Deprecated use <code>methods</code> instead.</p></td>
+      <td><p>Method of overlap. Check every pair of <code>number_line</code> objects with the same <code>method</code>. Deprecated use <code>methods</code> instead.</p></td>
     </tr>
     <tr>
       <th>methods</th>
-      <td><p>Methods of overlap. Check multiple pairs of <code>number_line</code> objects with the different sets of <code>methods</code></p></td>
+      <td><p>Methods of overlap. Check different pairs of <code>number_line</code> objects with the different <code>methods</code></p></td>
     </tr>
     </table>
     
@@ -173,6 +173,18 @@
 
     <p><code>logical</code> object</p>
 <p><code>character</code> object</p>
+    
+    <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
+
+    <p>exact() - Identical start and end points</p>
+<p>inbetween() - Start <b>and</b> end points of one <code>number_line</code> object in between the start and end points of another.</p>
+<p>across() - Start <b>or</b> end points of one <code>number_line</code> object in between the start and end points of another.</p>
+<p>chain() - Chained i.e. end point of one <code>number_line</code> object is equal to the start point of another</p>
+<p>aligns_start() - Identical start points only</p>
+<p>aligns_end() - Identical end points only</p>
+<p>overlap() - Any or all 6 methods above</p>
+<p>overlap_method() - Shows if and how a pair of  <code>number_line</code> object overlaps</p>
+<p>include_overlap_method() and exclude_overlap_method() - Conveniently generate the required values for the <code>method</code></p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
@@ -182,7 +194,17 @@
 <span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>100</span>, <span class='fl'>120</span>)
 <span class='no'>e</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>50</span>, <span class='fl'>120</span>)
 <span class='no'>g</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>100</span>,<span class='fl'>100</span>)
-<span class='fu'>exact</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>exact</span>(<span class='no'>a</span>, <span class='no'>a</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>across</span>(<span class='no'>a</span>, <span class='no'>b</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>across</span>(<span class='no'>a</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>chain</span>(<span class='no'>c</span>, <span class='no'>d</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>chain</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>aligns_start</span>(<span class='no'>c</span>, <span class='no'>d</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>aligns_start</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>aligns_end</span>(<span class='no'>d</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>aligns_end</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>inbetween</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>inbetween</span>(<span class='no'>b</span>, <span class='no'>a</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] "chain"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>d</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] "aligns_start"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] "aligns_end"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>b</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] "none"</div><div class='input'><span class='fu'>include_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "across"</div><div class='input'><span class='fu'>include_overlap_method</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] "across|chain"</div><div class='input'><span class='fu'>exclude_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "exact|chain|aligns_start|aligns_end|inbetween"</div><div class='input'><span class='fu'>exclude_overlap_method</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] "exact|aligns_start|aligns_end|inbetween"</div></pre>
+
+<span class='fu'>overlap</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>overlap</span>(<span class='no'>a</span>, <span class='no'>g</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"exact|chain"</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
+<span class='fu'>exact</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>exact</span>(<span class='no'>a</span>, <span class='no'>a</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='fu'>across</span>(<span class='no'>a</span>, <span class='no'>b</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>across</span>(<span class='no'>a</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='fu'>chain</span>(<span class='no'>c</span>, <span class='no'>d</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>chain</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='fu'>aligns_start</span>(<span class='no'>c</span>, <span class='no'>d</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>aligns_start</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
+<span class='fu'>aligns_end</span>(<span class='no'>d</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>aligns_end</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
+<span class='fu'>inbetween</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>inbetween</span>(<span class='no'>b</span>, <span class='no'>a</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
+<span class='fu'>overlap_method</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] "chain"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>d</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] "aligns_start"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] "aligns_end"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>b</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] "none"</div><div class='input'>
+<span class='fu'>include_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "across"</div><div class='input'><span class='fu'>include_overlap_method</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] "across|chain"</div><div class='input'>
+<span class='fu'>exclude_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "exact|chain|aligns_start|aligns_end|inbetween"</div><div class='input'><span class='fu'>exclude_overlap_method</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] "exact|aligns_start|aligns_end|inbetween"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>
@@ -190,6 +212,8 @@
       <li><a href="#arguments">Arguments</a></li>
       
       <li><a href="#value">Value</a></li>
+
+      <li><a href="#details">Details</a></li>
       
       <li><a href="#examples">Examples</a></li>
     </ul>

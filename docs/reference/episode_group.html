@@ -166,7 +166,7 @@
     </tr>
     <tr>
       <th>strata</th>
-      <td><p>Subsets of the dataset within which episode grouping will be done separately. In <code>episode_group</code>, you can use multiple columns supplied as column names. <code><a href='record_group.html'>record_group</a></code> can create useful <code>strata</code>.</p></td>
+      <td><p>Subsets of the dataset. Episode grouping will be done separately within each subset of the dataset. In <code>episode_group</code>, you can use multiple columns. <code><a href='record_group.html'>record_group</a></code> can create useful <code>strata</code> e.g. patient identifiers.</p></td>
     </tr>
     <tr>
       <th>date</th>
@@ -174,7 +174,7 @@
     </tr>
     <tr>
       <th>case_length</th>
-      <td><p>Duration after a <code>"case"</code> within which subsequent events are considered <code>duplicate</code> events. This period is referred to as the the <code>case wind_id</code>.</p></td>
+      <td><p>Duration after a <code>"case"</code> within which subsequent events are considered <code>"duplicate"</code> events. This period is referred to as the the <code>case window</code>.</p></td>
     </tr>
     <tr>
       <th>episode_type</th>
@@ -182,19 +182,19 @@
     </tr>
     <tr>
       <th>episode_unit</th>
-      <td><p>Time units. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years".</p></td>
+      <td><p>Time units. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See <code><a href='patient_list.html'>diyar::episode_unit</a></code>.</p></td>
     </tr>
     <tr>
       <th>episodes_max</th>
-      <td><p>Maximum number of times to group episodes within each <code>strata</code>.</p></td>
+      <td><p>Maximum number of episodes to have within each <code>strata</code>.</p></td>
     </tr>
     <tr>
       <th>recurrence_length</th>
-      <td><p>Duration after the last or first event (see <code>recurrence_from_last</code>) of the previous window within which subsequent events are considered <code>"recurrent"</code> events. This period referred to as the <code>recurrence window</code>. If <code>recurrence_length</code> is not supplied, <code>case_length</code> is used as the <code>recurrence_length</code>.</p></td>
+      <td><p>Duration after the last or first event (see <code>recurrence_from_last</code>) of the previous window within which subsequent events are considered <code>"recurrent"</code> events. This period is referred to as the <code>recurrence window</code>. If <code>recurrence_length</code> is not supplied, <code>case_length</code> is used as the <code>recurrence_length</code>.</p></td>
     </tr>
     <tr>
       <th>rolls_max</th>
-      <td><p>Maximum number of times an event can reoccur within an episode. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
+      <td><p>Maximum number of times an episode can reoccur. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
     </tr>
     <tr>
       <th>data_source</th>
@@ -202,7 +202,7 @@
     </tr>
     <tr>
       <th>custom_sort</th>
-      <td><p>If <code>TRUE</code>, <code>"case"</code> assignment will be done with preference to this sort order. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In <code>episode_group</code>, you can use multiple columns as sort levels.</p></td>
+      <td><p>If <code>TRUE</code>, <code>"case"</code> assignment will be done with preference to a sort order. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In <code>episode_group</code>, you can use multiple columns as sort levels.</p></td>
     </tr>
     <tr>
       <th>from_last</th>
@@ -210,15 +210,15 @@
     </tr>
     <tr>
       <th>overlap_method</th>
-      <td><p>Method of overlap considered when grouping periods of events. Each pair of periods are checked with the same set of <code>overlap_method</code>. Deprecated use <code>overlap_methods</code> instead.</p></td>
+      <td><p>Methods of overlap considered when grouping event periods. Each pair of periods are checked with the same set of <code>overlap_method</code>. Deprecated use <code>overlap_methods</code> instead.</p></td>
     </tr>
     <tr>
       <th>overlap_methods</th>
-      <td><p>Methods of overlap considered when grouping intervals. Different pairs of periods can be checked with different sets <code>overlap_methods</code></p></td>
+      <td><p>Methods of overlap considered when grouping event periods. Different pairs of periods can be checked with different sets <code>overlap_methods</code></p></td>
     </tr>
     <tr>
       <th>bi_direction</th>
-      <td><p>If <code>FALSE</code>, <code>"duplicate"</code> events will be those within the <code>case_length</code> period, before or after the <code>"case"</code> as determined by <code>from_last</code>. If <code>TRUE</code>, <code>"duplicate"</code> events will be those within the same period before and after the <code>"case"</code>.</p></td>
+      <td><p>If <code>FALSE</code>, <code>"duplicate"</code> events will be those within the <code>case_length</code> before <strong>or</strong> after the <code>"case"</code> as determined by <code>from_last</code>. If <code>TRUE</code>, <code>"duplicate"</code> events will be those within the same period before <strong>and</strong> after the <code>"case"</code>.</p></td>
     </tr>
     <tr>
       <th>group_stats</th>
@@ -226,7 +226,7 @@
     </tr>
     <tr>
       <th>display</th>
-      <td><p>If <code>TRUE</code>, status messages are printed on screen.</p></td>
+      <td><p>If <code>TRUE</code>, a progress message is printed on screen.</p></td>
     </tr>
     <tr>
       <th>deduplicate</th>
@@ -238,7 +238,7 @@
     </tr>
     <tr>
       <th>recurrence_from_last</th>
-      <td><p>if <code>TRUE</code>, the reference event for a <code>recurrence window</code> will be the last event from the previous <code>wind_id</code>. If <code>FALSE</code> (default), it will be from the first event. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
+      <td><p>if <code>TRUE</code>, the reference event for a <code>recurrence window</code> will be the last event from the previous window. If <code>FALSE</code> (default), it will be from the first event. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
     </tr>
     <tr>
       <th>case_for_recurrence</th>
@@ -257,7 +257,7 @@
 
 <p><code><a href='epid-class.html'>epid</a></code> objects or <code>data.frame</code> if <code>to_s4</code> is <code>FALSE</code>)</p>
 <ul>
-<li><p><code>sn</code> - unique record identifier as provided</p></li>
+<li><p><code>sn</code> - unique record identifier as provided (or generated)</p></li>
 <li><p><code>epid | .Data</code> - unique episode identifier</p></li>
 <li><p><code>wind_id</code> - unique window identifier</p></li>
 <li><p><code>wind_nm</code> - type of window i.e. "Case" or "Recurrence"</p></li>
@@ -274,9 +274,11 @@
     <p>Episode grouping begins at a reference event (<code>"case"</code>) and proceeds forward or backward in time depending on <code>from_last</code>.
 If <code>custom_sort</code> is used, episode grouping can be forced to begin at certain events before proceeding forward or backwards in time.
 The maximum duration of a <code>"fixed"</code> episode is the <code>case_length</code>. This period is referred to as the <code>case window</code>. The maximum duration of a <code>"rolling"</code> episode is the
-<code>case_length</code> plus all recurrence periods. The recurrence periods are referred to as <code>recurrence windows</code>. This is a specified duration (<code>recurrence_length</code>) after the last or first (depending on <code>recurrence_from_last</code>) event from the previous window. Events within this period are considered <code>"recurrent"</code> events.</p>
+<code>case_length</code> plus all recurrence periods. The recurrence periods are referred to as <code>recurrence windows</code>.
+This is a specified duration (<code>recurrence_length</code>) after the last or first (depending on <code>recurrence_from_last</code>) event from the previous window.
+Events within this period are considered <code>"recurrent"</code> events.</p>
 <p>When a <code>data_source</code> identifier is provided,
-<code>epid_dataset</code> is included in the output. This has the source of every event in each episode.</p>
+<code>epid_dataset</code> is included in the output. This lists the source of every event in each episode.</p>
 <p><code>fixed_episodes()</code> and <code>rolling_episodes()</code> are wrapper functions of <code>episode_group()</code>.
 They are convenient alternatives with the same functionalities.</p>
     
@@ -286,17 +288,8 @@ They are convenient alternatives with the same functionalities.</p>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>dplyr</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'dplyr' was built under R version 3.5.3</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: 'dplyr'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:testthat':</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    matches</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:stats':</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    filter, lag</span></div><div class='output co'>#&gt; <span class='message'>The following objects are masked from 'package:base':</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    intersect, setdiff, setequal, union</span></div><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>lubridate</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: package 'lubridate' was built under R version 3.5.3</span></div><div class='output co'>#&gt; <span class='message'></span>
-#&gt; <span class='message'>Attaching package: 'lubridate'</span></div><div class='output co'>#&gt; <span class='message'>The following object is masked from 'package:base':</span>
-#&gt; <span class='message'></span>
-#&gt; <span class='message'>    date</span></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>diyar</span>)
+
 <span class='co'>#1. Fixed episodes</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>infections</span>); <span class='no'>infections</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 11 x 4</span><span>
 #&gt;    rd_id date       infection epi_len
