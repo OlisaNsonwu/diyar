@@ -20,7 +20,8 @@
 #'
 #' @aliases number_line
 #' @examples
-#' library(lubridate)
+#' dmy <- function(x) as.Date(x, "%d/%m/%Y")
+#' dmy_hms <- function(x) as.POSIXlt(x, "UTC",format="%d/%m/%Y %H:%M:%S")
 #'
 #' number_line(-100, 100); number_line(10, 11.2)
 #'

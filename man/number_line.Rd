@@ -105,7 +105,8 @@ If a familiar (but unique) \code{id} is used when creating the \code{number_line
 The direction of the sequence will correspond to that of the \code{number_line} object.
 }
 \examples{
-library(lubridate)
+dmy <- function(x) as.Date(x, "\%d/\%m/\%Y")
+dmy_hms <- function(x) as.POSIXlt(x, "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S")
 
 number_line(-100, 100); number_line(10, 11.2)
 
