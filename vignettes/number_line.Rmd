@@ -119,6 +119,8 @@ number_line_sequence(nls, by=2)
 number_line_sequence(nls, length.out = 3)
 ```
 
+<a id = "overlaps"></a>
+
 ## Overlaps
 `number_line` objects can overlap with each other and do so in six ways - `"exact"`, `"inbetween"`, `"across"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. Each pair of `number_line` objects can only overlap by one these methods. For example, a `number_line` object can not have aligned start and end points, instead that'll be considered an `"exact"` overlap.
 
