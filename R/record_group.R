@@ -1,7 +1,7 @@
 #' @name record_group
 #' @title Multistage deterministic record linkage
 #'
-#' @description Group matching or partially matching records on diffrent criteria with multiple stages of relevance.
+#' @description Group matching or partially matching records on different criteria with multiple stages of relevance.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.

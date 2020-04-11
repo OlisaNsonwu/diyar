@@ -205,7 +205,7 @@ diyar:::plot_pid(df$pids_a)
 - Stage 1 (criteria) - Records 1, 2 and 8 have matching surnames and so are grouped together. Similarly, records 5 and 6 are grouped together for the same reason. Record 4 is not assigned a group ID at this stage because of missing values. Records 3, 4, 7, 9, 10 and 11 are also not assinged a group ID at this stage becuase they do not match any other record. 
 - Stage 2 (criteria) - Record 3 has the same surname as record 2 and so inherits record 2's group ID (`1`). The other records still do not match any other record at this stage and so remain unassigned.  
 - Stage 3 (criteria) - Record 4 has the same age as record record 3 and so inherits it's group ID (`1`). Similarly, record 7 inherits record 6's group ID for the same reason.
-- No hit - Records 9, 10 and 11 did not match any other record on forename, surname or age therefore, they are assigned to unqiue group IDs.
+- No hit - Records 9, 10 and 11 did not match any other record on forename, surname or age therefore, they are assigned to unique group IDs.
 
 <a id = "missing_values"></a>
 

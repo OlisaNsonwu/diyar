@@ -40,7 +40,7 @@ record_group(df, sn = NULL, criteria, sub_criteria = NULL,
 }
 }
 \description{
-Group matching or partially matching records on diffrent criteria with multiple stages of relevance.
+Group matching or partially matching records on different criteria with multiple stages of relevance.
 }
 \details{
 Record grouping occurs in stages of matching \code{criteria}.
