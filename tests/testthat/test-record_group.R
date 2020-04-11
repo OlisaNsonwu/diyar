@@ -2,8 +2,6 @@ context("testing record_group function")
 
 library(testthat)
 library(diyar)
-library(dplyr)
-library(lubridate)
 
 # Test 1 - Consistent row position for input and output
 df <- data.frame(

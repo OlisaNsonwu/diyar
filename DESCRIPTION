@@ -22,8 +22,7 @@ Imports:
     methods,
     grDevices,
     graphics,
-    utils,
-    rlang
+    utils
 RoxygenNote: 6.1.1
 Suggests:
     dplyr,

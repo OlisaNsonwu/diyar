@@ -2,8 +2,8 @@ context("testing number line object and functions")
 
 library(testthat)
 library(diyar)
-library(dplyr)
-library(lubridate)
+
+dmy <- function(x) as.Date(x, "%d/%m/%Y")
 
 t1 <- number_line(1, 10)
 t2 <- number_line(10, 1)

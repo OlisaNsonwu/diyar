@@ -2,8 +2,6 @@ context("testing overlap functions")
 
 library(testthat)
 library(diyar)
-library(dplyr)
-library(lubridate)
 
 test_that("test overlap functions", {
 

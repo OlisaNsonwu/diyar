@@ -236,7 +236,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$sn <- 1:nrow(df)
   }else{
     dp_check <- duplicates_check(df[[rd_sn]])
-    if(dp_check!=T) stop(paste0("duplicate record indentifier ('sn') in indexes ",dp_check))
+    if(dp_check!=T) stop(paste0("duplicate record indentifier ('sn') in ",dp_check))
     df$sn <- df[[rd_sn]]
   }
 
@@ -273,7 +273,13 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   }
 
   fn_check <- finite_check(df$rec_dt_zi)
-  if(fn_check!=T) stop(paste0("Finite values of 'date' required in indexes ",fn_check))
+  if(fn_check!=T) stop(paste0("Finite 'date' values required in ",fn_check))
+
+  fn_check <- finite_check(df$epi_len)
+  if(fn_check!=T) stop(paste0("Finite 'case_length' values required in ",fn_check))
+
+  fn_check <- finite_check(df$rc_len)
+  if(fn_check!=T) stop(paste0("Finite 'recurrence_length' values required in ",fn_check))
 
   # Class of 'date'
   dt_grp <- ifelse(!any(class(df$rec_dt_ai) %in% c("Date","POSIXct","POSIXt","POSIXlt")) |
@@ -671,8 +677,6 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
   }
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
-  if(!all(is.finite(case_length)) ) stop(paste("'case_length' must be integer or numeric values",sep=""))
-  if(!all(is.finite(date))) stop(paste("All 'date' values must be a date, datetime, numeric or number_line object",sep=""))
   if(!(length(case_length) %in% c(1, length(date)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
   if(!(length(strata) %in% c(1, length(date)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'date'",sep=""))
   if(!(length(data_source) %in% c(1, length(date)) | (length(data_source) ==0 & is.null(data_source)))) stop(paste("length of 'data_source' must be 1 or the same as 'date'",sep=""))
@@ -778,9 +782,6 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   }
 
   if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
-  if(!all(is.finite(case_length)) ) stop(paste("'case_length' must be integer or numeric values",sep=""))
-  if(!(all(is.finite(recurrence_length)) | is.null(recurrence_length)) ) stop(paste("'recurrence_length' must be integer or numeric values",sep=""))
-  if(!all(is.finite(date))) stop(paste("All 'date' values must be a date, datetime, numeric or number_line object",sep=""))
   if(!(length(case_length) %in% c(1, length(date)))) stop(paste("length of 'case_length' must be 1 or the same as 'date'",sep=""))
   if(!(length(recurrence_length) %in% c(1, length(date)) | (length(recurrence_length) ==0 & is.null(recurrence_length)))) stop(paste("length of 'recurrence_length' must be 1 or the same as 'date'",sep=""))
   if(!(length(strata) %in% c(1, length(date)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'date'",sep=""))

@@ -8,9 +8,9 @@
 finite_check <- function(x){
   e <- which(!is.finite(as.numeric(x)))
   if(length(e) %in% 1:10) {
-    paste0("c(",listr(fmt(e)),")")
+    paste0("[",listr(fmt(e)),"]")
   }else if(length(e) > 10) {
-    paste0("c(",paste0(fmt(e[1:10]), collapse = ", "),", ...)")
+    paste0("[",paste0(fmt(e[1:10]), collapse = ","),", ...]")
   }else if(length(e) == 0)
     TRUE
   }
@@ -44,8 +44,8 @@ duplicates_check <- function(x){
   l <- length(x)
   x <- lapply(split(as.numeric(names(x)),x), function(x){
     ifelse(length(x)>5,
-           paste0("c(",paste0(x[1:5], collapse = ","),",...)"),
-           paste0("c(",paste0(x, collapse = ","),")"))
+           paste0("[",paste0(x[1:5], collapse = ","),",...]"),
+           paste0("[",paste0(x, collapse = ","),"]"))
   })
 
   if(length(x) >5 | l>10){
