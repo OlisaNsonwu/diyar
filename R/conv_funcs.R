@@ -1,10 +1,10 @@
-#' @title Convenience functions
-#'
-#' @description Convenience functions
-#'
-#' @param x x
-#' @aliases finite_check
-#'
+# @title Convenience functions
+#
+# @description Convenience functions
+#
+# @param x x
+# @aliases finite_check
+#
 finite_check <- function(x){
   e <- which(!is.finite(as.numeric(x)))
   if(length(e) %in% 1:10) {
@@ -15,7 +15,7 @@ finite_check <- function(x){
     TRUE
   }
 
-#' @rdname finite_check
+# @rdname finite_check
 enq_vr <- function(x){
   x <- as.character(x)
   if(x[1]=="c" & length(x)>1) x <- x[2:length(x)]
@@ -23,12 +23,12 @@ enq_vr <- function(x){
   x
 }
 
-#' @rdname finite_check
+# @rdname finite_check
 fmt <- function(x){
   formatC(x, format="d", big.mark=",")
 }
 
-#' @rdname finite_check
+# @rdname finite_check
 listr <- function(x){
   p <- x[length(x)]
   f <- x[1:(length(x)-1)]
@@ -37,7 +37,7 @@ listr <- function(x){
   return(x)
 }
 
-#' @rdname finite_check
+# @rdname finite_check
 duplicates_check <- function(x){
   names(x) <- 1:length(x)
   x <- head(sort(x[x %in% x[duplicated(x)]]), 10)
@@ -57,7 +57,7 @@ duplicates_check <- function(x){
   }
 }
 
-#' @rdname finite_check
+# @rdname finite_check
 logicals_check <- function(x){
   log_vals <-  lapply(x, function(y){
     is.logical(eval(parse(text=y), envir = parent.frame(3)))
@@ -69,4 +69,27 @@ logicals_check <- function(x){
   }else{
     paste0(listr(paste0("'",log_vals,"'")), " must be either TRUE or FALSE")
   }
+}
+
+# @rdname finite_check
+space_out_y <- function(x_axis){
+  rows_n <- length(x_axis)
+  sn_change <- y_axis <- rep(1, rows_n)
+  while (max(sn_change) ==1) {
+    c <- diyar::compress_number_line(x_axis, deduplicate = F, collapse = T)
+
+    ord <- lapply(split(1:rows_n, paste0(c@gid,"-", y_axis)), order)
+    lk_sn <- lapply(split(y_axis, paste0(c@gid)), function(x){
+      rep(max(x), length(x))
+    })
+
+    ord <- unsplit(ord, paste0(c@gid,"-", y_axis))
+    lk_sn <- unsplit(lk_sn, paste0(c@gid))
+    new_y_axis <- ifelse(ord==2, lk_sn+1, y_axis)
+
+    sn_change <- ifelse(y_axis != new_y_axis,1,0)
+    y_axis <- new_y_axis
+  }
+
+  return(y_axis)
 }

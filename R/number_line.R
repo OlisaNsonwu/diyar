@@ -376,24 +376,26 @@ plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
   #x <- x[order(-(df$end-df$start))]
 
   #df$sn <- 1:nrow(df) * 1
-  df$sn <- 1
-  sn_change <- 1
-  #df <- df[nrow(df):1,]
-  while (max(sn_change) ==1) {
-    df$c <- diyar::compress_number_line(df$y, deduplicate = F, collapse = T)
+  # df$sn <- 1
+  # sn_change <- 1
+  # #df <- df[nrow(df):1,]
+  # while (max(sn_change) ==1) {
+  #   df$c <- diyar::compress_number_line(df$y, deduplicate = F, collapse = T)
+  #
+  #   ord <- lapply(split(1:nrow(df), paste0(df$c@gid,"-", df$sn)), order)
+  #   lk_sn <- lapply(split(df$sn, paste0(df$c@gid)), function(x){
+  #     rep(max(x), length(x))
+  #   })
+  #
+  #   df$ord <- unsplit(ord, paste0(df$c@gid,"-", df$sn))
+  #   df$lk_sn <- unsplit(lk_sn, paste0(df$c@gid))
+  #   new_sn <- ifelse(df$ord==2, df$lk_sn+1, df$sn)
+  #
+  #   sn_change <- ifelse(df$sn != new_sn,1,0)
+  #   df$sn <- new_sn
+  # }
 
-    ord <- lapply(split(1:nrow(df), paste0(df$c@gid,"-", df$sn)), order)
-    lk_sn <- lapply(split(df$sn, paste0(df$c@gid)), function(x){
-      rep(max(x), length(x))
-    })
-
-    df$ord <- unsplit(ord, paste0(df$c@gid,"-", df$sn))
-    df$lk_sn <- unsplit(lk_sn, paste0(df$c@gid))
-    new_sn <- ifelse(df$ord==2, df$lk_sn+1, df$sn)
-
-    sn_change <- ifelse(df$sn != new_sn,1,0)
-    df$sn <- new_sn
-  }
+  df$sn <- space_out_y(df$y)
 
   gid <- T
 
