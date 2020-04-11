@@ -3,15 +3,15 @@ context("testing episode_group function")
 library(testthat)
 library(diyar)
 
-dmy <- function(x) as.Date(x, "%d/%m/%Y")
-dmy_hms <- function(x) as.POSIXlt(x, "UTC",format="%d/%m/%Y %H:%M:%S")
-rename_all <- function(df, x){
+date <- function(x) as.Date(x, "%d/%m/%Y")
+dttm <- function(x) as.POSIXlt(x, "UTC",format="%d/%m/%Y %H:%M:%S")
+suffix <- function(df, x){
   names(df) <- paste0(names(df), ".", x)
   df
 }
 
 # Test 1 - Fixed episodes
-data <- data.frame(date = seq.POSIXt(dmy_hms("01/04/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"), by="3 days"))
+data <- data.frame(date = seq.POSIXt(dttm("01/04/2018 00:00:00"), dttm("31/05/2018 00:00:00"), by="3 days"))
 data$pid <- "Patient 1"
 data$episode_len <- 6
 data$d <- data$episode_len * diyar::episode_unit$days
@@ -30,10 +30,10 @@ test_that("test that row positions of the resulting dataframe are the same as su
 })
 
 e_int <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("07/04/2018  00:00:00")), 3),
-  rep(number_line(dmy_hms("10/04/2018 00:00:00"), dmy_hms("16/04/2018  00:00:00")), 3),
-  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("25/04/2018  00:00:00")), 3),
-  rep(number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018  00:00:00")), 1)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("07/04/2018  00:00:00")), 3),
+  rep(number_line(dttm("10/04/2018 00:00:00"), dttm("16/04/2018  00:00:00")), 3),
+  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("25/04/2018  00:00:00")), 3),
+  rep(number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018  00:00:00")), 1)
   )
 
 test_that("test that test episode identifier is as expected for fixed episodes", {
@@ -54,18 +54,18 @@ data_2$d <- 13 * diyar::episode_unit$days
 
 test_2 <-
   cbind(data_2,
-        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = F, group_stats = T, to_s4 = F), 1),
-        rename_all(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = T, group_stats = T, to_s4 = F), 2)
+        suffix(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = F, group_stats = T, to_s4 = F), 1),
+        suffix(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, display = F, from_last = T, group_stats = T, to_s4 = F), 2)
   )
 
 e_int.1 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 5),
-  rep(number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 5)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 5),
+  rep(number_line(dttm("16/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 5)
 )
 
 e_int.2 <- c(
-  rep(reverse_number_line(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00"))), 5),
-  rep(reverse_number_line(number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))), 5)
+  rep(reverse_number_line(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00"))), 5),
+  rep(reverse_number_line(number_line(dttm("16/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))), 5)
 )
 
 test_that("test reverse episode grouping", {
@@ -90,16 +90,16 @@ test_that("test reverse episode grouping", {
 
 # Test 3 - Rolling episodes
 test_3 <- cbind(data_2,
-                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = F, group_stats = T, to_s4 = F), 1),
-                rename_all(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = T, group_stats = T, to_s4 = F), 2)
+                suffix(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = F, group_stats = T, to_s4 = F), 1),
+                suffix(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", display = F, from_last = T, group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 10)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 10)
 )
 
 e_int.2 <- c(
-  rep(reverse_number_line(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))), 10)
+  rep(reverse_number_line(number_line(dttm("01/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))), 10)
 )
 
 test_that("test rolling/recurring episodes", {
@@ -128,17 +128,17 @@ data_4$recurrence <- 3
 data_4$r <- 3 * diyar::episode_unit$days
 
 test_4 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = F, group_stats = T, to_s4 = F), 1),
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = F, group_stats = T, to_s4 = F), 2)
+                suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, display = F, group_stats = T, to_s4 = F), 1),
+                suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1,  display = F, group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 10)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 10)
 )
 
 e_int.2 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")), 6),
-  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 4)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 6),
+  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 4)
 )
 
 test_that("test user defined recurrence length and roll_max", {
@@ -162,22 +162,22 @@ test_that("test user defined recurrence length and roll_max", {
 
 # Test 5 - Episodes max
 test_5 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 1, display = F, group_stats = T, to_s4 = F), 1),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 2,  display = F, group_stats = T, to_s4 = F), 2)
+                suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 1, display = F, group_stats = T, to_s4 = F), 1),
+                suffix(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 2,  display = F, group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 5),
-  number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")),
-  number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("19/04/2018 00:00:00")),
-  number_line(dmy_hms("22/04/2018 00:00:00"), dmy_hms("22/04/2018 00:00:00")),
-  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")),
-  number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 5),
+  number_line(dttm("16/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")),
+  number_line(dttm("19/04/2018 00:00:00"), dttm("19/04/2018 00:00:00")),
+  number_line(dttm("22/04/2018 00:00:00"), dttm("22/04/2018 00:00:00")),
+  number_line(dttm("25/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")),
+  number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))
 )
 
 e_int.2 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 5),
-  rep(number_line(dmy_hms("16/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 5)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 5),
+  rep(number_line(dttm("16/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 5)
 )
 
 test_that("testing user defined episodes_max", {
@@ -202,31 +202,31 @@ test_that("testing user defined episodes_max", {
 
 # Test 6 - Combining rolls_max and episodes_max
 test_6 <- cbind(data_4,
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 1, rolls_max = 1, display = F, group_stats = T, to_s4 = F), 1),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T, to_s4 = F), 2),
-                rename_all(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T, to_s4 = F), 3),
-                rename_all(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 3, display = F, group_stats = T, to_s4 = F), 4)
+                suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 1, rolls_max = 1, display = F, group_stats = T, to_s4 = F), 1),
+                suffix(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T, to_s4 = F), 2),
+                suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, display = F, group_stats = T, to_s4 = F), 3),
+                suffix(episode_group(data_4, sn=rd_id, strat = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 3, display = F, group_stats = T, to_s4 = F), 4)
 
 )
 
 e_int.1 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")), 6),
-  number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("19/04/2018 00:00:00")),
-  number_line(dmy_hms("22/04/2018 00:00:00"), dmy_hms("22/04/2018 00:00:00")),
-  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")),
-  number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 6),
+  number_line(dttm("19/04/2018 00:00:00"), dttm("19/04/2018 00:00:00")),
+  number_line(dttm("22/04/2018 00:00:00"), dttm("22/04/2018 00:00:00")),
+  number_line(dttm("25/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")),
+  number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))
 )
 
 e_int.2 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")), 6),
-  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 4)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 6),
+  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 4)
 )
 
 e_int.3 <- e_int.2
 
 e_int.4 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("22/04/2018 00:00:00")), 8),
-  rep(number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00")), 2)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("22/04/2018 00:00:00")), 8),
+  rep(number_line(dttm("25/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 2)
 )
 
 test_that("testing episodes_max and rolls_max combinations", {
@@ -267,15 +267,15 @@ data_7$recurrence <- 2
 data_7$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,3)), sep="")
 
 test_7 <- cbind(data_7,
-                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = dataset, display = F, group_stats = T, to_s4 = F), 1),
-                rename_all(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = c(dataset, episode_len_s), display = F, group_stats = T, to_s4 = F), 2)
+                suffix(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = dataset, display = F, group_stats = T, to_s4 = F), 1),
+                suffix(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = c(dataset, episode_len_s), display = F, group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("07/04/2018 00:00:00")), 3),
-  rep(number_line(dmy_hms("10/04/2018 00:00:00"), dmy_hms("16/04/2018 00:00:00")), 3),
-  rep(number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")), 3),
-  number_line(dmy_hms("28/04/2018 00:00:00"), dmy_hms("28/04/2018 00:00:00"))
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("07/04/2018 00:00:00")), 3),
+  rep(number_line(dttm("10/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 3),
+  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")), 3),
+  number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))
 )
 
 test_that("testing epid_dataset", {
@@ -324,7 +324,7 @@ test_8b <- cbind(hospital_infections,
                      episode_group(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
                                    from_last = T, episode_unit = "weeks", display = F, group_stats = T, to_s4 = F))
 
-e_int <- rep(number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 11)
+e_int <- rep(number_line(dttm("31/05/2018 00:00:00"), dttm("01/04/2018 00:00:00")), 11)
 
 test_that("testing; episode grouping by weeks", {
   expect_equal(test_8b$epid, rep(11,11))
@@ -354,10 +354,10 @@ test_9a <- cbind(hospital_infections,
                                    custom_sort = infection,  display = F, group_stats = T, to_s4 = F))
 
 e_int <- c(
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")),
-  rep(number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("07/05/2018 00:00:00")), 6),
-  rep(number_line(dmy_hms("13/05/2018 00:00:00"), dmy_hms("25/05/2018 00:00:00")), 3),
-  number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"))
+  number_line(dttm("01/04/2018 00:00:00"), dttm("01/04/2018 00:00:00")),
+  rep(number_line(dttm("07/04/2018 00:00:00"), dttm("07/05/2018 00:00:00")), 6),
+  rep(number_line(dttm("13/05/2018 00:00:00"), dttm("25/05/2018 00:00:00")), 3),
+  number_line(dttm("31/05/2018 00:00:00"), dttm("31/05/2018 00:00:00"))
 )
 
 test_that("testing episode; custom sort", {
@@ -377,18 +377,18 @@ hospital_infections$infection_ord <- ifelse(hospital_infections$infection =="RTI
 
 # n-day episodes with duplicates before and after the most recent "RTI" record, otherwise begin at the most recent record
 test_9b <- cbind(hospital_infections,
-                     rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
+                     suffix(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
                                               custom_sort = infection_ord, from_last = T, bi_direction = T, display = F, group_stats = T, to_s4 = F), 1),
 
-                     rename_all(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
+                     suffix(episode_group(hospital_infections, rd_id, date=date, case_length = epi_len,
                                               custom_sort = infection_ord, from_last = T, bi_direction = F, display = F, group_stats = T, to_s4 = F), 2)
 )
 
-e_int.1 <- rep(number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 11)
+e_int.1 <- rep(number_line(dttm("31/05/2018 00:00:00"), dttm("01/04/2018 00:00:00")), 11)
 
 e_int.2 <- c(
-  rep(number_line(dmy_hms("25/05/2018 00:00:00"), dmy_hms("01/04/2018 00:00:00")), 10),
-  number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"))
+  rep(number_line(dttm("25/05/2018 00:00:00"), dttm("01/04/2018 00:00:00")), 10),
+  number_line(dttm("31/05/2018 00:00:00"), dttm("31/05/2018 00:00:00"))
 )
 
 test_that("testing; episode grouping with custom sort and bi_direction", {
@@ -420,13 +420,13 @@ test_10a <- cbind(hospital_infections,
                                     episodes_max = 1, from_last = F, display = F, data_source = infection, group_stats = T, to_s4 = F))
 
 e_int <- c(
-  rep(number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/04/2018 00:00:00")), 3),
-  number_line(dmy_hms("19/04/2018 00:00:00"), dmy_hms("19/04/2018 00:00:00")),
-  number_line(dmy_hms("25/04/2018 00:00:00"), dmy_hms("25/04/2018 00:00:00")),
-  number_line(dmy_hms("01/05/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")),
-  number_line(dmy_hms("07/05/2018 00:00:00"), dmy_hms("07/05/2018 00:00:00")),
-  number_line(dmy_hms("13/05/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
-  rep(number_line(dmy_hms("19/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00")), 3)
+  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 3),
+  number_line(dttm("19/04/2018 00:00:00"), dttm("19/04/2018 00:00:00")),
+  number_line(dttm("25/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")),
+  number_line(dttm("01/05/2018 00:00:00"), dttm("01/05/2018 00:00:00")),
+  number_line(dttm("07/05/2018 00:00:00"), dttm("07/05/2018 00:00:00")),
+  number_line(dttm("13/05/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
+  rep(number_line(dttm("19/05/2018 00:00:00"), dttm("31/05/2018 00:00:00")), 3)
 )
 
 test_that("testing; stratified grouping", {
@@ -456,14 +456,14 @@ test_10b <- cbind(hospital_infections,
                                     display = FALSE, group_stats = T, to_s4 = F))
 
 e_int <- c(
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
-  rep(number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")), 3),
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
-  number_line(dmy_hms("07/04/2018 00:00:00"), dmy_hms("01/05/2018 00:00:00")),
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
-  number_line(dmy_hms("01/04/2018 00:00:00"), dmy_hms("13/05/2018 00:00:00")),
-  rep(number_line(dmy_hms("19/05/2018 00:00:00"), dmy_hms("25/05/2018 00:00:00")), 2),
-  number_line(dmy_hms("31/05/2018 00:00:00"), dmy_hms("31/05/2018 00:00:00"))
+  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
+  rep(number_line(dttm("07/04/2018 00:00:00"), dttm("01/05/2018 00:00:00")), 3),
+  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
+  number_line(dttm("07/04/2018 00:00:00"), dttm("01/05/2018 00:00:00")),
+  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
+  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
+  rep(number_line(dttm("19/05/2018 00:00:00"), dttm("25/05/2018 00:00:00")), 2),
+  number_line(dttm("31/05/2018 00:00:00"), dttm("31/05/2018 00:00:00"))
 )
 
 test_that("testing; stratified grouping 2", {
@@ -494,8 +494,8 @@ test_11a <- cbind(
   episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, group_stats = T, to_s4 = F))
 
 e_int <- c(
-  rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("15/01/2019 00:00:00")), 7),
-  rep(number_line(dmy_hms("20/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 2)
+  rep(number_line(dttm("01/01/2019 00:00:00"), dttm("15/01/2019 00:00:00")), 7),
+  rep(number_line(dttm("20/01/2019 00:00:00"), dttm("31/01/2019 00:00:00")), 2)
 )
 
 test_that("testing; intervals grouping", {
@@ -520,7 +520,7 @@ test_11b <- cbind(
                 episode_type = "rolling", recurrence_length = recur, episode_unit = "months", group_stats = T, to_s4 = F))
 
 e_int <- c(
-  rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 9)
+  rep(number_line(dttm("01/01/2019 00:00:00"), dttm("31/01/2019 00:00:00")), 9)
 )
 
 test_that("testing; intervals grouping for rolling intervals", {
@@ -542,7 +542,7 @@ test_11c <- cbind(admissions,
                       episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, episode_unit = "months", group_stats = T, to_s4 = F))
 
 e_int <- c(
-  rep(number_line(dmy_hms("01/01/2019 00:00:00"), dmy_hms("31/01/2019 00:00:00")), 9)
+  rep(number_line(dttm("01/01/2019 00:00:00"), dttm("31/01/2019 00:00:00")), 9)
 )
 
 test_that("testing; intervals grouping with a case length", {
@@ -587,7 +587,7 @@ test_that("test that error and warning messages are returned correctly", {
 
 t_ds <- hospital_infections
 
-t_ds$date <- dmy_hms(format(t_ds$date, "%d/%m/%Y 00:00:00"))
+t_ds$date <- dttm(format(t_ds$date, "%d/%m/%Y 00:00:00"))
 t_ds$epi_len <- t_ds$epi_len * diyar::episode_unit$days
 
 test_that("test fixed and rolling episode funcs errors", {
@@ -680,30 +680,30 @@ test_that("test some generic functions", {
 
 
 x <- c("01/04/2019", "04/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")
-x <- dmy(x)
+x <- date(x)
 df <- data.frame(x=x, c=5, r=10)
 epids_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling", group_stats = T)
 epids_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling", group_stats = T)
 
 x <- c("01/04/2019", "04/04/2019", "8/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")
-x <- dmy(x)
+x <- date(x)
 df <- data.frame(x=x, c=5, r=10)
 epids2_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling")
 epids2_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling")
 
 x <- c("01/04/2019", "04/04/2019", "12/04/2019",  "14/04/2019", "16/04/2019", "19/04/2019")
-x <- dmy(x)
+x <- date(x)
 df <- data.frame(x=x, c=5, r=10)
 epids3_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
 epids3_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = F, rolls_max = 2, episode_type = "rolling")
 
-x <- c(dmy("01/01/2007"), dmy("07/01/2007"), dmy("09/01/2007"), dmy("19/01/2007"))
+x <- c(date("01/01/2007"), date("07/01/2007"), date("09/01/2007"), date("19/01/2007"))
 df <- data.frame(x=x, c=5, r=10)
 epids6_a <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling", recurrence_from_last = T, rolls_max = 2)
 epids6_b <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling", recurrence_from_last = F, rolls_max = 2)
 
 x <- c("01/04/2019", "07/04/2019", "12/04/2019","21/04/2019","26/04/2019","29/04/2019")
-x <- dmy(x)
+x <- date(x)
 df <- data.frame(x=x, c=5, r=20)
 
 epids4_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
@@ -741,11 +741,11 @@ test_that("test 'case_for_recurrence' in rolling_episodes", {
 })
 
 
-x <- dmy(c("01/01/2007","04/01/2007","12/01/2007","15/01/2007","22/01/2007"))
+x <- date(c("01/01/2007","04/01/2007","12/01/2007","15/01/2007","22/01/2007"))
 df <- data.frame(x=x, c=5, r=10)
 epids_r <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling")
 
-x <- c(dmy("01/01/2007"), dmy("10/01/2007"), dmy("12/01/2007"), dmy("15/01/2007"), dmy("22/01/2007"))
+x <- c(date("01/01/2007"), date("10/01/2007"), date("12/01/2007"), date("15/01/2007"), date("22/01/2007"))
 df <- data.frame(x=x, c=5, r=10)
 epids2_r <- episode_group(df, date = x, case_length = c,  recurrence_length = r, to_s4 = T, episode_type = "rolling")
 
@@ -756,7 +756,7 @@ test_that("test rolling_episodes", {
   expect_equal(epids2_r@case_nm, c("Case","Recurrent","Recurrent","Duplicate","Duplicate"))
 })
 
-x <- c(dmy("01/01/2007"), dmy("10/01/2007"), dmy("12/01/2007"), dmy("15/01/2007"), dmy("22/01/2007"))
+x <- c(date("01/01/2007"), date("10/01/2007"), date("12/01/2007"), date("15/01/2007"), date("22/01/2007"))
 df <- data.frame(x=x, c=5, a="a", r=10)
 df$method <- "F"
 ov_err <- paste0("\n",
@@ -792,7 +792,7 @@ test_that("test rolling_episodes", {
 })
 
 
-d <- seq.Date(dmy("01/04/2019"), dmy("18/04/2019"), "3 day" )
+d <- seq.Date(date("01/04/2019"), date("18/04/2019"), "3 day" )
 df<- data.frame(date=d)
 df$r1 <- rolling_episodes(d, case_length = 3, case_for_recurrence = F, to_s4 = T, display = F)
 df$r2 <- rolling_episodes(d, case_length = 3, case_for_recurrence = T, to_s4 = T, display = F)

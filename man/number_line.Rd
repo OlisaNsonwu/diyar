@@ -105,31 +105,31 @@ If a familiar (but unique) \code{id} is used when creating the \code{number_line
 The direction of the sequence will correspond to that of the \code{number_line} object.
 }
 \examples{
-dmy <- function(x) as.Date(x, "\%d/\%m/\%Y")
-dmy_hms <- function(x) as.POSIXlt(x, "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S")
+date <- function(x) as.Date(x, "\%d/\%m/\%Y")
+dttm <- function(x) as.POSIXlt(x, "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S")
 
 number_line(-100, 100); number_line(10, 11.2)
 
 # Other numeric based object classes are also compatible
-number_line(dmy_hms("15/05/2019 13:15:07"), dmy_hms("15/05/2019 15:17:10"))
+number_line(dttm("15/05/2019 13:15:07"), dttm("15/05/2019 15:17:10"))
 
 # However, a warning is given if 'l' and 'r' have different classes.
 # Consider if this needs to be corrected.
-number_line(2, dmy("05/01/2019"))
+number_line(2, date("05/01/2019"))
 
 # Convert numeric based objects to number_line objects
-as.number_line(5.1); as.number_line(dmy("21/10/2019"))
+as.number_line(5.1); as.number_line(date("21/10/2019"))
 
 # A test for number_line objects
 a <- number_line(0, -100)
-b <- number_line(dmy("25/04/2019"), dmy("01/01/2019"))
+b <- number_line(date("25/04/2019"), date("01/01/2019"))
 is.number_line(a); is.number_line(b)
 
 # Structure of a number_line object
 left_point(a); right_point(a); start_point(a); end_point(a)
 
 # Reverse number_line objects
-reverse_number_line(number_line(dmy("25/04/2019"), dmy("01/01/2019")))
+reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
 reverse_number_line(number_line(200,-100), "increasing")
 reverse_number_line(number_line(200,-100), "decreasing")
 
