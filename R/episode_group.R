@@ -246,6 +246,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$dsvr <- "A"
   }else{
     df$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
+    # df <- tidyr::unite(df, "dsvr", ds, remove=FALSE, sep="-")
   }
 
   # lengths
@@ -262,6 +263,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$cri <- "A"
   }else{
     df$cri <- eval(parse(text = paste0("paste0(",paste0("df$", st, collapse = ",'-',"),")")))
+    #df <- tidyr::unite(df, "cri", st, remove=FALSE)
   }
 
   # Date
@@ -289,8 +291,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   episode_unit <- ifelse(dt_grp==F,"seconds", episode_unit)
 
   if(dt_grp==T){
-    df$rec_dt_ai <- as.POSIXlt(format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
-    df$rec_dt_zi <- as.POSIXlt(format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+    df$rec_dt_ai <- as.POSIXct(format(df$rec_dt_ai, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+    df$rec_dt_zi <- as.POSIXct(format(df$rec_dt_zi, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
   }else{
     df$rec_dt_ai <- as.numeric(df$rec_dt_ai)
     df$rec_dt_zi <- as.numeric(df$rec_dt_zi)
@@ -363,7 +365,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df <- df[df$tag !=2 & !is.na(df$tag),]
 
     # reference events
-    TR <- df[order(df$cri, -df$tag, df$user_ord, df$sn),]
+    #TR <- df[order(df$cri, -df$tag, df$user_ord, df$sn),]
+    TR <- dplyr::arrange(df, df$cri, -df$tag, df$user_ord, df$sn)
     TR <- TR[!(TR$tag==0 & TR$episodes + 1 > episodes_max)  &
                duplicated(TR$cri) == FALSE & !is.na(TR$cri), c("sn", "cri", "rec_dt_ai", "rec_dt_zi",
                                                                "epid", "tag", "roll", "epi_len", "rc_len", "case_nm")]
@@ -374,7 +377,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     if(display){cat(paste("Episode or recurrence window ",c,".\n", sep=""))}
 
-    df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)
+    #df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)
+    df <- dplyr::left_join(df, TR, by= c("cri"="tr_cri"))
+
     df$lr <- ifelse(df$tr_sn == df$sn & !is.na(df$tr_sn),1,0)
 
     # Case and recurrence lengths
@@ -458,7 +463,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # ---------
 
     vrs <- names(df)[!grepl("_range|_int", names(df))]
-    df <- df[order(df$cri, df$epid, df$user_ord, df$sn), vrs]
+    # df <- df[order(df$cri, df$epid, df$user_ord, df$sn), vrs]
+    df <- dplyr::arrange(df, df$cri, df$epid, df$user_ord, df$sn)
 
     df$episodes <- ifelse(df$tr_tag==0 & !is.na(df$tr_tag), df$episodes + 1, df$episodes)
     df$tag <- ifelse(df$c_hit==1 | (!df$tag %in% c(NA,0,2) & df$sn == df$tr_sn), 2, df$tag)
@@ -579,7 +585,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # epid_l <- unique(epid_l)
     #
     # epid_l <-
-    #   dplyr::bind_rows(
+    #   rbind(
     #     dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord), !duplicated(.data$epid)), var ="a" ),
     #     dplyr::mutate(dplyr::filter(dplyr::arrange(epid_l, .data$epid, .data$ord_z), !duplicated(.data$epid, fromLast = T)), var ="z" )
     #   ) %>%
@@ -594,8 +600,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     df$z <- as.numeric(lapply(split(as.numeric(df$rec_dt_zi), df$epid), ifelse(from_last==F, max, min))[as.character(df$epid)])
 
     if(dt_grp == T){
-      df$a <- as.POSIXct(df$a, "UTC", origin = as.POSIXlt("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
-      df$z <- as.POSIXct(df$z, "UTC", origin = as.POSIXlt("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+      df$a <- as.POSIXct(df$a, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+      df$z <- as.POSIXct(df$z, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
       df$epid_length <- difftime(df$z, df$a, units = diff_unit)
     }else{
       df$epid_length <- df$z - df$a

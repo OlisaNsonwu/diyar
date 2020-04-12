@@ -45,34 +45,50 @@ overlap <- function(x, y, method = c("exact","across","chain","aligns_start","al
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
-  o <- unique(unlist(strsplit(unique(methods), split="\\|")))
-  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  mths <- names(split(rep(1, length(methods)), methods))
+  mths <- unique(unlist(strsplit(mths, split="\\|")))
+
+  # invaid methods
+  o <- mths[!tolower(mths) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
   if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'exact', 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
+
   if(missing(methods) & !missing(method)) {
+    # For continuity, use `method` if `methods` is not supplied but warn that it's deprecated
     m <- paste(method,sep="", collapse = "|")
     warning("'method' is deprecated. Please use 'methods' instead.")
   }else{
+    # `methods` overrides `method` if it's supplied
     m <- methods
   }
 
+  # warnings for difference in length(x) and length(y)
   if(length(x) != length(y) & (max(length(x), length(y))/min(length(x), length(y))) %% 1 !=0 ) warning("\n  length('x') != length('y')\n  longer object length is not a multiple of shorter object length")
   if(!all(c(length(x),length(y) %in% length(m))) &
      ((max(length(m), length(y))/min(length(m), length(y))) %% 1 !=0 |
       (max(length(m), length(x))/min(length(m), length(x))) %% 1 !=0
      )) warning("\n  length('method') != length('y') OR length('method') != length('x')\n  longer object length is not a multiple of shorter object length")
 
-  c <- rep(F, max(length(x), length(y)))
-  c <- suppressWarnings(ifelse(grepl("exact", tolower(m)) & c == F, diyar::exact(x, y),c))
-  c <- suppressWarnings(ifelse(grepl("across", tolower(m)) & c == F, diyar::across(x, y),c))
-  c <- suppressWarnings(ifelse(grepl("chain", tolower(m)) & c == F, diyar::chain(x, y),c))
-  c <- suppressWarnings(ifelse(grepl("aligns_start", tolower(m)) & c == F, diyar::aligns_start(x, y),c))
-  c <- suppressWarnings(ifelse(grepl("aligns_end", tolower(m)) & c == F, diyar::aligns_end(x, y),c))
-  c <- suppressWarnings(ifelse(grepl("inbetween", tolower(m)) & c == F, diyar::inbetween(x, y),c))
+  # valid methods
+  mths <- tolower(mths)
+  mths <- mths[mths %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
 
-  return(c)
+  # check overlap by each method
+  chks <- lapply(mths, function(mths){
+    func <- get(mths)
+    func(x, y)
+  })
+  names(chks) <- mths
+
+  # check if any was TRUE
+  p <- rep(F, max(length(x), length(x)))
+  for(i in 1:length(chks)) {
+    p[p==F & chks[[i]] == T] <- chks[[i]][p==F & chks[[i]] == T]
+  }
+
+  return(p)
 }
 
 #' @rdname overlap
