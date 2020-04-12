@@ -569,7 +569,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       paste0(sort(unique(x)), collapse=",")
     })
 
-    df$epid_dataset <- unlist(pds2[as.character(df$epid)])
+    df$epid_dataset <- unlist(pds2[as.character(df$epid)], use.names = F)
     df <- df[order(df$pr_sn),]
   }
 
