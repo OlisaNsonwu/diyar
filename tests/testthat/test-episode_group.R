@@ -4,7 +4,7 @@ library(testthat)
 library(diyar)
 
 date <- function(x) as.Date(x, "%d/%m/%Y")
-dttm <- function(x) as.POSIXlt(x, "UTC",format="%d/%m/%Y %H:%M:%S")
+dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
 suffix <- function(df, x){
   names(df) <- paste0(names(df), ".", x)
   df

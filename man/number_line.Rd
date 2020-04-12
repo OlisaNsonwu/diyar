@@ -106,7 +106,7 @@ The direction of the sequence will correspond to that of the \code{number_line} 
 }
 \examples{
 date <- function(x) as.Date(x, "\%d/\%m/\%Y")
-dttm <- function(x) as.POSIXlt(x, "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S")
+dttm <- function(x) as.POSIXct(x, "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S")
 
 number_line(-100, 100); number_line(10, 11.2)
 
