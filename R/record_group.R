@@ -143,7 +143,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
 
   # Check that col names exist
   if(any(!unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)) %in% names(df))){
-    missing_cols <- subset(unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, sub_cri_lst, cri_lst)) %in% names(df))
+    missing_cols <- subset(unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)) %in% names(df))
     missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
     stop(paste(missing_cols, "not found"))
   }
