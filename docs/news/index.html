@@ -127,11 +127,11 @@
 <li>
 <code><a href="../reference/record_group.html">record_group()</a></code> - <code>strata</code> argument. Perform record grouping separately within subsets of a dataset.</li>
 <li>
-<code>fixed_sepisodes()</code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> - <code>overlap_methods</code> and <code>methods</code> arguments. Replaces <code>overlap_method</code> and <code>method</code> respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing <code>number_line</code> objects. <code>overlap_method</code> and <code>method</code> only permits 1 method per per dataset.</li>
+<code><a href="../reference/overlap.html">overlap()</a></code>, <code><a href="../reference/number_line.html">compress_number_line()</a></code>, <code>fixed_sepisodes()</code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> - <code>overlap_methods</code> and <code>methods</code> arguments replaces <code>overlap_method</code> and <code>method</code> respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing <code>number_line</code> objects. <code>overlap_method</code> and <code>method</code> only permits 1 method per per dataset.</li>
 <li>
 <code>epid</code> objects - <code>win_nm</code> slot. Shows the type of window each event belongs to i.e. case or recurrence window</li>
 <li>
-<code>epid</code> objects - <code>win_id</code> slot. Unique ID for each window. ID is the <code>sn</code> of the reference event for each window
+<code>epid</code> objects - <code>win_id</code> slot. Unique ID for each window. The ID is the <code>sn</code> of the reference event for each window
 <ul>
 <li>Format of <code>epid</code> objects updated to reflect this</li>
 </ul>
@@ -141,7 +141,7 @@
 <li>
 <code>epid</code> objects - <code>dist_from_epid</code> slot. Shows the duration of each event from its episode’s reference event</li>
 <li>
-<code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>recurrence_from_last</code> argument. Determine if reference events are the first or last event from the previous window.</li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>recurrence_from_last</code> argument. Determine if reference events should be the first or last event from the previous window.</li>
 <li>
 <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>case_for_recurrence</code> argument. Determine if recurrent events should have their own case windows or not.</li>
 <li>
@@ -153,7 +153,7 @@
 <a href="#changes" class="anchor"></a>Changes</h2>
 <ul>
 <li>
-<code><a href="../reference/number_line.html">compress_number_line()</a></code> - compressed <code>number_line</code> object inherits the direction of the widest <code>number_line</code> in overlapping groups</li>
+<code><a href="../reference/number_line.html">compress_number_line()</a></code> - compressed <code>number_line</code> object inherits the direction of the widest <code>number_line</code> among overlapping group of <code>number_line</code> objects</li>
 <li>
 <code>overlap_methods</code> - have been changed such that each pair of <code>number_line</code> objects can only overlap in one way. E.g.
 <ul>
@@ -180,8 +180,8 @@
 <li>
 <code>pid</code> objects are the default outputs for <code><a href="../reference/record_group.html">record_group()</a></code>
 </li>
-<li>In episode grouping, <code>case_nm</code> for events that were skipped due to <code>rolls_max</code> or <code>episodes_max</code> is now <code>"Skipped"</code>.</li>
-<li>In episode grouping, <code>sn</code> can be negative numbers but must still be unique</li>
+<li>In episode grouping, the <code>case_nm</code> for events that were skipped due to <code>rolls_max</code> or <code>episodes_max</code> is now <code>"Skipped"</code>.</li>
+<li>In <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/record_group.html">record_group()</a></code>, <code>sn</code> can be negative numbers but must still be unique</li>
 <li>Optimised <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/record_group.html">record_group()</a></code>. Runs just a little bit faster …</li>
 <li>Relaxed the requirement for <code>x</code> and <code>y</code> to have the same lengths in overlap functions.
 <ul>
