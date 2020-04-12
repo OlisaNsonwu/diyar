@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">11 April 2020</h4>
+            <h4 class="date">12 April 2020</h4>
       
       
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -434,13 +434,15 @@ dbs<span class="op">$</span>infx &lt;-<span class="st"> </span><span class="kw">
 dbs<span class="op">$</span>infx[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">5</span>)] &lt;-<span class="st"> "UTI"</span>
 
 dbs
-<span class="co">#&gt;         date infx</span>
-<span class="co">#&gt; 1 2019-04-01  BSI</span>
-<span class="co">#&gt; 2 2019-04-06  UTI</span>
-<span class="co">#&gt; 3 2019-04-11  BSI</span>
-<span class="co">#&gt; 4 2019-04-16  BSI</span>
-<span class="co">#&gt; 5 2019-04-21  UTI</span>
-<span class="co">#&gt; 6 2019-06-04  BSI</span>
+<span class="co">#&gt; # A tibble: 6 x 2</span>
+<span class="co">#&gt;   date       infx </span>
+<span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt;</span>
+<span class="co">#&gt; 1 2019-04-01 BSI  </span>
+<span class="co">#&gt; 2 2019-04-06 UTI  </span>
+<span class="co">#&gt; 3 2019-04-11 BSI  </span>
+<span class="co">#&gt; 4 2019-04-16 BSI  </span>
+<span class="co">#&gt; 5 2019-04-21 UTI  </span>
+<span class="co">#&gt; 6 2019-06-04 BSI</span>
 
 dbs<span class="op">$</span>epids_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span><span class="dv">14</span>, 
                 <span class="dt">custom_sort =</span> dbs<span class="op">$</span>infx, <span class="dt">display =</span> F)
@@ -457,13 +459,15 @@ dbs<span class="op">$</span>epids_<span class="dv">3</span> &lt;-<span class="st
 <span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
 
 dbs
-<span class="co">#&gt;         date infx     epids_1 infx_f     epids_2     epids_3</span>
-<span class="co">#&gt; 1 2019-04-01  BSI E.1 (C) C.1    BSI E.1 (C) C.1 E.2 (D) C.2</span>
-<span class="co">#&gt; 2 2019-04-06  UTI E.1 (D) C.1    UTI E.2 (C) C.2 E.2 (C) C.2</span>
-<span class="co">#&gt; 3 2019-04-11  BSI E.1 (D) C.1    BSI E.2 (D) C.2 E.2 (D) C.2</span>
-<span class="co">#&gt; 4 2019-04-16  BSI E.4 (C) C.4    BSI E.2 (D) C.2 E.2 (D) C.2</span>
-<span class="co">#&gt; 5 2019-04-21  UTI E.4 (D) C.4    UTI E.5 (C) C.5 E.5 (C) C.5</span>
-<span class="co">#&gt; 6 2019-06-04  BSI E.6 (C) C.6    BSI E.6 (C) C.6 E.6 (C) C.6</span></code></pre></div>
+<span class="co">#&gt; # A tibble: 6 x 6</span>
+<span class="co">#&gt;   date       infx  epids_1     infx_f epids_2     epids_3    </span>
+<span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt; &lt;epid&gt;      &lt;fct&gt;  &lt;epid&gt;      &lt;epid&gt;     </span>
+<span class="co">#&gt; 1 2019-04-01 BSI   E.1 (C) C.1 BSI    E.1 (C) C.1 E.2 (D) C.2</span>
+<span class="co">#&gt; 2 2019-04-06 UTI   E.1 (D) C.1 UTI    E.2 (C) C.2 E.2 (C) C.2</span>
+<span class="co">#&gt; 3 2019-04-11 BSI   E.1 (D) C.1 BSI    E.2 (D) C.2 E.2 (D) C.2</span>
+<span class="co">#&gt; 4 2019-04-16 BSI   E.4 (C) C.4 BSI    E.2 (D) C.2 E.2 (D) C.2</span>
+<span class="co">#&gt; 5 2019-04-21 UTI   E.4 (D) C.4 UTI    E.5 (C) C.5 E.5 (C) C.5</span>
+<span class="co">#&gt; 6 2019-06-04 BSI   E.6 (C) C.6 BSI    E.6 (C) C.6 E.6 (C) C.6</span></code></pre></div>
 <p>In <code>epids_2</code>, after changing the sort preference using factor levels (<code>infx_f</code>), record 1 (<em>E. coli</em> BSI) and record 2 (<em>E. coli</em> UTI) are no longer part of the same <code>episode</code>. This is because record 2, is now the <code>reference event</code> where episode grouping began, and since record 1 occurred before record 2, they are not grouped together. <code>epids_3</code> is episode grouping when <code>bi_direction</code> is used.</p>
 <p><strong><em>In <code><a href="../reference/episode_group.html">episode_group()</a></code>, you can implement <code>custom_sort</code> in levels. You’ll need to create a column for each level. The column names are then supplied to <code>custom_sort</code> in the required order (level)</em></strong></p>
 <p><a id="stratified_grouping"></a></p>
@@ -493,16 +497,18 @@ dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"
 <span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
 
 dbs
-<span class="co">#&gt;          date infection epi recur                                epids</span>
-<span class="co">#&gt; 1  2018-04-01       BSI  14     0 E.1 2018-04-01 -&gt; 2018-05-13 (C) C.1</span>
-<span class="co">#&gt; 2  2018-04-07       UTI   7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D) C.1</span>
-<span class="co">#&gt; 3  2018-04-13       UTI   7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D) C.1</span>
-<span class="co">#&gt; 4  2018-04-19       UTI   7    30 E.1 2018-04-01 -&gt; 2018-05-13 (R) R.3</span>
-<span class="co">#&gt; 5  2018-04-25       BSI  14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
-<span class="co">#&gt; 6  2018-05-01       UTI   7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
-<span class="co">#&gt; 7  2018-05-07       BSI  14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
-<span class="co">#&gt; 8  2018-05-13       BSI  14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
-<span class="co">#&gt; 11 2018-05-31       BSI  14     0 E.9 2018-05-31 == 2018-05-31 (C) C.9</span></code></pre></div>
+<span class="co">#&gt; # A tibble: 9 x 5</span>
+<span class="co">#&gt;   date       infection   epi recur epids                               </span>
+<span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;epid&gt;                              </span>
+<span class="co">#&gt; 1 2018-04-01 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (C) C.1</span>
+<span class="co">#&gt; 2 2018-04-07 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D) C.1</span>
+<span class="co">#&gt; 3 2018-04-13 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D) C.1</span>
+<span class="co">#&gt; 4 2018-04-19 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (R) R.3</span>
+<span class="co">#&gt; 5 2018-04-25 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
+<span class="co">#&gt; 6 2018-05-01 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
+<span class="co">#&gt; 7 2018-05-07 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
+<span class="co">#&gt; 8 2018-05-13 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D) R.3</span>
+<span class="co">#&gt; 9 2018-05-31 BSI          14     0 E.9 2018-05-31 == 2018-05-31 (C) C.9</span></code></pre></div>
 <p><a id="sub_strata"></a></p>
 <div id="sub-strata" class="section level3">
 <h3 class="hasAnchor">
@@ -524,18 +530,20 @@ dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"
 <span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
 
 dbs
-<span class="co">#&gt;    rid       date pid organism source treated epi recur         epids</span>
-<span class="co">#&gt; 1    1 2019-04-01   1  E. coli    UTI       -   7    30 E.01 (C) C.01</span>
-<span class="co">#&gt; 2    2 2019-04-06   1  E. coli    UTI       -   7    30 E.01 (D) C.01</span>
-<span class="co">#&gt; 3    3 2019-04-11   1  E. coli    BSI       Y   4     0 E.03 (C) C.03</span>
-<span class="co">#&gt; 4    4 2019-04-16   1  E. coli    BSI       N  14     0 E.04 (C) C.04</span>
-<span class="co">#&gt; 5    5 2019-04-21   1  E. coli    BSI       Y   4     0 E.04 (D) C.04</span>
-<span class="co">#&gt; 6    6 2019-04-26   1  E. coli    RTI       Y  28     5 E.06 (C) C.06</span>
-<span class="co">#&gt; 7    7 2019-05-01   1  E. coli    RTI       N  28     5 E.06 (D) C.06</span>
-<span class="co">#&gt; 8    8 2019-05-06   1  E. coli    BSI       Y   4     0 E.08 (C) C.08</span>
-<span class="co">#&gt; 9    9 2019-05-11   1  E. coli    BSI       N  14     0 E.09 (C) C.09</span>
-<span class="co">#&gt; 10  10 2019-05-16   1  E. coli    UTI       N   7    30 E.10 (C) C.10</span>
-<span class="co">#&gt; 11  11 2019-05-21   1  E. coli    UTI       N   7    30 E.10 (D) C.10</span></code></pre></div>
+<span class="co">#&gt; # A tibble: 11 x 9</span>
+<span class="co">#&gt;      rid date         pid organism source treated   epi recur epids        </span>
+<span class="co">#&gt;    &lt;int&gt; &lt;date&gt;     &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;epid&gt;       </span>
+<span class="co">#&gt;  1     1 2019-04-01     1 E. coli  UTI    -           7    30 E.01 (C) C.01</span>
+<span class="co">#&gt;  2     2 2019-04-06     1 E. coli  UTI    -           7    30 E.01 (D) C.01</span>
+<span class="co">#&gt;  3     3 2019-04-11     1 E. coli  BSI    Y           4     0 E.03 (C) C.03</span>
+<span class="co">#&gt;  4     4 2019-04-16     1 E. coli  BSI    N          14     0 E.04 (C) C.04</span>
+<span class="co">#&gt;  5     5 2019-04-21     1 E. coli  BSI    Y           4     0 E.04 (D) C.04</span>
+<span class="co">#&gt;  6     6 2019-04-26     1 E. coli  RTI    Y          28     5 E.06 (C) C.06</span>
+<span class="co">#&gt;  7     7 2019-05-01     1 E. coli  RTI    N          28     5 E.06 (D) C.06</span>
+<span class="co">#&gt;  8     8 2019-05-06     1 E. coli  BSI    Y           4     0 E.08 (C) C.08</span>
+<span class="co">#&gt;  9     9 2019-05-11     1 E. coli  BSI    N          14     0 E.09 (C) C.09</span>
+<span class="co">#&gt; 10    10 2019-05-16     1 E. coli  UTI    N           7    30 E.10 (C) C.10</span>
+<span class="co">#&gt; 11    11 2019-05-21     1 E. coli  UTI    N           7    30 E.10 (D) C.10</span></code></pre></div>
 <p>There are a few things to note with stratified grouping;</p>
 <ul>
 <li>Unless required, <code>case_length</code> and <code>recurrence_length</code> should be consistent across each <code>strata</code> otherwise, you’ll inadvertently create a sub-strata</li>
@@ -866,18 +874,20 @@ dbs
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections) 
 
 dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]; dbs
-<span class="co">#&gt;          date infection</span>
-<span class="co">#&gt; 1  2018-04-01       BSI</span>
-<span class="co">#&gt; 2  2018-04-07       UTI</span>
-<span class="co">#&gt; 3  2018-04-13       UTI</span>
-<span class="co">#&gt; 4  2018-04-19       UTI</span>
-<span class="co">#&gt; 5  2018-04-25       BSI</span>
-<span class="co">#&gt; 6  2018-05-01       UTI</span>
-<span class="co">#&gt; 7  2018-05-07       BSI</span>
-<span class="co">#&gt; 8  2018-05-13       BSI</span>
-<span class="co">#&gt; 9  2018-05-19       RTI</span>
-<span class="co">#&gt; 10 2018-05-25       RTI</span>
-<span class="co">#&gt; 11 2018-05-31       BSI</span>
+<span class="co">#&gt; # A tibble: 11 x 2</span>
+<span class="co">#&gt;    date       infection</span>
+<span class="co">#&gt;    &lt;date&gt;     &lt;chr&gt;    </span>
+<span class="co">#&gt;  1 2018-04-01 BSI      </span>
+<span class="co">#&gt;  2 2018-04-07 UTI      </span>
+<span class="co">#&gt;  3 2018-04-13 UTI      </span>
+<span class="co">#&gt;  4 2018-04-19 UTI      </span>
+<span class="co">#&gt;  5 2018-04-25 BSI      </span>
+<span class="co">#&gt;  6 2018-05-01 UTI      </span>
+<span class="co">#&gt;  7 2018-05-07 BSI      </span>
+<span class="co">#&gt;  8 2018-05-13 BSI      </span>
+<span class="co">#&gt;  9 2018-05-19 RTI      </span>
+<span class="co">#&gt; 10 2018-05-25 RTI      </span>
+<span class="co">#&gt; 11 2018-05-31 BSI</span>
 
 <span class="co"># familiar unique record ids for reference - optional</span>
 dbs<span class="op">$</span>rd_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">640</span>,<span class="dv">17</span>,<span class="dv">58</span>,<span class="dv">21</span>,<span class="dv">130</span>,<span class="dv">79</span>,<span class="dv">45</span>,<span class="dv">300</span>,<span class="dv">40</span>,<span class="dv">13</span>,<span class="dv">31</span>)
@@ -892,18 +902,20 @@ dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"
 <span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
 
 dbs
-<span class="co">#&gt;          date infection rd_id          pids           epids</span>
-<span class="co">#&gt; 1  2018-04-01       BSI   640 P.31 (CRI 01) E.640 (C) C.640</span>
-<span class="co">#&gt; 2  2018-04-07       UTI    17 P.17 (CRI 01) E.017 (C) C.017</span>
-<span class="co">#&gt; 3  2018-04-13       UTI    58 P.17 (CRI 01) E.017 (D) C.017</span>
-<span class="co">#&gt; 4  2018-04-19       UTI    21 P.17 (CRI 01) E.021 (C) C.021</span>
-<span class="co">#&gt; 5  2018-04-25       BSI   130 P.31 (CRI 01) E.130 (C) C.130</span>
-<span class="co">#&gt; 6  2018-05-01       UTI    79 P.17 (CRI 01) E.079 (C) C.079</span>
-<span class="co">#&gt; 7  2018-05-07       BSI    45 P.31 (CRI 01) E.045 (C) C.045</span>
-<span class="co">#&gt; 8  2018-05-13       BSI   300 P.31 (CRI 01) E.045 (D) C.045</span>
-<span class="co">#&gt; 9  2018-05-19       RTI    40 P.13 (CRI 01) E.040 (C) C.040</span>
-<span class="co">#&gt; 10 2018-05-25       RTI    13 P.13 (CRI 01) E.040 (D) C.040</span>
-<span class="co">#&gt; 11 2018-05-31       BSI    31 P.31 (CRI 01) E.031 (C) C.031</span></code></pre></div>
+<span class="co">#&gt; # A tibble: 11 x 5</span>
+<span class="co">#&gt;    date       infection rd_id pids          epids          </span>
+<span class="co">#&gt;    &lt;date&gt;     &lt;chr&gt;     &lt;dbl&gt; &lt;pid&gt;         &lt;epid&gt;         </span>
+<span class="co">#&gt;  1 2018-04-01 BSI         640 P.31 (CRI 01) E.640 (C) C.640</span>
+<span class="co">#&gt;  2 2018-04-07 UTI          17 P.17 (CRI 01) E.017 (C) C.017</span>
+<span class="co">#&gt;  3 2018-04-13 UTI          58 P.17 (CRI 01) E.017 (D) C.017</span>
+<span class="co">#&gt;  4 2018-04-19 UTI          21 P.17 (CRI 01) E.021 (C) C.021</span>
+<span class="co">#&gt;  5 2018-04-25 BSI         130 P.31 (CRI 01) E.130 (C) C.130</span>
+<span class="co">#&gt;  6 2018-05-01 UTI          79 P.17 (CRI 01) E.079 (C) C.079</span>
+<span class="co">#&gt;  7 2018-05-07 BSI          45 P.31 (CRI 01) E.045 (C) C.045</span>
+<span class="co">#&gt;  8 2018-05-13 BSI         300 P.31 (CRI 01) E.045 (D) C.045</span>
+<span class="co">#&gt;  9 2018-05-19 RTI          40 P.13 (CRI 01) E.040 (C) C.040</span>
+<span class="co">#&gt; 10 2018-05-25 RTI          13 P.13 (CRI 01) E.040 (D) C.040</span>
+<span class="co">#&gt; 11 2018-05-31 BSI          31 P.31 (CRI 01) E.031 (C) C.031</span></code></pre></div>
 </div>
 <div id="use-numeric-values-for-the-date-argument" class="section level3">
 <h3 class="hasAnchor">
