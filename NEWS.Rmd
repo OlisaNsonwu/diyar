@@ -12,19 +12,19 @@ knitr::opts_chunk$set(
 ##New features
 
 + `record_group()` - `strata` argument. Perform record grouping separately within subsets of a dataset.
-+ `fixed_sepisodes()`, `rolling_episodes()` and `episode_group()` - `overlap_methods` and `methods` arguments. Replaces `overlap_method` and `method` respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing `number_line` objects. `overlap_method` and `method` only permits 1 method per per dataset.
++ `overlap()`, `compress_number_line()`, `fixed_sepisodes()`, `rolling_episodes()` and `episode_group()` - `overlap_methods` and `methods` arguments replaces `overlap_method` and `method` respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing `number_line` objects. `overlap_method` and `method` only permits 1 method per per dataset.
 + `epid` objects - `win_nm` slot. Shows the type of window each event belongs to i.e. case or recurrence window
-+ `epid` objects - `win_id` slot. Unique ID for each window. ID is the `sn` of the reference event for each window
++ `epid` objects - `win_id` slot. Unique ID for each window. The ID is the `sn` of the reference event for each window
     + Format of `epid` objects updated to reflect this
 + `epid` objects - `dist_from_wind` slot. Shows the duration of each event from its window's reference event
 + `epid` objects - `dist_from_epid` slot. Shows the duration of each event from its episode's reference event
-+ `episode_group()` and `rolling_episodes()` - `recurrence_from_last` argument. Determine if reference events are the first or last event from the previous window.
++ `episode_group()` and `rolling_episodes()` - `recurrence_from_last` argument. Determine if reference events should be the first or last event from the previous window.
 + `episode_group()` and `rolling_episodes()` - `case_for_recurrence` argument. Determine if recurrent events should have their own case windows or not.
 + `pid` objects - `link_id` slot. Shows the record (`sn` slot) to which every record in the dataset has matched to.
 
 ##Changes
 
-+ `compress_number_line()` - compressed `number_line` object inherits the direction of the widest `number_line` in overlapping groups
++ `compress_number_line()` - compressed `number_line` object inherits the direction of the widest `number_line` among overlapping group of `number_line` objects
 + `overlap_methods` - have been changed such that each pair of `number_line` objects can only overlap in one way. E.g.
     + `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap only
     + `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
@@ -34,8 +34,8 @@ knitr::opts_chunk$set(
     + `to_s4()` can do the reverse.
 + `epid` objects are the default outputs for `fixed_episodes()`, `rolling_episodes()` and `episode_group()`
 + `pid` objects are the default outputs for `record_group()`
-+ In episode grouping, `case_nm` for events that were skipped due to `rolls_max` or `episodes_max` is now `"Skipped"`.
-+ In episode grouping, `sn` can be negative numbers but must still be unique
++ In episode grouping, the `case_nm` for events that were skipped due to `rolls_max` or `episodes_max` is now `"Skipped"`.
++ In `episode_group()` and `record_group()`, `sn` can be negative numbers but must still be unique
 + Optimised `episode_group()` and `record_group()`. Runs just a little bit faster ...
 + Relaxed the requirement for `x` and `y` to have the same lengths in overlap functions.
     + The behaviour of overlap functions will now be the same as that of standard R logical tests 
