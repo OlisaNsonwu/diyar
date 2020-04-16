@@ -151,29 +151,27 @@ db<span class="op">$</span>date
 <span class="co">#&gt; [11] "2018-05-31"</span>
 
 <span class="co"># Fixed episodes</span>
-db<span class="op">$</span>f_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
+db<span class="op">$</span>f_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
 
 <span class="co"># Rolling episodes</span>
-db<span class="op">$</span>r_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, 
-                              <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
+db<span class="op">$</span>r_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-db[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"f_epid"</span>,<span class="st">"r_epid"</span>)]
-<span class="co">#&gt; # A tibble: 11 x 2</span>
-<span class="co">#&gt;    f_epid                                </span>
-<span class="co">#&gt;    &lt;epid&gt;                                </span>
-<span class="co">#&gt;  1 E.01 2018-04-01 -&gt; 2018-04-13 (C) C.01</span>
-<span class="co">#&gt;  2 E.01 2018-04-01 -&gt; 2018-04-13 (D) C.01</span>
-<span class="co">#&gt;  3 E.01 2018-04-01 -&gt; 2018-04-13 (D) C.01</span>
-<span class="co">#&gt;  4 E.04 2018-04-19 -&gt; 2018-05-01 (C) C.04</span>
-<span class="co">#&gt;  5 E.04 2018-04-19 -&gt; 2018-05-01 (D) C.04</span>
-<span class="co">#&gt;  6 E.04 2018-04-19 -&gt; 2018-05-01 (D) C.04</span>
-<span class="co">#&gt;  7 E.07 2018-05-07 -&gt; 2018-05-19 (C) C.07</span>
-<span class="co">#&gt;  8 E.07 2018-05-07 -&gt; 2018-05-19 (D) C.07</span>
-<span class="co">#&gt;  9 E.07 2018-05-07 -&gt; 2018-05-19 (D) C.07</span>
-<span class="co">#&gt; 10 E.10 2018-05-25 -&gt; 2018-05-31 (C) C.10</span>
-<span class="co">#&gt; 11 E.10 2018-05-25 -&gt; 2018-05-31 (D) C.10</span>
-<span class="co">#&gt; # ... with 1 more variable: r_epid &lt;epid&gt;</span></code></pre></div>
+db
+<span class="co">#&gt; # A tibble: 11 x 3</span>
+<span class="co">#&gt;    date       f_epid        r_epid     </span>
+<span class="co">#&gt;    &lt;date&gt;     &lt;epid&gt;        &lt;epid&gt;     </span>
+<span class="co">#&gt;  1 2018-04-01 E.01 (C) C.01 E.1 (C) C.1</span>
+<span class="co">#&gt;  2 2018-04-07 E.01 (D) C.01 E.1 (D) C.1</span>
+<span class="co">#&gt;  3 2018-04-13 E.01 (D) C.01 E.1 (D) C.1</span>
+<span class="co">#&gt;  4 2018-04-19 E.04 (C) C.04 E.1 (R) R.1</span>
+<span class="co">#&gt;  5 2018-04-25 E.04 (D) C.04 E.1 (D) R.1</span>
+<span class="co">#&gt;  6 2018-05-01 E.04 (D) C.04 E.1 (D) R.1</span>
+<span class="co">#&gt;  7 2018-05-07 E.07 (C) C.07 E.1 (D) R.1</span>
+<span class="co">#&gt;  8 2018-05-13 E.07 (D) C.07 E.1 (D) R.7</span>
+<span class="co">#&gt;  9 2018-05-19 E.07 (D) C.07 E.1 (D) R.7</span>
+<span class="co">#&gt; 10 2018-05-25 E.10 (C) C.10 E.1 (D) R.7</span>
+<span class="co">#&gt; 11 2018-05-31 E.10 (D) C.10 E.1 (D) R.7</span></code></pre></div>
 <ul>
 <li>
 <code><a href="reference/record_group.html">record_group()</a></code> - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. <strong><em><code>pid</code> objects are now the default output. Use <code>to_s4</code> or <code><a href="reference/to_s4.html">to_df()</a></code> to change this to a data.frames</em></strong>
