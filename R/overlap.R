@@ -38,7 +38,6 @@
 #' overlap(a, g)
 #' overlap(a, g, methods = "exact|chain")
 #' @export
-
 overlap <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
                     methods = "exact|across|chain|aligns_start|aligns_end|inbetween"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
@@ -75,17 +74,37 @@ overlap <- function(x, y, method = c("exact","across","chain","aligns_start","al
   mths <- tolower(mths)
   mths <- mths[mths %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
 
-  # check overlap by each method
-  chks <- lapply(mths, function(mths){
-    func <- get(mths)
-    func(x, y)
-  })
-  names(chks) <- mths
-
-  # check if any was TRUE
+  # final check
   p <- rep(F, max(length(x), length(x)))
-  for(i in 1:length(chks)) {
-    p[p==F & chks[[i]] == T] <- chks[[i]][p==F & chks[[i]] == T]
+  sets <- split(1:length(x), m)
+  um1 <- names(sets)
+
+  m_ab <- function(x){
+    x <- ifelse(x=="aligns_start", "as", ifelse(x=="aligns_end", "ae", substr(x,1,2)))
+  }
+
+  for (i in mths){
+    assign("tp", sets)
+    ab <- m_ab(i)
+    names(tp) <- ifelse(grepl(i, names(sets)), i, "")
+    tp <- tp[names(tp) != ""]
+    tp <- unlist(tp, use.names = F)
+    lgk <- rep(F, length(x))
+    lgk[tp] <- T
+    assign(ab, lgk)
+  }
+
+  for (j in mths) {
+    func <- get(j)
+    tst <- get(m_ab(j))
+    chg <- func(x, y)
+
+    length(p)
+    length(chg)
+    length(tst)
+
+    p[p==F & chg == T & tst == T] <- T
+
   }
 
   return(p)
