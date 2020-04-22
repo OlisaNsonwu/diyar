@@ -390,35 +390,36 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   c <- 1
   grouped_epids <- T1[0,0]
   while (min_tag != 2 & min_episodes <= episodes_max){
-    #vrs <- names(T1)[!names(T1) %in% c(c("epi_len","rc_len"))]
-    # g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
-    # grouped_epids <- rbind(grouped_epids,
-    #                      T1[T1$tag ==2 & !is.na(T1$tag), g_vrs] )
-    #
-    # # exclude grouped episodes
-    # T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
+    # seperate out grouped records
+    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
+    grouped_epids <- rbind(grouped_epids,
+                         T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
+      # drop them from the main dataset
+    T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
 
-    # reference events
-    #TR <- T1[order(T1$cri, -T1$tag, T1$user_ord, T1$sn),]
+    # check for records to skip - `skip_order` and `episode_max`
     TR <- dplyr::arrange(T1, T1$cri, -T1$tag, T1$user_ord, T1$sn)
-    skip_cris <- unique(TR$cri[TR$c_sort > TR$skip_order & duplicated(TR$cri) == FALSE & !is.na(TR$cri)])
+    skip_cris <- unique(TR$cri[(TR$c_sort > TR$skip_order |
+                                 TR$tag==0 & TR$episodes + 1 > episodes_max) & !duplicated(TR$cri) & !is.na(TR$cri)])
 
     # Assign unique IDs to skipped records
     T1$tag[T1$cri %in% skip_cris] <- 2
     T1$wind_nm[T1$cri %in% skip_cris] <- T1$case_nm[T1$cri %in% skip_cris] <- "Skipped"
     T1$epid[T1$cri %in% skip_cris] <- T1$wind_id[T1$cri %in% skip_cris] <- T1$sn[T1$cri %in% skip_cris]
 
-    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
+    # seperate out skipped records
     grouped_epids <- rbind(grouped_epids,
-                           T1[T1$tag ==2 & !is.na(T1$tag), g_vrs] )
+                           T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
 
-    # exclude grouped episodes
+      # drop them from the main dataset
     T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
-    TR <- TR[TR$tag !=2 & !is.na(TR$tag),]
 
-    TR <- TR[!(TR$tag==0 & TR$episodes + 1 > episodes_max) & TR$c_sort <= TR$skip_order &
-               duplicated(TR$cri) == FALSE & !is.na(TR$cri), c("sn", "cri", "rec_dt_ai", "rec_dt_zi",
-                                                               "epid", "tag", "roll", "epi_len", "rc_len", "case_nm")]
+    # Reference events
+    TR <- TR[!(TR$tag==0 & TR$episodes + 1 > episodes_max) &
+               !(TR$c_sort > TR$skip_order) &
+               !duplicated(TR$cri) &
+               !is.na(TR$cri),
+             c("sn", "cri", "rec_dt_ai", "rec_dt_zi","epid", "tag", "roll", "epi_len", "rc_len", "case_nm")]
     names(TR) <- paste0("tr_",names(TR))
 
     # early break if there are no more reference events
