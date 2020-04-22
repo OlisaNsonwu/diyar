@@ -17,14 +17,14 @@
 #' @param from_last If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent event and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.
 #' @param overlap_method Methods of overlap considered when grouping event periods. Each pair of periods are checked with the same set of \code{overlap_method}. Deprecated use \code{overlap_methods} instead.
 #' @param overlap_methods Methods of overlap considered when grouping event periods. Different pairs of periods can be checked with different sets \code{overlap_methods}
-#' @param custom_sort If \code{TRUE}, \code{"case"} assignment will be done with preference to a sort order. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In \code{\link{episode_group}}, you can use multiple columns as sort levels.
+#' @param custom_sort  Preferential order for \code{"case"} assignment. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In \code{\link{episode_group}}, you can use multiple columns as sort levels.
 #' @param bi_direction If \code{FALSE}, \code{"duplicate"} events will be those within the \code{case_length} before \strong{or} after the \code{"case"} as determined by \code{from_last}. If \code{TRUE}, \code{"duplicate"} events will be those within the same period before \strong{and} after the \code{"case"}.
 #' @param group_stats If \code{TRUE}, the output will include additional information with useful stats for each episode group.
 #' @param display If \code{TRUE}, a progress message is printed on screen.
 #' @param to_s4 if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.
 #' @param recurrence_from_last if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous window. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param case_for_recurrence if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
-#'
+#' @param skip_order Skip episodes whose \code{case} events have \code{custom_sort} values that are less than or equal to the \code{"nth"} order of \code{custom_sort}. Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if there's no \code{custom_sort}.
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
@@ -154,7 +154,7 @@
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
-                          custom_sort = NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
+                          custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                           overlap_methods = NULL, bi_direction = FALSE,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
   . <- NULL
@@ -216,12 +216,13 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   r_epl <- enq_vr(substitute(recurrence_length))
   st <- enq_vr(substitute(strata))
   ref_sort <- enq_vr(substitute(custom_sort))
+  sk_od <- enq_vr(substitute(skip_order))
   dt <- enq_vr(substitute(date))
   methods <- enq_vr(substitute(overlap_methods))
 
   # Check that col names exist
-  if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods)) %in% names(df))){
-    missing_cols <- subset(unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods)), !unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods)) %in% names(df))
+  if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods, sk_od)) %in% names(df))){
+    missing_cols <- subset(unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods, sk_od)), !unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods, sk_od)) %in% names(df))
     missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
     stop(paste(missing_cols, "not found"))
   }
@@ -231,6 +232,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     if(!(any(class(df[[r_epl]]) %in% c("integer","double","numeric")))) stop(paste("'recurrence_length' must be integer or numeric values", sep=""))
   }
   if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer","Interval")))) stop("'date' must be a date, datetime, numeric or number_line object")
+
+  if(!is.null(sk_od)){
+    if(!(any(class(df[[sk_od]]) %in% c("integer","double","numeric"))))  stop(paste("'skip_order' must be integer or numeric values", sep=""))
+  }
+
 
   # Record indentifier
   if(is.null(rd_sn)){
@@ -319,7 +325,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                                "                 OR                   \n",
                                "Use ~ include_overlap_method() or exclude_overlap_method()"))
 
-  df <- df[c("sn","rec_dt_ai","rec_dt_zi","epi_len","rc_len","dsvr","cri",ref_sort,"methods")]
+  df <- df[c("sn","rec_dt_ai","rec_dt_zi","epi_len","rc_len","dsvr","cri",ref_sort, sk_od, "methods")]
 
   df$dist_from_epid <- df$dist_from_wind <- df$wind_id <- df$tag <- df$roll <- df$episodes <- 0
   df$wind_nm <- ""
@@ -341,6 +347,30 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   names(user_ord) <- 1:length(user_ord)
   df$user_ord <- as.numeric(names(sort(user_ord)))
 
+  # c_sort ord
+  if(!is.null(ref_sort)){
+    srd <- lapply(ref_sort, function(x){
+      x <- as.numeric(as.factor(df[[x]]))
+      formatC(x, width= nchar(max(x)), flag=0, format = "fg")
+    })
+
+    names(srd) <- ref_sort
+    srd <- as.data.frame(srd, stringsAsFactors = F)
+    srd <- eval(parse(text = paste0("paste0(",paste0("srd$", ref_sort, collapse = ",'-',"),")")))
+    df$c_sort <- as.numeric(as.factor(srd))
+    rm(srd)
+  }else{
+    df$c_sort <- 0
+  }
+
+  # skip_order
+  if(!is.null(sk_od)){
+    df$skip_order <- df[[sk_od]]
+  }else{
+    df$skip_order <- Inf
+  }
+
+
   # Skip from episode grouping
   df$epid <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$epid)
   df$wind_id <- ifelse(df$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , df$sn, df$wind_id)
@@ -357,7 +387,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   grouped_epids <- df[0,0]
   while (min_tag != 2 & min_episodes <= episodes_max){
     #vrs <- names(df)[!names(df) %in% c(c("epi_len","rc_len"))]
-    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","user_ord","ord","ord_z", "dist_from_wind", "dist_from_epid")
+    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
     grouped_epids <- rbind(grouped_epids,
                          df[df$tag ==2 & !is.na(df$tag), g_vrs] )
 
@@ -367,7 +397,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # reference events
     #TR <- df[order(df$cri, -df$tag, df$user_ord, df$sn),]
     TR <- dplyr::arrange(df, df$cri, -df$tag, df$user_ord, df$sn)
-    TR <- TR[!(TR$tag==0 & TR$episodes + 1 > episodes_max)  &
+    TR <- TR[!(TR$tag==0 & TR$episodes + 1 > episodes_max) & TR$c_sort <= TR$skip_order &
                duplicated(TR$cri) == FALSE & !is.na(TR$cri), c("sn", "cri", "rec_dt_ai", "rec_dt_zi",
                                                                "epid", "tag", "roll", "epi_len", "rc_len", "case_nm")]
     names(TR) <- paste0("tr_",names(TR))
@@ -646,7 +676,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' @rdname episode_group
 #' @export
-fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL,
+fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL, skip_order =NULL,
                            from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE){
 
@@ -688,6 +718,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
   if(!(length(strata) %in% c(1, length(date)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'date'",sep=""))
   if(!(length(data_source) %in% c(1, length(date)) | (length(data_source) ==0 & is.null(data_source)))) stop(paste("length of 'data_source' must be 1 or the same as 'date'",sep=""))
   if(!(length(custom_sort) %in% c(1, length(date)) | (length(custom_sort) ==0 & is.null(custom_sort)))) stop(paste("length of 'custom_sort' must be 1 or the same as 'date'",sep=""))
+  if(!(length(skip_order) %in% c(1, length(date)) | (length(skip_order) ==0 & is.null(skip_order)))) stop(paste("length of 'skip_order' must be 1 or the same as 'date'",sep=""))
 
   if(missing(overlap_methods) & !missing(overlap_method)) {
     warning("'overlap_method' is deprecated. Please use 'overlap_methods' instead.")
@@ -733,16 +764,22 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
     df$user_srt <- as.numeric(as.factor(custom_sort))
   }
 
+  if(is.null(skip_order)){
+    df$skip_order <- 0
+  }else{
+    df$skip_order <- skip_order
+  }
+
   df$method <- m
 
   if(is.null(data_source)){
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
-                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt",
+                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method",
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
   }else{
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
-                         bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt",
+                         bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method",
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
   }
@@ -794,6 +831,7 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   if(!(length(strata) %in% c(1, length(date)) | (length(strata) ==0 & is.null(strata)))) stop(paste("length of 'strata' must be 1 or the same as 'date'",sep=""))
   if(!(length(data_source) %in% c(1, length(date)) | (length(data_source) ==0 & is.null(data_source)))) stop(paste("length of 'data_source' must be 1 or the same as 'date'",sep=""))
   if(!(length(custom_sort) %in% c(1, length(date)) | (length(custom_sort) ==0 & is.null(custom_sort)))) stop(paste("length of 'custom_sort' must be 1 or the same as 'date'",sep=""))
+  if(!(length(skip_order) %in% c(1, length(date)) | (length(skip_order) ==0 & is.null(skip_order)))) stop(paste("length of 'skip_order' must be 1 or the same as 'date'",sep=""))
 
   if(missing(overlap_methods) & !missing(overlap_method)) {
     warning("'overlap_method' is deprecated. Please use 'overlap_methods' instead.")
@@ -839,6 +877,12 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
     df$user_srt <- as.numeric(as.factor(custom_sort))
   }
 
+  if(is.null(skip_order)){
+    df$skip_order <- 0
+  }else{
+    df$skip_order <- skip_order
+  }
+
   if(is.null(recurrence_length)){
     df$rc_epl <- df$epl
   }else{
@@ -849,13 +893,13 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
   if(is.null(data_source)){
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
-                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt",
+                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
                          recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence)
     }else{
       diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
-                           bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt",
+                           bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
                            from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
                            display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
                            recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence)
