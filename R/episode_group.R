@@ -414,6 +414,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     # exclude grouped episodes
     T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
+    TR <- TR[TR$tag !=2 & !is.na(TR$tag),]
 
     TR <- TR[!(TR$tag==0 & TR$episodes + 1 > episodes_max) & TR$c_sort <= TR$skip_order &
                duplicated(TR$cri) == FALSE & !is.na(TR$cri), c("sn", "cri", "rec_dt_ai", "rec_dt_zi",
