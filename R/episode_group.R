@@ -24,7 +24,8 @@
 #' @param to_s4 if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.
 #' @param recurrence_from_last if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous window. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param case_for_recurrence if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param skip_order Skip episodes whose \code{case} events have \code{custom_sort} values that are less than or equal to the \code{"nth"} order of \code{custom_sort}. Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if there's no \code{custom_sort}.
+#' @param skip_order Skip episodes whose \code{case} events have \code{custom_sort} values that are less than or equal to the \code{"nth"} order of \code{custom_sort}. Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{custom_sort} is \code{NULL}.
+#' @param data_links Skip epiosdes that will not include records from certain \code{data_sources}. \code{data_links} should be a \code{list} with every element named 'l' (links) or 'g' (groups). Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{data_source} is \code{NULL}.
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
@@ -153,7 +154,7 @@
 #' @rdname episode_group
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
-                          recurrence_length = NULL, rolls_max =Inf, data_source = NULL,
+                          recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
                           custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                           overlap_methods = NULL, bi_direction = FALSE,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
@@ -234,7 +235,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer","Interval")))) stop("'date' must be a date, datetime, numeric or number_line object")
 
   if(!is.null(sk_od)){
-    if(!(any(class(df[[sk_od]]) %in% c("integer","double","numeric"))))  stop(paste("'skip_order' must be integer or numeric values", sep=""))
+    if(!(any(class(df[[sk_od]]) %in% c("integer","double","numeric"))))  stop(paste("'skip_order' must be a positive integer or numeric value", sep=""))
+    if(!(all(class(df[[sk_od]]) >0)))  stop(paste("'skip_order' must be a positive integer or numeric value", sep=""))
   }
 
   T1 <- df[,0]
@@ -254,6 +256,40 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   }else{
     T1$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
   }
+
+  dl_lst <- unlist(data_links, use.names = F)
+  ds_lst <- T1$dsvr[!duplicated(T1$dsvr)]
+  ms_lst <- unique(dl_lst[!dl_lst %in% ds_lst])
+
+  if(length(ms_lst)>0 & !all(toupper(dl_lst)=="ANY")) stop(paste("",
+                                                                 paste0("Values - ", paste0("'",ms_lst,"'",collapse = ","), " not found in `datasource`."),
+                                                                 "Have you used levels for `datasource` - i.e. episode_group(... datasource = c(vr1, vr2, vr3)) ?",
+                                                                 "",
+                                                                 "If so, include the value for each level.",
+                                                                 "",
+                                                                 "Examples",
+                                                                 "`data_links` <- list(l = c('ds1-ds2', 'ds3')",
+                                                                 "                     g = c('ds1-ds2', 'ds3')",
+                                                                 "",
+                                                                 "`data_links` <- c('ds1-ds2', 'ds3')",
+                                                                 "",
+                                                                 "'l' - for groups with records from the same vr1 and vr2 `data_source(s)` ('ds1-ds2') AND vr3 `data_source` ('ds3')",
+                                                                 "'g' - for groups with records from the same vr1 and vr2 `data_source(s)` ('ds1-ds2') OR  vr3 `data_source` ('ds3')", sep = "\n"))
+
+  if(!is.list(data_links)) data_links <- list(l = data_links)
+  if(is.null(names(data_links)))  names(data_links) <- rep("l", length(data_links))
+  if(!all(names(data_links) %in% c("g", "l"))) stop(paste("",
+                                                          "`data_links` should be a `list` with every element named 'l' (links) or 'g' (groups)",
+                                                          "'l' (link) is used for unamed elements or atomic vectors",
+                                                          "",
+                                                          " Examples",
+                                                          "`data_links` <- list(l = c('DS1', 'DS2')",
+                                                          "                     g = c('DS3', 'DS4')",
+                                                          "",
+                                                          "`data_links` <- c('DS1', 'DS2')",
+                                                          "",
+                                                          "'l' - for groups with records from 'DS1' AND 'DS2' `data_source(s)`",
+                                                          "'g' - for groups with records from 'DS3' OR  'DS3' `data_source(s)", sep = "\n"))
 
   # lengths
   T1$epi_len <- df[[epl]]
@@ -383,15 +419,40 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   T1$episodes <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 1, 0)
   T1$roll <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), rolls_max, T1$roll)
 
+  if(!is.null(ds) & !all(toupper(dl_lst) == "ANY")){
+    # check type of links
+    links_check <- function(x, y, e) {
+      if(tolower(e)=="l"){
+        all(y %in% x & length(x)>1)
+      }else if (tolower(e)=="g"){
+        any(y %in% x)
+      }
+    }
+
+    pds <- lapply(split(T1$dsvr, T1$cri), function(x, l=data_links){
+      xlst <- rep(list(a =x), length(l))
+      list(
+        rq = any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
+      )
+    })
+
+    p2 <- lapply(pds, function(x){x$rq})
+    # skip if not required
+    req_links <- unlist(p2[as.character(T1$cri)], use.names = F)
+    T1$tag[req_links==F] <- 2
+    T1$wind_nm[req_links==F] <- T1$case_nm[req_links==F] <- "Skipped"
+    T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
+  }
+
   min_tag <- min(T1$tag)
   min_episodes <- min(T1$episodes)
 
   rm(df)
   c <- 1
   grouped_epids <- T1[0,0]
+  g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
   while (min_tag != 2 & min_episodes <= episodes_max){
     # seperate out grouped records
-    g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
     grouped_epids <- rbind(grouped_epids,
                          T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
       # drop them from the main dataset
@@ -615,11 +676,43 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(is.null(ds)){
     T1 <- T1[order(T1$pr_sn),]
   }else{
-    pds2 <- lapply(split(T1$dsvr, T1$epid), function(x){
-      paste0(sort(unique(x)), collapse=",")
+    # pid datasets
+
+    # pds2 <- lapply(split(T1$dsvr, T1$epid), function(x){
+    #   paste0(sort(unique(x)), collapse=",")
+    # })
+    # T1$epid_dataset <- unlist(pds2[as.character(T1$epid)], use.names = F)
+
+    # check type of links
+    links_check <- function(x, y, e) {
+      if(tolower(e)=="l"){
+        all(y %in% x & length(x)>1)
+      }else if (tolower(e)=="g"){
+        any(y %in% x)
+      }
+    }
+
+    pds <- lapply(split(T1$dsvr, T1$epid), function(x, l=data_links){
+      xlst <- rep(list(a =x), length(l))
+      list(
+        ds = paste0(sort(unique(x)), collapse=","),
+        rq = any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
+      )
     })
 
-    T1$epid_dataset <- unlist(pds2[as.character(T1$epid)], use.names = F)
+    p1 <- lapply(pds, function(x){x$ds})
+    T1$epid_dataset <- unlist(p1[as.character(T1$epid)], use.names = F)
+
+    if(!all(toupper(dl_lst) == "ANY")){
+      p2 <- lapply(pds, function(x){x$rq})
+      # unlink if not required
+      req_links <- unlist(p2[as.character(T1$epid)], use.names = F)
+      T1$dist_from_wind[req_links==F] <- T1$dist_from_epid[req_links==F] <- 0
+      T1$epid_dataset[req_links==F] <- T1$dsvr[req_links==F]
+      T1$wind_nm[req_links==F] <- T1$case_nm[req_links==F] <- "Skipped"
+      T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
+    }
+
     T1 <- T1[order(T1$pr_sn),]
   }
 
@@ -696,8 +789,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' @rdname episode_group
 #' @export
-fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, custom_sort = NULL, skip_order =NULL,
-                           from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
+fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, data_links = "ANY",
+                           custom_sort = NULL, skip_order =NULL, from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
+                           overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE){
 
   if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
@@ -795,12 +889,12 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
   if(is.null(data_source)){
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method",
+                         from_last = from_last, overlap_methods = "method", data_links = data_links,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
   }else{
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method",
+                         from_last = from_last, overlap_methods = "method", data_links = data_links,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
   }
 }
@@ -808,9 +902,10 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 
 #' @rdname episode_group
 #' @export
-rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, data_source = NULL, custom_sort = NULL, skip_order = NULL,
-                             from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"), overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
-                             bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
+rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, data_source = NULL, data_links = "ANY",
+                             custom_sort = NULL, skip_order = NULL, from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
+                             overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween", bi_direction= FALSE, group_stats = FALSE,
+                             display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
 
   if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
@@ -916,13 +1011,13 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
-                         recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence)
+                         recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links)
     }else{
       diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                            bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
                            from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
                            display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
-                           recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence)
+                           recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links)
   }
 
 }
