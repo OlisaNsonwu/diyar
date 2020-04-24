@@ -711,7 +711,7 @@ dbf
 ```
 
 ### Skip episodes without records from certain `data_source(s)`
-The third mechanism is partly a misnomer because it does not skip records but rather ungroups `episodes` after they've been created. After every `episod` has been groupped, those that do not contain records from certain `data_source(s)` can be ungrouped using `data_links`. In such instances, the overall execution time will not be shortened but you'll get an episode identifier that's relevant to the `data_source(s)` you're interested in. However, if a `strata` will not produce `episodes` with the required combination of `data_source(s)`, that entire `strata` will be skipped. If this happends, the overall execution may be shortened as well.
+The third mechanism is partly a misnomer because it does not skip records but rather ungroups `episodes` after they've been created. After every `episod` has been grouped, those that do not contain records from certain `data_source(s)` can be ungrouped using `data_links`. In such instances, the overall execution time will not be shortened but you'll get an episode identifier that's relevant to the `data_source(s)` you're interested in. However, if a `strata` will not produce `episodes` with the required combination of `data_source(s)`, that entire `strata` will be skipped. If this happens, the overall execution may be shortened as well.
 
 Ungrouped `events` are assigned unique episode IDs and their `case_nm` is flagged with `"Skipped"`.
 
