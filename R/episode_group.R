@@ -414,6 +414,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   T1$epid <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , T1$sn, T1$epid)
   T1$wind_id <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , T1$sn, T1$wind_id)
   T1$wind_nm <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "") , "Skipped", T1$wind_nm)
+
+  T1$dist_from_epid[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <-
+    T1$dist_from_wind[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- 0
+
   T1$tag <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 2, T1$tag)
   T1$case_nm <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), "Skipped", T1$case_nm)
   T1$episodes <- ifelse(T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), ""), 1, 0)
@@ -442,6 +446,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$tag[req_links==F] <- 2
     T1$wind_nm[req_links==F] <- T1$case_nm[req_links==F] <- "Skipped"
     T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
+    T1$dist_from_epid[req_links==F] <- T1$dist_from_wind[req_links==F] <- 0
   }
 
   min_tag <- min(T1$tag)
@@ -467,7 +472,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$tag[T1$cri %in% skip_cris] <- 2
     T1$wind_nm[T1$cri %in% skip_cris] <- T1$case_nm[T1$cri %in% skip_cris] <- "Skipped"
     T1$epid[T1$cri %in% skip_cris] <- T1$wind_id[T1$cri %in% skip_cris] <- T1$sn[T1$cri %in% skip_cris]
-
+    T1$dist_from_epid[T1$cri %in% skip_cris] <- T1$dist_from_wind[T1$cri %in% skip_cris] <- 0
     # seperate out skipped records
     grouped_epids <- rbind(grouped_epids,
                            T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
@@ -669,6 +674,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   # Assign ungrouped episodes to unique IDs
   T1$wind_nm[T1$epid==sn_ref] <- T1$case_nm[T1$epid==sn_ref] <- "Skipped"
   T1$epid[T1$epid==sn_ref] <- T1$wind_id[T1$epid==sn_ref] <- T1$sn[T1$epid==sn_ref]
+  T1$dist_from_wind[T1$epid==sn_ref] <- T1$dist_from_epid[T1$epid==sn_ref] <- 0
 
   # Drop 'duplicate' events if required
   if(deduplicate) T1 <- subset(T1, T1$case_nm!="Duplicate")
