@@ -14,6 +14,8 @@ New features
 -   `epid` objects - `dist_from_epid` slot. Shows the duration of each event from its episode's reference event
 -   `episode_group()` and `rolling_episodes()` - `recurrence_from_last` argument. Determine if reference events should be the first or last event from the previous window.
 -   `episode_group()` and `rolling_episodes()` - `case_for_recurrence` argument. Determine if recurrent events should have their own case windows or not.
+-   `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `data_links`. Ungroup episodes that do not include records from certain `data_source(s)`.
+-   `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `skip_order`. Skip episodes with case events that have `custom_sort` values less than or equal to the`"nth"` order of `custom_sort`.
 -   `pid` objects - `link_id` slot. Shows the record (`sn` slot) to which every record in the dataset has matched to.
 
 Changes
