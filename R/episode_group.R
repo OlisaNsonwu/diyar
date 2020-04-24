@@ -682,13 +682,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(is.null(ds)){
     T1 <- T1[order(T1$pr_sn),]
   }else{
-    # pid datasets
-
-    # pds2 <- lapply(split(T1$dsvr, T1$epid), function(x){
-    #   paste0(sort(unique(x)), collapse=",")
-    # })
-    # T1$epid_dataset <- unlist(pds2[as.character(T1$epid)], use.names = F)
-
     # check type of links
     links_check <- function(x, y, e) {
       if(tolower(e)=="l"){
@@ -700,10 +693,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     pds <- lapply(split(T1$dsvr, T1$epid), function(x, l=data_links){
       xlst <- rep(list(a =unique(x)), length(l))
-      list(
-        ds = paste0(sort(unique(x)), collapse=","),
-        rq = any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
-      )
+      r <- list(ds = paste0(sort(unique(x)), collapse=","))
+      if(!all(toupper(dl_lst) == "ANY")) r["rq"] <- any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
+      return(r)
     })
 
     p1 <- lapply(pds, function(x){x$ds})
