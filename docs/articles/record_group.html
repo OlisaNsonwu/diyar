@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">16 April 2020</h4>
+            <h4 class="date">24 April 2020</h4>
       
       
       <div class="hidden name"><code>record_group.Rmd</code></div>
@@ -418,7 +418,7 @@ df
 <span class="co">#&gt; 11     Tomi Abdulkareem 2500 P.11 (No Hit)</span></code></pre></div>
 <p><img src="record_group_files/figure-html/unnamed-chunk-10-1.png" width="816"></p>
 <ul>
-<li>Stage 1 (criteria) - Records 1, 2 and 8 have matching surnames and so are grouped together. Similarly, records 5 and 6 are grouped together for the same reason. Record 4 is not assigned a group ID at this stage because of missing values. Records 3, 4, 7, 9, 10 and 11 are also not assinged a group ID at this stage becuase they do not match any other record.</li>
+<li>Stage 1 (criteria) - Records 1, 2 and 8 have matching surnames and so are grouped together. Similarly, records 5 and 6 are grouped together for the same reason. Record 4 is not assigned a group ID at this stage because of missing values. Records 3, 4, 7, 9, 10 and 11 are also not assigned a group ID at this stage because they do not match any other record.</li>
 <li>Stage 2 (criteria) - Record 3 has the same surname as record 2 and so inherits record 2’s group ID (<code>1</code>). The other records still do not match any other record at this stage and so remain unassigned.<br>
 </li>
 <li>Stage 3 (criteria) - Record 4 has the same age as record record 3 and so inherits it’s group ID (<code>1</code>). Similarly, record 7 inherits record 6’s group ID for the same reason.</li>
@@ -560,7 +560,7 @@ Opes_c[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/to
 <span class="co">#&gt; 5    35 30 -&gt; 40   P.1 (CRI 01)</span>
 <span class="co">#&gt; 6    56 51 -&gt; 61   P.3 (CRI 01)</span>
 <span class="co">#&gt; 7    56 51 -&gt; 61   P.3 (CRI 01)</span>
-<span class="co">#&gt; 8    34 29 -&gt; 39   P.1 (CRI 01)</span></code></pre></div>
+<span class="co">#&gt; 8    35 30 -&gt; 40   P.1 (CRI 01)</span></code></pre></div>
 </div>
 </div>
 <div id="conclusion" class="section level1">

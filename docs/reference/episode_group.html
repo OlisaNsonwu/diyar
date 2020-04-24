@@ -129,16 +129,18 @@
     <pre class="usage"><span class='fu'>episode_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>date</span>, <span class='no'>case_length</span>,
   <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>,
-  <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>, <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>),
-  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>recurrence_from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>case_for_recurrence</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
+  <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>, <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>,
+  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>), <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recurrence_from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>case_for_recurrence</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>fixed_episodes</span>(<span class='no'>date</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>case_length</span>,
   <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>,
-  <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>, <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>),
+  <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>, <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>,
+  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>),
   <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"exact|across|chain|aligns_start|aligns_end|inbetween"</span>,
   <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>x</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
@@ -146,8 +148,9 @@
 <span class='fu'>rolling_episodes</span>(<span class='no'>date</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>case_length</span>,
   <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>,
   <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>,
-  <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>, <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>),
+  <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>, <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>,
+  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>),
   <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"exact|across|chain|aligns_start|aligns_end|inbetween"</span>,
   <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>x</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recurrence_from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
@@ -201,8 +204,16 @@
       <td><p>Unique dataset identifier. Useful when the dataset contains data from multiple sources. In <code>episode_group</code>, you can use multiple columns supplied as column names.</p></td>
     </tr>
     <tr>
+      <th>data_links</th>
+      <td><p>Ungroup episodes that will not include records from certain <code>data_sources</code>. <code>data_links</code> should be a <code>list</code> with every element named 'l' (links) or 'g' (groups). Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if <code>data_source</code> is <code>NULL</code>.</p></td>
+    </tr>
+    <tr>
       <th>custom_sort</th>
-      <td><p>If <code>TRUE</code>, <code>"case"</code> assignment will be done with preference to a sort order. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In <code>episode_group</code>, you can use multiple columns as sort levels.</p></td>
+      <td><p>Preferential order for <code>"case"</code> assignment. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In <code>episode_group</code>, you can use multiple columns as sort levels.</p></td>
+    </tr>
+    <tr>
+      <th>skip_order</th>
+      <td><p>Skip episodes whose <code>case</code> events have <code>custom_sort</code> values that are less than or equal to the <code>"nth"</code> order of <code>custom_sort</code>. Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if <code>custom_sort</code> is <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>from_last</th>
@@ -309,19 +320,19 @@ They are convenient alternatives with the same functionalities.</p>
 <span class='no'>db_1</span>$<span class='no'>fd</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='co'># 16-hour (difference of 15 hours) episodes beginning from the earliest record</span>
 <span class='no'>db_1</span>$<span class='no'>fh</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
 <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"hours"</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 11 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_1</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 6</span><span>
-#&gt;    rd_id date       infection epi_len fd            fh           
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>       
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.01 (C) C.01 E.01 (C) C.01
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.01 (D) C.01 E.02 (C) C.02
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.01 (D) C.01 E.03 (C) C.03
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.04 (C) C.04 E.04 (C) C.04
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.04 (D) C.04 E.05 (C) C.05
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.04 (D) C.04 E.06 (C) C.06
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.07 (C) C.07 E.07 (C) C.07
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.07 (D) C.07 E.08 (C) C.08
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.07 (D) C.07 E.09 (C) C.09
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.10 (C) C.10 E.10 (C) C.10
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.10 (D) C.10 E.11 (C) C.11</div><div class='input'>
+#&gt;    rd_id date       infection epi_len fd       fh      
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.01 (C) E.01 (C)
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.01 (D) E.02 (C)
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.01 (D) E.03 (C)
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.04 (C) E.04 (C)
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.04 (D) E.05 (C)
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.04 (D) E.06 (C)
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.07 (C) E.07 (C)
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.07 (D) E.08 (C)
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.07 (D) E.09 (C)
+#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.10 (C) E.10 (C)
+#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.10 (D) E.11 (C)</div><div class='input'>
 <span class='co'>#2. Rolling episodes</span>
 <span class='co'># Case length and recurrence periods of 16 days</span>
 <span class='no'>db_1</span>$<span class='no'>rd_a</span> <span class='kw'>&lt;-</span> <span class='fu'>rolling_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='co'># Case length of 16 days and recurrence periods of 11 days</span>
@@ -329,20 +340,19 @@ They are convenient alternatives with the same functionalities.</p>
 <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='co'># Case length of 16 days and 2 recurrence periods of 11 days</span>
 <span class='no'>db_1</span>$<span class='no'>rd_c</span> <span class='kw'>&lt;-</span> <span class='fu'>rolling_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
 <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_1</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 9</span><span>
-#&gt;    rd_id date       infection epi_len fd            fh            rd_a       
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>     
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.01 (C) C.01 E.01 (C) C.01 E.1 (C) C.1
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.01 (D) C.01 E.02 (C) C.02 E.1 (D) C.1
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.01 (D) C.01 E.03 (C) C.03 E.1 (D) C.1
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.04 (C) C.04 E.04 (C) C.04 E.1 (R) R.3
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.04 (D) C.04 E.05 (C) C.05 E.1 (D) R.3
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.04 (D) C.04 E.06 (C) C.06 E.1 (R) R.5
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.07 (C) C.07 E.07 (C) C.07 E.1 (D) R.5
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.07 (D) C.07 E.08 (C) C.08 E.1 (R) R.7
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.07 (D) C.07 E.09 (C) C.09 E.1 (D) R.7
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.10 (C) C.10 E.10 (C) C.10 E.1 (R) R.9
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.10 (D) C.10 E.11 (C) C.11 E.1 (D) R.9
-#&gt; </span><span style='color: #555555;'># ... with 2 more variables: rd_b </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span style='color: #555555;'>, rd_c </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span></div><div class='input'>
+#&gt;    rd_id date       infection epi_len fd       fh       rd_a    rd_b    rd_c   
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span> 
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.01 (C) E.01 (C) E.1 (C) E.1 (C) E.1 (C)
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.01 (D) E.02 (C) E.1 (D) E.1 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.01 (D) E.03 (C) E.1 (D) E.1 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.04 (C) E.04 (C) E.1 (R) E.1 (R) E.1 (R)
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.04 (D) E.05 (C) E.1 (D) E.1 (R) E.1 (R)
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.04 (D) E.06 (C) E.1 (R) E.1 (R) E.6 (C)
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.07 (C) E.07 (C) E.1 (D) E.1 (R) E.6 (D)
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.07 (D) E.08 (C) E.1 (R) E.1 (R) E.6 (D)
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.07 (D) E.09 (C) E.1 (D) E.1 (R) E.9 (C)
+#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.10 (C) E.10 (C) E.1 (R) E.1 (R) E.9 (D)
+#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.10 (D) E.11 (C) E.1 (D) E.1 (R) E.9 (D)</div><div class='input'>
 <span class='co'># 3. Stratified episode grouping</span>
 <span class='no'>db_3</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 
@@ -350,19 +360,19 @@ They are convenient alternatives with the same functionalities.</p>
 <span class='co'># One 16-day episode per patient</span>
 <span class='no'>db_3</span>$<span class='no'>epids_p</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='kw'>date</span><span class='kw'>=</span><span class='no'>db_3</span>$<span class='no'>date</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='no'>db_3</span>$<span class='no'>patient_id</span>,
 <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 5 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_3</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 6</span><span>
-#&gt;    rd_id date       infection epi_len patient_id epids_p    
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>     
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 PID 1      E.1 (C) C.1
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 PID 1      E.1 (D) C.1
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 PID 1      E.1 (D) C.1
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 PID 1      E.4 (S) S.4
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 PID 1      E.5 (S) S.5
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 PID 1      E.6 (S) S.6
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 PID 1      E.7 (S) S.7
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 PID 1      E.8 (S) S.8
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 PID 2      E.9 (C) C.9
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 PID 2      E.9 (D) C.9
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 PID 2      E.9 (D) C.9</div><div class='input'>
+#&gt;    rd_id date       infection epi_len patient_id epids_p
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span> 
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 PID 1      E.1 (C)
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 PID 1      E.1 (D)
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 PID 1      E.1 (D)
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 PID 1      E.4 (S)
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 PID 1      E.5 (S)
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 PID 1      E.6 (S)
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 PID 1      E.7 (S)
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 PID 1      E.8 (S)
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 PID 2      E.9 (C)
+#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 PID 2      E.9 (D)
+#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 PID 2      E.9 (D)</div><div class='input'>
 <span class='co'># 4. Case assignment</span>
 <span class='no'>db_4</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 
@@ -372,17 +382,17 @@ They are convenient alternatives with the same functionalities.</p>
 <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 6</span><span>
 #&gt;    rd_id date       infection epi_len forward_time backward_time
 #&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>       
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.1 (C) C.1  E.05 (D) C.05
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.1 (D) C.1  E.05 (D) C.05
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.1 (D) C.1  E.05 (D) C.05
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.1 (D) C.1  E.05 (D) C.05
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.1 (D) C.1  E.05 (C) C.05
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.1 (D) C.1  E.11 (D) C.11
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.7 (C) C.7  E.11 (D) C.11
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.7 (D) C.7  E.11 (D) C.11
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.7 (D) C.7  E.11 (D) C.11
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.7 (D) C.7  E.11 (D) C.11
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.7 (D) C.7  E.11 (C) C.11</div><div class='input'>
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.1 (C)      E.05 (D)     
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.1 (D)      E.05 (D)     
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.1 (D)      E.05 (D)     
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.1 (D)      E.05 (D)     
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.1 (D)      E.05 (C)     
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.1 (D)      E.11 (D)     
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.7 (C)      E.11 (D)     
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.7 (D)      E.11 (D)     
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.7 (D)      E.11 (D)     
+#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.7 (D)      E.11 (D)     
+#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.7 (D)      E.11 (C)     </div><div class='input'>
 <span class='co'>## 4.2 User defined order</span>
 <span class='no'>db_4b</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 <span class='no'>db_4b</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 4</span><span>
@@ -407,20 +417,19 @@ They are convenient alternatives with the same functionalities.</p>
 <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord1</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4b</span>$<span class='no'>epids_2</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4b</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
 <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord2</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 3 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4b</span>$<span class='no'>epids_2b</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4b</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
 <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord2</span>, <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4b</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 9</span><span>
-#&gt;    rd_id date       infection epi_len  ord1 ord2  epids_1     epids_2      
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>       
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15     1 BSI   E.1 (C) C.1 E.01 (C) C.01
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15     1 UTI   E.1 (D) C.1 E.02 (C) C.02
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15     1 UTI   E.1 (D) C.1 E.02 (D) C.02
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15     1 UTI   E.4 (C) C.4 E.02 (D) C.02
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15     1 BSI   E.4 (D) C.4 E.05 (C) C.05
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15     1 UTI   E.4 (D) C.4 E.06 (C) C.06
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15     1 BSI   E.7 (C) C.7 E.06 (D) C.06
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15     1 BSI   E.7 (D) C.7 E.06 (D) C.06
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15     0 RTI   E.9 (C) C.9 E.09 (C) C.09
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15     0 RTI   E.9 (D) C.9 E.09 (D) C.09
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15     1 BSI   E.9 (D) C.9 E.11 (C) C.11
-#&gt; </span><span style='color: #555555;'># ... with 1 more variable: epids_2b </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span></div><div class='input'>
+#&gt;    rd_id date       infection epi_len  ord1 ord2  epids_1 epids_2  epids_2b
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15     1 BSI   E.1 (C) E.01 (C) E.02 (D)
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15     1 UTI   E.1 (D) E.02 (C) E.02 (C)
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15     1 UTI   E.1 (D) E.02 (D) E.02 (D)
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15     1 UTI   E.4 (C) E.02 (D) E.02 (D)
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15     1 BSI   E.4 (D) E.05 (C) E.06 (D)
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15     1 UTI   E.4 (D) E.06 (C) E.06 (C)
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15     1 BSI   E.7 (C) E.06 (D) E.06 (D)
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15     1 BSI   E.7 (D) E.06 (D) E.06 (D)
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15     0 RTI   E.9 (C) E.09 (C) E.11 (D)
+#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15     0 RTI   E.9 (D) E.09 (D) E.11 (D)
+#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15     1 BSI   E.9 (D) E.11 (C) E.11 (C)</div><div class='input'>
 <span class='co'>#5. Interval grouping</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>hospital_admissions</span>)
 
@@ -449,52 +458,52 @@ They are convenient alternatives with the same functionalities.</p>
 #&gt; 3 of 3 record(s) grouped into episodes. 0 records not yet grouped.
 #&gt; 
 #&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>admissions</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 3</span><span>
-#&gt;    admin_period             epi_len epi_0                               
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                              
-#&gt; </span><span style='color: #555555;'> 1</span><span> 2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 2</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C) C.2
-#&gt; </span><span style='color: #555555;'> 3</span><span> 2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 4</span><span> 2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 5</span><span> 2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 6</span><span> 2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 7</span><span> 2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 8</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C) C.8
-#&gt; </span><span style='color: #555555;'> 9</span><span> 2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D) C.8
-#&gt; </span><span style='color: #555555;'>10</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'>11</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D) C.8</div><div class='input'>
+#&gt;    admin_period             epi_len epi_0                           
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                          
+#&gt; </span><span style='color: #555555;'> 1</span><span> 2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 2</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C)
+#&gt; </span><span style='color: #555555;'> 3</span><span> 2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 4</span><span> 2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 5</span><span> 2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 6</span><span> 2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 7</span><span> 2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 8</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C)
+#&gt; </span><span style='color: #555555;'> 9</span><span> 2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
+#&gt; </span><span style='color: #555555;'>10</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'>11</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)</div><div class='input'>
 <span class='co'># Overlaping periods of admission seperated by 1 month</span>
 <span class='no'>admissions</span>$<span class='no'>epi_1</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='kw'>date</span><span class='kw'>=</span><span class='no'>admissions</span>$<span class='no'>admin_period</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>1</span>,
 <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>admissions</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 4</span><span>
-#&gt;    admin_period             epi_len epi_0                               
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                              
-#&gt; </span><span style='color: #555555;'> 1</span><span> 2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 2</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C) C.2
-#&gt; </span><span style='color: #555555;'> 3</span><span> 2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 4</span><span> 2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 5</span><span> 2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 6</span><span> 2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 7</span><span> 2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'> 8</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C) C.8
-#&gt; </span><span style='color: #555555;'> 9</span><span> 2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D) C.8
-#&gt; </span><span style='color: #555555;'>10</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D) C.2
-#&gt; </span><span style='color: #555555;'>11</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D) C.8
+#&gt;    admin_period             epi_len epi_0                           
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                          
+#&gt; </span><span style='color: #555555;'> 1</span><span> 2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 2</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C)
+#&gt; </span><span style='color: #555555;'> 3</span><span> 2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 4</span><span> 2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 5</span><span> 2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 6</span><span> 2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 7</span><span> 2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 8</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C)
+#&gt; </span><span style='color: #555555;'> 9</span><span> 2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
+#&gt; </span><span style='color: #555555;'>10</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'>11</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
 #&gt; </span><span style='color: #555555;'># ... with 1 more variable: epi_1 </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span></div><div class='input'>
 <span class='co'># Episodes of chained admission periods, and those with aligned end periods</span>
 <span class='no'>admissions</span>$<span class='no'>epi_0b</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='kw'>date</span><span class='kw'>=</span><span class='no'>admissions</span>$<span class='no'>admin_period</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>0</span>,
 <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"chain|aligns_end"</span>), <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 7 record(s) assinged a unique ID. </div><div class='input'><span class='no'>admissions</span>[<span class='st'>"epi_0b"</span>]</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 1</span><span>
-#&gt;    epi_0b                                
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                                
-#&gt; </span><span style='color: #555555;'> 1</span><span> E.01 2019-01-01 == 2019-01-01 (C) C.01
-#&gt; </span><span style='color: #555555;'> 2</span><span> E.02 2019-01-01 -&gt; 2019-01-13 (C) C.02
-#&gt; </span><span style='color: #555555;'> 3</span><span> E.02 2019-01-01 -&gt; 2019-01-13 (D) C.02
-#&gt; </span><span style='color: #555555;'> 4</span><span> E.04 2019-01-05 -&gt; 2019-01-06 (C) C.04
-#&gt; </span><span style='color: #555555;'> 5</span><span> E.05 2019-01-05 -&gt; 2019-01-15 (C) C.05
-#&gt; </span><span style='color: #555555;'> 6</span><span> E.05 2019-01-05 -&gt; 2019-01-15 (D) C.05
-#&gt; </span><span style='color: #555555;'> 7</span><span> E.07 2019-01-04 -&gt; 2019-01-13 (C) C.07
-#&gt; </span><span style='color: #555555;'> 8</span><span> E.08 2019-01-20 -&gt; 2019-01-30 (C) C.08
-#&gt; </span><span style='color: #555555;'> 9</span><span> E.09 2019-01-26 -&gt; 2019-01-31 (C) C.09
-#&gt; </span><span style='color: #555555;'>10</span><span> E.10 2019-01-01 -&gt; 2019-01-10 (C) C.10
-#&gt; </span><span style='color: #555555;'>11</span><span> E.11 2019-01-20 -&gt; 2019-01-30 (C) C.11</div><div class='input'>
+#&gt;    epi_0b                           
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                           
+#&gt; </span><span style='color: #555555;'> 1</span><span> E.01 2019-01-01 == 2019-01-01 (C)
+#&gt; </span><span style='color: #555555;'> 2</span><span> E.02 2019-01-01 -&gt; 2019-01-13 (C)
+#&gt; </span><span style='color: #555555;'> 3</span><span> E.02 2019-01-01 -&gt; 2019-01-13 (D)
+#&gt; </span><span style='color: #555555;'> 4</span><span> E.04 2019-01-05 -&gt; 2019-01-06 (C)
+#&gt; </span><span style='color: #555555;'> 5</span><span> E.05 2019-01-05 -&gt; 2019-01-15 (C)
+#&gt; </span><span style='color: #555555;'> 6</span><span> E.05 2019-01-05 -&gt; 2019-01-15 (D)
+#&gt; </span><span style='color: #555555;'> 7</span><span> E.07 2019-01-04 -&gt; 2019-01-13 (C)
+#&gt; </span><span style='color: #555555;'> 8</span><span> E.08 2019-01-20 -&gt; 2019-01-30 (C)
+#&gt; </span><span style='color: #555555;'> 9</span><span> E.09 2019-01-26 -&gt; 2019-01-31 (C)
+#&gt; </span><span style='color: #555555;'>10</span><span> E.10 2019-01-01 -&gt; 2019-01-10 (C)
+#&gt; </span><span style='color: #555555;'>11</span><span> E.11 2019-01-20 -&gt; 2019-01-30 (C)</div><div class='input'>
 
 <span class='co'># Note - episode_group() takes column names not actual values</span>
 <span class='no'>db_5</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
@@ -503,19 +512,19 @@ They are convenient alternatives with the same functionalities.</p>
 <span class='no'>db_5</span>$<span class='no'>epids_f</span> <span class='kw'>&lt;-</span> <span class='fu'>episode_group</span>(<span class='no'>db_5</span>, <span class='kw'>date</span><span class='kw'>=</span><span class='no'>date</span>, <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>,
 <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_5</span>$<span class='no'>epids_r</span> <span class='kw'>&lt;-</span> <span class='fu'>episode_group</span>(<span class='no'>db_5</span>, <span class='kw'>date</span><span class='kw'>=</span><span class='no'>date</span>, <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"rolling"</span>,
 <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='no'>recur</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_5</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 7</span><span>
-#&gt;    rd_id date       infection epi_len recur epids_f       epids_r    
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>        </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>     
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15    20 E.01 (C) C.01 E.1 (C) C.1
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15    20 E.01 (D) C.01 E.1 (D) C.1
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15    20 E.01 (D) C.01 E.1 (D) C.1
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15    20 E.04 (C) C.04 E.1 (R) R.3
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15    20 E.04 (D) C.04 E.1 (D) R.3
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15    20 E.04 (D) C.04 E.1 (D) R.3
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15    20 E.07 (C) C.07 E.1 (R) R.6
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15    20 E.07 (D) C.07 E.1 (D) R.6
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15    20 E.07 (D) C.07 E.1 (D) R.6
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15    20 E.10 (C) C.10 E.1 (R) R.9
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15    20 E.10 (D) C.10 E.1 (D) R.9</div><div class='input'>
+#&gt;    rd_id date       infection epi_len recur epids_f  epids_r
+#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span> 
+#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15    20 E.01 (C) E.1 (C)
+#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15    20 E.01 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15    20 E.01 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15    20 E.04 (C) E.1 (R)
+#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15    20 E.04 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15    20 E.04 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15    20 E.07 (C) E.1 (R)
+#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15    20 E.07 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15    20 E.07 (D) E.1 (D)
+#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15    20 E.10 (C) E.1 (R)
+#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15    20 E.10 (D) E.1 (D)</div><div class='input'>
 </div></span></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">

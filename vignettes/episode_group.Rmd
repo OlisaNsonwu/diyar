@@ -680,10 +680,12 @@ dbs <- head(hourly_data[c("datetime","category")], 10)
 dbs$subset <- ifelse(dbs$category!="GP3", NA, "group")
 
 # To skip OR
-dbs$epids_a <- rolling_episodes(strata= dbs$subset, date = dbs$datetime, case_length = 5, episode_unit = "hours", recurrence_length = 9, display = TRUE)
+dbs$epids_a <- rolling_episodes(strata= dbs$subset, date = dbs$datetime, case_length = 5, 
+                                episode_unit = "hours", recurrence_length = 9, display = TRUE)
 #   OR
 # Not to skip
-dbs$epids_b <- rolling_episodes(strata= dbs$category, date = dbs$datetime, case_length = 5, episode_unit = "hours", recurrence_length = 9, display = TRUE)
+dbs$epids_b <- rolling_episodes(strata= dbs$category, date = dbs$datetime, case_length = 5, 
+                                episode_unit = "hours", recurrence_length = 9, display = TRUE)
 
 dbs
 ```
@@ -700,11 +702,13 @@ dbf$c_sort[dbf$infection == "BSI"] <- 2
 dbf$c_sort[dbf$infection == "RTI"] <- 3
 
 # Skip episodes that would begin with BSI/UTI records
-dbf$ep_a <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, custom_sort = dbf$c_sort, skip_order = 1)
+dbf$ep_a <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, 
+                           custom_sort = dbf$c_sort, skip_order = 1)
 dbf$ep_a_d <- dbf$ep_a@epid_dataset
 
 # Don't skip any
-dbf$ep_b <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, custom_sort = dbf$c_sort)
+dbf$ep_b <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, 
+                           custom_sort = dbf$c_sort)
 dbf$ep_b_d <- dbf$ep_b@epid_dataset
 
 dbf
