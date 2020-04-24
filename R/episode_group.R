@@ -430,7 +430,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     }
 
     pds <- lapply(split(T1$dsvr, T1$cri), function(x, l=data_links){
-      xlst <- rep(list(a =x), length(l))
+      xlst <- rep(list(a =unique(x)), length(l))
       list(
         rq = any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
       )
@@ -463,7 +463,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     skip_cris <- unique(TR$cri[(TR$c_sort > TR$skip_order |
                                  TR$tag==0 & TR$episodes + 1 > episodes_max) & !duplicated(TR$cri) & !is.na(TR$cri)])
 
-    # Assign unique IDs to skipped records
+    # assign unique IDs to skipped records
     T1$tag[T1$cri %in% skip_cris] <- 2
     T1$wind_nm[T1$cri %in% skip_cris] <- T1$case_nm[T1$cri %in% skip_cris] <- "Skipped"
     T1$epid[T1$cri %in% skip_cris] <- T1$wind_id[T1$cri %in% skip_cris] <- T1$sn[T1$cri %in% skip_cris]
@@ -693,7 +693,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     }
 
     pds <- lapply(split(T1$dsvr, T1$epid), function(x, l=data_links){
-      xlst <- rep(list(a =x), length(l))
+      xlst <- rep(list(a =unique(x)), length(l))
       list(
         ds = paste0(sort(unique(x)), collapse=","),
         rq = any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
@@ -760,7 +760,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1 <- T1[vrs]
   }
 
-  vrs <- names(T1)[!grepl("^pr_sn|^rec_dt_|^ord|^epi_len|^user_ord", names(T1))]
+  vrs <- names(T1)[!grepl("^pr_sn|^rec_dt_|^ord|^epi_len|^user_ord|^skip_ord|^c_sort", names(T1))]
   T1 <- T1[vrs]
 
   if(dt_grp==T){
