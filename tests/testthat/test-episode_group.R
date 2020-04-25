@@ -562,7 +562,18 @@ dft_9$rd_id <- c(1,1,3,3,5:9)
 dft_10$epi_len <- -3
 dft_11$recur <- "A"
 admissions$pid <- "PID"
+
+mt_cars <- mtcars
+mt_cars$recur <- "A"
+mt_cars$recur2 <- -1
+
 test_that("test that error and warning messages are returned correctly", {
+  expect_error(episode_group(), "argument 'df' is missing, with no default")
+  expect_error(episode_group(mtcars), "argument 'date' is missing, with no default")
+  expect_error(episode_group(mtcars, date=cyl), "argument 'case_length' is missing, with no default")
+  expect_error(episode_group(mtcars, date=cyl, case_length = cyl, episode_unit = "biweek"), "'episode_unit' must be either 'seconds', 'minutes', 'hours', 'days', 'weeks', 'months' or 'years'")
+  expect_error(episode_group(mt_cars, date=cyl, case_length = cyl, custom_sort =cyl, skip_order = "recur"), "'skip_order' must be a positive integer or numeric value")
+  expect_error(episode_group(mt_cars, date=cyl, case_length = cyl, custom_sort =cyl, skip_order = recur2), "'skip_order' must be a positive integer or numeric value")
   expect_error(episode_group(as.list(dft_8), date=admin_period, sn=rd_id,
                              case_length = epi_len, episode_unit = "months", group_stats = T), "A dataframe is required")
   expect_error(episode_group(dft_8, date=admin_periods, sn=rd_id,

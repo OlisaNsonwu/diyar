@@ -12,12 +12,12 @@ df <- data.frame(
 test_1 <- df
 test_1$pids <- record_group(df, criteria=cri_1, group_stats=TRUE)
 
-test_that("test that row positions of the resulting dataframe are the same as supplied", {
+test_that("Matching input and ouput rows", {
   expect_equal(test_1$pids@sn, test_1$r_id)
   expect_equal(test_1$pids@pid_total, c(2,2,1,2,2))
 })
 
-test_that("test that test record identifier is as expected for one criteria", {
+test_that("Record identifier is as expected for one criteria", {
   expect_equal(test_1$pids@.Data, c(1,2,3,2,1))
   expect_equal(test_1$pids@pid_cri, c(1,1,0,1,1))
   expect_equal(test_1$pids@pid_total, c(2,2,1,2,2))
@@ -180,3 +180,10 @@ test_that("test some generic functions", {
   expect_equal(show(new("pid")), "pid(0)")
   expect_equal(c(as.pid(5), as.pid(5)), rep(as.pid(5), 2))
 })
+
+
+test_that("Missing arguments", {
+  expect_error(record_group(), "argument 'df' is missing, with no default")
+  expect_error(record_group(mtcars), "argument 'criteria' is missing, with no default")
+})
+

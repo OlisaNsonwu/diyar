@@ -24,9 +24,7 @@ enq_vr <- function(x){
 }
 
 # @rdname finite_check
-fmt <- function(x){
-  formatC(x, format="d", big.mark=",")
-}
+fmt <- function(x) formatC(x, format="d", big.mark=",")
 
 # @rdname finite_check
 listr <- function(x){
@@ -69,49 +67,4 @@ logicals_check <- function(x){
   }else{
     paste0(listr(paste0("'",log_vals,"'")), " must be either TRUE or FALSE")
   }
-}
-
-# @rdname finite_check
-space_out_y <- function(x_axis){
-  rows_n <- length(x_axis)
-  sn_change <- y_axis <- rep(1, rows_n)
-  while (max(sn_change) ==1) {
-    c <- diyar::compress_number_line(x_axis, deduplicate = F, collapse = T)
-
-    ord <- lapply(split(1:rows_n, paste0(c@gid,"-", y_axis)), order)
-    lk_sn <- lapply(split(y_axis, paste0(c@gid)), function(x){
-      rep(max(x), length(x))
-    })
-
-    ord <- unsplit(ord, paste0(c@gid,"-", y_axis))
-    lk_sn <- unsplit(lk_sn, paste0(c@gid))
-    new_y_axis <- ifelse(ord==2, lk_sn+1, y_axis)
-
-    sn_change <- ifelse(y_axis != new_y_axis,1,0)
-    y_axis <- new_y_axis
-  }
-
-  return(y_axis)
-}
-
-space_out_yy <- function(x_axis){
-  rows_n <- length(x_axis)
-  sn_change <- y_axis <- rep(1, rows_n)
-  while (max(sn_change) ==1) {
-    x_r <- expand_number_line(as.number_line(x_axis), 2, "end")
-    y_r <- expand_number_line(as.number_line(y_axis), 1, "end")
-
-    lag <- function(x, by=1) c(rep(as.number_line(NA), by), x[1:(length(x)-by)])
-    lead <- function(x, by=1) c(x[(by+1):length(x)], rep(as.number_line(NA), by))
-
-    x_l <- overlap(x_r, lead(x_r)) & overlap(x_r, lag(x_r))
-    y_l <- overlap(y_r, lead(y_r)) & overlap(y_r, lag(y_r))
-
-    new_y_axis <- ifelse(x_l==T & y_l ==T & !duplicated(paste0(x_l, y_l)), y_axis+2, y_axis)
-
-    sn_change <- ifelse(y_axis != new_y_axis,1,0)
-    y_axis <- new_y_axis
-  }
-
-  return(y_axis)
 }
