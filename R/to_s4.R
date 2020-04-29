@@ -33,7 +33,7 @@ to_s4 <- function(df){
   }else if(any(names(df)=="pid")){
     s4 <- methods::new("pid", .Data=df$pid)
   }else if(any(names(df)=="gid")){
-    s4 <- methods::new("number_line", .Data= as.numeric(df$start - df$end))
+    s4 <- methods::new("number_line", .Data= ifelse(as.numeric(df$start) > as.numeric(df$end),  -as.numeric(df$start - df$end),  as.numeric(df$end - df$start)))
   }
 
   vrs <- subset(names(df), names(df) %in% methods::slotNames(s4))

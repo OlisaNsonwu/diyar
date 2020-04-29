@@ -150,3 +150,14 @@ test_that("test series function", {
   expect_equal(number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)[[1]], seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
   expect_error(number_line_sequence(1, .5)[[1]], "'x' is not a number_line object")
 })
+
+a <- c(number_line(1,3), number_line(3,3), number_line(5,3))
+test_that("Convert `number_line to data.frame and vice versa`", {
+  expect_equal(a, to_s4(to_df(a)))
+  expect_error(to_s4(), "argument 'df' is missing, with no default")
+  expect_error(to_df(), "argument 's4' is missing, with no default")
+})
+
+
+
+

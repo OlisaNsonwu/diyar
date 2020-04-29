@@ -9,16 +9,18 @@
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
-  custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
-  "across", "inbetween", "aligns_start", "aligns_end", "chain"),
-  overlap_methods = NULL, bi_direction = FALSE, group_stats = FALSE,
-  display = TRUE, deduplicate = FALSE, to_s4 = TRUE,
-  recurrence_from_last = TRUE, case_for_recurrence = FALSE)
+  data_links = "ANY", custom_sort = NULL, skip_order = NULL,
+  from_last = FALSE, overlap_method = c("exact", "across", "inbetween",
+  "aligns_start", "aligns_end", "chain"), overlap_methods = NULL,
+  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
+  deduplicate = FALSE, to_s4 = TRUE, recurrence_from_last = TRUE,
+  case_for_recurrence = FALSE)
 
 fixed_episodes(date, sn = NULL, strata = NULL, case_length,
   episode_unit = "days", episodes_max = Inf, data_source = NULL,
-  custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
-  "across", "inbetween", "aligns_start", "aligns_end", "chain"),
+  data_links = "ANY", custom_sort = NULL, skip_order = NULL,
+  from_last = FALSE, overlap_method = c("exact", "across", "inbetween",
+  "aligns_start", "aligns_end", "chain"),
   overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
   deduplicate = FALSE, x, to_s4 = TRUE)
@@ -26,8 +28,9 @@ fixed_episodes(date, sn = NULL, strata = NULL, case_length,
 rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   recurrence_length = NULL, episode_unit = "days",
   episodes_max = Inf, rolls_max = Inf, data_source = NULL,
-  custom_sort = NULL, from_last = FALSE, overlap_method = c("exact",
-  "across", "inbetween", "aligns_start", "aligns_end", "chain"),
+  data_links = "ANY", custom_sort = NULL, skip_order = NULL,
+  from_last = FALSE, overlap_method = c("exact", "across", "inbetween",
+  "aligns_start", "aligns_end", "chain"),
   overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
   deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE,
@@ -56,7 +59,11 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{data_source}{Unique dataset identifier. Useful when the dataset contains data from multiple sources. In \code{\link{episode_group}}, you can use multiple columns supplied as column names.}
 
-\item{custom_sort}{If \code{TRUE}, \code{"case"} assignment will be done with preference to a sort order. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In \code{\link{episode_group}}, you can use multiple columns as sort levels.}
+\item{data_links}{Ungroup episodes that will not include records from certain \code{data_sources}. \code{data_links} should be a \code{list} with every element named 'l' (links) or 'g' (groups). Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{data_source} is \code{NULL}.}
+
+\item{custom_sort}{Preferential order for \code{"case"} assignment. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In \code{\link{episode_group}}, you can use multiple columns as sort levels.}
+
+\item{skip_order}{Skip episodes whose \code{case} events have \code{custom_sort} values that are less than or equal to the \code{"nth"} order of \code{custom_sort}. Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{custom_sort} is \code{NULL}.}
 
 \item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent event and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.}
 

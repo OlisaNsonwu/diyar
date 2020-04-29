@@ -58,10 +58,11 @@ db <- infections[c("date")]
 db$date
 
 # Fixed episodes
-db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = FALSE)
+db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = F, group_stats = T)
 
 # Rolling episodes
-db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = FALSE)
+db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = F,
+                              group_stats = T)
 db
 ```
 

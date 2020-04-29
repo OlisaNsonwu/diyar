@@ -177,7 +177,8 @@ as.epid <- function(x){
 #' @export
 format.epid <- function(x, ...){
   if (length(x)==0) "epid(0)"
-  else return(paste0("E.",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste0(" ",format.number_line(x@epid_interval))), " (", substr(x@case_nm,1,1),") ", substr(x@wind_nm,1,1), ".",formatC(x@wind_id, width= nchar(max(x@.Data)), flag=0, format = "fg")))
+  #else return(paste0("E.",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste0(" ",format.number_line(x@epid_interval))), " (", substr(x@case_nm,1,1),") ", substr(x@wind_nm,1,1), ".",formatC(x@wind_id, width= nchar(max(x@.Data)), flag=0, format = "fg")))
+  else return(paste0("E.",formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), ifelse(is.na(x@epid_interval),"", paste0(" ",format.number_line(x@epid_interval))), " (", substr(x@case_nm,1,1),")"))
 }
 
 #' @rdname epid-class

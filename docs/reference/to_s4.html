@@ -159,9 +159,8 @@ from the a <code>data.frame</code> to <a href='number_line-class.html'>number_li
 #&gt; Episode or recurrence window 2.
 #&gt; 5 of 5 record(s) grouped into episodes. 0 records not yet grouped.
 #&gt; 
-#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;  [1] "E.1 (C) C.1" "E.1 (D) C.1" "E.1 (D) C.1" "E.1 (D) C.1" "E.1 (D) C.1"
-#&gt;  [6] "E.1 (D) C.1" "E.7 (C) C.7" "E.7 (D) C.7" "E.7 (D) C.7" "E.7 (D) C.7"
-#&gt; [11] "E.7 (D) C.7"</div><div class='input'>
+#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.7 (C)"
+#&gt;  [8] "E.7 (D)" "E.7 (D)" "E.7 (D)" "E.7 (D)"</div><div class='input'>
 <span class='co'># from the a pid/epid object to a data.frame</span>
 <span class='no'>df_output</span> <span class='kw'>&lt;-</span> <span class='fu'>to_df</span>(<span class='no'>output</span>)
 <span class='no'>df_output</span></div><div class='output co'>#&gt;    epid sn wind_id wind_nm   case_nm dist_from_wind dist_from_epid
@@ -178,9 +177,8 @@ from the a <code>data.frame</code> to <a href='number_line-class.html'>number_li
 #&gt; 11    7 11       7    Case Duplicate        24 days        24 days</div><div class='input'>
 <span class='co'># from a data.frame to pid/epid object</span>
 <span class='no'>s4_output</span> <span class='kw'>&lt;-</span> <span class='fu'>to_s4</span>(<span class='no'>df_output</span>)
-<span class='no'>s4_output</span></div><div class='output co'>#&gt;  [1] "E.1 (C) C.1" "E.1 (D) C.1" "E.1 (D) C.1" "E.1 (D) C.1" "E.1 (D) C.1"
-#&gt;  [6] "E.1 (D) C.1" "E.7 (C) C.7" "E.7 (D) C.7" "E.7 (D) C.7" "E.7 (D) C.7"
-#&gt; [11] "E.7 (D) C.7"</div><div class='input'>
+<span class='no'>s4_output</span></div><div class='output co'>#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.7 (C)"
+#&gt;  [8] "E.7 (D)" "E.7 (D)" "E.7 (D)" "E.7 (D)"</div><div class='input'>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/all'>all</a></span>(<span class='no'>s4_output</span> <span class='kw'>==</span> <span class='no'>output</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 </div></pre>
   </div>

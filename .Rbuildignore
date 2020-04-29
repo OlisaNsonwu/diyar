@@ -16,3 +16,4 @@
 ^\.Rproj\.user$
 ^README\.Rmd$
 ^revdep$
+^\.covrignore$

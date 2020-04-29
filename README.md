@@ -65,27 +65,29 @@ db$date
 #> [11] "2018-05-31"
 
 # Fixed episodes
-db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = FALSE)
+db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = F, group_stats = T)
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 
 # Rolling episodes
-db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = FALSE)
+db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = F,
+                              group_stats = T)
 #> Episode grouping complete - 0 record(s) assinged a unique ID.
 db
 #> # A tibble: 11 x 3
-#>    date       f_epid        r_epid     
-#>    <date>     <epid>        <epid>     
-#>  1 2018-04-01 E.01 (C) C.01 E.1 (C) C.1
-#>  2 2018-04-07 E.01 (D) C.01 E.1 (D) C.1
-#>  3 2018-04-13 E.01 (D) C.01 E.1 (D) C.1
-#>  4 2018-04-19 E.04 (C) C.04 E.1 (R) R.1
-#>  5 2018-04-25 E.04 (D) C.04 E.1 (D) R.1
-#>  6 2018-05-01 E.04 (D) C.04 E.1 (D) R.1
-#>  7 2018-05-07 E.07 (C) C.07 E.1 (D) R.1
-#>  8 2018-05-13 E.07 (D) C.07 E.1 (D) R.7
-#>  9 2018-05-19 E.07 (D) C.07 E.1 (D) R.7
-#> 10 2018-05-25 E.10 (C) C.10 E.1 (D) R.7
-#> 11 2018-05-31 E.10 (D) C.10 E.1 (D) R.7
+#>    date       f_epid                           
+#>    <date>     <epid>                           
+#>  1 2018-04-01 E.01 2018-04-01 -> 2018-04-13 (C)
+#>  2 2018-04-07 E.01 2018-04-01 -> 2018-04-13 (D)
+#>  3 2018-04-13 E.01 2018-04-01 -> 2018-04-13 (D)
+#>  4 2018-04-19 E.04 2018-04-19 -> 2018-05-01 (C)
+#>  5 2018-04-25 E.04 2018-04-19 -> 2018-05-01 (D)
+#>  6 2018-05-01 E.04 2018-04-19 -> 2018-05-01 (D)
+#>  7 2018-05-07 E.07 2018-05-07 -> 2018-05-19 (C)
+#>  8 2018-05-13 E.07 2018-05-07 -> 2018-05-19 (D)
+#>  9 2018-05-19 E.07 2018-05-07 -> 2018-05-19 (D)
+#> 10 2018-05-25 E.10 2018-05-25 -> 2018-05-31 (C)
+#> 11 2018-05-31 E.10 2018-05-25 -> 2018-05-31 (D)
+#> # ... with 1 more variable: r_epid <epid>
 ```
 
 -   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***`pid` objects are now the default output. Use `to_s4` or `to_df()` to change this to a data.frames***

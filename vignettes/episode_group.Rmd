@@ -44,9 +44,9 @@ These functions produce two main type of episodes - `"fixed"` episodes which do 
 <a id ="recurrence" ><a/> 
 
 ## Episodes, windows, case lengths and recurrence periods
-Before we begin, let's go over some terms which will pop up now and again. An `event` is simply a dated record (single time point). An`event period` is a record with start and end time points. The "lengths" - `case_length` and `recurrence_length` are specific durations after an `event`. More specifically, the `case_length` is a specified period after the `reference event` (first `event` of an `episode`) while `recurrence_length` is a specified duration after the other `events` subsequent to the `reference event`. 
+Before we begin, let's go over some terms which will pop up now and again. An `event` is simply a dated record (single time point). An`event period` is a record with start and end time points. The "lengths" - `case_length` and `recurrence_length` are specific durations after an `event`. More specifically, the `case_length` is a specified period after the `reference event` (first `event` of an `episode`) while `recurrence_length` is a specified duration after the other `event(s)` subsequent to the `reference event`. 
 
-All `events` within the same `case_length` or `recurrence_length` form a `window`. A `window` equates to an `episode`. `events` outside a `window` belong to separate `episodes`. What differentiates `"rolling episodes"` from `"fixed episodes"` is that when two or more `windows` overlap, they are collapsed into a larger `window`, indicating that the `episode` is still on-going. As a result, every `event` belonging to both `windows` are considered part of the same `"roliing episode"`. Consequently, a `"fixed episode"` is never longer than its `case_length` but a `"rolling episode"` becomes longer than its `case_length` if the first `window` (also referred to `case window`) overlaps with another.
+All `event(s)` within the same `case_length` or `recurrence_length` form a `window`. A `window` equates to an `episode`. `event(s)` outside a `window` belong to separate `episodes`. What differentiates `"rolling episodes"` from `"fixed episodes"` is that when two or more `windows` overlap, they are collapsed into a larger `window`, indicating that the `episode` is still on-going. As a result, every `event` belonging to both `windows` are considered part of the same `"roliing episode"`. Consequently, a `"fixed episode"` is never longer than its `case_length` but a `"rolling episode"` becomes longer than its `case_length` if the first `window` (also referred to `case window`) overlaps with another.
 
 The examples below demonstrate this difference with 4 events/records.
 
@@ -130,7 +130,7 @@ For `rolling` episodes, it may be useful to imagine the `windows` as mini-`episo
 <a id="case_assignment"></a> 
 
 ## Making a case definition
-Almost every argument in `fixed_episodes()`, `rolling_episodes()` and `episode_group()` can affect which `events` are taken as the `case` and `recurrent event`, and this ultimately allows you to implement a variety of case definitions to your datasets. This section covers the main parts of this process.  
+Almost every argument in `fixed_episodes()`, `rolling_episodes()` and `episode_group()` can affect which `event(s)` are taken as the `case` and `recurrent event`, and this ultimately allows you to implement a variety of case definitions to your datasets. This section covers the main parts of this process.  
 
 ### Reference events
 From `diyar v0.1.0`, you can use the `recurrence_from_last` argument to specify that the `reference event` for a `recurrence window` should be the **first** `event` from the previous `window` and not the **last** (default). This means that after flagging a `recurrent event`, the `recurrence window` is re-calculated from it. This new option is only really useful if your `case_length` and `recurrence_length` are different. If they are the same (which is the default behaviour), you'll have essentially created a `fixed episode`. See a demonstration of this below.
@@ -242,10 +242,10 @@ df2$r1
 plot_epid(epid = df2$r2, date = df2$date, case_length =6, recurrence_length = 4)
 ```
 
-Notice that in the examples above, all `events` have been assigned to the same `episode` but the number of `recurrent events` differ.
+Notice that in the examples above, all `event(s)` have been assigned to the same `episode` but the number of `recurrent events` differ.
 
 ### Number of recurrence periods and episodes
-You can choose how many times to check for `episodes` using `episode_max`. When each `strata` of the dataset has the maximum number of episodes specified (`episode_max`), subsequent `events` are given unique episode IDs, making them unique `cases`.
+You can choose how many times to check for `episodes` using `episode_max`. When each `strata` of the dataset has the maximum number of episodes specified (`episode_max`), subsequent `event(s)` are given unique episode IDs, making them unique `cases`.
 
 ```{r warning=FALSE, message=FALSE}
 data("infections_3");
@@ -276,7 +276,7 @@ dbs$eps_2
 plot_epid(epid = dbs$eps_2, date = dbs$date, case_length =3)
 ```
 
-Similarly, you can choose how many `periods of recurrence` your case definition should permit i.e. how many times to check for `recurrent events`. You do this with `rolls_max`. The default is `Inf` i.e. check until there are no more `events` within the `recurrence period` of the `reference event`. See below.
+Similarly, you can choose how many `periods of recurrence` your case definition should permit i.e. how many times to check for `recurrent events`. You do this with `rolls_max`. The default is `Inf` i.e. check until there are no more `event(s)` within the `recurrence period` of the `reference event`. See below.
 
 **Figure 6c: Infinite recurrence periods per episode per strata (default)**
 ```{r message=FALSE, warning=FALSE}
@@ -353,7 +353,7 @@ plot_epid(epid = dbs$backward, date = dbs$date, case_length = 14, from_last =T)
 <a id ="custom_sort"></a>
 
 ### User defined case assignment
-Aside from the chronological order of `events`, you can use specific `events` as `reference events`. This preference is supplied to `custom_sort`. In `fixed_episodes()` and `rolling_episodes()`, `custom_sort` should be a vector whose values when sorted in ascending order specifies the desired preference. For example, `events` with a `custom_sort` value of `1` will be preferentially taken as the start of an `episode` over those with a value of `2`. This is prioritised over the chronological order of those records. See the example below.
+Aside from the chronological order of `event(s)`, you can use specific `event(s)` as `reference events`. This preference is supplied to `custom_sort`. In `fixed_episodes()` and `rolling_episodes()`, `custom_sort` should be a vector whose values when sorted in ascending order specifies the desired preference. For example, `event(s)` with a `custom_sort` value of `1` will be preferentially taken as the start of an `episode` over those with a value of `2`. This is prioritised over the chronological order of those records. See the example below.
 
 ```{r message=FALSE, warning=FALSE}
 dates <- c("01/04/2019", "05/04/2019", "07/04/2019")
@@ -668,10 +668,96 @@ eps_d
 plot_epid(epid = eps_d, date = periods, case_length = -12)
 ```
 
+## Reducing execution time
+
+`episode_group()` is essentially an endless loop that only stops when every record has been grouped into `episodes`. However, for some case definitions, certain kinds of `episodes` may not be required. There are 3 mechanisms to skip such `events`/`episodes`. This then reduces the function's overall processing time. Skipped `events` are assigned unique episode IDs and their `case_nm` is flagged with `"Skipped"`.
+
+### Skip `strata(s)` of the dataset 
+You can skip an entire `strata` of the dataset by changing it to `NA`. In the example below, assuming we are not interest in grouping `"GP1"` and `"GP2"` records, we can skip these to save time.
+
+```{r warning=FALSE, message=FALSE}
+dbs <- head(hourly_data[c("datetime","category")], 10)
+dbs$subset <- ifelse(dbs$category!="GP3", NA, "group")
+
+# To skip OR
+dbs$epids_a <- rolling_episodes(strata= dbs$subset, date = dbs$datetime, case_length = 5, 
+                                episode_unit = "hours", recurrence_length = 9, display = TRUE)
+#   OR
+# Not to skip
+dbs$epids_b <- rolling_episodes(strata= dbs$category, date = dbs$datetime, case_length = 5, 
+                                episode_unit = "hours", recurrence_length = 9, display = TRUE)
+
+dbs
+```
+
+### Skip the nth order (`skip_order`) of `custom_sort`
+`custom_sort` gives a preferential order for case assignment. The means that in a `custom_sort` order of `1-3`, every record with a value of `1` will be assigned to `episodes` before any with a value of `2` or `3` can be taken as a `reference event` i.e. preference for selecting `reference events` (case assignment) is `1 > 2 > 3`. You can decide to stop at any point in this order using `skip_order`. This comes in handy when you're grouping rare `event(s)` with common `events`, and the rare ones are the `reference events`. If you're only interested in `episodes` where rare `event(s)` are the `reference events` then you can skip the rest after grouping every rare `event`. 
+
+In the example below, the `custom_sort` order is `"UTI" > "BSI" > "RTI"`. This has been supplied to the function as `c_sort`. Notice that in the skipped example `ep_a`, there are no `episodes` that begin (`(C)`) with a `"BSI"` or `"RTI"` record.
+
+```{r warning=FALSE, message=FALSE}
+dbf <- infections[c("date", "infection")]
+dbf$c_sort[dbf$infection == "UTI"] <- 1
+dbf$c_sort[dbf$infection == "BSI"] <- 2 
+dbf$c_sort[dbf$infection == "RTI"] <- 3
+
+# Skip episodes that would begin with BSI/UTI records
+dbf$ep_a <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, 
+                           custom_sort = dbf$c_sort, skip_order = 1)
+dbf$ep_a_d <- dbf$ep_a@epid_dataset
+
+# Don't skip any
+dbf$ep_b <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, 
+                           custom_sort = dbf$c_sort)
+dbf$ep_b_d <- dbf$ep_b@epid_dataset
+
+dbf
+```
+
+### Skip episodes without records from certain `data_source(s)`
+The third mechanism is partly a misnomer because it does not skip records but rather ungroups `episodes` after they've been created. After every `episod` has been grouped, those that do not contain records from certain `data_source(s)` can be ungrouped using `data_links`. In such instances, the overall execution time will not be shortened but you'll get an episode identifier that's relevant to the `data_source(s)` you're interested in. However, if a `strata` will not produce `episodes` with the required combination of `data_source(s)`, that entire `strata` will be skipped. If this happens, the overall execution may be shortened as well.
+
+Ungrouped `events` are assigned unique episode IDs and their `case_nm` is flagged with `"Skipped"`.
+
+```{r warning=FALSE, message=FALSE}
+dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
+dbg <- data.frame(date = seq.POSIXt(dttm("01/04/2018 00:00:00"), dttm("31/05/2018 00:00:00"),
+                                    by="3 days"))
+dbg <- head(dbg, 11)
+dbg$recurrence <- 2
+dbg$case_len <- 6
+dbg$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,4)), sep="")
+
+# Don't skip any
+dbg$ep_a <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
+                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
+                          display = F)
+
+# Skip episodes without records from the `DS3` `data_source` - must be linked to other `data_source(s)`  
+dbg$ep_b <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
+                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
+                          data_links = "DS3", display = F)
+
+# skip episodes without records from the `DS3` `data_source` - does not have to be linked to other `data_source(s)`   
+dbg$ep_c <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
+                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
+                          data_links = list(g="DS3"), display = F)
+
+# skip episodes without records from the `DS3` `data_source` - must be linked to record from `DS1`   
+dbg$ep_d <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
+                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
+                          data_links = list(l=c("DS3","DS1")), display = F)
+
+dbg[c("date", "dataset", "ep_a", "ep_b", "ep_c", "ep_d")]
+```
+
+Note that since `reference  events` are not known ahead of time, `episodes`  will be grouped first. Afterwards, episodes without the required `data_links` are then unlinked and shown as `"Skipped"`. However, if an entire `strata` does not have the `data_links`, that `strata` is skipped to save time.
+
 
 <a id="tips"></a>
 
 ## Useful ways of using these functions
+
 ### Episode grouping across other units of time
 In the examples above, episode grouping was done by days (`episode_unit`). However, it can be done by other units of time e.g. hours, days or weeks. Acceptable options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". Below is an example of episode grouping by the hour.
 
@@ -690,19 +776,6 @@ rolling_episodes(date = dbs$datetime, case_length = 5,
 # 5-day episodes
 rolling_episodes(date = dbs$datetime, case_length = 5,
                  episode_unit = "days", recurrence_length = 9, group_stats = TRUE, display = FALSE)
-```
-
-### Limit episode grouping to a subset of the dataframe
-For example, with the `hourly_data` dataset, you can decide to exclude `"GP1"` and `"GP2"` records from episode grouping. Excluded records are skipped and assigned unique episode IDs.
-
-```{r warning=FALSE, message=FALSE}
-dbs <- head(hourly_data[c("datetime","category")], 10)
-dbs$subset <- ifelse(dbs$category!="GP3", NA, "group")
-
-dbs$epids <- rolling_episodes(strata= dbs$subset, date = dbs$datetime, case_length = 5, episode_unit = "hours", 
-                        recurrence_length = 9, display = TRUE, group_stats = TRUE)
-
-dbs
 ```
 
 ### Use a `strata` from `record_group()`
