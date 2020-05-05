@@ -39,6 +39,7 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   er3 <- try(as.numeric(r) - as.numeric(l), silent = TRUE)
 
   if(missing(l) & missing(r) & missing(id) & missing(gid)) return(new("number_line"))
+  if(length(l)!=length(r)) stop("'l' and 'r' have different lengths")
   if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""))
   if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
   if(!(is.numeric(gid) | is.null(gid))) stop(paste("'gid' must be numeric",sep=""))
@@ -212,25 +213,27 @@ expand_number_line <- function(x, by=1, point ="both"){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   if(!all(is.character(point))) stop(paste("'point' must be a character object"))
-  if(all(!tolower(point) %in% c("both","start","end"))) stop(paste("`point` must be either 'start','end' or 'both'"))
+  if(all(!tolower(point) %in% c("both","start","end","left","right"))) stop(paste("`point` must be either 'left', 'right', 'start', 'end' or 'both'"))
   if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
+  if(!(length(point) %in% c(1, length(x)))) stop(paste("length of 'point' must be 1 or the same as 'x'",sep=""))
 
+  point <- tolower(point)
   by[!is.finite(by)] <- NA_real_
   n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
   by <- by * n
 
-  if(point == "both"){
-    x@start <- x@start - by
-    x@.Data <- x@.Data + (by *2)
-  }
-  if(point == "start"){
-    x@start <- x@start - by
-    x@.Data <- x@.Data + by
-  }
-  if(point == "end"){
-    x@.Data <- x@.Data + by
-  }
+  if(any(point=="both")) x@start[point == "both"] <- x@start[point == "both"] - by[point == "both"]
+  if(any(point=="both")) x@.Data[point == "both"] <- x@.Data[point == "both"] + (by[point == "both"] *2)
 
+  if(any(point %in% c("left", "start"))) x@start[point == "left" | (point == "start" & x@.Data >=0)] <- x@start[point == "left" | (point == "start" & x@.Data >=0)] - by[point == "left" | (point == "start" & x@.Data >=0)]
+  if(any(point %in% c("left", "start"))) x@.Data[point == "left" | (point == "start" & x@.Data >=0)] <- x@.Data[point == "left" | (point == "start" & x@.Data >=0)] + by[point == "left" | (point == "start" & x@.Data >=0)]
+
+  if(any(point %in% c("right", "end"))) x@.Data[point == "right"| (point == "end" & x@.Data >=0)] <- x@.Data[point == "right"| (point == "end" & x@.Data >=0)] + by[point == "right"| (point == "end" & x@.Data >=0)]
+
+  if(any(point=="start")) x@.Data[point == "start" & x@.Data < 0] <- x@.Data[point == "start" & x@.Data < 0] - by[point == "start" & x@.Data < 0]
+
+  if(any(point=="end")) x@start[point == "end" & x@.Data < 0] <- x@start[point == "end" & x@.Data < 0] - by[point == "end" & x@.Data < 0]
+  if(any(point=="end")) x@.Data[point == "end" & x@.Data < 0] <- x@.Data[point == "end" & x@.Data < 0] + by[point == "end" & x@.Data < 0]
   return(x)
 }
 
