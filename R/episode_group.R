@@ -152,6 +152,638 @@
 #' @aliases episode_group
 #' @export
 #' @rdname episode_group
+episode_group_old <- function(df, sn = NULL, strata = NULL, date,
+                          case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
+                          recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
+                          custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
+                          overlap_methods = NULL, bi_direction = FALSE,
+                          group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
+  . <- NULL
+
+  if(missing(df)) stop("argument 'df' is missing, with no default")
+  if(missing(date)) stop("argument 'date' is missing, with no default")
+  if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
+
+  # check that only logicals are passed to arguments that expect logicals.
+  logs_check <- logicals_check(c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence"))
+  if(logs_check!=T) stop(logs_check)
+
+  # Suggesting the use `epid` objects
+  if(to_s4 == FALSE){
+    # check if episode_group() was called by fixed_episodes() or rolling_episodes()
+    wrap_func <- c("rolling_episodes","fixed_episodes")
+    call <- deparse(sys.call(-(sys.nframe()-1)))
+    lg <- unlist(lapply(wrap_func, function(x){
+      grepl(paste("^",x,"\\(",sep=""), call)
+    }))
+
+    # if not, display the message
+    if(all(!lg)){
+      if (is.null(getOption("diyar.episode_group.output"))){
+        options("diyar.episode_group.output"= T)
+      }
+      if (getOption("diyar.episode_group.output")){
+        message(paste("The default output of episode_group() will be changed to epid objects in the next release.",
+                      "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
+                      "",
+                      "# Old way - merge or bind (col) results back to `df`",
+                      "df <- cbind(df, episode_group(df, case_length= x))",
+                      "",
+                      "# New way - `epid` objects",
+                      "df$epids <- episode_group(df, case_length= x, to_s4 = TRUE)",
+                      "This message is displayed once per session.", sep = "\n"))
+      }
+      options("diyar.episode_group.output"= FALSE)
+    }
+  }
+
+  episodes_max <- ifelse(is.numeric(episodes_max) & !is.na(episodes_max) & !is.infinite(episodes_max), as.integer(episodes_max), episodes_max)
+  rolls_max <- ifelse(is.numeric(rolls_max) & !is.na(rolls_max) & !is.infinite(rolls_max), as.integer(rolls_max), rolls_max)
+
+  # validations
+  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
+  if(!is.character(overlap_method)) stop(paste("'overlap_method' must be a character object"))
+  if(!((is.infinite(rolls_max) | is.integer(rolls_max) ) & (is.infinite(episodes_max) | is.integer(episodes_max)) & length(rolls_max)==1 & length(episodes_max)==1) ) stop(paste("'episodes_max' and 'rolls_max' must be, or can be coerced to an integer between 0 and Inf"))
+
+  if(length(episode_type)!=1 | !is.character(episode_type)) stop(paste("'episode_type' must be a character of length 1"))
+  if(length(episode_unit)!=1 | !is.character(episode_unit)) stop(paste("'episode_unit' must be a character of length 1"))
+
+  if(!episode_unit %in% names(diyar::episode_unit)) stop(paste("'episode_unit' must be either 'seconds', 'minutes', 'hours', 'days', 'weeks', 'months' or 'years'"))
+  if(!episode_type %in% c("rolling","fixed")) stop(paste("`episode_type` must be either 'rolling' or 'fixed'"))
+
+  rd_sn <- enq_vr(substitute(sn))
+  ds <- enq_vr(substitute(data_source))
+  epl <- enq_vr(substitute(case_length))
+  r_epl <- enq_vr(substitute(recurrence_length))
+  st <- enq_vr(substitute(strata))
+  ref_sort <- enq_vr(substitute(custom_sort))
+  sk_od <- enq_vr(substitute(skip_order))
+  dt <- enq_vr(substitute(date))
+  methods <- enq_vr(substitute(overlap_methods))
+
+  # Check that col names exist
+  if(any(!unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods, sk_od)) %in% names(df))){
+    missing_cols <- subset(unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods, sk_od)), !unique(c(rd_sn, ds, epl, r_epl, st, ref_sort, dt, methods, sk_od)) %in% names(df))
+    missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
+    stop(paste(missing_cols, "not found"))
+  }
+
+  if(!(any(class(df[[epl]]) %in% c("integer","double","numeric"))))  stop(paste("'case_length' must be integer or numeric values", sep=""))
+  if(!is.null(r_epl)){
+    if(!(any(class(df[[r_epl]]) %in% c("integer","double","numeric")))) stop(paste("'recurrence_length' must be integer or numeric values", sep=""))
+  }
+  if(!(any(class(df[[dt]]) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer","Interval")))) stop("'date' must be a date, datetime, numeric or number_line object")
+
+  if(!is.null(sk_od) & !is.null(ref_sort) ){
+    if(!(any(class(df[[sk_od]]) %in% c("integer","double","numeric"))))  stop(paste("'skip_order' must be a positive integer or numeric value", sep=""))
+    if(!(all(df[[sk_od]] >0)))  stop(paste("'skip_order' must be a positive integer or numeric value", sep=""))
+  }
+
+  T1 <- df[,0]
+
+  # Record indentifier
+  if(is.null(rd_sn)){
+    T1$sn <- 1:nrow(df)
+  }else{
+    dp_check <- duplicates_check(df[[rd_sn]])
+    if(dp_check!=T) stop(paste0("duplicate record indentifier ('sn') in ",dp_check))
+    T1$sn <- df[[rd_sn]]
+  }
+
+  # Dataset identifier
+  if(is.null(ds)){
+    T1$dsvr <- "A"
+  }else{
+    T1$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
+  }
+
+  dl_lst <- unlist(data_links, use.names = F)
+  ds_lst <- T1$dsvr[!duplicated(T1$dsvr)]
+  ms_lst <- unique(dl_lst[!dl_lst %in% ds_lst])
+
+  if(length(ms_lst)>0 & !all(toupper(dl_lst)=="ANY")) stop(paste("",
+                                                                 paste0("Values - ", paste0("'",ms_lst,"'",collapse = ","), " not found in `datasource`."),
+                                                                 "Have you used levels for `datasource` - i.e. episode_group(... datasource = c(vr1, vr2, vr3)) ?",
+                                                                 "",
+                                                                 "If so, include the value for each level.",
+                                                                 "",
+                                                                 "Examples",
+                                                                 "`data_links` <- list(l = c('ds1-ds2', 'ds3')",
+                                                                 "                     g = c('ds1-ds2', 'ds3')",
+                                                                 "",
+                                                                 "`data_links` <- c('ds1-ds2', 'ds3')",
+                                                                 "",
+                                                                 "'l' - for groups with records from the same vr1 and vr2 `data_source(s)` ('ds1-ds2') AND vr3 `data_source` ('ds3')",
+                                                                 "'g' - for groups with records from the same vr1 and vr2 `data_source(s)` ('ds1-ds2') OR  vr3 `data_source` ('ds3')", sep = "\n"))
+
+  if(!is.list(data_links)) data_links <- list(l = data_links)
+  if(is.null(names(data_links)))  names(data_links) <- rep("l", length(data_links))
+  if(!all(names(data_links) %in% c("g", "l"))) stop(paste("",
+                                                          "`data_links` should be a `list` with every element named 'l' (links) or 'g' (groups)",
+                                                          "'l' (link) is used for unamed elements or atomic vectors",
+                                                          "",
+                                                          " Examples",
+                                                          "`data_links` <- list(l = c('DS1', 'DS2')",
+                                                          "                     g = c('DS3', 'DS4')",
+                                                          "",
+                                                          "`data_links` <- c('DS1', 'DS2')",
+                                                          "",
+                                                          "'l' - for groups with records from 'DS1' AND 'DS2' `data_source(s)`",
+                                                          "'g' - for groups with records from 'DS3' OR  'DS3' `data_source(s)", sep = "\n"))
+
+  # lengths
+  T1$epi_len <- df[[epl]]
+
+  if(is.null(r_epl) | episode_type !="rolling" ){
+    T1$rc_len <- df[[epl]]
+  }else{
+    T1$rc_len <- df[[r_epl]]
+  }
+
+  # Strata
+  if(is.null(st)){
+    T1$cri <- "A"
+  }else{
+    T1$cri <- eval(parse(text = paste0("paste0(",paste0("df$", st, collapse = ",'-',"),")")))
+  }
+
+  # Date
+  if(any(class(df[[dt]]) %in% c("number_line","Interval"))){
+    T1$rec_dt_ai <- diyar::left_point(df[[dt]])
+    T1$rec_dt_zi <- diyar::right_point(df[[dt]])
+  }else{
+    T1$rec_dt_ai <- df[[dt]]
+    T1$rec_dt_zi <- df[[dt]]
+  }
+
+  fn_check <- finite_check(T1$rec_dt_zi)
+  if(fn_check!=T) stop(paste0("Finite 'date' values required in ",fn_check))
+
+  fn_check <- finite_check(T1$epi_len)
+  if(fn_check!=T) stop(paste0("Finite 'case_length' values required in ",fn_check))
+
+  fn_check <- finite_check(T1$rc_len)
+  if(fn_check!=T) stop(paste0("Finite 'recurrence_length' values required in ",fn_check))
+
+  # Class of 'date'
+  dt_grp <- ifelse(!any(class(T1$rec_dt_ai) %in% c("Date","POSIXct","POSIXt","POSIXlt")) |
+                     !any(class(T1$rec_dt_zi) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
+
+  episode_unit <- ifelse(dt_grp==F,"seconds", episode_unit)
+
+  if(dt_grp==T){
+    T1$rec_dt_ai <- as.POSIXct(format(T1$rec_dt_ai, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+    T1$rec_dt_zi <- as.POSIXct(format(T1$rec_dt_zi, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+  }else{
+    T1$rec_dt_ai <- as.numeric(T1$rec_dt_ai)
+    T1$rec_dt_zi <- as.numeric(T1$rec_dt_zi)
+  }
+
+  # Overlap methods
+  if(missing(overlap_methods) & !missing(overlap_method)) {
+    T1$methods <- paste0(overlap_method, collapse = "|")
+    warning("'overlap_method' is deprecated. Please use 'overlap_method' instead.")
+  }else{
+    if(is.null(methods)){
+      T1$methods <- "exact|across|chain|aligns_start|aligns_end|inbetween"
+    }else {
+      T1$methods <- df[[methods]]
+    }
+  }
+
+  o <- unique(unlist(strsplit(T1$methods[!duplicated(T1$methods)], split="\\|")))
+  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  if (length(o)>0) stop(paste0("\n",
+                               paste0("'",o,"'", collapse = " ,"), " is not a valid overlap method \n\n",
+                               "Valid 'overlap_methods' are 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
+                               "Syntax ~ \"method1|method2|method3...\" \n",
+                               "                 OR                   \n",
+                               "Use ~ include_overlap_method() or exclude_overlap_method()"))
+
+  #df <- df[c("sn","rec_dt_ai","rec_dt_zi","epi_len","rc_len","dsvr","cri",ref_sort, sk_od, "methods")]
+
+  T1$dist_from_epid <- T1$dist_from_wind <- T1$wind_id <- T1$tag <- T1$roll <- T1$episodes <- 0
+  T1$wind_nm <- T1$case_nm <- ""
+  T1$epid <- sn_ref <- min(T1$sn)-1
+  T1$pr_sn = 1:nrow(df)
+
+  # Chronological order
+  if(from_last==T){
+    T1$ord <- abs(max(T1$rec_dt_ai) - T1$rec_dt_ai)
+    T1$ord_z <- abs(max(T1$rec_dt_zi) - T1$rec_dt_zi)
+  }else{
+    T1$ord <- abs(min(T1$rec_dt_ai) - T1$rec_dt_ai)
+    T1$ord_z <- abs(min(T1$rec_dt_zi) - T1$rec_dt_zi)
+  }
+
+  # Custom sort
+  if(!is.null(ref_sort)) {
+    user_ord <- eval(parse(text = paste0("order(",paste0("df$", ref_sort, collapse = ", "),", T1$ord, -T1$ord_z)")))
+  }else{
+    user_ord <- order(T1$ord, -T1$ord_z)
+  }
+
+  names(user_ord) <- 1:length(user_ord)
+  T1$user_ord <- as.numeric(names(sort(user_ord)))
+
+  # c_sort ord
+  if(!is.null(ref_sort)){
+    srd <- lapply(ref_sort, function(x){
+      x <- as.numeric(as.factor(df[[x]]))
+      formatC(x, width= nchar(max(x)), flag=0, format = "fg")
+    })
+
+    names(srd) <- ref_sort
+    srd <- as.data.frame(srd, stringsAsFactors = F)
+    srd <- eval(parse(text = paste0("paste0(",paste0("srd$", ref_sort, collapse = ",'-',"),")")))
+    T1$c_sort <- as.numeric(as.factor(srd))
+    rm(srd)
+  }else{
+    T1$c_sort <- 0
+  }
+
+  # skip_order
+  if(!is.null(sk_od)){
+    T1$skip_order <- df[[sk_od]]
+  }else{
+    T1$skip_order <- Inf
+  }
+
+  # Skip from episode grouping
+  T1$epid[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <-
+    T1$wind_id[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <-
+    T1$sn[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")]
+
+  T1$case_nm[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <-
+    T1$wind_nm[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- "Skipped"
+
+  T1$dist_from_epid[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <-
+    T1$dist_from_wind[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- 0
+
+  T1$tag[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- 2
+  # T1$episodes[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- episodes_max
+  # T1$roll[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- rolls_max
+
+  if(!is.null(ds) & !all(toupper(dl_lst) == "ANY")){
+    TH <- T1[T1$case_nm=="Skipped",]
+    T1 <- T1[T1$case_nm!="Skipped",]
+
+    # check type of links
+    links_check <- function(x, y, e) {
+      if(tolower(e)=="l"){
+        all(y %in% x & length(x)>1)
+      }else if (tolower(e)=="g"){
+        any(y %in% x)
+      }
+    }
+
+    pds <- lapply(split(T1$dsvr, T1$cri), function(x, l=data_links){
+      xlst <- rep(list(a =unique(x)), length(l))
+      list(
+        rq = any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
+      )
+    })
+
+    p2 <- lapply(pds, function(x){x$rq})
+    # skip if not required
+    req_links <- unlist(p2[as.character(T1$cri)], use.names = F)
+    T1$tag[req_links==F] <- 2
+    T1$wind_nm[req_links==F] <- T1$case_nm[req_links==F] <- "Skipped"
+    T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
+    T1$dist_from_epid[req_links==F] <- T1$dist_from_wind[req_links==F] <- 0
+
+    T1 <- rbind(T1, TH); rm(TH)
+  }
+
+  min_tag <- min(T1$tag)
+  min_episodes <- min(T1$episodes)
+
+  rm(df)
+  c <- 1
+  grouped_epids <- T1[0,0]
+  g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi","dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
+  while (min_tag != 2 & min_episodes <= episodes_max){
+    # seperate out grouped records
+    grouped_epids <- rbind(grouped_epids,
+                           T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
+    # drop them from the main dataset
+    T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
+
+    # check for records to skip - `skip_order` and `episode_max`
+    TR <- dplyr::arrange(T1, T1$cri, -T1$tag, T1$user_ord, T1$sn)
+    skip_cris <- unique(TR$cri[(TR$c_sort > TR$skip_order |
+                                  TR$tag==0 & TR$episodes + 1 > episodes_max) & !duplicated(TR$cri) & !is.na(TR$cri)])
+
+    # assign unique IDs to skipped records
+    T1$tag[T1$cri %in% skip_cris] <- 2
+    T1$wind_nm[T1$cri %in% skip_cris] <- T1$case_nm[T1$cri %in% skip_cris] <- "Skipped"
+    T1$epid[T1$cri %in% skip_cris] <- T1$wind_id[T1$cri %in% skip_cris] <- T1$sn[T1$cri %in% skip_cris]
+    T1$dist_from_epid[T1$cri %in% skip_cris] <- T1$dist_from_wind[T1$cri %in% skip_cris] <- 0
+    # seperate out skipped records
+    grouped_epids <- rbind(grouped_epids,
+                           T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
+
+    # drop them from the main dataset
+    T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
+
+    # Reference events
+    TR <- TR[!(TR$tag==0 & TR$episodes + 1 > episodes_max) &
+               !(TR$c_sort > TR$skip_order) &
+               !duplicated(TR$cri) &
+               !is.na(TR$cri),
+             c("sn", "cri", "rec_dt_ai", "rec_dt_zi","epid", "tag", "roll", "epi_len", "rc_len", "case_nm")]
+    names(TR) <- paste0("tr_",names(TR))
+
+    # early break if there are no more reference events
+    if(nrow(TR)==0) {break}
+
+    if(display){cat(paste0("Episode or recurrence window ",c,".\n"))}
+
+    #T1 <- merge(T1, TR, by.x="cri", by.y="tr_cri", all.x=T)
+    T1 <- dplyr::left_join(T1, TR, by= c("cri"="tr_cri"))
+
+    T1$lr <- ifelse(T1$tr_sn == T1$sn & !is.na(T1$tr_sn),1,0)
+
+    # Case and recurrence lengths
+    T1$c_int <- diyar::number_line(T1$rec_dt_ai, T1$rec_dt_zi)
+    T1$r_int <- diyar::number_line(T1$rec_dt_ai, T1$rec_dt_zi)
+
+    # Case and recurrence lengths of reference events
+    T1$tr_rc_len <- T1$tr_rc_len * diyar::episode_unit[[episode_unit]]
+    T1$tr_epi_len <- T1$tr_epi_len * diyar::episode_unit[[episode_unit]]
+
+    T1$tr_c_int <- suppressWarnings(diyar::number_line(T1$tr_rec_dt_ai, T1$tr_rec_dt_zi))
+    T1$tr_r_int <- suppressWarnings(diyar::number_line(T1$tr_rec_dt_ai, T1$tr_rec_dt_zi))
+
+    bdir <- ifelse(bi_direction,"both","end")
+    if (from_last==F){
+      T1$tr_c_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_c_int, T1$tr_epi_len, bdir))
+      T1$tr_r_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_r_int, T1$tr_rc_len, bdir))
+    }else{
+      T1$tr_c_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_c_int, -T1$tr_epi_len, bdir))
+      T1$tr_r_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_r_int, -T1$tr_rc_len, bdir))
+    }
+
+    # Check if events overlap
+    T1$r_range <- T1$c_range <- F
+
+    T1$c_range <- diyar::overlap(T1$c_int, T1$tr_c_int, methods = T1$methods)
+    T1$r_range <- diyar::overlap(T1$r_int, T1$tr_r_int, methods = T1$methods)
+
+    # distance from window's ref event
+    T1$dist_from_wind <- ((as.numeric(T1$rec_dt_ai) + as.numeric(T1$rec_dt_zi)) *.5) - ((as.numeric(T1$tr_rec_dt_ai) + as.numeric(T1$tr_rec_dt_zi)) *.5)
+    # distance from episodes's ref event
+    T1$dist_from_epid <- ifelse(T1$tr_case_nm=="", ((as.numeric(T1$rec_dt_ai) + as.numeric(T1$rec_dt_zi)) *.5) - ((as.numeric(T1$tr_rec_dt_ai) + as.numeric(T1$tr_rec_dt_zi)) *.5), T1$dist_from_epid)
+
+    if(!bi_direction & !from_last){
+      T1$c_range <- ifelse(T1$tr_rec_dt_ai > T1$rec_dt_ai & T1$tr_epi_len >=0, FALSE, T1$c_range)
+      T1$r_range <- ifelse(T1$tr_rec_dt_ai > T1$rec_dt_ai & T1$tr_rc_len >=0, FALSE, T1$r_range)
+
+    }else if(!bi_direction & from_last){
+      T1$c_range <- ifelse(T1$tr_rec_dt_ai < T1$rec_dt_ai & T1$tr_epi_len >=0, FALSE, T1$c_range)
+      T1$r_range <- ifelse(T1$tr_rec_dt_ai < T1$rec_dt_ai & T1$tr_rc_len >=0, FALSE, T1$r_range)
+    }
+
+    # event type
+    # 1 - Reference event (Case)
+    # 2 - Duplicate of a case event
+    # 6 - Recurrent event
+    # 7 - Duplicate of a recurrent event
+    # 9 - Reference event for a case window. - 1 & 9 are case windows
+    # 10 - Duplicate event for a case window. - 2 & 10 are duplicates in case windows
+    # Episode assignment -------
+    T1$epid_type <- ifelse(
+      T1$r_range == T & !is.na(T1$r_range) & T1$tr_tag %in% c(1,1.5,0),
+      ifelse(T1$case_nm=="Duplicate", 7,6), 0
+    )
+
+    T1$epid_type <- ifelse(
+      T1$c_range == T & !is.na(T1$c_range) &
+        ((T1$tr_tag==0 & !is.na(T1$tr_tag)) | (T1$tr_tag %in% c(1.4,1.6) & !is.na(T1$tr_tag))),
+      ifelse(T1$tr_tag==0,
+             ifelse(T1$lr==1, 1,2),
+             ifelse(T1$lr==1, 9, 10)),
+      T1$epid_type
+    )
+
+    T1$c_hit <- ifelse(T1$epid_type %in% c(1,2,7,6,10) | (T1$lr==1), 1, 0)
+
+    T1$epid <- ifelse(
+      T1$c_hit==1, ifelse(T1$tr_tag ==0 & !is.na(T1$tr_tag), T1$tr_sn, T1$tr_epid),
+      T1$epid
+    )
+
+    T1$wind_id <- ifelse(T1$c_hit==1 & (T1$lr !=1 | (T1$lr ==1 & T1$tr_case_nm=="")), T1$tr_sn, T1$wind_id)
+    T1$wind_nm <- ifelse((T1$epid_type %in% c(1,2,9,10) | (T1$epid_type==0 & T1$lr==1))  & T1$wind_nm=="", "Case", ifelse(T1$epid_type!=0 & T1$wind_nm=="", "Recurrence", T1$wind_nm))
+
+    T1$case_nm <- ifelse(
+      T1$c_hit==1 & !T1$tag %in% c(1.4,1.6),
+      ifelse(T1$epid_type %in% c(1,0), "Case",
+             ifelse(T1$epid_type==6 & episode_type=="rolling","Recurrent","Duplicate")),
+      T1$case_nm
+    )
+    # ---------
+
+    vrs <- names(T1)[!grepl("_range|_int", names(T1))]
+    # T1 <- T1[order(T1$cri, T1$epid, T1$user_ord, T1$sn), vrs]
+    T1 <- dplyr::arrange(T1, T1$cri, T1$epid, T1$user_ord, T1$sn)
+
+    T1$episodes <- ifelse(T1$tr_tag==0 & !is.na(T1$tr_tag), T1$episodes + 1, T1$episodes)
+    T1$tag <- ifelse(T1$c_hit==1 | (!T1$tag %in% c(NA,0,2) & T1$sn == T1$tr_sn), 2, T1$tag)
+    T1$mrk_x <- paste(T1$cri, T1$tag, sep="-")
+
+    T1$fg_a <- rep(rle(T1$cri)$lengths, rle(T1$cri)$lengths)
+    T1$fg_x <- rep(rle(T1$mrk_x)$lengths, rle(T1$mrk_x)$lengths)
+    T1$fg_c <- ifelse(T1$fg_a==T1$fg_x & T1$tag==2, 1,0)
+
+    T1$mrk_z <- paste0(T1$case_nm, T1$epid, T1$lr)
+    T1$mrk_z2 <- paste0(T1$case_nm, T1$epid)
+    T1$case_nm <- ifelse(T1$lr !=1 &
+                           T1$case_nm=="Recurrent" &
+                           (duplicated(T1$mrk_z))
+                         ,"Duplicate", T1$case_nm)
+
+    if(min(T1$fg_c)==1) {
+      vrs <- names(T1)[!grepl("^tr|^fg|^mrk", names(T1))]
+      T1 <- T1[vrs]
+      tagged_1 <- length(T1$epid[!T1$epid %in% c(sn_ref,NA) & T1$tag==2])
+      total_1 <- nrow(T1)
+
+      if(display){
+        cat(paste0(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n"))
+      }
+      break
+    }
+
+    if (episode_type=="rolling"){
+      T1$d_grp <- ifelse(T1$case_nm=="Duplicate" & T1$sn != T1$tr_sn & !is.na(T1$tr_sn), 1, 0)
+
+      pds2 <- lapply(split(T1$d_grp, T1$epid), max)
+      T1$d_grp <- as.numeric(pds2[as.character(T1$epid)])
+
+      T1$d_ord <- ifelse(T1$case_nm=="Duplicate" & T1$lr !=1, T1$user_ord, NA)
+      pds2 <- lapply(split(T1$d_ord, T1$epid), function(x){
+        suppressWarnings(min(x, na.rm=T))
+      })
+      T1$d_ord <- as.numeric(pds2[as.character(T1$epid)])
+    }else{
+      T1$d_ord <- T1$d_grp <- 0
+    }
+
+    # Number of recurrence periods so far
+    T1$roll <- ifelse((T1$tr_case_nm == "Recurrent" & !is.na(T1$tr_case_nm)) |
+                        (T1$tr_tag== 1.5 & !is.na(T1$tr_tag)),T1$tr_roll + 1,  T1$roll)
+
+    # Chose the next reference event
+    T1$mrk_z <- paste0(T1$case_nm, T1$epid)
+    T1$tag <- ifelse(episode_type == "rolling" &
+                       (T1$roll < rolls_max |(case_for_recurrence==T & T1$roll < rolls_max+1 & T1$tr_tag != 1.6) )&
+                       !(T1$lr==1 & T1$tr_tag %in% c(1, 1.5, 1.4, 1.6)) & T1$case_nm %in% c("Duplicate","Recurrent"),
+                     ifelse(grepl("^Duplicate",T1$case_nm),
+                            ifelse(T1$case_nm =="Duplicate" & !duplicated(T1$mrk_z, fromLast = T) &
+                                     recurrence_from_last == T,
+                                   ifelse(case_for_recurrence==T & T1$tr_tag==1.5, 1.6,1.5), 2),
+                            ifelse(T1$case_nm=="Recurrent" &
+                                     T1$d_grp ==1  &
+                                     T1$user_ord < T1$d_ord & T1$d_ord != Inf &
+                                     T1$tr_case_nm %in% c("Duplicate","") &
+                                     recurrence_from_last ==T, 2,
+                                   ifelse(case_for_recurrence==F, 1,1.4))),
+                     T1$tag)
+
+    if(episode_type=="rolling"){
+      # Number of recurrence periods so far - Recalculate
+      fx <- T1[T1$epid!=sn_ref & T1$lr!=1 & T1$tag!=2 & T1$tr_case_nm=="", c("epid","case_nm","tag")]
+      fx <- fx[order(-fx$tag),]
+      fx <- fx[fx$case_nm=="Recurrent" & !duplicated(fx$epid),]
+      fx <- fx$epid
+      T1$roll[T1$epid %in% fx] <- T1$roll[T1$epid %in% fx] + 1
+    }
+
+    tagged_1 <- length(T1$epid[!T1$epid %in% c(sn_ref,NA) & T1$tag==2])
+    total_1 <- nrow(T1)
+    if(display){
+      cat(paste0(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n"))
+    }
+
+    T1 <- T1[names(T1)[!grepl("^tr|^fg|^mrk", names(T1))]]
+    min_tag <- min(T1$tag)
+    min_episodes <- min(T1$episodes)
+
+    c = c+1
+  }
+
+  # Combine all episodes again
+  T1 <- rbind(T1[g_vrs], grouped_epids)
+  rm(grouped_epids)
+
+  # Assign ungrouped episodes to unique IDs
+  T1$wind_nm[T1$epid==sn_ref] <- T1$case_nm[T1$epid==sn_ref] <- "Skipped"
+  T1$epid[T1$epid==sn_ref] <- T1$wind_id[T1$epid==sn_ref] <- T1$sn[T1$epid==sn_ref]
+  T1$dist_from_wind[T1$epid==sn_ref] <- T1$dist_from_epid[T1$epid==sn_ref] <- 0
+
+  # Drop 'duplicate' events if required
+  if(deduplicate) T1 <- subset(T1, T1$case_nm!="Duplicate")
+
+  if(is.null(ds)){
+    T1 <- T1[order(T1$pr_sn),]
+  }else{
+    # epid_dataset not needed for skipped events
+    TH <- T1[T1$case_nm=="Skipped",]
+    TH$epid_dataset <- TH$dsvr
+    T1 <- T1[T1$case_nm!="Skipped",]
+
+    # check type of links
+    links_check <- function(x, y, e) {
+      if(tolower(e)=="l"){
+        all(y %in% x & length(x)>1)
+      }else if (tolower(e)=="g"){
+        any(y %in% x)
+      }
+    }
+
+    pds <- lapply(split(T1$dsvr, T1$epid), function(x, l=data_links){
+      xlst <- rep(list(a =unique(x)), length(l))
+      r <- list(ds = paste0(sort(unique(x)), collapse=","))
+      if(!all(toupper(dl_lst) == "ANY")) r["rq"] <- any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
+      return(r)
+    })
+
+    p1 <- lapply(pds, function(x){x$ds})
+    T1$epid_dataset <- unlist(p1[as.character(T1$epid)], use.names = F)
+
+    if(!all(toupper(dl_lst) == "ANY")){
+      p2 <- lapply(pds, function(x){x$rq})
+      # unlink if not required
+      req_links <- unlist(p2[as.character(T1$epid)], use.names = F)
+      T1$dist_from_wind[req_links==F] <- T1$dist_from_epid[req_links==F] <- 0
+      T1$epid_dataset[req_links==F] <- T1$dsvr[req_links==F]
+      T1$wind_nm[req_links==F] <- T1$case_nm[req_links==F] <- "Skipped"
+      T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
+    }
+
+    T1 <- rbind(T1, TH); rm(TH)
+    T1 <- T1[order(T1$pr_sn),]
+  }
+
+
+  diff_unit <- ifelse(tolower(episode_unit) %in% c("second","minutes"),
+                      paste0(substr(tolower(episode_unit),1,3),"s"),
+                      tolower(episode_unit))
+
+  diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
+
+  # Episode stats if required
+  if(group_stats == T){
+    # Group stats not needed for skipped events
+    TH <- T1[T1$case_nm=="Skipped",]
+    TH$a <- as.numeric(TH$rec_dt_ai)
+    TH$z <- as.numeric(TH$rec_dt_zi)
+
+    T1 <- T1[T1$case_nm!="Skipped",]
+    T1$a <- as.numeric(lapply(split(as.numeric(T1$rec_dt_ai), T1$epid), ifelse(from_last==F, min, max))[as.character(T1$epid)])
+    T1$z <- as.numeric(lapply(split(as.numeric(T1$rec_dt_zi), T1$epid), ifelse(from_last==F, max, min))[as.character(T1$epid)])
+    T1 <- rbind(T1, TH); rm(TH)
+
+    if(dt_grp == T){
+      T1$a <- as.POSIXct(T1$a, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+      T1$z <- as.POSIXct(T1$z, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+      T1$epid_length <- difftime(T1$z, T1$a, units = diff_unit)
+    }else{
+      T1$epid_length <- T1$z - T1$a
+    }
+    T1 <- T1[order(T1$epid),]
+
+    T1$epid_total <- rep(rle(T1$epid)$lengths, rle(T1$epid)$lengths)
+    T1 <- T1[order(T1$pr_sn),]
+
+    T1$epid_interval <- diyar::number_line(T1$a, T1$z, id=T1$sn, gid = T1$epid)
+
+    vrs <- names(T1)[!grepl("^a$|^z$", names(T1))]
+    T1 <- T1[vrs]
+  }
+
+  vrs <- names(T1)[!grepl("^pr_sn|^rec_dt_|^ord|^epi_len|^user_ord|^skip_ord|^c_sort", names(T1))]
+  T1 <- T1[vrs]
+
+  if(dt_grp==T){
+    T1$dist_from_wind <- T1$dist_from_wind / diyar::episode_unit[[episode_unit]]
+    T1$dist_from_wind <- as.difftime(T1$dist_from_wind, units = diff_unit)
+
+    T1$dist_from_epid <- T1$dist_from_epid / diyar::episode_unit[[episode_unit]]
+    T1$dist_from_epid <- as.difftime(T1$dist_from_epid, units = diff_unit)
+  }
+
+
+  unique_ids <- length(T1[!duplicated(T1$epid) & !duplicated(T1$epid, fromLast = T),]$epid)
+
+  pd <- ifelse(display,"\n","")
+  cat(paste0(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID. \n"))
+  if(to_s4) T1 <- diyar::to_s4(T1)
+  T1
+}
+#' @export
+#' @rdname episode_group
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
@@ -332,9 +964,12 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$epi_len <- diyar::reverse_number_line(df[[epl]], "decreasing")
   }else{
     T1$epi_len <- diyar::as.number_line(df[[epl]])
-    T1$epi_len[T1$epi_len@start <0 & T1$epi_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$epi_len@start <0 & T1$epi_len@.Data ==0] - T1$rec_dt_ai[T1$epi_len@start <0 & T1$epi_len@.Data ==0]), as.numeric(T1$epi_len@start[T1$epi_len@start<0 & T1$epi_len@.Data ==0]))
+    T1$epi_len[T1$epi_len@start <0 & T1$epi_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$epi_len@start <0 & T1$epi_len@.Data ==0] - T1$rec_dt_ai[T1$epi_len@start <0 & T1$epi_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$epi_len@start[T1$epi_len@start<0 & T1$epi_len@.Data ==0]))
     #T1$epi_len[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] <- diyar::number_line(rep(0, length(T1$epi_len@start[T1$epi_len@start>=0 & T1$epi_len@.Data ==0])), as.numeric(T1$epi_len@start[T1$epi_len@start>=0 & T1$epi_len@.Data ==0]))
-    T1$epi_len[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] - T1$rec_dt_ai[T1$epi_len@start>=0 & T1$epi_len@.Data ==0]), as.numeric(T1$epi_len@start[T1$epi_len@start>=0 & T1$epi_len@.Data ==0]))
+    T1$epi_len[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] - T1$rec_dt_ai[T1$epi_len@start>=0 & T1$epi_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$epi_len@start[T1$epi_len@start>=0 & T1$epi_len@.Data ==0]))
+    # T1$epi_len@start <- T1$epi_len@start/diyar::episode_unit[[episode_unit]]
+    # T1$epi_len@.Data <- T1$epi_len@.Data/diyar::episode_unit[[episode_unit]]
+
     T1$epi_len <- diyar::reverse_number_line(T1$epi_len, "decreasing")
   }
 
@@ -345,8 +980,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       T1$rc_len <- diyar::reverse_number_line(df[[r_epl]], "decreasing")
     }else{
       T1$rc_len <- diyar::as.number_line(df[[r_epl]])
-      T1$rc_len[T1$rc_len@start <0 & T1$rc_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$rc_len@start <0 & T1$rc_len@.Data ==0] - T1$rec_dt_ai[T1$rc_len@start <0 & T1$rc_len@.Data ==0]), as.numeric(T1$rc_len@start[T1$rc_len@start<0 & T1$rc_len@.Data ==0]))
-      T1$rc_len[T1$rc_len@start>=0 & T1$rc_len@.Data ==0] <- diyar::number_line(rep(0, length(T1$rc_len@start[T1$rc_len@start>=0 & T1$rc_len@.Data ==0])), as.numeric(T1$rc_len@start[T1$rc_len@start>=0 & T1$rc_len@.Data ==0]))
+      T1$rc_len[T1$rc_len@start <0 & T1$rc_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$rc_len@start <0 & T1$rc_len@.Data ==0] - T1$rec_dt_ai[T1$rc_len@start <0 & T1$rc_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$rc_len@start[T1$rc_len@start<0 & T1$rc_len@.Data ==0]))
+      T1$rc_len[T1$rc_len@start>=0 & T1$rc_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$rc_len@start>=0 & T1$rc_len@.Data ==0] - T1$rec_dt_ai[T1$rc_len@start>=0 & T1$rc_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$rc_len@start[T1$rc_len@start>=0 & T1$rc_len@.Data ==0]))
+      # T1$rc_len@start <- T1$rc_len@start/diyar::episode_unit[[episode_unit]]
+      # T1$rc_len@.Data <- T1$rc_len@.Data/diyar::episode_unit[[episode_unit]]
+
       T1$rc_len <- diyar::reverse_number_line(T1$rc_len, "decreasing")
     }
   }
