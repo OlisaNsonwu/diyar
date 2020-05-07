@@ -152,7 +152,7 @@
 #' @aliases episode_group
 #' @export
 #' @rdname episode_group
-episode_group_old <- function(df, sn = NULL, strata = NULL, date,
+episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
                           custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
@@ -784,7 +784,7 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
 }
 #' @export
 #' @rdname episode_group
-episode_group <- function(df, sn = NULL, strata = NULL, date,
+episode_group_new <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
                           custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
