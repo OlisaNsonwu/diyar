@@ -193,7 +193,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
   }
 
   # update 'sub_cri_lst'
-  sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
+  sub_cri_lst <- unique(unlist(sub_criteria, use.names = FALSE))
 
   nls <- lapply(names(df), function(x){
     is.number_line(df[[x]])
