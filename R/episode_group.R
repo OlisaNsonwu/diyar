@@ -1221,23 +1221,31 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     crx_r <- T1$tr_rc_len@start/abs(T1$tr_rc_len@start) != diyar::end_point(T1$tr_rc_len)/abs(diyar::end_point(T1$tr_rc_len))
     crx_r[is.na(crx_r)] <- T
 
-    if(any(crx_e==T)) T1$tr_c_int[crx_e == T] <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int[crx_e == T]) + as.numeric(T1$tr_epi_len@start[crx_e == T]), diyar::end_point(T1$tr_c_int[crx_e == T]) + (diyar::end_point(T1$tr_epi_len[crx_e == T]) * chr_dir)))
-    if(any(crx_r==T)) T1$tr_r_int[crx_r == T] <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int[crx_r == T]) + as.numeric(T1$tr_rc_len@start[crx_r == T]), diyar::end_point(T1$tr_r_int[crx_r == T]) + (diyar::end_point(T1$tr_rc_len[crx_r == T]) * chr_dir)))
+    tr_o_c <- T1$tr_epi_len; tr_o_r <- T1$tr_rc_len
 
-    ou_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) > abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
-    in_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) < abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
-    # ou_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) > abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
-    # in_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) < abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
+    n_e <- tr_o_c@start <0 & tr_o_c@start + tr_o_c@.Data<0
+    n_r <- tr_o_r@start <0 & tr_o_r@start + tr_o_r@.Data<0
 
-    #ou_c <- ou_r <- in_c <- in_r <- rep(NA_real_, length(T1$sn))
+    tr_o_c[crx_e == F & n_e==T] <- diyar::reverse_number_line(tr_o_c[crx_e == F & n_e==T])
+    tr_o_r[crx_r == F & n_r==T] <- diyar::reverse_number_line(tr_o_c[crx_r == F & n_r==T])
 
-    if(any(crx_e==F)) T1$tr_c_int[crx_e == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_c_int[crx_e == F]), diyar::end_point(T1$tr_c_int[crx_e == F]) + (ou_c[crx_e == F] * chr_dir)))
+    T1$tr_c_int <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_c_int) + ifelse(crx_e==T, diyar::left_point(tr_o_c),0), diyar::end_point(T1$tr_c_int) + (diyar::right_point(tr_o_c) * chr_dir)))
+    T1$tr_r_int <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_r_int) + ifelse(crx_r==T, diyar::left_point(tr_o_r),0), diyar::end_point(T1$tr_r_int) + (diyar::right_point(tr_o_r) * chr_dir)))
 
-    # ou_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) > abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
-    # in_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) < abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
-    ou_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) > abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
-    in_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) < abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
-    if(any(crx_r==F)) T1$tr_r_int[crx_r == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_r_int[crx_r == F]), diyar::end_point(T1$tr_r_int[crx_r == F]) + (ou_r[crx_r == F] * chr_dir)))
+    # ou_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) > abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
+    # in_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) < abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
+    # # ou_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) > abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
+    # # in_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) < abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
+    #
+    # #ou_c <- ou_r <- in_c <- in_r <- rep(NA_real_, length(T1$sn))
+    #
+    # if(any(crx_e==F)) T1$tr_c_int[crx_e == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_c_int[crx_e == F]), diyar::end_point(T1$tr_c_int[crx_e == F]) + (ou_c[crx_e == F] * chr_dir)))
+    #
+    # # ou_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) > abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
+    # # in_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) < abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
+    # ou_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) > abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
+    # in_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) < abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
+    # if(any(crx_r==F)) T1$tr_r_int[crx_r == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_r_int[crx_r == F]), diyar::end_point(T1$tr_r_int[crx_r == F]) + (ou_r[crx_r == F] * chr_dir)))
 
     # bdl_e <- bi_direction==T & crx_e==F & T1$tr_epi_len@start !=0 & diyar::end_point(T1$tr_epi_len) !=0
     # bdl_r <- bi_direction==T & crx_r==F & T1$tr_rc_len@start !=0 & diyar::end_point(T1$tr_rc_len) !=0
@@ -1270,6 +1278,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     dr_c <- ifelse(T1$tr_c_int<0,1, -1) * chr_dir
     dr_r <- ifelse(T1$tr_r_int<0,1, -1) * chr_dir
+
+    ou_c <- diyar::right_point(tr_o_c); ou_r <- diyar::right_point(tr_o_r)
+    in_c <- diyar::left_point(tr_o_c); in_r <- diyar::left_point(tr_o_r)
 
     jmp_c <- (T1$rec_dt_zi) * dr_c > ((T1$tr_rec_dt_zi + ou_c)) * dr_c & (T1$rec_dt_zi) * dr_c < (T1$tr_rec_dt_zi) * dr_c & (T1$rec_dt_zi) * dr_c > (T1$tr_rec_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
     jmp_r <- (T1$rec_dt_zi) * dr_r > ((T1$tr_rec_dt_zi + ou_r)) * dr_r & (T1$rec_dt_zi) * dr_r < (T1$tr_rec_dt_zi) * dr_r & (T1$rec_dt_zi) * dr_r > (T1$tr_rec_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
