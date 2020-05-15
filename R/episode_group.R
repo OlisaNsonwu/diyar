@@ -152,7 +152,7 @@
 #' @aliases episode_group
 #' @export
 #' @rdname episode_group
-episode_group <- function(df, sn = NULL, strata = NULL, date,
+episode_group_old <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
                           custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
@@ -784,7 +784,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 }
 #' @export
 #' @rdname episode_group
-episode_group_new <- function(df, sn = NULL, strata = NULL, date,
+episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                           recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
                           custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
@@ -1226,10 +1226,17 @@ episode_group_new <- function(df, sn = NULL, strata = NULL, date,
 
     ou_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) > abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
     in_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) < abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
+    # ou_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) > abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
+    # in_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) < abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
+
+    #ou_c <- ou_r <- in_c <- in_r <- rep(NA_real_, length(T1$sn))
+
     if(any(crx_e==F)) T1$tr_c_int[crx_e == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_c_int[crx_e == F]), diyar::end_point(T1$tr_c_int[crx_e == F]) + (ou_c[crx_e == F] * chr_dir)))
 
+    # ou_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) > abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
+    # in_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) < abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
     ou_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) > abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
-    in_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) < abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_epi_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
+    in_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) < abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
     if(any(crx_r==F)) T1$tr_r_int[crx_r == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_r_int[crx_r == F]), diyar::end_point(T1$tr_r_int[crx_r == F]) + (ou_r[crx_r == F] * chr_dir)))
 
     # bdl_e <- bi_direction==T & crx_e==F & T1$tr_epi_len@start !=0 & diyar::end_point(T1$tr_epi_len) !=0

@@ -221,19 +221,19 @@ expand_number_line <- function(x, by=1, point ="both"){
   by[!is.finite(by)] <- NA_real_
   n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
   by <- by * n
-
+  g <- ifelse(x@.Data >=0, T,F)
   if(any(point=="both")) x@start[point == "both"] <- x@start[point == "both"] - by[point == "both"]
   if(any(point=="both")) x@.Data[point == "both"] <- x@.Data[point == "both"] + (by[point == "both"] *2)
 
-  if(any(point %in% c("left", "start"))) x@start[point == "left" | (point == "start" & x@.Data >=0)] <- x@start[point == "left" | (point == "start" & x@.Data >=0)] - by[point == "left" | (point == "start" & x@.Data >=0)]
-  if(any(point %in% c("left", "start"))) x@.Data[point == "left" | (point == "start" & x@.Data >=0)] <- x@.Data[point == "left" | (point == "start" & x@.Data >=0)] + by[point == "left" | (point == "start" & x@.Data >=0)]
+  if(any(point %in% c("left", "start"))) x@start[point == "left" | (point == "start" & g)] <- x@start[point == "left" | (point == "start" & g)] - by[point == "left" | (point == "start" & g)]
+  if(any(point %in% c("left", "start"))) x@.Data[point == "left" | (point == "start" & g)] <- x@.Data[point == "left" | (point == "start" & g)] + by[point == "left" | (point == "start" & g)]
 
-  if(any(point %in% c("right", "end"))) x@.Data[point == "right"| (point == "end" & x@.Data >=0)] <- x@.Data[point == "right"| (point == "end" & x@.Data >=0)] + by[point == "right"| (point == "end" & x@.Data >=0)]
+  if(any(point %in% c("right", "end"))) x@.Data[point == "right"| (point == "end" & g)] <- x@.Data[point == "right"| (point == "end" & g)] + by[point == "right"| (point == "end" & g)]
 
-  if(any(point=="start")) x@.Data[point == "start" & x@.Data < 0] <- x@.Data[point == "start" & x@.Data < 0] - by[point == "start" & x@.Data < 0]
+  if(any(point=="start")) x@.Data[point == "start" & !g] <- x@.Data[point == "start" & !g] - by[point == "start" & !g]
 
-  if(any(point=="end")) x@start[point == "end" & x@.Data < 0] <- x@start[point == "end" & x@.Data < 0] - by[point == "end" & x@.Data < 0]
-  if(any(point=="end")) x@.Data[point == "end" & x@.Data < 0] <- x@.Data[point == "end" & x@.Data < 0] + by[point == "end" & x@.Data < 0]
+  if(any(point=="end")) x@start[point == "end" & !g] <- x@start[point == "end" & !g] - by[point == "end" & !g]
+  if(any(point=="end")) x@.Data[point == "end" & !g] <- x@.Data[point == "end" & !g] + by[point == "end" & !g]
   return(x)
 }
 
