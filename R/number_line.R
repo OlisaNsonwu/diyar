@@ -149,6 +149,7 @@ number_line_width <- function(x){
 reverse_number_line <- function(x, direction = "both"){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(length(x)==0) return(x)
   if(!(length(direction) %in% c(1, length(x)) & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
   if(!tolower(direction) %in% c("increasing","decreasing","both") ) stop(paste("`direction` must be either 'increasing', 'decreasing', or 'both'"))
 
@@ -184,6 +185,7 @@ reverse_number_line <- function(x, direction = "both"){
 shift_number_line <- function(x, by=1){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(length(x)==0) return(x)
   if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
 
   by[!is.finite(by)] <- NA_real_
@@ -212,6 +214,7 @@ shift_number_line <- function(x, by=1){
 expand_number_line <- function(x, by=1, point ="both"){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(length(x)==0) return(x)
   if(!all(is.character(point))) stop(paste("'point' must be a character object"))
   if(all(!tolower(point) %in% c("both","start","end","left","right"))) stop(paste("`point` must be either 'left', 'right', 'start', 'end' or 'both'"))
   if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
@@ -262,6 +265,7 @@ expand_number_line <- function(x, by=1, point ="both"){
 compress_number_line <- function(x, method = c("exact", "across","chain","aligns_start","aligns_end","inbetween"), collapse =FALSE, deduplicate = TRUE, methods = "exact|across|chain|aligns_start|aligns_end|inbetween"){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
+  if(length(x)==0) return(x)
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(!(is.logical(collapse) & is.logical(deduplicate) )) stop(paste("'collapse' and 'deduplicate' must be TRUE or FALSE"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
