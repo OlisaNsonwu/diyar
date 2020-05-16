@@ -884,13 +884,13 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   # Dataset identifier
   if(is.null(ds)){
-    T1$dsvr <- "A"
+    T1$ds <- "A"
   }else{
-    T1$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
+    T1$ds <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
   }
 
   dl_lst <- unlist(data_links, use.names = F)
-  ds_lst <- T1$dsvr[!duplicated(T1$dsvr)]
+  ds_lst <- T1$ds[!duplicated(T1$ds)]
   ms_lst <- unique(dl_lst[!dl_lst %in% ds_lst])
 
   if(length(ms_lst)>0 & !all(toupper(dl_lst)=="ANY")) stop(paste("",
@@ -925,90 +925,84 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   # Strata
   if(is.null(st)){
-    T1$cri <- "A"
+    T1$cri <- 1
   }else{
     T1$cri <- eval(parse(text = paste0("paste0(",paste0("df$", st, collapse = ",'-',"),")")))
+    T1$cri <- match(T1$cri, T1$cri[!duplicated(T1$cri)])
   }
 
   # Date
   if(any(class(df[[dt]]) %in% c("number_line"))){
-    T1$rec_dt_ai <- diyar::left_point(df[[dt]])
-    T1$rec_dt_zi <- diyar::right_point(df[[dt]])
+    T1$dt_ai <- diyar::left_point(df[[dt]])
+    T1$dt_zi <- diyar::right_point(df[[dt]])
   }else{
-    T1$rec_dt_ai <- df[[dt]]
-    T1$rec_dt_zi <- df[[dt]]
+    T1$dt_ai <- df[[dt]]
+    T1$dt_zi <- df[[dt]]
   }
 
-  fn_check <- finite_check(T1$rec_dt_zi)
+  fn_check <- finite_check(T1$dt_zi)
   if(fn_check!=T) stop(paste0("Finite 'date' values required in ",fn_check))
 
   # Class of 'date'
-  dt_grp <- ifelse(!any(class(T1$rec_dt_ai) %in% c("Date","POSIXct","POSIXt","POSIXlt")) |
-                     !any(class(T1$rec_dt_zi) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
+  dt_grp <- ifelse(!any(class(T1$dt_ai) %in% c("Date","POSIXct","POSIXt","POSIXlt")) |
+                     !any(class(T1$dt_zi) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
 
   episode_unit <- ifelse(dt_grp==F,"seconds", episode_unit)
 
   if(dt_grp==T){
-    T1$rec_dt_ai <- as.POSIXct(format(T1$rec_dt_ai, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
-    T1$rec_dt_zi <- as.POSIXct(format(T1$rec_dt_zi, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+    T1$dt_ai <- as.POSIXct(format(T1$dt_ai, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+    T1$dt_zi <- as.POSIXct(format(T1$dt_zi, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
   }else{
-    T1$rec_dt_ai <- as.numeric(T1$rec_dt_ai)
-    T1$rec_dt_zi <- as.numeric(T1$rec_dt_zi)
+    T1$dt_ai <- as.numeric(T1$dt_ai)
+    T1$dt_zi <- as.numeric(T1$dt_zi)
   }
 
-  T1$rec_dt_ai <- as.numeric(T1$rec_dt_ai)
-  T1$rec_dt_zi <- as.numeric(T1$rec_dt_zi)
+  T1$dt_ai <- as.numeric(T1$dt_ai)
+  T1$dt_zi <- as.numeric(T1$dt_zi)
 
   # lengths
   if(any(class(df[[epl]]) %in% c("number_line"))){
-    T1$epi_len <- diyar::reverse_number_line(df[[epl]], "decreasing")
+    T1$ep_l <- diyar::reverse_number_line(df[[epl]], "decreasing")
   }else{
-    T1$epi_len <- diyar::as.number_line(df[[epl]])
-    T1$epi_len[T1$epi_len@start <0 & T1$epi_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$epi_len@start <0 & T1$epi_len@.Data ==0] - T1$rec_dt_ai[T1$epi_len@start <0 & T1$epi_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$epi_len@start[T1$epi_len@start<0 & T1$epi_len@.Data ==0]))
-    #T1$epi_len[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] <- diyar::number_line(rep(0, length(T1$epi_len@start[T1$epi_len@start>=0 & T1$epi_len@.Data ==0])), as.numeric(T1$epi_len@start[T1$epi_len@start>=0 & T1$epi_len@.Data ==0]))
-    T1$epi_len[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$epi_len@start>=0 & T1$epi_len@.Data ==0] - T1$rec_dt_ai[T1$epi_len@start>=0 & T1$epi_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$epi_len@start[T1$epi_len@start>=0 & T1$epi_len@.Data ==0]))
-    # T1$epi_len@start <- T1$epi_len@start/diyar::episode_unit[[episode_unit]]
-    # T1$epi_len@.Data <- T1$epi_len@.Data/diyar::episode_unit[[episode_unit]]
-
-    T1$epi_len <- diyar::reverse_number_line(T1$epi_len, "decreasing")
+    T1$ep_l <- diyar::as.number_line(df[[epl]])
+    T1$ep_l[T1$ep_l@start <0 & T1$ep_l@.Data ==0] <- diyar::number_line(-as.numeric(T1$dt_zi[T1$ep_l@start <0 & T1$ep_l@.Data ==0] - T1$dt_ai[T1$ep_l@start <0 & T1$ep_l@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$ep_l@start[T1$ep_l@start<0 & T1$ep_l@.Data ==0]))
+    T1$ep_l[T1$ep_l@start>=0 & T1$ep_l@.Data ==0] <- diyar::number_line(-as.numeric(T1$dt_zi[T1$ep_l@start>=0 & T1$ep_l@.Data ==0] - T1$dt_ai[T1$ep_l@start>=0 & T1$ep_l@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$ep_l@start[T1$ep_l@start>=0 & T1$ep_l@.Data ==0]))
+    T1$ep_l <- diyar::reverse_number_line(T1$ep_l, "decreasing")
   }
 
   if(is.null(r_epl) | episode_type !="rolling" ){
-    T1$rc_len <- T1$epi_len
+    T1$rc_l <- T1$ep_l
   }else{
     if(any(class(df[[r_epl]]) %in% c("number_line"))){
-      T1$rc_len <- diyar::reverse_number_line(df[[r_epl]], "decreasing")
+      T1$rc_l <- diyar::reverse_number_line(df[[r_epl]], "decreasing")
     }else{
-      T1$rc_len <- diyar::as.number_line(df[[r_epl]])
-      T1$rc_len[T1$rc_len@start <0 & T1$rc_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$rc_len@start <0 & T1$rc_len@.Data ==0] - T1$rec_dt_ai[T1$rc_len@start <0 & T1$rc_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$rc_len@start[T1$rc_len@start<0 & T1$rc_len@.Data ==0]))
-      T1$rc_len[T1$rc_len@start>=0 & T1$rc_len@.Data ==0] <- diyar::number_line(-as.numeric(T1$rec_dt_zi[T1$rc_len@start>=0 & T1$rc_len@.Data ==0] - T1$rec_dt_ai[T1$rc_len@start>=0 & T1$rc_len@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$rc_len@start[T1$rc_len@start>=0 & T1$rc_len@.Data ==0]))
-      # T1$rc_len@start <- T1$rc_len@start/diyar::episode_unit[[episode_unit]]
-      # T1$rc_len@.Data <- T1$rc_len@.Data/diyar::episode_unit[[episode_unit]]
-
-      T1$rc_len <- diyar::reverse_number_line(T1$rc_len, "decreasing")
+      T1$rc_l <- diyar::as.number_line(df[[r_epl]])
+      T1$rc_l[T1$rc_l@start <0 & T1$rc_l@.Data ==0] <- diyar::number_line(-as.numeric(T1$dt_zi[T1$rc_l@start <0 & T1$rc_l@.Data ==0] - T1$dt_ai[T1$rc_l@start <0 & T1$rc_l@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$rc_l@start[T1$rc_l@start<0 & T1$rc_l@.Data ==0]))
+      T1$rc_l[T1$rc_l@start>=0 & T1$rc_l@.Data ==0] <- diyar::number_line(-as.numeric(T1$dt_zi[T1$rc_l@start>=0 & T1$rc_l@.Data ==0] - T1$dt_ai[T1$rc_l@start>=0 & T1$rc_l@.Data ==0])/diyar::episode_unit[[episode_unit]], as.numeric(T1$rc_l@start[T1$rc_l@start>=0 & T1$rc_l@.Data ==0]))
+      T1$rc_l <- diyar::reverse_number_line(T1$rc_l, "decreasing")
     }
   }
 
   # Case and recurrence lengths of reference events
-  T1$epi_len@start <- T1$epi_len@start * diyar::episode_unit[[episode_unit]]
-  T1$epi_len@.Data <- T1$epi_len@.Data * diyar::episode_unit[[episode_unit]]
+  T1$ep_l@start <- T1$ep_l@start * diyar::episode_unit[[episode_unit]]
+  T1$ep_l@.Data <- T1$ep_l@.Data * diyar::episode_unit[[episode_unit]]
 
-  T1$rc_len@start <- T1$rc_len@start * diyar::episode_unit[[episode_unit]]
-  T1$rc_len@.Data <- T1$rc_len@.Data * diyar::episode_unit[[episode_unit]]
+  T1$rc_l@start <- T1$rc_l@start * diyar::episode_unit[[episode_unit]]
+  T1$rc_l@.Data <- T1$rc_l@.Data * diyar::episode_unit[[episode_unit]]
 
-  T1$ep1 <- T1$epi_len@start; T1$rc1 <- T1$rc_len@start;
-  T1$ep2 <- T1$epi_len@start + T1$epi_len@.Data; T1$rc2 <- T1$rc_len@start + T1$rc_len@.Data
+  T1$ep1 <- T1$ep_l@start; T1$rc1 <- T1$rc_l@start;
+  T1$ep2 <- T1$ep_l@start + T1$ep_l@.Data; T1$rc2 <- T1$rc_l@start + T1$rc_l@.Data
 
-  fn_check <- finite_check(T1$epi_len@start)
+  fn_check <- finite_check(T1$ep_l@start)
   if(fn_check!=T) stop(paste0("Finite 'case_length' values required in ",fn_check))
 
-  fn_check <- finite_check(T1$epi_len@.Data)
+  fn_check <- finite_check(T1$ep_l@.Data)
   if(fn_check!=T) stop(paste0("Finite 'case_length' values required in ",fn_check))
 
-  fn_check <- finite_check(T1$rc_len@start)
+  fn_check <- finite_check(T1$rc_l@start)
   if(fn_check!=T) stop(paste0("Finite 'recurrence_length' values required in ",fn_check))
 
-  fn_check <- finite_check(T1$rc_len@.Data)
+  fn_check <- finite_check(T1$rc_l@.Data)
   if(fn_check!=T) stop(paste0("Finite 'recurrence_length' values required in ",fn_check))
 
   # Overlap methods
@@ -1032,8 +1026,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                                "                 OR                   \n",
                                "Use ~ include_overlap_method() or exclude_overlap_method()"))
 
-  #df <- df[c("sn","rec_dt_ai","rec_dt_zi","epi_len","rc_len","dsvr","cri",ref_sort, sk_od, "methods")]
-
   T1$dist_from_epid <- T1$dist_from_wind <- T1$wind_id <- T1$tag <- T1$roll <- T1$episodes <- 0
   T1$wind_nm <- T1$case_nm <- ""
   T1$epid <- sn_ref <- min(T1$sn)-1
@@ -1041,11 +1033,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
   # Chronological order
   if(from_last==T){
-    T1$ord <- abs(max(T1$rec_dt_ai) - T1$rec_dt_ai)
-    T1$ord_z <- abs(max(T1$rec_dt_zi) - T1$rec_dt_zi)
+    T1$ord <- abs(max(T1$dt_ai) - T1$dt_ai)
+    T1$ord_z <- abs(max(T1$dt_zi) - T1$dt_zi)
   }else{
-    T1$ord <- abs(min(T1$rec_dt_ai) - T1$rec_dt_ai)
-    T1$ord_z <- abs(min(T1$rec_dt_zi) - T1$rec_dt_zi)
+    T1$ord <- abs(min(T1$dt_ai) - T1$dt_ai)
+    T1$ord_z <- abs(min(T1$dt_zi) - T1$dt_zi)
   }
 
   # Custom sort
@@ -1093,8 +1085,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$dist_from_wind[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- 0
 
   T1$tag[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- 2
-  # T1$episodes[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- episodes_max
-  # T1$roll[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- rolls_max
 
   if(!is.null(ds) & !all(toupper(dl_lst) == "ANY")){
     TH <- T1[T1$case_nm=="Skipped",]
@@ -1109,7 +1099,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       }
     }
 
-    pds <- lapply(split(T1$dsvr, T1$cri), function(x, l=data_links){
+    pds <- lapply(split(T1$ds, T1$cri), function(x, l=data_links){
       xlst <- rep(list(a =unique(x)), length(l))
       list(
         rq = any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
@@ -1133,7 +1123,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   rm(df)
   c <- 1
   grouped_epids <- T1[0,0]
-  g_vrs <- c("sn","pr_sn","rec_dt_ai","rec_dt_zi", "dsvr","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
+  g_vrs <- c("sn","pr_sn","dt_ai","dt_zi", "ds","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
   while (min_tag != 2 & min_episodes <= episodes_max){
     # seperate out grouped records
     grouped_epids <- rbind(grouped_epids,
@@ -1142,9 +1132,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
 
     # check for records to skip - `skip_order` and `episode_max`
-    TR <- dplyr::arrange(T1, T1$cri, -T1$tag, T1$user_ord, T1$sn)
-    skip_cris <- unique(TR$cri[(TR$c_sort > TR$skip_order |
-                                  TR$tag==0 & TR$episodes + 1 > episodes_max) & !duplicated(TR$cri) & !is.na(TR$cri)])
+    TR <- T1[order(T1$cri, -T1$tag, T1$user_ord, T1$sn),]
+    #TR <- dplyr::arrange(T1, T1$cri, -T1$tag, T1$user_ord, T1$sn)
+    skip_cris <- TR$cri[(TR$c_sort > TR$skip_order |
+                                  TR$tag==0 & TR$episodes + 1 > episodes_max) & !duplicated(TR$cri) & !is.na(TR$cri)]
+    skip_cris <- skip_cris[!duplicated(skip_cris)]
 
     # assign unique IDs to skipped records
     T1$tag[T1$cri %in% skip_cris] <- 2
@@ -1163,7 +1155,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                !(TR$c_sort > TR$skip_order) &
                !duplicated(TR$cri) &
                !is.na(TR$cri),
-             c("sn", "cri", "rec_dt_ai", "ep1", "ep2", "rc1", "rc2", "rec_dt_zi","epid", "tag", "roll", "case_nm")]
+             c("sn", "cri", "dt_ai", "ep1", "ep2", "rc1", "rc2", "dt_zi","epid", "tag", "roll", "case_nm")]
     names(TR) <- paste0("tr_",names(TR))
 
     # early break if there are no more reference events
@@ -1177,51 +1169,24 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$lr <- ifelse(T1$tr_sn == T1$sn & !is.na(T1$tr_sn),1,0)
 
     # Case and recurrence lengths
-    T1$c_int <- diyar::number_line(T1$rec_dt_ai, T1$rec_dt_zi)
-    T1$r_int <- diyar::number_line(T1$rec_dt_ai, T1$rec_dt_zi)
+    T1$c_int <- diyar::number_line(T1$dt_ai, T1$dt_zi)
+    T1$r_int <- diyar::number_line(T1$dt_ai, T1$dt_zi)
 
     # Case and recurrence lengths of reference events
-    T1$tr_epi_len <- suppressWarnings(diyar::number_line(T1$tr_ep1, T1$tr_ep2))
-    T1$tr_rc_len <- suppressWarnings(diyar::number_line(T1$tr_rc1, T1$tr_rc2))
+    T1$tr_ep_l <- suppressWarnings(diyar::number_line(T1$tr_ep1, T1$tr_ep2))
+    T1$tr_rc_l <- suppressWarnings(diyar::number_line(T1$tr_rc1, T1$tr_rc2))
 
-    T1$tr_c_int <- suppressWarnings(diyar::number_line(T1$tr_rec_dt_ai, T1$tr_rec_dt_zi))
-    T1$tr_r_int <- suppressWarnings(diyar::number_line(T1$tr_rec_dt_ai, T1$tr_rec_dt_zi))
-
-    bdir <- ifelse(bi_direction,"both","end")
-    # if (from_last==F){
-    #   T1$tr_c_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_c_int, T1$tr_epi_len, bdir))
-    #   T1$tr_r_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_r_int, T1$tr_rc_len, bdir))
-    #
-    #   T1$tr_c_int_r <- suppressWarnings(diyar::number_line(T1$tr_c_int_r@start + as.numeric(T1$tr_epi_len@start), diyar::end_point(T1$tr_c_int) + T1$tr_epi_len))
-    #   T1$tr_c_int_l <- diyar::reverse_number_line(T1$tr_c_int_r)
-    #
-    #   T1$tr_r_int_r <- suppressWarnings(diyar::number_line(T1$tr_r_int_r@start + as.numeric(T1$tr_rc_len@start), diyar::end_point(T1$tr_r_int) + T1$tr_rc_len))
-    #   T1$tr_r_int_l <- diyar::reverse_number_line(T1$tr_r_int_r)
-    #
-    # }else{
-    #   T1$tr_c_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_c_int, -T1$tr_epi_len, bdir))
-    #   T1$tr_r_int <-  suppressWarnings(diyar::expand_number_line(T1$tr_r_int, -T1$tr_rc_len, bdir))
-    #
-    #   T1$tr_c_int_r <- suppressWarnings(diyar::number_line(T1$tr_c_int_r@start - as.numeric(T1$tr_epi_len@start), diyar::end_point(T1$tr_c_int) - T1$tr_epi_len))
-    #   T1$tr_c_int_l <- diyar::reverse_number_line(T1$tr_c_int_r)
-    #
-    #   T1$tr_r_int_r <- suppressWarnings(diyar::number_line(T1$tr_r_int_r@start - as.numeric(T1$tr_rc_len@start), diyar::end_point(T1$tr_r_int) - T1$tr_rc_len))
-    #   T1$tr_r_int_l <- diyar::reverse_number_line(T1$tr_r_int_r)
-    # }
+    T1$tr_c_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
+    T1$tr_r_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
 
     chr_dir <- ifelse(from_last==F, 1, -1)
-    # T1$tr_c_int <- suppressWarnings(diyar::expand_number_line(T1$tr_c_int, (diyar::end_point(T1$tr_epi_len) * chr_dir), bdir))
-    # T1$tr_r_int <- suppressWarnings(diyar::expand_number_line(T1$tr_r_int, (diyar::end_point(T1$tr_rc_len) * chr_dir), bdir))
 
-    #T1$tr_c_int <- suppressWarnings(diyar::expand_number_line(T1$tr_c_int, (diyar::end_point(T1$tr_epi_len) * chr_dir), bdir))
-    #T1$tr_r_int <- suppressWarnings(diyar::expand_number_line(T1$tr_r_int, (diyar::end_point(T1$tr_rc_len) * chr_dir), bdir))
-
-    crx_e <- T1$tr_epi_len@start/abs(T1$tr_epi_len@start) != diyar::end_point(T1$tr_rc_len)/abs(diyar::end_point(T1$tr_epi_len))
+    crx_e <- T1$tr_ep_l@start/abs(T1$tr_ep_l@start) != diyar::end_point(T1$tr_rc_l)/abs(diyar::end_point(T1$tr_ep_l))
     crx_e[is.na(crx_e)] <- T
-    crx_r <- T1$tr_rc_len@start/abs(T1$tr_rc_len@start) != diyar::end_point(T1$tr_rc_len)/abs(diyar::end_point(T1$tr_rc_len))
+    crx_r <- T1$tr_rc_l@start/abs(T1$tr_rc_l@start) != diyar::end_point(T1$tr_rc_l)/abs(diyar::end_point(T1$tr_rc_l))
     crx_r[is.na(crx_r)] <- T
 
-    tr_o_c <- T1$tr_epi_len; tr_o_r <- T1$tr_rc_len
+    tr_o_c <- T1$tr_ep_l; tr_o_r <- T1$tr_rc_l
 
     n_e <- tr_o_c@start <0 & tr_o_c@start + tr_o_c@.Data<0
     n_r <- tr_o_r@start <0 & tr_o_r@start + tr_o_r@.Data<0
@@ -1232,38 +1197,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$tr_c_int <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_c_int) + ifelse(crx_e==T, diyar::left_point(tr_o_c),0), diyar::end_point(T1$tr_c_int) + (diyar::right_point(tr_o_c) * chr_dir)))
     T1$tr_r_int <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_r_int) + ifelse(crx_r==T, diyar::left_point(tr_o_r),0), diyar::end_point(T1$tr_r_int) + (diyar::right_point(tr_o_r) * chr_dir)))
 
-    # ou_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) > abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
-    # in_c <- ifelse(abs(T1$tr_epi_len@start[crx_e == F]) < abs(diyar::right_point(T1$tr_epi_len[crx_e == F])), T1$tr_epi_len@start[crx_e == F], diyar::right_point(T1$tr_epi_len)[crx_e == F])
-    # # ou_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) > abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
-    # # in_c <- ifelse(crx_e == F, ifelse(abs(T1$tr_epi_len@start) < abs(diyar::right_point(T1$tr_epi_len)), T1$tr_epi_len@start, diyar::right_point(T1$tr_epi_len)), NA_real_)
-    #
-    # #ou_c <- ou_r <- in_c <- in_r <- rep(NA_real_, length(T1$sn))
-    #
-    # if(any(crx_e==F)) T1$tr_c_int[crx_e == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_c_int[crx_e == F]), diyar::end_point(T1$tr_c_int[crx_e == F]) + (ou_c[crx_e == F] * chr_dir)))
-    #
-    # # ou_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) > abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
-    # # in_r <- ifelse(crx_r == F, ifelse(abs(T1$tr_rc_len@start) < abs(diyar::right_point(T1$tr_rc_len)), T1$tr_rc_len@start, diyar::right_point(T1$tr_rc_len)), NA_real_)
-    # ou_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) > abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
-    # in_r <- ifelse(abs(T1$tr_rc_len@start[crx_r == F]) < abs(diyar::right_point(T1$tr_rc_len[crx_r == F])), T1$tr_rc_len@start[crx_r == F], diyar::right_point(T1$tr_rc_len)[crx_r == F])
-    # if(any(crx_r==F)) T1$tr_r_int[crx_r == F] <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_r_int[crx_r == F]), diyar::end_point(T1$tr_r_int[crx_r == F]) + (ou_r[crx_r == F] * chr_dir)))
+    bdl_e <- bi_direction==T & (crx_e==F | (crx_e == T & (T1$tr_ep_l@start==0 | diyar::right_point(T1$tr_ep_l) ==0)))
+    bdl_r <- bi_direction==T & (crx_r==F | (crx_r == T & (T1$tr_rc_l@start==0 | diyar::right_point(T1$tr_rc_l) ==0)))
 
-    # bdl_e <- bi_direction==T & crx_e==F & T1$tr_epi_len@start !=0 & diyar::end_point(T1$tr_epi_len) !=0
-    # bdl_r <- bi_direction==T & crx_r==F & T1$tr_rc_len@start !=0 & diyar::end_point(T1$tr_rc_len) !=0
-
-    bdl_e <- bi_direction==T & (crx_e==F | (crx_e == T & (T1$tr_epi_len@start==0 | diyar::right_point(T1$tr_epi_len) ==0)))
-    bdl_r <- bi_direction==T & (crx_r==F | (crx_r == T & (T1$tr_rc_len@start==0 | diyar::right_point(T1$tr_rc_len) ==0)))
-
-    # T1$tr_c_int[bdl_e == T] <- diyar::expand_number_line(T1$tr_c_int[bdl_e == T], abs(T1$tr_c_int@.Data[bdl_e == T]), ifelse(T1$tr_c_int@.Data[bdl_e == T]>0,"right","left"))
-    # T1$tr_r_int[bdl_r == T] <- diyar::expand_number_line(T1$tr_r_int[bdl_e == T], abs(T1$tr_r_int@.Data[bdl_r == T]), ifelse(T1$tr_r_int@.Data[bdl_r == T]>0,"right","left"))
-
-    if(any(bdl_e == T)) T1$tr_c_int[bdl_e == T] <- diyar::expand_number_line(T1$tr_c_int[bdl_e == T], abs(T1$tr_c_int@.Data[bdl_e == T]), ifelse(diyar::right_point(T1$tr_epi_len)==0, "right", "left")[bdl_e == T])
-    if(any(bdl_r == T)) T1$tr_r_int[bdl_r == T] <- diyar::expand_number_line(T1$tr_r_int[bdl_e == T], abs(T1$tr_r_int@.Data[bdl_r == T]), ifelse(diyar::right_point(T1$tr_rc_len)==0, "right", "left")[bdl_r == T])
-
-    # T1$tr_c_int_r <- suppressWarnings(diyar::number_line(T1$tr_c_int_r@start + (as.numeric(T1$tr_epi_len@start) * chr_dir), diyar::end_point(T1$tr_c_int) + (diyar::end_point(T1$tr_epi_len) * chr_dir)))
-    # T1$tr_c_int_l <- diyar::reverse_number_line(T1$tr_c_int_r)
-    #
-    # T1$tr_r_int_r <- suppressWarnings(diyar::number_line(T1$tr_r_int_r@start + (as.numeric(T1$tr_rc_len@start) * chr_dir), diyar::end_point(T1$tr_r_int) + (diyar::end_point(T1$tr_rc_len) * chr_dir)))
-    # T1$tr_r_int_l <- diyar::reverse_number_line(T1$tr_r_int_r)
+    if(any(bdl_e == T)) T1$tr_c_int[bdl_e == T] <- diyar::expand_number_line(T1$tr_c_int[bdl_e == T], abs(T1$tr_c_int@.Data[bdl_e == T]), ifelse(diyar::right_point(T1$tr_ep_l)==0, "right", "left")[bdl_e == T])
+    if(any(bdl_r == T)) T1$tr_r_int[bdl_r == T] <- diyar::expand_number_line(T1$tr_r_int[bdl_e == T], abs(T1$tr_r_int@.Data[bdl_r == T]), ifelse(diyar::right_point(T1$tr_rc_l)==0, "right", "left")[bdl_r == T])
 
     # Check if events overlap
     T1$r_range <- T1$c_range <- F
@@ -1271,19 +1209,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$c_range <- diyar::overlap(T1$c_int, T1$tr_c_int, methods = T1$methods)
     T1$r_range <- diyar::overlap(T1$r_int, T1$tr_r_int, methods = T1$methods)
 
-    # jmp_c <- T1$rec_dt_ai < diyar::start_point(T1$tr_c_int) + diyar::start_point(T1$tr_epi_len) & T1$lr != 1 & T1$c_range ==T
-    # jmp_r <- T1$rec_dt_ai < diyar::start_point(T1$tr_r_int) + diyar::start_point(T1$tr_rc_len) & T1$lr != 1 & T1$c_range ==T
-    # jmp_c <- (T1$rec_dt_ai * chr_dir) < ((diyar::left_point(T1$tr_c_int) + (in_c * chr_dir)) *  chr_dir) & T1$lr != 1 & T1$c_range ==T
-    # jmp_r <- (T1$rec_dt_ai * chr_dir) < ((diyar::left_point(T1$tr_r_int) + (in_r * chr_dir)) *  chr_dir) & T1$lr != 1 & T1$r_range ==T
-
     dr_c <- ifelse(T1$tr_c_int<0,1, -1) * chr_dir
     dr_r <- ifelse(T1$tr_r_int<0,1, -1) * chr_dir
 
     ou_c <- diyar::right_point(tr_o_c); ou_r <- diyar::right_point(tr_o_r)
     in_c <- diyar::left_point(tr_o_c); in_r <- diyar::left_point(tr_o_r)
 
-    jmp_c <- (T1$rec_dt_zi) * dr_c > ((T1$tr_rec_dt_zi + ou_c)) * dr_c & (T1$rec_dt_zi) * dr_c < (T1$tr_rec_dt_zi) * dr_c & (T1$rec_dt_zi) * dr_c > (T1$tr_rec_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
-    jmp_r <- (T1$rec_dt_zi) * dr_r > ((T1$tr_rec_dt_zi + ou_r)) * dr_r & (T1$rec_dt_zi) * dr_r < (T1$tr_rec_dt_zi) * dr_r & (T1$rec_dt_zi) * dr_r > (T1$tr_rec_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
+    jmp_c <- (T1$dt_zi) * dr_c > ((T1$tr_dt_zi + ou_c)) * dr_c & (T1$dt_zi) * dr_c < (T1$tr_dt_zi) * dr_c & (T1$dt_zi) * dr_c > (T1$tr_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
+    jmp_r <- (T1$dt_zi) * dr_r > ((T1$tr_dt_zi + ou_r)) * dr_r & (T1$dt_zi) * dr_r < (T1$tr_dt_zi) * dr_r & (T1$dt_zi) * dr_r > (T1$tr_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
 
     if(bi_direction){
       dr_c <- dr_c * -1
@@ -1292,12 +1225,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       in_r <- in_r * -1
       ou_c <- ou_c * -1
       ou_r <- ou_r * -1
-    #  c_dir <- chr_dir * -1
-      # jp_c <- (T1$rec_dt_zi * dr) < ((T1$tr_rec_dt_zi + in_c) * dr) & (T1$rec_dt_zi * c_dir) >  (T1$tr_rec_dt_zi * c_dir) &  T1$lr != 1 & T1$c_range ==T
-      # jp_r <- (T1$rec_dt_zi * dr) < ((T1$tr_rec_dt_zi + in_r) * dr) & (T1$rec_dt_zi * c_dir) >  (T1$tr_rec_dt_zi * c_dir) &  T1$lr != 1 & T1$r_range ==T
-      #
-      jp_c <- (T1$rec_dt_zi) * dr_c > ((T1$tr_rec_dt_zi + ou_c)) * dr_c & (T1$rec_dt_zi) * dr_c < (T1$tr_rec_dt_zi) * dr_c & (T1$rec_dt_zi) * dr_c > (T1$tr_rec_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
-      jp_r <- (T1$rec_dt_zi) * dr_r > ((T1$tr_rec_dt_zi + ou_r)) * dr_r & (T1$rec_dt_zi) * dr_r < (T1$tr_rec_dt_zi) * dr_r & (T1$rec_dt_zi) * dr_r > (T1$tr_rec_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
+
+      jp_c <- (T1$dt_zi) * dr_c > ((T1$tr_dt_zi + ou_c)) * dr_c & (T1$dt_zi) * dr_c < (T1$tr_dt_zi) * dr_c & (T1$dt_zi) * dr_c > (T1$tr_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
+      jp_r <- (T1$dt_zi) * dr_r > ((T1$tr_dt_zi + ou_r)) * dr_r & (T1$dt_zi) * dr_r < (T1$tr_dt_zi) * dr_r & (T1$dt_zi) * dr_r > (T1$tr_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
 
       jmp_c[jp_c] <- T; jmp_r[jp_r] <- T;
     }
@@ -1317,18 +1247,9 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
 
     # distance from window's ref event
-    T1$dist_from_wind <- ((as.numeric(T1$rec_dt_ai) + as.numeric(T1$rec_dt_zi)) *.5) - ((as.numeric(T1$tr_rec_dt_ai) + as.numeric(T1$tr_rec_dt_zi)) *.5)
+    T1$dist_from_wind <- ((as.numeric(T1$dt_ai) + as.numeric(T1$dt_zi)) *.5) - ((as.numeric(T1$tr_dt_ai) + as.numeric(T1$tr_dt_zi)) *.5)
     # distance from episodes's ref event
-    T1$dist_from_epid <- ifelse(T1$tr_case_nm=="", ((as.numeric(T1$rec_dt_ai) + as.numeric(T1$rec_dt_zi)) *.5) - ((as.numeric(T1$tr_rec_dt_ai) + as.numeric(T1$tr_rec_dt_zi)) *.5), T1$dist_from_epid)
-
-    # if(!bi_direction & !from_last){
-    #   T1$c_range <- ifelse(T1$tr_rec_dt_ai > T1$rec_dt_ai & T1$tr_epi_len >=0, FALSE, T1$c_range)
-    #   T1$r_range <- ifelse(T1$tr_rec_dt_ai > T1$rec_dt_ai & T1$tr_rc_len >=0, FALSE, T1$r_range)
-    #
-    # }else if(!bi_direction & from_last){
-    #   T1$c_range <- ifelse(T1$tr_rec_dt_ai < T1$rec_dt_ai & T1$tr_epi_len >=0, FALSE, T1$c_range)
-    #   T1$r_range <- ifelse(T1$tr_rec_dt_ai < T1$rec_dt_ai & T1$tr_rc_len >=0, FALSE, T1$r_range)
-    # }
+    T1$dist_from_epid <- ifelse(T1$tr_case_nm=="", ((as.numeric(T1$dt_ai) + as.numeric(T1$dt_zi)) *.5) - ((as.numeric(T1$tr_dt_ai) + as.numeric(T1$tr_dt_zi)) *.5), T1$dist_from_epid)
 
     # event type
     # 1 - Reference event (Case)
@@ -1371,8 +1292,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # ---------
 
     vrs <- names(T1)[!grepl("_range|_int", names(T1))]
-    # T1 <- T1[order(T1$cri, T1$epid, T1$user_ord, T1$sn), vrs]
-    T1 <- dplyr::arrange(T1, T1$cri, T1$epid, T1$user_ord, T1$sn)
+    T1 <- T1[order(T1$cri, T1$epid, T1$user_ord, T1$sn),]
+    #T1 <- dplyr::arrange(T1, T1$cri, T1$epid, T1$user_ord, T1$sn)
 
     T1$episodes <- ifelse(T1$tr_tag==0 & !is.na(T1$tr_tag), T1$episodes + 1, T1$episodes)
     T1$tag <- ifelse(T1$c_hit==1 | (!T1$tag %in% c(NA,0,2) & T1$sn == T1$tr_sn), 2, T1$tag)
@@ -1469,14 +1390,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   T1$dist_from_wind[T1$epid==sn_ref] <- T1$dist_from_epid[T1$epid==sn_ref] <- 0
 
   # Drop 'duplicate' events if required
-  if(deduplicate) T1 <- subset(T1, T1$case_nm!="Duplicate")
+  if(deduplicate) T1 <- T1[T1$case_nm!="Duplicate",]
 
   if(is.null(ds)){
     T1 <- T1[order(T1$pr_sn),]
   }else{
     # epid_dataset not needed for skipped events
     TH <- T1[T1$case_nm=="Skipped",]
-    TH$epid_dataset <- TH$dsvr
+    TH$epid_dataset <- TH$ds
     T1 <- T1[T1$case_nm!="Skipped",]
 
     # check type of links
@@ -1488,7 +1409,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       }
     }
 
-    pds <- lapply(split(T1$dsvr, T1$epid), function(x, l=data_links){
+    pds <- lapply(split(T1$ds, T1$epid), function(x, l=data_links){
       xlst <- rep(list(a =unique(x)), length(l))
       r <- list(ds = paste0(sort(unique(x)), collapse=","))
       if(!all(toupper(dl_lst) == "ANY")) r["rq"] <- any(unlist(mapply(links_check, xlst, l, names(l), SIMPLIFY = F)))
@@ -1503,7 +1424,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       # unlink if not required
       req_links <- unlist(p2[as.character(T1$epid)], use.names = F)
       T1$dist_from_wind[req_links==F] <- T1$dist_from_epid[req_links==F] <- 0
-      T1$epid_dataset[req_links==F] <- T1$dsvr[req_links==F]
+      T1$epid_dataset[req_links==F] <- T1$ds[req_links==F]
       T1$wind_nm[req_links==F] <- T1$case_nm[req_links==F] <- "Skipped"
       T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
     }
@@ -1523,12 +1444,12 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(group_stats == T){
     # Group stats not needed for skipped events
     TH <- T1[T1$case_nm=="Skipped",]
-    TH$a <- as.numeric(TH$rec_dt_ai)
-    TH$z <- as.numeric(TH$rec_dt_zi)
+    TH$a <- as.numeric(TH$dt_ai)
+    TH$z <- as.numeric(TH$dt_zi)
 
     T1 <- T1[T1$case_nm!="Skipped",]
-    T1$a <- as.numeric(lapply(split(as.numeric(T1$rec_dt_ai), T1$epid), ifelse(from_last==F, min, max))[as.character(T1$epid)])
-    T1$z <- as.numeric(lapply(split(as.numeric(T1$rec_dt_zi), T1$epid), ifelse(from_last==F, max, min))[as.character(T1$epid)])
+    T1$a <- as.numeric(lapply(split(as.numeric(T1$dt_ai), T1$epid), ifelse(from_last==F, min, max))[as.character(T1$epid)])
+    T1$z <- as.numeric(lapply(split(as.numeric(T1$dt_zi), T1$epid), ifelse(from_last==F, max, min))[as.character(T1$epid)])
     T1 <- rbind(T1, TH); rm(TH)
 
     if(dt_grp == T){
@@ -1549,7 +1470,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1 <- T1[vrs]
   }
 
-  vrs <- names(T1)[!grepl("^pr_sn|^rec_dt_|^ord|^epi_len|^user_ord|^skip_ord|^c_sort", names(T1))]
+  vrs <- names(T1)[!grepl("^pr_sn|^dt_|^ord|^ep_l|^user_ord|^skip_ord|^c_sort", names(T1))]
   T1 <- T1[vrs]
 
   if(dt_grp==T){
