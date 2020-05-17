@@ -814,3 +814,55 @@ test_that("test case_for_recurrence", {
   expect_equal(df$r2@.Data, rep(1,6))
   expect_equal(df$r2@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Recurrent","Duplicate"))
 })
+
+# Lengths range
+library(diyar)
+library(dplyr)
+
+dts <- 1:10
+c1 <- rep(number_line(2, 3), 10)
+c2 <- rep(number_line(0, 3), 10)
+c3 <- rep(number_line(-3, 0), 10)
+c5 <- rep(number_line(-3, -2), 10)
+c4 <- rep(number_line(-3, 3), 10)
+c7 <- 1
+cs <- c(rep(3,5), rep(1,5))
+df <- tibble(dt= dts, c1=c1, c2=c2, c3 =c3, c4 =c4, c_sort = cs, c5=c5, c7 = c7)
+
+df$ep1 <- episode_group(df, date=dt, case_length = c1)
+df$ep2 <- episode_group(df, date=dt, case_length = c1, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep1==df$ep2)
+
+df$ep3 <- episode_group(df, date=dt, case_length = c2)
+df$ep4 <- episode_group(df, date=dt, case_length = c2, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep3==df$ep4)
+
+df$ep5 <- episode_group(df, date=dt, case_length = c3)
+df$ep6 <- episode_group(df, date=dt, case_length = c3, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep3==df$ep6)
+
+df$ep7 <- episode_group(df, date=dt, case_length = c3, custom_sort = c_sort)
+
+df$ep8 <- episode_group(df, date=dt, case_length = c1, custom_sort = c_sort, bi_direction = T)
+df$ep9 <- episode_group(df, date=dt, case_length = c5, custom_sort = c_sort, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep8 == df$ep9)
+
+#test that these two should give the same result
+df$ep10 <- episode_group(df, date=dt, case_length = c1, custom_sort = c_sort, bi_direction = T, from_last = T)
+df$ep11 <- episode_group(df, date=dt, case_length = c5, custom_sort = c_sort, bi_direction = T, from_last = T)
+# Test - Expect TRUE
+all(df$ep10 == df$ep11)
+test_that("test case_for_recurrence", {
+  expect_equal(df$ep1, df$ep2)
+  expect_equal(df$ep3, df$ep4)
+  expect_equal(df$ep3, df$ep6)
+  expect_equal(df$ep4, df$ep6)
+  expect_equal(df$ep8, df$ep9)
+  expect_equal(df$ep11, df$ep10)
+})
+
+

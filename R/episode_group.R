@@ -1194,8 +1194,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     tr_o_c[crx_e == F & n_e==T] <- diyar::reverse_number_line(tr_o_c[crx_e == F & n_e==T])
     tr_o_r[crx_r == F & n_r==T] <- diyar::reverse_number_line(tr_o_c[crx_r == F & n_r==T])
 
-    T1$tr_c_int <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_c_int) + ifelse(crx_e==T, diyar::left_point(tr_o_c),0), diyar::end_point(T1$tr_c_int) + (diyar::right_point(tr_o_c) * chr_dir)))
-    T1$tr_r_int <- suppressWarnings(diyar::number_line(diyar::start_point(T1$tr_r_int) + ifelse(crx_r==T, diyar::left_point(tr_o_r),0), diyar::end_point(T1$tr_r_int) + (diyar::right_point(tr_o_r) * chr_dir)))
+    T1$tr_c_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int) + ifelse(crx_e==T, diyar::left_point(tr_o_c),0), diyar::end_point(T1$tr_c_int) + (diyar::right_point(tr_o_c) * chr_dir)))
+    T1$tr_r_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int) + ifelse(crx_r==T, diyar::left_point(tr_o_r),0), diyar::end_point(T1$tr_r_int) + (diyar::right_point(tr_o_r) * chr_dir)))
 
     bdl_e <- bi_direction==T & (crx_e==F | (crx_e == T & (T1$tr_ep_l@start==0 | diyar::right_point(T1$tr_ep_l) ==0)))
     bdl_r <- bi_direction==T & (crx_r==F | (crx_r == T & (T1$tr_rc_l@start==0 | diyar::right_point(T1$tr_rc_l) ==0)))
@@ -1560,7 +1560,8 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
                                "                 OR                   \n",
                                "Use ~ include_overlap_method() or exclude_overlap_method()"))
 
-  df <- data.frame(dts = date, epl = case_length, stringsAsFactors = FALSE)
+  df <- data.frame(dts = date, stringsAsFactors = FALSE)
+  df$epl <- case_length
 
   if(is.null(strata)){
     df$sr <- 1
@@ -1674,7 +1675,8 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()"))
 
-  df <- data.frame(dts = date, epl = case_length, stringsAsFactors = FALSE)
+  df <- data.frame(dts = date, stringsAsFactors = FALSE)
+  df$epl <- case_length
 
   if(is.null(strata)){
     df$sr <- 1
