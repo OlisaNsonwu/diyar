@@ -786,7 +786,8 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
 #' @rdname episode_group
 episode_group <- function(df, sn = NULL, strata = NULL, date,
                           case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
-                          recurrence_length = NULL, rolls_max =Inf, data_source = NULL, data_links = "ANY",
+                          recurrence_length = NULL, rolls_max =Inf, skip_if_b4_lengths = TRUE,
+                          data_source = NULL, data_links = "ANY",
                           custom_sort = NULL, skip_order =NULL, from_last=FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                           overlap_methods = NULL, bi_direction = FALSE,
                           group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
@@ -797,7 +798,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
 
   # check that only logicals are passed to arguments that expect logicals.
-  logs_check <- logicals_check(c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence"))
+  logs_check <- logicals_check(c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence", "skip_if_b4_lengths"))
   if(logs_check!=T) stop(logs_check)
 
   # Suggesting the use `epid` objects
@@ -1234,11 +1235,13 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     T1$c_range[jmp_c] <- F; T1$r_range[jmp_r] <- F
 
-    # assign unique IDs to skipped records
-    T1$wind_nm[jmp_r] <- T1$case_nm[jmp_r] <- "Skipped"
-    T1$epid[jmp_r] <- T1$wind_id[jmp_r] <- T1$sn[jmp_r]
-    T1$dist_from_wind[jmp_r] <- T1$dist_from_epid[jmp_r] <- 0
-    T1$tag[jmp_r] <- 2
+    if(skip_if_b4_lengths==T){
+      # assign unique IDs to skipped records
+      T1$wind_nm[jmp_r] <- T1$case_nm[jmp_r] <- "Skipped"
+      T1$epid[jmp_r] <- T1$wind_id[jmp_r] <- T1$sn[jmp_r]
+      T1$dist_from_wind[jmp_r] <- T1$dist_from_epid[jmp_r] <- 0
+      T1$tag[jmp_r] <- 2
+    }
 
     # seperate out grouped records
     grouped_epids <- rbind(grouped_epids,
@@ -1498,7 +1501,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #'
 #' @rdname episode_group
 #' @export
-fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, data_source = NULL, data_links = "ANY",
+fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                            custom_sort = NULL, skip_order =NULL, from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                            overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE){
@@ -1525,16 +1528,8 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
     warning("'x' is deprecated; please use 'date' instead."); date <- x
   }
 
-  log_vals <-  lapply(list(from_last, bi_direction, group_stats, display, deduplicate, to_s4), function(x){
-    is.logical(x)
-  })
-
-  log_vals <- c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4")[unlist(log_vals)==F]
-  if(length(log_vals)==1) {
-    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
-  }else if (length(log_vals)>1){
-    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
-  }
+  logs_check <- logicals_check(c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "skip_if_b4_lengths"))
+  if(logs_check!=T) stop(logs_check)
 
   if(!is.character(overlap_method)) stop("'overlap_method' must be a character object")
   if(!(length(case_length) %in% c(1, length(date)))) stop("length of 'case_length' must be 1 or the same as 'date'")
@@ -1599,12 +1594,12 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
   if(is.null(data_source)){
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method", data_links = data_links,
+                         from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
   }else{
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method", data_links = data_links,
+                         from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4)
   }
 }
@@ -1612,7 +1607,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 
 #' @rdname episode_group
 #' @export
-rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, data_source = NULL, data_links = "ANY",
+rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                              custom_sort = NULL, skip_order = NULL, from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
                              overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween", bi_direction= FALSE, group_stats = FALSE,
                              display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
@@ -1639,16 +1634,8 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
     warning("'x' is deprecated; please use 'date' instead."); date <- x
   }
 
-  log_vals <-  lapply(list(from_last, bi_direction, group_stats, display, deduplicate, to_s4, recurrence_from_last, case_for_recurrence), function(x){
-    is.logical(x)
-  })
-
-  log_vals <- c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence")[unlist(log_vals)==F]
-  if(length(log_vals)==1) {
-    stop(paste0("'", log_vals[1], "' must be either TRUE or FALSE"))
-  }else if (length(log_vals)>1){
-    stop(paste0(paste0("'",log_vals[1:(length(log_vals)-1)],"'", collapse = ", "), " and '", log_vals[length(log_vals)], "' must be either TRUE or FALSE"))
-  }
+  logs_check <- logicals_check(c("from_last", "bi_direction", "group_stats", "display", "deduplicate", "to_s4", "recurrence_from_last", "case_for_recurrence", "skip_if_b4_lengths"))
+  if(logs_check!=T) stop(logs_check)
 
   if(!is.character(overlap_method)) stop("'overlap_method' must be a character object")
   if(!(length(case_length) %in% c(1, length(date)))) stop("length of 'case_length' must be 1 or the same as 'date'")
@@ -1720,13 +1707,13 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   if(is.null(data_source)){
     diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
+                         from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
                          recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links)
     }else{
       diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                            bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
-                           from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max,
+                           from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
                            display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
                            recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links)
   }
