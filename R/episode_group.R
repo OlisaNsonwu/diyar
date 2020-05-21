@@ -929,7 +929,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$cri <- 1
   }else{
     T1$cri <- eval(parse(text = paste0("paste0(",paste0("df$", st, collapse = ",'-',"),")")))
-    T1$cri <- match(T1$cri, T1$cri[!duplicated(T1$cri)])
   }
 
   # Date
@@ -1118,6 +1117,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1 <- rbind(T1, TH); rm(TH)
   }
 
+  T1$cri <- match(T1$cri, T1$cri[!duplicated(T1$cri)])
   min_tag <- min(T1$tag)
   min_episodes <- min(T1$episodes)
 
@@ -1342,7 +1342,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     # Number of recurrence periods so far
     T1$roll <- ifelse((T1$tr_case_nm == "Recurrent" & !is.na(T1$tr_case_nm)) |
-                        (T1$tr_tag== 1.5 & !is.na(T1$tr_tag)),T1$tr_roll + 1,  T1$roll)
+                        (T1$tr_tag== 1.5 & !is.na(T1$tr_tag) & T1$case_nm  != ""),T1$tr_roll + 1,  T1$roll)
 
     # Chose the next reference event
     T1$mrk_z <- paste0(T1$case_nm, T1$epid)
