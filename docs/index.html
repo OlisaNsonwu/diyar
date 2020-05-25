@@ -152,12 +152,12 @@ db<span class="op">$</span>date
 
 <span class="co"># Fixed episodes</span>
 db<span class="op">$</span>f_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">display =</span> F, <span class="dt">group_stats =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 <span class="co"># Rolling episodes</span>
 db<span class="op">$</span>r_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> F,
                               <span class="dt">group_stats =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 db
 <span class="co">#&gt; # A tibble: 11 x 3</span>
 <span class="co">#&gt;    date       f_epid                           </span>

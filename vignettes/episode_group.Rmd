@@ -36,18 +36,18 @@ These functions can implement a variety of case definitions. For example, they c
 + episodes where certain type events are taken as index (reference) events. See ["user defined case assignment"](#custom_sort)
 + episodes with different durations depending on the type of event. See [stratified grouping](#stratified_grouping)
 
-#Implementation
-
-<a id= "episode_grouping"></a>
-
-## Overview
+# Overview
 An episode as produced by `fixed_episodes()`, `rolling_episodes()` or `episode_group()` is a set events (dated records) within a specified period. Each episode begins with an index event and may contain duplicate or recurrent events. 
 
 + `fixed_episodes()` - for `"fixed"` episodes that do not include periods of recurrence
 + `rolling_episodes()` - for `"rolling"` episodes which can include periods of recurrence
 + `episode_group()` - the main function behind `fixed_episodes()` and `rolling_episodes()` 
 
-### Episodes, windows, case lengths and recurrence periods
+# Implementation
+
+<a id= "episode_grouping"></a>
+
+## Episodes, windows, case lengths and recurrence periods
 
 Before we begin, let's go over some terms which will pop up now and again. 
 
@@ -68,7 +68,7 @@ Before we begin, let's go over some terms which will pop up now and again.
 
 In `fixed_episodes()`, a `window` always equates to an `episode` in `diyar`. `events` from a different `window` belongs to a separate `episode`. n `rolling_episodes()`, if two or more `windows` overlap, they are collapsed into a larger `window`, indicating that the `episode` is still on-going or has recurred. As a result, every `event` belonging to both `windows` are now considered part of the same `"rolling episode"`.
 
-## Making case definitions
+## How to apply a case definitions
 ### epid objects
 Firstly, let's go through what `episodes` look like. They are stored as `epid` objects (`S4` object class). An `epid` object is an `episode` identifier with `slots` for useful information for each `episode`. See `?fixed_episodes` for the details of each slot. For those in the `format.epid`, see below.
 
@@ -741,7 +741,7 @@ There are a few things to note with stratified grouping;
 - `Episode grouping` with and without a sub-strata are different and could lead to different results
 - Using a sub-strata is not the same as adding that sub-strata to the `strata` argument. In the example above, adding `treated` to `strata` will group treated infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not require this, only that the treated infections last longer.
 
-## Cutting down processing time
+## Cut down your processing time
 
 Some case definitions are so specific that only certain kinds of `episodes` will be required. In such cases, you can save save time by skipping `events` from `episodes` that aren't required. There are 3 mechanisms to skip such `events`. 
 

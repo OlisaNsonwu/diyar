@@ -1117,7 +1117,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
     T1$dist_from_epid[req_links==F] <- T1$dist_from_wind[req_links==F] <- 0
 
-    ex_a <- ex_a + length(req_links==F)
+    exa <- exa + length(req_links==F)
     T1 <- rbind(T1, TH); rm(TH)
   }
 
