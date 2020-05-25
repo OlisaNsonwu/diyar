@@ -1341,8 +1341,16 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     }
 
     # Number of recurrence periods so far
-    T1$roll <- ifelse((T1$tr_case_nm == "Recurrent" & !is.na(T1$tr_case_nm)) |
-                        (T1$tr_tag== 1.5 & !is.na(T1$tr_tag) & T1$case_nm  != ""),T1$tr_roll + 1,  T1$roll)
+    # T1$roll <- ifelse((T1$tr_case_nm == "Recurrent" & !is.na(T1$tr_case_nm)) |
+    #                     (T1$tr_tag== 1.5 & !is.na(T1$tr_tag) & T1$case_nm  != ""),T1$tr_roll + 1,  T1$roll)
+
+    # Number of recurrence periods so far - Recalculate
+    fx <- T1$cri[T1$epid!=sn_ref & T1$lr!=1 & T1$tr_tag==0 & T1$tr_case_nm=="" & T1$case_nm=="Recurrent" &
+                   !(T1$d_grp == 1 & T1$user_ord > T1$d_ord)]
+    fx <- fx[!duplicated(fx)]
+    shc <- T1$cri %in% fx
+
+    T1$roll <- ifelse(T1$tr_tag %in% c(1, 1.5, 1.4) & !is.na(T1$tr_tag) | (shc == T), T1$roll + 1, ifelse(T1$tr_tag == 0 & shc != T, 0, T1$roll))
 
     # Chose the next reference event
     T1$mrk_z <- paste0(T1$case_nm, T1$epid)
@@ -1361,14 +1369,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                                    ifelse(case_for_recurrence==F, 1,1.4))),
                      T1$tag)
 
-    if(episode_type=="rolling"){
-      # Number of recurrence periods so far - Recalculate
-      fx <- T1[T1$epid!=sn_ref & T1$lr!=1 & T1$tag!=2 & T1$tr_case_nm=="", c("epid","case_nm","tag")]
-      fx <- fx[order(-fx$tag),]
-      fx <- fx[fx$case_nm=="Recurrent" & !duplicated(fx$epid),]
-      fx <- fx$epid
-      T1$roll[T1$epid %in% fx] <- T1$roll[T1$epid %in% fx] + 1
-    }
+    # if(episode_type=="rolling"){
+    #   # Number of recurrence periods so far - Recalculate
+    #   fx <- T1[T1$epid!=sn_ref & T1$lr!=1 & T1$tag!=2 & T1$tr_case_nm=="", c("epid","case_nm","tag")]
+    #   fx <- fx[order(-fx$tag),]
+    #   fx <- fx[fx$case_nm=="Recurrent" & !duplicated(fx$epid),]
+    #   fx <- fx$epid
+    #   T1$roll[T1$epid %in% fx] <- T1$roll[T1$epid %in% fx] + 1
+    # }
 
     tagged_1 <- length(T1$epid[!T1$epid %in% c(sn_ref,NA) & T1$tag==2])
     total_1 <- nrow(T1)
