@@ -37,10 +37,14 @@
 #' \item \code{wind_id} - unique window identifier
 #' \item \code{wind_nm} - type of window i.e. "Case" or "Recurrence"
 #' \item \code{case_nm} - record type in regards to case assignment
+#' \item \code{dist_from_wind} - duration of each event from its window's reference event
+#' \item \code{dist_from_epid} - duration of each event from its episode's reference event
+#' \item \code{epid_total} - number of records in each episode
 #' \item \code{epid_dataset} - data sources in each episode
 #' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
 #' \item \code{epid_length} - difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each episode
+#'
 #' }
 #'
 #' @seealso
