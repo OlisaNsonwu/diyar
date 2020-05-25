@@ -737,17 +737,17 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
   if(group_stats == T){
     # Group stats not needed for skipped events
     TH <- T1[T1$case_nm=="Skipped",]
-    TH$a <- as.numeric(TH$rec_dt_ai)
-    TH$z <- as.numeric(TH$rec_dt_zi)
+    TH$a <- TH$rec_dt_ai
+    TH$z <- TH$rec_dt_zi
 
     T1 <- T1[T1$case_nm!="Skipped",]
-    T1$a <- as.numeric(lapply(split(as.numeric(T1$rec_dt_ai), T1$epid), ifelse(from_last==F, min, max))[as.character(T1$epid)])
-    T1$z <- as.numeric(lapply(split(as.numeric(T1$rec_dt_zi), T1$epid), ifelse(from_last==F, max, min))[as.character(T1$epid)])
+    T1$a <- as.numeric(lapply(split(T1$rec_dt_ai, T1$epid), ifelse(from_last==F, min, max))[as.character(T1$epid)])
+    T1$z <- as.numeric(lapply(split(T1$rec_dt_zi, T1$epid), ifelse(from_last==F, max, min))[as.character(T1$epid)])
     T1 <- rbind(T1, TH); rm(TH)
 
     if(dt_grp == T){
-      T1$a <- as.POSIXct(T1$a, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
-      T1$z <- as.POSIXct(T1$z, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+      T1$a <- as.POSIXct(T1$a, "UTC", origin = "1970-01-01")
+      T1$z <- as.POSIXct(T1$z, "UTC", origin = "1970-01-01")
       T1$epid_length <- difftime(T1$z, T1$a, units = diff_unit)
     }else{
       T1$epid_length <- T1$z - T1$a
