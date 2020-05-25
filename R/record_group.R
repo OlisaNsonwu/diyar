@@ -210,14 +210,14 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
 
   # Range matching
   range_match <- function(x, tr_x) {
-    if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) {
-      rng_i <- paste(which(!diyar::overlap(diyar::as.number_line(x@gid), x)), collapse = ",", sep="")
+    if(any(!diyar::overlaps(diyar::as.number_line(x@gid), x))) {
+      rng_i <- paste(which(!diyar::overlaps(diyar::as.number_line(x@gid), x)), collapse = ",", sep="")
       rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
 
       stop(paste("Range matching error: Actual value (gid) is out of range in '",rng_d,"$",rng_v,"[c(",rng_i,")]'",sep=""))
     }
 
-    diyar::overlap(diyar::as.number_line(x@gid), tr_x)
+    diyar::overlaps(diyar::as.number_line(x@gid), tr_x)
   }
 
   # Exact matching

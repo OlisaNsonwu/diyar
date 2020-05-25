@@ -6,7 +6,7 @@
 #' @param y \code{number_line} object
 #' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.
 #' @param methods Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}
-#' @aliases overlap
+#' @aliases overlaps
 #' @return \code{logical} object
 #'
 #' @details
@@ -22,7 +22,7 @@
 #'
 #' aligns_end() - Identical end points only
 #'
-#' overlap() - Any or all 6 methods above
+#' overlaps() - Any or all 6 methods above
 #'
 #' overlap_method() - Shows if and how a pair of  \code{number_line} object overlaps
 #'
@@ -35,10 +35,10 @@
 #' e <- number_line(50, 120)
 #' g <- number_line(100,100)
 #'
-#' overlap(a, g)
-#' overlap(a, g, methods = "exact|chain")
+#' overlaps(a, g)
+#' overlaps(a, g, methods = "exact|chain")
 #' @export
-overlap <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
+overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
                     methods = "exact|across|chain|aligns_start|aligns_end|inbetween"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
@@ -110,7 +110,7 @@ overlap <- function(x, y, method = c("exact","across","chain","aligns_start","al
   return(p)
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' exact(a, g)
@@ -125,7 +125,7 @@ exact <- function(x, y){
   return(r)
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' across(a, b)
@@ -147,7 +147,7 @@ across <- function(x, y){
   return(r)
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' chain(c, d)
@@ -166,7 +166,7 @@ chain <- function(x, y){
   return(r)
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' aligns_start(c, d)
@@ -184,7 +184,7 @@ aligns_start <- function(x, y){
   return(r)
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' aligns_end(d, e)
@@ -202,7 +202,7 @@ aligns_end <- function(x, y){
   return(r)
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' inbetween(a, g)
@@ -223,7 +223,7 @@ inbetween <- function(x, y){
   return(r)
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @return \code{character} object
 #' @examples
 #'
@@ -253,7 +253,7 @@ overlap_method <- function(x, y){
   m
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' include_overlap_method("across")
@@ -266,7 +266,7 @@ include_overlap_method <- function(methods){
   methods
 }
 
-#' @rdname overlap
+#' @rdname overlaps
 #' @examples
 #'
 #' exclude_overlap_method("across")

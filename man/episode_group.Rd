@@ -231,5 +231,5 @@ db_5
 
 }
 \seealso{
-\code{\link{record_group}}, \code{\link{overlap}} and \code{\link{number_line}}
+\code{\link{record_group}}, \code{\link{overlaps}} and \code{\link{number_line}}
 }

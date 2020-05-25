@@ -44,7 +44,7 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{record_group}}, \code{\link{overlap}} and \code{\link{number_line}}
+#' \code{\link{record_group}}, \code{\link{overlaps}} and \code{\link{number_line}}
 #'
 #' @details
 #' Episode grouping begins at a reference event (\code{"case"}) and proceeds forward or backward in time depending on \code{from_last}.
@@ -528,8 +528,8 @@ episode_group_old <- function(df, sn = NULL, strata = NULL, date,
     # Check if events overlap
     T1$r_range <- T1$c_range <- F
 
-    T1$c_range <- diyar::overlap(T1$c_int, T1$tr_c_int, methods = T1$methods)
-    T1$r_range <- diyar::overlap(T1$r_int, T1$tr_r_int, methods = T1$methods)
+    T1$c_range <- diyar::overlaps(T1$c_int, T1$tr_c_int, methods = T1$methods)
+    T1$r_range <- diyar::overlaps(T1$r_int, T1$tr_r_int, methods = T1$methods)
 
     # distance from window's ref event
     T1$dist_from_wind <- ((as.numeric(T1$rec_dt_ai) + as.numeric(T1$rec_dt_zi)) *.5) - ((as.numeric(T1$tr_rec_dt_ai) + as.numeric(T1$tr_rec_dt_zi)) *.5)
@@ -1217,8 +1217,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # Check if events overlap
     T1$r_range <- T1$c_range <- F
 
-    T1$c_range <- diyar::overlap(T1$c_int, T1$tr_c_int, methods = T1$methods)
-    T1$r_range <- diyar::overlap(T1$r_int, T1$tr_r_int, methods = T1$methods)
+    T1$c_range <- diyar::overlaps(T1$c_int, T1$tr_c_int, methods = T1$methods)
+    T1$r_range <- diyar::overlaps(T1$r_int, T1$tr_r_int, methods = T1$methods)
 
     dr_c <- ifelse(T1$tr_c_int<0,1, -1) * chr_dir
     dr_r <- ifelse(T1$tr_r_int<0,1, -1) * chr_dir

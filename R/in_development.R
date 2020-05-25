@@ -619,8 +619,8 @@ space_out_yy <- function(x_axis){
     lag <- function(x, by=1) c(rep(as.number_line(NA), by), x[1:(length(x)-by)])
     lead <- function(x, by=1) c(x[(by+1):length(x)], rep(as.number_line(NA), by))
 
-    x_l <- overlap(x_r, lead(x_r)) & overlap(x_r, lag(x_r))
-    y_l <- overlap(y_r, lead(y_r)) & overlap(y_r, lag(y_r))
+    x_l <- overlaps(x_r, lead(x_r)) & overlaps(x_r, lag(x_r))
+    y_l <- overlaps(y_r, lead(y_r)) & overlaps(y_r, lag(y_r))
 
     new_y_axis <- ifelse(x_l==T & y_l ==T & !duplicated(paste0(x_l, y_l)), y_axis+2, y_axis)
 

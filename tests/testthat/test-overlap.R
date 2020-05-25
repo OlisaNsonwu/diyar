@@ -19,8 +19,8 @@ test_that("test overlap functions", {
   expect_equal(inbetween(number_line(-1121, 1100), number_line(-100, 100)), TRUE)
   expect_equal(inbetween(number_line(-1121, 1100), number_line(-100, 1100)), FALSE)
 
-  expect_equal(overlap(number_line(-100, -100), number_line(200, -100)), TRUE)
-  expect_equal(overlap(number_line(-100, 50), number_line(200, -100)), FALSE)
+  expect_equal(overlaps(number_line(-100, -100), number_line(200, -100)), TRUE)
+  expect_equal(overlaps(number_line(-100, 50), number_line(200, -100)), FALSE)
 
 })
 
@@ -38,8 +38,8 @@ test_that("test overlap method function", {
 })
 
 test_that("test that error and warning messages are returned correctly", {
-  expect_error(overlap(1, number_line(50, 200)), "'x' is not a number_line object")
-  expect_error(overlap(number_line(50, 200), 1), "'y' is not a number_line object")
+  expect_error(overlaps(1, number_line(50, 200)), "'x' is not a number_line object")
+  expect_error(overlaps(number_line(50, 200), 1), "'y' is not a number_line object")
 
   expect_error(across(1, number_line(50, 200)), "'x' is not a number_line object")
   expect_error(across(number_line(50, 200), 1), "'y' is not a number_line object")
@@ -59,8 +59,8 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(overlap_method(1, number_line(50, 200)), "'x' is not a number_line object")
   expect_error(overlap_method(number_line(50, 200), 1), "'y' is not a number_line object")
 
-  expect_error(overlap(number_line(-100, 100), number_line(50, 200), "overlaping"), "`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
-  expect_error(overlap(number_line(-100, 100), number_line(50, 200), 2), "'method' must be a character object")
+  expect_error(overlaps(number_line(-100, 100), number_line(50, 200), "overlaping"), "`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
+  expect_error(overlaps(number_line(-100, 100), number_line(50, 200), 2), "'method' must be a character object")
 })
 
 
