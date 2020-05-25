@@ -111,13 +111,9 @@
 </li>
 </ul>
 </div>
-<div id="implementation" class="section level1">
+<div id="overview" class="section level1">
 <h1 class="hasAnchor">
-<a href="#implementation" class="anchor"></a>Implementation</h1>
-<p><a id="episode_grouping"></a></p>
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
+<a href="#overview" class="anchor"></a>Overview</h1>
 <p>An episode as produced by <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> or <code><a href="../reference/episode_group.html">episode_group()</a></code> is a set events (dated records) within a specified period. Each episode begins with an index event and may contain duplicate or recurrent events.</p>
 <ul>
 <li>
@@ -128,9 +124,14 @@
 <code><a href="../reference/episode_group.html">episode_group()</a></code> - the main function behind <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>
 </li>
 </ul>
-<div id="episodes-windows-case-lengths-and-recurrence-periods" class="section level3">
-<h3 class="hasAnchor">
-<a href="#episodes-windows-case-lengths-and-recurrence-periods" class="anchor"></a>Episodes, windows, case lengths and recurrence periods</h3>
+</div>
+<div id="implementation" class="section level1">
+<h1 class="hasAnchor">
+<a href="#implementation" class="anchor"></a>Implementation</h1>
+<p><a id="episode_grouping"></a></p>
+<div id="episodes-windows-case-lengths-and-recurrence-periods" class="section level2">
+<h2 class="hasAnchor">
+<a href="#episodes-windows-case-lengths-and-recurrence-periods" class="anchor"></a>Episodes, windows, case lengths and recurrence periods</h2>
 <p>Before we begin, let’s go over some terms which will pop up now and again.</p>
 <ul>
 <li>
@@ -176,10 +177,9 @@
 </ul>
 <p>In <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, a <code>window</code> always equates to an <code>episode</code> in <code>diyar</code>. <code>events</code> from a different <code>window</code> belongs to a separate <code>episode</code>. n <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>, if two or more <code>windows</code> overlap, they are collapsed into a larger <code>window</code>, indicating that the <code>episode</code> is still on-going or has recurred. As a result, every <code>event</code> belonging to both <code>windows</code> are now considered part of the same <code>"rolling episode"</code>.</p>
 </div>
-</div>
-<div id="making-case-definitions" class="section level2">
+<div id="how-to-apply-a-case-definition" class="section level2">
 <h2 class="hasAnchor">
-<a href="#making-case-definitions" class="anchor"></a>Making case definitions</h2>
+<a href="#how-to-apply-a-case-definition" class="anchor"></a>How to apply a case definition</h2>
 <div id="epid-objects" class="section level3">
 <h3 class="hasAnchor">
 <a href="#epid-objects" class="anchor"></a>epid objects</h3>
@@ -240,8 +240,8 @@ ds<span class="op">$</span>f2
 
 ds<span class="op">$</span>f3
 <span class="co">#&gt; [1] "E.1 (C)" "E.2 (C)" "E.1 (D)" "E.1 (D)" "E.2 (D)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-10-1.png" width="816"></p>
 <p><a id="case_assignment"></a></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-10-1.png" width="816"></p>
 </div>
 <div id="reference-events" class="section level3">
 <h3 class="hasAnchor">
@@ -273,7 +273,8 @@ ds2<span class="op">$</span>ep1 &lt;-<span class="st"> </span><span class="kw"><
                           <span class="dt">case_length =</span> <span class="dv">6</span>, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
 <span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 
-<span class="co"># Using `data_source` populates the `epid_dataset` slot of the `epid` object. This is useful when you're working with different datasets</span>
+<span class="co"># Using `data_source` populates the `epid_dataset` slot of the `epid` object. </span>
+<span class="co"># This is useful when you're working with different datasets</span>
 ds2<span class="op">$</span>ep1_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep1<span class="op">@</span>epid_dataset
 
 <span class="co"># Track preceeding infections up to 6 months BEFORE the HIV diagnosis</span>
@@ -294,14 +295,16 @@ ds2
 <p>To remedy the situation above, you can simultaneously track <code>events</code> that occur before and after an index <code>event</code>. This is either done by changing <code>bi_direction</code> to <code>TRUE</code> or by using an applicable cut-off range i.e. -6 -&gt; 6. See the examples below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Track preceeding and concurrent infections up to 6 months BEFORE OR AFTER the HIV diagnosis</span>
 
-<span class="co"># method 1a</span>
-<span class="co"># Track diagnoses 6 months AFTER the HIV diag while `bi_direction` tells the function to also check 6 months BEFORE the HIV diagnosis</span>
+<span class="co"># Method 1a</span>
+<span class="co"># Track diagnoses 6 months AFTER the HIV diagnosis.</span>
+  <span class="co"># `bi_direction` tells the function to also check 6 months BEFORE the HIV diagnosis</span>
 ds2<span class="op">$</span>ep3a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> <span class="dv">6</span>, 
                            <span class="dt">bi_direction =</span> T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
-<span class="co"># method 1b</span>
-<span class="co"># Track diagnoses 6 months BEFORE the HIV diag while `bi_direction` tells the function to also check 6 months AFTER the HIV diag.</span>
+<span class="co"># Method 1b</span>
+<span class="co"># Track diagnoses 6 months BEFORE the HIV diagnosis</span>
+  <span class="co"># bi_direction` tells the function to also check 6 months AFTER the HIV diagnosis</span>
 ds2<span class="op">$</span>ep3b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> <span class="op">-</span><span class="dv">6</span>,
                            <span class="dt">bi_direction =</span> T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F, 
                            <span class="dt">data_source =</span> ds2<span class="op">$</span>diag)
@@ -309,8 +312,9 @@ ds2<span class="op">$</span>ep3b &lt;-<span class="st"> </span><span class="kw">
 
 ds2<span class="op">$</span>ep3_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep3b<span class="op">@</span>epid_dataset
 
-<span class="co"># method 2a</span>
-<span class="co"># Track diagnoses 6 months BEFORE or AFTER the HIV diag with an applicable. There's no need for `bi_direction`.</span>
+<span class="co"># Method 2a</span>
+<span class="co"># Track diagnoses 6 months BEFORE or AFTER the HIV diag with an applicable. </span>
+  <span class="co"># There's no need for `bi_direction`.</span>
 rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="op">-</span><span class="dv">6</span>, <span class="dv">6</span>)
 ds2<span class="op">$</span>ep4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> rng, <span class="dt">episode_unit =</span> <span class="st">"months"</span>,
                           <span class="dt">display =</span> F, <span class="dt">data_source =</span> ds2<span class="op">$</span>diag)
@@ -318,12 +322,13 @@ ds2<span class="op">$</span>ep4 &lt;-<span class="st"> </span><span class="kw"><
 
 ds2<span class="op">$</span>ep4_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep4<span class="op">@</span>epid_dataset
 
-<span class="co"># method 2b</span>
-<span class="co"># Track diagnoses between 2 and 6 months AFTER the HIV diag while `bi_direction` tells the function to also check between 2 and 6 months BEFORE the HIV diag.</span>
+<span class="co"># Method 2b</span>
+<span class="co"># Track diagnoses between 2 and 6 months AFTER the HIV diagnosis. </span>
+  <span class="co">#` bi_direction` tells the function to also check between 2 and 6 months BEFORE the HIV diagnosis</span>
 <span class="co"># Diagnoses before 2 months on either side are skipped as mentioned in the "lengths" section</span>
 rng2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">2</span>, <span class="dv">6</span>)
-ds2<span class="op">$</span>ep5 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> rng2, <span class="dt">bi_direction =</span>T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, 
-                          <span class="dt">display =</span> F)
+ds2<span class="op">$</span>ep5 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> rng2, 
+                          <span class="dt">bi_direction =</span>T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
 <span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
 
 
@@ -816,9 +821,9 @@ dbs
 </div>
 </div>
 </div>
-<div id="cutting-down-processing-time" class="section level2">
+<div id="cut-down-your-processing-time" class="section level2">
 <h2 class="hasAnchor">
-<a href="#cutting-down-processing-time" class="anchor"></a>Cutting down processing time</h2>
+<a href="#cut-down-your-processing-time" class="anchor"></a>Cut down your processing time</h2>
 <p>Some case definitions are so specific that only certain kinds of <code>episodes</code> will be required. In such cases, you can save save time by skipping <code>events</code> from <code>episodes</code> that aren’t required. There are 3 mechanisms to skip such <code>events</code>.</p>
 <p><em>Skipped <code>events</code> are assigned unique episode IDs and their <code>case_nm</code> slot is flagged as <code>"Skipped"</code>.</em></p>
 <div id="skip-subsets-of-the-dataset" class="section level3">
@@ -937,19 +942,22 @@ dbg<span class="op">$</span>ep_a &lt;-<span class="st"> </span><span class="kw">
                           <span class="dt">display =</span> F)
 <span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
-<span class="co"># Breakup episodes without events from the `DS3` `data_source` - the `DS3` event MUST BE linked to events from other `data_sources`  </span>
+<span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
+  <span class="co"># The `DS3` event MUST BE linked to events from other `data_sources`  </span>
 dbg<span class="op">$</span>ep_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="st">"DS3"</span>, <span class="dt">display =</span> F)
 <span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
 
-<span class="co"># Breakup episodes without events from the `DS3` `data_source` - the `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   </span>
+<span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
+  <span class="co"># The `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   </span>
 dbg<span class="op">$</span>ep_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">g=</span><span class="st">"DS3"</span>), <span class="dt">display =</span> F)
 <span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
 
-<span class="co"># Breakup episodes without events from the `DS3` `data_source` - the `DS3` event MUST BE linkned to events from the `DS1` `data_source`</span>
+<span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
+  <span class="co"># The `DS3` event MUST BE linkned to events from the `DS1` `data_source`</span>
 dbg<span class="op">$</span>ep_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">l=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"DS3"</span>,<span class="st">"DS1"</span>)), <span class="dt">display =</span> F)
@@ -1167,11 +1175,12 @@ vals
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#introduction">Introduction</a></li>
       <li><a href="#uses">Uses</a></li>
+      <li><a href="#overview">Overview</a></li>
       <li>
 <a href="#implementation">Implementation</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#overview">Overview</a></li>
-      <li><a href="#making-case-definitions">Making case definitions</a></li>
-      <li><a href="#cutting-down-processing-time">Cutting down processing time</a></li>
+<li><a href="#episodes-windows-case-lengths-and-recurrence-periods">Episodes, windows, case lengths and recurrence periods</a></li>
+      <li><a href="#how-to-apply-a-case-definition">How to apply a case definition</a></li>
+      <li><a href="#cut-down-your-processing-time">Cut down your processing time</a></li>
       <li><a href="#useful-ways-of-using-these-functions">Useful ways of using these functions</a></li>
       </ul>
 </li>

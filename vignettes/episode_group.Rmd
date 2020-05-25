@@ -68,7 +68,7 @@ Before we begin, let's go over some terms which will pop up now and again.
 
 In `fixed_episodes()`, a `window` always equates to an `episode` in `diyar`. `events` from a different `window` belongs to a separate `episode`. n `rolling_episodes()`, if two or more `windows` overlap, they are collapsed into a larger `window`, indicating that the `episode` is still on-going or has recurred. As a result, every `event` belonging to both `windows` are now considered part of the same `"rolling episode"`.
 
-## How to apply a case definitions
+## How to apply a case definition
 ### epid objects
 Firstly, let's go through what `episodes` look like. They are stored as `epid` objects (`S4` object class). An `epid` object is an `episode` identifier with `slots` for useful information for each `episode`. See `?fixed_episodes` for the details of each slot. For those in the `format.epid`, see below.
 
@@ -143,11 +143,11 @@ ds$f3 <- fixed_episodes(ds$date, case_length = rng, display = F, skip_if_b4_leng
 ds$f3
 ```
 
+<a id="case_assignment"></a> 
+
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = ds$f3, date= ds$date, case_length = 16)
 ```
-
-<a id="case_assignment"></a> 
 
 ### Reference events
 Your next consideration should be which `events` will be the index `event` (`reference events`). It's common practice for the earliest `event` to be taken as the `reference event`. However, there are times when the most recent `event` will be more relevant. For example, if a deceased patient died after a series of positive infection results, the most recent result could be considered more relevant and so taken as the `reference event`.
@@ -184,7 +184,8 @@ ds2$user_ord <- ifelse(ds2$diag=="HIV", 1,2)
 ds2$ep1 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, data_source = ds2$diag,
                           case_length = 6, episode_unit = "months", display = F)
 
-# Using `data_source` populates the `epid_dataset` slot of the `epid` object. This is useful when you're working with different datasets
+# Using `data_source` populates the `epid_dataset` slot of the `epid` object. 
+# This is useful when you're working with different datasets
 ds2$ep1_ds <- ds2$ep1@epid_dataset
 
 # Track preceeding infections up to 6 months BEFORE the HIV diagnosis
@@ -203,33 +204,37 @@ To remedy the situation above, you can simultaneously track `events` that occur 
 ```{r warning=FALSE}
 # Track preceeding and concurrent infections up to 6 months BEFORE OR AFTER the HIV diagnosis
 
-# method 1a
-# Track diagnoses 6 months AFTER the HIV diag while `bi_direction` tells the function to also check 6 months BEFORE the HIV diagnosis
+# Method 1a
+# Track diagnoses 6 months AFTER the HIV diagnosis.
+  # `bi_direction` tells the function to also check 6 months BEFORE the HIV diagnosis
 ds2$ep3a <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = 6, 
                            bi_direction = T, episode_unit = "months", display = F)
 
-# method 1b
-# Track diagnoses 6 months BEFORE the HIV diag while `bi_direction` tells the function to also check 6 months AFTER the HIV diag.
+# Method 1b
+# Track diagnoses 6 months BEFORE the HIV diagnosis
+  # bi_direction` tells the function to also check 6 months AFTER the HIV diagnosis
 ds2$ep3b <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = -6,
                            bi_direction = T, episode_unit = "months", display = F, 
                            data_source = ds2$diag)
 
 ds2$ep3_ds <- ds2$ep3b@epid_dataset
 
-# method 2a
-# Track diagnoses 6 months BEFORE or AFTER the HIV diag with an applicable. There's no need for `bi_direction`.
+# Method 2a
+# Track diagnoses 6 months BEFORE or AFTER the HIV diag with an applicable. 
+  # There's no need for `bi_direction`.
 rng <- number_line(-6, 6)
 ds2$ep4 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rng, episode_unit = "months",
                           display = F, data_source = ds2$diag)
 
 ds2$ep4_ds <- ds2$ep4@epid_dataset
 
-# method 2b
-# Track diagnoses between 2 and 6 months AFTER the HIV diag while `bi_direction` tells the function to also check between 2 and 6 months BEFORE the HIV diag.
+# Method 2b
+# Track diagnoses between 2 and 6 months AFTER the HIV diagnosis. 
+  #` bi_direction` tells the function to also check between 2 and 6 months BEFORE the HIV diagnosis
 # Diagnoses before 2 months on either side are skipped as mentioned in the "lengths" section
 rng2 <- number_line(2, 6)
-ds2$ep5 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rng2, bi_direction =T, episode_unit = "months", 
-                          display = F)
+ds2$ep5 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rng2, 
+                          bi_direction =T, episode_unit = "months", display = F)
 
 
 ds2
@@ -810,17 +815,20 @@ dbg$ep_a <- episode_group(dbg, date = date, case_length = case_len, episode_type
                           recurrence_length = recurrence, data_source = dataset, to_s4 = T,
                           display = F)
 
-# Breakup episodes without events from the `DS3` `data_source` - the `DS3` event MUST BE linked to events from other `data_sources`  
+# Breakup episodes without events from the `DS3` `data_source` 
+  # The `DS3` event MUST BE linked to events from other `data_sources`  
 dbg$ep_b <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
                           recurrence_length = recurrence, data_source = dataset, to_s4 = T,
                           data_links = "DS3", display = F)
 
-# Breakup episodes without events from the `DS3` `data_source` - the `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   
+# Breakup episodes without events from the `DS3` `data_source` 
+  # The `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   
 dbg$ep_c <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
                           recurrence_length = recurrence, data_source = dataset, to_s4 = T,
                           data_links = list(g="DS3"), display = F)
 
-# Breakup episodes without events from the `DS3` `data_source` - the `DS3` event MUST BE linkned to events from the `DS1` `data_source`
+# Breakup episodes without events from the `DS3` `data_source` 
+  # The `DS3` event MUST BE linkned to events from the `DS1` `data_source`
 dbg$ep_d <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
                           recurrence_length = recurrence, data_source = dataset, to_s4 = T,
                           data_links = list(l=c("DS3","DS1")), display = F)
