@@ -1073,6 +1073,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$skip_order <- Inf
   }
 
+  tot <- nrow(T1)
   # Skip from episode grouping
   T1$epid[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <-
     T1$wind_id[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <-
@@ -1085,6 +1086,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$dist_from_wind[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- 0
 
   T1$tag[T1$cri %in% c(paste(rep("NA", length(st)),collapse="_"), "")] <- 2
+
+  exa <- length(T1$case_nm[T1$case_nm=="Skipped"])
 
   if(!is.null(ds) & !all(toupper(dl_lst) == "ANY")){
     TH <- T1[T1$case_nm=="Skipped",]
@@ -1114,6 +1117,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$epid[req_links==F] <- T1$wind_id[req_links==F] <- T1$sn[req_links==F]
     T1$dist_from_epid[req_links==F] <- T1$dist_from_wind[req_links==F] <- 0
 
+    ex_a <- ex_a + length(req_links==F)
     T1 <- rbind(T1, TH); rm(TH)
   }
 
@@ -1140,6 +1144,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     skip_cris <- skip_cris[!duplicated(skip_cris)]
 
     # assign unique IDs to skipped records
+    skpd <- length(T1$tag[T1$cri %in% skip_cris])
     T1$tag[T1$cri %in% skip_cris] <- 2
     T1$wind_nm[T1$cri %in% skip_cris] <- T1$case_nm[T1$cri %in% skip_cris] <- "Skipped"
     T1$epid[T1$cri %in% skip_cris] <- T1$wind_id[T1$cri %in% skip_cris] <- T1$sn[T1$cri %in% skip_cris]
@@ -1160,10 +1165,14 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     names(TR) <- paste0("tr_",names(TR))
 
     # early break if there are no more reference events
-    if(nrow(TR)==0) {break}
+    if(nrow(TR)==0) {
+      if(skpd >0) cat(paste0(fmt(skpd), " record(s); ", fmt(skpd)," skipped\n"))
+      break
+      }
 
     if(display){cat(paste0("Episode or recurrence window ",c,".\n"))}
-
+    if(display & exa >0 & c ==1) cat(paste0(fmt(tot), " record(s); ", fmt(exa)," excluded from episode grouping. ", fmt(tot-exa), " left to group.\n"))
+    total_1 <- nrow(T1)
     #T1 <- merge(T1, TR, by.x="cri", by.y="tr_cri", all.x=T)
     T1 <- dplyr::left_join(T1, TR, by= c("cri"="tr_cri"))
 
@@ -1237,6 +1246,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     if(skip_if_b4_lengths==T){
       # assign unique IDs to skipped records
+      skpd <- skpd + length(jmp_r[jmp_r])
       T1$wind_nm[jmp_r] <- T1$case_nm[jmp_r] <- "Skipped"
       T1$epid[jmp_r] <- T1$wind_id[jmp_r] <- T1$sn[jmp_r]
       T1$dist_from_wind[jmp_r] <- T1$dist_from_epid[jmp_r] <- 0
@@ -1317,10 +1327,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       vrs <- names(T1)[!grepl("^tr|^fg|^mrk", names(T1))]
       T1 <- T1[vrs]
       tagged_1 <- length(T1$epid[!T1$epid %in% c(sn_ref,NA) & T1$tag==2])
-      total_1 <- nrow(T1)
+      #total_1 <- nrow(T1)
 
       if(display){
-        cat(paste0(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n"))
+        #cat(paste0(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n"))
+        cat(paste0(fmt(total_1), " record(s); ", fmt(tagged_1)," grouped to episodes", ifelse(skpd>0, paste0(", ",fmt(skpd)," skipped"), ""), " and ", fmt(total_1-tagged_1-skpd)," left to group.\n"))
       }
       break
     }
@@ -1379,9 +1390,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # }
 
     tagged_1 <- length(T1$epid[!T1$epid %in% c(sn_ref,NA) & T1$tag==2])
-    total_1 <- nrow(T1)
+    #total_1 <- nrow(T1)
     if(display){
-      cat(paste0(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n"))
+      #cat(paste0(fmt(tagged_1)," of ", fmt(total_1)," record(s) grouped into episodes. ", fmt(total_1-tagged_1)," records not yet grouped.\n"))
+      cat(paste0(fmt(total_1), " record(s); ", fmt(tagged_1)," grouped to episodes", ifelse(skpd>0, paste0(", ",fmt(skpd)," skipped"), ""), " and ", fmt(total_1-tagged_1-skpd)," left to group.\n"))
     }
 
     T1 <- T1[names(T1)[!grepl("^tr|^fg|^mrk", names(T1))]]
@@ -1496,7 +1508,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   unique_ids <- length(T1[!duplicated(T1$epid) & !duplicated(T1$epid, fromLast = T),]$epid)
 
   pd <- ifelse(display,"\n","")
-  cat(paste0(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) assinged a unique ID. \n"))
+  cat(paste0(pd, "Episode grouping complete - " ,fmt(unique_ids)," record(s) with unique IDs. \n"))
   if(to_s4) T1 <- diyar::to_s4(T1)
   T1
 }
