@@ -98,6 +98,8 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{case_for_recurrence}{if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
+\item{skip_if_b4_lengths}{if \code{TRUE} (default), records \code{events} before the \code{case_length} or the \code{recurrence_length} range are skipped.}
+
 \item{x}{Record date or interval. Deprecated. Please use \code{date}}
 }
 \value{
