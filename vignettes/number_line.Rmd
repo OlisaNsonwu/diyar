@@ -50,7 +50,7 @@ nl_a
 # lower end of the range
 start_point(nl_a)
 
-# start of the range
+# left part of the range
 left_point(nl_a)
 ```
 
@@ -62,7 +62,7 @@ plot_number_line(nl_a)
 You can reverse the direction of a `number_line` object with `reverse_number_line()`.
 
 ```{r message=FALSE, warning=FALSE}
-# reverse only decreasing `number_line` objects
+# Only reverse decreasing `number_line` objects
 nl_b <- reverse_number_line(nl_a, direction = "decreasing"); nl_b
 ```
 
@@ -72,7 +72,7 @@ plot_number_line(nl_b)
 ```
 
 ## Manipulating `number_line` objects
-There are convenience functions to reverse, shrink or expand `number_line` objects, or shift them along the number line. 
+`diyar` has convenience functions to reverse, shrink or expand `number_line` objects, or shift them along the number line. 
 
 ```{r message=FALSE, warning=FALSE}
 nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"),
@@ -96,21 +96,21 @@ nl_g <- expand_number_line(nl_c, -2); nl_g
 nl_h <- reverse_number_line(nl_c); nl_h
 
 # shift the `number_line` object towards the left of the number line by 2 days 
-nl_g <- shift_number_line(nl_c, -2); nl_g
+nl_i <- shift_number_line(nl_c, -2); nl_g
 
 # shift the `number_line` object towards the right of the number line by 2 days 
-nl_i <- shift_number_line(nl_c, 2); nl_i
+nl_j <- shift_number_line(nl_c, 2); nl_i
 ```
 
 **Figure 3: Manipulated `number_line` objects **
 ```{r echo=FALSE, fig.height=2.5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_number_line(c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i))
+plot_number_line(rev(c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i)))
 ```
 
 You can also convert `number_line` objects to a sequence of `numeric` based values
 
 ```{r message=FALSE, warning=FALSE}
-nls <- c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i)
+nls <- c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i, nl_j)
 
 nls
 
