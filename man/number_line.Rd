@@ -60,9 +60,9 @@ compress_number_line(x, method = c("exact", "across", "chain",
 number_line_sequence(x, by = 1, length.out = NULL)
 }
 \arguments{
-\item{l}{Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
+\item{l}{Left point of the \code{number_line} object. Must be able to be coerced to a finite \code{numeric} value}
 
-\item{r}{Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
+\item{r}{Right point of the \code{number_line} object. Must be able to be coerced to a finite \code{numeric} value}
 
 \item{id}{Unique \code{numeric} element ID. Optional}
 
@@ -92,7 +92,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 \code{number_line} object
 }
 \description{
-A range number based values on a number line .
+A range of \code{numeric} based values on a number line.
 }
 \details{
 A \code{number_line} object represents a series of real numbers on a number line.
