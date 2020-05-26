@@ -44,7 +44,7 @@ exclude_overlap_method(methods)
 
 \item{method}{Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.}
 
-\item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}}
+\item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects using different \code{methods}}
 }
 \value{
 \code{logical} object
@@ -57,19 +57,22 @@ Identify overlapping \code{number_line} objects
 \details{
 exact() - Identical start and end points
 
-inbetween() - Start \bold{and} end points of one \code{number_line} object in between the start and end points of another.
+inbetween() - Start and end points of one \code{number_line} object is in between the start and end points of another.
 
-across() - Start \bold{or} end points of one \code{number_line} object in between the start and end points of another.
+across() - Start or end points of one \code{number_line} object is in between the start and end points of another.
 
-chain() - Chained i.e. end point of one \code{number_line} object is equal to the start point of another
+chain() - Chained i.e. end point of one \code{number_line} object is the same as the start point of another.
 
-aligns_start() - Identical start points only
+aligns_start() - Identical start points only.
 
-aligns_end() - Identical end points only
+aligns_end() - Identical end points only.
 
-overlaps() - Any or all 6 methods above
+overlap() - Any kind of overlap.
 
-overlap_method() - Shows if and how a pair of  \code{number_line} object overlaps
+overlaps() - Overlap by any or all 7 methods above.
+
+overlap_method() - Shows if and how a pair of \code{number_line} object overlaps.
+Does not show \code{"overlap"} since \code{overlap()} is always \code{TRUE} when any other method is \code{TRUE}.
 
 include_overlap_method() and exclude_overlap_method() - Conveniently generate the required values for the \code{method}
 }
