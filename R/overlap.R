@@ -81,13 +81,18 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
   # final check
   p <- rep(F, length(x))
   sets <- split(1:length(x), m)
+
+  names(sets)[grepl("overlap", names(sets))] <- "overlap"
   um1 <- names(sets)
+  um1 <- um1[!duplicated(um1)]
+  um1 <- unlist(strsplit(um1,split="\\|"))
+  um1 <- um1[!duplicated(um1)]
 
   m_ab <- function(x){
     x <- ifelse(x=="aligns_start", "as", ifelse(x=="aligns_end", "ae", substr(x,1,2)))
   }
 
-  for (i in mths){
+  for (i in um1){
     assign("tp", sets)
     ab <- m_ab(i)
     names(tp) <- ifelse(grepl(i, names(sets)), i, "")
@@ -99,7 +104,7 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
     assign(ab, lgk)
   }
 
-  for (j in mths) {
+  for (j in um1) {
     func <- get(j)
     tst <- get(m_ab(j))
     chg <- func(x, y)
