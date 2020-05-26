@@ -21,7 +21,7 @@ to_df - \code{data.frame} object
 }
 \description{
 Convert the returned output of \code{\link{number_line}}, \code{\link{record_group}}, \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}}
-from the a \code{data.frame} to \link[=number_line-class]{number_line}, \link[=pid-class]{pid} or \link[=epid-class]{epid} objects, and vice versa.
+from a \code{data.frame} to \link[=number_line-class]{number_line}, \link[=pid-class]{pid} or \link[=epid-class]{epid} objects, and vice versa.
 }
 \examples{
 data(infections)

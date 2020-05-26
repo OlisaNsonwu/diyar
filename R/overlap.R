@@ -4,33 +4,39 @@
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
-#' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.
+#' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.
 #' @param methods Methods of overlap. Check different pairs of \code{number_line} objects using different \code{methods}
 #' @aliases overlaps
-#' @return \code{logical} object
+#' @return \code{logical}; \code{character}
 #'
 #' @details
 #'
-#' exact() - Identical start and end points
+#' \bold{7 logical test;}
 #'
-#' inbetween() - Start and end points of one \code{number_line} object is in between the start and end points of another.
+#' \bold{\code{exact()}} - Identical start and end points
 #'
-#' across() - Start or end points of one \code{number_line} object is in between the start and end points of another.
+#' \bold{\code{inbetween()}} - start and end points of one \code{number_line} object is in between the start and end points of another.
 #'
-#' chain() - Chained i.e. end point of one \code{number_line} object is the same as the start point of another.
+#' \bold{\code{across()}} - Start or end points of one \code{number_line} object is in between the start and end points of another.
 #'
-#' aligns_start() - Identical start points only.
+#' \bold{\code{chain()}} - Chained i.e. end point of one \code{number_line} object is the same as the start point of another.
 #'
-#' aligns_end() - Identical end points only.
+#' \bold{\code{aligns_start()}} - Identical start points only.
 #'
-#' overlap() - Any kind of overlap.
+#' \bold{\code{aligns_end()}} - Identical end points only.
 #'
-#' overlaps() - Overlap by any or all 7 methods above.
+#' \bold{\code{overlap()}} - Any kind of overlap.
+#' All other methods are mutually exclusive.
+#' \bold{\code{overlap()}} is just a convenient \code{method} for "ANY" and "ALL" methods of overlap.
 #'
-#' overlap_method() - Shows if and how a pair of \code{number_line} object overlaps.
-#' Does not show \code{"overlap"} since \code{overlap()} is always \code{TRUE} when any other method is \code{TRUE}.
+#' \bold{\code{overlaps()}} - Overlap by any or all 7 methods above.
 #'
-#' include_overlap_method() and exclude_overlap_method() - Conveniently generate the required values for the \code{method}
+#' \bold{Describe methods of overlap;}
+#'
+#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object has overlapped.
+#' Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
+#'
+#' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently creeat the required values for \code{methods} and \code{overlap_methods} in \code{\link{episode_group}}.
 #' @examples
 #' a <- number_line(-100, 100)
 #' b <- number_line(10, 11.2)
@@ -252,7 +258,6 @@ inbetween <- function(x, y){
 }
 
 #' @rdname overlaps
-#' @return \code{character} object
 #' @examples
 #'
 #' overlap_method(a, c)

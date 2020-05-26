@@ -70,7 +70,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{x}{\code{number_line} object}
 
-\item{value}{\code{numberic} based value}
+\item{value}{\code{numeric} based value}
 
 \item{direction}{Type of \code{"number_line"} objects to be reversed.
 Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).}
@@ -104,24 +104,24 @@ The \code{start} point is the lowest number in the range, regardless of whether 
 The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
 This is the \code{direction} of the \code{number_line} object.
 
-\code{reverse_number_line()} - reverses the direction of a \code{number_line} object.
+\bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line} object.
 A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
 The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 
-\code{shift_number_line()} - Shift a \code{number_line} object towards the positive or negative end of the number line.
+\bold{\code{shift_number_line()}} - Shift a \code{number_line} object towards the positive or negative end of the number line.
 
-\code{expand_number_line()} - Increase or decrease the width or length of a \code{number_line} object.
+\bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line} object.
 
-\code{invert_number_line()} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
+\bold{\code{invert_number_line()}} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
 
-\code{compress_number_line()} - 'compress' or 'collapse' overlapping \code{number_line} objects into a new \code{number_line} objects that covers the \code{start} and \code{end} points of the originals.
+\bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} objects into a new \code{number_line} object that covers the \code{start} and \code{end} points of the originals.
 This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the new expanded \code{number_line} object.
 See \code{\link{overlaps}} for further details on overlapping \code{number_line} objects.
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
-\code{compress_number_line()} can be an alternative for simple implementations of \code{\link{record_group}} or \code{\link{episode_group}}.
+\bold{\code{compress_number_line()}} can be an alternative for simple implementations of \code{\link{record_group}} or \code{\link{episode_group}}.
 
-\code{number_line_sequence()} - Convert a \code{number_line} object into a sequence of finite numbers.
+\bold{\code{number_line_sequence()}} - Convert a \code{number_line} object into a sequence of finite numbers.
 The direction of the sequence will correspond to that of the \code{number_line} object.
 }
 \examples{

@@ -99,7 +99,7 @@ left_point <- function(x){
 }
 
 #' @rdname number_line
-#' @param value \code{numberic} based value
+#' @param value \code{numeric} based value
 #' @export
 "left_point<-" <- function(x, value) {
   if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
@@ -175,7 +175,7 @@ number_line_width <- function(x){
 #' @param direction Type of \code{"number_line"} objects to be reversed.
 #' Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).
 #' @details
-#' \code{reverse_number_line()} - reverses the direction of a \code{number_line} object.
+#' \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line} object.
 #' A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
 #' The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 #' \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
@@ -212,7 +212,7 @@ reverse_number_line <- function(x, direction = "both"){
 
 #' @rdname number_line
 #' @details
-#' \code{shift_number_line()} - Shift a \code{number_line} object towards the positive or negative end of the number line.
+#' \bold{\code{shift_number_line()}} - Shift a \code{number_line} object towards the positive or negative end of the number line.
 #' @examples
 #' # Shift number_line objects
 #' c <- number_line(5, 6)
@@ -239,7 +239,7 @@ shift_number_line <- function(x, by=1){
 #' @rdname number_line
 #' @param point \code{"start"} or \code{"end"} point
 #' @details
-#' \code{expand_number_line()} - Increase or decrease the width or length of a \code{number_line} object.
+#' \bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line} object.
 #' @examples
 #' # Change the width or length of a number_line object
 #' d <- c(number_line(3, 6), number_line(6, 3))
@@ -282,7 +282,7 @@ expand_number_line <- function(x, by=1, point ="both"){
 
 #' @rdname number_line
 #' @details
-#' \code{invert_number_line()} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
+#' \bold{\code{invert_number_line()}} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
 #' @examples
 #' # Change the width or length of a number_line object
 #' e <- c(number_line(3, 6), number_line(-3, -6), number_line(-3, 6))
@@ -314,11 +314,11 @@ invert_number_line <- function(x, point ="both"){
 
 #' @rdname number_line
 #' @details
-#' \code{compress_number_line()} - 'compress' or 'collapse' overlapping \code{number_line} objects into a new \code{number_line} objects that covers the \code{start} and \code{end} points of the originals.
+#' \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} objects into a new \code{number_line} object that covers the \code{start} and \code{end} points of the originals.
 #' This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the new expanded \code{number_line} object.
 #' See \code{\link{overlaps}} for further details on overlapping \code{number_line} objects.
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
-#' \code{compress_number_line()} can be an alternative for simple implementations of \code{\link{record_group}} or \code{\link{episode_group}}.
+#' \bold{\code{compress_number_line()}} can be an alternative for simple implementations of \code{\link{record_group}} or \code{\link{episode_group}}.
 #'
 #' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.
 #' @param methods Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}
@@ -396,7 +396,7 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
 #' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}
 #' @param length.out desired length of the sequence. Passed to \code{seq()}
 #' @details
-#' \code{number_line_sequence()} - Convert a \code{number_line} object into a sequence of finite numbers.
+#' \bold{\code{number_line_sequence()}} - Convert a \code{number_line} object into a sequence of finite numbers.
 #' The direction of the sequence will correspond to that of the \code{number_line} object.
 #' @examples
 #' # Convert a number line object to its series of real numbers
