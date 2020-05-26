@@ -3,12 +3,12 @@
 #' @description A range of \code{numeric} based values on a number line.
 #'
 #' @details
-#' A \code{number_line} object represents a series of real numbers on a number line.
+#' A \code{number_line} object represents a range of real numbers on a number line.
 #'
-#' Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from \code{start} and \code{end} points.
-#' The \code{start} point is the lowest number in the series, regardless of whether it's at the \code{left} or \code{right} point.
+#' Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the range This may differ from \code{start} and \code{end} points.
+#' The \code{start} point is the lowest number in the range, regardless of whether it's at the \code{left} or \code{right} point.
 #'
-#' The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} series.
+#' The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
 #' This is the \code{direction} of the \code{number_line} object.
 #'
 #' @param l Left point of the \code{number_line} object. Must be able to be coerced to a finite \code{numeric} value
@@ -172,16 +172,18 @@ number_line_width <- function(x){
 
 #' @rdname number_line
 #' @param x \code{number_line} object
-#' @param direction Type of \code{"number_line"} objects to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.
+#' @param direction Type of \code{"number_line"} objects to be reversed.
+#' Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).
 #' @details
-#' \code{reverse_number_line()} - reverses the direction of a \code{number_line} object. A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
+#' \code{reverse_number_line()} - reverses the direction of a \code{number_line} object.
+#' A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
 #' The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 #' \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 #' @examples
 #' # Reverse number_line objects
 #' reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
-#' reverse_number_line(number_line(200,-100), "increasing")
-#' reverse_number_line(number_line(200,-100), "decreasing")
+#' reverse_number_line(number_line(200, -100), "increasing")
+#' reverse_number_line(number_line(200, -100), "decreasing")
 #'
 #' @export
 reverse_number_line <- function(x, direction = "both"){
@@ -215,9 +217,9 @@ reverse_number_line <- function(x, direction = "both"){
 #' # Shift number_line objects
 #' c <- number_line(5, 6)
 #' # Towards the positive end of the number line
-#' shift_number_line(x=c(c,c), by=c(2,3))
+#' shift_number_line(x=c(c, c), by=c(2, 3))
 #' # Towards the negative end of the number line
-#' shift_number_line(x=c(c,c), by=c(-2,-3))
+#' shift_number_line(x=c(c, c), by=c(-2, -3))
 #'
 #' @export
 shift_number_line <- function(x, by=1){
@@ -240,7 +242,7 @@ shift_number_line <- function(x, by=1){
 #' \code{expand_number_line()} - Increase or decrease the width or length of a \code{number_line} object.
 #' @examples
 #' # Change the width or length of a number_line object
-#' d <- c(number_line(3,6), number_line(6,3))
+#' d <- c(number_line(3, 6), number_line(6, 3))
 #'
 #' expand_number_line(d, 2)
 #' expand_number_line(d, -2)
@@ -283,12 +285,12 @@ expand_number_line <- function(x, by=1, point ="both"){
 #' \code{invert_number_line()} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
 #' @examples
 #' # Change the width or length of a number_line object
-#' d <- c(number_line(3,6), number_line(-3,-6), number_line(-3, 6))
+#' e <- c(number_line(3, 6), number_line(-3, -6), number_line(-3, 6))
 #'
-#' d
-#' invert_number_line(d)
-#' invert_number_line(d, "start")
-#' invert_number_line(d, "end")
+#' e
+#' invert_number_line(e)
+#' invert_number_line(e, "start")
+#' invert_number_line(e, "end")
 #'
 #' @export
 invert_number_line <- function(x, point ="both"){

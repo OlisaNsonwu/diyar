@@ -72,7 +72,8 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{value}{\code{numberic} based value}
 
-\item{direction}{Type of \code{"number_line"} objects to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.}
+\item{direction}{Type of \code{"number_line"} objects to be reversed.
+Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).}
 
 \item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}}
 
@@ -95,15 +96,16 @@ number_line_sequence(x, by = 1, length.out = NULL)
 A range of \code{numeric} based values on a number line.
 }
 \details{
-A \code{number_line} object represents a series of real numbers on a number line.
+A \code{number_line} object represents a range of real numbers on a number line.
 
-Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the series. This may differ from \code{start} and \code{end} points.
-The \code{start} point is the lowest number in the series, regardless of whether it's at the \code{left} or \code{right} point.
+Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the range This may differ from \code{start} and \code{end} points.
+The \code{start} point is the lowest number in the range, regardless of whether it's at the \code{left} or \code{right} point.
 
-The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} series.
+The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
 This is the \code{direction} of the \code{number_line} object.
 
-\code{reverse_number_line()} - reverses the direction of a \code{number_line} object. A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
+\code{reverse_number_line()} - reverses the direction of a \code{number_line} object.
+A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
 The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 
@@ -148,18 +150,18 @@ left_point(a); right_point(a); start_point(a); end_point(a)
 
 # Reverse number_line objects
 reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
-reverse_number_line(number_line(200,-100), "increasing")
-reverse_number_line(number_line(200,-100), "decreasing")
+reverse_number_line(number_line(200, -100), "increasing")
+reverse_number_line(number_line(200, -100), "decreasing")
 
 # Shift number_line objects
 c <- number_line(5, 6)
 # Towards the positive end of the number line
-shift_number_line(x=c(c,c), by=c(2,3))
+shift_number_line(x=c(c, c), by=c(2, 3))
 # Towards the negative end of the number line
-shift_number_line(x=c(c,c), by=c(-2,-3))
+shift_number_line(x=c(c, c), by=c(-2, -3))
 
 # Change the width or length of a number_line object
-d <- c(number_line(3,6), number_line(6,3))
+d <- c(number_line(3, 6), number_line(6, 3))
 
 expand_number_line(d, 2)
 expand_number_line(d, -2)
@@ -168,12 +170,12 @@ expand_number_line(d, 2, "start")
 expand_number_line(d, 2, "end")
 
 # Change the width or length of a number_line object
-d <- c(number_line(3,6), number_line(-3,-6), number_line(-3, 6))
+e <- c(number_line(3, 6), number_line(-3, -6), number_line(-3, 6))
 
-d
-invert_number_line(d)
-invert_number_line(d, "start")
-invert_number_line(d, "end")
+e
+invert_number_line(e)
+invert_number_line(e, "start")
+invert_number_line(e, "end")
 
 # Collapse number line objects
 x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
