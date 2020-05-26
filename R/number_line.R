@@ -13,8 +13,8 @@
 #'
 #' @param l Left point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
 #' @param r Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object
-#' @param id Unique \code{numeric} ID. Optional
-#' @param gid Unique \code{numeric} Group ID. Optional
+#' @param id Unique \code{numeric} element ID. Optional
+#' @param gid Unique \code{numeric} group ID. Optional
 #'
 #' @return \code{number_line} object
 #'
@@ -100,10 +100,24 @@ left_point <- function(x){
 
 #' @rdname number_line
 #' @export
+"left_point<-" <- function(x, value) {
+  if(!class(value) %in% class(x@start)) x@start <- as.numeric(x@start)
+  new("number_line", (x@start + x@.Data) - value,  start=value, id=x@id, gid=x@gid)
+}
+
+#' @rdname number_line
+#' @export
 right_point <- function(x){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   x@start + x@.Data
+}
+
+#' @rdname number_line
+#' @export
+"right_point<-" <- function(x, value) {
+  if(!class(value) %in% class(x@start)) x@start <- as.numeric(x@start)
+  new("number_line", value-x@start,  start=x@start, id=x@id, gid=x@gid)
 }
 
 #' @rdname number_line
@@ -117,11 +131,29 @@ start_point <- function(x){
 
 #' @rdname number_line
 #' @export
+"start_point<-" <- function(x, value) {
+  if(!class(value) %in% class(x@start)) x@start <- as.numeric(x@start)
+  new("number_line",
+      ifelse(x@.Data >0, (x@start + x@.Data) - value, value-x@start),
+      start= ifelse(x@.Data >0, value,x@start),
+      id=x@id, gid=x@gid)
+}
+
+#' @rdname number_line
+#' @export
 end_point <- function(x){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start + x@.Data
+}
+
+#' @rdname number_line
+#' @export
+"end_point<-" <- function(x, value) {
+  if(!class(value) %in% class(x@start)) x@start <- as.numeric(x@start)
+  new("number_line", ifelse(x@.Data >0, value-x@start, (x@start + x@.Data) - value),
+      start= ifelse(x@.Data >0, x@start, value), id=x@id, gid=x@gid)
 }
 
 #' @rdname number_line
@@ -172,7 +204,7 @@ reverse_number_line <- function(x, direction = "both"){
 
 #' @rdname number_line
 #' @details
-#' \code{shift_number_line()} - a convenience function to shift a \code{number_line} object towards the positive or negative end of the number line.
+#' \code{shift_number_line()} - Shift a \code{number_line} object towards the positive or negative end of the number line.
 #' @examples
 #' # Shift number_line objects
 #' c <- number_line(5, 6)
@@ -199,7 +231,7 @@ shift_number_line <- function(x, by=1){
 #' @rdname number_line
 #' @param point \code{"start"} or \code{"end"} point
 #' @details
-#' \code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
+#' \code{expand_number_line()} - Increase or decrease the width or length of a \code{number_line} object.
 #' @examples
 #' # Change the width or length of a number_line object
 #' d <- c(number_line(3,6), number_line(6,3))
@@ -242,23 +274,56 @@ expand_number_line <- function(x, by=1, point ="both"){
 
 #' @rdname number_line
 #' @details
+#' \code{invert_number_line()} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
+#' @examples
+#' # Change the width or length of a number_line object
+#' d <- c(number_line(3,6), number_line(-3,-6), number_line(-3, 6))
+#'
+#' d
+#' invert_number_line(d)
+#' invert_number_line(d, "start")
+#' invert_number_line(d, "end")
+#'
+#' @export
+invert_number_line <- function(x, point ="both"){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object",sep=""))
+  if(length(x)==0) return(x)
+  if(!all(is.character(point))) stop(paste("'point' must be a character object"))
+  if(all(!tolower(point) %in% c("both","start","end","left","right"))) stop(paste("`point` must be either 'left', 'right', 'start', 'end' or 'both'"))
+  if(!(length(point) %in% c(1, length(x)))) stop(paste("length of 'point' must be 1 or the same as 'x'",sep=""))
+
+  point <- tolower(point)
+
+  left_point(x[point=="left"]) <- -x@start[point=="left"]
+  right_point(x[point=="right"]) <- -(x@start[point=="right"] + x@.Data[point=="right"])
+  start_point(x[point=="start"]) <- -diyar::start_point(x[point=="start"])
+  end_point(x[point=="end"]) <- -diyar::end_point(x[point=="end"])
+  left_point(x[point=="both"]) <- -x@start[point=="both"]; right_point(x[point=="both"]) <- -(x@start[point=="both"] + x@.Data[point=="both"])
+
+  return(x)
+}
+
+#' @rdname number_line
+#' @details
 #' \code{compress_number_line()} - 'compress' or 'collapse' overlapping \code{number_line} objects into a new \code{number_line} objects that covers the \code{start} and \code{end} points of the originals.
 #' This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the new expanded \code{number_line} object.
 #' See \code{\link{overlaps}} for further details on overlapping \code{number_line} objects.
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 #' \code{compress_number_line()} can be an alternative for simple implementations of \code{\link{record_group}} or \code{\link{episode_group}}.
 #'
-#' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.
+#' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.
 #' @param methods Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}
 #' @param collapse If \code{TRUE}, collapse the compressed results yet again.
-#' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object among duplicates
+#' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object per set of ovelapping \code{number_line}.
+#'
 #' @examples
 #' # Collapse number line objects
 #' x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
 #' compress_number_line(x, deduplicate = FALSE)
 #' compress_number_line(x)
 #' compress_number_line(x, collapse=TRUE)
-#' compress_number_line(x, collapse=TRUE, method = "inbetween")
+#' compress_number_line(x, collapse=TRUE, methods = "inbetween")
 #'
 #' @export
 
@@ -323,7 +388,7 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
 #' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}
 #' @param length.out desired length of the sequence. Passed to \code{seq()}
 #' @details
-#' \code{number_line_sequence()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers.
+#' \code{number_line_sequence()} - Convert a \code{number_line} object into a sequence of finite numbers.
 #' The direction of the sequence will correspond to that of the \code{number_line} object.
 #' @examples
 #' # Convert a number line object to its series of real numbers
@@ -331,8 +396,7 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
 #' number_line_sequence(number_line(5, 1), .5)
 #' number_line_sequence(number_line(5:1, 1:5), 1:5)
 #'
-#' nl <- number_line(as.POSIXlt("01/04/2019 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"),
-#' as.POSIXlt("04/04/2019 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+#' nl <- number_line(dttm("01/04/2019 00:00:00"), dttm("04/04/2019 00:00:00"))
 #'
 #' number_line_sequence(c(nl, nl), c(episode_unit[["days"]] * 1.5, episode_unit[["hours"]] * 12))
 #'

@@ -5,13 +5,18 @@
 \alias{as.number_line}
 \alias{is.number_line}
 \alias{left_point}
+\alias{left_point<-}
 \alias{right_point}
+\alias{right_point<-}
 \alias{start_point}
+\alias{start_point<-}
 \alias{end_point}
+\alias{end_point<-}
 \alias{number_line_width}
 \alias{reverse_number_line}
 \alias{shift_number_line}
 \alias{expand_number_line}
+\alias{invert_number_line}
 \alias{compress_number_line}
 \alias{number_line_sequence}
 \title{Number line objects}
@@ -24,11 +29,19 @@ is.number_line(x)
 
 left_point(x)
 
+left_point(x) <- value
+
 right_point(x)
+
+right_point(x) <- value
 
 start_point(x)
 
+start_point(x) <- value
+
 end_point(x)
+
+end_point(x) <- value
 
 number_line_width(x)
 
@@ -37,6 +50,8 @@ reverse_number_line(x, direction = "both")
 shift_number_line(x, by = 1)
 
 expand_number_line(x, by = 1, point = "both")
+
+invert_number_line(x, point = "both")
 
 compress_number_line(x, method = c("exact", "across", "chain",
   "aligns_start", "aligns_end", "inbetween"), collapse = FALSE,
@@ -49,9 +64,9 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{r}{Right point of the \code{number_line} object. Should be, or can be coerced to a \code{numeric} object}
 
-\item{id}{Unique \code{numeric} ID. Optional}
+\item{id}{Unique \code{numeric} element ID. Optional}
 
-\item{gid}{Unique \code{numeric} Group ID. Optional}
+\item{gid}{Unique \code{numeric} group ID. Optional}
 
 \item{x}{\code{number_line} object}
 
@@ -61,7 +76,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{point}{\code{"start"} or \code{"end"} point}
 
-\item{method}{Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated use \code{methods} instead.}
+\item{method}{Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.}
 
 \item{collapse}{If \code{TRUE}, collapse the compressed results yet again.}
 
@@ -90,9 +105,11 @@ This is the \code{direction} of the \code{number_line} object.
 The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
 \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 
-\code{shift_number_line()} - a convenience function to shift a \code{number_line} object towards the positive or negative end of the number line.
+\code{shift_number_line()} - Shift a \code{number_line} object towards the positive or negative end of the number line.
 
-\code{expand_number_line()} - a convenience function to increase or decrease the width or length of a \code{number_line} object.
+\code{expand_number_line()} - Increase or decrease the width or length of a \code{number_line} object.
+
+\code{invert_number_line()} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
 
 \code{compress_number_line()} - 'compress' or 'collapse' overlapping \code{number_line} objects into a new \code{number_line} objects that covers the \code{start} and \code{end} points of the originals.
 This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the new expanded \code{number_line} object.
@@ -100,7 +117,7 @@ See \code{\link{overlaps}} for further details on overlapping \code{number_line}
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 \code{compress_number_line()} can be an alternative for simple implementations of \code{\link{record_group}} or \code{\link{episode_group}}.
 
-\code{number_line_sequence()} - a convenience function to convert a \code{number_line} object into a sequence of finite numbers.
+\code{number_line_sequence()} - Convert a \code{number_line} object into a sequence of finite numbers.
 The direction of the sequence will correspond to that of the \code{number_line} object.
 }
 \examples{
@@ -148,20 +165,27 @@ expand_number_line(d, c(2,-1))
 expand_number_line(d, 2, "start")
 expand_number_line(d, 2, "end")
 
+# Change the width or length of a number_line object
+d <- c(number_line(3,6), number_line(-3,-6), number_line(-3, 6))
+
+d
+invert_number_line(d)
+invert_number_line(d, "start")
+invert_number_line(d, "end")
+
 # Collapse number line objects
 x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
 compress_number_line(x, deduplicate = FALSE)
 compress_number_line(x)
 compress_number_line(x, collapse=TRUE)
-compress_number_line(x, collapse=TRUE, method = "inbetween")
+compress_number_line(x, collapse=TRUE, methods = "inbetween")
 
 # Convert a number line object to its series of real numbers
 number_line_sequence(number_line(1, 5))
 number_line_sequence(number_line(5, 1), .5)
 number_line_sequence(number_line(5:1, 1:5), 1:5)
 
-nl <- number_line(as.POSIXlt("01/04/2019 00:00:00", "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S"),
-as.POSIXlt("04/04/2019 00:00:00", "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S"))
+nl <- number_line(dttm("01/04/2019 00:00:00"), dttm("04/04/2019 00:00:00"))
 
 number_line_sequence(c(nl, nl), c(episode_unit[["days"]] * 1.5, episode_unit[["hours"]] * 12))
 
