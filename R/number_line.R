@@ -99,6 +99,7 @@ left_point <- function(x){
 }
 
 #' @rdname number_line
+#' @param value \code{numberic} based value
 #' @export
 "left_point<-" <- function(x, value) {
   if(!class(value) %in% class(x@start)) x@start <- as.numeric(x@start)

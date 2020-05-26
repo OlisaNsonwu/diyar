@@ -70,6 +70,8 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{x}{\code{number_line} object}
 
+\item{value}{\code{numberic} based value}
+
 \item{direction}{Type of \code{"number_line"} objects to be reversed. Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"}.}
 
 \item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}}
@@ -80,7 +82,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 
 \item{collapse}{If \code{TRUE}, collapse the compressed results yet again.}
 
-\item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object among duplicates}
+\item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object per set of ovelapping \code{number_line}.}
 
 \item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}}
 
