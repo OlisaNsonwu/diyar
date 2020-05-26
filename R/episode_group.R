@@ -1023,10 +1023,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   }
 
   o <- unique(unlist(strsplit(T1$methods[!duplicated(T1$methods)], split="\\|")))
-  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap")]
   if (length(o)>0) stop(paste0("\n",
                                paste0("'",o,"'", collapse = " ,"), " is not a valid overlap method \n\n",
-                               "Valid 'overlap_methods' are 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
+                               "Valid 'overlap_methods' are 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
                                "Syntax ~ \"method1|method2|method3...\" \n",
                                "                 OR                   \n",
                                "Use ~ include_overlap_method() or exclude_overlap_method()"))
@@ -1528,7 +1528,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 #' @export
 fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days", episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                            custom_sort = NULL, skip_order =NULL, from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
-                           overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween",
+                           overlap_methods =  "overlap",
                            bi_direction= FALSE, group_stats = FALSE, display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE){
 
   if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
@@ -1572,10 +1572,10 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 
   if(!(length(m) %in% c(1, length(date)))) stop("length of 'overlap_methods' must be 1 or the same as 'date'")
   o <- unique(unlist(strsplit(unique(m), split="\\|")))
-  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap")]
   if (length(o)>0) stop(paste0("\n",
                                paste0("'",o,"'", collapse = " ,"), " is not a valid overlap method \n\n",
-                               "Valid 'overlap_methods' are 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
+                               "Valid 'overlap_methods' are 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
                                "Syntax ~ \"method1|method2|method3...\" \n",
                                "                 OR                   \n",
                                "Use ~ include_overlap_method() or exclude_overlap_method()"))
@@ -1679,10 +1679,10 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
   if(!(length(m) %in% c(1, length(date)))) stop("length of 'overlap_methods' must be 1 or the same as 'date'")
   o <- unique(unlist(strsplit(unique(m), split="\\|")))
-  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  o <- o[!tolower(o) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap")]
   if (length(o)>0) stop(paste0("\n",
                               paste0("'",o,"'", collapse = " ,"), " is not a valid overlap method \n\n",
-                              "Valid 'overlap_methods' are 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
+                              "Valid 'overlap_methods' are 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()"))

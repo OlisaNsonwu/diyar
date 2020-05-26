@@ -39,17 +39,17 @@
 #' overlaps(a, g, methods = "exact|chain")
 #' @export
 overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
-                    methods = "exact|across|chain|aligns_start|aligns_end|inbetween"){
+                    methods = "overlap"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
-  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween"))) stop(paste("`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
+  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
   mths <- names(split(rep(1, length(methods)), methods))
   mths <- unique(unlist(strsplit(mths, split="\\|")))
 
   # invaid methods
-  o <- mths[!tolower(mths) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
-  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'exact', 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+  o <- mths[!tolower(mths) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'overlap', 'exact', 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
@@ -72,10 +72,10 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
 
   # valid methods
   mths <- tolower(mths)
-  mths <- mths[mths %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween")]
+  mths <- mths[mths %in% c("overlap", "exact", "across","chain","aligns_start","aligns_end","inbetween")]
 
   # final check
-  p <- rep(F, max(length(x), length(x)))
+  p <- rep(F, length(x))
   sets <- split(1:length(x), m)
   um1 <- names(sets)
 
@@ -89,7 +89,8 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
     names(tp) <- ifelse(grepl(i, names(sets)), i, "")
     tp <- tp[names(tp) != ""]
     tp <- unlist(tp, use.names = F)
-    lgk <- rep(F, length(x))
+    #lgk <- rep(F, length(x))
+    lgk <- p
     lgk[tp] <- T
     assign(ab, lgk)
   }
@@ -99,15 +100,33 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
     tst <- get(m_ab(j))
     chg <- func(x, y)
 
-    length(p)
-    length(chg)
-    length(tst)
-
     p[p==F & chg == T & tst == T] <- T
 
   }
 
   return(p)
+}
+
+#' @rdname overlaps
+#' @examples
+#'
+#' overlap(a, b)
+#' overlap(a, e)
+#' @export
+overlap <- function(x, y){
+  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(y)) stop("argument 'y' is missing, with no default")
+
+  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+
+  x <- diyar::reverse_number_line(x, direction = "decreasing")
+  y <- diyar::reverse_number_line(y, direction = "decreasing")
+
+  r <- y@start <= x@start & x@start <= (y@start + y@.Data) |
+    x@start <= y@start & y@start <= (x@start + x@.Data)
+  r <- ifelse(!is.finite(r), FALSE, r)
+  return(r)
 }
 
 #' @rdname overlaps

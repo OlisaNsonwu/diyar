@@ -20,7 +20,7 @@ test_that("test overlap functions", {
   expect_equal(inbetween(number_line(-1121, 1100), number_line(-100, 1100)), FALSE)
 
   expect_equal(overlaps(number_line(-100, -100), number_line(200, -100)), TRUE)
-  expect_equal(overlaps(number_line(-100, 50), number_line(200, -100)), FALSE)
+  expect_equal(overlaps(number_line(-100, 50), number_line(200, -100)), TRUE)
 
 })
 
@@ -59,7 +59,7 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(overlap_method(1, number_line(50, 200)), "'x' is not a number_line object")
   expect_error(overlap_method(number_line(50, 200), 1), "'y' is not a number_line object")
 
-  expect_error(overlaps(number_line(-100, 100), number_line(50, 200), "overlaping"), "`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
+  expect_error(overlaps(number_line(-100, 100), number_line(50, 200), "overlaping"), "`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
   expect_error(overlaps(number_line(-100, 100), number_line(50, 200), 2), "'method' must be a character object")
 })
 
@@ -74,7 +74,7 @@ test_that("test compress function", {
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = 2), "'collapse' and 'deduplicate' must be TRUE or FALSE")
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = rep(TRUE,4)), "length of 'collapse' must be 1 or the same as 'x'")
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), deduplicate ="2"), "'collapse' and 'deduplicate' must be TRUE or FALSE")
-  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), method = "crossing"), "`method` must be either 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
+  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), method = "crossing"), "`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'")
   expect_error(compress_number_line(mtcars, number_line(6, 7), number_line(3, 3)), "'x' is not a number_line object")
 
 })

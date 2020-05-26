@@ -2,6 +2,7 @@
 % Please edit documentation in R/overlap.R
 \name{overlaps}
 \alias{overlaps}
+\alias{overlap}
 \alias{exact}
 \alias{across}
 \alias{chain}
@@ -14,8 +15,9 @@
 \title{Overlapping number line objects}
 \usage{
 overlaps(x, y, method = c("exact", "across", "chain", "aligns_start",
-  "aligns_end", "inbetween"),
-  methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
+  "aligns_end", "inbetween"), methods = "overlap")
+
+overlap(x, y)
 
 exact(x, y)
 
@@ -81,6 +83,9 @@ g <- number_line(100,100)
 
 overlaps(a, g)
 overlaps(a, g, methods = "exact|chain")
+
+overlap(a, b)
+overlap(a, e)
 
 exact(a, g)
 exact(a, a)

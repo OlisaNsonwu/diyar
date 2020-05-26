@@ -40,8 +40,7 @@ expand_number_line(x, by = 1, point = "both")
 
 compress_number_line(x, method = c("exact", "across", "chain",
   "aligns_start", "aligns_end", "inbetween"), collapse = FALSE,
-  deduplicate = TRUE,
-  methods = "exact|across|chain|aligns_start|aligns_end|inbetween")
+  deduplicate = TRUE, methods = "overlap")
 
 number_line_sequence(x, by = 1, length.out = NULL)
 }
