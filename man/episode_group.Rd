@@ -53,11 +53,13 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{sn}{Unique numerical record identifier. Optional.}
 
-\item{strata}{Subsets of the dataset. Episode grouping will be done separately within each subset of the dataset. In \code{\link{episode_group}}, you can use multiple columns. \code{\link{record_group}} can create useful \code{strata} e.g. patient identifiers.}
+\item{strata}{Subsets of the dataset. Episode grouping will be done separately within each subset of the dataset.
+In \code{\link{episode_group}}, you can use multiple columns. \code{\link{record_group}} can create useful \code{strata} e.g. patient identifiers.}
 
-\item{date}{Date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}) of events.}
+\item{date}{Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).}
 
-\item{case_length}{Duration after a \code{"case"} within which subsequent events are considered \code{"duplicate"} events. This period is referred to as the the \code{case window}.}
+\item{case_length}{Duration after a \code{"case"} within which subsequent events are considered \code{"duplicate"} events.
+This period is referred to as the the \code{case window}. Can be a (\code{\link{number_line}}) range.}
 
 \item{episode_type}{\code{"fixed"} or \code{"rolling"}.}
 
@@ -65,39 +67,50 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
 
 \item{episodes_max}{Maximum number of episodes to have within each \code{strata}.}
 
-\item{recurrence_length}{Duration after the last or first event (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events. This period is referred to as the \code{recurrence window}. If \code{recurrence_length} is not supplied, \code{case_length} is used as the \code{recurrence_length}.}
+\item{recurrence_length}{Duration after the last or first event (see \code{recurrence_from_last}) of the previous window within which subsequent events are considered \code{"recurrent"} events.
+This period is referred to as the \code{recurrence window}. If \code{recurrence_length} is not supplied, it's assumed to be the same as \code{case_length}.
+Can be a (\code{\link{number_line}}) range.}
 
 \item{rolls_max}{Maximum number of times an episode can reoccur. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{data_source}{Unique dataset identifier. Useful when the dataset contains data from multiple sources. In \code{\link{episode_group}}, you can use multiple columns supplied as column names.}
+\item{data_source}{Unique dataset identifier. Useful when the dataset contains data from multiple sources.
+In \code{\link{episode_group}}, you can use multiple columns supplied as column names.}
 
-\item{data_links}{Ungroup episodes that will not include records from certain \code{data_sources}. \code{data_links} should be a \code{list} with every element named 'l' (links) or 'g' (groups). Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{data_source} is \code{NULL}.}
+\item{data_links}{Breakup episodes that will not include records from these \code{data_sources}. \code{data_links} should be a \code{list} with every element named 'l' (links) or 'g' (groups).
+Useful in skipping episodes that are not required to minimise processing time. Ignored if \code{data_source} is \code{NULL}.}
 
-\item{custom_sort}{Preferential order for \code{"case"} assignment. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In \code{\link{episode_group}}, you can use multiple columns as sort levels.}
+\item{custom_sort}{Preferential order for \code{"case"} assignment. Useful in specifying that episode grouping begins at particular events regardless of chronological order.
+In \code{\link{episode_group}}, you can use multiple columns as sort levels.}
 
-\item{skip_order}{Skip episodes whose \code{case} events have \code{custom_sort} values that are less than or equal to the \code{"nth"} order of \code{custom_sort}. Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{custom_sort} is \code{NULL}.}
+\item{skip_order}{Skip episodes whose \code{case} events have \code{custom_sort} values that are less than or equal to the \code{"nth"} level of \code{custom_sort}.
+Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{custom_sort} is \code{NULL}.}
 
-\item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent event and proceeding to the earliest. If \code{FALSE}, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.}
+\item{from_last}{If \code{TRUE}, episode grouping will be backwards in time - starting at the most recent event and proceeding to the earliest.
+If \code{FALSE}, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.}
 
-\item{overlap_method}{Methods of overlap considered when grouping event periods. Each pair of periods are checked with the same set of \code{overlap_method}. Deprecated use \code{overlap_methods} instead.}
+\item{overlap_method}{Methods of overlap considered when grouping event periods. Each pair of periods are checked with the same set of \code{overlap_method}.
+Deprecated please use \code{overlap_methods} instead.}
 
-\item{overlap_methods}{Methods of overlap considered when grouping event periods. Different pairs of periods can be checked with different sets \code{overlap_methods}}
+\item{overlap_methods}{Methods of overlap considered when grouping event periods. Different pairs of periods can be checked with different sets of \code{overlap_methods}}
 
-\item{bi_direction}{If \code{FALSE}, \code{"duplicate"} events will be those within the \code{case_length} before \strong{or} after the \code{"case"} as determined by \code{from_last}. If \code{TRUE}, \code{"duplicate"} events will be those within the same period before \strong{and} after the \code{"case"}.}
+\item{bi_direction}{If \code{FALSE} (default), \code{"duplicate"} events will be those within the \code{case_length} before \strong{or} after the \code{"case"} as determined by \code{from_last}.
+If \code{TRUE}, \code{"duplicate"} events will be those within the same period before \strong{and} after the \code{"case"}.}
 
 \item{group_stats}{If \code{TRUE}, the output will include additional information with useful stats for each episode group.}
 
-\item{display}{If \code{TRUE}, a progress message is printed on screen.}
+\item{display}{If \code{TRUE} (default), a progress message is printed on screen.}
 
-\item{deduplicate}{if \code{TRUE}, \code{"dupilcate"} records are excluded from the output.}
+\item{deduplicate}{if \code{TRUE}, \code{"dupilcate"} events are excluded from the output.}
 
-\item{to_s4}{if \code{TRUE}, changes the returned output to an \code{\link[=epid-class]{epid}} object.}
+\item{to_s4}{If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.}
 
-\item{recurrence_from_last}{if \code{TRUE}, the reference event for a \code{recurrence window} will be the last event from the previous window. If \code{FALSE} (default), it will be from the first event. Only used if \code{episode_type} is \code{"rolling"}.}
+\item{recurrence_from_last}{If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
+If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{case_for_recurrence}{if \code{TRUE}, both case and recurrence events will have a \code{case window}. If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
+\item{case_for_recurrence}{If \code{TRUE}, both case and recurrence events will have a \code{case window}.
+If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{skip_if_b4_lengths}{if \code{TRUE} (default), records \code{events} before the \code{case_length} or the \code{recurrence_length} range are skipped.}
+\item{skip_if_b4_lengths}{If \code{TRUE} (default), records \code{events} before the \code{case_length} or the \code{recurrence_length} range are skipped.}
 
 \item{x}{Record date or interval. Deprecated. Please use \code{date}}
 }
@@ -129,8 +142,8 @@ Group events into chronological episodes
 Episode grouping begins at a reference event (\code{"case"}) and proceeds forward or backward in time depending on \code{from_last}.
 If \code{custom_sort} is used, episode grouping can be forced to begin at certain events before proceeding forward or backwards in time.
 The maximum duration of a \code{"fixed"} episode is the \code{case_length}. This period is referred to as the \code{case window}. The maximum duration of a \code{"rolling"} episode is the
-\code{case_length} plus all recurrence periods. The recurrence periods are referred to as \code{recurrence windows}.
-This is a specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event from the previous window.
+\code{case_length} plus all periods of recurrence. The recurrence periods are referred to as \code{recurrence windows}.
+This is a specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event in the previous window.
 Events within this period are considered \code{"recurrent"} events.
 
 When a \code{data_source} identifier is provided,
