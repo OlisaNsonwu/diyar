@@ -1179,7 +1179,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                !(TR$c_sort > TR$skip_order) &
                !duplicated(TR$cri) &
                !is.na(TR$cri),
-             c("sn", "cri", "dt_ai", "ep1", "ep2", "rc1", "rc2", "dt_zi","epid", "tag", "roll", "case_nm")]
+             c("sn", "cri", "dt_ai", "ep1", "ep2", "rc1", "rc2", "dt_zi","epid", "tag", "roll", "case_nm", "methods")]
     names(TR) <- paste0("tr_",names(TR))
 
     # early break if there are no more reference events
@@ -1234,8 +1234,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # Check if events overlap
     T1$r_range <- T1$c_range <- F
 
-    T1$c_range <- diyar::overlaps(T1$c_int, T1$tr_c_int, methods = T1$methods)
-    T1$r_range <- diyar::overlaps(T1$r_int, T1$tr_r_int, methods = T1$methods)
+    T1$c_range <- diyar::overlaps(T1$c_int, T1$tr_c_int, methods = T1$tr_methods)
+    T1$r_range <- diyar::overlaps(T1$r_int, T1$tr_r_int, methods = T1$tr_methods)
 
     dr_c <- ifelse(T1$tr_c_int<0,1, -1) * chr_dir
     dr_r <- ifelse(T1$tr_r_int<0,1, -1) * chr_dir
