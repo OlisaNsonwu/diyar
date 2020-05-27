@@ -48,18 +48,18 @@
 #' overlaps(a, g)
 #' overlaps(a, g, methods = "exact|chain")
 #' @export
-overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween"),
+overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween","overlap","none"),
                     methods = "overlap"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
   if(!is.character(method)) stop(paste("'method' must be a character object"))
-  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
+  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "none"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'"))
   mths <- names(split(rep(1, length(methods)), methods))
   mths <- unique(unlist(strsplit(mths, split="\\|")))
 
   # invaid methods
-  o <- mths[!tolower(mths) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap")]
-  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'overlap', 'exact', 'across','chain','aligns_start','aligns_end' or 'inbetween' \n\n",
+  o <- mths[!tolower(mths) %in% c("exact", "across","chain","aligns_start","aligns_end", "inbetween", "overlap", "none")]
+  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none' \n\n",
                               "Syntax ~ \"method1|method2|method3...\" \n",
                               "                 OR                   \n",
                               "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
@@ -80,15 +80,14 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
       (max(length(m), length(x))/min(length(m), length(x))) %% 1 !=0
      )) warning("\n  length('method') != length('y') OR length('method') != length('x')\n  longer object length is not a multiple of shorter object length")
 
-  # valid methods
-  mths <- tolower(mths)
-  mths <- mths[mths %in% c("overlap", "exact", "across","chain","aligns_start","aligns_end","inbetween")]
-
   # final check
   p <- rep(F, length(x))
   sets <- split(1:length(x), m)
 
+  # Mutually inclusive methods
+  names(sets)[grepl("none", names(sets))] <- "none"
   names(sets)[grepl("overlap", names(sets))] <- "overlap"
+
   um1 <- names(sets)
   um1 <- um1[!duplicated(um1)]
   um1 <- unlist(strsplit(um1,split="\\|"))
@@ -110,6 +109,7 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
     assign(ab, lgk)
   }
 
+  none <- function(x, y) rep(F, length(x))
   for (j in um1) {
     func <- get(j)
     tst <- get(m_ab(j))

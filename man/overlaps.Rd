@@ -15,7 +15,7 @@
 \title{Overlapping number line objects}
 \usage{
 overlaps(x, y, method = c("exact", "across", "chain", "aligns_start",
-  "aligns_end", "inbetween"), methods = "overlap")
+  "aligns_end", "inbetween", "overlap", "none"), methods = "overlap")
 
 overlap(x, y)
 

@@ -335,13 +335,13 @@ invert_number_line <- function(x, point ="both"){
 #'
 #' @export
 
-compress_number_line <- function(x, method = c("exact", "across","chain","aligns_start","aligns_end","inbetween"), collapse =FALSE, deduplicate = TRUE, methods = "overlap"){
+compress_number_line <- function(x, method = c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap","none"), collapse =FALSE, deduplicate = TRUE, methods = "overlap"){
   if(missing(x)) stop("argument 'x' is missing, with no default")
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(length(x)==0) return(x)
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(!(is.logical(collapse) & is.logical(deduplicate) )) stop(paste("'collapse' and 'deduplicate' must be TRUE or FALSE"))
-  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end' or 'inbetween'"))
+  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "none"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'"))
   if(!(length(collapse) %in% c(1, length(x)))) stop(paste("length of 'collapse' must be 1 or the same as 'x'",sep=""))
   o <- unique(unlist(strsplit(methods, split="\\|")))
   o <- o[!o %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap")]
