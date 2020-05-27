@@ -43,9 +43,9 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   data_source = NULL, data_links = "ANY", custom_sort = NULL,
   skip_order = NULL, from_last = FALSE, overlap_method = c("exact",
   "across", "inbetween", "aligns_start", "aligns_end", "chain"),
-  overlap_methods = "exact|across|chain|aligns_start|aligns_end|inbetween",
-  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
-  deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE,
+  overlap_methods = "overlap", bi_direction = FALSE,
+  group_stats = FALSE, display = TRUE, deduplicate = FALSE, x,
+  to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE)
 }
 \arguments{

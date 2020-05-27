@@ -1647,7 +1647,7 @@ fixed_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_
 #' @export
 rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days", episodes_max = Inf, rolls_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                              custom_sort = NULL, skip_order = NULL, from_last = FALSE, overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain"),
-                             overlap_methods =  "exact|across|chain|aligns_start|aligns_end|inbetween", bi_direction= FALSE, group_stats = FALSE,
+                             overlap_methods =  "overlap", bi_direction= FALSE, group_stats = FALSE,
                              display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE, case_for_recurrence =FALSE){
 
   if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
