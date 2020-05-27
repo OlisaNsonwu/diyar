@@ -292,7 +292,7 @@ overlap_method <- function(x, y){
 #' include_overlap_method(c("across", "chain"))
 #' @export
 include_overlap_method <- function(methods){
-  lst <- c("overlap", "exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
+  lst <- c("overlap", "none", "exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
   methods <- methods[methods %in% lst]
   methods <- paste(methods,sep="", collapse = "|")
   methods
@@ -305,7 +305,7 @@ include_overlap_method <- function(methods){
 #' exclude_overlap_method(c("across", "chain"))
 #' @export
 exclude_overlap_method <- function(methods){
-  lst <- c("overlap", "exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
+  lst <- c("exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
   methods <- lst[!lst %in% methods]
   methods <- paste(methods,sep="", collapse = "|")
   methods

@@ -80,9 +80,9 @@ test_that("test compress function", {
 })
 
 test_that("test set overlap functions", {
-  expect_equal(exclude_overlap_method(""),"overlap|exact|across|chain|aligns_start|aligns_end|inbetween")
-  expect_equal(exclude_overlap_method("chain"),"overlap|exact|across|aligns_start|aligns_end|inbetween")
-  expect_equal(exclude_overlap_method(c("chain","aligns_end")),"overlap|exact|across|aligns_start|inbetween")
+  expect_equal(exclude_overlap_method(""),"exact|across|chain|aligns_start|aligns_end|inbetween")
+  expect_equal(exclude_overlap_method("chain"),"exact|across|aligns_start|aligns_end|inbetween")
+  expect_equal(exclude_overlap_method(c("chain","aligns_end")),"exact|across|aligns_start|inbetween")
   expect_equal(include_overlap_method(""),"")
   expect_equal(include_overlap_method("chain"),"chain")
   expect_equal(include_overlap_method(c("chain","aligns_end")),"chain|aligns_end")
