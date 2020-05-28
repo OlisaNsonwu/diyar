@@ -146,7 +146,7 @@ ds$f3
 <a id="case_assignment"></a> 
 
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$f3, date= ds$date, case_length = 16)
+plot_epid(epid = ds$f3, date= ds$date, case_length = rng)
 ```
 
 ### Reference events
@@ -300,7 +300,7 @@ ds$r2
 ```
 
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$r2, date= ds$date, case_length = 5, recurrence_length = 10)
+plot_epid(epid = ds$r2, date= ds$date, case_length = 5, recurrence_length = rng)
 ```
 
 #### Index events for periods of recurrence
