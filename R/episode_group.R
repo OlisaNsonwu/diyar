@@ -1223,7 +1223,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     n_r <- tr_o_r@start <0 & tr_o_r@start + tr_o_r@.Data<0
 
     tr_o_c[crx_e == F & n_e==T] <- diyar::reverse_number_line(tr_o_c[crx_e == F & n_e==T])
-    tr_o_r[crx_r == F & n_r==T] <- diyar::reverse_number_line(tr_o_c[crx_r == F & n_r==T])
+    tr_o_r[crx_r == F & n_r==T] <- diyar::reverse_number_line(tr_o_r[crx_r == F & n_r==T])
 
     tr_o_c_b <- diyar::invert_number_line(tr_o_c)
     tr_o_r_b <- diyar::invert_number_line(tr_o_r)
