@@ -1204,8 +1204,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$tr_ep_l <- suppressWarnings(diyar::number_line(T1$tr_ep1, T1$tr_ep2))
     T1$tr_rc_l <- suppressWarnings(diyar::number_line(T1$tr_rc1, T1$tr_rc2))
 
+    # T1$tr_c_int_d <- T1$tr_c_int_c <- T1$tr_c_int_b <- T1$tr_c_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
+    # T1$tr_r_int_d <- T1$tr_r_int_c <- T1$tr_r_int_b <- T1$tr_r_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
+
     T1$tr_c_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
-    T1$tr_r_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
+    T1$tr_c_int_d <- T1$tr_c_int_c <- T1$tr_c_int_b <- T1$tr_c_int <- T1$tr_r_int_d <- T1$tr_r_int_b <- T1$tr_r_int <-  T1$tr_r_int_c <-  T1$tr_c_int
 
     chr_dir <- ifelse(from_last==F, 1, -1)
 
@@ -1222,45 +1225,86 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     tr_o_c[crx_e == F & n_e==T] <- diyar::reverse_number_line(tr_o_c[crx_e == F & n_e==T])
     tr_o_r[crx_r == F & n_r==T] <- diyar::reverse_number_line(tr_o_c[crx_r == F & n_r==T])
 
-    T1$tr_c_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int) + ifelse(crx_e==T, diyar::left_point(tr_o_c),0), diyar::end_point(T1$tr_c_int) + (diyar::right_point(tr_o_c) * chr_dir)))
-    T1$tr_r_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int) + ifelse(crx_r==T, diyar::left_point(tr_o_r),0), diyar::end_point(T1$tr_r_int) + (diyar::right_point(tr_o_r) * chr_dir)))
+    tr_o_c_b <- diyar::invert_number_line(tr_o_c)
+    tr_o_r_b <- diyar::invert_number_line(tr_o_r)
+
+    tr_o_c_c <- tr_o_c; tr_o_c_d <- tr_o_c_b
+    tr_o_r_c <- tr_o_r; tr_o_r_d <- tr_o_r_b
+
+    left_point(tr_o_c_c) <- rep(0, length(tr_o_c_c)); left_point(tr_o_c_d) <- rep(0, length(tr_o_c_d))
+    left_point(tr_o_r_c) <- rep(0, length(tr_o_r_c)); left_point(tr_o_r_d) <- rep(0, length(tr_o_r_d))
 
     bdl_e <- bi_direction==T & (crx_e==F | (crx_e == T & (T1$tr_ep_l@start==0 | diyar::right_point(T1$tr_ep_l) ==0)))
     bdl_r <- bi_direction==T & (crx_r==F | (crx_r == T & (T1$tr_rc_l@start==0 | diyar::right_point(T1$tr_rc_l) ==0)))
 
-    if(any(bdl_e == T)) T1$tr_c_int[bdl_e == T] <- diyar::expand_number_line(T1$tr_c_int[bdl_e == T], abs(T1$tr_c_int@.Data[bdl_e == T]), ifelse(diyar::right_point(T1$tr_ep_l)==0, "right", "left")[bdl_e == T])
-    if(any(bdl_r == T)) T1$tr_r_int[bdl_r == T] <- diyar::expand_number_line(T1$tr_r_int[bdl_e == T], abs(T1$tr_r_int@.Data[bdl_r == T]), ifelse(diyar::right_point(T1$tr_rc_l)==0, "right", "left")[bdl_r == T])
+    T1$tr_c_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int) + diyar::left_point(tr_o_c), diyar::end_point(T1$tr_c_int) + (diyar::right_point(tr_o_c) * chr_dir)))
+    T1$tr_r_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int) + diyar::left_point(tr_o_r), diyar::end_point(T1$tr_r_int) + (diyar::right_point(tr_o_r) * chr_dir)))
+
+    T1$tr_c_int_b <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int_b) + diyar::left_point(tr_o_c_b), diyar::end_point(T1$tr_c_int_b) + (diyar::right_point(tr_o_c_b) * chr_dir)))
+    T1$tr_r_int_b <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int_b) + diyar::left_point(tr_o_r_b), diyar::end_point(T1$tr_r_int_b) + (diyar::right_point(tr_o_r_b) * chr_dir)))
+
+    T1$tr_c_int_c <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int_c) + diyar::left_point(tr_o_c_c), diyar::end_point(T1$tr_c_int_c) + (diyar::right_point(tr_o_c_c) * chr_dir)))
+    T1$tr_r_int_c <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int_c) + diyar::left_point(tr_o_r_c), diyar::end_point(T1$tr_r_int_c) + (diyar::right_point(tr_o_r_c) * chr_dir)))
+
+    T1$tr_c_int_d <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int_d) + diyar::left_point(tr_o_c_d), diyar::end_point(T1$tr_c_int_d) + (diyar::right_point(tr_o_c_d) * chr_dir)))
+    T1$tr_r_int_d <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int_d) + diyar::left_point(tr_o_r_d), diyar::end_point(T1$tr_r_int_d) + (diyar::right_point(tr_o_r_d) * chr_dir)))
+
+#
+#
+#     if(any(bdl_e == T)) T1$tr_c_int[bdl_e == T] <- diyar::expand_number_line(T1$tr_c_int[bdl_e == T], abs(T1$tr_c_int@.Data[bdl_e == T]), ifelse(diyar::right_point(T1$tr_ep_l)==0, "right", "left")[bdl_e == T])
+#     if(any(bdl_r == T)) T1$tr_r_int[bdl_r == T] <- diyar::expand_number_line(T1$tr_r_int[bdl_e == T], abs(T1$tr_r_int@.Data[bdl_r == T]), ifelse(diyar::right_point(T1$tr_rc_l)==0, "right", "left")[bdl_r == T])
 
     # Check if events overlap
+    T1$r1 <- T1$r2 <- T1$r3 <- T1$r4 <- T1$c1 <- T1$c2 <- T1$c3 <- T1$c4 <- F
+    T1$c1 <- diyar::overlaps(T1$c_int, T1$tr_c_int, methods = T1$methods)
+    T1$c2[bdl_e == T] <- diyar::overlaps(T1$c_int[bdl_e == T], T1$tr_c_int_b[bdl_e == T], methods = T1$methods[bdl_e == T])
+
+    T1$r1 <- diyar::overlaps(T1$c_int, T1$tr_r_int, methods = T1$methods)
+    T1$r2[bdl_r == T] <- diyar::overlaps(T1$c_int[bdl_r == T], T1$tr_r_int_b[bdl_r == T], methods = T1$methods[bdl_r == T])
+
+    T1$c3[skip_if_b4_lengths == T] <- diyar::overlaps(T1$c_int[skip_if_b4_lengths == T], T1$tr_c_int_c[skip_if_b4_lengths == T], methods = T1$methods[skip_if_b4_lengths == T])
+    T1$c4[bdl_e == T & skip_if_b4_lengths == T] <- diyar::overlaps(T1$c_int[bdl_e == T & skip_if_b4_lengths == T], T1$tr_c_int_d[bdl_e == T & skip_if_b4_lengths == T], methods = T1$methods[bdl_e == T & skip_if_b4_lengths == T])
+
+    T1$r3[skip_if_b4_lengths == T] <- diyar::overlaps(T1$c_int[skip_if_b4_lengths == T], T1$tr_r_int_c[skip_if_b4_lengths == T], methods = T1$methods[skip_if_b4_lengths == T])
+    T1$r4[bdl_r == T & skip_if_b4_lengths == T] <- diyar::overlaps(T1$c_int[bdl_r == T & skip_if_b4_lengths == T], T1$tr_r_int_d[bdl_r == T & skip_if_b4_lengths == T], methods = T1$methods[bdl_r == T & skip_if_b4_lengths == T])
+
     T1$r_range <- T1$c_range <- F
 
-    T1$c_range <- diyar::overlaps(T1$c_int, T1$tr_c_int, methods = T1$tr_methods)
-    T1$r_range <- diyar::overlaps(T1$r_int, T1$tr_r_int, methods = T1$tr_methods)
+    T1$c_range <- T1$lr==1 | T1$c1 | T1$c2
+    T1$r_range <- T1$lr==1 | T1$r1 | T1$r2
 
-    dr_c <- ifelse(T1$tr_c_int<0,1, -1) * chr_dir
-    dr_r <- ifelse(T1$tr_r_int<0,1, -1) * chr_dir
+    T1$c_range2 <- T1$lr==1 | T1$c3 | T1$c4
+    T1$r_range2 <- T1$lr==1 | T1$r3 | T1$r4
 
-    ou_c <- diyar::right_point(tr_o_c); ou_r <- diyar::right_point(tr_o_r)
-    in_c <- diyar::left_point(tr_o_c); in_r <- diyar::left_point(tr_o_r)
+    # dr_c <- ifelse(T1$tr_c_int<0,1, -1) * chr_dir
+    # dr_r <- ifelse(T1$tr_r_int<0,1, -1) * chr_dir
+    #
+    # ou_c <- diyar::right_point(tr_o_c); ou_r <- diyar::right_point(tr_o_r)
+    # in_c <- diyar::left_point(tr_o_c); in_r <- diyar::left_point(tr_o_r)
 
-    jmp_c <- (T1$dt_zi) * dr_c > ((T1$tr_dt_zi + ou_c)) * dr_c & (T1$dt_zi) * dr_c < (T1$tr_dt_zi) * dr_c & (T1$dt_zi) * dr_c > (T1$tr_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
-    jmp_r <- (T1$dt_zi) * dr_r > ((T1$tr_dt_zi + ou_r)) * dr_r & (T1$dt_zi) * dr_r < (T1$tr_dt_zi) * dr_r & (T1$dt_zi) * dr_r > (T1$tr_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
+    # jmp_c <- (T1$dt_zi) * dr_c > ((T1$tr_dt_zi + ou_c)) * dr_c & (T1$dt_zi) * dr_c < (T1$tr_dt_zi) * dr_c & (T1$dt_zi) * dr_c > (T1$tr_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
+    # jmp_r <- (T1$dt_zi) * dr_r > ((T1$tr_dt_zi + ou_r)) * dr_r & (T1$dt_zi) * dr_r < (T1$tr_dt_zi) * dr_r & (T1$dt_zi) * dr_r > (T1$tr_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
 
-    if(bi_direction){
-      dr_c <- dr_c * -1
-      dr_r <- dr_r * -1
-      in_c <- in_c * -1
-      in_r <- in_r * -1
-      ou_c <- ou_c * -1
-      ou_r <- ou_r * -1
+    # jmp_c <- (T1$dt_zi) * dr_c > ((T1$tr_dt_zi + ou_c)) * dr_c & (T1$dt_zi) * dr_c < (T1$tr_dt_zi) * dr_c & (T1$dt_zi) * dr_c > (T1$tr_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
 
-      jp_c <- (T1$dt_zi) * dr_c > ((T1$tr_dt_zi + ou_c)) * dr_c & (T1$dt_zi) * dr_c < (T1$tr_dt_zi) * dr_c & (T1$dt_zi) * dr_c > (T1$tr_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
-      jp_r <- (T1$dt_zi) * dr_r > ((T1$tr_dt_zi + ou_r)) * dr_r & (T1$dt_zi) * dr_r < (T1$tr_dt_zi) * dr_r & (T1$dt_zi) * dr_r > (T1$tr_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
+    jmp_c <- T1$c_range == F & T1$c_range2 == T
+    jmp_r <- T1$r_range == F & T1$r_range2 == T
 
-      jmp_c[jp_c] <- T; jmp_r[jp_r] <- T;
-    }
+    # if(bi_direction){
+    #   dr_c <- dr_c * -1
+    #   dr_r <- dr_r * -1
+    #   in_c <- in_c * -1
+    #   in_r <- in_r * -1
+    #   ou_c <- ou_c * -1
+    #   ou_r <- ou_r * -1
+    #
+    #   # jp_c <- (T1$dt_zi) * dr_c > ((T1$tr_dt_zi + ou_c)) * dr_c & (T1$dt_zi) * dr_c < (T1$tr_dt_zi) * dr_c & (T1$dt_zi) * dr_c > (T1$tr_dt_zi + in_c) * dr_c & T1$lr != 1 & T1$c_range ==T
+    #   # jp_r <- (T1$dt_zi) * dr_r > ((T1$tr_dt_zi + ou_r)) * dr_r & (T1$dt_zi) * dr_r < (T1$tr_dt_zi) * dr_r & (T1$dt_zi) * dr_r > (T1$tr_dt_zi + in_r) * dr_r & T1$lr != 1 & T1$r_range ==T
+    #   jp_c <- F
+    #   jmp_c[jp_c] <- T; jmp_r[jp_r] <- T;
+    # }
 
-    T1$c_range[jmp_c] <- F; T1$r_range[jmp_r] <- F
+    #T1$c_range[jmp_c] <- F; T1$r_range[jmp_r] <- F
 
     if(skip_if_b4_lengths==T){
       # assign unique IDs to skipped records
@@ -1743,13 +1787,13 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   df$method <- m
 
   if(is.null(data_source)){
-    diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
+    episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
                          recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links)
     }else{
-      diyar::episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
+      episode_group(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                            bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
                            from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
                            display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,

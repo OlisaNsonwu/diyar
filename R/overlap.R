@@ -52,6 +52,7 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
                     methods = "overlap"){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(length(x) ==0 & length(y)==0) return(logical())
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "none"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'"))
   mths <- names(split(rep(1, length(methods)), methods))
@@ -135,6 +136,8 @@ overlap <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
+  if(length(x) ==0 & length(y)==0) return(logical())
+
   x <- diyar::reverse_number_line(x, direction = "decreasing")
   y <- diyar::reverse_number_line(y, direction = "decreasing")
 
@@ -154,6 +157,8 @@ exact <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
+  if(length(x) ==0 & length(y)==0) return(logical())
+
   r <- y@start == x@start & x@.Data == y@.Data
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
@@ -171,6 +176,8 @@ across <- function(x, y){
 
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+
+  if(length(x) ==0 & length(y)==0) return(logical())
 
   x <- diyar::reverse_number_line(x, direction = "decreasing")
   y <- diyar::reverse_number_line(y, direction = "decreasing")
@@ -194,6 +201,8 @@ chain <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
+  if(length(x) ==0 & length(y)==0) return(logical())
+
   r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
     ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
   r <- ifelse(!is.finite(r) | x@.Data * y@.Data <0, FALSE, r)
@@ -213,6 +222,8 @@ aligns_start <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
+  if(length(x) ==0 & length(y)==0) return(logical())
+
   r <- x@start==y@start & !diyar::exact(x, y)
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
@@ -231,6 +242,8 @@ aligns_end <- function(x, y){
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
 
+  if(length(x) ==0 & length(y)==0) return(logical())
+
   r <- (x@start + x@.Data) == (y@start + y@.Data) & !diyar::exact(x, y)
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
@@ -248,6 +261,8 @@ inbetween <- function(x, y){
 
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+
+  if(length(x) ==0 & length(y)==0) return(logical())
 
   x <- diyar::reverse_number_line(x, direction = "decreasing")
   y <- diyar::reverse_number_line(y, direction = "decreasing")
@@ -271,6 +286,8 @@ overlap_method <- function(x, y){
 
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+
+  if(length(x) ==0 & length(y)==0) return(character())
 
   m <- ""
   m <- ifelse(diyar::exact(x, y), paste(m,"exact", sep="|"), m)

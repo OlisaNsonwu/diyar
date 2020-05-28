@@ -130,7 +130,7 @@ ds$f2
 ```
 
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$f2, date= ds$date, case_length = 5)
+plot_epid(epid = ds$f2, date= ds$date, case_length = rng)
 ```
 
 By default, `events` before the `13th` day are skipped. You can change `skip_if_b4_lengths` to `FALSE`, so that these are not skipped.
