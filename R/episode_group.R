@@ -1213,29 +1213,39 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     chr_dir <- ifelse(from_last==F, 1, -1)
 
     crx_e <- T1$tr_ep_l@start/abs(T1$tr_ep_l@start) != diyar::end_point(T1$tr_rc_l)/abs(diyar::end_point(T1$tr_ep_l))
-    crx_e[is.na(crx_e)] <- T
+    crx_e[is.na(crx_e)] <- F
     crx_r <- T1$tr_rc_l@start/abs(T1$tr_rc_l@start) != diyar::end_point(T1$tr_rc_l)/abs(diyar::end_point(T1$tr_rc_l))
-    crx_r[is.na(crx_r)] <- T
+    crx_r[is.na(crx_r)] <- F
 
     tr_o_c <- T1$tr_ep_l; tr_o_r <- T1$tr_rc_l
 
     n_e <- tr_o_c@start <0 & tr_o_c@start + tr_o_c@.Data<0
     n_r <- tr_o_r@start <0 & tr_o_r@start + tr_o_r@.Data<0
 
-    tr_o_c[crx_e == F & n_e==T] <- diyar::reverse_number_line(tr_o_c[crx_e == F & n_e==T])
-    tr_o_r[crx_r == F & n_r==T] <- diyar::reverse_number_line(tr_o_r[crx_r == F & n_r==T])
+    # tr_o_c[crx_e == F & n_e==T] <- diyar::reverse_number_line(tr_o_c[crx_e == F & n_e==T])
+    # tr_o_r[crx_r == F & n_r==T] <- diyar::reverse_number_line(tr_o_r[crx_r == F & n_r==T])
 
-    tr_o_c_b <- diyar::invert_number_line(tr_o_c)
-    tr_o_r_b <- diyar::invert_number_line(tr_o_r)
+    tr_o_c_b <- tr_o_c
+    right_point(tr_o_c_b) <- ifelse(crx_e, -T1$tr_c_int@.Data, right_point(tr_o_c_b)); tr_o_c_b[crx_e] <- reverse_number_line(tr_o_c_b[crx_e], "decreasing")
+    left_point(tr_o_c) <- ifelse(crx_e, -T1$tr_c_int@.Data, left_point(tr_o_c))
+
+    tr_o_r_b <- tr_o_r
+    right_point(tr_o_r_b) <- ifelse(crx_r, -T1$tr_r_int@.Data, right_point(tr_o_r_b)); tr_o_r_b[crx_r] <- reverse_number_line(tr_o_r_b[crx_r], "decreasing")
+    left_point(tr_o_r) <- ifelse(crx_r, -T1$tr_r_int@.Data, left_point(tr_o_r))
+
+    tr_o_c_b[bi_direction==T & crx_e !=T] <- diyar::invert_number_line(tr_o_c[bi_direction==T & crx_e !=T])
+    tr_o_r_b[bi_direction==T & crx_r !=T] <- diyar::invert_number_line(tr_o_r[bi_direction==T & crx_e !=T])
 
     tr_o_c_c <- tr_o_c; tr_o_c_d <- tr_o_c_b
     tr_o_r_c <- tr_o_r; tr_o_r_d <- tr_o_r_b
 
-    left_point(tr_o_c_c) <- rep(0, length(tr_o_c_c)); left_point(tr_o_c_d) <- rep(0, length(tr_o_c_d))
-    left_point(tr_o_r_c) <- rep(0, length(tr_o_r_c)); left_point(tr_o_r_d) <- rep(0, length(tr_o_r_d))
+    left_point(tr_o_c_c) <- ifelse(n_e==T | crx_e ==T, left_point(tr_o_c_c), 0); right_point(tr_o_c_c) <- ifelse(n_e==T | crx_e ==T, 0, right_point(tr_o_c_c))
+    left_point(tr_o_r_c) <- ifelse(n_r==T | crx_r ==T, left_point(tr_o_r_c), 0); right_point(tr_o_r_c) <- ifelse(n_r==T | crx_r ==T, 0, right_point(tr_o_r_c))
 
-    bdl_e <- bi_direction==T & (crx_e==F | (crx_e == T & (T1$tr_ep_l@start==0 | diyar::right_point(T1$tr_ep_l) ==0)))
-    bdl_r <- bi_direction==T & (crx_r==F | (crx_r == T & (T1$tr_rc_l@start==0 | diyar::right_point(T1$tr_rc_l) ==0)))
+    tr_o_c_d[bi_direction==T & crx_e !=T] <- diyar::invert_number_line(tr_o_c_c[bi_direction==T & crx_e !=T])
+    tr_o_r_d[bi_direction==T & crx_e !=T] <- diyar::invert_number_line(tr_o_r_c[bi_direction==T & crx_e !=T])
+
+    bdl_e <- crx_e ==T | bi_direction==T; bdl_r <- crx_r ==T | bi_direction==T
 
     T1$tr_c_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_c_int) + diyar::left_point(tr_o_c), diyar::end_point(T1$tr_c_int) + (diyar::right_point(tr_o_c) * chr_dir)))
     T1$tr_r_int <- suppressWarnings(diyar::number_line(diyar::end_point(T1$tr_r_int) + diyar::left_point(tr_o_r), diyar::end_point(T1$tr_r_int) + (diyar::right_point(tr_o_r) * chr_dir)))
