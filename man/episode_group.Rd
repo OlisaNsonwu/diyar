@@ -2,21 +2,10 @@
 % Please edit documentation in R/episode_group.R
 \name{episode_group}
 \alias{episode_group}
-\alias{episode_group_old}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
 \title{Episode grouping for case definitions and record deduplication}
 \usage{
-episode_group_old(df, sn = NULL, strata = NULL, date, case_length,
-  episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
-  recurrence_length = NULL, rolls_max = Inf, data_source = NULL,
-  data_links = "ANY", custom_sort = NULL, skip_order = NULL,
-  from_last = FALSE, overlap_method = c("exact", "across", "inbetween",
-  "aligns_start", "aligns_end", "chain"), overlap_methods = NULL,
-  bi_direction = FALSE, group_stats = FALSE, display = TRUE,
-  deduplicate = FALSE, to_s4 = TRUE, recurrence_from_last = TRUE,
-  case_for_recurrence = FALSE)
-
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
   episode_type = "fixed", episode_unit = "days", episodes_max = Inf,
   recurrence_length = NULL, rolls_max = Inf,
@@ -73,6 +62,8 @@ Can be a (\code{\link{number_line}}) range.}
 
 \item{rolls_max}{Maximum number of times an episode can reoccur. Only used if \code{episode_type} is \code{"rolling"}.}
 
+\item{skip_if_b4_lengths}{If \code{TRUE} (default), records \code{events} before the \code{case_length} or the \code{recurrence_length} range are skipped.}
+
 \item{data_source}{Unique dataset identifier. Useful when the dataset contains data from multiple sources.
 In \code{\link{episode_group}}, you can use multiple columns supplied as column names.}
 
@@ -109,8 +100,6 @@ If \code{FALSE} (default), it will be the first event. Only used if \code{episod
 
 \item{case_for_recurrence}{If \code{TRUE}, both case and recurrence events will have a \code{case window}.
 If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
-
-\item{skip_if_b4_lengths}{If \code{TRUE} (default), records \code{events} before the \code{case_length} or the \code{recurrence_length} range are skipped.}
 
 \item{x}{Record date or interval. Deprecated. Please use \code{date}}
 }
