@@ -789,10 +789,10 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$tag <- ifelse(episode_type == "rolling" &
                        (T1$roll < rolls_max |(case_for_recurrence==T & T1$roll < rolls_max+1 & T1$tr_tag != 1.6) )&
                        !(T1$lr==1 & T1$tr_tag %in% c(1, 1.5, 1.4, 1.6)) & T1$case_nm %in% c("Duplicate","Recurrent"),
-                     ifelse(grepl("^Duplicate",T1$case_nm),
+                     ifelse(T1$case_nm == "Duplicate",
                             ifelse(T1$case_nm =="Duplicate" & !duplicated(T1$mrk_z, fromLast = T) &
                                      recurrence_from_last == T,
-                                   ifelse(case_for_recurrence==T & T1$tr_tag==1.5, 1.6,1.5), 2),
+                                   ifelse(case_for_recurrence==T & ((T1$tr_tag==1.5) | (T1$tr_tag ==0 & T1$c_rng1==F & T1$r_rng2==T)), 1.6,1.5), 2),
                             ifelse(T1$case_nm=="Recurrent" &
                                      T1$d_grp ==1  &
                                      T1$user_ord < T1$d_ord & T1$d_ord != Inf &
