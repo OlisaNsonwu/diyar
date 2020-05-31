@@ -891,3 +891,37 @@ test_that("test wind_id and wind_nm", {
   expect_equal(df$ep6@case_nm, c("Case","Recurrent", rep("Duplicate", 2), "Recurrent"))
   expect_equal(df$ep6@wind_nm, rep("Recurrence", 5))
 })
+
+x <- c(1,6,7,8,10)
+df1 <- data.frame(x=x, rc=0)
+df1$cl <- number_line(9,10)
+df1$ep1 <- episode_group(df1, date =x, case_length = cl, recurrence_length = rc, episode_type = "rolling")
+df1$ep2 <- episode_group(df1, date =x, case_length = cl, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = F)
+
+x <- seq(1,20,3)
+df2 <- data.frame(x=x, rc=0)
+df2$ep <- number_line(6,6)
+df2$ep3 <- episode_group(df2, date =x, case_length = ep, recurrence_length = rc, episode_type = "rolling")
+df2$ep4 <- episode_group(df2, date =x, case_length = ep, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = F)
+
+test_that("test cut-off ranges", {
+  expect_equal(df1$ep1@.Data, c(1,2,3,4,1))
+  expect_equal(df1$ep1@wind_id, df1$ep1@.Data)
+  expect_equal(df1$ep1@case_nm, c("Case","Skipped","Skipped","Skipped","Duplicate"))
+  expect_equal(df1$ep1@wind_nm, c("Case","Skipped","Skipped","Skipped","Case"))
+
+  expect_equal(df1$ep1@.Data, df1$ep2@.Data)
+  expect_equal(df1$ep1@wind_id, df1$ep1@wind_id)
+  expect_equal(df1$ep2@case_nm, c(rep("Case",4),"Duplicate"))
+  expect_equal(df1$ep2@wind_nm, c(rep("Case",5)))
+
+  expect_equal(df2$ep3@.Data, c(1,2,1,4,5,4,7))
+  expect_equal(df2$ep3@.Data, df2$ep3@wind_id)
+  expect_equal(df2$ep3@wind_nm, c("Case","Skipped", "Case", "Case", "Skipped", "Case", "Case"))
+  expect_equal(df2$ep3@case_nm, c("Case","Skipped", "Duplicate", "Case", "Skipped", "Duplicate", "Case"))
+
+  expect_equal(df2$ep4@.Data, c(1,2,1,2,5,6,5))
+  expect_equal(df2$ep4@.Data, df2$ep4@wind_id)
+  expect_equal(df2$ep4@wind_nm, rep("Case",7))
+  expect_equal(df2$ep4@case_nm, c("Case","Case", "Duplicate","Duplicate", "Case", "Case", "Duplicate"))
+})

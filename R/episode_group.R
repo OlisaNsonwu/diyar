@@ -591,7 +591,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     chr_dir <- ifelse(from_last==F, 1, -1)
 
     # Case level bi_direction ?
-    crx_e <- T1$tr_ep_l@start/abs(T1$tr_ep_l@start) != diyar::end_point(T1$tr_rc_l)/abs(diyar::end_point(T1$tr_ep_l))
+    crx_e <- T1$tr_ep_l@start/abs(T1$tr_ep_l@start) != diyar::end_point(T1$tr_ep_l)/abs(diyar::end_point(T1$tr_ep_l))
     crx_e[is.na(crx_e)] <- F
     crx_r <- T1$tr_rc_l@start/abs(T1$tr_rc_l@start) != diyar::end_point(T1$tr_rc_l)/abs(diyar::end_point(T1$tr_rc_l))
     crx_r[is.na(crx_r)] <- F
@@ -612,7 +612,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     # For non case level bi_direction get the opposite range if bi_direction is specified
     tr_o_c_b[bi_direction==T & crx_e !=T] <- diyar::invert_number_line(tr_o_c_a[bi_direction==T & crx_e !=T])
-    tr_o_r_b[bi_direction==T & crx_r !=T] <- diyar::invert_number_line(tr_o_r_a[bi_direction==T & crx_e !=T])
+    tr_o_r_b[bi_direction==T & crx_r !=T] <- diyar::invert_number_line(tr_o_r_a[bi_direction==T & crx_r !=T])
 
     tr_o_c_c <- tr_o_c_a; tr_o_c_d <- tr_o_c_b
     tr_o_r_c <- tr_o_r_a; tr_o_r_d <- tr_o_r_b
@@ -621,7 +621,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     left_point(tr_o_r_c) <- ifelse(n_r==T | crx_r ==T, left_point(tr_o_r_c), 0); right_point(tr_o_r_c) <- ifelse(n_r==T | crx_r ==T, 0, right_point(tr_o_r_c))
 
     tr_o_c_d[bi_direction==T & crx_e !=T] <- diyar::invert_number_line(tr_o_c_c[bi_direction==T & crx_e !=T])
-    tr_o_r_d[bi_direction==T & crx_e !=T] <- diyar::invert_number_line(tr_o_r_c[bi_direction==T & crx_e !=T])
+    tr_o_r_d[bi_direction==T & crx_r !=T] <- diyar::invert_number_line(tr_o_r_c[bi_direction==T & crx_r !=T])
 
     # Is check for the opposite direction required?
     bdl_e <- crx_e ==T | bi_direction==T; bdl_r <- crx_r ==T | bi_direction==T
@@ -666,27 +666,6 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$c_rng2 <- T1$lr==1 | T1$c3 | T1$c4
     T1$r_rng2 <- T1$lr==1 | T1$r3 | T1$r4
 
-    # Identify events between the event itself and the lower cut-off point
-    jmp_c <- T1$c_rng1 == F & T1$c_rng2 == T
-    jmp_r <- T1$r_rng1 == F & T1$r_rng2 == T
-
-    # ... Skip  these is required
-    skpd <- 0
-    if(skip_if_b4_lengths==T){
-      # assign unique IDs to skipped records
-      skpd <- skpd + length(jmp_r[jmp_r])
-      T1$wind_nm[jmp_r] <- T1$case_nm[jmp_r] <- "Skipped"
-      T1$epid[jmp_r] <- T1$wind_id[jmp_r] <- T1$sn[jmp_r]
-      T1$dist_from_wind[jmp_r] <- T1$dist_from_epid[jmp_r] <- 0
-      T1$tag[jmp_r] <- 2
-    }
-
-    # Seperate out skipped records
-    grouped_epids <- rbind(grouped_epids,
-                           T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
-    # Exclude from the main dataset
-    T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
-
     # Distance from window's ref event
     T1$dist_from_wind <- ((as.numeric(T1$dt_ai) + as.numeric(T1$dt_zi)) *.5) - ((as.numeric(T1$tr_dt_ai) + as.numeric(T1$tr_dt_zi)) *.5)
     # Distance from episodes's ref event
@@ -716,10 +695,53 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     T1$c_hit <- ifelse(T1$epid_type %in% c(1,2,7,6,10) | (T1$lr==1), 1, 0)
 
+    T1$epid_type_b <- ifelse(
+      T1$r_rng2 == T & !is.na(T1$r_rng2) & T1$tr_tag %in% c(1,1.5,0),
+      ifelse(T1$case_nm=="Duplicate", 7,6), 0
+    )
+
+    T1$epid_type_b <- ifelse(
+      T1$c_rng2 == T & !is.na(T1$c_rng2) &
+        ((T1$tr_tag==0 & !is.na(T1$tr_tag)) | (T1$tr_tag %in% c(1.4,1.6) & !is.na(T1$tr_tag))),
+      ifelse(T1$tr_tag==0,
+             ifelse(T1$lr==1, 1,2),
+             ifelse(T1$lr==1, 9, 10)),
+      T1$epid_type_b
+    )
+
+    T1$c_hit_b <- ifelse(T1$epid_type_b %in% c(1,2,7,6,10) | (T1$lr==1), 1, 0)
+
     T1$epid <- ifelse(
       T1$c_hit==1, ifelse(T1$tr_tag ==0 & !is.na(T1$tr_tag), T1$tr_sn, T1$tr_epid),
       T1$epid
     )
+
+    # Identify events between the event itself and the lower cut-off point
+    jmp_c <- T1$c_rng1 == F & T1$c_rng2 == T & T1$c_hit_b ==1
+    jmp_r <- T1$r_rng1 == F & T1$r_rng2 == T & T1$c_hit_b ==1
+
+    # Specific adjustment
+    sadj <- jmp_r == T & T1$c_rng2 == T
+    sadj <- T1$epid[sadj==T]
+    sadj <- sadj[!duplicated(sadj) & sadj !=sn_ref]
+    jmp_r[T1$epid %in% sadj] <- F
+
+    # ... Skip  these is required
+    skpd <- 0
+    if(skip_if_b4_lengths==T){
+      # assign unique IDs to skipped records
+      skpd <- skpd + length(jmp_r[jmp_r==T | jmp_c==T])
+      T1$wind_nm[jmp_r==T | jmp_c==T] <- T1$case_nm[jmp_r==T | jmp_c==T] <- "Skipped"
+      T1$epid[jmp_r==T | jmp_c==T] <- T1$wind_id[jmp_r==T | jmp_c==T] <- T1$sn[jmp_r==T | jmp_c==T]
+      T1$dist_from_wind[jmp_r==T | jmp_c==T] <- T1$dist_from_epid[jmp_r==T | jmp_c==T] <- 0
+      T1$tag[jmp_r==T | jmp_c==T] <- 2
+    }
+
+    # Seperate out skipped records
+    grouped_epids <- rbind(grouped_epids,
+                           T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
+    # Exclude from the main dataset
+    T1 <- T1[T1$tag !=2 & !is.na(T1$tag),]
 
     T1$wind_id <- ifelse(T1$c_hit==1 & (T1$lr !=1 | (T1$lr ==1 & T1$tr_case_nm=="")), T1$tr_sn, T1$wind_id)
     #T1$wind_nm <- ifelse((T1$epid_type %in% c(1,2,9,10) | (T1$epid_type==0 & T1$lr==1))  & T1$wind_nm=="", "Case", ifelse(T1$epid_type!=0 & T1$wind_nm=="", "Recurrence", T1$wind_nm))
