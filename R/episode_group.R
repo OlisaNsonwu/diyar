@@ -722,7 +722,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     )
 
     T1$wind_id <- ifelse(T1$c_hit==1 & (T1$lr !=1 | (T1$lr ==1 & T1$tr_case_nm=="")), T1$tr_sn, T1$wind_id)
-    T1$wind_nm <- ifelse((T1$epid_type %in% c(1,2,9,10) | (T1$epid_type==0 & T1$lr==1))  & T1$wind_nm=="", "Case", ifelse(T1$epid_type!=0 & T1$wind_nm=="", "Recurrence", T1$wind_nm))
+    #T1$wind_nm <- ifelse((T1$epid_type %in% c(1,2,9,10) | (T1$epid_type==0 & T1$lr==1))  & T1$wind_nm=="", "Case", ifelse(T1$epid_type!=0 & T1$wind_nm=="", "Recurrence", T1$wind_nm))
+
+    T1$wind_nm <- ifelse(T1$wind_nm=="" &T1$c_hit ==1,
+                         ifelse((T1$tr_tag %in% c(1, 1.5) | (T1$tr_tag ==0 & T1$c_rng1==F & T1$r_rng2==T)), "Recurrence", "Case"),
+                         T1$wind_nm)
 
     T1$case_nm <- ifelse(
       T1$c_hit==1 & !T1$tag %in% c(1.4,1.6),
@@ -821,6 +825,13 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   T1$wind_nm[T1$epid==sn_ref] <- T1$case_nm[T1$epid==sn_ref] <- "Skipped"
   T1$epid[T1$epid==sn_ref] <- T1$wind_id[T1$epid==sn_ref] <- T1$sn[T1$epid==sn_ref]
   T1$dist_from_wind[T1$epid==sn_ref] <- T1$dist_from_epid[T1$epid==sn_ref] <- 0
+
+  # Correction for window Ids with "Case" and "Recurrence" labels. These should be "Recurrence"
+  tmp <- split(T1$wind_id, T1$wind_nm)
+  tmp$Case <- tmp$Case[!tmp$Case %in% tmp$Recurrence]
+  T1$wind_nm[T1$wind_id %in% tmp[["Case"]]] <- "Case"
+  T1$wind_nm[T1$wind_id %in% tmp[["Recurrence"]]] <- "Recurrence"
+  T1$wind_nm[T1$wind_id %in% tmp[["Skipped"]]] <- "Skipped"
 
   # Drop 'duplicate' events if required
   if(deduplicate) T1 <- T1[T1$case_nm!="Duplicate",]
