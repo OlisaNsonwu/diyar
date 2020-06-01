@@ -303,6 +303,7 @@ invert_number_line <- function(x, point ="both"){
 
   point <- tolower(point)
 
+  x <- number_line(l=as.numeric(x@start), r=as.numeric(x@start)+x@.Data, id=x@id, gid=x@gid)
   left_point(x[point=="left"]) <- -x@start[point=="left"]
   right_point(x[point=="right"]) <- -(x@start[point=="right"] + x@.Data[point=="right"])
   start_point(x[point=="start"]) <- -diyar::start_point(x[point=="start"])
