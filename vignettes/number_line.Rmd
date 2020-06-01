@@ -142,7 +142,7 @@ number_line_sequence(nls, length.out = 3)
 
 *The 6 `overlap_methods` are mutually exclusive.*
 
-*There are 2 convenience methods - `"none"` and `"overlap"`. These are mutually inclusive with any the other 6.*
+*There are 2 convenience methods - `"none"` and `"overlap"`. These are mutually inclusive with the other 6.*
 
 **Figure 4a: Example of `exact` overlaps**
 
@@ -263,9 +263,9 @@ plot_number_line(aligns_end, show_overlap=T)
 ```
 
 ## Compressing `number_line` objects
-You can compress a pair of overlapping `number_line` objects into one by using `compress_number_line()`. You can also choose to compress only those that overlap in a certain way among the 6 methods shown above.
+You can compress a pair of overlapping `number_line` objects into one by using `compress_number_line()`. You can also choose to compress only those that overlap in a certain way.
 
-When the overlapping `number_line` objects have different directions, the resulting compressed `number_line` object will inherit the direction of the widest among them. If they have the same width, the compressed `number_line` object takes on an `"increasing"` direction.
+When overlapping `number_line` objects have different directions, the resulting compressed `number_line` object inherits the direction of the widest among them. If they have the same width, the compressed `number_line` object takes an `"increasing"` direction.
 
 **Figure 5. Pairs of `number_line` objects overlapping by `"inbetween"` and `"exact"` methods compressed into one**
 ```{r message=FALSE, warning=FALSE}
@@ -309,7 +309,7 @@ plot_number_line(f, strata = strata, show_overlap=T)
 ```
 
 ## Collapsing `number_line` objects
-The resulting compressed `number_line` object can yet again overlap with others, especially when not all `methods` were used. By default, the resulting compressed `number_line` object is not compressed a second time however, you can do so by using the `collapse` argument. 
+The resulting compressed `number_line` object can yet again overlap with others, especially when not every `method` is used. This doesn't happen by default but you can do so by changing `collapse` to `TRUE`. 
 
 It's worth mentioning that this process starts from the first `number_line` object in the set and then proceeds to the last. Therefore, changing their position in the set can lead to different results. 
 
@@ -353,7 +353,7 @@ plot_number_line(cmp_zb, show_overlap=T)
 
 In Fig. 8b, ``r format(nl_z[1])`` came first, so only `number_line` objects that overlapped with ``r format(nl_z[1])`` were compressed. However in Fig. 8c, because of the new positions, ``r format(nl_zb[1])`` came first, so only those that overlapped with ``r format(nl_zb[1])`` were compressed. 
 
-You can use the `collapse` argument to further compress already compressed `number_line` objects if they overlap again. In the example below, we collapse (rather than compress) the initial set (`nl_z`) which gives the same result as compressing the rearranged version (`nl_zb`). 
+In the example below, we change `collapse` to `TRUE` to collapse (rather than compress) the initial set (`nl_z`) which gives the same result as compressing the rearranged version (`nl_zb`). 
 
 **Figure 8d: pairs of `number_line` objects overlapping by `"chain"` and `"aligns_end" methods collapsed into one**
 
@@ -367,4 +367,4 @@ plot_number_line(cmp_zba, show_overlap=T)
 
 \newline
 
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` are more advanced implementations of `compress_number_line()`. They can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. They have additional useful features such as controlling the sequence in which pairs are compressed i.e. chronological order (`from_last`) or a user defined order (`custom_sort`), and considering additional periods (`case_length` and `recurrence_length`) before and/or (`bi_direction`) after the reference `number_line` object. See [episode grouping](episode_group.html) for further details.
+`fixed_episodes()`, `rolling_episodes()` and `episode_group()` are more advanced implementations of `compress_number_line()`. They can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. They have additional useful features such as controlling the order in which pairs are compressed i.e. chronological order (`from_last`) or a user defined order (`custom_sort`), and using additional periods (`case_length` and `recurrence_length`) before and/or (`bi_direction`) after the reference `number_line` object. See [episode grouping](episode_group.html) for further details.
