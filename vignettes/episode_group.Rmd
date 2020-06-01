@@ -22,7 +22,7 @@ dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
 ```
 
 #Introduction
-In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cutoffs are used to distinguish between events. This is an important aspect of a case definition. For example, it's often important to distinguish between repeat positive infection results during a pathogen's incubation period. Another example, is distinguishing between infections from a single pathogen and those by multiple pathogens within a certain period in time. 
+In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-off are used to distinguish between events. This is an important aspect of a case definition. For example, it's often important to distinguish between repeat positive infection results during a pathogen's incubation period. Another example, is distinguishing between infections from a single pathogen and those by multiple pathogens within a certain period in time. 
 
 `fixed_episodes()`, `rolling_episodes()` and `episode_group()` provide simple but flexible ways of doing this. They group events into temporal episodes with an index event. This then allows for easy deduplication or a sub-analysis within each episode.
 
@@ -60,7 +60,7 @@ Before we begin, let's go over some terms which will pop up now and again.
 + `window` - all `events` within the same `case_length` or `recurrence_length`
     + `case window` - all `events` within a `case_length`
     + `recurrence window` - all `events` within a `recurrence_length`
-+ `episode` - all `event` within the same cutoffs - `case_length` and `recurrence_length`. Every overlapping `window` forms an `episode`
++ `episode` - all `event` within the same cut-off - `case_length` and `recurrence_length`. Every overlapping `window` forms an `episode`
 + `case event` - index `event` for the entire episode
 + `recurrent event` - first `event` within a `recurrence_length`
 + `duplicate event` - non-index `events` within an `episode`
@@ -99,7 +99,7 @@ For an `epid` object created from a set of `events` sourced from different `data
 to_df(df$ep)
 ```
 
-### Cutoffs - case and recurrence lengths 
+### cut-off - case and recurrence lengths 
 Your first consideration should be a cut-off point to distinguish between `episodes`. This is referred to as the `case_length`. A `case_length` of `5` means that; repeat `events` within `6 days (Time difference of 5 days)` of the `reference event` are considered `duplicates` of the `reference event`. See below.
 
 ```{r message=FALSE, warning=FALSE}
@@ -204,7 +204,7 @@ ds2$ep2_ds <- ds2$ep2@epid_dataset
 ds2
 ```
 
-Notice that in `ep1`, the HIV diagnosis and the HBV diagnosis before it are not grouped into the same `episode` despite being within 6 months of each other. This also happens with the HIV and MyCt diagnoses in `ep2`. This happends because by default, `episode` tracking occurs in one direction of time (`from_last`). You can correct for this by simultaneously tracking `events` in both directions i.e. before and after an index `event`. This is either done by changing `bi_direction` to `TRUE` or by using an applicable cut-off range i.e. `r format(number_line(-6,6))`. See the examples below. 
+Notice that in `ep1`, the HIV diagnosis and the HBV diagnosis before it are not grouped into the same `episode` despite being within 6 months of each other. This also happens with the HIV and MyCt diagnoses in `ep2`. This happens because by default, `episode` tracking occurs in one direction of time (`from_last`). You can correct for this by simultaneously tracking `events` in both directions i.e. before and after an index `event`. This is either done by changing `bi_direction` to `TRUE` or by using an applicable cut-off range i.e. `r format(number_line(-6,6))`. See the examples below. 
 
 ```{r warning=FALSE}
 # Track preceeding and concurrent infections up to 6 months BEFORE OR AFTER the HIV diagnosis
@@ -444,7 +444,7 @@ plot_epid(epid = df2$r2, date = df2$date, case_length =6, recurrence_length = 4)
 Notice that in the 4 examples, all `events` have been assigned to the same `episode` but the number of `recurrent events` differ.
 
 ### Number of recurrence periods and episodes
-Some case definitions may only require you to track the first `n`-number of `episodes`, or those that only recurried `n`-number of times. You can incorporate these requirements into your analysis using `episodes_max` and `rolls_max` (only applicable to `rolling_episodes()`). When each `strata` (see [stratified grouping](#stratified_grouping)) of the dataset has the maximum number of `episodes` (`episodes_max`), subsequent `events` are skipped and assigned unique episode IDs. The default option for `episodes_max` is `Inf` i.e. continue until every `event` has been grouped into `episodes`. See the examples below.
+Some case definitions may only require you to track the first `n`-number of `episodes`, or those that only recurred `n`-number of times. You can incorporate these requirements into your analysis using `episodes_max` and `rolls_max` (only applicable to `rolling_episodes()`). When each `strata` (see [stratified grouping](#stratified_grouping)) of the dataset has the maximum number of `episodes` (`episodes_max`), subsequent `events` are skipped and assigned unique episode IDs. The default option for `episodes_max` is `Inf` i.e. continue until every `event` has been grouped into `episodes`. See the examples below.
 
 ```{r warning=FALSE, message=FALSE}
 data("infections_3");

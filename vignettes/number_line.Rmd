@@ -74,7 +74,7 @@ plot_number_line(nl_b)
 ```
 
 ## Manipulating `number_line` objects
-`diyar` has convenience functions to reverse, shrink, expand `number_line` objects, or shift thm along the number line. 
+`diyar` has convenience functions to reverse, shrink, expand `number_line` objects, or shift the along the number line. 
 
 ```{r message=FALSE, warning=FALSE}
 nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"),

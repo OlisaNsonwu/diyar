@@ -324,7 +324,7 @@ invert_number_line <- function(x, point ="both"){
 #' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.
 #' @param methods Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}
 #' @param collapse If \code{TRUE}, collapse the compressed results yet again.
-#' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object per set of ovelapping \code{number_line}.
+#' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object per set of overlapping \code{number_line}.
 #'
 #' @examples
 #' # Collapse number line objects

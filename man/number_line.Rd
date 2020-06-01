@@ -83,7 +83,7 @@ Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default)
 
 \item{collapse}{If \code{TRUE}, collapse the compressed results yet again.}
 
-\item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object per set of ovelapping \code{number_line}.}
+\item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object per set of overlapping \code{number_line}.}
 
 \item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}}
 

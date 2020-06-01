@@ -15,7 +15,7 @@
 \alias{Opes}
 \alias{episode_unit}
 \title{Datasets in \code{diyar} package}
-\format{tibble}
+\format{data.frame}
 \usage{
 data(staff_records)
 

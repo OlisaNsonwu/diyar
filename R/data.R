@@ -1,6 +1,6 @@
 #' @details staff_records - Staff record with some missing data
 #' @usage data(staff_records)
-#' @format tibble
+#' @format data.frame
 #' @rdname patient_list
 #' @examples
 #' data(staff_records)
@@ -8,7 +8,7 @@
 
 #' @details missing_staff_id - Staff records with missing staff identifiers
 #' @usage data(missing_staff_id)
-#' @format tibble
+#' @format data.frame
 #' @rdname patient_list
 #' @examples
 #' data(missing_staff_id)
@@ -17,35 +17,35 @@
 #' @rdname patient_list
 #' @details infections, infections_2, infections_3 and infections_4 - Reports of bacterial infections
 #' @usage data(infections)
-#' @format tibble
+#' @format data.frame
 #' @examples
 #' data(infections)
 "infections"
 
 #' @rdname patient_list
 #' @usage data(infections_2)
-#' @format tibble
+#' @format data.frame
 #' @examples
 #' data(infections_2)
 "infections_2"
 
 #' @rdname patient_list
 #' @usage data(infections_3)
-#' @format tibble
+#' @format data.frame
 #' @examples
 #' data(infections_3)
 "infections_3"
 
 #' @rdname patient_list
 #' @usage data(infections_4)
-#' @format tibble
+#' @format data.frame
 #' @examples
 #' data(infections_4)
 "infections_4"
 
 #' @details hospital_admissions - Hospital admissions and discharges
 #' @usage data(hospital_admissions)
-#' @format tibble
+#' @format data.frame
 #' @rdname patient_list
 #' @examples
 #' data(hospital_admissions)
@@ -70,7 +70,7 @@
 
 #' @details Hourly data
 #' @usage data(hourly_data)
-#' @format tibble
+#' @format data.frame
 #' @rdname patient_list
 #' @examples
 #' data(hourly_data)
@@ -78,7 +78,7 @@
 
 #' @details Opes - List of individuals with the same name
 #' @usage data(Opes)
-#' @format tibble
+#' @format data.frame
 #' @rdname patient_list
 #' @examples
 #' data(Opes)
