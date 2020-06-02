@@ -584,8 +584,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # tr_*_int_c - maximum   range in specified direction
     # tr_*_int_d - maximum   range in opposite  direction
 
-    T1$tr_c_int_a <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
-    T1$tr_c_int_d <- T1$tr_c_int_c <- T1$tr_c_int_b <- T1$tr_c_int_a <- T1$tr_r_int_d <- T1$tr_r_int_b <- T1$tr_r_int_a <-  T1$tr_r_int_c <-  T1$tr_c_int_a
+    T1$tr_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
+    T1$tr_c_int_d <- T1$tr_c_int_c <- T1$tr_c_int_b <- T1$tr_c_int_a <- T1$tr_r_int_d <- T1$tr_r_int_b <- T1$tr_r_int_a <-  T1$tr_r_int_c <-  T1$tr_c_int_a <- T1$tr_int
 
     # Direction in time for episode groupping
     chr_dir <- ifelse(from_last==F, 1, -1)
@@ -645,26 +645,27 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     # T1$*4 - all possible overlaps in opposite direction?
 
     # N:B Only check for overlaps where necessary
-    T1$r1 <- T1$r2 <- T1$r3 <- T1$r4 <- T1$c1 <- T1$c2 <- T1$c3 <- T1$c4 <- F
+    T1$r1 <- T1$r2 <- T1$r3 <- T1$r4 <- T1$r5 <- T1$r6 <- T1$c1 <- T1$c2 <- T1$c3 <- T1$c4 <- T1$c5 <- T1$c6 <- F
     T1$c1 <- diyar::overlaps(T1$int, T1$tr_c_int_a, methods = T1$methods)
     T1$c2[bdl_e == T] <- diyar::overlaps(T1$int[bdl_e == T], T1$tr_c_int_b[bdl_e == T], methods = T1$methods[bdl_e == T])
+    T1$c3[T1$tr_int@.Data!=0] <- diyar::overlaps(T1$int[T1$tr_int@.Data!=0], T1$tr_int[T1$tr_int@.Data!=0], methods = T1$methods[T1$tr_int@.Data!=0])
 
     T1$r1 <- diyar::overlaps(T1$int, T1$tr_r_int_a, methods = T1$methods)
     T1$r2[bdl_r == T] <- diyar::overlaps(T1$int[bdl_r == T], T1$tr_r_int_b[bdl_r == T], methods = T1$methods[bdl_r == T])
 
-    T1$c3[skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[skip_if_b4_lengths == T], T1$tr_c_int_c[skip_if_b4_lengths == T], methods = T1$methods[skip_if_b4_lengths == T])
-    T1$c4[bdl_e == T & skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[bdl_e == T & skip_if_b4_lengths == T], T1$tr_c_int_d[bdl_e == T & skip_if_b4_lengths == T], methods = T1$methods[bdl_e == T & skip_if_b4_lengths == T])
+    T1$c4[skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[skip_if_b4_lengths == T], T1$tr_c_int_c[skip_if_b4_lengths == T], methods = T1$methods[skip_if_b4_lengths == T])
+    T1$c5[bdl_e == T & skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[bdl_e == T & skip_if_b4_lengths == T], T1$tr_c_int_d[bdl_e == T & skip_if_b4_lengths == T], methods = T1$methods[bdl_e == T & skip_if_b4_lengths == T])
 
-    T1$r3[skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[skip_if_b4_lengths == T], T1$tr_r_int_c[skip_if_b4_lengths == T], methods = T1$methods[skip_if_b4_lengths == T])
-    T1$r4[bdl_r == T & skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[bdl_r == T & skip_if_b4_lengths == T], T1$tr_r_int_d[bdl_r == T & skip_if_b4_lengths == T], methods = T1$methods[bdl_r == T & skip_if_b4_lengths == T])
+    T1$r4[skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[skip_if_b4_lengths == T], T1$tr_r_int_c[skip_if_b4_lengths == T], methods = T1$methods[skip_if_b4_lengths == T])
+    T1$r5[bdl_r == T & skip_if_b4_lengths == T] <- diyar::overlaps(T1$int[bdl_r == T & skip_if_b4_lengths == T], T1$tr_r_int_d[bdl_r == T & skip_if_b4_lengths == T], methods = T1$methods[bdl_r == T & skip_if_b4_lengths == T])
 
     T1$r_rng1 <- T1$c_rng1 <- F
 
-    T1$c_rng1 <- T1$lr==1 | T1$c1 | T1$c2
-    T1$r_rng1 <- T1$lr==1 | T1$r1 | T1$r2
+    T1$c_rng1 <- T1$lr==1 | T1$c1 | T1$c2 | T1$c3
+    T1$r_rng1 <- T1$lr==1 | T1$r1 | T1$r2 | T1$c3
 
-    T1$c_rng2 <- T1$lr==1 | T1$c3 | T1$c4
-    T1$r_rng2 <- T1$lr==1 | T1$r3 | T1$r4
+    T1$c_rng2 <- T1$lr==1 | T1$c4 | T1$c5 | T1$c3
+    T1$r_rng2 <- T1$lr==1 | T1$r4 | T1$r5 | T1$c3
 
     # Distance from window's ref event
     T1$dist_from_wind <- ((as.numeric(T1$dt_ai) + as.numeric(T1$dt_zi)) *.5) - ((as.numeric(T1$tr_dt_ai) + as.numeric(T1$tr_dt_zi)) *.5)
