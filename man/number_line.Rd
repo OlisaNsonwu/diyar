@@ -113,7 +113,7 @@ The \code{direction} argument determines which type of \code{number_line} object
 
 \bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line} object.
 
-\bold{\code{invert_number_line()}} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
+\bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points to the opposite end of the number line.
 
 \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} objects into a new \code{number_line} object that covers the \code{start} and \code{end} points of the originals.
 This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the new expanded \code{number_line} object.

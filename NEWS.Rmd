@@ -21,11 +21,16 @@ knitr::opts_chunk$set(
 + `episode_group()` and `rolling_episodes()` - `recurrence_from_last` argument. Determine if reference events should be the first or last event from the previous window.
 + `episode_group()` and `rolling_episodes()` - `case_for_recurrence` argument. Determine if recurrent events should have their own case windows or not.
 + `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `data_links`. Ungroup episodes that do not include records from certain `data_source(s)`.
++ `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `case_length` and `recurrence_length`. You can now use a range (`number_line` object).
 + `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `skip_order`. Skip episodes with case events that have `custom_sort` values less than or equal to the`"nth"` order of `custom_sort`.
 + `pid` objects - `link_id` slot. Shows the record (`sn` slot) to which every record in the dataset has matched to.
++ `invert_number_line()` - Invert the `left` and/or `right` points to the opposite end of the number line
++ `left_point(x)<-`, `right_point(x)<-`, `start_point(x)<-` and `end_point(x)<-` accessor functions
 
 ##Changes
-
++ `overlap()` renamed to `overlaps()`. `overlap()` is now a convenience `overlap_method` for ANY kind of overlap
++ `"none"` is another convenience `overlap_method` for NO kind of overlap
++ `expand_number_line()` - new options for `point`; `"left"` and `"right"` 
 + `compress_number_line()` - compressed `number_line` object inherits the direction of the widest `number_line` among overlapping group of `number_line` objects
 + `overlap_methods` - have been changed such that each pair of `number_line` objects can only overlap in one way. E.g.
     + `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap only

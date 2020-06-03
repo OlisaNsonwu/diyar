@@ -282,7 +282,7 @@ expand_number_line <- function(x, by=1, point ="both"){
 
 #' @rdname number_line
 #' @details
-#' \bold{\code{invert_number_line()}} - The invert the \code{left} and/or \code{right} points to the opposite end of the number line.
+#' \bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points to the opposite end of the number line.
 #' @examples
 #' # Change the width or length of a number_line object
 #' e <- c(number_line(3, 6), number_line(-3, -6), number_line(-3, 6))
