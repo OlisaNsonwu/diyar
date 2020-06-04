@@ -127,7 +127,7 @@
 <li>
 <code><a href="../reference/record_group.html">record_group()</a></code> - <code>strata</code> argument. Perform record grouping separately within subsets of a dataset.</li>
 <li>
-<code><a href="../reference/overlap.html">overlap()</a></code>, <code><a href="../reference/number_line.html">compress_number_line()</a></code>, <code>fixed_sepisodes()</code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> - <code>overlap_methods</code> and <code>methods</code> arguments replaces <code>overlap_method</code> and <code>method</code> respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing <code>number_line</code> objects. <code>overlap_method</code> and <code>method</code> only permits 1 method per per dataset.</li>
+<code><a href="../reference/overlaps.html">overlap()</a></code>, <code><a href="../reference/number_line.html">compress_number_line()</a></code>, <code>fixed_sepisodes()</code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> - <code>overlap_methods</code> and <code>methods</code> arguments replaces <code>overlap_method</code> and <code>method</code> respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing <code>number_line</code> objects. <code>overlap_method</code> and <code>method</code> only permits 1 method per per dataset.</li>
 <li>
 <code>epid</code> objects - <code>win_nm</code> slot. Shows the type of window each event belongs to i.e. case or recurrence window</li>
 <li>
@@ -147,15 +147,28 @@
 <li>
 <code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>data_links</code>. Ungroup episodes that do not include records from certain <code>data_source(s)</code>.</li>
 <li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>case_length</code> and <code>recurrence_length</code>. You can now use a range (<code>number_line</code> object).</li>
+<li>
 <code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>skip_order</code>. Skip episodes with case events that have <code>custom_sort</code> values less than or equal to the<code>"nth"</code> order of <code>custom_sort</code>.</li>
 <li>
 <code>pid</code> objects - <code>link_id</code> slot. Shows the record (<code>sn</code> slot) to which every record in the dataset has matched to.</li>
+<li>
+<code><a href="../reference/number_line.html">invert_number_line()</a></code> - Invert the <code>left</code> and/or <code>right</code> points to the opposite end of the number line</li>
+<li>
+<code>left_point(x)&lt;-</code>, <code>right_point(x)&lt;-</code>, <code>start_point(x)&lt;-</code> and <code>end_point(x)&lt;-</code> accessor functions</li>
 </ul>
 </div>
 <div id="changes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#changes" class="anchor"></a>Changes</h2>
 <ul>
+<li>
+<code><a href="../reference/overlaps.html">overlap()</a></code> renamed to <code><a href="../reference/overlaps.html">overlaps()</a></code>. <code><a href="../reference/overlaps.html">overlap()</a></code> is now a convenience <code>overlap_method</code> for ANY kind of overlap</li>
+<li>
+<code>"none"</code> is another convenience <code>overlap_method</code> for NO kind of overlap</li>
+<li>
+<code><a href="../reference/number_line.html">expand_number_line()</a></code> - new options for <code>point</code>; <code>"left"</code> and <code>"right"</code>
+</li>
 <li>
 <code><a href="../reference/number_line.html">compress_number_line()</a></code> - compressed <code>number_line</code> object inherits the direction of the widest <code>number_line</code> among overlapping group of <code>number_line</code> objects</li>
 <li>
