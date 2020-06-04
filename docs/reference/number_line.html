@@ -32,7 +32,7 @@
 
 <meta property="og:title" content="Number line objects — number_line" />
 
-<meta property="og:description" content="A range number based values on a number line ." />
+<meta property="og:description" content="A range of numeric based values on a number line." />
 <meta name="twitter:card" content="summary" />
 
 
@@ -122,7 +122,7 @@
 
     <div class="ref-description">
     
-    <p>A range number based values on a number line .</p>
+    <p>A range of <code>numeric</code> based values on a number line.</p>
     
     </div>
 
@@ -134,11 +134,19 @@
 
 <span class='fu'>left_point</span>(<span class='no'>x</span>)
 
+<span class='fu'>left_point</span>(<span class='no'>x</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
 <span class='fu'>right_point</span>(<span class='no'>x</span>)
+
+<span class='fu'>right_point</span>(<span class='no'>x</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
 
 <span class='fu'>start_point</span>(<span class='no'>x</span>)
 
+<span class='fu'>start_point</span>(<span class='no'>x</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
+
 <span class='fu'>end_point</span>(<span class='no'>x</span>)
+
+<span class='fu'>end_point</span>(<span class='no'>x</span>) <span class='kw'>&lt;-</span> <span class='no'>value</span>
 
 <span class='fu'>number_line_width</span>(<span class='no'>x</span>)
 
@@ -148,10 +156,11 @@
 
 <span class='fu'>expand_number_line</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>point</span> <span class='kw'>=</span> <span class='st'>"both"</span>)
 
+<span class='fu'>invert_number_line</span>(<span class='no'>x</span>, <span class='kw'>point</span> <span class='kw'>=</span> <span class='st'>"both"</span>)
+
 <span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"chain"</span>,
-  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"inbetween"</span>), <span class='kw'>collapse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"exact|across|chain|aligns_start|aligns_end|inbetween"</span>)
+  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"inbetween"</span>, <span class='st'>"overlap"</span>, <span class='st'>"none"</span>),
+  <span class='kw'>collapse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>)
 
 <span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='kw'>NULL</span>)</pre>
     
@@ -160,27 +169,32 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>l</th>
-      <td><p>Left point of the <code>number_line</code> object. Should be, or can be coerced to a <code>numeric</code> object</p></td>
+      <td><p>Left point of the <code>number_line</code> object. Must be able to be coerced to a finite <code>numeric</code> value</p></td>
     </tr>
     <tr>
       <th>r</th>
-      <td><p>Right point of the <code>number_line</code> object. Should be, or can be coerced to a <code>numeric</code> object</p></td>
+      <td><p>Right point of the <code>number_line</code> object. Must be able to be coerced to a finite <code>numeric</code> value</p></td>
     </tr>
     <tr>
       <th>id</th>
-      <td><p>Unique <code>numeric</code> ID. Optional</p></td>
+      <td><p>Unique <code>numeric</code> element ID. Optional</p></td>
     </tr>
     <tr>
       <th>gid</th>
-      <td><p>Unique <code>numeric</code> Group ID. Optional</p></td>
+      <td><p>Unique <code>numeric</code> group ID. Optional</p></td>
     </tr>
     <tr>
       <th>x</th>
       <td><p><code>number_line</code> object</p></td>
     </tr>
     <tr>
+      <th>value</th>
+      <td><p><code>numeric</code> based value</p></td>
+    </tr>
+    <tr>
       <th>direction</th>
-      <td><p>Type of <code>"number_line"</code> objects to be reversed. Options are; <code>"increasing"</code>, <code>"decreasing"</code> or <code>"both"</code>.</p></td>
+      <td><p>Type of <code>"number_line"</code> objects to be reversed.
+Options are; <code>"increasing"</code>, <code>"decreasing"</code> or <code>"both"</code> (default).</p></td>
     </tr>
     <tr>
       <th>by</th>
@@ -192,7 +206,7 @@
     </tr>
     <tr>
       <th>method</th>
-      <td><p>Method of overlap. Check every pair of <code>number_line</code> objects with the same <code>method</code>. Deprecated use <code>methods</code> instead.</p></td>
+      <td><p>Method of overlap. Check every pair of <code>number_line</code> objects with the same <code>method</code>. Deprecated. Please use <code>methods</code> instead.</p></td>
     </tr>
     <tr>
       <th>collapse</th>
@@ -200,7 +214,7 @@
     </tr>
     <tr>
       <th>deduplicate</th>
-      <td><p>if <code>TRUE</code>, retains only one <code>number_line</code> object among duplicates</p></td>
+      <td><p>if <code>TRUE</code>, retains only one <code>number_line</code> object per set of overlapping <code>number_line</code>.</p></td>
     </tr>
     <tr>
       <th>methods</th>
@@ -218,22 +232,24 @@
     
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>A <code>number_line</code> object represents a series of real numbers on a number line.</p>
-<p>Visually, it's presented as the left (<code>l</code>) and right (<code>r</code>) points of the series. This may differ from <code>start</code> and <code>end</code> points.
-The <code>start</code> point is the lowest number in the series, regardless of whether it's at the <code>left</code> or <code>right</code> point.</p>
-<p>The location of the <code>start</code> point - <code>left</code> or <code>right</code>, indicates whether it's an <code>"increasing"</code> or <code>"decreasing"</code> series.
+    <p>A <code>number_line</code> object represents a range of real numbers on a number line.</p>
+<p>Visually, it's presented as the left (<code>l</code>) and right (<code>r</code>) points of the range This may differ from <code>start</code> and <code>end</code> points.
+The <code>start</code> point is the lowest number in the range, regardless of whether it's at the <code>left</code> or <code>right</code> point.</p>
+<p>The location of the <code>start</code> point - <code>left</code> or <code>right</code>, indicates whether it's an <code>"increasing"</code> or <code>"decreasing"</code> range.
 This is the <code>direction</code> of the <code>number_line</code> object.</p>
-<p><code>reverse_number_line()</code> - reverses the direction of a <code>number_line</code> object. A reversed <code>number_line</code> object has its <code>l</code> and <code>r</code> points swapped.
+<p><b><code>reverse_number_line()</code></b> - reverses the direction of a <code>number_line</code> object.
+A reversed <code>number_line</code> object has its <code>l</code> and <code>r</code> points swapped.
 The <code>direction</code> argument determines which type of <code>number_line</code> objects will be reversed.
 <code>number_line</code> objects with non-finite numeric starts or end points i.e. (<code>NA</code>, <code>NaN</code> and <code>Inf</code>) can't be reversed.</p>
-<p><code>shift_number_line()</code> - a convenience function to shift a <code>number_line</code> object towards the positive or negative end of the number line.</p>
-<p><code>expand_number_line()</code> - a convenience function to increase or decrease the width or length of a <code>number_line</code> object.</p>
-<p><code>compress_number_line()</code> - 'compress' or 'collapse' overlapping <code>number_line</code> objects into a new <code>number_line</code> objects that covers the <code>start</code> and <code>end</code> points of the originals.
+<p><b><code>shift_number_line()</code></b> - Shift a <code>number_line</code> object towards the positive or negative end of the number line.</p>
+<p><b><code>expand_number_line()</code></b> - Increase or decrease the width or length of a <code>number_line</code> object.</p>
+<p><b><code>invert_number_line()</code></b> - Invert the <code>left</code> and/or <code>right</code> points to the opposite end of the number line.</p>
+<p><b><code>compress_number_line()</code></b> - <code>"compress"</code> or <code>"collapse"</code> overlapping <code>number_line</code> objects into a new <code>number_line</code> object that covers the <code>start</code> and <code>end</code> points of the originals.
 This results in duplicate <code>number_line</code> objects with the <code>start</code> and <code>end</code> points of the new expanded <code>number_line</code> object.
-See <code><a href='overlap.html'>overlap</a></code> for further details on overlapping <code>number_line</code> objects.
+See <code><a href='overlaps.html'>overlaps</a></code> for further details on overlapping <code>number_line</code> objects.
 If a familiar (but unique) <code>id</code> is used when creating the <code>number_line</code> objects,
-<code>compress_number_line()</code> can be an alternative for simple implementations of <code><a href='record_group.html'>record_group</a></code> or <code><a href='episode_group.html'>episode_group</a></code>.</p>
-<p><code>number_line_sequence()</code> - a convenience function to convert a <code>number_line</code> object into a sequence of finite numbers.
+<b><code>compress_number_line()</code></b> can be an alternative for simple implementations of <code><a href='record_group.html'>record_group</a></code> or <code><a href='episode_group.html'>episode_group</a></code>.</p>
+<p><b><code>number_line_sequence()</code></b> - Convert a <code>number_line</code> object into a sequence of finite numbers.
 The direction of the sequence will correspond to that of the <code>number_line</code> object.</p>
     
 
@@ -256,19 +272,23 @@ The direction of the sequence will correspond to that of the <code>number_line</
 <span class='co'># Structure of a number_line object</span>
 <span class='fu'>left_point</span>(<span class='no'>a</span>); <span class='fu'>right_point</span>(<span class='no'>a</span>); <span class='fu'>start_point</span>(<span class='no'>a</span>); <span class='fu'>end_point</span>(<span class='no'>a</span>)</div><div class='output co'>#&gt; [1] 0</div><div class='output co'>#&gt; [1] -100</div><div class='output co'>#&gt; [1] -100</div><div class='output co'>#&gt; [1] 0</div><div class='input'>
 <span class='co'># Reverse number_line objects</span>
-<span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/date'>date</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/date'>date</a></span>(<span class='st'>"01/01/2019"</span>)))</div><div class='output co'>#&gt; [1] "2019-01-01 -&gt; 2019-04-25"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>,-<span class='fl'>100</span>), <span class='st'>"increasing"</span>)</div><div class='output co'>#&gt; [1] "200 &lt;- -100"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>,-<span class='fl'>100</span>), <span class='st'>"decreasing"</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 200"</div><div class='input'>
+<span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/date'>date</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/date'>date</a></span>(<span class='st'>"01/01/2019"</span>)))</div><div class='output co'>#&gt; [1] "2019-01-01 -&gt; 2019-04-25"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>, -<span class='fl'>100</span>), <span class='st'>"increasing"</span>)</div><div class='output co'>#&gt; [1] "200 &lt;- -100"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>, -<span class='fl'>100</span>), <span class='st'>"decreasing"</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 200"</div><div class='input'>
 <span class='co'># Shift number_line objects</span>
 <span class='no'>c</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fl'>5</span>, <span class='fl'>6</span>)
 <span class='co'># Towards the positive end of the number line</span>
-<span class='fu'>shift_number_line</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>c</span>,<span class='no'>c</span>), <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,<span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "7 -&gt; 8" "8 -&gt; 9"</div><div class='input'><span class='co'># Towards the negative end of the number line</span>
-<span class='fu'>shift_number_line</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>c</span>,<span class='no'>c</span>), <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>2</span>,-<span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "3 -&gt; 4" "2 -&gt; 3"</div><div class='input'>
+<span class='fu'>shift_number_line</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>c</span>, <span class='no'>c</span>), <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "7 -&gt; 8" "8 -&gt; 9"</div><div class='input'><span class='co'># Towards the negative end of the number line</span>
+<span class='fu'>shift_number_line</span>(<span class='kw'>x</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>c</span>, <span class='no'>c</span>), <span class='kw'>by</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(-<span class='fl'>2</span>, -<span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "3 -&gt; 4" "2 -&gt; 3"</div><div class='input'>
 <span class='co'># Change the width or length of a number_line object</span>
-<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>,<span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>,<span class='fl'>3</span>))
+<span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>, <span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>, <span class='fl'>3</span>))
 
-<span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 8" "8 &lt;- 1"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, -<span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "5 &lt;- 4" "4 -&gt; 5"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,-<span class='fl'>1</span>))</div><div class='output co'>#&gt; [1] "1 -&gt; 8" "5 &lt;- 4"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 6" "8 &lt;- 3"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3 -&gt; 8" "6 &lt;- 1"</div><div class='input'>
+<span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 8" "8 &lt;- 1"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, -<span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "5 &lt;- 4" "4 -&gt; 5"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>2</span>,-<span class='fl'>1</span>))</div><div class='output co'>#&gt; [1] "1 -&gt; 8" "5 &lt;- 4"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 6" "6 &lt;- 5"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3 -&gt; 8" "8 &lt;- 3"</div><div class='input'>
+<span class='co'># Change the width or length of a number_line object</span>
+<span class='no'>e</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>, <span class='fl'>6</span>), <span class='fu'>number_line</span>(-<span class='fl'>3</span>, -<span class='fl'>6</span>), <span class='fu'>number_line</span>(-<span class='fl'>3</span>, <span class='fl'>6</span>))
+
+<span class='no'>e</span></div><div class='output co'>#&gt; [1] "3 -&gt; 6"   "-3 &lt;- -6" "-3 -&gt; 6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>)</div><div class='output co'>#&gt; [1] "-3 &lt;- -6" "3 -&gt; 6"   "3 &lt;- -6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "-3 -&gt; 6" "-3 -&gt; 6" "3 -&gt; 6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3 &lt;- -6"  "3 &lt;- -6"  "-3 &lt;- -6"</div><div class='input'>
 <span class='co'># Collapse number line objects</span>
 <span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>), <span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>),  <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>))
-<span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "5 -&gt; 30"  "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div><div class='output co'>#&gt; <span class='warning'>Warning: 'method' is deprecated. Please use 'methods' instead.</span></div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'>
+<span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "5 -&gt; 30"  "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'>
 <span class='co'># Convert a number line object to its series of real numbers</span>
 <span class='fu'>number_line_sequence</span>(<span class='fu'>number_line</span>(<span class='fl'>1</span>, <span class='fl'>5</span>))</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] 1 2 3 4 5
@@ -289,8 +309,7 @@ The direction of the sequence will correspond to that of the <code>number_line</
 #&gt; [[5]]
 #&gt; [1] 1
 #&gt; </div><div class='input'>
-<span class='no'>nl</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.POSIXlt'>as.POSIXlt</a></span>(<span class='st'>"01/04/2019 00:00:00"</span>, <span class='st'>"UTC"</span>,<span class='kw'>format</span><span class='kw'>=</span><span class='st'>"%d/%m/%Y %H:%M:%S"</span>),
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.POSIXlt'>as.POSIXlt</a></span>(<span class='st'>"04/04/2019 00:00:00"</span>, <span class='st'>"UTC"</span>,<span class='kw'>format</span><span class='kw'>=</span><span class='st'>"%d/%m/%Y %H:%M:%S"</span>))
+<span class='no'>nl</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'>dttm</span>(<span class='st'>"01/04/2019 00:00:00"</span>), <span class='fu'>dttm</span>(<span class='st'>"04/04/2019 00:00:00"</span>))
 
 <span class='fu'>number_line_sequence</span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>nl</span>, <span class='no'>nl</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>episode_unit</span><span class='kw'>[[</span><span class='st'>"days"</span>]] * <span class='fl'>1.5</span>, <span class='no'>episode_unit</span><span class='kw'>[[</span><span class='st'>"hours"</span>]] * <span class='fl'>12</span>))</div><div class='output co'>#&gt; [[1]]
 #&gt; [1] "2019-04-01 01:00:00 BST" "2019-04-02 13:00:00 BST"

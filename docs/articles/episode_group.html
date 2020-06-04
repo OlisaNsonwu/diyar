@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">24 April 2020</h4>
+            <h4 class="date">04 June 2020</h4>
       
       
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -93,21 +93,35 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>Deduplicating events is an important step in establishing a case definition in epidemiological analyses. For the most part, this involves selecting a reference event which represents an episode. Subsequent events within a specified period are then taken as duplicates of this reference event.</p>
-<p><code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> provide simple but flexible ways of grouping records from multiple datasets into episodes. This then allows for easy deduplication or a sub-analysis within each episode.</p>
+<p>In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-off are used to distinguish between events. This is an important aspect of a case definition. For example, it’s often important to distinguish between repeat positive infection results during a pathogen’s incubation period. Another example, is distinguishing between infections from a single pathogen and those by multiple pathogens within a certain period in time.</p>
+<p><code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> provide simple but flexible ways of doing this. They group events into temporal episodes with an index event. This then allows for easy deduplication or a sub-analysis within each episode.</p>
 </div>
 <div id="uses" class="section level1">
 <h1 class="hasAnchor">
 <a href="#uses" class="anchor"></a>Uses</h1>
-<p>You can use <a href="record_group.html">record_group</a> and these episode grouping functions to implement a variety of case definitions. For example, they can group episodes;</p>
+<p>These functions can implement a variety of case definitions. For example, they can group events into;</p>
 <ul>
-<li>from events that occur at points in time e.g. medical diagnoses or traffic incidents</li>
-<li>from events that occur within periods of time e.g. hospital stay. See <a href="#interval_grouping">interval grouping</a>
+<li>episodes where each event occurred at points in time e.g. medical diagnoses or traffic incidents</li>
+<li>episodes where each event occurred over periods in time e.g. hospital admission or incubation periods. See <a href="#interval_grouping">interval grouping</a>
 </li>
-<li>with periods of recurrence (<code>recurrence_length</code>)</li>
-<li>with specific events as their reference event (case). See <a href="#custom_sort">“user defined case assignment”</a>
+<li>episodes where the events are known to recur</li>
+<li>episodes where certain type of events are taken as index (reference) events. See <a href="#custom_sort">“user defined case assignment”</a>
 </li>
-<li>with different durations (<code>case_length</code>) or recurrence periods (<code>recurrence_length</code>) per subset (<code>strata</code>) of a dataset. See <a href="#stratified_grouping">stratified grouping</a>
+<li>episodes with different durations depending on the type of event. See <a href="#stratified_grouping">stratified grouping</a>
+</li>
+</ul>
+</div>
+<div id="overview" class="section level1">
+<h1 class="hasAnchor">
+<a href="#overview" class="anchor"></a>Overview</h1>
+<p>An episode as produced by <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> or <code><a href="../reference/episode_group.html">episode_group()</a></code> is a set of events (dated records) within a specified period. Each episode begins with an index event and may contain duplicate or recurrent events.</p>
+<ul>
+<li>
+<code><a href="../reference/episode_group.html">fixed_episodes()</a></code> - for <code>"fixed"</code> episodes that do not include periods of recurrence</li>
+<li>
+<code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - for <code>"rolling"</code> episodes which can include periods of recurrence</li>
+<li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code> - the main function behind <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>
 </li>
 </ul>
 </div>
@@ -115,99 +129,323 @@
 <h1 class="hasAnchor">
 <a href="#implementation" class="anchor"></a>Implementation</h1>
 <p><a id="episode_grouping"></a></p>
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
-<p>An episode as produced by <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> or <code><a href="../reference/episode_group.html">episode_group()</a></code> is a set of dated records (events or periods of events) within a specific period. Each episode begins with a reference event (case) and may contain duplicate and recurrent events. Duplicate event are those that occur between cases and recurrent events.</p>
-<p>These functions produce two main type of episodes - <code>"fixed"</code> episodes which do not include periods of recurrence and <code>"rolling"</code> episodes which do. These are produced by <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> respectively which are wrapper functions of <code><a href="../reference/episode_group.html">episode_group()</a></code>.</p>
-<p><a id="recurrence"></a><a></a></p>
-</div>
 <div id="episodes-windows-case-lengths-and-recurrence-periods" class="section level2">
 <h2 class="hasAnchor">
 <a href="#episodes-windows-case-lengths-and-recurrence-periods" class="anchor"></a>Episodes, windows, case lengths and recurrence periods</h2>
-<p>Before we begin, let’s go over some terms which will pop up now and again. An <code>event</code> is simply a dated record (single time point). An<code>event period</code> is a record with start and end time points. The “lengths” - <code>case_length</code> and <code>recurrence_length</code> are specific durations after an <code>event</code>. More specifically, the <code>case_length</code> is a specified period after the <code>reference event</code> (first <code>event</code> of an <code>episode</code>) while <code>recurrence_length</code> is a specified duration after the other <code>event(s)</code> subsequent to the <code>reference event</code>.</p>
-<p>All <code>event(s)</code> within the same <code>case_length</code> or <code>recurrence_length</code> form a <code>window</code>. A <code>window</code> equates to an <code>episode</code>. <code>event(s)</code> outside a <code>window</code> belong to separate <code>episodes</code>. What differentiates <code>"rolling episodes"</code> from <code>"fixed episodes"</code> is that when two or more <code>windows</code> overlap, they are collapsed into a larger <code>window</code>, indicating that the <code>episode</code> is still on-going. As a result, every <code>event</code> belonging to both <code>windows</code> are considered part of the same <code>"roliing episode"</code>. Consequently, a <code>"fixed episode"</code> is never longer than its <code>case_length</code> but a <code>"rolling episode"</code> becomes longer than its <code>case_length</code> if the first <code>window</code> (also referred to <code>case window</code>) overlaps with another.</p>
-<p>The examples below demonstrate this difference with 4 events/records.</p>
+<p>Before we begin, let’s go over some terms which will pop up now and again.</p>
+<ul>
+<li>
+<code>event</code> - a dated record i.e. single point in time</li>
+<li>
+<code>event period</code> - <code>events</code> with a known duration i.e. start and end points in time</li>
+<li>
+<code>reference event/period</code> - index <code>event</code> or <code>event period</code>
+</li>
+<li>The “lengths” - cut-off for distinguishing <code>events</code>
+<ul>
+<li>
+<code>case_length</code> - cut-off period distinguishing an <code>event</code> from another</li>
+<li>
+<code>recurrence_length</code> - cut-off period distinguishing an <code>event</code> from a recurrence of the same <code>event</code>
+</li>
+</ul>
+</li>
+<li>
+<code>window</code> - all <code>events</code> within the same <code>case_length</code> or <code>recurrence_length</code>
+<ul>
+<li>
+<code>case window</code> - all <code>events</code> within a <code>case_length</code>
+</li>
+<li>
+<code>recurrence window</code> - all <code>events</code> within a <code>recurrence_length</code>
+</li>
+</ul>
+</li>
+<li>
+<code>episode</code> - all <code>event</code> within the same cut-off - <code>case_length</code> and <code>recurrence_length</code>. Every overlapping <code>window</code> forms an <code>episode</code>
+</li>
+<li>
+<code>case event</code> - index <code>event</code> for the entire episode</li>
+<li>
+<code>recurrent event</code> - first <code>event</code> within a <code>recurrence_length</code>
+</li>
+<li>
+<code>duplicate event</code> - non-index <code>events</code> within an <code>episode</code>
+</li>
+<li>
+<code>episode tracking/grouping</code> - the process of grouping episodes. Begins at the index <code>event</code> and proceeds forward or backward in time depending on <code>from_last</code>.</li>
+</ul>
+<p>In <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, a <code>window</code> always equates to an <code>episode</code>. <code>events</code> from a different <code>window</code> belongs to a separate <code>episode</code>. In <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>, if two or more <code>windows</code> overlap, they are collapsed into a larger <code>window</code>, indicating that the <code>episode</code> is still on-going or has recurred. As a result, every <code>event</code> belonging to both <code>windows</code> are now considered part of the same <code>"rolling episode"</code>.</p>
+</div>
+<div id="how-to-apply-a-case-definition" class="section level2">
+<h2 class="hasAnchor">
+<a href="#how-to-apply-a-case-definition" class="anchor"></a>How to apply a case definition</h2>
+<div id="epid-objects" class="section level3">
+<h3 class="hasAnchor">
+<a href="#epid-objects" class="anchor"></a>epid objects</h3>
+<p>Firstly, let’s go through what <code>episodes</code> look like in <code>diyar</code>. By default, they are stored as <code>epid</code> objects (<code>S4</code> object class). An <code>epid</code> object is an <code>episode</code> identifier with <code>slots</code> for useful information on each <code>episode</code>.</p>
+<pre><code>#&gt;       events data_source                             epid
+#&gt; 1 2019-04-01         DS1 E.1 2019-04-01 -&gt; 2019-04-11 (C)
+#&gt; 2 2019-04-06         DS1 E.1 2019-04-01 -&gt; 2019-04-11 (D)
+#&gt; 3 2019-04-10         DS3 E.1 2019-04-01 -&gt; 2019-04-11 (R)
+#&gt; 4 2019-04-11         DS1 E.1 2019-04-01 -&gt; 2019-04-11 (D)</code></pre>
+<p>For an <code>epid</code> object created from a set of <code>events</code> sourced from different <code>data_sources</code>, the displayed (<code>format.epid</code>) components are;</p>
+<ul>
+<li>
+<code>E.1</code> - episode identifier</li>
+<li>
+<code>2019-04-01 -&gt; 2019-04-11</code> - episode duration. <em>Only shown if <code>group_stats</code> is <code>TRUE</code></em>
+</li>
+<li>
+<code>(C)/(D)/(R)</code> - <code>case</code>, <code>duplicate</code> and <code>recurrent events</code> respectively</li>
+</ul>
+<p><em>See <code><a href="../reference/episode_group.html">?fixed_episodes</a></code> for the details of every slot, including those not displayed.</em></p>
+<p><em>to_df(<code>epids</code>) is a convenient accessor function for every slot in an <code>epid</code> object. See below.</em></p>
+<pre><code>#&gt;   epid sn wind_id    wind_nm   case_nm dist_from_wind dist_from_epid
+#&gt; 1    1  1       1       Case      Case         0 days         0 days
+#&gt; 2    1  2       1       Case Duplicate         0 days         5 days
+#&gt; 3    1  3       2 Recurrence Recurrent         4 days         9 days
+#&gt; 4    1  4       2 Recurrence Duplicate         5 days        10 days
+#&gt;              epid_interval epid_length epid_total epid_dataset
+#&gt; 1 2019-04-01 -&gt; 2019-04-11     10 days          4      DS1,DS3
+#&gt; 2 2019-04-01 -&gt; 2019-04-11     10 days          4      DS1,DS3
+#&gt; 3 2019-04-01 -&gt; 2019-04-11     10 days          4      DS1,DS3
+#&gt; 4 2019-04-01 -&gt; 2019-04-11     10 days          4      DS1,DS3</code></pre>
+</div>
+<div id="cut-off---case-and-recurrence-lengths" class="section level3">
+<h3 class="hasAnchor">
+<a href="#cut-off---case-and-recurrence-lengths" class="anchor"></a>cut-off - case and recurrence lengths</h3>
+<p>Your first consideration should be a cut-off point to distinguish between <code>episodes</code>. This is referred to as the <code>case_length</code>. A <code>case_length</code> of <code>5</code> means that; repeat <code>events</code> within <code>6 days (Time difference of 5 days)</code> of the <code>reference event</code> are considered <code>duplicates</code> of the <code>reference event</code>. See below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(diyar)
 
 <span class="co"># Events</span>
-ds &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"03/04/2019"</span>, <span class="st">"13/04/2019"</span>,<span class="st">"16/04/2019"</span>)
+ds &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"03/04/2019"</span>, <span class="st">"13/04/2019"</span>,<span class="st">"16/04/2019"</span>, <span class="st">"18/04/2019"</span>)
 ds &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">date=</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(ds, <span class="st">"%d/%m/%Y"</span>))
 ds<span class="op">$</span>date
-<span class="co">#&gt; [1] "2019-04-01" "2019-04-03" "2019-04-13" "2019-04-16"</span></code></pre></div>
-<p><strong>Figure 1a: Illustration of key terms - fixed episodes</strong></p>
+<span class="co">#&gt; [1] "2019-04-01" "2019-04-03" "2019-04-13" "2019-04-16" "2019-04-18"</span></code></pre></div>
+<p><strong>Figure 1a: fixed episodes</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 6-day (5-day difference) episodes - fixed episodes</span>
 ds<span class="op">$</span>f1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 ds<span class="op">$</span>f1
-<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.3 (D)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-4-1.png" width="816"></p>
-<p><strong>Figure 1b: Illustration of key terms - rolling episodes</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 6-day (5-day difference) episodes with 11-days recurrence periods - rolling episodes</span>
-ds<span class="op">$</span>r1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">recurrence_length =</span> <span class="dv">10</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.3 (D)" "E.3 (D)"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-7-1.png" width="816"></p>
+<p>Alternatively, your cut-off can be a specific range. For example, a <code>case_length</code> of <code>12 -&gt; 16</code> means that; repeat <code>events</code> within <code>13</code> and <code>17</code> days after the <code>reference event</code> are considered <code>duplicates</code> of the <code>reference event</code>.</p>
+<p><em>Ranges are created by number_line(). See the <a href="number_line.html">number line vignette</a>.</em></p>
+<p><strong>Figure 1b: fixed episodes with a cut-off range</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">12</span>, <span class="dv">16</span>); rng
+<span class="co">#&gt; [1] "12 -&gt; 16"</span>
+ds<span class="op">$</span>f2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> rng, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
 
-ds<span class="op">$</span>r1
-<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-6-1.png" width="816"></p>
-<div id="lets-go-through-another-example" class="section level3">
-<h3 class="hasAnchor">
-<a href="#lets-go-through-another-example" class="anchor"></a>Let’s go through another example …</h3>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dates &lt;-<span class="st"> </span>diyar<span class="op">::</span>infections_<span class="dv">2</span><span class="op">$</span>date
-
-dates <span class="co"># dates</span>
-<span class="co">#&gt; [1] "2019-04-01" "2019-04-06" "2019-04-11" "2019-04-16" "2019-04-21"</span>
-<span class="co">#&gt; [6] "2019-06-04"</span></code></pre></div>
-<p><strong>Figure 2a: 15-day “fixed” episodes</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Fixed episodes</span>
-f &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> dates, <span class="dt">case_length=</span><span class="dv">14</span>, <span class="dt">group_stats =</span> T, <span class="dt">to_s4 =</span>T, <span class="dt">display =</span>F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-
-f <span class="co"># fixed episode identifiers</span>
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-11 (C)" "E.1 2019-04-01 -&gt; 2019-04-11 (D)"</span>
-<span class="co">#&gt; [3] "E.1 2019-04-01 -&gt; 2019-04-11 (D)" "E.4 2019-04-16 -&gt; 2019-04-21 (C)"</span>
-<span class="co">#&gt; [5] "E.4 2019-04-16 -&gt; 2019-04-21 (D)" "E.6 2019-06-04 == 2019-06-04 (C)"</span></code></pre></div>
+ds<span class="op">$</span>f2
+<span class="co">#&gt; [1] "E.1 (C)" "E.2 (S)" "E.1 (D)" "E.1 (D)" "E.5 (C)"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-9-1.png" width="816"></p>
-<p>In the <code>fixed episodes</code> example, records 1 to 3 are assigned to a <code>window</code> (i.e. window ID <code>1</code>). In this window, record 1 is the <code>reference event</code> (case) and records 2 and 3 are the <code>duplicates</code>, because they are within 15 days (14-day difference) of record 1. This <code>window</code> then becomes one <code>episode</code> (episode ID <code>1</code>; Figure 2a). Record 4 then starts a new <code>window</code> (and <code>episode</code> i.e. window and episode ID <code>4</code>). Record 5 is within 15 days of record 4 and so is assigned to the same window and episode (window and episode ID <code>4</code>). This process continues chronologically until all records have been assigned to an <code>episode</code>.</p>
-<p><strong>Figure 2b: 15-day “rolling” episodes with a 15-day recurrence period</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Rolling episodes</span>
-r &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dates, <span class="dt">case_length=</span><span class="dv">14</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F, <span class="dt">to_s4 =</span>T)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+<p>By default, <code>events</code> before the <code>13th</code> day are skipped. You can change <code>skip_if_b4_lengths</code> to <code>FALSE</code>, so that such <code>events</code> are not skipped.</p>
+<p><strong>Figure 1c: fixed episodes where events before the the cut-off range are not skipped</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ds<span class="op">$</span>f3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> rng, <span class="dt">display =</span> F, <span class="dt">skip_if_b4_lengths =</span> F)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
-r <span class="co"># rolling episode identifiers</span>
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-21 (C)" "E.1 2019-04-01 -&gt; 2019-04-21 (D)"</span>
-<span class="co">#&gt; [3] "E.1 2019-04-01 -&gt; 2019-04-21 (D)" "E.1 2019-04-01 -&gt; 2019-04-21 (R)"</span>
-<span class="co">#&gt; [5] "E.1 2019-04-01 -&gt; 2019-04-21 (D)" "E.6 2019-06-04 == 2019-06-04 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-11-1.png" width="816"></p>
-<p>In the <code>rolling episodes</code> example, records 1 to 3 are also assigned to one window (window ID <code>1</code>) however, unlike the <code>fixed episode</code> example, since records 4 and 5 both fall within 15 days (14-day difference) of the last <code>event</code> in the previous <code>window</code> (record 3; Figure 2b), they are both folded into <code>window</code> ID <code>1</code> to give a longer <code>episode</code> ID <code>1</code>. Since record 4 is the earliest of the two, it’s flagged as the <code>recurrent event</code> while record 5 is taken as a <code>duplicate</code>.</p>
-<p><strong><em>If your case definition does not explicitly require a rolling episode, use <code>fixed_episode()</code>. It takes less time.</em></strong></p>
-<p>For <code>rolling</code> episodes, it may be useful to imagine the <code>windows</code> as mini-<code>episodes</code> that may eventually be collapsed into one main <code>episode</code>. As mentioned, these mini-<code>episodes</code> will only be collapsed if they overlap. Each <code>window</code> is either a <code>case window</code> or <code>recurrence window</code> and will have one <code>event</code> flagged as the <code>case</code> or <code>recurrent event</code> respectively.</p>
-<p><code>case</code> events are always <code>reference events</code> for <code>case windows</code> and the <code>episode</code> as a whole. Conversely, by default, <code>recurrent events</code> are not <code>reference events</code> for <code>recurrence windows</code>. Strictly speaking, the <code>reference event</code> for a <code>recurrence window</code> is the <strong>last</strong> <code>event</code> of the previous <code>window</code> and this is where the <code>recurrence_length</code> starts from. In the example above, that is record 3.</p>
+ds<span class="op">$</span>f3
+<span class="co">#&gt; [1] "E.1 (C)" "E.2 (C)" "E.1 (D)" "E.1 (D)" "E.2 (D)"</span></code></pre></div>
 <p><a id="case_assignment"></a></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-11-1.png" width="816"></p>
 </div>
-</div>
-<div id="making-a-case-definition" class="section level2">
-<h2 class="hasAnchor">
-<a href="#making-a-case-definition" class="anchor"></a>Making a case definition</h2>
-<p>Almost every argument in <code><a href="../reference/episode_group.html">fixed_episodes()</a></code>, <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> and <code><a href="../reference/episode_group.html">episode_group()</a></code> can affect which <code>event(s)</code> are taken as the <code>case</code> and <code>recurrent event</code>, and this ultimately allows you to implement a variety of case definitions to your datasets. This section covers the main parts of this process.</p>
 <div id="reference-events" class="section level3">
 <h3 class="hasAnchor">
 <a href="#reference-events" class="anchor"></a>Reference events</h3>
-<p>From <code>diyar v0.1.0</code>, you can use the <code>recurrence_from_last</code> argument to specify that the <code>reference event</code> for a <code>recurrence window</code> should be the <strong>first</strong> <code>event</code> from the previous <code>window</code> and not the <strong>last</strong> (default). This means that after flagging a <code>recurrent event</code>, the <code>recurrence window</code> is re-calculated from it. This new option is only really useful if your <code>case_length</code> and <code>recurrence_length</code> are different. If they are the same (which is the default behaviour), you’ll have essentially created a <code>fixed episode</code>. See a demonstration of this below.</p>
+<p>Your next consideration should be which <code>events</code> will be the index <code>event</code> (<code>reference events</code>). It’s common practice for the earliest <code>event</code> to be taken as the <code>reference event</code>. However, there are times when the most recent <code>event</code> will be more relevant for this. For example, if a deceased patient died after a series of positive infection results, the most recent result could be considered more relevant as a <code>reference event</code>.</p>
+<p>The first approach is the default behaviour for <code>fixed_epsiodes()</code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>. However, by changing <code>from_last</code> to <code>TRUE</code>, <code>episode tracking</code> will begin at the most recent <code>event</code> and proceed backwards in time, making that the <code>reference event</code>.</p>
+<p><strong>Figure 2: fixed episodes where episode tracking was backwards in time</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ds<span class="op">$</span>f4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">from_last =</span> T, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+
+ds<span class="op">$</span>f4
+<span class="co">#&gt; [1] "E.2 (D)" "E.2 (C)" "E.5 (D)" "E.5 (D)" "E.5 (C)"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-13-1.png" width="816"></p>
+<p><a id="custom_sort"></a></p>
+<div id="user-defined-reference" class="section level4">
+<h4 class="hasAnchor">
+<a href="#user-defined-reference" class="anchor"></a>User defined reference</h4>
+<p>There can be situations when the type of <code>event</code>, rather than its chronological order, is more relevant in determining an index <code>event</code>. For example, when tracking patients with positive infection results for; human immunodeficiency virus (HIV), hepatitis B virus (HBV) and <em>Mycobacterium tuberculosis</em> (MyCt), you may want to track concurrent infections beginning or ending with the HIV diagnosis. The examples below show how to handle situations like this.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ds2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">date=</span>  <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"13/03/2020"</span>, <span class="st">"01/04/2020"</span>,<span class="st">"15/08/2020"</span>,
+                                   <span class="st">"11/12/2020"</span>, <span class="st">"31/12/2020"</span>), <span class="st">"%d/%m/%Y"</span>),
+                  <span class="dt">diag =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"HBV"</span>,<span class="st">"HIV"</span>,<span class="st">"MyCt"</span>,<span class="st">"HBV"</span>, <span class="st">"MyCt"</span>), <span class="dt">stringsAsFactors =</span> F)
+
+
+<span class="co"># First make the HIV diagnosis the index event </span>
+ds2<span class="op">$</span>user_ord &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(ds2<span class="op">$</span>diag<span class="op">==</span><span class="st">"HIV"</span>, <span class="dv">1</span>,<span class="dv">2</span>)
+
+<span class="co"># Then track concurrent infections up to 6 months AFTER the HIV diagnosis</span>
+ds2<span class="op">$</span>ep1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">data_source =</span> ds2<span class="op">$</span>diag,
+                          <span class="dt">case_length =</span> <span class="dv">6</span>, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+
+<span class="co"># Using `data_source` populates the `epid_dataset` slot of the `epid` object. </span>
+<span class="co"># This is useful when you're working with different datasets</span>
+ds2<span class="op">$</span>ep1_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep1<span class="op">@</span>epid_dataset
+
+<span class="co"># Track preceeding infections up to 6 months BEFORE the HIV diagnosis</span>
+ds2<span class="op">$</span>ep2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">data_source =</span> ds2<span class="op">$</span>diag,
+                          <span class="dt">case_length =</span> <span class="op">-</span><span class="dv">6</span>, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+
+ds2<span class="op">$</span>ep2_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep2<span class="op">@</span>epid_dataset
+
+ds2
+<span class="co">#&gt;         date diag user_ord     ep1   ep1_ds     ep2  ep2_ds</span>
+<span class="co">#&gt; 1 2020-03-13  HBV        2 E.1 (C)      HBV E.2 (D) HBV,HIV</span>
+<span class="co">#&gt; 2 2020-04-01  HIV        1 E.2 (C) HIV,MyCt E.2 (C) HBV,HIV</span>
+<span class="co">#&gt; 3 2020-08-15 MyCt        2 E.2 (D) HIV,MyCt E.3 (C)    MyCt</span>
+<span class="co">#&gt; 4 2020-12-11  HBV        2 E.4 (C) HBV,MyCt E.4 (C)     HBV</span>
+<span class="co">#&gt; 5 2020-12-31 MyCt        2 E.4 (D) HBV,MyCt E.5 (C)    MyCt</span></code></pre></div>
+<p>Notice that in <code>ep1</code>, the HIV diagnosis and the HBV diagnosis before it are not grouped into the same <code>episode</code> despite being within 6 months of each other. This also happens with the HIV and MyCt diagnoses in <code>ep2</code>. This happens because by default, <code>episode</code> tracking occurs in one direction of time (<code>from_last</code>). You can correct for this by simultaneously tracking <code>events</code> in both directions i.e. before and after an index <code>event</code>. This is either done by changing <code>bi_direction</code> to <code>TRUE</code> or by using an applicable cut-off range i.e. -6 -&gt; 6. See the examples below.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Track preceeding and concurrent infections up to 6 months BEFORE OR AFTER the HIV diagnosis</span>
+
+<span class="co"># Method 1a</span>
+<span class="co"># Track diagnoses 6 months AFTER the HIV diagnosis.</span>
+  <span class="co"># `bi_direction` then tells the function to also check 6 months BEFORE the HIV diagnosis</span>
+ds2<span class="op">$</span>ep3a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> <span class="dv">6</span>, 
+                           <span class="dt">bi_direction =</span> T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+
+<span class="co"># Method 1b</span>
+<span class="co"># Track diagnoses 6 months BEFORE the HIV diagnosis</span>
+  <span class="co"># bi_direction` then tells the function to also check 6 months AFTER the HIV diagnosis</span>
+ds2<span class="op">$</span>ep3b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> <span class="op">-</span><span class="dv">6</span>,
+                           <span class="dt">bi_direction =</span> T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F, 
+                           <span class="dt">data_source =</span> ds2<span class="op">$</span>diag)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+
+ds2<span class="op">$</span>ep3_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep3b<span class="op">@</span>epid_dataset
+
+<span class="co"># Method 2a</span>
+<span class="co"># Track diagnoses 6 months BEFORE or AFTER the HIV diag with an applicable. </span>
+  <span class="co"># There's no need for `bi_direction`.</span>
+rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="op">-</span><span class="dv">6</span>, <span class="dv">6</span>)
+ds2<span class="op">$</span>ep4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> rng, <span class="dt">episode_unit =</span> <span class="st">"months"</span>,
+                          <span class="dt">display =</span> F, <span class="dt">data_source =</span> ds2<span class="op">$</span>diag)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+
+ds2<span class="op">$</span>ep4_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep4<span class="op">@</span>epid_dataset
+
+<span class="co"># Method 2b</span>
+<span class="co"># Track diagnoses between 2 and 6 months AFTER the HIV diagnosis. </span>
+  <span class="co">#` bi_direction` then tells the function to also check between 2 and 6 months BEFORE the HIV diagnosis</span>
+<span class="co"># Diagnoses before 2 months on either side are skipped as mentioned in the "cut-offs" section</span>
+rng2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">2</span>, <span class="dv">6</span>)
+ds2<span class="op">$</span>ep5 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> rng2, 
+                          <span class="dt">bi_direction =</span>T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+
+ds2
+<span class="co">#&gt;         date diag user_ord     ep1   ep1_ds     ep2  ep2_ds    ep3a</span>
+<span class="co">#&gt; 1 2020-03-13  HBV        2 E.1 (C)      HBV E.2 (D) HBV,HIV E.2 (D)</span>
+<span class="co">#&gt; 2 2020-04-01  HIV        1 E.2 (C) HIV,MyCt E.2 (C) HBV,HIV E.2 (C)</span>
+<span class="co">#&gt; 3 2020-08-15 MyCt        2 E.2 (D) HIV,MyCt E.3 (C)    MyCt E.2 (D)</span>
+<span class="co">#&gt; 4 2020-12-11  HBV        2 E.4 (C) HBV,MyCt E.4 (C)     HBV E.4 (C)</span>
+<span class="co">#&gt; 5 2020-12-31 MyCt        2 E.4 (D) HBV,MyCt E.5 (C)    MyCt E.4 (D)</span>
+<span class="co">#&gt;      ep3b       ep3_ds     ep4       ep4_ds     ep5</span>
+<span class="co">#&gt; 1 E.2 (D) HBV,HIV,MyCt E.2 (D) HBV,HIV,MyCt E.1 (S)</span>
+<span class="co">#&gt; 2 E.2 (C) HBV,HIV,MyCt E.2 (C) HBV,HIV,MyCt E.2 (C)</span>
+<span class="co">#&gt; 3 E.2 (D) HBV,HIV,MyCt E.2 (D) HBV,HIV,MyCt E.2 (D)</span>
+<span class="co">#&gt; 4 E.4 (C)     HBV,MyCt E.4 (C)     HBV,MyCt E.4 (C)</span>
+<span class="co">#&gt; 5 E.4 (D)     HBV,MyCt E.4 (D)     HBV,MyCt E.5 (S)</span></code></pre></div>
+<p>When different <code>events</code> have the same level of preference - <code>custom_sort</code> values, their chronological order are used to break ties. This will be the earliest or most recent <code>event</code> depending on <code>from_last</code>. Alternatively, you can break such ties with additional levels of <code>custom_sort</code>.</p>
+<p>Using <code>infections</code> - a sample dataset for positive urinary tract infections (UTI), bloodstream infections (BSI) and respiratory tract infections (RTI), we can see examples of <code>episode tracking</code> using 2 and 3 levels of <code>custom_sort</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbf &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>, <span class="st">"infection"</span>)]
+
+<span class="co"># 3 levels: "UTI" &gt; "BSI" &gt; "RTI"</span>
+dbf<span class="op">$</span>c_sort1 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "UTI"</span>, <span class="dv">1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "BSI"</span>, <span class="dv">2</span>, <span class="dv">3</span>))
+<span class="co"># 2 levels: "UTI" &gt; ("BSI" OR "RTI")</span>
+dbf<span class="op">$</span>c_sort2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "UTI"</span>, <span class="dv">1</span>, <span class="dv">2</span>)
+<span class="co"># 2 levels: "BSI" &gt; ("UTI" OR "RTI")</span>
+dbf<span class="op">$</span>c_sort3 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "BSI"</span>, <span class="dv">1</span>, <span class="dv">2</span>)
+
+dbf<span class="op">$</span>ep_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
+                           <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort1, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+
+dbf<span class="op">$</span>ep_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
+                           <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort2, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
+
+dbf<span class="op">$</span>ep_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
+                           <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort3, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
+
+dbf
+<span class="co">#&gt;          date infection c_sort1 c_sort2 c_sort3     ep_1    ep_2     ep_3</span>
+<span class="co">#&gt; 1  2018-04-01       BSI       2       2       1 E.01 (C) E.1 (C) E.01 (C)</span>
+<span class="co">#&gt; 2  2018-04-07       UTI       1       1       2 E.02 (C) E.2 (C) E.01 (D)</span>
+<span class="co">#&gt; 3  2018-04-13       UTI       1       1       2 E.02 (D) E.2 (D) E.01 (D)</span>
+<span class="co">#&gt; 4  2018-04-19       UTI       1       1       2 E.02 (D) E.2 (D) E.04 (C)</span>
+<span class="co">#&gt; 5  2018-04-25       BSI       2       2       1 E.05 (C) E.5 (C) E.05 (C)</span>
+<span class="co">#&gt; 6  2018-05-01       UTI       1       1       2 E.06 (C) E.6 (C) E.05 (D)</span>
+<span class="co">#&gt; 7  2018-05-07       BSI       2       2       1 E.06 (D) E.6 (D) E.05 (D)</span>
+<span class="co">#&gt; 8  2018-05-13       BSI       2       2       1 E.06 (D) E.6 (D) E.08 (C)</span>
+<span class="co">#&gt; 9  2018-05-19       RTI       3       2       2 E.09 (C) E.9 (C) E.08 (D)</span>
+<span class="co">#&gt; 10 2018-05-25       RTI       3       2       2 E.09 (D) E.9 (D) E.08 (D)</span>
+<span class="co">#&gt; 11 2018-05-31       BSI       2       2       1 E.11 (C) E.9 (D) E.11 (C)</span></code></pre></div>
+<p><a id="recurrence"></a><a></a></p>
+</div>
+</div>
+<div id="recurrent-events-and-periods-of-recurrence" class="section level3">
+<h3 class="hasAnchor">
+<a href="#recurrent-events-and-periods-of-recurrence" class="anchor"></a>Recurrent events and periods of recurrence</h3>
+<p>Another important consideration for a case definition should be if the <code>events</code> recurs. For example, if a relapse of the same disease occurs after a successful treatment therapy, it may be more relevant to treat this as the same <code>episode</code> of the initial <code>event</code>.</p>
+<p><em>fixed_episodes() will treat these as a separate <code>episodes</code> while <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> can treat them as the same <code>episode</code>.</em></p>
+<p>All arguments in <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> (including <code>case_length</code>) function the same way as in <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>. However, the <code>recurrence_length</code> argument, which is unique to <code>rolling_episodes(),</code> provides the cut-off period for <code>recurrent events</code>. For example, a <code>recurrence_length</code> of <code>10</code> means that; repeat <code>events</code> within <code>11</code> days of the last <code>duplicate event</code> (of the initial index <code>event</code>) are considered a recurrence of the index <code>event</code>.</p>
+<p><em>If <code>recurrence_length</code> is not supplied, it’s assumed to be the same as the <code>case_length</code>.</em></p>
+<p><strong>Figure 3a: rolling episodes</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 6-day (5-day difference) episodes with 11-days recurrence periods - rolling episodes</span>
+ds<span class="op">$</span>r1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">recurrence_length =</span> <span class="dv">10</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+
+ds<span class="op">$</span>r1
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (D)"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-18-1.png" width="816"></p>
+<p>Similarly, for <code>recurrence_length</code>, your cut-off can be a range. For example, a <code>recurrence_length</code> of <code>13 -&gt; 15</code> means that; repeat <code>events</code> within <code>14</code> and <code>16</code> days after the last <code>duplicate event</code> are considered a recurrence of the <code>reference event</code>.</p>
+<p><strong>Figure 3b: rolling episodes with a cut-off range</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">13</span>, <span class="dv">15</span>); rng
+<span class="co">#&gt; [1] "13 -&gt; 15"</span>
+ds<span class="op">$</span>r2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">recurrence_length =</span> rng, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+
+ds<span class="op">$</span>r2
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (S)" "E.1 (R)" "E.1 (D)"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-20-1.png" width="816"></p>
+<p><code>Events</code> before the <code>14th</code> are skipped by default however, you can also change <code>skip_if_b4_lengths</code> to <code>FALSE</code>, so that such <code>events</code> are not skipped.</p>
+<p><strong>Figure 3c: rolling episodes where events before the the cut-off range are not skipped</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">13</span>, <span class="dv">15</span>); rng
+<span class="co">#&gt; [1] "13 -&gt; 15"</span>
+ds<span class="op">$</span>r3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">recurrence_length =</span> rng, 
+                          <span class="dt">skip_if_b4_lengths =</span> F, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+
+ds<span class="op">$</span>r3
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.1 (R)" "E.1 (D)"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-22-1.png" width="816"></p>
+<div id="index-events-for-periods-of-recurrence" class="section level4">
+<h4 class="hasAnchor">
+<a href="#index-events-for-periods-of-recurrence" class="anchor"></a>Index events for periods of recurrence</h4>
+<p>Unlike <code>"fixed episodes"</code>, each <code>"rolling episode"</code> has at least two index <code>events</code> - one for the whole <code>episode</code> and one for each recurrence period. By default, the last <code>event</code> of the previous <code>window</code> is the index <code>event</code> for the next recurrence period. However, you can change <code>recurrence_from_last</code> to <code>FALSE</code>, so that the first <code>event</code> in the previous window is used instead. See a demonstration of this below.</p>
+<p><em>If your <code>case_length</code> and <code>recurrence_length</code> are the same, which is the default behaviour, you’ll have essentially created a <code>"fixed episode"</code></em>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"11/04/2019"</span>, <span class="st">"16/04/2019"</span>,<span class="st">"21/04/2019"</span>, <span class="st">"07/05/2019"</span>)
 df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">date=</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(df, <span class="st">"%d/%m/%Y"</span>))
+
 <span class="co"># 15-day fixed episodes</span>
 df<span class="op">$</span>f1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 
-<span class="co"># 15-day rolling episods with 15-day recurrence periods</span>
+<span class="co"># 15-day rolling episodes with 15-day recurrence periods</span>
   <span class="co"># Since the first event is the reference event for the next recurrence window and,</span>
   <span class="co"># the recurrence_length is the same the case_length (14-day difference), </span>
-  <span class="co"># the result will be the same as the 15-day fixed-episode example above </span>
+  <span class="co"># the result will be the same as the 15-day fixed-episode (above) </span>
 df<span class="op">$</span>r1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">recurrence_from_last =</span> F, 
                           <span class="dt">to_s4 =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 
 df
 <span class="co">#&gt;         date      f1      r1</span>
@@ -215,45 +453,50 @@ df
 <span class="co">#&gt; 2 2019-04-11 E.1 (D) E.1 (D)</span>
 <span class="co">#&gt; 3 2019-04-16 E.3 (C) E.3 (C)</span>
 <span class="co">#&gt; 4 2019-04-21 E.3 (D) E.3 (D)</span>
-<span class="co">#&gt; 5 2019-05-07 E.5 (C) E.5 (C)</span></code></pre></div>
-<p><strong>Figure 3a: Last event in a window taken as the reference event for the next recurrence window (default)</strong></p>
+<span class="co">#&gt; 5 2019-05-07 E.5 (C) E.5 (C)</span>
+
+<span class="co"># Identical</span>
+<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/all">all</a></span>(df<span class="op">$</span>f1<span class="op">==</span>df<span class="op">$</span>r1)
+<span class="co">#&gt; [1] TRUE</span></code></pre></div>
+<p><strong>Figure 4a: Last event in a window taken as the reference event for the next recurrence window (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">recurrence_length =</span> <span class="dv">16</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 df<span class="op">$</span>r2
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-14-1.png" width="816"></p>
-<p><strong>Figure 3b: First event in a window taken as the reference event for the next recurrence window</strong></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-25-1.png" width="816"></p>
+<p><strong>Figure 4b: First event in a window taken as the reference event for the next recurrence window</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">recurrence_length =</span> <span class="dv">16</span>, 
                           <span class="dt">recurrence_from_last =</span> F, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 df<span class="op">$</span>r3
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-16-1.png" width="816"></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-27-1.png" width="816"></p>
 </div>
-<div id="case-window-for-both-case-and-recurrent-events" class="section level3">
-<h3 class="hasAnchor">
-<a href="#case-window-for-both-case-and-recurrent-events" class="anchor"></a>Case window for both case and recurrent events</h3>
-<p>From <code>diyar v0.1.0</code>, you can use the <code>case_for_recurrence</code> argument to specify that both <code>case</code> and <code>recurrence events</code> should have a <code>case window</code>. The default behaviour is that only <code>case events</code> have a <code>case window</code>. See a demonstration of this below.</p>
+<div id="case-windows-for-both-case-and-recurrent-events" class="section level4">
+<h4 class="hasAnchor">
+<a href="#case-windows-for-both-case-and-recurrent-events" class="anchor"></a>Case windows for both case and recurrent events</h4>
+<p>You can use the <code>case_for_recurrence</code> argument to specify that both <code>case</code> and <code>recurrence events</code> should have a <code>case window</code>. The default behaviour is that only <code>case events</code> have a <code>case window</code>. See a demonstration of this below.</p>
+<p><em>The <code>wind_id</code> slot shows the <code>window</code> for every <code>event</code>, while <code>wind_nm</code> slot shows type of <code>window</code> it is.</em></p>
 <p><em>Example 1</em></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"11/04/2019"</span>, <span class="st">"16/04/2019"</span>,<span class="st">"21/04/2019"</span>,<span class="st">"25/04/2019"</span>, <span class="st">"07/05/2019"</span>)
 df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">date=</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(df, <span class="st">"%d/%m/%Y"</span>))</code></pre></div>
-<p><strong>Figure 4a: Case windows for case events only (default)</strong></p>
+<p><strong>Figure 5a: Case windows for case events only (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">10</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 
 df<span class="op">$</span>r4
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.6 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-19-1.png" width="816"></p>
-<p><strong>Figure 4b: Case windows for case and recurrence events</strong></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-30-1.png" width="816"></p>
+<p><strong>Figure 5b: Case windows for case and recurrence events</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r5 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">10</span>, <span class="dt">case_for_recurrence =</span> T, 
                           <span class="dt">to_s4 =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 
 df<span class="op">$</span>r5
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (D)" "E.6 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-21-1.png" width="816"></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-32-1.png" width="816"></p>
 <p><em>Example 2.</em></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">date &lt;-<span class="st">  </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq.Date">seq.Date</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"%d/%m/%Y"</span>), 
                   <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">"21/04/2019"</span>,<span class="st">"%d/%m/%Y"</span>), 
@@ -264,27 +507,28 @@ df2 &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumen
 df2<span class="op">$</span>date
 <span class="co">#&gt; [1] "2019-04-01" "2019-04-04" "2019-04-07" "2019-04-10" "2019-04-13"</span>
 <span class="co">#&gt; [6] "2019-04-16" "2019-04-19"</span></code></pre></div>
-<p><strong>Figure 5a: Case windows for case events only (default)</strong></p>
+<p><strong>Figure 5c: Case windows for case events only (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df2<span class="op">$</span>r1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df2<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">6</span>, <span class="dt">recurrence_length =</span> <span class="dv">4</span>, <span class="dt">display =</span> F, <span class="dt">sn=</span>df2<span class="op">$</span>sn)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 df2<span class="op">$</span>r1
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-24-1.png" width="816"></p>
-<p><strong>Figure 5b: Case windows for case and recurrence events</strong></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-35-1.png" width="816"></p>
+<p><strong>Figure 5d: Case windows for case and recurrence events</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df2<span class="op">$</span>r2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df2<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">6</span>, <span class="dt">recurrence_length =</span> <span class="dv">4</span>, 
                            <span class="dt">case_for_recurrence =</span> T, <span class="dt">display =</span> F, <span class="dt">sn=</span>df2<span class="op">$</span>sn)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 df2<span class="op">$</span>r1
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-26-1.png" width="816"></p>
-<p>Notice that in the examples above, all <code>event(s)</code> have been assigned to the same <code>episode</code> but the number of <code>recurrent events</code> differ.</p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-37-1.png" width="816"></p>
+<p>Notice that in the 4 examples, all <code>events</code> have been assigned to the same <code>episode</code> but the number of <code>recurrent events</code> differ.</p>
+</div>
 </div>
 <div id="number-of-recurrence-periods-and-episodes" class="section level3">
 <h3 class="hasAnchor">
 <a href="#number-of-recurrence-periods-and-episodes" class="anchor"></a>Number of recurrence periods and episodes</h3>
-<p>You can choose how many times to check for <code>episodes</code> using <code>episode_max</code>. When each <code>strata</code> of the dataset has the maximum number of episodes specified (<code>episode_max</code>), subsequent <code>event(s)</code> are given unique episode IDs, making them unique <code>cases</code>.</p>
+<p>Some case definitions may only require you to track the first <code>n</code>-number of <code>episodes</code>, or those that only recurred <code>n</code>-number of times. You can incorporate these requirements into your analysis using <code>episodes_max</code> and <code>rolls_max</code> (only applicable to <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>). When each <code>strata</code> (see <a href="#stratified_grouping">stratified grouping</a>) of the dataset has the maximum number of <code>episodes</code> (<code>episodes_max</code>), subsequent <code>events</code> are skipped and assigned unique episode IDs. The default option for <code>episodes_max</code> is <code>Inf</code> i.e. continue until every <code>event</code> has been grouped into <code>episodes</code>. See the examples below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"infections_3"</span>);
 dbs &lt;-<span class="st"> </span>infections_<span class="dv">3</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"pid"</span>,<span class="st">"date"</span>)]; 
 <span class="co"># dates</span>
@@ -292,276 +536,101 @@ dbs<span class="op">$</span>date
 <span class="co">#&gt;  [1] "2019-04-01" "2019-04-02" "2019-04-03" "2019-04-04" "2019-04-05"</span>
 <span class="co">#&gt;  [6] "2019-04-06" "2019-04-07" "2019-04-08" "2019-04-09" "2019-04-10"</span>
 <span class="co">#&gt; [11] "2019-04-11"</span></code></pre></div>
-<p><strong>Figure 6a: Maximum of one fixed episode grouping per strata</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span> dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">3</span>, <span class="dt">display =</span> F, <span class="dt">episodes_max =</span> <span class="dv">1</span>)
-<span class="co">#&gt; Episode grouping complete - 7 record(s) assinged a unique ID.</span>
+<p><strong>Figure 6a: Maximum of one fixed episode per strata</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span> dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">3</span>, <span class="dt">display =</span> F, 
+                            <span class="dt">episodes_max =</span> <span class="dv">1</span>)
+<span class="co">#&gt; 7 record(s); 7 skipped</span>
+<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">1</span>
 <span class="co">#&gt;  [1] "E.01 (C)" "E.01 (D)" "E.01 (D)" "E.01 (D)" "E.05 (S)" "E.06 (S)"</span>
 <span class="co">#&gt;  [7] "E.07 (S)" "E.08 (S)" "E.09 (S)" "E.10 (S)" "E.11 (S)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-29-1.png" width="816"></p>
-<p><strong>Figure 6b: Maximum of two fixed episode grouping per strata</strong></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-40-1.png" width="816"></p>
+<p><strong>Figure 6b: Maximum of two fixed episodes per strata</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span> dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">3</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">episodes_max =</span> <span class="dv">2</span>)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; 3 record(s); 3 skipped</span>
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">2</span>
 <span class="co">#&gt;  [1] "E.01 (C)" "E.01 (D)" "E.01 (D)" "E.01 (D)" "E.05 (C)" "E.05 (D)"</span>
 <span class="co">#&gt;  [7] "E.05 (D)" "E.05 (D)" "E.09 (S)" "E.10 (S)" "E.11 (S)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-31-1.png" width="816"></p>
-<p>Similarly, you can choose how many <code>periods of recurrence</code> your case definition should permit i.e. how many times to check for <code>recurrent events</code>. You do this with <code>rolls_max</code>. The default is <code>Inf</code> i.e. check until there are no more <code>event(s)</code> within the <code>recurrence period</code> of the <code>reference event</code>. See below.</p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-42-1.png" width="816"></p>
+<p><code>rolls_max</code> is the maximum number of times an <code>event</code> can recur. When <code>rolls_max</code> is reached, the <code>episode</code> ends. A new one then begins if the number of <code>episodes</code> in that <code>strata</code> is less than <code>episode_max</code>. The default option for <code>rolls_max</code> is <code>Inf</code> i.e. check until there are no more <code>events</code> within the <code>recurrence period</code> of the <code>reference event</code>. See the examples below.</p>
 <p><strong>Figure 6c: Infinite recurrence periods per episode per strata (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">2</span>,<span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">4</span>
 <span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"</span>
 <span class="co">#&gt;  [8] "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-33-1.png" width="816"></p>
-<p><strong>Figure 6d: Maximum of one recurrence periods per episode per strata</strong></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-44-1.png" width="816"></p>
+<p><strong>Figure 6d: Maximum of one recurrence period per episode per strata</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">6</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">2</span>,<span class="dt">display =</span> F, 
                               <span class="dt">rolls_max =</span> <span class="dv">1</span>)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">6</span>
-<span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.6 (C)" "E.6 (D)"</span>
-<span class="co">#&gt;  [8] "E.6 (D)" "E.9 (C)" "E.9 (D)" "E.9 (D)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-35-1.png" width="816"></p>
+<span class="co">#&gt;  [1] "E.01 (C)" "E.01 (D)" "E.01 (D)" "E.01 (R)" "E.01 (D)" "E.06 (C)"</span>
+<span class="co">#&gt;  [7] "E.06 (D)" "E.06 (D)" "E.06 (R)" "E.06 (D)" "E.11 (C)"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-46-1.png" width="816"></p>
 <p>Note that if <code>case_for_recurrence</code> is <code>TRUE</code>, after checking for <code>recurrence</code> in the last <code>recurrence period</code>, the function will also check for <code>duplicates</code> within the <code>case window</code> of the last <code>recurrent event</code>. See below.</p>
-<p><strong>Figure 6e: Maximum of one recurrence periods per episode per strata with case_for_recurrence as TRUE</strong></p>
+<p><strong>Figure 6e: Maximum of one recurrence period per episode per strata when case_for_recurrence is TRUE</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">7</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">2</span>,<span class="dt">display =</span> F, 
                               <span class="dt">rolls_max =</span> <span class="dv">1</span>, <span class="dt">case_for_recurrence =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">7</span>
 <span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>
 <span class="co">#&gt;  [8] "E.8 (C)" "E.8 (D)" "E.8 (D)" "E.8 (R)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-37-1.png" width="816"></p>
-<p><a id="chrono_order"></a></p>
-</div>
-<div id="chronological-order-of-events" class="section level3">
-<h3 class="hasAnchor">
-<a href="#chronological-order-of-events" class="anchor"></a>Chronological order of events</h3>
-<p>By default, episode grouping begins at the <strong>earliest</strong> <code>event</code> and proceeds to the most recent one, making the earliest <code>event</code> the <code>case</code>. The opposite of this behaviour is to begin episode grouping at the <strong>most recent</strong> <code>event</code> (making that the <code>case</code>) and then proceed backwards in time. These behaviours are determined by <code>from_last</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>infections_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>)]; 
-<span class="co"># dates</span>
-dbs<span class="op">$</span>date
-<span class="co">#&gt; [1] "2019-04-01" "2019-04-06" "2019-04-11" "2019-04-16" "2019-04-21"</span>
-<span class="co">#&gt; [6] "2019-06-04"</span></code></pre></div>
-<p><strong>Figure 7a: Episode grouping in chronological order</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>forward &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span> <span class="dv">14</span>,
-                              <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F, <span class="dt">to_s4=</span>T)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-
-dbs<span class="op">$</span>forward
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-11 (C)" "E.1 2019-04-01 -&gt; 2019-04-11 (D)"</span>
-<span class="co">#&gt; [3] "E.1 2019-04-01 -&gt; 2019-04-11 (D)" "E.4 2019-04-16 -&gt; 2019-04-21 (C)"</span>
-<span class="co">#&gt; [5] "E.4 2019-04-16 -&gt; 2019-04-21 (D)" "E.6 2019-06-04 == 2019-06-04 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-40-1.png" width="816"></p>
-<p><strong>Figure 7b: Episode grouping in reverse chronological order</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>backward &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span> <span class="dv">14</span>,
-                              <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F, <span class="dt">to_s4=</span>T, <span class="dt">from_last=</span>T)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-
-dbs<span class="op">$</span>backward
-<span class="co">#&gt; [1] "E.2 2019-04-06 &lt;- 2019-04-01 (D)" "E.2 2019-04-06 &lt;- 2019-04-01 (C)"</span>
-<span class="co">#&gt; [3] "E.5 2019-04-21 &lt;- 2019-04-11 (D)" "E.5 2019-04-21 &lt;- 2019-04-11 (D)"</span>
-<span class="co">#&gt; [5] "E.5 2019-04-21 &lt;- 2019-04-11 (C)" "E.6 2019-06-04 == 2019-06-04 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-42-1.png" width="816"></p>
-<p><a id="custom_sort"></a></p>
-</div>
-<div id="user-defined-case-assignment" class="section level3">
-<h3 class="hasAnchor">
-<a href="#user-defined-case-assignment" class="anchor"></a>User defined case assignment</h3>
-<p>Aside from the chronological order of <code>event(s)</code>, you can use specific <code>event(s)</code> as <code>reference events</code>. This preference is supplied to <code>custom_sort</code>. In <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>, <code>custom_sort</code> should be a vector whose values when sorted in ascending order specifies the desired preference. For example, <code>event(s)</code> with a <code>custom_sort</code> value of <code>1</code> will be preferentially taken as the start of an <code>episode</code> over those with a value of <code>2</code>. This is prioritised over the chronological order of those records. See the example below.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>, <span class="st">"07/04/2019"</span>)
-dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(dates,<span class="st">"%d/%m/%Y"</span>)
-user_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">2</span>)
-
-<span class="co"># dates</span>
-dates
-<span class="co">#&gt; [1] "2019-04-01" "2019-04-05" "2019-04-07"</span>
-
-<span class="co"># preference determined by from_last </span>
-<span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dates, <span class="dt">case_length=</span><span class="dv">6</span>, <span class="dt">display=</span>F, <span class="dt">group_stats =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-07 (C)" "E.1 2019-04-01 -&gt; 2019-04-07 (D)"</span>
-<span class="co">#&gt; [3] "E.1 2019-04-01 -&gt; 2019-04-07 (D)"</span>
-
-<span class="co"># user defined preference via custom sort is prioritised before from_last </span>
-<span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dates, <span class="dt">case_length=</span><span class="dv">6</span>, <span class="dt">custom_sort =</span> user_sort, <span class="dt">display=</span>F, <span class="dt">group_stats =</span> T)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E.1 2019-04-01 == 2019-04-01 (C)" "E.2 2019-04-05 -&gt; 2019-04-07 (C)"</span>
-<span class="co">#&gt; [3] "E.2 2019-04-05 -&gt; 2019-04-07 (D)"</span>
-
-<span class="co"># user defined preference via custom sort is prioritised before from_last. </span>
-<span class="co"># duplicates are flagged from both directions</span>
-<span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dates, <span class="dt">case_length=</span><span class="dv">6</span>, <span class="dt">custom_sort =</span> user_sort, <span class="dt">display=</span>F, 
-               <span class="dt">bi_direction =</span> T, <span class="dt">group_stats =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E.2 2019-04-01 -&gt; 2019-04-07 (D)" "E.2 2019-04-01 -&gt; 2019-04-07 (C)"</span>
-<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-07 (D)"</span></code></pre></div>
-<p>In the second example, even though the second record occurred after the first, episode grouping began at the second one. This was because the <code>custom_sort</code> value (<code>user_sort</code>) for the second record was lower than that of the first.</p>
-<p>A consequence of using <code>custom_sort</code> this way is that record 1 is not grouped together with record 2 even though it’s within the <code>case_length</code> of record 2. This is because duplicates are tracked in one direction determined by <code>from_last</code>. To track duplicates from both directions use <code>bi_direction</code> as shown in the third example.</p>
-<p>Note that examples 1 and 3 results in the same number of <code>duplicates</code> (and <code>episodes</code>) but different <code>cases</code> - records 1 and 2 respectively.</p>
-<p><strong><em><code>custom_sort</code> will follow <code>R</code> standard sort behaviour. For example, a <code>factor</code> will sort on its levels not the descriptive label.</em></strong></p>
-<p>For a practical example, see a case definition where <em>E. coli</em> urinary tract infections (UTI) are considered precursors to <em>E. coli</em> bloodstream infections (BSI). This means that <code>episodes</code> need to be created in such a way that; if there are UTI and BSI records within the same <code>case_length</code>, the UTI record will be taken as the <code>case</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>diyar<span class="op">::</span>infections_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infx"</span>)]
-dbs<span class="op">$</span>infx &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/grep">gsub</a></span>(<span class="st">"E. coli "</span>,<span class="st">""</span>,dbs<span class="op">$</span>infx)
-dbs<span class="op">$</span>infx[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">5</span>)] &lt;-<span class="st"> "UTI"</span>
-
-dbs
-<span class="co">#&gt; # A tibble: 6 x 2</span>
-<span class="co">#&gt;   date       infx </span>
-<span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt;</span>
-<span class="co">#&gt; 1 2019-04-01 BSI  </span>
-<span class="co">#&gt; 2 2019-04-06 UTI  </span>
-<span class="co">#&gt; 3 2019-04-11 BSI  </span>
-<span class="co">#&gt; 4 2019-04-16 BSI  </span>
-<span class="co">#&gt; 5 2019-04-21 UTI  </span>
-<span class="co">#&gt; 6 2019-06-04 BSI</span>
-
-dbs<span class="op">$</span>epids_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span><span class="dv">14</span>, 
-                <span class="dt">custom_sort =</span> dbs<span class="op">$</span>infx, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-
-dbs<span class="op">$</span>infx_f &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/factor">factor</a></span>(dbs<span class="op">$</span>infx, <span class="dt">levels =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"UTI"</span>,<span class="st">"BSI"</span>))
-
-dbs<span class="op">$</span>epids_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span><span class="dv">14</span>, 
-                <span class="dt">custom_sort =</span> dbs<span class="op">$</span>infx_f, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
-
-dbs<span class="op">$</span>epids_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length=</span><span class="dv">14</span>, 
-                <span class="dt">custom_sort =</span> dbs<span class="op">$</span>infx_f, <span class="dt">display =</span> F, <span class="dt">bi_direction =</span> <span class="ot">TRUE</span>)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
-
-dbs
-<span class="co">#&gt; # A tibble: 6 x 6</span>
-<span class="co">#&gt;   date       infx  epids_1 infx_f epids_2 epids_3</span>
-<span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt; &lt;epid&gt;  &lt;fct&gt;  &lt;epid&gt;  &lt;epid&gt; </span>
-<span class="co">#&gt; 1 2019-04-01 BSI   E.1 (C) BSI    E.1 (C) E.2 (D)</span>
-<span class="co">#&gt; 2 2019-04-06 UTI   E.1 (D) UTI    E.2 (C) E.2 (C)</span>
-<span class="co">#&gt; 3 2019-04-11 BSI   E.1 (D) BSI    E.2 (D) E.2 (D)</span>
-<span class="co">#&gt; 4 2019-04-16 BSI   E.4 (C) BSI    E.2 (D) E.2 (D)</span>
-<span class="co">#&gt; 5 2019-04-21 UTI   E.4 (D) UTI    E.5 (C) E.5 (C)</span>
-<span class="co">#&gt; 6 2019-06-04 BSI   E.6 (C) BSI    E.6 (C) E.6 (C)</span></code></pre></div>
-<p>In <code>epids_2</code>, after changing the sort preference using factor levels (<code>infx_f</code>), record 1 (<em>E. coli</em> BSI) and record 2 (<em>E. coli</em> UTI) are no longer part of the same <code>episode</code>. This is because record 2, is now the <code>reference event</code> where episode grouping began, and since record 1 occurred before record 2, they are not grouped together. <code>epids_3</code> is episode grouping when <code>bi_direction</code> is used.</p>
-<p><strong><em>In <code><a href="../reference/episode_group.html">episode_group()</a></code>, you can implement <code>custom_sort</code> in levels. You’ll need to create a column for each level. The column names are then supplied to <code>custom_sort</code> in the required order (level)</em></strong></p>
-<p><a id="stratified_grouping"></a></p>
-</div>
-</div>
-<div id="stratified-episode-grouping" class="section level2">
-<h2 class="hasAnchor">
-<a href="#stratified-episode-grouping" class="anchor"></a>Stratified episode grouping</h2>
-<p>Episode grouping can be done separately for different subsets (<code>strata</code>) of a dataset. Examples of a <code>strata</code> could be patient IDs, pathogen, source of infection or any combination of these. <code>Episodes</code> will be limited to each <code>strata</code>. <code>episodes</code> from different <code>strata</code> can have a different <code>case_lengths</code> and/or <code>recurrence_lengths</code>.</p>
-<p><strong><code><a href="../reference/record_group.html">record_group()</a></code> is useful for creating a group identifier which can then be used as a <code>strata</code>. See <a href="record_group.html">record group</a> for further details.</strong></p>
-<p>As an example, using the <code>infections</code> dataset, a case definition may specify the following;</p>
-<ul>
-<li>UTI and BSI records are considered different <code>episodes</code> regardless of when they occur</li>
-<li>UTI has a <code>case_length</code> of 8 days and <code>recurrence period</code> of 31 days</li>
-<li>BSI has a <code>case_length</code> of 15 days and no <code>recurrence period</code>
-</li>
-</ul>
-<p>In the example below, adding <code>infection</code> to the <code>strata</code> argument means that <code>"UTI"</code> and <code>"BSI"</code> records will not be in the same <code>episode</code>. Furthermore, the <code>case_length</code> and <code>recurrence_length</code> for each will be different as specified in the <code>epi</code> and <code>recur</code> columns respectively</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections)
-dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]
-dbs &lt;-<span class="st"> </span>dbs[dbs<span class="op">$</span>infection<span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"UTI"</span>,<span class="st">"BSI"</span>),]
-dbs<span class="op">$</span>epi &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">7</span>, <span class="dv">14</span>)
-dbs<span class="op">$</span>recur &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">30</span>, <span class="dv">0</span>)
-
-dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span>dbs<span class="op">$</span>epi, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>,
-                            <span class="dt">recurrence_length =</span> dbs<span class="op">$</span>recur, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-
-dbs
-<span class="co">#&gt; # A tibble: 9 x 5</span>
-<span class="co">#&gt;   date       infection   epi recur epids                           </span>
-<span class="co">#&gt;   &lt;date&gt;     &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;epid&gt;                          </span>
-<span class="co">#&gt; 1 2018-04-01 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (C)</span>
-<span class="co">#&gt; 2 2018-04-07 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D)</span>
-<span class="co">#&gt; 3 2018-04-13 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D)</span>
-<span class="co">#&gt; 4 2018-04-19 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (R)</span>
-<span class="co">#&gt; 5 2018-04-25 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D)</span>
-<span class="co">#&gt; 6 2018-05-01 UTI           7    30 E.1 2018-04-01 -&gt; 2018-05-13 (D)</span>
-<span class="co">#&gt; 7 2018-05-07 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D)</span>
-<span class="co">#&gt; 8 2018-05-13 BSI          14     0 E.1 2018-04-01 -&gt; 2018-05-13 (D)</span>
-<span class="co">#&gt; 9 2018-05-31 BSI          14     0 E.9 2018-05-31 == 2018-05-31 (C)</span></code></pre></div>
-<p><a id="sub_strata"></a></p>
-<div id="sub-strata" class="section level3">
-<h3 class="hasAnchor">
-<a href="#sub-strata" class="anchor"></a>Sub-strata</h3>
-<p>A sub-strata is created when records within a <code>strata</code> have different <code>case_lengths</code> or <code>recurrence_lengths</code>. The case definition below demonstrates how you can take advantage of this.</p>
-<ul>
-<li>UTI and BSI records are different episodes regardless of when they occur.</li>
-<li>UTIs have a <code>case_length</code> of 8 days and recurrence period of 31 days</li>
-<li>BSIs have a <code>case_length</code> of 15 days if not treated <strong>OR</strong> a <code>case_length</code> of 5 days if treated. In both situations there is no recurrence period.</li>
-<li>Respiratory tract infections (RTI) have a <code>case_length</code> of 29 days and recurrence period of 6 days</li>
-</ul>
-<p>In this example, whether or not the infection is treated should be viewed as the sub-strata, and the source of infection as the <code>strata</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"infections_4"</span>); 
-dbs &lt;-<span class="st"> </span>infections_<span class="dv">4</span>
-
-dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbs, <span class="dt">sn=</span>rid, <span class="dt">strata=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(pid, organism, source), <span class="dt">date=</span>date, 
-                <span class="dt">case_length =</span>epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">recurrence_length =</span> recur,
-                <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
-
-dbs
-<span class="co">#&gt; # A tibble: 11 x 9</span>
-<span class="co">#&gt;      rid date         pid organism source treated   epi recur epids   </span>
-<span class="co">#&gt;    &lt;int&gt; &lt;date&gt;     &lt;dbl&gt; &lt;chr&gt;    &lt;chr&gt;  &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;epid&gt;  </span>
-<span class="co">#&gt;  1     1 2019-04-01     1 E. coli  UTI    -           7    30 E.01 (C)</span>
-<span class="co">#&gt;  2     2 2019-04-06     1 E. coli  UTI    -           7    30 E.01 (D)</span>
-<span class="co">#&gt;  3     3 2019-04-11     1 E. coli  BSI    Y           4     0 E.03 (C)</span>
-<span class="co">#&gt;  4     4 2019-04-16     1 E. coli  BSI    N          14     0 E.04 (C)</span>
-<span class="co">#&gt;  5     5 2019-04-21     1 E. coli  BSI    Y           4     0 E.04 (D)</span>
-<span class="co">#&gt;  6     6 2019-04-26     1 E. coli  RTI    Y          28     5 E.06 (C)</span>
-<span class="co">#&gt;  7     7 2019-05-01     1 E. coli  RTI    N          28     5 E.06 (D)</span>
-<span class="co">#&gt;  8     8 2019-05-06     1 E. coli  BSI    Y           4     0 E.08 (C)</span>
-<span class="co">#&gt;  9     9 2019-05-11     1 E. coli  BSI    N          14     0 E.09 (C)</span>
-<span class="co">#&gt; 10    10 2019-05-16     1 E. coli  UTI    N           7    30 E.10 (C)</span>
-<span class="co">#&gt; 11    11 2019-05-21     1 E. coli  UTI    N           7    30 E.10 (D)</span></code></pre></div>
-<p>There are a few things to note with stratified grouping;</p>
-<ul>
-<li>Unless required, <code>case_length</code> and <code>recurrence_length</code> should be consistent across each <code>strata</code> otherwise, you’ll inadvertently create a sub-strata</li>
-<li>Episode grouping with and without a sub-strata are different and could lead to different results</li>
-<li>Using a sub-strata is not the same as adding that sub-strata to the <code>strata</code> argument. In the example above, adding <code>treated</code> to <code>strata</code> will group treated infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not required treated and untreated infections to be grouped separately, only that the treated infections last longer.</li>
-</ul>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-48-1.png" width="816"></p>
 <p><a id="interval_grouping"></a></p>
-<p>Stratified grouping is the same as doing a separate analysis for each subset (<code>strata</code>) of the dataset.</p>
 </div>
-</div>
-<div id="interval-grouping" class="section level2">
-<h2 class="hasAnchor">
-<a href="#interval-grouping" class="anchor"></a>Interval grouping</h2>
-<p>Here we discuss the process of grouping <code>periods of events</code> into <code>episodes</code>. Each <code>event period</code> is essentially a record with a <code><a href="../reference/number_line.html">start_point()</a></code> and <code><a href="../reference/number_line.html">end_point()</a></code> in time. For the purpose of episode grouping, these <code>event periods</code> are created as <code><a href="../reference/number_line.html">number_line()</a></code> objects and supplied to the <code>date</code> argument. Overlapping <code>event periods</code> are then grouped into episodes.</p>
-<p>Below is a simple examples;</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"05/04/2019"</span>), <span class="st">"%d/%M/%Y"</span>)
+<div id="interval-grouping" class="section level3">
+<h3 class="hasAnchor">
+<a href="#interval-grouping" class="anchor"></a>Interval grouping</h3>
+<p>Some case definitions can involve <code>events</code> that occur over a period of time and not a single point in time e.g hospital admissions. <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> can be used to track such <code>event periods</code> into <code>episodes</code>. This type of <code>episode</code> grouping is recommended when the end point of an <code>event</code> is known. For example, it’s near impossible to know the exact point in time an individual diagnosed with the common cold recovers however, it’s a reasonable assumption that a second diagnosis 3 months after is not the same one that was diagnosed initially. For situations like this, the recommend approach is to use the methods we’ve covered so far. In contrast, hospital admissions typically have recorded admission and discharge times or dates and so interval grouping is recommended. This being said, in several situations both approaches can be used interchangeably. See below.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># Dates</span>
+dates &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq">seq</a></span>(<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"%d/%M/%Y"</span>), <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(<span class="st">"20/04/2019"</span>, <span class="st">"%d/%M/%Y"</span>), <span class="st">"4 days"</span>)
+case_len &lt;-<span class="st"> </span><span class="dv">4</span>
+
+<span class="co"># Periods </span>
+periods &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(dates, dates <span class="op">+</span><span class="st"> </span><span class="dv">4</span>)
+
 dates
-<span class="co">#&gt; [1] "2019-04-01" "2019-04-05"</span>
-
-<span class="co"># A 10-day period from each date</span>
-periods &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(dates, dates <span class="op">+</span><span class="st"> </span><span class="dv">10</span>)
+<span class="co">#&gt; [1] "2019-06-01" "2019-06-05" "2019-06-09" "2019-06-13" "2019-06-17"</span>
 periods
-<span class="co">#&gt; [1] "2019-04-01 -&gt; 2019-04-11" "2019-04-05 -&gt; 2019-04-15"</span>
+<span class="co">#&gt; [1] "2019-06-01 -&gt; 2019-06-05" "2019-06-05 -&gt; 2019-06-09"</span>
+<span class="co">#&gt; [3] "2019-06-09 -&gt; 2019-06-13" "2019-06-13 -&gt; 2019-06-17"</span>
+<span class="co">#&gt; [5] "2019-06-17 -&gt; 2019-06-21"</span>
 
-<span class="co"># Grouping events</span>
-<span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>dates, <span class="dt">case_length=</span><span class="dv">30</span>, <span class="dt">display=</span><span class="ot">FALSE</span>, <span class="dt">group_stat=</span><span class="ot">TRUE</span>)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-05 (C)" "E.1 2019-04-01 -&gt; 2019-04-05 (D)"</span>
+<span class="co"># Track fixed episodes from events with a 5 day cut-off </span>
+mth1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> dates, <span class="dt">case_length =</span> <span class="dv">4</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 
-<span class="co"># Grouping periods</span>
-<span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>periods, <span class="dt">case_length=</span><span class="dv">30</span>, <span class="dt">display=</span><span class="ot">FALSE</span>, <span class="dt">group_stat=</span><span class="ot">TRUE</span>)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt; [1] "E.1 2019-04-01 -&gt; 2019-04-15 (C)" "E.1 2019-04-01 -&gt; 2019-04-15 (D)"</span></code></pre></div>
-<p>For a practical example, below are periods of hospital stay which have been grouped into <code>episodes</code>. This is different from grouping the actual admission or discharge events.</p>
+<span class="co"># Track fixed episode from periods that are 5 days long </span>
+mth2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> periods, <span class="dt">case_length =</span><span class="dv">0</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+
+<span class="co"># Same results</span>
+mth1; mth2
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.3 (D)" "E.5 (C)"</span>
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.3 (D)" "E.5 (C)"</span>
+
+<span class="co"># Track rolling episodes from events using a 5 day cut-off </span>
+mth3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dates, <span class="dt">case_length =</span> <span class="dv">4</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+
+<span class="co"># Track rolling episode from periods that are 5 days long </span>
+mth4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> periods, <span class="dt">case_length =</span><span class="dv">0</span>, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+
+<span class="co"># Same results</span>
+mth3; mth4
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span>
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
+<p>In interval grouping, when <code>case_length</code> is <code>0</code>, <code>event periods</code> that overlap with the index <code>event period</code> are grouped together as one <code>episode</code>. However, if <code>case_length</code> is <code>&gt; 0</code>, only those within <code>n</code>-days (or any time unit) after the <code><a href="../reference/number_line.html">end_point()</a></code> of the index <code>event period</code> are grouped together. See below.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hos_admin &lt;-<span class="st"> </span>diyar<span class="op">::</span>hospital_admissions
 hos_admin<span class="op">$</span>admin_period &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(hos_admin<span class="op">$</span>admin_dt, hos_admin<span class="op">$</span>discharge_dt)
-
-<span class="co"># Admissions events</span>
-hos_admin<span class="op">$</span>admin_dt
-<span class="co">#&gt;  [1] "2019-01-01" "2019-01-01" "2019-01-10" "2019-01-05" "2019-01-05"</span>
-<span class="co">#&gt;  [6] "2019-01-07" "2019-01-04" "2019-01-20" "2019-01-26" "2019-01-01"</span>
-<span class="co">#&gt; [11] "2019-01-20"</span>
 
 <span class="co"># Hospital stay</span>
 hos_admin<span class="op">$</span>admin_period
@@ -571,17 +640,24 @@ hos_admin<span class="op">$</span>admin_period
 <span class="co">#&gt;  [7] "2019-01-04 -&gt; 2019-01-13" "2019-01-20 -&gt; 2019-01-30"</span>
 <span class="co">#&gt;  [9] "2019-01-26 -&gt; 2019-01-31" "2019-01-01 -&gt; 2019-01-10"</span>
 <span class="co">#&gt; [11] "2019-01-20 -&gt; 2019-01-30"</span></code></pre></div>
-<p><strong>Figure 8a: Grouping the actual admissions into episodes</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_dt, <span class="dt">sn=</span>hos_admin<span class="op">$</span>rd_id, <span class="dt">case_length=</span><span class="dv">0</span>, 
+<p><strong>Figure 7a: Tracking periods of hospital stay (admission -&gt; discharge)</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">case_length =</span> <span class="dv">0</span>, 
                 <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
-<span class="co">#&gt; Episode grouping complete - 4 record(s) assinged a unique ID.</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-50-1.png" width="816"></p>
-<p><strong>Figure 8b: Grouping the periods of stay (admission -&gt; discharge)</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">sn=</span>hos_admin<span class="op">$</span>rd_id, <span class="dt">case_length =</span> <span class="dv">0</span>, 
-                <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span></code></pre></div>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-52-1.png" width="816"></p>
-<p>There are 6 ways <code>event periods</code> can overlap (<code>overlap_methods</code>). These are <code>"exact"</code>, <code>"across"</code>, <code>"inbetween"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. See <a href="number_line.html#overlaps">overlaps</a>. Only <code>event periods</code> that overlap by the specified method will be grouped into the same <code>episode</code>. You can use any combination of the 6 methods but the default option is to use all 6. See below for a demonstration of this.</p>
+<p><strong>Figure 7b: Tracking periods of hospital stay up to 20 days after the first discharge</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">case_length =</span> <span class="dv">20</span>, 
+                <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-54-1.png" width="816"></p>
+<p><strong>Figure 7c: Tracking periods of continuous hospital stay i.e. re-admission within 15 days</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">case_length =</span> <span class="dv">0</span>, 
+                <span class="dt">recurrence_length=</span><span class="dv">15</span>, <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-56-1.png" width="816"></p>
+<p>There are 6 ways <code>event periods</code> can overlap (<code>overlap_methods</code>). These are <code>"exact"</code>, <code>"across"</code>, <code>"inbetween"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. These are covered in more detail in an accompanying <a href="number_line.html#overlaps">vignette</a>. Only <code>event periods</code> that overlap by a specified <code>overlap_method</code> will be grouped into the same <code>episode</code>. You can use any combination of the 6 methods but the default option is to use all 6. See below for a demonstration of this.</p>
+<p><em>The 6 <code>overlap_methods</code> are mutually exclusive.</em></p>
+<p><em>There are 2 convenience methods - <code>"none"</code> and <code>"overlap"</code>. These are mutually inclusive with any the other 6.</em></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># wrapper function to use with lapply</span>
 epi_grp_func &lt;-<span class="st"> </span><span class="cf">function</span>(x){
   epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, 
@@ -619,15 +695,15 @@ methods &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdoc
 )
 
 epids &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(methods, epi_grp_func)
-<span class="co">#&gt; Episode grouping complete - 7 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 7 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 7 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 9 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 7 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 8 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID. </span>
-<span class="co">#&gt; Episode grouping complete - 4 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 9 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 9 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 8 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs. </span>
+<span class="co">#&gt; Episode grouping complete - 4 record(s) with unique IDs.</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(epids) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(methods)
 
 <span class="co"># Results</span>
@@ -640,25 +716,13 @@ epids[<span class="st">"cb2"</span>]
 <span class="co">#&gt; [1] "E.2 2019-01-01 -&gt; 2019-01-13 (C)" "E.2 2019-01-01 -&gt; 2019-01-13 (D)"</span>
 <span class="co">#&gt; [3] "E.2 2019-01-01 -&gt; 2019-01-13 (D)" "E.8 2019-01-20 -&gt; 2019-01-30 (C)"</span>
 <span class="co">#&gt; [5] "E.2 2019-01-01 -&gt; 2019-01-13 (D)" "E.8 2019-01-20 -&gt; 2019-01-30 (D)"</span></code></pre></div>
-<p><strong>Figure 9a: Grouped episodes when considering only “exact” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-54-1.png" width="816"></p>
-<p><strong>Figure 9b: Grouped episodes when considering only “chain” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-55-1.png" width="816"><strong>Figure 9c: Grouped episodes when considering “chain” or “inbetween” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-56-1.png" width="816"></p>
-<div id="case-length-and-recurrence-length-in-interval-grouping" class="section level3">
-<h3 class="hasAnchor">
-<a href="#case-length-and-recurrence-length-in-interval-grouping" class="anchor"></a>Case length and recurrence length in interval grouping</h3>
-<p>From <code>diyar v0.1.0</code>, you can use negative <code>case_lengths</code> and <code>recurrence_lengths</code>.</p>
-<ul>
-<li>Using positive “lengths” will collapse two periods into one, if the second one is within* the first one or <code>n</code>-days<sup>+</sup> after the end of the first one.</li>
-<li>Using negative “lengths” will collapse two periods into one, if the second one is within* the start and <code>n</code>-days<sup>+</sup> before the end of the first one.</li>
-<li>Using negative “lengths” that’s larger than the duration of the period will collapse the two periods into one, if the second one is within* <code>(n + 1 + number_line_width())</code>-days<sup>+</sup> before the start of the first one.
-<ul>
-<li><strong>note that this will happen even if <code>from_last</code> is TRUE</strong></li>
-</ul>
-</li>
-<li>within or any other method of <code>overlap</code>
-</li>
-</ul>
-<p><sup>+</sup> days or any other <code>episode_unit</code></p>
-<p><em>Examples below</em></p>
+<p><em>Only showing <code>events</code> grouped into <code>episodes</code></em></p>
+<p><strong>Figure 8a: Grouped episodes when considering only “exact” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-58-1.png" width="816"></p>
+<p><strong>Figure 8b: Grouped episodes when considering only “chain” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-59-1.png" width="816"></p>
+<p><strong>Figure 8c: Grouped episodes when considering “chain” or “inbetween” overlap method</strong> <img src="episode_group_files/figure-html/unnamed-chunk-60-1.png" width="816"></p>
+<div id="case-and-recurrence-lengths-in-interval-grouping" class="section level4">
+<h4 class="hasAnchor">
+<a href="#case-and-recurrence-lengths-in-interval-grouping" class="anchor"></a>Case and recurrence lengths in interval grouping</h4>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">pa &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"28/03/2019"</span>, <span class="st">"01/04/2019"</span>, <span class="st">"03/04/2019"</span>, <span class="st">"07/04/2019"</span>,<span class="st">"12/04/2019"</span>)
 pz &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"31/03/2019"</span>, <span class="st">"10/04/2019"</span>, <span class="st">"05/04/2019"</span>, <span class="st">"09/04/2019"</span>,<span class="st">"13/04/2019"</span>)
 
@@ -670,56 +734,126 @@ periods
 <span class="co">#&gt; [1] "2019-03-28 -&gt; 2019-03-31" "2019-04-01 -&gt; 2019-04-10"</span>
 <span class="co">#&gt; [3] "2019-04-03 -&gt; 2019-04-05" "2019-04-07 -&gt; 2019-04-09"</span>
 <span class="co">#&gt; [5] "2019-04-12 -&gt; 2019-04-13"</span></code></pre></div>
-<p><strong>Figure 9d: Fixed episodes with a case_length of 6</strong></p>
+<p>As seen earlier, positive “length” means that; <code>event periods</code> overlapping with the index <code>event period</code> and those within <code>n</code>-days AFTER the <code><a href="../reference/number_line.html">end_point()</a></code> of the index <code>event period</code> will be grouped into the same <code>episode</code>. See another example below.</p>
+<p><strong>Figure 9a: Fixed episodes with a case_length of 6</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="dv">6</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 eps_a
 <span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-04-10 (C)" "E.1 2019-03-28 -&gt; 2019-04-10 (D)"</span>
 <span class="co">#&gt; [3] "E.1 2019-03-28 -&gt; 2019-04-10 (D)" "E.4 2019-04-07 -&gt; 2019-04-13 (C)"</span>
 <span class="co">#&gt; [5] "E.4 2019-04-07 -&gt; 2019-04-13 (D)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-59-1.png" width="816"></p>
-<p>Use positive “lengths” when you need to capture periods within a specified duration after the end of a <code>reference period</code>.</p>
-<p><strong>Figure 9e: Fixed episodes with a case_length of -2</strong></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-63-1.png" width="816"></p>
+<p>In contrast, a negative “length” means that; only <code>event periods</code> within <code>n</code>-days BEFORE the <code><a href="../reference/number_line.html">end_point()</a></code> of the index <code>event period</code> will be grouped into the same <code>episode</code>. See the examples below.</p>
+<p><strong>Figure 9b: Fixed episodes with a case_length of -2</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">2</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
 
 eps_b
 <span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-03-31 (C)" "E.2 2019-04-01 -&gt; 2019-04-10 (C)"</span>
 <span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D)" "E.2 2019-04-01 -&gt; 2019-04-10 (D)"</span>
 <span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-61-1.png" width="816"></p>
-<p><strong>Figure 9f: Fixed episodes with a case_length of -6</strong></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-65-1.png" width="816"></p>
+<p><strong>Figure 9c: Fixed episodes with a case_length of -6</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">6</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
 
 eps_c
 <span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-03-31 (C)" "E.2 2019-04-01 -&gt; 2019-04-10 (C)"</span>
-<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D)" "E.4 2019-04-07 -&gt; 2019-04-09 (C)"</span>
+<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D)" "E.4 2019-04-07 -&gt; 2019-04-09 (S)"</span>
 <span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-63-1.png" width="816"></p>
-<p>Use negative “lengths” when you only want to capture periods that at least ended <code>n-days</code><sup>+</sup> before the end of the <code>reference period</code>.</p>
-<p>It is possible to use a negative “length” that’s so large, the <code>reference period</code> will capture periods that occur before itself. Consider this a record level implementation of <code>bi_direction</code>. Just like <code>bi_direction</code>, this is only relevant when you use a <code>custom_sort</code>. See below.</p>
-<p><strong>Figure 9g: Fixed episodes with a case_length of -12</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">custom_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">2</span>,<span class="dv">0</span>,<span class="dv">2</span>,<span class="dv">1</span>,<span class="dv">2</span>)
-eps_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">12</span>, <span class="dt">custom_sort =</span> custom_sort, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
-
-eps_d
-<span class="co">#&gt; [1] "E.2 2019-03-28 -&gt; 2019-04-10 (D)" "E.2 2019-03-28 -&gt; 2019-04-10 (C)"</span>
-<span class="co">#&gt; [3] "E.4 2019-04-03 -&gt; 2019-04-09 (D)" "E.4 2019-04-03 -&gt; 2019-04-09 (C)"</span>
-<span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C)"</span></code></pre></div>
-<p><img src="episode_group_files/figure-html/unnamed-chunk-65-1.png" width="816"></p>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-67-1.png" width="816"></p>
+<p><a id="stratified_grouping"></a></p>
 </div>
 </div>
-<div id="reducing-execution-time" class="section level2">
-<h2 class="hasAnchor">
-<a href="#reducing-execution-time" class="anchor"></a>Reducing execution time</h2>
-<p><code><a href="../reference/episode_group.html">episode_group()</a></code> is essentially an endless loop that only stops when every record has been grouped into <code>episodes</code>. However, for some case definitions, certain kinds of <code>episodes</code> may not be required. There are 3 mechanisms to skip such <code>events</code>/<code>episodes</code>. This then reduces the function’s overall processing time. Skipped <code>events</code> are assigned unique episode IDs and their <code>case_nm</code> is flagged with <code>"Skipped"</code>.</p>
-<div id="skip-stratas-of-the-dataset" class="section level3">
+<div id="stratified-episode-grouping" class="section level3">
 <h3 class="hasAnchor">
-<a href="#skip-stratas-of-the-dataset" class="anchor"></a>Skip <code>strata(s)</code> of the dataset</h3>
-<p>You can skip an entire <code>strata</code> of the dataset by changing it to <code>NA</code>. In the example below, assuming we are not interest in grouping <code>"GP1"</code> and <code>"GP2"</code> records, we can skip these to save time.</p>
+<a href="#stratified-episode-grouping" class="anchor"></a>Stratified episode grouping</h3>
+<p>In practice, you’ll want to track <code>episodes</code> separately for groups (<code>strata</code>) such as patients, pathogens, sources of infection or any combination of these. This means that <code>episodes</code> from one patient will be different from other patients, or <code>episodes</code> of HIV diagnoses will be different those of HBV diagnoses.</p>
+<p><em><code>episodes</code> from different <code>strata</code> can have a different <code>case_lengths</code> and/or <code>recurrence_lengths</code>.</em></p>
+<p><em><code><a href="../reference/record_group.html">record_group()</a></code> is useful for creating group identifiers which can then be used as a <code>strata</code>. See the <a href="record_group.html">record group vignette</a> for further details.</em></p>
+<p>As an example, using the <code>infections</code> dataset, a case definition may specify the following;</p>
+<ul>
+<li>UTI and BSI diagnoses are considered different <code>episodes</code> regardless of when they occur</li>
+<li>UTI <code>episodes</code> have a cut-off of 8 days and a recurrence period of 31 days</li>
+<li>BSI <code>episodes</code> have a cut-off of 15 days and no recurrence period</li>
+</ul>
+<p>By adding the <code>infection</code> column to the <code>strata</code> argument, <code>"UTI"</code> and <code>"BSI"</code> diagnoses will not be grouped together under the same <code>episode</code>. Furthermore, the <code>case_length</code> and <code>recurrence_length</code> for each will be different as specified in the <code>epi</code> and <code>recur</code> columns respectively.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>diyar<span class="op">::</span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]
+dbs &lt;-<span class="st"> </span>dbs[dbs<span class="op">$</span>infection<span class="op">%in%</span><span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"UTI"</span>,<span class="st">"BSI"</span>),]
+dbs<span class="op">$</span>epi &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">7</span>, <span class="dv">14</span>)
+dbs<span class="op">$</span>recur &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>infection<span class="op">==</span><span class="st">"UTI"</span>, <span class="dv">30</span>, <span class="dv">0</span>)
+
+dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span>dbs<span class="op">$</span>epi, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>, 
+                              <span class="dt">strata =</span> dbs<span class="op">$</span>infection, <span class="dt">recurrence_length =</span> dbs<span class="op">$</span>recur, 
+                              <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+
+dbs
+<span class="co">#&gt;          date infection epi recur                            epids</span>
+<span class="co">#&gt; 1  2018-04-01       BSI  14     0 E.1 2018-04-01 == 2018-04-01 (C)</span>
+<span class="co">#&gt; 2  2018-04-07       UTI   7    30 E.2 2018-04-07 -&gt; 2018-05-01 (C)</span>
+<span class="co">#&gt; 3  2018-04-13       UTI   7    30 E.2 2018-04-07 -&gt; 2018-05-01 (D)</span>
+<span class="co">#&gt; 4  2018-04-19       UTI   7    30 E.2 2018-04-07 -&gt; 2018-05-01 (R)</span>
+<span class="co">#&gt; 5  2018-04-25       BSI  14     0 E.5 2018-04-25 -&gt; 2018-05-07 (C)</span>
+<span class="co">#&gt; 6  2018-05-01       UTI   7    30 E.2 2018-04-07 -&gt; 2018-05-01 (D)</span>
+<span class="co">#&gt; 7  2018-05-07       BSI  14     0 E.5 2018-04-25 -&gt; 2018-05-07 (D)</span>
+<span class="co">#&gt; 8  2018-05-13       BSI  14     0 E.8 2018-05-13 == 2018-05-13 (C)</span>
+<span class="co">#&gt; 11 2018-05-31       BSI  14     0 E.9 2018-05-31 == 2018-05-31 (C)</span></code></pre></div>
+<p>Stratified grouping is a faster and easier alternative to performing separate analyses for each subset (<code>strata</code>) of the dataset. However, if you must perform these separately, I recommend using a familiar <code>sn</code> and changing <code>to_s4</code> to <code>FALSE</code>. The former is so that you can easily link each <code>episode</code> back to the original dataset, while the latter is because binding <code>S4</code> objects in my personal opinion is a pain, so <code>to_s4 = FALSE</code> changes the <code>epid</code> objects to <code>data.frames</code>.</p>
+<p><em>to_s4() and to_df() are convenience functions to change <code>epid</code>, <code>pid</code>, <code>number_line</code> S4 class objects to <code>data.frames</code> and vice versa.</em></p>
+<p><a id="sub_strata"></a></p>
+<div id="sub-strata" class="section level4">
+<h4 class="hasAnchor">
+<a href="#sub-strata" class="anchor"></a>Sub-strata</h4>
+<p><code>Sub-strata</code> are when <code>events</code> within the same <code>strata</code> have different cut-offs. The case definition below demonstrates how this could be beneficial.</p>
+<ul>
+<li>UTI and BSI diagnoses are considered different <code>episodes</code> regardless of when they occur</li>
+<li>UTI diagnoses have a cut-off of 8 days and a recurrence period of 31 days</li>
+<li>BSI diagnoses have a cut-off of 15 days if not treated but 5 days if <code>treated</code>. In both situations there is no recurrence period.</li>
+<li>RTI diagnoses have a cut-off of of 29 days and a recurrence period of 6 days</li>
+</ul>
+<p>In this example, whether or not the infection is <code>treated</code> should be viewed as the <code>sub-strata</code> i.e. in a patient (<code>strata</code>), an <code>episode</code> is expected to last longer if it’s not <code>treated</code>.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>diyar<span class="op">::</span>infections_<span class="dv">4</span>
+
+dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbs, <span class="dt">sn=</span>rid, <span class="dt">strata=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(pid, organism, source), <span class="dt">date=</span>date, 
+                <span class="dt">case_length =</span>epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">recurrence_length =</span> recur,
+                <span class="dt">display =</span> <span class="ot">FALSE</span>)
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+
+dbs
+<span class="co">#&gt;    rid       date pid organism source treated epi recur    epids</span>
+<span class="co">#&gt; 1    1 2019-04-01   1  E. coli    UTI       -   7    30 E.01 (C)</span>
+<span class="co">#&gt; 2    2 2019-04-06   1  E. coli    UTI       -   7    30 E.01 (D)</span>
+<span class="co">#&gt; 3    3 2019-04-11   1  E. coli    BSI       Y   4     0 E.03 (C)</span>
+<span class="co">#&gt; 4    4 2019-04-16   1  E. coli    BSI       N  14     0 E.04 (C)</span>
+<span class="co">#&gt; 5    5 2019-04-21   1  E. coli    BSI       Y   4     0 E.04 (D)</span>
+<span class="co">#&gt; 6    6 2019-04-26   1  E. coli    RTI       Y  28     5 E.06 (C)</span>
+<span class="co">#&gt; 7    7 2019-05-01   1  E. coli    RTI       N  28     5 E.06 (D)</span>
+<span class="co">#&gt; 8    8 2019-05-06   1  E. coli    BSI       Y   4     0 E.08 (C)</span>
+<span class="co">#&gt; 9    9 2019-05-11   1  E. coli    BSI       N  14     0 E.09 (C)</span>
+<span class="co">#&gt; 10  10 2019-05-16   1  E. coli    UTI       N   7    30 E.10 (C)</span>
+<span class="co">#&gt; 11  11 2019-05-21   1  E. coli    UTI       N   7    30 E.10 (D)</span></code></pre></div>
+<p>There are a few things to note with stratified grouping;</p>
+<ul>
+<li>Unless required, <code>case_length</code> and <code>recurrence_length</code> should be consistent for each <code>strata</code> otherwise, you’ll inadvertently create a sub-strata</li>
+<li>
+<code>Episode grouping</code> with and without a sub-strata are different and could lead to different results</li>
+<li>Using a <code>sub-strata</code> is not the same as adding that <code>sub-strata</code> to the <code>strata</code> argument. In the example above, adding <code>treated</code> to <code>strata</code> will group <code>treated</code> infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not require this, only that the <code>treated</code> infections last longer.</li>
+</ul>
+</div>
+</div>
+</div>
+<div id="cut-down-your-processing-time" class="section level2">
+<h2 class="hasAnchor">
+<a href="#cut-down-your-processing-time" class="anchor"></a>Cut down your processing time</h2>
+<p>Some case definitions are so specific that only certain kinds of <code>episodes</code> will be required. In such cases, you can save time by skipping <code>events</code> from <code>episodes</code> that aren’t required. There are 3 mechanisms to skip such <code>events</code>.</p>
+<p><em>Skipped <code>events</code> are assigned unique episode IDs and their <code>case_nm</code> slot is flagged as <code>"Skipped"</code>.</em></p>
+<div id="skip-subsets-of-the-dataset" class="section level3">
+<h3 class="hasAnchor">
+<a href="#skip-subsets-of-the-dataset" class="anchor"></a>Skip subsets of the dataset</h3>
+<p>You can skip an entire <code>strata</code> of the dataset by changing it to <code>NA</code>. In the example below, assuming you were not interest in tracking <code>"GP1"</code> and <code>"GP2"</code> records, you can skip these to save time.</p>
+<p><em>Changing <code>display</code> to <code>TRUE</code> shows how many iterations of the grouping process it’s taken to complete the entire process.</em></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/head">head</a></span>(hourly_data[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"datetime"</span>,<span class="st">"category"</span>)], <span class="dv">10</span>)
 dbs<span class="op">$</span>subset &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbs<span class="op">$</span>category<span class="op">!=</span><span class="st">"GP3"</span>, <span class="ot">NA</span>, <span class="st">"group"</span>)
 
@@ -727,96 +861,94 @@ dbs<span class="op">$</span>subset &lt;-<span class="st"> </span><span class="kw
 dbs<span class="op">$</span>epids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata=</span> dbs<span class="op">$</span>subset, <span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>, 
                                 <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, <span class="dt">recurrence_length =</span> <span class="dv">9</span>, <span class="dt">display =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode or recurrence window 1.</span>
-<span class="co">#&gt; 2 of 2 record(s) grouped into episodes. 0 records not yet grouped.</span>
+<span class="co">#&gt; 10 record(s); 8 excluded from episode grouping. 2 left to group.</span>
+<span class="co">#&gt; 2 record(s); 2 grouped to episodes and 0 left to group.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 8 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 8 record(s) with unique IDs.</span>
+
 <span class="co">#   OR</span>
+
 <span class="co"># Not to skip</span>
 dbs<span class="op">$</span>epids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata=</span> dbs<span class="op">$</span>category, <span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>, 
                                 <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, <span class="dt">recurrence_length =</span> <span class="dv">9</span>, <span class="dt">display =</span> <span class="ot">TRUE</span>)
 <span class="co">#&gt; Episode or recurrence window 1.</span>
-<span class="co">#&gt; 3 of 10 record(s) grouped into episodes. 7 records not yet grouped.</span>
+<span class="co">#&gt; 10 record(s); 3 grouped to episodes and 7 left to group.</span>
 <span class="co">#&gt; Episode or recurrence window 2.</span>
-<span class="co">#&gt; 7 of 7 record(s) grouped into episodes. 0 records not yet grouped.</span>
+<span class="co">#&gt; 7 record(s); 7 grouped to episodes and 0 left to group.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
 dbs
 <span class="co">#&gt;               datetime category subset epids_a epids_b</span>
-<span class="co">#&gt; 1  2019-04-01 00:00:00      GP1   &lt;NA&gt; E.1 (S) E.1 (C)</span>
-<span class="co">#&gt; 2  2019-04-01 02:00:00      GP2   &lt;NA&gt; E.2 (S) E.2 (C)</span>
-<span class="co">#&gt; 3  2019-04-01 04:00:00      GP1   &lt;NA&gt; E.3 (S) E.1 (D)</span>
-<span class="co">#&gt; 4  2019-04-01 06:00:00      GP2   &lt;NA&gt; E.4 (S) E.2 (D)</span>
-<span class="co">#&gt; 5  2019-04-01 08:00:00      GP1   &lt;NA&gt; E.5 (S) E.1 (R)</span>
-<span class="co">#&gt; 6  2019-04-01 10:00:00      GP2   &lt;NA&gt; E.6 (S) E.2 (R)</span>
-<span class="co">#&gt; 7  2019-04-01 12:00:00      GP1   &lt;NA&gt; E.7 (S) E.1 (D)</span>
-<span class="co">#&gt; 8  2019-04-01 14:00:00      GP2   &lt;NA&gt; E.8 (S) E.2 (D)</span>
-<span class="co">#&gt; 9  2019-04-01 16:00:00      GP3  group E.9 (C) E.9 (C)</span>
-<span class="co">#&gt; 10 2019-04-01 18:00:00      GP3  group E.9 (D) E.9 (D)</span></code></pre></div>
+<span class="co">#&gt; 1  2019-04-01 00:03:20      GP1   &lt;NA&gt; E.1 (S) E.1 (C)</span>
+<span class="co">#&gt; 2  2019-04-01 02:08:20      GP2   &lt;NA&gt; E.2 (S) E.2 (C)</span>
+<span class="co">#&gt; 3  2019-04-01 04:01:40      GP1   &lt;NA&gt; E.3 (S) E.1 (D)</span>
+<span class="co">#&gt; 4  2019-04-01 06:05:45      GP2   &lt;NA&gt; E.4 (S) E.2 (D)</span>
+<span class="co">#&gt; 5  2019-04-01 08:03:52      GP1   &lt;NA&gt; E.5 (S) E.1 (R)</span>
+<span class="co">#&gt; 6  2019-04-01 10:08:52      GP2   &lt;NA&gt; E.6 (S) E.2 (R)</span>
+<span class="co">#&gt; 7  2019-04-01 12:06:50      GP1   &lt;NA&gt; E.7 (S) E.1 (D)</span>
+<span class="co">#&gt; 8  2019-04-01 14:03:35      GP2   &lt;NA&gt; E.8 (S) E.2 (D)</span>
+<span class="co">#&gt; 9  2019-04-01 16:03:42      GP3  group E.9 (C) E.9 (C)</span>
+<span class="co">#&gt; 10 2019-04-01 18:01:52      GP3  group E.9 (D) E.9 (D)</span></code></pre></div>
 </div>
-<div id="skip-the-nth-order-skip_order-of-custom_sort" class="section level3">
+<div id="skip-the-nth-order-skip-order-of-custom-sort" class="section level3">
 <h3 class="hasAnchor">
-<a href="#skip-the-nth-order-skip_order-of-custom_sort" class="anchor"></a>Skip the nth order (<code>skip_order</code>) of <code>custom_sort</code>
-</h3>
-<p><code>custom_sort</code> gives a preferential order for case assignment. The means that in a <code>custom_sort</code> order of <code>1-3</code>, every record with a value of <code>1</code> will be assigned to <code>episodes</code> before any with a value of <code>2</code> or <code>3</code> can be taken as a <code>reference event</code> i.e. preference for selecting <code>reference events</code> (case assignment) is <code>1 &gt; 2 &gt; 3</code>. You can decide to stop at any point in this order using <code>skip_order</code>. This comes in handy when you’re grouping rare <code>event(s)</code> with common <code>events</code>, and the rare ones are the <code>reference events</code>. If you’re only interested in <code>episodes</code> where rare <code>event(s)</code> are the <code>reference events</code> then you can skip the rest after grouping every rare <code>event</code>.</p>
-<p>In the example below, the <code>custom_sort</code> order is <code>"UTI" &gt; "BSI" &gt; "RTI"</code>. This has been supplied to the function as <code>c_sort</code>. Notice that in the skipped example <code>ep_a</code>, there are no <code>episodes</code> that begin (<code>(C)</code>) with a <code>"BSI"</code> or <code>"RTI"</code> record.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbf &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>, <span class="st">"infection"</span>)]
-dbf<span class="op">$</span>c_sort[dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "UTI"</span>] &lt;-<span class="st"> </span><span class="dv">1</span>
-dbf<span class="op">$</span>c_sort[dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "BSI"</span>] &lt;-<span class="st"> </span><span class="dv">2</span> 
-dbf<span class="op">$</span>c_sort[dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "RTI"</span>] &lt;-<span class="st"> </span><span class="dv">3</span>
+<a href="#skip-the-nth-order-skip-order-of-custom-sort" class="anchor"></a>Skip the nth order (skip order) of custom sort</h3>
+<p>In a dataset with multiple levels of <code>custom_sort</code>, you can skip <code>episodes</code> that will begin with the <code>nth</code> level (<code>skip_order</code>). A <code>skip_order</code> of <code>1</code> means that; after every <code>event</code> with the first level of your <code>custom_sort</code> has been grouped into <code>episodes</code>, the tracking process will come to an end.</p>
+<p>This is handy when you’re grouping <code>episodes</code> from rare and common <code>events</code>, the rare <code>events</code> are the index <code>events</code> and it’s a hassle to subset the dataset.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbf &lt;-<span class="st"> </span>dbf[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>, <span class="st">"infection"</span>)]
+dbf<span class="op">$</span>c_sort &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "UTI"</span>, <span class="dv">1</span>, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/ifelse">ifelse</a></span>(dbf<span class="op">$</span>infection <span class="op">==</span><span class="st"> "BSI"</span>, <span class="dv">2</span>, <span class="dv">3</span>))
 
 <span class="co"># Skip episodes that would begin with BSI/UTI records</span>
 dbf<span class="op">$</span>ep_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
                            <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort, <span class="dt">skip_order =</span> <span class="dv">1</span>)
 <span class="co">#&gt; Episode or recurrence window 1.</span>
-<span class="co">#&gt; 3 of 11 record(s) grouped into episodes. 8 records not yet grouped.</span>
+<span class="co">#&gt; 11 record(s); 3 grouped to episodes and 8 left to group.</span>
 <span class="co">#&gt; Episode or recurrence window 2.</span>
-<span class="co">#&gt; 3 of 8 record(s) grouped into episodes. 5 records not yet grouped.</span>
+<span class="co">#&gt; 8 record(s); 3 grouped to episodes and 5 left to group.</span>
+<span class="co">#&gt; 5 record(s); 5 skipped</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
 dbf<span class="op">$</span>ep_a_d &lt;-<span class="st"> </span>dbf<span class="op">$</span>ep_a<span class="op">@</span>epid_dataset
 
-<span class="co"># Don't skip any</span>
+<span class="co"># Don't skip any episodes</span>
 dbf<span class="op">$</span>ep_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
                            <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort)
 <span class="co">#&gt; Episode or recurrence window 1.</span>
-<span class="co">#&gt; 3 of 11 record(s) grouped into episodes. 8 records not yet grouped.</span>
+<span class="co">#&gt; 11 record(s); 3 grouped to episodes and 8 left to group.</span>
 <span class="co">#&gt; Episode or recurrence window 2.</span>
-<span class="co">#&gt; 3 of 8 record(s) grouped into episodes. 5 records not yet grouped.</span>
+<span class="co">#&gt; 8 record(s); 3 grouped to episodes and 5 left to group.</span>
 <span class="co">#&gt; Episode or recurrence window 3.</span>
-<span class="co">#&gt; 1 of 5 record(s) grouped into episodes. 4 records not yet grouped.</span>
+<span class="co">#&gt; 5 record(s); 1 grouped to episodes and 4 left to group.</span>
 <span class="co">#&gt; Episode or recurrence window 4.</span>
-<span class="co">#&gt; 1 of 4 record(s) grouped into episodes. 3 records not yet grouped.</span>
+<span class="co">#&gt; 4 record(s); 1 grouped to episodes and 3 left to group.</span>
 <span class="co">#&gt; Episode or recurrence window 5.</span>
-<span class="co">#&gt; 1 of 3 record(s) grouped into episodes. 2 records not yet grouped.</span>
+<span class="co">#&gt; 3 record(s); 1 grouped to episodes and 2 left to group.</span>
 <span class="co">#&gt; Episode or recurrence window 6.</span>
-<span class="co">#&gt; 2 of 2 record(s) grouped into episodes. 0 records not yet grouped.</span>
+<span class="co">#&gt; 2 record(s); 2 grouped to episodes and 0 left to group.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
 dbf<span class="op">$</span>ep_b_d &lt;-<span class="st"> </span>dbf<span class="op">$</span>ep_b<span class="op">@</span>epid_dataset
 
 dbf
-<span class="co">#&gt; # A tibble: 11 x 7</span>
-<span class="co">#&gt;    date       infection c_sort ep_a     ep_a_d  ep_b     ep_b_d </span>
-<span class="co">#&gt;    &lt;date&gt;     &lt;chr&gt;      &lt;dbl&gt; &lt;epid&gt;   &lt;chr&gt;   &lt;epid&gt;   &lt;chr&gt;  </span>
-<span class="co">#&gt;  1 2018-04-01 BSI            2 E.01 (S) BSI     E.01 (C) BSI    </span>
-<span class="co">#&gt;  2 2018-04-07 UTI            1 E.02 (C) UTI     E.02 (C) UTI    </span>
-<span class="co">#&gt;  3 2018-04-13 UTI            1 E.02 (D) UTI     E.02 (D) UTI    </span>
-<span class="co">#&gt;  4 2018-04-19 UTI            1 E.02 (D) UTI     E.02 (D) UTI    </span>
-<span class="co">#&gt;  5 2018-04-25 BSI            2 E.05 (S) BSI     E.05 (C) BSI    </span>
-<span class="co">#&gt;  6 2018-05-01 UTI            1 E.06 (C) BSI,UTI E.06 (C) BSI,UTI</span>
-<span class="co">#&gt;  7 2018-05-07 BSI            2 E.06 (D) BSI,UTI E.06 (D) BSI,UTI</span>
-<span class="co">#&gt;  8 2018-05-13 BSI            2 E.06 (D) BSI,UTI E.06 (D) BSI,UTI</span>
-<span class="co">#&gt;  9 2018-05-19 RTI            3 E.09 (S) RTI     E.09 (C) RTI    </span>
-<span class="co">#&gt; 10 2018-05-25 RTI            3 E.10 (S) RTI     E.09 (D) RTI    </span>
-<span class="co">#&gt; 11 2018-05-31 BSI            2 E.11 (S) BSI     E.11 (C) BSI</span></code></pre></div>
+<span class="co">#&gt;          date infection c_sort     ep_a  ep_a_d     ep_b  ep_b_d</span>
+<span class="co">#&gt; 1  2018-04-01       BSI      2 E.01 (S)     BSI E.01 (C)     BSI</span>
+<span class="co">#&gt; 2  2018-04-07       UTI      1 E.02 (C)     UTI E.02 (C)     UTI</span>
+<span class="co">#&gt; 3  2018-04-13       UTI      1 E.02 (D)     UTI E.02 (D)     UTI</span>
+<span class="co">#&gt; 4  2018-04-19       UTI      1 E.02 (D)     UTI E.02 (D)     UTI</span>
+<span class="co">#&gt; 5  2018-04-25       BSI      2 E.05 (S)     BSI E.05 (C)     BSI</span>
+<span class="co">#&gt; 6  2018-05-01       UTI      1 E.06 (C) BSI,UTI E.06 (C) BSI,UTI</span>
+<span class="co">#&gt; 7  2018-05-07       BSI      2 E.06 (D) BSI,UTI E.06 (D) BSI,UTI</span>
+<span class="co">#&gt; 8  2018-05-13       BSI      2 E.06 (D) BSI,UTI E.06 (D) BSI,UTI</span>
+<span class="co">#&gt; 9  2018-05-19       RTI      3 E.09 (S)     RTI E.09 (C)     RTI</span>
+<span class="co">#&gt; 10 2018-05-25       RTI      3 E.10 (S)     RTI E.09 (D)     RTI</span>
+<span class="co">#&gt; 11 2018-05-31       BSI      2 E.11 (S)     BSI E.11 (C)     BSI</span></code></pre></div>
+<p>Notice that in the skipped example <code>ep_a</code>, there are no <code>episodes</code> that has a <code>"BSI"</code> or <code>"RTI"</code> record as the <code>"case"</code>.</p>
 </div>
-<div id="skip-episodes-without-records-from-certain-data_sources" class="section level3">
+<div id="skip-episodes-without-records-from-certain-data-sources" class="section level3">
 <h3 class="hasAnchor">
-<a href="#skip-episodes-without-records-from-certain-data_sources" class="anchor"></a>Skip episodes without records from certain <code>data_source(s)</code>
-</h3>
-<p>The third mechanism is partly a misnomer because it does not skip records but rather ungroups <code>episodes</code> after they’ve been created. After every <code>episod</code> has been grouped, those that do not contain records from certain <code>data_source(s)</code> can be ungrouped using <code>data_links</code>. In such instances, the overall execution time will not be shortened but you’ll get an episode identifier that’s relevant to the <code>data_source(s)</code> you’re interested in. However, if a <code>strata</code> will not produce <code>episodes</code> with the required combination of <code>data_source(s)</code>, that entire <code>strata</code> will be skipped. If this happens, the overall execution may be shortened as well.</p>
-<p>Ungrouped <code>events</code> are assigned unique episode IDs and their <code>case_nm</code> is flagged with <code>"Skipped"</code>.</p>
+<a href="#skip-episodes-without-records-from-certain-data-sources" class="anchor"></a>Skip episodes without records from certain data sources</h3>
+<p>The third mechanism is partly a misnomer because it does not skip <code>events</code> but rather ungroups <code>episodes</code> after they’ve already been created. After <code>episodes</code> have been created, those that do not contain records from certain <code>data_sources</code> can be ungrouped using <code>data_links</code>. In such instances, the overall execution time will not be shortened but you’ll get an <code>episode</code> identifier that’s relevant to the <code>data_sources</code> you’re interested in. However, if a <code>strata</code> will not produce <code>episodes</code> with the required combination of <code>data_sources</code>, that entire <code>strata</code> will be skipped. If this happens, the overall execution may be shortened.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dttm &lt;-<span class="st"> </span><span class="cf">function</span>(x) <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.POSIXlt">as.POSIXct</a></span>(x, <span class="st">"UTC"</span>,<span class="dt">format=</span><span class="st">"%d/%m/%Y %H:%M:%S"</span>)
 dbg &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">date =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/seq.POSIXt">seq.POSIXt</a></span>(<span class="kw">dttm</span>(<span class="st">"01/04/2018 00:00:00"</span>), <span class="kw">dttm</span>(<span class="st">"31/05/2018 00:00:00"</span>),
                                     <span class="dt">by=</span><span class="st">"3 days"</span>))
@@ -829,25 +961,28 @@ dbg<span class="op">$</span>dataset &lt;-<span class="st"> </span><span class="k
 dbg<span class="op">$</span>ep_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 
-<span class="co"># Skip episodes without records from the `DS3` `data_source` - must be linked to other `data_source(s)`  </span>
+<span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
+  <span class="co"># The `DS3` event MUST BE linked to events from other `data_sources`  </span>
 dbg<span class="op">$</span>ep_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="st">"DS3"</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
 
-<span class="co"># skip episodes without records from the `DS3` `data_source` - does not have to be linked to other `data_source(s)`   </span>
+<span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
+  <span class="co"># The `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   </span>
 dbg<span class="op">$</span>ep_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">g=</span><span class="st">"DS3"</span>), <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
 
-<span class="co"># skip episodes without records from the `DS3` `data_source` - must be linked to record from `DS1`   </span>
+<span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
+  <span class="co"># The `DS3` event MUST BE linkned to events from the `DS1` `data_source`</span>
 dbg<span class="op">$</span>ep_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">l=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"DS3"</span>,<span class="st">"DS1"</span>)), <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 8 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 8 record(s) with unique IDs.</span>
 
 dbg[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>, <span class="st">"dataset"</span>, <span class="st">"ep_a"</span>, <span class="st">"ep_b"</span>, <span class="st">"ep_c"</span>, <span class="st">"ep_d"</span>)]
 <span class="co">#&gt;          date dataset     ep_a     ep_b     ep_c     ep_d</span>
@@ -862,27 +997,17 @@ dbg[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topic
 <span class="co">#&gt; 9  2018-04-25     DS3 E.07 (D) E.07 (D) E.07 (D) E.09 (S)</span>
 <span class="co">#&gt; 10 2018-04-28     DS3 E.10 (C) E.10 (S) E.10 (C) E.10 (S)</span>
 <span class="co">#&gt; 11 2018-05-01     DS3 E.10 (D) E.11 (S) E.10 (D) E.11 (S)</span></code></pre></div>
-<p>Note that since <code>reference  events</code> are not known ahead of time, <code>episodes</code> will be grouped first. Afterwards, episodes without the required <code>data_links</code> are then unlinked and shown as <code>"Skipped"</code>. However, if an entire <code>strata</code> does not have the <code>data_links</code>, that <code>strata</code> is skipped to save time.</p>
 <p><a id="tips"></a></p>
 </div>
 </div>
 <div id="useful-ways-of-using-these-functions" class="section level2">
 <h2 class="hasAnchor">
 <a href="#useful-ways-of-using-these-functions" class="anchor"></a>Useful ways of using these functions</h2>
-<div id="episode-grouping-across-other-units-of-time" class="section level3">
+<div id="episode-grouping-in-other-units-of-time" class="section level3">
 <h3 class="hasAnchor">
-<a href="#episode-grouping-across-other-units-of-time" class="anchor"></a>Episode grouping across other units of time</h3>
-<p>In the examples above, episode grouping was done by days (<code>episode_unit</code>). However, it can be done by other units of time e.g. hours, days or weeks. Acceptable options are “seconds”, “minutes”, “hours”, “days”, “weeks”, “months” or “years”. Below is an example of episode grouping by the hour.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(<span class="st">"hourly_data"</span>); dbs &lt;-<span class="st"> </span>hourly_data
-
-dbs<span class="op">$</span>datetime
-<span class="co">#&gt;  [1] "2019-04-01 00:00:00 UTC" "2019-04-01 02:00:00 UTC"</span>
-<span class="co">#&gt;  [3] "2019-04-01 04:00:00 UTC" "2019-04-01 06:00:00 UTC"</span>
-<span class="co">#&gt;  [5] "2019-04-01 08:00:00 UTC" "2019-04-01 10:00:00 UTC"</span>
-<span class="co">#&gt;  [7] "2019-04-01 12:00:00 UTC" "2019-04-01 14:00:00 UTC"</span>
-<span class="co">#&gt;  [9] "2019-04-01 16:00:00 UTC" "2019-04-01 18:00:00 UTC"</span>
-<span class="co">#&gt; [11] "2019-04-01 20:00:00 UTC" "2019-04-01 22:00:00 UTC"</span>
-<span class="co">#&gt; [13] "2019-04-02 00:00:00 UTC"</span>
+<a href="#episode-grouping-in-other-units-of-time" class="anchor"></a>Episode grouping in other units of time</h3>
+<p><code>episode grouping</code> can be done in other units of time (<code>episode_unit</code>). Acceptable options are <code>"seconds"</code>, <code>"minutes"</code>, <code>"hours"</code>, <code>"days"</code>, <code>"weeks"</code>, <code>"months"</code> or <code>"years"</code>. Below is an example of <code>episode grouping</code> by the hour.</p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>diyar<span class="op">::</span>hourly_data
 
 <span class="co"># Each unit is relative to a set number of seconds. </span>
 diyar<span class="op">::</span>episode_unit
@@ -907,52 +1032,78 @@ diyar<span class="op">::</span>episode_unit
 <span class="co">#&gt; $years</span>
 <span class="co">#&gt; [1] 31536000</span>
 
-<span class="co"># 5-hr episodes</span>
-<span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>,
-                 <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, <span class="dt">recurrence_length =</span> <span class="dv">9</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  [1] "E.1 2019-04-01 -&gt; 2019-04-02 (C)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt;  [3] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (R)"</span>
-<span class="co">#&gt;  [5] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt;  [7] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt;  [9] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (R)"</span>
-<span class="co">#&gt; [11] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt; [13] "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
+<span class="co"># 1-day fixed episodes</span>
+<span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">1</span>, <span class="dt">episode_unit =</span> <span class="st">"days"</span>, 
+               <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt;  [1] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (C)"</span>
+<span class="co">#&gt;  [2] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt;  [3] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt;  [4] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt;  [5] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt;  [6] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt;  [7] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt;  [8] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt;  [9] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt; [10] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt; [11] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt; [12] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt; [13] "E.13 2019-04-02 00:05:11 == 2019-04-02 00:05:11 (C)"</span>
 
-<span class="co"># 5-day episodes</span>
-<span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>,
-                 <span class="dt">episode_unit =</span> <span class="st">"days"</span>, <span class="dt">recurrence_length =</span> <span class="dv">9</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
-<span class="co">#&gt;  [1] "E.1 2019-04-01 -&gt; 2019-04-02 (C)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt;  [3] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt;  [5] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt;  [7] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt;  [9] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt; [11] "E.1 2019-04-01 -&gt; 2019-04-02 (D)" "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span>
-<span class="co">#&gt; [13] "E.1 2019-04-01 -&gt; 2019-04-02 (D)"</span></code></pre></div>
+<span class="co"># 5-hr fixed episodes</span>
+<span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, 
+               <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt;  [1] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 04:01:40 (C)"</span>
+<span class="co">#&gt;  [2] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 04:01:40 (D)"</span>
+<span class="co">#&gt;  [3] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 04:01:40 (D)"</span>
+<span class="co">#&gt;  [4] "E.04 2019-04-01 06:05:45 -&gt; 2019-04-01 10:08:52 (C)"</span>
+<span class="co">#&gt;  [5] "E.04 2019-04-01 06:05:45 -&gt; 2019-04-01 10:08:52 (D)"</span>
+<span class="co">#&gt;  [6] "E.04 2019-04-01 06:05:45 -&gt; 2019-04-01 10:08:52 (D)"</span>
+<span class="co">#&gt;  [7] "E.07 2019-04-01 12:06:50 -&gt; 2019-04-01 16:03:42 (C)"</span>
+<span class="co">#&gt;  [8] "E.07 2019-04-01 12:06:50 -&gt; 2019-04-01 16:03:42 (D)"</span>
+<span class="co">#&gt;  [9] "E.07 2019-04-01 12:06:50 -&gt; 2019-04-01 16:03:42 (D)"</span>
+<span class="co">#&gt; [10] "E.10 2019-04-01 18:01:52 -&gt; 2019-04-01 22:05:12 (C)"</span>
+<span class="co">#&gt; [11] "E.10 2019-04-01 18:01:52 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt; [12] "E.10 2019-04-01 18:01:52 -&gt; 2019-04-01 22:05:12 (D)"</span>
+<span class="co">#&gt; [13] "E.13 2019-04-02 00:05:11 == 2019-04-02 00:05:11 (C)"</span>
+
+<span class="co"># 5-hr rolling episodes</span>
+<span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, 
+                 <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt;  [1] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (C)"</span>
+<span class="co">#&gt;  [2] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
+<span class="co">#&gt;  [3] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
+<span class="co">#&gt;  [4] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (R)"</span>
+<span class="co">#&gt;  [5] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
+<span class="co">#&gt;  [6] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (R)"</span>
+<span class="co">#&gt;  [7] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
+<span class="co">#&gt;  [8] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (R)"</span>
+<span class="co">#&gt;  [9] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
+<span class="co">#&gt; [10] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (R)"</span>
+<span class="co">#&gt; [11] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
+<span class="co">#&gt; [12] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (R)"</span>
+<span class="co">#&gt; [13] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span></code></pre></div>
 </div>
 <div id="use-a-strata-from-record_group" class="section level3">
 <h3 class="hasAnchor">
 <a href="#use-a-strata-from-record_group" class="anchor"></a>Use a <code>strata</code> from <code><a href="../reference/record_group.html">record_group()</a></code>
 </h3>
 <p>You can used <code>pid</code> objects from <code><a href="../reference/record_group.html">record_group()</a></code> as a <code>strata</code>.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/utils/topics/data">data</a></span>(infections) 
-
-dbs &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]; dbs
-<span class="co">#&gt; # A tibble: 11 x 2</span>
-<span class="co">#&gt;    date       infection</span>
-<span class="co">#&gt;    &lt;date&gt;     &lt;chr&gt;    </span>
-<span class="co">#&gt;  1 2018-04-01 BSI      </span>
-<span class="co">#&gt;  2 2018-04-07 UTI      </span>
-<span class="co">#&gt;  3 2018-04-13 UTI      </span>
-<span class="co">#&gt;  4 2018-04-19 UTI      </span>
-<span class="co">#&gt;  5 2018-04-25 BSI      </span>
-<span class="co">#&gt;  6 2018-05-01 UTI      </span>
-<span class="co">#&gt;  7 2018-05-07 BSI      </span>
-<span class="co">#&gt;  8 2018-05-13 BSI      </span>
-<span class="co">#&gt;  9 2018-05-19 RTI      </span>
-<span class="co">#&gt; 10 2018-05-25 RTI      </span>
-<span class="co">#&gt; 11 2018-05-31 BSI</span>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs &lt;-<span class="st"> </span>diyar<span class="op">::</span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>,<span class="st">"infection"</span>)]; dbs
+<span class="co">#&gt;          date infection</span>
+<span class="co">#&gt; 1  2018-04-01       BSI</span>
+<span class="co">#&gt; 2  2018-04-07       UTI</span>
+<span class="co">#&gt; 3  2018-04-13       UTI</span>
+<span class="co">#&gt; 4  2018-04-19       UTI</span>
+<span class="co">#&gt; 5  2018-04-25       BSI</span>
+<span class="co">#&gt; 6  2018-05-01       UTI</span>
+<span class="co">#&gt; 7  2018-05-07       BSI</span>
+<span class="co">#&gt; 8  2018-05-13       BSI</span>
+<span class="co">#&gt; 9  2018-05-19       RTI</span>
+<span class="co">#&gt; 10 2018-05-25       RTI</span>
+<span class="co">#&gt; 11 2018-05-31       BSI</span>
 
 <span class="co"># familiar unique record ids for reference - optional</span>
 dbs<span class="op">$</span>rd_id &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="dv">640</span>,<span class="dv">17</span>,<span class="dv">58</span>,<span class="dv">21</span>,<span class="dv">130</span>,<span class="dv">79</span>,<span class="dv">45</span>,<span class="dv">300</span>,<span class="dv">40</span>,<span class="dv">13</span>,<span class="dv">31</span>)
@@ -964,49 +1115,47 @@ dbs<span class="op">$</span>pids &lt;-<span class="st"> </span><span class="kw">
 <span class="co"># stratified grouping </span>
 dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">sn =</span> dbs<span class="op">$</span>rd_id, <span class="dt">date =</span> dbs<span class="op">$</span>date, <span class="dt">strata =</span> dbs<span class="op">$</span>pids, 
                              <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">case_length =</span> <span class="dv">10</span>)
-<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
 
 dbs
-<span class="co">#&gt; # A tibble: 11 x 5</span>
-<span class="co">#&gt;    date       infection rd_id pids          epids    </span>
-<span class="co">#&gt;    &lt;date&gt;     &lt;chr&gt;     &lt;dbl&gt; &lt;pid&gt;         &lt;epid&gt;   </span>
-<span class="co">#&gt;  1 2018-04-01 BSI         640 P.31 (CRI 01) E.640 (C)</span>
-<span class="co">#&gt;  2 2018-04-07 UTI          17 P.17 (CRI 01) E.017 (C)</span>
-<span class="co">#&gt;  3 2018-04-13 UTI          58 P.17 (CRI 01) E.017 (D)</span>
-<span class="co">#&gt;  4 2018-04-19 UTI          21 P.17 (CRI 01) E.021 (C)</span>
-<span class="co">#&gt;  5 2018-04-25 BSI         130 P.31 (CRI 01) E.130 (C)</span>
-<span class="co">#&gt;  6 2018-05-01 UTI          79 P.17 (CRI 01) E.079 (C)</span>
-<span class="co">#&gt;  7 2018-05-07 BSI          45 P.31 (CRI 01) E.045 (C)</span>
-<span class="co">#&gt;  8 2018-05-13 BSI         300 P.31 (CRI 01) E.045 (D)</span>
-<span class="co">#&gt;  9 2018-05-19 RTI          40 P.13 (CRI 01) E.040 (C)</span>
-<span class="co">#&gt; 10 2018-05-25 RTI          13 P.13 (CRI 01) E.040 (D)</span>
-<span class="co">#&gt; 11 2018-05-31 BSI          31 P.31 (CRI 01) E.031 (C)</span></code></pre></div>
+<span class="co">#&gt;          date infection rd_id          pids     epids</span>
+<span class="co">#&gt; 1  2018-04-01       BSI   640 P.31 (CRI 01) E.640 (C)</span>
+<span class="co">#&gt; 2  2018-04-07       UTI    17 P.17 (CRI 01) E.017 (C)</span>
+<span class="co">#&gt; 3  2018-04-13       UTI    58 P.17 (CRI 01) E.017 (D)</span>
+<span class="co">#&gt; 4  2018-04-19       UTI    21 P.17 (CRI 01) E.021 (C)</span>
+<span class="co">#&gt; 5  2018-04-25       BSI   130 P.31 (CRI 01) E.130 (C)</span>
+<span class="co">#&gt; 6  2018-05-01       UTI    79 P.17 (CRI 01) E.079 (C)</span>
+<span class="co">#&gt; 7  2018-05-07       BSI    45 P.31 (CRI 01) E.045 (C)</span>
+<span class="co">#&gt; 8  2018-05-13       BSI   300 P.31 (CRI 01) E.045 (D)</span>
+<span class="co">#&gt; 9  2018-05-19       RTI    40 P.13 (CRI 01) E.040 (C)</span>
+<span class="co">#&gt; 10 2018-05-25       RTI    13 P.13 (CRI 01) E.040 (D)</span>
+<span class="co">#&gt; 11 2018-05-31       BSI    31 P.31 (CRI 01) E.031 (C)</span></code></pre></div>
 </div>
 <div id="use-numeric-values-for-the-date-argument" class="section level3">
 <h3 class="hasAnchor">
-<a href="#use-numeric-values-for-the-date-argument" class="anchor"></a>Use <code>numeric</code> values for the <code>date</code> argument</h3>
-<p><code>date</code> and <code>datetime</code> objects are fundamentally numeric values within the context of a reference point (<code><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date(..., origin)</a></code>). The episode grouping process ignores this context and instead uses each value as a reference point for others. Therefore, it will allow you use <code>numeric</code> values instead of <code>date</code> or <code>datetime</code> values for the <code>date</code> argument. For example, if you use <code>0-2</code>, it does not matter what they represent i.e. number of days from a particular date or number of seconds from a particular time. It only matters that <code>0</code> is before <code>1</code>, which in turn is before <code>2</code>. When the functions are used this way, the <code>episode_unit</code> argument is ignored.</p>
+<a href="#use-numeric-values-for-the-date-argument" class="anchor"></a>Use numeric values for the date argument</h3>
+<p><code>date</code> and <code>datetime</code> objects are fundamentally numeric values within the context of a reference point (<code><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date(..., origin)</a></code>). The <code>episode grouping</code> process ignores this context and instead uses each value as a reference point for others. Therefore, you use <code>numeric</code> values instead of <code>date</code> or <code>datetime</code> values for the <code>date</code> argument. For example, if you use <code>0-2</code>, it does not matter what they represent i.e. number of days from a particular date or number of seconds from a particular time. It only matters that <code>0</code> is before <code>1</code>, which in turn is before <code>2</code>. When the functions are used this way, the <code>episode_unit</code> argument is ignored.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">vals &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="fl">8.1</span>,<span class="dv">6</span>,<span class="dv">12</span>,<span class="fl">8.5</span>,<span class="dv">12</span>,<span class="dv">3</span>,<span class="dv">8</span>,<span class="dv">15</span>,<span class="dv">5</span>,<span class="dv">7</span>)
 
 vals
 <span class="co">#&gt;  [1]  8.1  6.0 12.0  8.5 12.0  3.0  8.0 15.0  5.0  7.0</span>
 
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(vals, <span class="dt">case_length =</span> .<span class="dv">5</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 5 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
 <span class="co">#&gt;  [1] "E.07 8 -&gt; 8.5 (D)" "E.02 6 == 6 (C)"   "E.03 12 == 12 (C)"</span>
 <span class="co">#&gt;  [4] "E.07 8 -&gt; 8.5 (D)" "E.03 12 == 12 (D)" "E.06 3 == 3 (C)"  </span>
 <span class="co">#&gt;  [7] "E.07 8 -&gt; 8.5 (C)" "E.08 15 == 15 (C)" "E.09 5 == 5 (C)"  </span>
 <span class="co">#&gt; [10] "E.10 7 == 7 (C)"</span>
 
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(vals, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
 <span class="co">#&gt;  [1] "E.1 8.1 -&gt; 12 (C)" "E.6 3 -&gt; 8 (D)"    "E.1 8.1 -&gt; 12 (D)"</span>
 <span class="co">#&gt;  [4] "E.1 8.1 -&gt; 12 (D)" "E.1 8.1 -&gt; 12 (D)" "E.6 3 -&gt; 8 (C)"   </span>
 <span class="co">#&gt;  [7] "E.6 3 -&gt; 8 (D)"    "E.8 15 == 15 (C)"  "E.6 3 -&gt; 8 (D)"   </span>
 <span class="co">#&gt; [10] "E.6 3 -&gt; 8 (D)"</span>
 
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(vals, <span class="dt">case_length =</span> <span class="dv">100</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) assinged a unique ID.</span>
+<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
 <span class="co">#&gt;  [1] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)"</span>
 <span class="co">#&gt;  [4] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (C)"</span>
 <span class="co">#&gt;  [7] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)"</span>
@@ -1017,21 +1166,21 @@ vals
 <div id="conclusion" class="section level1">
 <h1 class="hasAnchor">
 <a href="#conclusion" class="anchor"></a>Conclusion</h1>
-<p>There are a variety of ways to use these function. Before beginning, It’s worth reviewing your case definition and its implication on the dataset. In general, the following steps will guide you on how to use them;</p>
+<p>There are a variety of ways to use these function. Before beginning, It’s worth reviewing your case definition and its implication on the dataset. In general, the following steps can serve as a quick guide on how to use them;</p>
 <ol style="list-style-type: decimal">
 <li>Work out the <code>strata</code> in your dataset</li>
-<li>Choose whether you need <code>"fixed"</code> or <code>"rolling"</code> episodes</li>
-<li>Choose whether you are grouping individual events or periods of events by supplying a <code>date</code>,<code>datetime</code> or <code>number_line</code> object as required. See <a href="#interval_grouping">interval grouping</a>
+<li>Choose and specify whether you need <code>"fixed"</code> or <code>"rolling"</code> episodes</li>
+<li>Choose and specify whether you are grouping individual events or periods of events by supplying a <code>date</code>, <code>datetime</code> or <code>number_line</code> object as required. See <a href="#interval_grouping">interval grouping</a>
 </li>
-<li>Choose the required <code>case_length</code>, and/or <code>recurrence_length</code>. The values should be unique to each <code>strata</code> unless you require a <a href="#sub_strata">sub-strata</a>
+<li>Choose and specify the required <code>case_length</code>, and/or <code>recurrence_length</code>. The values should be unique to each <code>strata</code> unless you require a <a href="#sub_strata">sub-strata</a>
 </li>
-<li>Change <code>from_last</code> to <code>TRUE</code> if you want to start episode grouping at the most recent record thereby making it the <code>"case"</code>. Note that this is not the same as starting episode grouping at the earliest record (<code>from_last</code> is <code>FALSE</code>) and then picking the most recent record in that episode as the <code>"case"</code>. See <a href="#chrono_order">chronological order of events</a>
+<li>Change <code>from_last</code> to <code>TRUE</code> if you want the index <code>event</code> to be the earliest or most recent <code>event</code>.</li>
+<li>If you need the index <code>event</code> to be the earliest or most recent event of a particular type of event, use <code>custom_sort</code> in combination with <code>from_last</code>. If not, ignore this argument. See <a href="#custom_sort">user defined case assignment</a>
 </li>
-<li>If you require the <code>"case"</code> to be the earliest or most recent event of a particular type of event, use <code>custom_sort</code> in combination with <code>from_last</code>. If not, ignore this argument. See <a href="#custom_sort">user defined case assignment</a>
-</li>
-<li>If you require episodes to include records on either side of the <code>"case"</code> use <code>bi_direction</code>. If not, ignore this argument</li>
-<li>Determine if you are measuring episodes by the minute, hour or day e.t.c., and set <code>episode_unit</code> accordingly. Be sure to supply a <code>datetime</code> to the <code>date</code> argument if <code>episode_unit</code> is less than “days”</li>
+<li>If you require <code>episodes</code> to include <code>events</code> on either side of the index <code>event</code>, use <code>bi_direction</code> or an applicable <code>case_length</code> or <code>recurrence_length</code>. If not, ignore this point</li>
+<li>Determine if you are measuring <code>episodes</code> by the minute, hour or day e.t.c., and set <code>episode_unit</code> accordingly. Be sure to supply a <code>datetime</code> to the <code>date</code> argument if <code>episode_unit</code> is less than <code>"days"</code>.</li>
 </ol>
+<p>These functions should prove useful in epidemiological analyses however, it’s also applicable to analyses in any field where the aim is to track events into temporal groups.</p>
 </div>
   </div>
 
@@ -1042,14 +1191,12 @@ vals
       <ul class="nav nav-pills nav-stacked">
 <li><a href="#introduction">Introduction</a></li>
       <li><a href="#uses">Uses</a></li>
+      <li><a href="#overview">Overview</a></li>
       <li>
 <a href="#implementation">Implementation</a><ul class="nav nav-pills nav-stacked">
-<li><a href="#overview">Overview</a></li>
-      <li><a href="#episodes-windows-case-lengths-and-recurrence-periods">Episodes, windows, case lengths and recurrence periods</a></li>
-      <li><a href="#making-a-case-definition">Making a case definition</a></li>
-      <li><a href="#stratified-episode-grouping">Stratified episode grouping</a></li>
-      <li><a href="#interval-grouping">Interval grouping</a></li>
-      <li><a href="#reducing-execution-time">Reducing execution time</a></li>
+<li><a href="#episodes-windows-case-lengths-and-recurrence-periods">Episodes, windows, case lengths and recurrence periods</a></li>
+      <li><a href="#how-to-apply-a-case-definition">How to apply a case definition</a></li>
+      <li><a href="#cut-down-your-processing-time">Cut down your processing time</a></li>
       <li><a href="#useful-ways-of-using-these-functions">Useful ways of using these functions</a></li>
       </ul>
 </li>

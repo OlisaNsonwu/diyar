@@ -126,10 +126,9 @@ format.number_line <- function(x, ...){
   if (length(x)==0) "number_line(0)"
   else{
     x <- x[1:length(x@start)]
-    s <- ifelse(x@start + x@.Data > x@start,"->","<-")
-    s <- ifelse(x@start + x@.Data == x@start, "==",s)
-    s <- ifelse(!is.finite(x@start + x@.Data) , "??",s)
-
+    s <- ifelse(x@.Data > 0 & !is.na(x@.Data) & !is.nan(x@.Data),"->","??")
+    s <- ifelse(x@.Data < 0 & !is.na(x@.Data) & !is.nan(x@.Data),"<-",s)
+    s <- ifelse(x@.Data== 0 & !is.na(x@.Data) & !is.nan(x@.Data),"==",s)
     paste(x@start, s, x@start + x@.Data, sep=" ")
   }
 }

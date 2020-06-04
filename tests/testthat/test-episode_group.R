@@ -814,3 +814,114 @@ test_that("test case_for_recurrence", {
   expect_equal(df$r2@.Data, rep(1,6))
   expect_equal(df$r2@case_nm, c("Case","Duplicate","Recurrent","Duplicate","Recurrent","Duplicate"))
 })
+
+# Lengths range
+library(diyar)
+library(dplyr)
+
+dts <- 1:10
+c1 <- rep(number_line(2, 3), 10)
+c2 <- rep(number_line(0, 3), 10)
+c3 <- rep(number_line(-3, 0), 10)
+c5 <- rep(number_line(-3, -2), 10)
+c4 <- rep(number_line(-3, 3), 10)
+c7 <- 1
+cs <- c(rep(3,5), rep(1,5))
+df <- tibble(dt= dts, c1=c1, c2=c2, c3 =c3, c4 =c4, c_sort = cs, c5=c5, c7 = c7)
+
+df$ep1 <- episode_group(df, date=dt, case_length = c1)
+df$ep2 <- episode_group(df, date=dt, case_length = c1, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep1==df$ep2)
+
+df$ep3 <- episode_group(df, date=dt, case_length = c2)
+df$ep4 <- episode_group(df, date=dt, case_length = c2, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep3==df$ep4)
+
+df$ep5 <- episode_group(df, date=dt, case_length = c3)
+df$ep6 <- episode_group(df, date=dt, case_length = c3, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep3==df$ep6)
+
+df$ep7 <- episode_group(df, date=dt, case_length = c3, custom_sort = c_sort)
+
+df$ep8 <- episode_group(df, date=dt, case_length = c1, custom_sort = c_sort, bi_direction = T)
+df$ep9 <- episode_group(df, date=dt, case_length = c5, custom_sort = c_sort, bi_direction = T)
+# Test - Expect TRUE
+all(df$ep8 == df$ep9)
+
+#test that these two should give the same result
+df$ep10 <- episode_group(df, date=dt, case_length = c1, custom_sort = c_sort, bi_direction = T, from_last = T)
+df$ep11 <- episode_group(df, date=dt, case_length = c5, custom_sort = c_sort, bi_direction = T, from_last = T)
+# Test - Expect TRUE
+all(df$ep10 == df$ep11)
+test_that("test case_for_recurrence", {
+  expect_equal(df$ep1, df$ep2)
+  expect_equal(df$ep3, df$ep4)
+  expect_equal(df$ep3, df$ep6)
+  expect_equal(df$ep4, df$ep6)
+  expect_equal(df$ep8, df$ep9)
+  expect_equal(df$ep11, df$ep10)
+})
+
+
+df <- data.frame(x=c(1,6,7,8,10), rc=8, ep =4)
+df$ep1 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 1)
+df$ep2 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 1)
+
+df$ep3 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = T, recurrence_from_last = F, episode_type = "rolling", rolls_max = 1)
+df$ep4 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = F, recurrence_from_last = F, episode_type = "rolling", rolls_max = 1)
+
+df$ep5 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 2)
+df$ep6 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 2)
+
+test_that("test wind_id and wind_nm", {
+  expect_equal(df$ep1@.Data, rep(1, 5))
+  expect_equal(df$ep1@case_nm, c("Case","Recurrent", rep("Duplicate", 3)))
+  expect_equal(df$ep1@wind_nm, c(rep("Recurrence", 4), "Case"))
+  expect_equal(df$ep1@wind_id, c(rep(1,4),4))
+  expect_equal(df$ep2, df$ep4)
+  expect_equal(df$ep1@case_nm, df$ep3@case_nm)
+  expect_equal(df$ep1@wind_nm, df$ep3@wind_nm)
+  expect_equal(df$ep1@.Data, df$ep3@.Data)
+  expect_equal(df$ep3@wind_id, c(rep(1,4),2))
+  expect_equal(df$ep1, df$ep5)
+  expect_equal(df$ep1@.Data, df$ep6@.Data)
+  expect_equal(df$ep6@case_nm, c("Case","Recurrent", rep("Duplicate", 2), "Recurrent"))
+  expect_equal(df$ep6@wind_nm, rep("Recurrence", 5))
+})
+
+x <- c(1,6,7,8,10)
+df1 <- data.frame(x=x, rc=0)
+df1$cl <- number_line(9,10)
+df1$ep1 <- episode_group(df1, date =x, case_length = cl, recurrence_length = rc, episode_type = "rolling")
+df1$ep2 <- episode_group(df1, date =x, case_length = cl, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = F)
+
+x <- seq(1,20,3)
+df2 <- data.frame(x=x, rc=0)
+df2$ep <- number_line(6,6)
+df2$ep3 <- episode_group(df2, date =x, case_length = ep, recurrence_length = rc, episode_type = "rolling")
+df2$ep4 <- episode_group(df2, date =x, case_length = ep, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = F)
+
+test_that("test cut-off ranges", {
+  expect_equal(df1$ep1@.Data, c(1,2,3,4,1))
+  expect_equal(df1$ep1@wind_id, df1$ep1@.Data)
+  expect_equal(df1$ep1@case_nm, c("Case","Skipped","Skipped","Skipped","Duplicate"))
+  expect_equal(df1$ep1@wind_nm, c("Case","Skipped","Skipped","Skipped","Case"))
+
+  expect_equal(df1$ep1@.Data, df1$ep2@.Data)
+  expect_equal(df1$ep1@wind_id, df1$ep1@wind_id)
+  expect_equal(df1$ep2@case_nm, c(rep("Case",4),"Duplicate"))
+  expect_equal(df1$ep2@wind_nm, c(rep("Case",5)))
+
+  expect_equal(df2$ep3@.Data, c(1,2,1,4,5,4,7))
+  expect_equal(df2$ep3@.Data, df2$ep3@wind_id)
+  expect_equal(df2$ep3@wind_nm, c("Case","Skipped", "Case", "Case", "Skipped", "Case", "Case"))
+  expect_equal(df2$ep3@case_nm, c("Case","Skipped", "Duplicate", "Case", "Skipped", "Duplicate", "Case"))
+
+  expect_equal(df2$ep4@.Data, c(1,2,1,2,5,6,5))
+  expect_equal(df2$ep4@.Data, df2$ep4@wind_id)
+  expect_equal(df2$ep4@wind_nm, rep("Case",7))
+  expect_equal(df2$ep4@case_nm, c("Case","Case", "Duplicate","Duplicate", "Case", "Case", "Duplicate"))
+})

@@ -128,32 +128,33 @@
 
     <pre class="usage"><span class='fu'>episode_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>date</span>, <span class='no'>case_length</span>,
   <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>, <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>,
-  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>), <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recurrence_from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>skip_if_b4_lengths</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>,
+  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>, <span class='st'>"aligns_start"</span>,
+  <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>), <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recurrence_from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>case_for_recurrence</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
 
 <span class='fu'>fixed_episodes</span>(<span class='no'>date</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>case_length</span>,
-  <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>, <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>,
-  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>),
-  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"exact|across|chain|aligns_start|aligns_end|inbetween"</span>,
+  <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
+  <span class='kw'>skip_if_b4_lengths</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>,
+  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>, <span class='st'>"aligns_start"</span>,
+  <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>, <span class='st'>"overlap"</span>, <span class='st'>"none"</span>), <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
   <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>x</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)
 
 <span class='fu'>rolling_episodes</span>(<span class='no'>date</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>case_length</span>,
   <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>,
-  <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>, <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>, <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>,
-  <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>),
-  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"exact|across|chain|aligns_start|aligns_end|inbetween"</span>,
-  <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>x</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recurrence_from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>, <span class='kw'>skip_if_b4_lengths</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>, <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"exact"</span>,
+  <span class='st'>"across"</span>, <span class='st'>"inbetween"</span>, <span class='st'>"aligns_start"</span>, <span class='st'>"aligns_end"</span>, <span class='st'>"chain"</span>, <span class='st'>"overlap"</span>,
+  <span class='st'>"none"</span>), <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>, <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='no'>x</span>,
+  <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>recurrence_from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>case_for_recurrence</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
     
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -169,15 +170,17 @@
     </tr>
     <tr>
       <th>strata</th>
-      <td><p>Subsets of the dataset. Episode grouping will be done separately within each subset of the dataset. In <code>episode_group</code>, you can use multiple columns. <code><a href='record_group.html'>record_group</a></code> can create useful <code>strata</code> e.g. patient identifiers.</p></td>
+      <td><p>Subsets of the dataset. Episode grouping will be done separately within each subset of the dataset.
+In <code>episode_group</code>, you can use multiple columns. <code><a href='record_group.html'>record_group</a></code> can create useful <code>strata</code> e.g. patient identifiers.</p></td>
     </tr>
     <tr>
       <th>date</th>
-      <td><p>Date (<code>date</code>, <code>datetime</code> or <code>numeric</code>) or period (<code><a href='number_line.html'>number_line</a></code>) of events.</p></td>
+      <td><p>Event date (<code>date</code>, <code>datetime</code> or <code>numeric</code>) or period (<code><a href='number_line.html'>number_line</a></code>).</p></td>
     </tr>
     <tr>
       <th>case_length</th>
-      <td><p>Duration after a <code>"case"</code> within which subsequent events are considered <code>"duplicate"</code> events. This period is referred to as the the <code>case window</code>.</p></td>
+      <td><p>Duration after a <code>"case"</code> within which subsequent events are considered <code>"duplicate"</code> events.
+This period is referred to as the the <code>case window</code>. Can be a (<code><a href='number_line.html'>number_line</a></code>) range.</p></td>
     </tr>
     <tr>
       <th>episode_type</th>
@@ -193,43 +196,56 @@
     </tr>
     <tr>
       <th>recurrence_length</th>
-      <td><p>Duration after the last or first event (see <code>recurrence_from_last</code>) of the previous window within which subsequent events are considered <code>"recurrent"</code> events. This period is referred to as the <code>recurrence window</code>. If <code>recurrence_length</code> is not supplied, <code>case_length</code> is used as the <code>recurrence_length</code>.</p></td>
+      <td><p>Duration after the last or first event (see <code>recurrence_from_last</code>) of the previous window within which subsequent events are considered <code>"recurrent"</code> events.
+This period is referred to as the <code>recurrence window</code>. If <code>recurrence_length</code> is not supplied, it's assumed to be the same as <code>case_length</code>.
+Can be a (<code><a href='number_line.html'>number_line</a></code>) range.</p></td>
     </tr>
     <tr>
       <th>rolls_max</th>
       <td><p>Maximum number of times an episode can reoccur. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
     </tr>
     <tr>
+      <th>skip_if_b4_lengths</th>
+      <td><p>If <code>TRUE</code> (default), records <code>events</code> before the <code>case_length</code> or the <code>recurrence_length</code> range are skipped.</p></td>
+    </tr>
+    <tr>
       <th>data_source</th>
-      <td><p>Unique dataset identifier. Useful when the dataset contains data from multiple sources. In <code>episode_group</code>, you can use multiple columns supplied as column names.</p></td>
+      <td><p>Unique dataset identifier. Useful when the dataset contains data from multiple sources.
+In <code>episode_group</code>, you can use multiple columns supplied as column names.</p></td>
     </tr>
     <tr>
       <th>data_links</th>
-      <td><p>Ungroup episodes that will not include records from certain <code>data_sources</code>. <code>data_links</code> should be a <code>list</code> with every element named 'l' (links) or 'g' (groups). Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if <code>data_source</code> is <code>NULL</code>.</p></td>
+      <td><p>Breakup episodes that will not include records from these <code>data_sources</code>. <code>data_links</code> should be a <code>list</code> with every element named 'l' (links) or 'g' (groups).
+Useful in skipping episodes that are not required to minimise processing time. Ignored if <code>data_source</code> is <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>custom_sort</th>
-      <td><p>Preferential order for <code>"case"</code> assignment. Useful in specifying that episode grouping begins at particular events regardless of chronological order. In <code>episode_group</code>, you can use multiple columns as sort levels.</p></td>
+      <td><p>Preferential order for <code>"case"</code> assignment. Useful in specifying that episode grouping begins at particular events regardless of chronological order.
+In <code>episode_group</code>, you can use multiple columns as sort levels.</p></td>
     </tr>
     <tr>
       <th>skip_order</th>
-      <td><p>Skip episodes whose <code>case</code> events have <code>custom_sort</code> values that are less than or equal to the <code>"nth"</code> order of <code>custom_sort</code>. Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if <code>custom_sort</code> is <code>NULL</code>.</p></td>
+      <td><p>Skip episodes whose <code>case</code> events have <code>custom_sort</code> values that are less than or equal to the <code>"nth"</code> level of <code>custom_sort</code>.
+Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if <code>custom_sort</code> is <code>NULL</code>.</p></td>
     </tr>
     <tr>
       <th>from_last</th>
-      <td><p>If <code>TRUE</code>, episode grouping will be backwards in time - starting at the most recent event and proceeding to the earliest. If <code>FALSE</code>, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.</p></td>
+      <td><p>If <code>TRUE</code>, episode grouping will be backwards in time - starting at the most recent event and proceeding to the earliest.
+If <code>FALSE</code>, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.</p></td>
     </tr>
     <tr>
       <th>overlap_method</th>
-      <td><p>Methods of overlap considered when grouping event periods. Each pair of periods are checked with the same set of <code>overlap_method</code>. Deprecated use <code>overlap_methods</code> instead.</p></td>
+      <td><p>Methods of overlap considered when grouping event periods. Each pair of periods are checked with the same set of <code>overlap_method</code>.
+Deprecated please use <code>overlap_methods</code> instead.</p></td>
     </tr>
     <tr>
       <th>overlap_methods</th>
-      <td><p>Methods of overlap considered when grouping event periods. Different pairs of periods can be checked with different sets <code>overlap_methods</code></p></td>
+      <td><p>Methods of overlap considered when grouping event periods. Different pairs of periods can be checked with different sets of <code>overlap_methods</code></p></td>
     </tr>
     <tr>
       <th>bi_direction</th>
-      <td><p>If <code>FALSE</code>, <code>"duplicate"</code> events will be those within the <code>case_length</code> before <strong>or</strong> after the <code>"case"</code> as determined by <code>from_last</code>. If <code>TRUE</code>, <code>"duplicate"</code> events will be those within the same period before <strong>and</strong> after the <code>"case"</code>.</p></td>
+      <td><p>If <code>FALSE</code> (default), <code>"duplicate"</code> events will be those within the <code>case_length</code> before <strong>or</strong> after the <code>"case"</code> as determined by <code>from_last</code>.
+If <code>TRUE</code>, <code>"duplicate"</code> events will be those within the same period before <strong>and</strong> after the <code>"case"</code>.</p></td>
     </tr>
     <tr>
       <th>group_stats</th>
@@ -237,23 +253,25 @@
     </tr>
     <tr>
       <th>display</th>
-      <td><p>If <code>TRUE</code>, a progress message is printed on screen.</p></td>
+      <td><p>If <code>TRUE</code> (default), a progress message is printed on screen.</p></td>
     </tr>
     <tr>
       <th>deduplicate</th>
-      <td><p>if <code>TRUE</code>, <code>"dupilcate"</code> records are excluded from the output.</p></td>
+      <td><p>if <code>TRUE</code>, <code>"dupilcate"</code> events are excluded from the output.</p></td>
     </tr>
     <tr>
       <th>to_s4</th>
-      <td><p>if <code>TRUE</code>, changes the returned output to an <code><a href='epid-class.html'>epid</a></code> object.</p></td>
+      <td><p>If <code>TRUE</code> (default), episodes are returned as an <code><a href='epid-class.html'>epid</a></code> object.</p></td>
     </tr>
     <tr>
       <th>recurrence_from_last</th>
-      <td><p>if <code>TRUE</code>, the reference event for a <code>recurrence window</code> will be the last event from the previous window. If <code>FALSE</code> (default), it will be from the first event. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
+      <td><p>If <code>TRUE</code> (default), the reference event for a <code>recurrence window</code> will be the last event from the previous window.
+If <code>FALSE</code> (default), it will be the first event. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
     </tr>
     <tr>
       <th>case_for_recurrence</th>
-      <td><p>if <code>TRUE</code>, both case and recurrence events will have a <code>case window</code>. If <code>FALSE</code> (default), only <code>case events</code> will have a <code>case window</code>. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
+      <td><p>If <code>TRUE</code>, both case and recurrence events will have a <code>case window</code>.
+If <code>FALSE</code> (default), only <code>case events</code> will have a <code>case window</code>. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
     </tr>
     <tr>
       <th>x</th>
@@ -273,6 +291,9 @@
 <li><p><code>wind_id</code> - unique window identifier</p></li>
 <li><p><code>wind_nm</code> - type of window i.e. "Case" or "Recurrence"</p></li>
 <li><p><code>case_nm</code> - record type in regards to case assignment</p></li>
+<li><p><code>dist_from_wind</code> - duration of each event from its window's reference event</p></li>
+<li><p><code>dist_from_epid</code> - duration of each event from its episode's reference event</p></li>
+<li><p><code>epid_total</code> - number of records in each episode</p></li>
 <li><p><code>epid_dataset</code> - data sources in each episode</p></li>
 <li><p><code>epid_interval</code> - episode start and end dates. A <code><a href='number_line.html'>number_line</a></code> object.</p></li>
 <li><p><code>epid_length</code> - difference between episode start and end dates (<code>difftime</code>). If possible, it's the same unit as <code>episode_unit</code> otherwise, a difference in days is returned</p></li>
@@ -285,8 +306,8 @@
     <p>Episode grouping begins at a reference event (<code>"case"</code>) and proceeds forward or backward in time depending on <code>from_last</code>.
 If <code>custom_sort</code> is used, episode grouping can be forced to begin at certain events before proceeding forward or backwards in time.
 The maximum duration of a <code>"fixed"</code> episode is the <code>case_length</code>. This period is referred to as the <code>case window</code>. The maximum duration of a <code>"rolling"</code> episode is the
-<code>case_length</code> plus all recurrence periods. The recurrence periods are referred to as <code>recurrence windows</code>.
-This is a specified duration (<code>recurrence_length</code>) after the last or first (depending on <code>recurrence_from_last</code>) event from the previous window.
+<code>case_length</code> plus all periods of recurrence. The recurrence periods are referred to as <code>recurrence windows</code>.
+This is a specified duration (<code>recurrence_length</code>) after the last or first (depending on <code>recurrence_from_last</code>) event in the previous window.
 Events within this period are considered <code>"recurrent"</code> events.</p>
 <p>When a <code>data_source</code> identifier is provided,
 <code>epid_dataset</code> is included in the output. This lists the source of every event in each episode.</p>
@@ -295,237 +316,237 @@ They are convenient alternatives with the same functionalities.</p>
     
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='record_group.html'>record_group</a></code>, <code><a href='overlap.html'>overlap</a></code> and <code><a href='number_line.html'>number_line</a></code></p></div>
+    <div class='dont-index'><p><code><a href='record_group.html'>record_group</a></code>, <code><a href='overlaps.html'>overlaps</a></code> and <code><a href='number_line.html'>number_line</a></code></p></div>
     
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>diyar</span>)
 
 <span class='co'>#1. Fixed episodes</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>infections</span>); <span class='no'>infections</span></div><div class='output co'>#&gt; <span style='color: #555555;'># A tibble: 11 x 4</span><span>
-#&gt;    rd_id date       infection epi_len
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15</div><div class='input'><span class='no'>db_1</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
+<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>infections</span>); <span class='no'>infections</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len
+#&gt; 1      1 2018-04-01       BSI      15
+#&gt; 2      2 2018-04-07       UTI      15
+#&gt; 3      3 2018-04-13       UTI      15
+#&gt; 4      4 2018-04-19       UTI      15
+#&gt; 5      5 2018-04-25       BSI      15
+#&gt; 6      6 2018-05-01       UTI      15
+#&gt; 7      7 2018-05-07       BSI      15
+#&gt; 8      8 2018-05-13       BSI      15
+#&gt; 9      9 2018-05-19       RTI      15
+#&gt; 10    10 2018-05-25       RTI      15
+#&gt; 11    11 2018-05-31       BSI      15</div><div class='input'><span class='no'>db_1</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 <span class='co'># 16-day (difference of 15 days) episodes beginning from the earliest record</span>
-<span class='no'>db_1</span>$<span class='no'>fd</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='co'># 16-hour (difference of 15 hours) episodes beginning from the earliest record</span>
+<span class='no'>db_1</span>$<span class='no'>fd</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='co'># 16-hour (difference of 15 hours) episodes beginning from the earliest record</span>
 <span class='no'>db_1</span>$<span class='no'>fh</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"hours"</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 11 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_1</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 6</span><span>
-#&gt;    rd_id date       infection epi_len fd       fh      
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.01 (C) E.01 (C)
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.01 (D) E.02 (C)
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.01 (D) E.03 (C)
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.04 (C) E.04 (C)
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.04 (D) E.05 (C)
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.04 (D) E.06 (C)
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.07 (C) E.07 (C)
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.07 (D) E.08 (C)
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.07 (D) E.09 (C)
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.10 (C) E.10 (C)
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.10 (D) E.11 (C)</div><div class='input'>
+<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"hours"</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 11 record(s) with unique IDs. </div><div class='input'><span class='no'>db_1</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len       fd       fh
+#&gt; 1      1 2018-04-01       BSI      15 E.01 (C) E.01 (C)
+#&gt; 2      2 2018-04-07       UTI      15 E.01 (D) E.02 (C)
+#&gt; 3      3 2018-04-13       UTI      15 E.01 (D) E.03 (C)
+#&gt; 4      4 2018-04-19       UTI      15 E.04 (C) E.04 (C)
+#&gt; 5      5 2018-04-25       BSI      15 E.04 (D) E.05 (C)
+#&gt; 6      6 2018-05-01       UTI      15 E.04 (D) E.06 (C)
+#&gt; 7      7 2018-05-07       BSI      15 E.07 (C) E.07 (C)
+#&gt; 8      8 2018-05-13       BSI      15 E.07 (D) E.08 (C)
+#&gt; 9      9 2018-05-19       RTI      15 E.07 (D) E.09 (C)
+#&gt; 10    10 2018-05-25       RTI      15 E.10 (C) E.10 (C)
+#&gt; 11    11 2018-05-31       BSI      15 E.10 (D) E.11 (C)</div><div class='input'>
 <span class='co'>#2. Rolling episodes</span>
 <span class='co'># Case length and recurrence periods of 16 days</span>
-<span class='no'>db_1</span>$<span class='no'>rd_a</span> <span class='kw'>&lt;-</span> <span class='fu'>rolling_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='co'># Case length of 16 days and recurrence periods of 11 days</span>
+<span class='no'>db_1</span>$<span class='no'>rd_a</span> <span class='kw'>&lt;-</span> <span class='fu'>rolling_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='co'># Case length of 16 days and recurrence periods of 11 days</span>
 <span class='no'>db_1</span>$<span class='no'>rd_b</span> <span class='kw'>&lt;-</span> <span class='fu'>rolling_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-<span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='co'># Case length of 16 days and 2 recurrence periods of 11 days</span>
+<span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='co'># Case length of 16 days and 2 recurrence periods of 11 days</span>
 <span class='no'>db_1</span>$<span class='no'>rd_c</span> <span class='kw'>&lt;-</span> <span class='fu'>rolling_episodes</span>(<span class='no'>db_1</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-<span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_1</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 9</span><span>
-#&gt;    rd_id date       infection epi_len fd       fh       rd_a    rd_b    rd_c   
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span> 
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.01 (C) E.01 (C) E.1 (C) E.1 (C) E.1 (C)
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.01 (D) E.02 (C) E.1 (D) E.1 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.01 (D) E.03 (C) E.1 (D) E.1 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.04 (C) E.04 (C) E.1 (R) E.1 (R) E.1 (R)
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.04 (D) E.05 (C) E.1 (D) E.1 (R) E.1 (R)
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.04 (D) E.06 (C) E.1 (R) E.1 (R) E.6 (C)
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.07 (C) E.07 (C) E.1 (D) E.1 (R) E.6 (D)
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.07 (D) E.08 (C) E.1 (R) E.1 (R) E.6 (D)
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.07 (D) E.09 (C) E.1 (D) E.1 (R) E.9 (C)
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.10 (C) E.10 (C) E.1 (R) E.1 (R) E.9 (D)
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.10 (D) E.11 (C) E.1 (D) E.1 (R) E.9 (D)</div><div class='input'>
+<span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 1 record(s) with unique IDs. </div><div class='input'><span class='no'>db_1</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len       fd       fh    rd_a    rd_b
+#&gt; 1      1 2018-04-01       BSI      15 E.01 (C) E.01 (C) E.1 (C) E.1 (C)
+#&gt; 2      2 2018-04-07       UTI      15 E.01 (D) E.02 (C) E.1 (D) E.1 (D)
+#&gt; 3      3 2018-04-13       UTI      15 E.01 (D) E.03 (C) E.1 (D) E.1 (D)
+#&gt; 4      4 2018-04-19       UTI      15 E.04 (C) E.04 (C) E.1 (R) E.1 (R)
+#&gt; 5      5 2018-04-25       BSI      15 E.04 (D) E.05 (C) E.1 (D) E.1 (R)
+#&gt; 6      6 2018-05-01       UTI      15 E.04 (D) E.06 (C) E.1 (R) E.1 (R)
+#&gt; 7      7 2018-05-07       BSI      15 E.07 (C) E.07 (C) E.1 (D) E.1 (R)
+#&gt; 8      8 2018-05-13       BSI      15 E.07 (D) E.08 (C) E.1 (R) E.1 (R)
+#&gt; 9      9 2018-05-19       RTI      15 E.07 (D) E.09 (C) E.1 (D) E.1 (R)
+#&gt; 10    10 2018-05-25       RTI      15 E.10 (C) E.10 (C) E.1 (R) E.1 (R)
+#&gt; 11    11 2018-05-31       BSI      15 E.10 (D) E.11 (C) E.1 (D) E.1 (R)
+#&gt;        rd_c
+#&gt; 1  E.01 (C)
+#&gt; 2  E.01 (D)
+#&gt; 3  E.01 (D)
+#&gt; 4  E.01 (R)
+#&gt; 5  E.01 (R)
+#&gt; 6  E.06 (C)
+#&gt; 7  E.06 (D)
+#&gt; 8  E.06 (D)
+#&gt; 9  E.06 (R)
+#&gt; 10 E.06 (R)
+#&gt; 11 E.11 (C)</div><div class='input'>
 <span class='co'># 3. Stratified episode grouping</span>
 <span class='no'>db_3</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 
 <span class='no'>db_3</span>$<span class='no'>patient_id</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"PID 1"</span>,<span class='fl'>8</span>), <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/rep'>rep</a></span>(<span class='st'>"PID 2"</span>,<span class='fl'>3</span>))
 <span class='co'># One 16-day episode per patient</span>
 <span class='no'>db_3</span>$<span class='no'>epids_p</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='kw'>date</span><span class='kw'>=</span><span class='no'>db_3</span>$<span class='no'>date</span>, <span class='kw'>strata</span> <span class='kw'>=</span> <span class='no'>db_3</span>$<span class='no'>patient_id</span>,
-<span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 5 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_3</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 6</span><span>
-#&gt;    rd_id date       infection epi_len patient_id epids_p
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>      </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span> 
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 PID 1      E.1 (C)
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 PID 1      E.1 (D)
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 PID 1      E.1 (D)
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 PID 1      E.4 (S)
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 PID 1      E.5 (S)
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 PID 1      E.6 (S)
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 PID 1      E.7 (S)
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 PID 1      E.8 (S)
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 PID 2      E.9 (C)
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 PID 2      E.9 (D)
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 PID 2      E.9 (D)</div><div class='input'>
+<span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>, <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; 5 record(s); 5 skipped
+#&gt; Episode grouping complete - 5 record(s) with unique IDs. </div><div class='input'><span class='no'>db_3</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len patient_id epids_p
+#&gt; 1      1 2018-04-01       BSI      15      PID 1 E.1 (C)
+#&gt; 2      2 2018-04-07       UTI      15      PID 1 E.1 (D)
+#&gt; 3      3 2018-04-13       UTI      15      PID 1 E.1 (D)
+#&gt; 4      4 2018-04-19       UTI      15      PID 1 E.4 (S)
+#&gt; 5      5 2018-04-25       BSI      15      PID 1 E.5 (S)
+#&gt; 6      6 2018-05-01       UTI      15      PID 1 E.6 (S)
+#&gt; 7      7 2018-05-07       BSI      15      PID 1 E.7 (S)
+#&gt; 8      8 2018-05-13       BSI      15      PID 1 E.8 (S)
+#&gt; 9      9 2018-05-19       RTI      15      PID 2 E.9 (C)
+#&gt; 10    10 2018-05-25       RTI      15      PID 2 E.9 (D)
+#&gt; 11    11 2018-05-31       BSI      15      PID 2 E.9 (D)</div><div class='input'>
 <span class='co'># 4. Case assignment</span>
 <span class='no'>db_4</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 
 <span class='co'>## 4.1 Chronological order</span>
 <span class='no'>db_4</span>$<span class='no'>forward_time</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4</span>$<span class='no'>backward_time</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 6</span><span>
-#&gt;    rd_id date       infection epi_len forward_time backward_time
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>       
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15 E.1 (C)      E.05 (D)     
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15 E.1 (D)      E.05 (D)     
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15 E.1 (D)      E.05 (D)     
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15 E.1 (D)      E.05 (D)     
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15 E.1 (D)      E.05 (C)     
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15 E.1 (D)      E.11 (D)     
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15 E.7 (C)      E.11 (D)     
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15 E.7 (D)      E.11 (D)     
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15 E.7 (D)      E.11 (D)     
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15 E.7 (D)      E.11 (D)     
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15 E.7 (D)      E.11 (C)     </div><div class='input'>
+<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>db_4</span>$<span class='no'>backward_time</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>1</span>,
+<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>db_4</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len forward_time backward_time
+#&gt; 1      1 2018-04-01       BSI      15      E.1 (C)      E.05 (D)
+#&gt; 2      2 2018-04-07       UTI      15      E.1 (D)      E.05 (D)
+#&gt; 3      3 2018-04-13       UTI      15      E.1 (D)      E.05 (D)
+#&gt; 4      4 2018-04-19       UTI      15      E.1 (D)      E.05 (D)
+#&gt; 5      5 2018-04-25       BSI      15      E.1 (D)      E.05 (C)
+#&gt; 6      6 2018-05-01       UTI      15      E.1 (D)      E.11 (D)
+#&gt; 7      7 2018-05-07       BSI      15      E.7 (C)      E.11 (D)
+#&gt; 8      8 2018-05-13       BSI      15      E.7 (D)      E.11 (D)
+#&gt; 9      9 2018-05-19       RTI      15      E.7 (D)      E.11 (D)
+#&gt; 10    10 2018-05-25       RTI      15      E.7 (D)      E.11 (D)
+#&gt; 11    11 2018-05-31       BSI      15      E.7 (D)      E.11 (C)</div><div class='input'>
 <span class='co'>## 4.2 User defined order</span>
 <span class='no'>db_4b</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
-<span class='no'>db_4b</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 4</span><span>
-#&gt;    rd_id date       infection epi_len
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15</div><div class='input'><span class='co'># RTI &gt; UTI, or RTI &gt; BSI</span>
+<span class='no'>db_4b</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len
+#&gt; 1      1 2018-04-01       BSI      15
+#&gt; 2      2 2018-04-07       UTI      15
+#&gt; 3      3 2018-04-13       UTI      15
+#&gt; 4      4 2018-04-19       UTI      15
+#&gt; 5      5 2018-04-25       BSI      15
+#&gt; 6      6 2018-05-01       UTI      15
+#&gt; 7      7 2018-05-07       BSI      15
+#&gt; 8      8 2018-05-13       BSI      15
+#&gt; 9      9 2018-05-19       RTI      15
+#&gt; 10    10 2018-05-25       RTI      15
+#&gt; 11    11 2018-05-31       BSI      15</div><div class='input'><span class='co'># RTI &gt; UTI, or RTI &gt; BSI</span>
 <span class='no'>db_4b</span>$<span class='no'>ord1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/ifelse'>ifelse</a></span>(<span class='no'>db_4b</span>$<span class='no'>infection</span> <span class='kw'>==</span><span class='st'>"RTI"</span>,<span class='fl'>0</span>,<span class='fl'>1</span>)
 <span class='co'># UTI &gt; BSI &gt; RTI</span>
 <span class='no'>db_4b</span>$<span class='no'>ord2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/factor'>factor</a></span>(<span class='no'>db_4b</span>$<span class='no'>infection</span>, <span class='kw'>levels</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"UTI"</span>,<span class='st'>"BSI"</span>,<span class='st'>"RTI"</span>))
 
 <span class='no'>db_4b</span>$<span class='no'>epids_1</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4b</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-<span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord1</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4b</span>$<span class='no'>epids_2</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4b</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-<span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord2</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 3 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4b</span>$<span class='no'>epids_2b</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4b</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-<span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord2</span>, <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_4b</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 9</span><span>
-#&gt;    rd_id date       infection epi_len  ord1 ord2  epids_1 epids_2  epids_2b
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;fct&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>  
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15     1 BSI   E.1 (C) E.01 (C) E.02 (D)
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15     1 UTI   E.1 (D) E.02 (C) E.02 (C)
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15     1 UTI   E.1 (D) E.02 (D) E.02 (D)
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15     1 UTI   E.4 (C) E.02 (D) E.02 (D)
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15     1 BSI   E.4 (D) E.05 (C) E.06 (D)
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15     1 UTI   E.4 (D) E.06 (C) E.06 (C)
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15     1 BSI   E.7 (C) E.06 (D) E.06 (D)
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15     1 BSI   E.7 (D) E.06 (D) E.06 (D)
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15     0 RTI   E.9 (C) E.09 (C) E.11 (D)
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15     0 RTI   E.9 (D) E.09 (D) E.11 (D)
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15     1 BSI   E.9 (D) E.11 (C) E.11 (C)</div><div class='input'>
+<span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord1</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>db_4b</span>$<span class='no'>epids_2</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4b</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
+<span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord2</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 3 record(s) with unique IDs. </div><div class='input'><span class='no'>db_4b</span>$<span class='no'>epids_2b</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='no'>db_4b</span>$<span class='no'>date</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
+<span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='no'>db_4b</span>$<span class='no'>ord2</span>, <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>db_4b</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len ord1 ord2 epids_1  epids_2 epids_2b
+#&gt; 1      1 2018-04-01       BSI      15    1  BSI E.1 (C) E.01 (C) E.02 (D)
+#&gt; 2      2 2018-04-07       UTI      15    1  UTI E.1 (D) E.02 (C) E.02 (C)
+#&gt; 3      3 2018-04-13       UTI      15    1  UTI E.1 (D) E.02 (D) E.02 (D)
+#&gt; 4      4 2018-04-19       UTI      15    1  UTI E.4 (C) E.02 (D) E.02 (D)
+#&gt; 5      5 2018-04-25       BSI      15    1  BSI E.4 (D) E.05 (C) E.06 (D)
+#&gt; 6      6 2018-05-01       UTI      15    1  UTI E.4 (D) E.06 (C) E.06 (C)
+#&gt; 7      7 2018-05-07       BSI      15    1  BSI E.7 (C) E.06 (D) E.06 (D)
+#&gt; 8      8 2018-05-13       BSI      15    1  BSI E.7 (D) E.06 (D) E.06 (D)
+#&gt; 9      9 2018-05-19       RTI      15    0  RTI E.9 (C) E.09 (C) E.11 (D)
+#&gt; 10    10 2018-05-25       RTI      15    0  RTI E.9 (D) E.09 (D) E.11 (D)
+#&gt; 11    11 2018-05-31       BSI      15    1  BSI E.9 (D) E.11 (C) E.11 (C)</div><div class='input'>
 <span class='co'>#5. Interval grouping</span>
 <span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>hospital_admissions</span>)
 
 <span class='no'>hospital_admissions</span>$<span class='no'>admin_period</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>hospital_admissions</span>$<span class='no'>admin_dt</span>,
 <span class='no'>hospital_admissions</span>$<span class='no'>discharge_dt</span>)
 <span class='no'>admissions</span> <span class='kw'>&lt;-</span> <span class='no'>hospital_admissions</span>[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"admin_period"</span>,<span class='st'>"epi_len"</span>)]
-<span class='no'>admissions</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 2</span><span>
-#&gt;    admin_period             epi_len
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span>
-#&gt; </span><span style='color: #555555;'> 1</span><span> 2019-01-01 == 2019-01-01       0
-#&gt; </span><span style='color: #555555;'> 2</span><span> 2019-01-01 -&gt; 2019-01-10       0
-#&gt; </span><span style='color: #555555;'> 3</span><span> 2019-01-10 -&gt; 2019-01-13       0
-#&gt; </span><span style='color: #555555;'> 4</span><span> 2019-01-05 -&gt; 2019-01-06       0
-#&gt; </span><span style='color: #555555;'> 5</span><span> 2019-01-05 -&gt; 2019-01-15       0
-#&gt; </span><span style='color: #555555;'> 6</span><span> 2019-01-07 -&gt; 2019-01-15       0
-#&gt; </span><span style='color: #555555;'> 7</span><span> 2019-01-04 -&gt; 2019-01-13       0
-#&gt; </span><span style='color: #555555;'> 8</span><span> 2019-01-20 -&gt; 2019-01-30       0
-#&gt; </span><span style='color: #555555;'> 9</span><span> 2019-01-26 -&gt; 2019-01-31       0
-#&gt; </span><span style='color: #555555;'>10</span><span> 2019-01-01 -&gt; 2019-01-10       0
-#&gt; </span><span style='color: #555555;'>11</span><span> 2019-01-20 -&gt; 2019-01-30       0</div><div class='input'>
+<span class='no'>admissions</span></div><div class='output co'>#&gt;                admin_period epi_len
+#&gt; 1  2019-01-01 == 2019-01-01       0
+#&gt; 2  2019-01-01 -&gt; 2019-01-10       0
+#&gt; 3  2019-01-10 -&gt; 2019-01-13       0
+#&gt; 4  2019-01-05 -&gt; 2019-01-06       0
+#&gt; 5  2019-01-05 -&gt; 2019-01-15       0
+#&gt; 6  2019-01-07 -&gt; 2019-01-15       0
+#&gt; 7  2019-01-04 -&gt; 2019-01-13       0
+#&gt; 8  2019-01-20 -&gt; 2019-01-30       0
+#&gt; 9  2019-01-26 -&gt; 2019-01-31       0
+#&gt; 10 2019-01-01 -&gt; 2019-01-10       0
+#&gt; 11 2019-01-20 -&gt; 2019-01-30       0</div><div class='input'>
 <span class='co'># Episodes of overlaping periods of admission</span>
 <span class='no'>admissions</span>$<span class='no'>epi_0</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='kw'>date</span><span class='kw'>=</span><span class='no'>admissions</span>$<span class='no'>admin_period</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>0</span>,
 <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>to_s4</span><span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; Episode or recurrence window 1.
-#&gt; 8 of 11 record(s) grouped into episodes. 3 records not yet grouped.
+#&gt; 11 record(s); 8 grouped to episodes and 3 left to group.
 #&gt; Episode or recurrence window 2.
-#&gt; 3 of 3 record(s) grouped into episodes. 0 records not yet grouped.
+#&gt; 3 record(s); 3 grouped to episodes and 0 left to group.
 #&gt; 
-#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>admissions</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 3</span><span>
-#&gt;    admin_period             epi_len epi_0                           
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                          
-#&gt; </span><span style='color: #555555;'> 1</span><span> 2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 2</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C)
-#&gt; </span><span style='color: #555555;'> 3</span><span> 2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 4</span><span> 2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 5</span><span> 2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 6</span><span> 2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 7</span><span> 2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 8</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C)
-#&gt; </span><span style='color: #555555;'> 9</span><span> 2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
-#&gt; </span><span style='color: #555555;'>10</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'>11</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)</div><div class='input'>
+#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>admissions</span></div><div class='output co'>#&gt;                admin_period epi_len                            epi_0
+#&gt; 1  2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 2  2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C)
+#&gt; 3  2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 4  2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 5  2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 6  2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 7  2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 8  2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C)
+#&gt; 9  2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
+#&gt; 10 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 11 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)</div><div class='input'>
 <span class='co'># Overlaping periods of admission seperated by 1 month</span>
 <span class='no'>admissions</span>$<span class='no'>epi_1</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='kw'>date</span><span class='kw'>=</span><span class='no'>admissions</span>$<span class='no'>admin_period</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>admissions</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 4</span><span>
-#&gt;    admin_period             epi_len epi_0                           
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;numbr_ln&gt;</span><span>                 </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                          
-#&gt; </span><span style='color: #555555;'> 1</span><span> 2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 2</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C)
-#&gt; </span><span style='color: #555555;'> 3</span><span> 2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 4</span><span> 2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 5</span><span> 2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 6</span><span> 2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 7</span><span> 2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 8</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C)
-#&gt; </span><span style='color: #555555;'> 9</span><span> 2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
-#&gt; </span><span style='color: #555555;'>10</span><span> 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'>11</span><span> 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
-#&gt; </span><span style='color: #555555;'># ... with 1 more variable: epi_1 </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span></div><div class='input'>
+<span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"months"</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>admissions</span></div><div class='output co'>#&gt;                admin_period epi_len                            epi_0
+#&gt; 1  2019-01-01 == 2019-01-01       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 2  2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (C)
+#&gt; 3  2019-01-10 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 4  2019-01-05 -&gt; 2019-01-06       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 5  2019-01-05 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 6  2019-01-07 -&gt; 2019-01-15       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 7  2019-01-04 -&gt; 2019-01-13       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 8  2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (C)
+#&gt; 9  2019-01-26 -&gt; 2019-01-31       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
+#&gt; 10 2019-01-01 -&gt; 2019-01-10       0 E.2 2019-01-01 -&gt; 2019-01-15 (D)
+#&gt; 11 2019-01-20 -&gt; 2019-01-30       0 E.8 2019-01-20 -&gt; 2019-01-31 (D)
+#&gt;                               epi_1
+#&gt; 1  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 2  E.2 2019-01-01 -&gt; 2019-01-31 (C)
+#&gt; 3  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 4  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 5  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 6  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 7  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 8  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 9  E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 10 E.2 2019-01-01 -&gt; 2019-01-31 (D)
+#&gt; 11 E.2 2019-01-01 -&gt; 2019-01-31 (D)</div><div class='input'>
 <span class='co'># Episodes of chained admission periods, and those with aligned end periods</span>
 <span class='no'>admissions</span>$<span class='no'>epi_0b</span> <span class='kw'>&lt;-</span> <span class='fu'>fixed_episodes</span>(<span class='kw'>date</span><span class='kw'>=</span><span class='no'>admissions</span>$<span class='no'>admin_period</span>, <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-<span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"chain|aligns_end"</span>), <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 7 record(s) assinged a unique ID. </div><div class='input'><span class='no'>admissions</span>[<span class='st'>"epi_0b"</span>]</div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 1</span><span>
-#&gt;    epi_0b                           
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>                           
-#&gt; </span><span style='color: #555555;'> 1</span><span> E.01 2019-01-01 == 2019-01-01 (C)
-#&gt; </span><span style='color: #555555;'> 2</span><span> E.02 2019-01-01 -&gt; 2019-01-13 (C)
-#&gt; </span><span style='color: #555555;'> 3</span><span> E.02 2019-01-01 -&gt; 2019-01-13 (D)
-#&gt; </span><span style='color: #555555;'> 4</span><span> E.04 2019-01-05 -&gt; 2019-01-06 (C)
-#&gt; </span><span style='color: #555555;'> 5</span><span> E.05 2019-01-05 -&gt; 2019-01-15 (C)
-#&gt; </span><span style='color: #555555;'> 6</span><span> E.05 2019-01-05 -&gt; 2019-01-15 (D)
-#&gt; </span><span style='color: #555555;'> 7</span><span> E.07 2019-01-04 -&gt; 2019-01-13 (C)
-#&gt; </span><span style='color: #555555;'> 8</span><span> E.08 2019-01-20 -&gt; 2019-01-30 (C)
-#&gt; </span><span style='color: #555555;'> 9</span><span> E.09 2019-01-26 -&gt; 2019-01-31 (C)
-#&gt; </span><span style='color: #555555;'>10</span><span> E.10 2019-01-01 -&gt; 2019-01-10 (C)
-#&gt; </span><span style='color: #555555;'>11</span><span> E.11 2019-01-20 -&gt; 2019-01-30 (C)</div><div class='input'>
+<span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"chain|aligns_end"</span>), <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 7 record(s) with unique IDs. </div><div class='input'><span class='no'>admissions</span>[<span class='st'>"epi_0b"</span>]</div><div class='output co'>#&gt;                               epi_0b
+#&gt; 1  E.01 2019-01-01 == 2019-01-01 (C)
+#&gt; 2  E.02 2019-01-01 -&gt; 2019-01-13 (C)
+#&gt; 3  E.02 2019-01-01 -&gt; 2019-01-13 (D)
+#&gt; 4  E.04 2019-01-05 -&gt; 2019-01-06 (C)
+#&gt; 5  E.05 2019-01-05 -&gt; 2019-01-15 (C)
+#&gt; 6  E.05 2019-01-05 -&gt; 2019-01-15 (D)
+#&gt; 7  E.07 2019-01-04 -&gt; 2019-01-13 (C)
+#&gt; 8  E.08 2019-01-20 -&gt; 2019-01-30 (C)
+#&gt; 9  E.09 2019-01-26 -&gt; 2019-01-31 (C)
+#&gt; 10 E.10 2019-01-01 -&gt; 2019-01-10 (S)
+#&gt; 11 E.11 2019-01-20 -&gt; 2019-01-30 (S)</div><div class='input'>
 
 <span class='co'># Note - episode_group() takes column names not actual values</span>
 <span class='no'>db_5</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 
 <span class='no'>db_5</span>$<span class='no'>recur</span> <span class='kw'>&lt;-</span> <span class='fl'>20</span>
 <span class='no'>db_5</span>$<span class='no'>epids_f</span> <span class='kw'>&lt;-</span> <span class='fu'>episode_group</span>(<span class='no'>db_5</span>, <span class='kw'>date</span><span class='kw'>=</span><span class='no'>date</span>, <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>,
-<span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_5</span>$<span class='no'>epids_r</span> <span class='kw'>&lt;-</span> <span class='fu'>episode_group</span>(<span class='no'>db_5</span>, <span class='kw'>date</span><span class='kw'>=</span><span class='no'>date</span>, <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"rolling"</span>,
-<span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='no'>recur</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) assinged a unique ID. </div><div class='input'><span class='no'>db_5</span></div><div class='output co'>#&gt; </span><span style='color: #555555;'># A tibble: 11 x 7</span><span>
-#&gt;    rd_id date       infection epi_len recur epids_f  epids_r
-#&gt;    </span><span style='color: #555555;font-style: italic;'>&lt;int&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;date&gt;</span><span>     </span><span style='color: #555555;font-style: italic;'>&lt;chr&gt;</span><span>       </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;dbl&gt;</span><span> </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span>   </span><span style='color: #555555;font-style: italic;'>&lt;epid&gt;</span><span> 
-#&gt; </span><span style='color: #555555;'> 1</span><span>     1 2018-04-01 BSI            15    20 E.01 (C) E.1 (C)
-#&gt; </span><span style='color: #555555;'> 2</span><span>     2 2018-04-07 UTI            15    20 E.01 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'> 3</span><span>     3 2018-04-13 UTI            15    20 E.01 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'> 4</span><span>     4 2018-04-19 UTI            15    20 E.04 (C) E.1 (R)
-#&gt; </span><span style='color: #555555;'> 5</span><span>     5 2018-04-25 BSI            15    20 E.04 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'> 6</span><span>     6 2018-05-01 UTI            15    20 E.04 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'> 7</span><span>     7 2018-05-07 BSI            15    20 E.07 (C) E.1 (R)
-#&gt; </span><span style='color: #555555;'> 8</span><span>     8 2018-05-13 BSI            15    20 E.07 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'> 9</span><span>     9 2018-05-19 RTI            15    20 E.07 (D) E.1 (D)
-#&gt; </span><span style='color: #555555;'>10</span><span>    10 2018-05-25 RTI            15    20 E.10 (C) E.1 (R)
-#&gt; </span><span style='color: #555555;'>11</span><span>    11 2018-05-31 BSI            15    20 E.10 (D) E.1 (D)</div><div class='input'>
-</div></span></pre>
+<span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>db_5</span>$<span class='no'>epids_r</span> <span class='kw'>&lt;-</span> <span class='fu'>episode_group</span>(<span class='no'>db_5</span>, <span class='kw'>date</span><span class='kw'>=</span><span class='no'>date</span>, <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"rolling"</span>,
+<span class='kw'>case_length</span> <span class='kw'>=</span> <span class='no'>epi_len</span>, <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='no'>recur</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; Episode grouping complete - 0 record(s) with unique IDs. </div><div class='input'><span class='no'>db_5</span></div><div class='output co'>#&gt;    rd_id       date infection epi_len recur  epids_f epids_r
+#&gt; 1      1 2018-04-01       BSI      15    20 E.01 (C) E.1 (C)
+#&gt; 2      2 2018-04-07       UTI      15    20 E.01 (D) E.1 (D)
+#&gt; 3      3 2018-04-13       UTI      15    20 E.01 (D) E.1 (D)
+#&gt; 4      4 2018-04-19       UTI      15    20 E.04 (C) E.1 (R)
+#&gt; 5      5 2018-04-25       BSI      15    20 E.04 (D) E.1 (D)
+#&gt; 6      6 2018-05-01       UTI      15    20 E.04 (D) E.1 (D)
+#&gt; 7      7 2018-05-07       BSI      15    20 E.07 (C) E.1 (R)
+#&gt; 8      8 2018-05-13       BSI      15    20 E.07 (D) E.1 (D)
+#&gt; 9      9 2018-05-19       RTI      15    20 E.07 (D) E.1 (D)
+#&gt; 10    10 2018-05-25       RTI      15    20 E.10 (C) E.1 (R)
+#&gt; 11    11 2018-05-31       BSI      15    20 E.10 (D) E.1 (D)</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
     <h2>Contents</h2>

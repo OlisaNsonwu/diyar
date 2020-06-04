@@ -37,6 +37,8 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     dfp$date <- dfp$dt_z <- dfp$dt_a <- 1:nrow(dfp) * 3
   }
 
+  dfp$int <- as.number_line(dfp$date)
+
   # Sort chronologically
   dfp <- dfp[order(dfp$epid, dfp$dt_a, dfp$dt_z),]
 
@@ -53,18 +55,35 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     )
   }
 
-
   # lengths
   if(is.null(case_length)){
-    dfp$c <- 0
+    dfp$ep_l <- dfp$c <- 0
   }else{
-    dfp$c <- case_length
+    if(any(class(case_length) %in% c("number_line"))){
+      dfp$ep_l <- dfp$c <- diyar::reverse_number_line(case_length, "decreasing")
+    }else{
+      dfp$c <- diyar::as.number_line(case_length)
+      dfp$ep_l <- number_line(rep(0, length(dfp$c)), left_point(dfp$c))
+      dfp$c[dfp$c@start <0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start <0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start <0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start<0 & dfp$c@.Data ==0]))
+      dfp$c[dfp$c@start>=0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start>=0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start>=0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start>=0 & dfp$c@.Data ==0]))
+      dfp$c <- diyar::reverse_number_line(dfp$c, "decreasing")
+      dfp$ep_l <- diyar::reverse_number_line(dfp$ep_l, "decreasing")
+    }
   }
 
   if(is.null(recurrence_length)){
-    dfp$r <- 0
+    dfp$rc_l <- dfp$r <- 0
   }else{
-    dfp$r <- recurrence_length
+    if(any(class(recurrence_length) %in% c("number_line"))){
+      dfp$rc_l <- dfp$r <- diyar::reverse_number_line(recurrence_length, "decreasing")
+    }else{
+      dfp$r <- diyar::as.number_line(recurrence_length)
+      dfp$rc_l <- number_line(rep(0, length(dfp$r)), left_point(dfp$r))
+      dfp$r[dfp$r@start <0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start <0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start <0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start<0 & dfp$r@.Data ==0]))
+      dfp$r[dfp$r@start>=0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start>=0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start>=0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start>=0 & dfp$r@.Data ==0]))
+      dfp$r <- diyar::reverse_number_line(dfp$r, "decreasing")
+      dfp$rc_l <- diyar::reverse_number_line(dfp$rc_l, "decreasing")
+    }
   }
 
   # Separate plots per strata
@@ -206,74 +225,99 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
 
     # case lengths
     cl <- dfp[dfp$sn %in% unique(dfp$wind_id[dfp$wind_nm=="Case"]),]
+    cl$case_len_y_axis <- cl$case_len_y_axis - (1:nrow(cl) * (scale_fac * 0.03))
+
     if(nrow(cl)>0 & !is.null(case_length)){
-      # episode start and end dates
-      # re-calculated because it may not be supplied
-      cl$e_dt_a <- as.numeric(lapply(split(cl$dt_a, cl$epid), min)[as.character(cl$epid)])
-      cl$e_dt_z <- as.numeric(lapply(split(cl$dt_z, cl$epid), max)[as.character(cl$epid)])
+      # #episode start and end dates
+      # cl$e_dt_a <- as.numeric(lapply(split(cl$dt_a, cl$epid), min)[as.character(cl$epid)])
+      # cl$e_dt_z <- as.numeric(lapply(split(cl$dt_z, cl$epid), max)[as.character(cl$epid)])
 
-      cl$dt <- as.numeric(cl$dt_z)
-      cl$end_dt <- as.numeric(cl$dt + ifelse(from_last==F, cl$c, -cl$c))
-
-      cl$dt2 <- as.numeric(cl$dt_a)
-      cl$end_dt2 <- as.numeric(cl$dt2 - ifelse(from_last==F, cl$c, -cl$c))
+      # cl$dt <- as.numeric(cl$dt_z)
+      # cl$end_dt <- as.numeric(cl$dt + ifelse(from_last==F, right_point(cl$c), -right_point(cl$c)))
+      # cl$end_dt.5 <- as.numeric(cl$dt + ifelse(from_last==F, left_point(cl$c), -left_point(cl$c)))
+      #
+      # cl$dt2 <- as.numeric(cl$dt_a)
+      # cl$end_dt2 <- as.numeric(cl$dt2 - ifelse(from_last==F, right_point(cl$c), -right_point(cl$c)))
 
       # spacing
       dfp$case_len_y_axis <- dfp$case_len_y_axis + (0.02 * ((1:nrow(dfp))-1))
-      cl$lab <- paste0("Case length\n(",cl$c,"-day\ndifference)")
+
+      cl$lab <- ifelse(cl$ep_l@start==0,
+                       paste0("Case length\n(within ",right_point(cl$ep_l)," day-difference)"),
+                       ifelse(cl$ep_l@.Data==0,
+                              paste0("Case length\n(on ",end_point(cl$ep_l)," day-difference)"),
+                              paste0("Case length\n(between ",left_point(cl$ep_l)," and ",right_point(cl$ep_l)," day-difference)")))
 
       for(i in 1:nrow(cl)){
         # Surpressed warning from 0 length arrows
-        suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$dt[i], x1 = cl$end_dt[i], col ="white"))
+        suppressWarnings(graphics::lines(y=rep(cl$case_len_y_axis[i], 2), x = c(left_point(cl$int)[i], right_point(cl$int)[i]), col = cl$epd_cols[i], lty=1))
+        suppressWarnings(graphics::lines(y=rep(cl$case_len_y_axis[i], 2), x = c(right_point(cl$int)[i], right_point(cl$int)[i] + (left_point(cl$c)[i] * ifelse(from_last==T,-1,1))), col = ifelse(cl$int@.Data!=0, cl$epd_cols[i], "white"), lty=2))
+        suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = right_point(cl$int)[i] + (left_point(cl$c)[i] * ifelse(from_last==T,-1,1)), x1 =right_point(cl$int)[i] + (right_point(cl$c)[i] * ifelse(from_last==T,-1,1)), col = "white", lty=1))
+        #suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$end_dt.5[i], x1 = cl$end_dt[i], col ="white", lty=1))
 
-        if(i == nrow(cl) & i != 1 & cl$end_dt[i] > xlims[2]) x_pos <- ifelse(from_last ==T, cl$dt[i] + (scale_fac * 0.5), cl$dt[i] - (scale_fac * 0.5))
-        else x_pos <- mean(c(cl$dt[i], cl$end_dt[i]))
+        # if(i == nrow(cl) & i != 1 & cl$end_dt[i] > xlims[2]) x_pos <- ifelse(from_last ==T, cl$end_dt.5[i] + (scale_fac * 0.5), cl$end_dt.5[i] - (scale_fac * 0.5))
+        # else x_pos <- mean(c(cl$end_dt.5[i], cl$end_dt[i]))
+        x_pos <- mean(c(
+          right_point(cl$int)[i] + (left_point(cl$c)[i] * ifelse(from_last==T,-1,1)),
+          right_point(cl$int)[i] + (right_point(cl$c)[i] * ifelse(from_last==T,-1,1))
+          ))
 
         graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=x_pos, labels = cl$lab[i], col ="white", adj =c(0.5 ,0))
-        graphics::lines(y=c(cl$case_len_y_axis[i] - (scale_fac * 0.015), cl$case_len_y_axis[i] + (scale_fac * 0.015)), x = rep(cl$dt[i],2), col=cl$win_col[i])
+        #graphics::lines(y=c(cl$case_len_y_axis[i] - (scale_fac * 0.015), cl$case_len_y_axis[i] + (scale_fac * 0.015)), x = rep(cl$dt[i],2), col=cl$win_col[i])
 
         # Trying to guess when bi_direction has been used.
         # Doesn't capture all scenarios yet.
         # Stopped for now. Need's another approach
-        if(cl$dt2[i]!= cl$e_dt_a[i]){
-          # Surpressed warning from 0 length arrows
-          # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$dt2[i], x1 = cl$end_dt2[i], col ="white"))
-          # graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(cl$dt2[i], cl$end_dt2[i])), labels = cl$lab[i], col ="white", adj =c(.5,0))
-        }
+        # if(cl$dt2[i]!= cl$e_dt_a[i]){
+        #   # Surpressed warning from 0 length arrows
+        #   # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$dt2[i], x1 = cl$end_dt2[i], col ="white"))
+        #   # graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(cl$dt2[i], cl$end_dt2[i])), labels = cl$lab[i], col ="white", adj =c(.5,0))
+        # }
       }
     }
 
-
-
     # Recurrence lengths
     if(nrow(rl)>0 & !is.null(recurrence_length)){
-      rl$dt <- as.numeric(rl$dt_z)
-      rl$end_dt <- as.numeric(rl$dt + ifelse(from_last==F, rl$r, -rl$r))
+      # rl$dt <- as.numeric(rl$dt_z)
+      # rl$end_dt <- as.numeric(rl$dt + ifelse(from_last==F, right_point(rl$r), -right_point(rl$r)))
+      # rl$end_dt.5 <- as.numeric(rl$dt + ifelse(from_last==F, left_point(rl$r), -left_point(rl$r)))
+      #
+      # rl$dt2 <- as.numeric(rl$dt_a)
+      # rl$end_dt2 <- as.numeric(rl$dt2 - ifelse(from_last==F, right_point(rl$r), -right_point(rl$r)))
 
-      rl$dt2 <- as.numeric(rl$dt_a)
-      rl$end_dt2 <- as.numeric(rl$dt2 - ifelse(from_last==F, rl$r, -rl$r))
-      rl$lab <- paste0("Recurrence length\n(",rl$r,"-day\ndifference)")
+      rl$lab <- ifelse(rl$rc_l@start==0,
+                       paste0("Recurrence length\n(within ",right_point(rl$rc_l)," day-difference)"),
+                       ifelse(rl$rc_l@.Data==0,
+                              paste0("Recurrence length\n(on ",end_point(rl$rc_l)," day-difference)"),
+                              paste0("Recurrence length\n(between ",left_point(rl$rc_l)," and ",right_point(rl$rc_l)," day-difference)")))
 
       for(i in 1:nrow(rl)){
         # Surpressed warning from 0 length arrows
 
-        if(i == nrow(rl) & i != 1 & rl$end_dt[i] > xlims[2]) x_pos <- ifelse(from_last ==T, rl$dt[i] + (scale_fac * 0.5), rl$dt[i] - (scale_fac * 0.5))
-        else x_pos <- mean(c(rl$dt[i], rl$end_dt[i]))
+        # if(i == nrow(rl) & i != 1 & rl$end_dt[i] > xlims[2]) x_pos <- ifelse(from_last ==T, rl$dt[i] + (scale_fac * 0.5), rl$dt[i] - (scale_fac * 0.5))
+        # else x_pos <- mean(c(rl$dt[i], rl$end_dt[i]))
+        x_pos <- mean(c(
+          right_point(rl$int)[i] + (left_point(rl$r)[i] * ifelse(from_last==T,-1,1)),
+          right_point(rl$int)[i] + (right_point(rl$r)[i] * ifelse(from_last==T,-1,1))
+        ))
 
-        suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = rl$dt[i], x1 = rl$end_dt[i], lty=2, col ="white"))
+        suppressWarnings(graphics::lines(y=rep(rl$rec_len_y_axis[i], 2), x = c(left_point(rl$int)[i], right_point(rl$int)[i]), col = rl$epd_cols[i], lty=1))
+        suppressWarnings(graphics::lines(y=rep(rl$rec_len_y_axis[i], 2), x = c(right_point(rl$int)[i], right_point(rl$int)[i] + (left_point(rl$r)[i] * ifelse(from_last==T,-1,1))), col = ifelse(rl$int@.Data!=0, rl$epd_cols[i], "white"), lty=2))
+        suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = right_point(rl$int)[i] + (left_point(rl$r)[i] * ifelse(from_last==T,-1,1)), x1 =right_point(rl$int)[i] + (right_point(rl$r)[i] * ifelse(from_last==T,-1,1)), col = "white", lty=1))
+
         graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.02) , x= x_pos, labels = rl$lab[i], col ="white", adj =c(.5,0))
-        graphics::lines(y=c(rl$rec_len_y_axis[i] - (scale_fac * 0.015), rl$rec_len_y_axis[i] + (scale_fac * 0.015)), x = rep(rl$dt[i],2), col=rl$win_col[i])
+        #graphics::lines(y=c(rl$rec_len_y_axis[i] - (scale_fac * 0.015), rl$rec_len_y_axis[i] + (scale_fac * 0.015)), x = rep(rl$dt[i],2), col=rl$win_col[i])
       }
 
       # Trying to guess when bi_direction has been used.
       # Doesn't capture all scenarios yet.
       # Should it apply to recurrence length?
       # Stopped for now. Need's another approach
-      if(rl$dt2[i]!= rl$e_dt_a[i]){
-        # Surpressed warning from 0 length arrows
-        # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = rl$dt2[i], x1 = rl$end_dt2[i], col ="white"))
-        # graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(rl$dt2[i], rl$end_dt2[i])), labels = rl$lab[i], col ="white", adj =c(.5,0))
-      }
+      # if(rl$dt2[i]!= rl$e_dt_a[i]){
+      #   # Surpressed warning from 0 length arrows
+      #   # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = rl$dt2[i], x1 = rl$end_dt2[i], col ="white"))
+      #   # graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(rl$dt2[i], rl$end_dt2[i])), labels = rl$lab[i], col ="white", adj =c(.5,0))
+      # }
     }
 
     # Windows
@@ -619,8 +663,8 @@ space_out_yy <- function(x_axis){
     lag <- function(x, by=1) c(rep(as.number_line(NA), by), x[1:(length(x)-by)])
     lead <- function(x, by=1) c(x[(by+1):length(x)], rep(as.number_line(NA), by))
 
-    x_l <- overlap(x_r, lead(x_r)) & overlap(x_r, lag(x_r))
-    y_l <- overlap(y_r, lead(y_r)) & overlap(y_r, lag(y_r))
+    x_l <- overlaps(x_r, lead(x_r)) & overlaps(x_r, lag(x_r))
+    y_l <- overlaps(y_r, lead(y_r)) & overlaps(y_r, lag(y_r))
 
     new_y_axis <- ifelse(x_l==T & y_l ==T & !duplicated(paste0(x_l, y_l)), y_axis+2, y_axis)
 

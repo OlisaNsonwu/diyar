@@ -1,7 +1,7 @@
 #' @name record_group
 #' @title Multistage deterministic record linkage
 #'
-#' @description Group matching or partially matching records on different criteria with multiple stages of relevance.
+#' @description Group matching or partially matching records in multiple stages of relevance using different criteria.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together.
 #' @param sn Unique numerical record identifier. Optional.
@@ -10,8 +10,8 @@
 #' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
 #' @param data_source Unique dataset identifier. Useful when \code{df} contains data from multiple sources.
 #' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
-#' @param display If \code{TRUE}, a progress message is printed on screen.
-#' @param to_s4 if \code{TRUE} (default), changes the returned output to a \code{\link[=pid-class]{pid}} object.
+#' @param display If \code{TRUE} (default), a progress message is printed on screen.
+#' @param to_s4 If \code{TRUE} (default), record groups are returned as a \code{\link[=pid-class]{pid}} object.
 #'
 #' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 #'
@@ -32,7 +32,7 @@
 #'
 #' Records are matched in two ways: an exact match i.e. the equivalent of \code{(==)}, or range matching.
 #' An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-#' To do this, create the range as \code{\link{number_line}} object and supply it to the \code{criteria} or \code{sub_criteria} argument.
+#' To do this, create the range as a \code{\link{number_line}} object and supply it to the \code{criteria} or \code{sub_criteria} argument.
 #' The actual value within each range must be assigned to the \code{gid} slot of the \code{number_line} object.
 #'
 #' A match at each stage is considered more relevant than a match at the next stage.
@@ -40,7 +40,7 @@
 #'
 #' \code{sub_criteria} can be used to force additional matching conditions at each stage.
 #' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
-#' If a record has missing values for any \code{criteria}, that record skipped at that stage, and another attempt is made at the next stage.
+#' If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 #' If there are no matches for a record at every stage, that record is assigned a unique group ID.
 #'
 #' When a \code{data_source} identifier is provided,
@@ -193,7 +193,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
   }
 
   # update 'sub_cri_lst'
-  sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
+  sub_cri_lst <- unique(unlist(sub_criteria, use.names = FALSE))
 
   nls <- lapply(names(df), function(x){
     is.number_line(df[[x]])
@@ -210,14 +210,14 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
 
   # Range matching
   range_match <- function(x, tr_x) {
-    if(any(!diyar::overlap(diyar::as.number_line(x@gid), x))) {
-      rng_i <- paste(which(!diyar::overlap(diyar::as.number_line(x@gid), x)), collapse = ",", sep="")
+    if(any(!diyar::overlaps(diyar::as.number_line(x@gid), x))) {
+      rng_i <- paste(which(!diyar::overlaps(diyar::as.number_line(x@gid), x)), collapse = ",", sep="")
       rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
 
       stop(paste("Range matching error: Actual value (gid) is out of range in '",rng_d,"$",rng_v,"[c(",rng_i,")]'",sep=""))
     }
 
-    diyar::overlap(diyar::as.number_line(x@gid), tr_x)
+    diyar::overlaps(diyar::as.number_line(x@gid), tr_x)
   }
 
   # Exact matching
