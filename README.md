@@ -59,6 +59,7 @@ number_line_sequence(nl, by =3)
 ``` r
 data(infections);
 db <- infections[c("date")]
+# Dates
 db$date
 #>  [1] "2018-04-01" "2018-04-07" "2018-04-13" "2018-04-19" "2018-04-25"
 #>  [6] "2018-05-01" "2018-05-07" "2018-05-13" "2018-05-19" "2018-05-25"
@@ -66,28 +67,26 @@ db$date
 
 # Fixed episodes
 db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = F, group_stats = T)
-#> Episode grouping complete - 0 record(s) assinged a unique ID.
+#> Episode grouping complete - 0 record(s) with unique IDs.
 
 # Rolling episodes
 db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = F,
                               group_stats = T)
-#> Episode grouping complete - 0 record(s) assinged a unique ID.
-db
-#> # A tibble: 11 x 3
-#>    date       f_epid                           
-#>    <date>     <epid>                           
-#>  1 2018-04-01 E.01 2018-04-01 -> 2018-04-13 (C)
-#>  2 2018-04-07 E.01 2018-04-01 -> 2018-04-13 (D)
-#>  3 2018-04-13 E.01 2018-04-01 -> 2018-04-13 (D)
-#>  4 2018-04-19 E.04 2018-04-19 -> 2018-05-01 (C)
-#>  5 2018-04-25 E.04 2018-04-19 -> 2018-05-01 (D)
-#>  6 2018-05-01 E.04 2018-04-19 -> 2018-05-01 (D)
-#>  7 2018-05-07 E.07 2018-05-07 -> 2018-05-19 (C)
-#>  8 2018-05-13 E.07 2018-05-07 -> 2018-05-19 (D)
-#>  9 2018-05-19 E.07 2018-05-07 -> 2018-05-19 (D)
-#> 10 2018-05-25 E.10 2018-05-25 -> 2018-05-31 (C)
-#> 11 2018-05-31 E.10 2018-05-25 -> 2018-05-31 (D)
-#> # ... with 1 more variable: r_epid <epid>
+#> Episode grouping complete - 0 record(s) with unique IDs.
+
+db[c("f_epid","r_epid")]
+#>                               f_epid                           r_epid
+#> 1  E.01 2018-04-01 -> 2018-04-13 (C) E.1 2018-04-01 -> 2018-05-31 (C)
+#> 2  E.01 2018-04-01 -> 2018-04-13 (D) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 3  E.01 2018-04-01 -> 2018-04-13 (D) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 4  E.04 2018-04-19 -> 2018-05-01 (C) E.1 2018-04-01 -> 2018-05-31 (R)
+#> 5  E.04 2018-04-19 -> 2018-05-01 (D) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 6  E.04 2018-04-19 -> 2018-05-01 (D) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 7  E.07 2018-05-07 -> 2018-05-19 (C) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 8  E.07 2018-05-07 -> 2018-05-19 (D) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 9  E.07 2018-05-07 -> 2018-05-19 (D) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 10 E.10 2018-05-25 -> 2018-05-31 (C) E.1 2018-04-01 -> 2018-05-31 (D)
+#> 11 E.10 2018-05-25 -> 2018-05-31 (D) E.1 2018-04-01 -> 2018-05-31 (D)
 ```
 
 -   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***`pid` objects are now the default output. Use `to_s4` or `to_df()` to change this to a data.frames***
@@ -100,16 +99,14 @@ staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(fore
                      data_source = sex, display = FALSE)
 #> Record grouping complete - 1 record(s) assigned a group unique ID.
 staff_records
-#> # A tibble: 7 x 6
-#>    r_id forename surname  sex   dataset    pids_a      
-#>   <int> <chr>    <chr>    <chr> <chr>      <pid>       
-#> 1     1 James    Green    M     Staff list P.1 (CRI 02)
-#> 2     2 <NA>     Anderson M     Staff list P.2 (CRI 02)
-#> 3     3 Jamey    Green    M     Pay slips  P.1 (CRI 02)
-#> 4     4 ""       <NA>     F     Pay slips  P.4 (No Hit)
-#> 5     5 Derrick  Anderson M     Staff list P.2 (CRI 02)
-#> 6     6 Darrack  Anderson M     Pay slips  P.2 (CRI 02)
-#> 7     7 Christie Green    F     Staff list P.1 (CRI 02)
+#>   r_id forename  surname sex    dataset       pids_a
+#> 1    1    James    Green   M Staff list P.1 (CRI 02)
+#> 2    2     <NA> Anderson   M Staff list P.2 (CRI 02)
+#> 3    3    Jamey    Green   M  Pay slips P.1 (CRI 02)
+#> 4    4              <NA>   F  Pay slips P.4 (No Hit)
+#> 5    5  Derrick Anderson   M Staff list P.2 (CRI 02)
+#> 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 02)
+#> 7    7 Christie    Green   F Staff list P.1 (CRI 02)
 ```
 
 Find out more [here](https://olisansonwu.github.io/diyar/index.html)!
