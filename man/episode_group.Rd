@@ -15,7 +15,7 @@ episode_group(df, sn = NULL, strata = NULL, date, case_length,
   "aligns_end", "chain"), overlap_methods = NULL, bi_direction = FALSE,
   group_stats = FALSE, display = TRUE, deduplicate = FALSE,
   to_s4 = TRUE, recurrence_from_last = TRUE,
-  case_for_recurrence = FALSE)
+  case_for_recurrence = FALSE, include_index_period = TRUE)
 
 fixed_episodes(date, sn = NULL, strata = NULL, case_length,
   episode_unit = "days", episodes_max = Inf,
@@ -24,7 +24,7 @@ fixed_episodes(date, sn = NULL, strata = NULL, case_length,
   overlap_method = c("exact", "across", "inbetween", "aligns_start",
   "aligns_end", "chain", "overlap", "none"), overlap_methods = "overlap",
   bi_direction = FALSE, group_stats = FALSE, display = TRUE,
-  deduplicate = FALSE, x, to_s4 = TRUE)
+  deduplicate = FALSE, x, to_s4 = TRUE, include_index_period = TRUE)
 
 rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   recurrence_length = NULL, episode_unit = "days",
@@ -35,7 +35,7 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   "none"), overlap_methods = "overlap", bi_direction = FALSE,
   group_stats = FALSE, display = TRUE, deduplicate = FALSE, x,
   to_s4 = TRUE, recurrence_from_last = TRUE,
-  case_for_recurrence = FALSE)
+  case_for_recurrence = FALSE, include_index_period = TRUE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}

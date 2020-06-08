@@ -689,7 +689,7 @@ eps_a
 plot_epid(epid = eps_a, date = periods, case_length = 6)
 ```
 
-In contrast, a negative "length" means that; only `event periods` within `n`-days BEFORE the   `end_point()` of the index `event period` will be grouped into the same `episode`. See the examples below.
+In contrast, a negative "length" means that; only `event periods` within `n`-days BEFORE the   `end_point()` of the index `event period` will be grouped into the same `episode`.
 
 **Figure 9b: Fixed episodes with a case_length of -2**
 ```{r message=FALSE, warning=FALSE}
@@ -702,15 +702,29 @@ eps_b
 plot_epid(epid = eps_b, date = periods, case_length = -2)
 ```
 
-**Figure 9c: Fixed episodes with a case_length of -6**
+By default, overlapping periods that are outside the 2-day periods are also groupped together. This can be changed with `include_initial_period`. See below.
+
+**Figure 9c: Fixed episodes with a case_length of -2**
 ```{r message=FALSE, warning=FALSE}
-eps_c <- fixed_episodes(periods, case_length =-6, group_stats = T, display = F)
+eps_c <- fixed_episodes(periods, case_length =-2, group_stats = T, display = F,
+                        include_index_period = F)
 
 eps_c
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_c, date = periods, case_length = -6)
+plot_epid(epid = eps_c, date = periods, case_length = -2)
+```
+
+**Figure 9d: Fixed episodes with a case_length of -6**
+```{r message=FALSE, warning=FALSE}
+eps_d <- fixed_episodes(periods, case_length =-6, group_stats = T, display = F)
+
+eps_d
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+plot_epid(epid = eps_d, date = periods, case_length = -6)
 ```
 
 <a id= "stratified_grouping"></a>
