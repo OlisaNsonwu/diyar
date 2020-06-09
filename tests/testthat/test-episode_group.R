@@ -1068,10 +1068,10 @@ test_that("test concepts in interval groupping", {
   expect_equal(ds$ep_5@case_nm, c("Case","Duplicate","Skipped","Skipped","Duplicate","Duplicate", "Skipped","Skipped", "Recurrent", "Duplicate"))
   expect_equal(ds$ep_5.5@.Data, c(1,2,3,4,1,1,7,8,1,1))
   expect_equal(ds$ep_5.5@case_nm, c("Case","Skipped","Skipped","Skipped","Duplicate","Duplicate", "Skipped","Skipped", "Recurrent", "Duplicate"))
-  expect_equal(ds$ep_6@.Data, c(1,1,3,4,5,1,7,8,1,1))
-  expect_equal(ds$ep_6@case_nm, c("Case","Duplicate","Skipped","Skipped","Skipped","Duplicate", "Skipped","Skipped", "Recurrent", "Duplicate"))
+  expect_equal(ds$ep_6@.Data, c(1,1,3,4,1,1,7,8,1,1))
+  expect_equal(ds$ep_6@case_nm, c("Case","Duplicate","Skipped","Skipped","Recurrent","Duplicate", "Skipped","Skipped", "Recurrent", "Duplicate"))
   expect_equal(ds$ep_7@.Data, rep(1,10))
-  expect_equal(ds$ep_7@case_nm, c("Case","Duplicate","Recurrent",rep("Duplicate", 7)))
+  expect_equal(ds$ep_7@case_nm, c("Case","Duplicate","Recurrent",rep("Duplicate", 3),"Recurrent",rep("Duplicate", 3)))
   expect_equal(ds$ep_8@.Data, c(1,1,3,4,rep(1,6)))
   expect_equal(ds$ep_8@case_nm, c("Case","Duplicate","Skipped","Skipped","Duplicate","Duplicate", "Recurrent","Duplicate", "Duplicate", "Duplicate"))
 

@@ -326,10 +326,6 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
     tagged_1 <- length(df$pid[!df$pid %in% c(sn_ref,NA) & df$tag ==0])
     total_1 <- length(df$pid[df$tag ==0])
 
-    if(display) {
-      cat(paste("\n",fmt(tagged_1)," of ", fmt(total_1)," record(s) have been assigned a group ID. ", fmt(total_1-tagged_1)," record(s) not yet grouped.", sep =""))
-    }
-
     # Cases that have not been tagged for the print output
     df$tag <- ifelse(df$pid %in% c(sn_ref,NA),0,1)
     df$link_id <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,sn_ref,df$link_id)
@@ -341,7 +337,8 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
     df$pid_cri <- ifelse(df$tag ==1 & df$pid_cri == Inf,i, df$pid_cri)
 
     if(display) {
-      cat(paste("\n",fmt(removed), " record(s) with unique group IDs untagged for possible matching in the next stage. The number of records not yet grouped is now ", fmt(removed + (total_1-tagged_1)),".\n", sep =""))
+      assigned <- tagged_1-removed
+      cat(paste0("\n", fmt(total_1), " records(s): ",  fmt(assigned)," assigned to record groups and ", fmt(total_1-assigned)," left to group."))
     }
   }
 
@@ -372,7 +369,7 @@ record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL
   df$pr_sn <- NULL
 
   pd <- ifelse(display,"\n","")
-  cat(paste(pd,"Record grouping complete - ",fmt(removed + (total_1-tagged_1))," record(s) assigned a group unique ID. \n" , sep =""))
+  cat(paste(pd,"Record grouping complete: ",fmt(removed + (total_1-tagged_1))," record(s) with a unique ID. \n" , sep =""))
   if(to_s4) df <- diyar::to_s4(df)
   df
 }
