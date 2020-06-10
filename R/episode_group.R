@@ -351,6 +351,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   # Lengths
   if(any(class(df[[epl]]) %in% c("number_line"))){
     T1$ep_a <- diyar::reverse_number_line(df[[epl]], "decreasing")
+    T1$ct_rng_e <- (T1$ep_a@start >0 & right_point(T1$ep_a) > 0) | (T1$ep_a@start <0 & right_point(T1$ep_a) < 0)
     # Case level bi_direction ?
     T1$crx_e <- T1$ep_a@start/abs(T1$ep_a@start) != diyar::end_point(T1$ep_a)/abs(diyar::end_point(T1$ep_a))
     T1$crx_e[is.na(T1$crx_e)] <- F
@@ -381,6 +382,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       T1$ep_c <- T1$ep_a; T1$ep_d <- T1$ep_b
       left_point(T1$ep_c) <- -(T1$dt_zi-T1$dt_ai)
       left_point(T1$ep_d) <- rep(0, length(T1$ep_d))
+      T1$ct_rng_e <- F
   }
 
   if(is.null(r_epl) | episode_type !="rolling" ){
@@ -389,9 +391,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$rc_c <- T1$ep_c
     T1$rc_d <- T1$ep_d
     T1$crx_r <- T1$crx_e
+    T1$ct_rng_r <- T1$ct_rng_e
   }else{
     if(any(class(df[[r_epl]]) %in% c("number_line"))){
       T1$rc_a <- diyar::reverse_number_line(df[[r_epl]], "decreasing")
+      T1$ct_rng_r <- (T1$rc_a@start >0 & right_point(T1$rc_a) > 0) | (T1$rc_a@start <0 & right_point(T1$rc_a) > 0)
       # Case level bi_direction ?
       T1$crx_r <- T1$rc_a@start/abs(T1$rc_a@start) != diyar::end_point(T1$rc_a)/abs(diyar::end_point(T1$rc_a))
       T1$crx_r[is.na(T1$crx_r)] <- F
@@ -422,6 +426,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       T1$rc_c <- T1$rc_a; T1$rc_d <- T1$rc_b
       left_point(T1$rc_c) <- -(T1$dt_zi-T1$dt_ai)
       left_point(T1$rc_d) <- rep(0, length(T1$rc_d))
+      T1$ct_rng_r <- F
     }
   }
 
@@ -632,7 +637,8 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
                "rc_a1", "rc_a2", "ep_b1", "ep_b2", "rc_b1",
                "rc_b2", "dt_zi","epid", "ep_c1", "ep_c2",
                "rc_c1", "rc_c2", "ep_d1", "ep_d2", "rc_d1", "rc_d2",
-               "tag", "roll", "case_nm", "methods", "crx_e", "crx_r")]
+               "tag", "roll", "case_nm", "methods", "crx_e", "crx_r",
+               "ct_rng_e", "ct_rng_r")]
     names(TR) <- paste0("tr_",names(TR))
 
     # Early break if there are no more reference events
@@ -698,11 +704,15 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
 
     T1$c1[T1$ec_chk] <- diyar::overlaps(T1$int[T1$ec_chk], T1$tr_c_int_a[T1$ec_chk], methods = T1$methods[T1$ec_chk])
     T1$c2[bdl_e & T1$ec_chk] <- diyar::overlaps(T1$int[bdl_e & T1$ec_chk], T1$tr_c_int_b[bdl_e & T1$ec_chk], methods = T1$methods[bdl_e & T1$ec_chk])
-    T1$p1[include_index_period & !T1$crx_e] <- diyar::overlap(T1$int[include_index_period & !T1$crx_e], T1$tr_int[include_index_period & !T1$crx_e])
+    T1$k1 <- diyar::overlap(T1$int, T1$tr_int)
+    T1$p1[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e) & T1$k1] <- T
+    #T1$p1[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e)] <- diyar::overlap(T1$int[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e)], T1$tr_int[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e)])
 
     T1$r1[T1$rc_chk] <- diyar::overlaps(T1$int[T1$rc_chk], T1$tr_r_int_a[T1$rc_chk], methods = T1$methods[T1$rc_chk])
     T1$r2[bdl_r & T1$rc_chk] <- diyar::overlaps(T1$int[bdl_r & T1$rc_chk], T1$tr_r_int_b[bdl_r & T1$rc_chk], methods = T1$methods[bdl_r & T1$rc_chk])
-    T1$p2[include_index_period & !T1$crx_r] <- diyar::overlap(T1$int[include_index_period & !T1$crx_r], T1$tr_int[include_index_period & !T1$crx_r])
+    T1$k2 <- diyar::overlap(T1$int, T1$tr_int)
+    T1$p2[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r) & T1$k2] <- T
+    #T1$p2[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r)] <- diyar::overlap(T1$int[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r)], T1$tr_int[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r)])
 
     T1$c4[skip_if_b4_lengths & T1$ec_chk] <- diyar::overlaps(T1$int[skip_if_b4_lengths & T1$ec_chk], T1$tr_c_int_c[skip_if_b4_lengths & T1$ec_chk], methods = T1$methods[skip_if_b4_lengths & T1$ec_chk])
     T1$c5[bdl_e & skip_if_b4_lengths & T1$ec_chk] <- diyar::overlaps(T1$int[bdl_e & skip_if_b4_lengths & T1$ec_chk], T1$tr_c_int_d[bdl_e & skip_if_b4_lengths & T1$ec_chk], methods = T1$methods[bdl_e & skip_if_b4_lengths & T1$ec_chk])
@@ -832,9 +842,11 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
       pds2 <- lapply(split(T1$d_grp, T1$epid), max)
       T1$d_grp <- as.numeric(pds2[as.character(T1$epid)])
 
-      T1$d_ord <- ifelse(T1$case_nm=="Duplicate" & T1$lr !=1 &
-                           ((T1$ec_chk ==T & T1$p1 != T) |
-                           (T1$rc_chk ==T & T1$p2 != T))
+      T1$d_ord <- ifelse(T1$case_nm=="Duplicate" & T1$lr !=1
+                           # & ((T1$ec_chk & !T1$p1) | (T1$rc_chk & !T1$p2))
+                           # & !(T1$ec_chk & T1$p1) &
+                           # & !(T1$rc_chk & T1$p2)
+                           & !T1$k1 & !T1$k2
                          , T1$user_ord, NA)
       pds2 <- lapply(split(T1$d_ord, T1$epid), function(x){
         suppressWarnings(min(x, na.rm=T))
