@@ -26,7 +26,7 @@ devtools::install_github("OlisaNsonwu/diyar")
 Cheat sheet
 -----------
 
-<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar2.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail2.png?raw=true"/></a>
+<a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
 
 Usage
 -----
@@ -67,12 +67,12 @@ db$date
 
 # Fixed episodes
 db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = F, group_stats = T)
-#> Episode grouping complete - 0 record(s) with unique IDs.
+#> Episode grouping complete: 0 record(s) with a unique ID.
 
 # Rolling episodes
 db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = F,
                               group_stats = T)
-#> Episode grouping complete - 0 record(s) with unique IDs.
+#> Episode grouping complete: 0 record(s) with a unique ID.
 
 db[c("f_epid","r_epid")]
 #>                               f_epid                           r_epid
@@ -97,7 +97,7 @@ data(staff_records);
 
 staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
                      data_source = sex, display = FALSE)
-#> Record grouping complete - 1 record(s) assigned a group unique ID.
+#> Record grouping complete: 1 record(s) with a unique ID.
 staff_records
 #>   r_id forename  surname sex    dataset       pids_a
 #> 1    1    James    Green   M Staff list P.1 (CRI 02)
