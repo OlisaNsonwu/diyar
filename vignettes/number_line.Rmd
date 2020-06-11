@@ -291,7 +291,7 @@ c <- subtract_number_lines(a, b)
 a; b; c
 ```
 
-**Figure 5c: Substraction**
+**Figure 5c: Subtraction**
 ```{r echo=FALSE, fig.height=1.5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_number_line(c(a,b,c$n1, c$n2), strata = c(1,1,0,0), show_overlap=F)
 ```

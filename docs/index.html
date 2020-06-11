@@ -37,7 +37,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -112,7 +112,7 @@ devtools<span class="op">::</span><span class="kw"><a href="https://www.rdocumen
 <div id="cheat-sheet" class="section level2">
 <h2 class="hasAnchor">
 <a href="#cheat-sheet" class="anchor"></a>Cheat sheet</h2>
-<p><a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar2.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail2.png?raw=true"></a></p>
+<p><a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"></a></p>
 </div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
@@ -153,12 +153,12 @@ db<span class="op">$</span>date
 
 <span class="co"># Fixed episodes</span>
 db<span class="op">$</span>f_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">display =</span> F, <span class="dt">group_stats =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 <span class="co"># Rolling episodes</span>
 db<span class="op">$</span>r_epid &lt;-<span class="st"> </span><span class="kw"><a href="reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> db<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">recurrence_length =</span> <span class="dv">40</span>, <span class="dt">display =</span> F,
                               <span class="dt">group_stats =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 db[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"f_epid"</span>,<span class="st">"r_epid"</span>)]
 <span class="co">#&gt;                               f_epid                           r_epid</span>
@@ -183,7 +183,7 @@ db[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics
 
 staff_records<span class="op">$</span>pids_a &lt;-<span class="st"> </span><span class="kw"><a href="reference/record_group.html">record_group</a></span>(staff_records, <span class="dt">sn =</span> r_id, <span class="dt">criteria =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, surname),
                      <span class="dt">data_source =</span> sex, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Record grouping complete - 1 record(s) assigned a group unique ID.</span>
+<span class="co">#&gt; Record grouping complete: 1 record(s) with a unique ID.</span>
 staff_records
 <span class="co">#&gt;   r_id forename  surname sex    dataset       pids_a</span>
 <span class="co">#&gt; 1    1    James    Green   M Staff list P.1 (CRI 02)</span>

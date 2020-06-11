@@ -30,7 +30,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">04 June 2020</h4>
+            <h4 class="date">11 June 2020</h4>
       
       
       <div class="hidden name"><code>episode_group.Rmd</code></div>
@@ -226,7 +226,7 @@ ds<span class="op">$</span>date
 <p><strong>Figure 1a: fixed episodes</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 6-day (5-day difference) episodes - fixed episodes</span>
 ds<span class="op">$</span>f1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 ds<span class="op">$</span>f1
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.3 (D)" "E.3 (D)"</span></code></pre></div>
@@ -237,7 +237,7 @@ ds<span class="op">$</span>f1
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">12</span>, <span class="dv">16</span>); rng
 <span class="co">#&gt; [1] "12 -&gt; 16"</span>
 ds<span class="op">$</span>f2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> rng, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 2 record(s) with a unique ID.</span>
 
 ds<span class="op">$</span>f2
 <span class="co">#&gt; [1] "E.1 (C)" "E.2 (S)" "E.1 (D)" "E.1 (D)" "E.5 (C)"</span></code></pre></div>
@@ -245,7 +245,7 @@ ds<span class="op">$</span>f2
 <p>By default, <code>events</code> before the <code>13th</code> day are skipped. You can change <code>skip_if_b4_lengths</code> to <code>FALSE</code>, so that such <code>events</code> are not skipped.</p>
 <p><strong>Figure 1c: fixed episodes where events before the the cut-off range are not skipped</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ds<span class="op">$</span>f3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> rng, <span class="dt">display =</span> F, <span class="dt">skip_if_b4_lengths =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 ds<span class="op">$</span>f3
 <span class="co">#&gt; [1] "E.1 (C)" "E.2 (C)" "E.1 (D)" "E.1 (D)" "E.2 (D)"</span></code></pre></div>
@@ -259,7 +259,7 @@ ds<span class="op">$</span>f3
 <p>The first approach is the default behaviour for <code>fixed_epsiodes()</code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code>. However, by changing <code>from_last</code> to <code>TRUE</code>, <code>episode tracking</code> will begin at the most recent <code>event</code> and proceed backwards in time, making that the <code>reference event</code>.</p>
 <p><strong>Figure 2: fixed episodes where episode tracking was backwards in time</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">ds<span class="op">$</span>f4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">from_last =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 ds<span class="op">$</span>f4
 <span class="co">#&gt; [1] "E.2 (D)" "E.2 (C)" "E.5 (D)" "E.5 (D)" "E.5 (C)"</span></code></pre></div>
@@ -280,7 +280,7 @@ ds2<span class="op">$</span>user_ord &lt;-<span class="st"> </span><span class="
 <span class="co"># Then track concurrent infections up to 6 months AFTER the HIV diagnosis</span>
 ds2<span class="op">$</span>ep1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">data_source =</span> ds2<span class="op">$</span>diag,
                           <span class="dt">case_length =</span> <span class="dv">6</span>, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 <span class="co"># Using `data_source` populates the `epid_dataset` slot of the `epid` object. </span>
 <span class="co"># This is useful when you're working with different datasets</span>
@@ -289,7 +289,7 @@ ds2<span class="op">$</span>ep1_ds &lt;-<span class="st"> </span>ds2<span class=
 <span class="co"># Track preceeding infections up to 6 months BEFORE the HIV diagnosis</span>
 ds2<span class="op">$</span>ep2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">data_source =</span> ds2<span class="op">$</span>diag,
                           <span class="dt">case_length =</span> <span class="op">-</span><span class="dv">6</span>, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 ds2<span class="op">$</span>ep2_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep2<span class="op">@</span>epid_dataset
 
@@ -308,7 +308,7 @@ ds2
   <span class="co"># `bi_direction` then tells the function to also check 6 months BEFORE the HIV diagnosis</span>
 ds2<span class="op">$</span>ep3a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> <span class="dv">6</span>, 
                            <span class="dt">bi_direction =</span> T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 <span class="co"># Method 1b</span>
 <span class="co"># Track diagnoses 6 months BEFORE the HIV diagnosis</span>
@@ -316,7 +316,7 @@ ds2<span class="op">$</span>ep3a &lt;-<span class="st"> </span><span class="kw">
 ds2<span class="op">$</span>ep3b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> <span class="op">-</span><span class="dv">6</span>,
                            <span class="dt">bi_direction =</span> T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F, 
                            <span class="dt">data_source =</span> ds2<span class="op">$</span>diag)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 ds2<span class="op">$</span>ep3_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep3b<span class="op">@</span>epid_dataset
 
@@ -326,7 +326,7 @@ ds2<span class="op">$</span>ep3_ds &lt;-<span class="st"> </span>ds2<span class=
 rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="op">-</span><span class="dv">6</span>, <span class="dv">6</span>)
 ds2<span class="op">$</span>ep4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> rng, <span class="dt">episode_unit =</span> <span class="st">"months"</span>,
                           <span class="dt">display =</span> F, <span class="dt">data_source =</span> ds2<span class="op">$</span>diag)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 ds2<span class="op">$</span>ep4_ds &lt;-<span class="st"> </span>ds2<span class="op">$</span>ep4<span class="op">@</span>epid_dataset
 
@@ -337,7 +337,7 @@ ds2<span class="op">$</span>ep4_ds &lt;-<span class="st"> </span>ds2<span class=
 rng2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">2</span>, <span class="dv">6</span>)
 ds2<span class="op">$</span>ep5 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> ds2<span class="op">$</span>date, <span class="dt">custom_sort =</span> ds2<span class="op">$</span>user_ord, <span class="dt">case_length =</span> rng2, 
                           <span class="dt">bi_direction =</span>T, <span class="dt">episode_unit =</span> <span class="st">"months"</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 ds2
 <span class="co">#&gt;         date diag user_ord     ep1   ep1_ds     ep2  ep2_ds    ep3a</span>
@@ -351,7 +351,7 @@ ds2
 <span class="co">#&gt; 2 E.2 (C) HBV,HIV,MyCt E.2 (C) HBV,HIV,MyCt E.2 (C)</span>
 <span class="co">#&gt; 3 E.2 (D) HBV,HIV,MyCt E.2 (D) HBV,HIV,MyCt E.2 (D)</span>
 <span class="co">#&gt; 4 E.4 (C)     HBV,MyCt E.4 (C)     HBV,MyCt E.4 (C)</span>
-<span class="co">#&gt; 5 E.4 (D)     HBV,MyCt E.4 (D)     HBV,MyCt E.5 (S)</span></code></pre></div>
+<span class="co">#&gt; 5 E.4 (D)     HBV,MyCt E.4 (D)     HBV,MyCt E.5 (C)</span></code></pre></div>
 <p>When different <code>events</code> have the same level of preference - <code>custom_sort</code> values, their chronological order are used to break ties. This will be the earliest or most recent <code>event</code> depending on <code>from_last</code>. Alternatively, you can break such ties with additional levels of <code>custom_sort</code>.</p>
 <p>Using <code>infections</code> - a sample dataset for positive urinary tract infections (UTI), bloodstream infections (BSI) and respiratory tract infections (RTI), we can see examples of <code>episode tracking</code> using 2 and 3 levels of <code>custom_sort</code>.</p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbf &lt;-<span class="st"> </span>infections[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>, <span class="st">"infection"</span>)]
@@ -365,15 +365,15 @@ dbf<span class="op">$</span>c_sort3 &lt;-<span class="st"> </span><span class="k
 
 dbf<span class="op">$</span>ep_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
                            <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort1, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 dbf<span class="op">$</span>ep_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
                            <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort2, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 2 record(s) with a unique ID.</span>
 
 dbf<span class="op">$</span>ep_<span class="dv">3</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(dbf<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">15</span>, <span class="dt">data_source =</span> dbf<span class="op">$</span>infection, 
                            <span class="dt">custom_sort =</span> dbf<span class="op">$</span>c_sort3, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 2 record(s) with a unique ID.</span>
 
 dbf
 <span class="co">#&gt;          date infection c_sort1 c_sort2 c_sort3     ep_1    ep_2     ep_3</span>
@@ -401,7 +401,7 @@ dbf
 <p><strong>Figure 3a: rolling episodes</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="co"># 6-day (5-day difference) episodes with 11-days recurrence periods - rolling episodes</span>
 ds<span class="op">$</span>r1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">recurrence_length =</span> <span class="dv">10</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 ds<span class="op">$</span>r1
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (D)"</span></code></pre></div>
@@ -411,7 +411,7 @@ ds<span class="op">$</span>r1
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">rng &lt;-<span class="st"> </span><span class="kw"><a href="../reference/number_line.html">number_line</a></span>(<span class="dv">13</span>, <span class="dv">15</span>); rng
 <span class="co">#&gt; [1] "13 -&gt; 15"</span>
 ds<span class="op">$</span>r2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">recurrence_length =</span> rng, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 ds<span class="op">$</span>r2
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (S)" "E.1 (R)" "E.1 (D)"</span></code></pre></div>
@@ -422,7 +422,7 @@ ds<span class="op">$</span>r2
 <span class="co">#&gt; [1] "13 -&gt; 15"</span>
 ds<span class="op">$</span>r3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(ds<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">recurrence_length =</span> rng, 
                           <span class="dt">skip_if_b4_lengths =</span> F, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 ds<span class="op">$</span>r3
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.1 (R)" "E.1 (D)"</span></code></pre></div>
@@ -437,7 +437,7 @@ df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocument
 
 <span class="co"># 15-day fixed episodes</span>
 df<span class="op">$</span>f1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 <span class="co"># 15-day rolling episodes with 15-day recurrence periods</span>
   <span class="co"># Since the first event is the reference event for the next recurrence window and,</span>
@@ -445,7 +445,7 @@ df<span class="op">$</span>f1 &lt;-<span class="st"> </span><span class="kw"><a 
   <span class="co"># the result will be the same as the 15-day fixed-episode (above) </span>
 df<span class="op">$</span>r1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">recurrence_from_last =</span> F, 
                           <span class="dt">to_s4 =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 df
 <span class="co">#&gt;         date      f1      r1</span>
@@ -460,7 +460,7 @@ df
 <span class="co">#&gt; [1] TRUE</span></code></pre></div>
 <p><strong>Figure 4a: Last event in a window taken as the reference event for the next recurrence window (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">recurrence_length =</span> <span class="dv">16</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 df<span class="op">$</span>r2
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)"</span></code></pre></div>
@@ -468,7 +468,7 @@ df<span class="op">$</span>r2
 <p><strong>Figure 4b: First event in a window taken as the reference event for the next recurrence window</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">14</span>, <span class="dt">recurrence_length =</span> <span class="dv">16</span>, 
                           <span class="dt">recurrence_from_last =</span> F, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 df<span class="op">$</span>r3
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
@@ -484,7 +484,7 @@ df<span class="op">$</span>r3
 df &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/data.frame">data.frame</a></span>(<span class="dt">date=</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/as.Date">as.Date</a></span>(df, <span class="st">"%d/%m/%Y"</span>))</code></pre></div>
 <p><strong>Figure 5a: Case windows for case events only (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">10</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 df<span class="op">$</span>r4
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.6 (C)"</span></code></pre></div>
@@ -492,7 +492,7 @@ df<span class="op">$</span>r4
 <p><strong>Figure 5b: Case windows for case and recurrence events</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df<span class="op">$</span>r5 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">10</span>, <span class="dt">case_for_recurrence =</span> T, 
                           <span class="dt">to_s4 =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 df<span class="op">$</span>r5
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (D)" "E.6 (C)"</span></code></pre></div>
@@ -509,7 +509,7 @@ df2<span class="op">$</span>date
 <span class="co">#&gt; [6] "2019-04-16" "2019-04-19"</span></code></pre></div>
 <p><strong>Figure 5c: Case windows for case events only (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df2<span class="op">$</span>r1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df2<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">6</span>, <span class="dt">recurrence_length =</span> <span class="dv">4</span>, <span class="dt">display =</span> F, <span class="dt">sn=</span>df2<span class="op">$</span>sn)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 df2<span class="op">$</span>r1
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
@@ -517,7 +517,7 @@ df2<span class="op">$</span>r1
 <p><strong>Figure 5d: Case windows for case and recurrence events</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">df2<span class="op">$</span>r2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(df2<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">6</span>, <span class="dt">recurrence_length =</span> <span class="dv">4</span>, 
                            <span class="dt">case_for_recurrence =</span> T, <span class="dt">display =</span> F, <span class="dt">sn=</span>df2<span class="op">$</span>sn)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 df2<span class="op">$</span>r1
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></code></pre></div>
@@ -540,7 +540,7 @@ dbs<span class="op">$</span>date
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">1</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span> dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">3</span>, <span class="dt">display =</span> F, 
                             <span class="dt">episodes_max =</span> <span class="dv">1</span>)
 <span class="co">#&gt; 7 record(s); 7 skipped</span>
-<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 7 record(s) with a unique ID.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">1</span>
 <span class="co">#&gt;  [1] "E.01 (C)" "E.01 (D)" "E.01 (D)" "E.01 (D)" "E.05 (S)" "E.06 (S)"</span>
@@ -549,7 +549,7 @@ dbs<span class="op">$</span>eps_<span class="dv">1</span>
 <p><strong>Figure 6b: Maximum of two fixed episodes per strata</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">2</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span> dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">3</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">episodes_max =</span> <span class="dv">2</span>)
 <span class="co">#&gt; 3 record(s); 3 skipped</span>
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">2</span>
 <span class="co">#&gt;  [1] "E.01 (C)" "E.01 (D)" "E.01 (D)" "E.01 (D)" "E.05 (C)" "E.05 (D)"</span>
@@ -558,7 +558,7 @@ dbs<span class="op">$</span>eps_<span class="dv">2</span>
 <p><code>rolls_max</code> is the maximum number of times an <code>event</code> can recur. When <code>rolls_max</code> is reached, the <code>episode</code> ends. A new one then begins if the number of <code>episodes</code> in that <code>strata</code> is less than <code>episode_max</code>. The default option for <code>rolls_max</code> is <code>Inf</code> i.e. check until there are no more <code>events</code> within the <code>recurrence period</code> of the <code>reference event</code>. See the examples below.</p>
 <p><strong>Figure 6c: Infinite recurrence periods per episode per strata (default)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">4</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">2</span>,<span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">4</span>
 <span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"</span>
@@ -567,7 +567,7 @@ dbs<span class="op">$</span>eps_<span class="dv">4</span>
 <p><strong>Figure 6d: Maximum of one recurrence period per episode per strata</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">6</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">2</span>,<span class="dt">display =</span> F, 
                               <span class="dt">rolls_max =</span> <span class="dv">1</span>)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">6</span>
 <span class="co">#&gt;  [1] "E.01 (C)" "E.01 (D)" "E.01 (D)" "E.01 (R)" "E.01 (D)" "E.06 (C)"</span>
@@ -577,7 +577,7 @@ dbs<span class="op">$</span>eps_<span class="dv">6</span>
 <p><strong>Figure 6e: Maximum of one recurrence period per episode per strata when case_for_recurrence is TRUE</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">dbs<span class="op">$</span>eps_<span class="dv">7</span> &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">strata =</span> dbs<span class="op">$</span>pid, <span class="dt">date =</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span> <span class="dv">2</span>,<span class="dt">display =</span> F, 
                               <span class="dt">rolls_max =</span> <span class="dv">1</span>, <span class="dt">case_for_recurrence =</span> T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 dbs<span class="op">$</span>eps_<span class="dv">7</span>
 <span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>
@@ -605,11 +605,11 @@ periods
 
 <span class="co"># Track fixed episodes from events with a 5 day cut-off </span>
 mth1 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> dates, <span class="dt">case_length =</span> <span class="dv">4</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 <span class="co"># Track fixed episode from periods that are 5 days long </span>
 mth2 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> periods, <span class="dt">case_length =</span><span class="dv">0</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 
 <span class="co"># Same results</span>
 mth1; mth2
@@ -618,11 +618,11 @@ mth1; mth2
 
 <span class="co"># Track rolling episodes from events using a 5 day cut-off </span>
 mth3 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dates, <span class="dt">case_length =</span> <span class="dv">4</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 <span class="co"># Track rolling episode from periods that are 5 days long </span>
 mth4 &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> periods, <span class="dt">case_length =</span><span class="dv">0</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 <span class="co"># Same results</span>
 mth3; mth4
@@ -643,17 +643,17 @@ hos_admin<span class="op">$</span>admin_period
 <p><strong>Figure 7a: Tracking periods of hospital stay (admission -&gt; discharge)</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">case_length =</span> <span class="dv">0</span>, 
                 <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span></code></pre></div>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-52-1.png" width="816"></p>
 <p><strong>Figure 7b: Tracking periods of hospital stay up to 20 days after the first discharge</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">case_length =</span> <span class="dv">20</span>, 
                 <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span></code></pre></div>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-54-1.png" width="816"></p>
 <p><strong>Figure 7c: Tracking periods of continuous hospital stay i.e. re-admission within 15 days</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">hs_epids_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date=</span>hos_admin<span class="op">$</span>admin_period, <span class="dt">case_length =</span> <span class="dv">0</span>, 
                 <span class="dt">recurrence_length=</span><span class="dv">15</span>, <span class="dt">display=</span>F, <span class="dt">group_stats=</span>T)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span></code></pre></div>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-56-1.png" width="816"></p>
 <p>There are 6 ways <code>event periods</code> can overlap (<code>overlap_methods</code>). These are <code>"exact"</code>, <code>"across"</code>, <code>"inbetween"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. These are covered in more detail in an accompanying <a href="number_line.html#overlaps">vignette</a>. Only <code>event periods</code> that overlap by a specified <code>overlap_method</code> will be grouped into the same <code>episode</code>. You can use any combination of the 6 methods but the default option is to use all 6. See below for a demonstration of this.</p>
 <p><em>The 6 <code>overlap_methods</code> are mutually exclusive.</em></p>
@@ -695,15 +695,15 @@ methods &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdoc
 )
 
 epids &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/lapply">lapply</a></span>(methods, epi_grp_func)
-<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 7 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 9 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 9 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 8 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs. </span>
-<span class="co">#&gt; Episode grouping complete - 4 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 7 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 5 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 7 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 7 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 9 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 7 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 8 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 5 record(s) with a unique ID. </span>
+<span class="co">#&gt; Episode grouping complete: 4 record(s) with a unique ID.</span>
 <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(epids) &lt;-<span class="st"> </span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/names">names</a></span>(methods)
 
 <span class="co"># Results</span>
@@ -737,32 +737,43 @@ periods
 <p>As seen earlier, positive “length” means that; <code>event periods</code> overlapping with the index <code>event period</code> and those within <code>n</code>-days AFTER the <code><a href="../reference/number_line.html">end_point()</a></code> of the index <code>event period</code> will be grouped into the same <code>episode</code>. See another example below.</p>
 <p><strong>Figure 9a: Fixed episodes with a case_length of 6</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="dv">6</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 eps_a
 <span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-04-10 (C)" "E.1 2019-03-28 -&gt; 2019-04-10 (D)"</span>
 <span class="co">#&gt; [3] "E.1 2019-03-28 -&gt; 2019-04-10 (D)" "E.4 2019-04-07 -&gt; 2019-04-13 (C)"</span>
 <span class="co">#&gt; [5] "E.4 2019-04-07 -&gt; 2019-04-13 (D)"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-63-1.png" width="816"></p>
-<p>In contrast, a negative “length” means that; only <code>event periods</code> within <code>n</code>-days BEFORE the <code><a href="../reference/number_line.html">end_point()</a></code> of the index <code>event period</code> will be grouped into the same <code>episode</code>. See the examples below.</p>
+<p>In contrast, a negative “length” means that; only <code>event periods</code> within <code>n</code>-days BEFORE the <code><a href="../reference/number_line.html">end_point()</a></code> of the index <code>event period</code> will be grouped into the same <code>episode</code>.</p>
 <p><strong>Figure 9b: Fixed episodes with a case_length of -2</strong></p>
 <div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">2</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 2 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 eps_b
 <span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-03-31 (C)" "E.2 2019-04-01 -&gt; 2019-04-10 (C)"</span>
-<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D)" "E.2 2019-04-01 -&gt; 2019-04-10 (D)"</span>
+<span class="co">#&gt; [3] "E.3 2019-04-03 -&gt; 2019-04-05 (S)" "E.2 2019-04-01 -&gt; 2019-04-10 (D)"</span>
 <span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C)"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-65-1.png" width="816"></p>
-<p><strong>Figure 9c: Fixed episodes with a case_length of -6</strong></p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">6</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<p>By default, overlapping periods that are outside the 2-day periods are also groupped together. This can be changed with <code>include_initial_period</code>. See below.</p>
+<p><strong>Figure 9c: Fixed episodes with a case_length of -2</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">2</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F,
+                        <span class="dt">include_index_period =</span> F)
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 eps_c
 <span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-03-31 (C)" "E.2 2019-04-01 -&gt; 2019-04-10 (C)"</span>
-<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D)" "E.4 2019-04-07 -&gt; 2019-04-09 (S)"</span>
+<span class="co">#&gt; [3] "E.3 2019-04-03 -&gt; 2019-04-05 (S)" "E.2 2019-04-01 -&gt; 2019-04-10 (D)"</span>
 <span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C)"</span></code></pre></div>
 <p><img src="episode_group_files/figure-html/unnamed-chunk-67-1.png" width="816"></p>
+<p><strong>Figure 9d: Fixed episodes with a case_length of -6</strong></p>
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">eps_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(periods, <span class="dt">case_length =</span><span class="op">-</span><span class="dv">6</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
+<span class="co">#&gt; Episode grouping complete: 2 record(s) with a unique ID.</span>
+
+eps_d
+<span class="co">#&gt; [1] "E.1 2019-03-28 -&gt; 2019-03-31 (C)" "E.2 2019-04-01 -&gt; 2019-04-10 (C)"</span>
+<span class="co">#&gt; [3] "E.2 2019-04-01 -&gt; 2019-04-10 (D)" "E.2 2019-04-01 -&gt; 2019-04-10 (D)"</span>
+<span class="co">#&gt; [5] "E.5 2019-04-12 -&gt; 2019-04-13 (C)"</span></code></pre></div>
+<p><img src="episode_group_files/figure-html/unnamed-chunk-69-1.png" width="816"></p>
 <p><a id="stratified_grouping"></a></p>
 </div>
 </div>
@@ -787,7 +798,7 @@ dbs<span class="op">$</span>recur &lt;-<span class="st"> </span><span class="kw"
 dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date=</span>dbs<span class="op">$</span>date, <span class="dt">case_length =</span>dbs<span class="op">$</span>epi, <span class="dt">to_s4 =</span><span class="ot">TRUE</span>, 
                               <span class="dt">strata =</span> dbs<span class="op">$</span>infection, <span class="dt">recurrence_length =</span> dbs<span class="op">$</span>recur, 
                               <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">group_stats =</span> <span class="ot">TRUE</span>)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 dbs
 <span class="co">#&gt;          date infection epi recur                            epids</span>
@@ -819,7 +830,7 @@ dbs
 dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbs, <span class="dt">sn=</span>rid, <span class="dt">strata=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(pid, organism, source), <span class="dt">date=</span>date, 
                 <span class="dt">case_length =</span>epi, <span class="dt">episode_type =</span> <span class="st">"rolling"</span>, <span class="dt">recurrence_length =</span> recur,
                 <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 dbs
 <span class="co">#&gt;    rid       date pid organism source treated epi recur    epids</span>
@@ -864,7 +875,7 @@ dbs<span class="op">$</span>epids_a &lt;-<span class="st"> </span><span class="k
 <span class="co">#&gt; 10 record(s); 8 excluded from episode grouping. 2 left to group.</span>
 <span class="co">#&gt; 2 record(s); 2 grouped to episodes and 0 left to group.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 8 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 8 record(s) with a unique ID.</span>
 
 <span class="co">#   OR</span>
 
@@ -876,7 +887,7 @@ dbs<span class="op">$</span>epids_b &lt;-<span class="st"> </span><span class="k
 <span class="co">#&gt; Episode or recurrence window 2.</span>
 <span class="co">#&gt; 7 record(s); 7 grouped to episodes and 0 left to group.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 dbs
 <span class="co">#&gt;               datetime category subset epids_a epids_b</span>
@@ -908,7 +919,7 @@ dbf<span class="op">$</span>ep_a &lt;-<span class="st"> </span><span class="kw">
 <span class="co">#&gt; 8 record(s); 3 grouped to episodes and 5 left to group.</span>
 <span class="co">#&gt; 5 record(s); 5 skipped</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 5 record(s) with a unique ID.</span>
 dbf<span class="op">$</span>ep_a_d &lt;-<span class="st"> </span>dbf<span class="op">$</span>ep_a<span class="op">@</span>epid_dataset
 
 <span class="co"># Don't skip any episodes</span>
@@ -927,7 +938,7 @@ dbf<span class="op">$</span>ep_b &lt;-<span class="st"> </span><span class="kw">
 <span class="co">#&gt; Episode or recurrence window 6.</span>
 <span class="co">#&gt; 2 record(s); 2 grouped to episodes and 0 left to group.</span>
 <span class="co">#&gt; </span>
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 dbf<span class="op">$</span>ep_b_d &lt;-<span class="st"> </span>dbf<span class="op">$</span>ep_b<span class="op">@</span>epid_dataset
 
 dbf
@@ -961,28 +972,28 @@ dbg<span class="op">$</span>dataset &lt;-<span class="st"> </span><span class="k
 dbg<span class="op">$</span>ep_a &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 
 <span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
   <span class="co"># The `DS3` event MUST BE linked to events from other `data_sources`  </span>
 dbg<span class="op">$</span>ep_b &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="st">"DS3"</span>, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 5 record(s) with a unique ID.</span>
 
 <span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
   <span class="co"># The `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   </span>
 dbg<span class="op">$</span>ep_c &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">g=</span><span class="st">"DS3"</span>), <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 3 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 3 record(s) with a unique ID.</span>
 
 <span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
   <span class="co"># The `DS3` event MUST BE linkned to events from the `DS1` `data_source`</span>
 dbg<span class="op">$</span>ep_d &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">episode_group</a></span>(dbg, <span class="dt">date =</span> date, <span class="dt">case_length =</span> case_len, <span class="dt">episode_type =</span><span class="st">"rolling"</span>, 
                           <span class="dt">recurrence_length =</span> recurrence, <span class="dt">data_source =</span> dataset, <span class="dt">to_s4 =</span> T,
                           <span class="dt">data_links =</span> <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/list">list</a></span>(<span class="dt">l=</span><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"DS3"</span>,<span class="st">"DS1"</span>)), <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 8 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 8 record(s) with a unique ID.</span>
 
 dbg[<span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(<span class="st">"date"</span>, <span class="st">"dataset"</span>, <span class="st">"ep_a"</span>, <span class="st">"ep_b"</span>, <span class="st">"ep_c"</span>, <span class="st">"ep_d"</span>)]
 <span class="co">#&gt;          date dataset     ep_a     ep_b     ep_c     ep_d</span>
@@ -1035,7 +1046,7 @@ diyar<span class="op">::</span>episode_unit
 <span class="co"># 1-day fixed episodes</span>
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">1</span>, <span class="dt">episode_unit =</span> <span class="st">"days"</span>, 
                <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 <span class="co">#&gt;  [1] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (C)"</span>
 <span class="co">#&gt;  [2] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
 <span class="co">#&gt;  [3] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 22:05:12 (D)"</span>
@@ -1053,7 +1064,7 @@ diyar<span class="op">::</span>episode_unit
 <span class="co"># 5-hr fixed episodes</span>
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, 
                <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 <span class="co">#&gt;  [1] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 04:01:40 (C)"</span>
 <span class="co">#&gt;  [2] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 04:01:40 (D)"</span>
 <span class="co">#&gt;  [3] "E.01 2019-04-01 00:03:20 -&gt; 2019-04-01 04:01:40 (D)"</span>
@@ -1071,7 +1082,7 @@ diyar<span class="op">::</span>episode_unit
 <span class="co"># 5-hr rolling episodes</span>
 <span class="kw"><a href="../reference/episode_group.html">rolling_episodes</a></span>(<span class="dt">date =</span> dbs<span class="op">$</span>datetime, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">episode_unit =</span> <span class="st">"hours"</span>, 
                  <span class="dt">group_stats =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 <span class="co">#&gt;  [1] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (C)"</span>
 <span class="co">#&gt;  [2] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
 <span class="co">#&gt;  [3] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
@@ -1110,12 +1121,12 @@ dbs<span class="op">$</span>rd_id &lt;-<span class="st"> </span><span class="kw"
 
 <span class="co"># strata based on matching sources of infection</span>
 dbs<span class="op">$</span>pids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(dbs, <span class="dt">sn =</span> rd_id,  <span class="dt">criteria =</span> infection, <span class="dt">display =</span> <span class="ot">FALSE</span>)
-<span class="co">#&gt; Record grouping complete - 0 record(s) assigned a group unique ID.</span>
+<span class="co">#&gt; Record grouping complete: 0 record(s) with a unique ID.</span>
 
 <span class="co"># stratified grouping </span>
 dbs<span class="op">$</span>epids &lt;-<span class="st"> </span><span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(<span class="dt">sn =</span> dbs<span class="op">$</span>rd_id, <span class="dt">date =</span> dbs<span class="op">$</span>date, <span class="dt">strata =</span> dbs<span class="op">$</span>pids, 
                              <span class="dt">to_s4 =</span> <span class="ot">TRUE</span>, <span class="dt">display =</span> <span class="ot">FALSE</span>, <span class="dt">case_length =</span> <span class="dv">10</span>)
-<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 5 record(s) with a unique ID.</span>
 
 dbs
 <span class="co">#&gt;          date infection rd_id          pids     epids</span>
@@ -1141,21 +1152,21 @@ vals
 <span class="co">#&gt;  [1]  8.1  6.0 12.0  8.5 12.0  3.0  8.0 15.0  5.0  7.0</span>
 
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(vals, <span class="dt">case_length =</span> .<span class="dv">5</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 5 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 5 record(s) with a unique ID.</span>
 <span class="co">#&gt;  [1] "E.07 8 -&gt; 8.5 (D)" "E.02 6 == 6 (C)"   "E.03 12 == 12 (C)"</span>
 <span class="co">#&gt;  [4] "E.07 8 -&gt; 8.5 (D)" "E.03 12 == 12 (D)" "E.06 3 == 3 (C)"  </span>
 <span class="co">#&gt;  [7] "E.07 8 -&gt; 8.5 (C)" "E.08 15 == 15 (C)" "E.09 5 == 5 (C)"  </span>
 <span class="co">#&gt; [10] "E.10 7 == 7 (C)"</span>
 
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(vals, <span class="dt">case_length =</span> <span class="dv">5</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 1 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 1 record(s) with a unique ID.</span>
 <span class="co">#&gt;  [1] "E.1 8.1 -&gt; 12 (C)" "E.6 3 -&gt; 8 (D)"    "E.1 8.1 -&gt; 12 (D)"</span>
 <span class="co">#&gt;  [4] "E.1 8.1 -&gt; 12 (D)" "E.1 8.1 -&gt; 12 (D)" "E.6 3 -&gt; 8 (C)"   </span>
 <span class="co">#&gt;  [7] "E.6 3 -&gt; 8 (D)"    "E.8 15 == 15 (C)"  "E.6 3 -&gt; 8 (D)"   </span>
 <span class="co">#&gt; [10] "E.6 3 -&gt; 8 (D)"</span>
 
 <span class="kw"><a href="../reference/episode_group.html">fixed_episodes</a></span>(vals, <span class="dt">case_length =</span> <span class="dv">100</span>, <span class="dt">group_stats =</span> T, <span class="dt">display =</span> F)
-<span class="co">#&gt; Episode grouping complete - 0 record(s) with unique IDs.</span>
+<span class="co">#&gt; Episode grouping complete: 0 record(s) with a unique ID.</span>
 <span class="co">#&gt;  [1] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)"</span>
 <span class="co">#&gt;  [4] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (C)"</span>
 <span class="co">#&gt;  [7] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)"</span>

@@ -40,7 +40,7 @@
 #' @param data_links Breakup episodes that will not include records from these \code{data_sources}. \code{data_links} should be a \code{list} with every element named 'l' (links) or 'g' (groups).
 #' Useful in skipping episodes that are not required to minimise processing time. Ignored if \code{data_source} is \code{NULL}.
 #' @param skip_if_b4_lengths If \code{TRUE} (default), records \code{events} before the \code{case_length} or the \code{recurrence_length} range are skipped.
-#' @param include_index_period If \code{TRUE}, overlaps with the index event or period are groupped together even if they are outside the cut-off range (\code{case_length} or \code{recurrence_length}).
+#' @param include_index_period If \code{TRUE}, overlaps with the index event or period are grouped together even if they are outside the cut-off range (\code{case_length} or \code{recurrence_length}).
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
@@ -678,7 +678,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$tr_int <- suppressWarnings(diyar::number_line(T1$tr_dt_ai, T1$tr_dt_zi))
     T1$tr_c_int_e <- T1$tr_r_int_e <- T1$tr_c_int_d <- T1$tr_c_int_c <- T1$tr_c_int_b <- T1$tr_c_int_a <- T1$tr_r_int_d <- T1$tr_r_int_b <- T1$tr_r_int_a <-  T1$tr_r_int_c <-  T1$tr_c_int_a <- T1$tr_int
 
-    # Direction in time for episode groupping
+    # Direction in time for episode grouping
     chr_dir <- ifelse(from_last==F, 1, -1)
 
     # Is check for the opposite direction required?

@@ -60,7 +60,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.1.0</span>
       </span>
     </div>
 
@@ -116,9 +116,9 @@
       
     </div>
 
-    <div id="version-0-1-0-9000" class="section level1">
+    <div id="version-0-1-0" class="section level1">
 <h1 class="page-header">
-<a href="#version-0-1-0-9000" class="anchor"></a>Version 0.1.0.9000<small> Unreleased </small>
+<a href="#version-0-1-0" class="anchor"></a>Version 0.1.0<small> Unreleased </small>
 </h1>
 <div id="new-features" class="section level2">
 <h2 class="hasAnchor">
@@ -145,11 +145,13 @@
 <li>
 <code><a href="../reference/episode_group.html">episode_group()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>case_for_recurrence</code> argument. Determine if recurrent events should have their own case windows or not.</li>
 <li>
-<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>data_links</code>. Ungroup episodes that do not include records from certain <code>data_source(s)</code>.</li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>data_links</code> argument. Ungroup episodes that do not include records from certain <code>data_source(s)</code>.</li>
 <li>
-<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>case_length</code> and <code>recurrence_length</code>. You can now use a range (<code>number_line</code> object).</li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>case_length</code> and <code>recurrence_length</code> arguments. You can now use a range (<code>number_line</code> object).</li>
 <li>
-<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>skip_order</code>. Skip episodes with case events that have <code>custom_sort</code> values less than or equal to the<code>"nth"</code> order of <code>custom_sort</code>.</li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>case_length</code> and <code>recurrence_length</code> arguments. You can now use a range (<code>number_line</code> object).</li>
+<li>
+<code><a href="../reference/episode_group.html">episode_group()</a></code>, <code><a href="../reference/episode_group.html">fixed_episodes()</a></code> and <code><a href="../reference/episode_group.html">rolling_episodes()</a></code> - <code>include_index_period</code> argument. If <code>TRUE</code>, overlaps with the index event or period are groupped together even if they are outside the cut-off range (<code>case_length</code> or <code>recurrence_length</code>).</li>
 <li>
 <code>pid</code> objects - <code>link_id</code> slot. Shows the record (<code>sn</code> slot) to which every record in the dataset has matched to.</li>
 <li>
@@ -331,7 +333,7 @@
     <div id="tocnav">
       <h2>Contents</h2>
       <ul class="nav nav-pills nav-stacked">
-        <li><a href="#version-0-1-0-9000">0.1.0.9000</a></li>
+        <li><a href="#version-0-1-0">0.1.0</a></li>
         <li><a href="#version-0-0-3">0.0.3</a></li>
         <li><a href="#version-0-0-2">0.0.2</a></li>
         <li><a href="#version-0-0-1">0.0.1</a></li>

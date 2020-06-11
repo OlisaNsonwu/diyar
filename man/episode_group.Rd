@@ -101,7 +101,7 @@ If \code{FALSE} (default), it will be the first event. Only used if \code{episod
 \item{case_for_recurrence}{If \code{TRUE}, both case and recurrence events will have a \code{case window}.
 If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{include_index_period}{If \code{TRUE}, overlaps with the index event or period are groupped together even if they are outside the cut-off range (\code{case_length} or \code{recurrence_length}).}
+\item{include_index_period}{If \code{TRUE}, overlaps with the index event or period are grouped together even if they are outside the cut-off range (\code{case_length} or \code{recurrence_length}).}
 
 \item{x}{Record date or interval. Deprecated. Please use \code{date}}
 }
