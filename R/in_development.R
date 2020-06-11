@@ -62,12 +62,15 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     if(any(class(case_length) %in% c("number_line"))){
       dfp$ep_l <- dfp$c <- diyar::reverse_number_line(case_length, "decreasing")
     }else{
-      dfp$c <- diyar::as.number_line(case_length)
-      dfp$ep_l <- number_line(rep(0, length(dfp$c)), left_point(dfp$c))
-      dfp$c[dfp$c@start <0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start <0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start <0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start<0 & dfp$c@.Data ==0]))
-      dfp$c[dfp$c@start>=0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start>=0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start>=0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start>=0 & dfp$c@.Data ==0]))
+      dfp$c <- diyar::as.number_line(case_length);
+      left_point(dfp$c) <- rep(0, length(dfp$c))
+      # dfp$ep_l <- number_line(rep(0, length(dfp$c)), left_point(dfp$c))
+      # dfp$c[dfp$c@start <0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start <0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start <0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start<0 & dfp$c@.Data ==0]))
+      # dfp$c[dfp$c@start>=0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start>=0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start>=0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start>=0 & dfp$c@.Data ==0]))
       dfp$c <- diyar::reverse_number_line(dfp$c, "decreasing")
-      dfp$ep_l <- diyar::reverse_number_line(dfp$ep_l, "decreasing")
+      n_e <- ifelse(start_point(dfp$c) < 0 & end_point(dfp$c) <=0 , T, F)
+      dfp$c[n_e] <- diyar::reverse_number_line(dfp$c[n_e])
+      # dfp$ep_l <- diyar::reverse_number_line(dfp$ep_l, "decreasing")
     }
   }
 
@@ -78,11 +81,14 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       dfp$rc_l <- dfp$r <- diyar::reverse_number_line(recurrence_length, "decreasing")
     }else{
       dfp$r <- diyar::as.number_line(recurrence_length)
-      dfp$rc_l <- number_line(rep(0, length(dfp$r)), left_point(dfp$r))
-      dfp$r[dfp$r@start <0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start <0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start <0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start<0 & dfp$r@.Data ==0]))
-      dfp$r[dfp$r@start>=0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start>=0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start>=0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start>=0 & dfp$r@.Data ==0]))
+      left_point(dfp$r) <- rep(0, length(dfp$r))
+      # dfp$rc_l <- number_line(rep(0, length(dfp$r)), left_point(dfp$r))
+      # dfp$r[dfp$r@start <0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start <0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start <0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start<0 & dfp$r@.Data ==0]))
+      # dfp$r[dfp$r@start>=0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start>=0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start>=0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start>=0 & dfp$r@.Data ==0]))
       dfp$r <- diyar::reverse_number_line(dfp$r, "decreasing")
-      dfp$rc_l <- diyar::reverse_number_line(dfp$rc_l, "decreasing")
+      n_r <- ifelse(start_point(dfp$r) < 0 & end_point(dfp$r) <=0 , T, F)
+      dfp$r[n_r] <- diyar::reverse_number_line(dfp$r[n_r])
+      # dfp$rc_l <- diyar::reverse_number_line(dfp$rc_l, "decreasing")
     }
   }
 
@@ -203,24 +209,28 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       graphics::points(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i]), bg = dfp$win_cols[i], col = dfp$win_cols[i], pch = 21)
       # left_point() tracer
       graphics::lines(y=c(dfp$e_y[i] - (scale_fac * 0.06), dfp$windows_y_axis[i]), x = rep(dfp$dt_a[i],2), col = dfp$win_cols[i], lty = 2)
-
-      if(dfp$c[i]<0 & dfp$wind_id[i] == dfp$sn[i]){
-        if(dfp$dt_a[i] < dfp$dt_z[i] + dfp$c[i]){
-          # Period "completely changed" due to the negative case_length
-          graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i] + dfp$c[i]), col = dfp$win_cols[i], lty = 1)
-          # The period "cancelled out" due to the negative case_length
-          graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_z[i] + dfp$c[i], dfp$dt_z[i]), col = "white", lty = 2)
-        }else{
-          # Period "shortened" due to the negative case_length
-          graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i] + dfp$c[i]), col = "white", lty = 2)
-        }
-      }else{
-        # Period "shortened" due to the negative case_length
-        graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i]), col = dfp$win_cols[i], lty = 1)
-        # right_point() tracer
-        graphics::lines(y=c(dfp$e_y[i] - (scale_fac * 0.06), dfp$windows_y_axis[i]), x = rep(dfp$dt_z[i],2), col = dfp$win_cols[i], lty = 2)
-      }
+      # right_point() tracer
+      graphics::lines(y=c(dfp$e_y[i] - (scale_fac * 0.06), dfp$windows_y_axis[i]), x = rep(dfp$dt_z[i],2), col = dfp$win_cols[i], lty = 2)
+      graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i]), col = dfp$win_cols[i], lty = 1)
       graphics::text(cex = .7 * scale_fac, y=dfp$e_y[i] + (scale_fac * 0.05), x=mean(c(dfp$dt_a[i], dfp$dt_z[i])), labels = dfp$event_nm[i], adj =c(.5,0), col = dfp$win_cols[i])
+
+      # if(dfp$c[i]<0 & dfp$wind_id[i] == dfp$sn[i]){
+      #   if(dfp$dt_a[i] < dfp$dt_z[i] + dfp$c[i]){
+      #     # Period "completely changed" due to the negative case_length
+      #     graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i] + dfp$c[i]), col = dfp$win_cols[i], lty = 1)
+      #     # The period "cancelled out" due to the negative case_length
+      #     graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_z[i] + dfp$c[i], dfp$dt_z[i]), col = "white", lty = 2)
+      #   }else{
+      #     # Period "shortened" due to the negative case_length
+      #     graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i] + dfp$c[i]), col = "white", lty = 2)
+      #   }
+      # }else{
+      #   # Period "shortened" due to the negative case_length
+      #   graphics::lines(y=rep(dfp$e_y[i],2), x = c(dfp$dt_a[i], dfp$dt_z[i]), col = dfp$win_cols[i], lty = 1)
+      #   # right_point() tracer
+      #   graphics::lines(y=c(dfp$e_y[i] - (scale_fac * 0.06), dfp$windows_y_axis[i]), x = rep(dfp$dt_z[i],2), col = dfp$win_cols[i], lty = 2)
+      # }
+      # graphics::text(cex = .7 * scale_fac, y=dfp$e_y[i] + (scale_fac * 0.05), x=mean(c(dfp$dt_a[i], dfp$dt_z[i])), labels = dfp$event_nm[i], adj =c(.5,0), col = dfp$win_cols[i])
     }
 
     # case lengths
@@ -242,17 +252,19 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       # spacing
       dfp$case_len_y_axis <- dfp$case_len_y_axis + (0.02 * ((1:nrow(dfp))-1))
 
-      cl$lab <- ifelse(cl$ep_l@start==0,
-                       paste0("Case length\n(within ",right_point(cl$ep_l)," day-difference)"),
-                       ifelse(cl$ep_l@.Data==0,
-                              paste0("Case length\n(on ",end_point(cl$ep_l)," day-difference)"),
-                              paste0("Case length\n(between ",left_point(cl$ep_l)," and ",right_point(cl$ep_l)," day-difference)")))
+      cl$lab <- ifelse(cl$c@start==0,
+                       paste0("Case length\n(within ",right_point(cl$c)," day-difference)"),
+                       ifelse(cl$c@.Data==0,
+                              paste0("Case length\n(on ",end_point(cl$c)," day-difference)"),
+                              paste0("Case length\n(between ",left_point(cl$c)," and ",right_point(cl$c)," day-difference)")))
 
       for(i in 1:nrow(cl)){
         # Surpressed warning from 0 length arrows
-        suppressWarnings(graphics::lines(y=rep(cl$case_len_y_axis[i], 2), x = c(left_point(cl$int)[i], right_point(cl$int)[i]), col = cl$epd_cols[i], lty=1))
+        #suppressWarnings(graphics::lines(y=rep(cl$case_len_y_axis[i], 2), x = c(left_point(cl$int)[i], right_point(cl$int)[i]), col = cl$epd_cols[i], lty=1))
         suppressWarnings(graphics::lines(y=rep(cl$case_len_y_axis[i], 2), x = c(right_point(cl$int)[i], right_point(cl$int)[i] + (left_point(cl$c)[i] * ifelse(from_last==T,-1,1))), col = ifelse(cl$int@.Data!=0, cl$epd_cols[i], "white"), lty=2))
         suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = right_point(cl$int)[i] + (left_point(cl$c)[i] * ifelse(from_last==T,-1,1)), x1 =right_point(cl$int)[i] + (right_point(cl$c)[i] * ifelse(from_last==T,-1,1)), col = "white", lty=1))
+        graphics::points(y=rep(cl$case_len_y_axis[i],2), x = rep(right_point(cl$int)[i], 2), bg = "black", col = cl$win_cols[i], pch = 21)
+
         #suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$end_dt.5[i], x1 = cl$end_dt[i], col ="white", lty=1))
 
         # if(i == nrow(cl) & i != 1 & cl$end_dt[i] > xlims[2]) x_pos <- ifelse(from_last ==T, cl$end_dt.5[i] + (scale_fac * 0.5), cl$end_dt.5[i] - (scale_fac * 0.5))
@@ -262,7 +274,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
           right_point(cl$int)[i] + (right_point(cl$c)[i] * ifelse(from_last==T,-1,1))
           ))
 
-        graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=x_pos, labels = cl$lab[i], col ="white", adj =c(0.5 ,0))
+        graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.04) , x=x_pos, labels = cl$lab[i], col ="white", adj =c(0.5 ,0))
         #graphics::lines(y=c(cl$case_len_y_axis[i] - (scale_fac * 0.015), cl$case_len_y_axis[i] + (scale_fac * 0.015)), x = rep(cl$dt[i],2), col=cl$win_col[i])
 
         # Trying to guess when bi_direction has been used.
@@ -285,11 +297,11 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       # rl$dt2 <- as.numeric(rl$dt_a)
       # rl$end_dt2 <- as.numeric(rl$dt2 - ifelse(from_last==F, right_point(rl$r), -right_point(rl$r)))
 
-      rl$lab <- ifelse(rl$rc_l@start==0,
-                       paste0("Recurrence length\n(within ",right_point(rl$rc_l)," day-difference)"),
-                       ifelse(rl$rc_l@.Data==0,
-                              paste0("Recurrence length\n(on ",end_point(rl$rc_l)," day-difference)"),
-                              paste0("Recurrence length\n(between ",left_point(rl$rc_l)," and ",right_point(rl$rc_l)," day-difference)")))
+      rl$lab <- ifelse(rl$r@start==0,
+                       paste0("Recurrence length\n(within ",right_point(rl$r)," day-difference)"),
+                       ifelse(rl$r@.Data==0,
+                              paste0("Recurrence length\n(on ",end_point(rl$r)," day-difference)"),
+                              paste0("Recurrence length\n(between ",left_point(rl$r)," and ",right_point(rl$r)," day-difference)")))
 
       for(i in 1:nrow(rl)){
         # Surpressed warning from 0 length arrows
@@ -301,11 +313,12 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
           right_point(rl$int)[i] + (right_point(rl$r)[i] * ifelse(from_last==T,-1,1))
         ))
 
-        suppressWarnings(graphics::lines(y=rep(rl$rec_len_y_axis[i], 2), x = c(left_point(rl$int)[i], right_point(rl$int)[i]), col = rl$epd_cols[i], lty=1))
+        #suppressWarnings(graphics::lines(y=rep(rl$rec_len_y_axis[i], 2), x = c(left_point(rl$int)[i], right_point(rl$int)[i]), col = rl$epd_cols[i], lty=1))
         suppressWarnings(graphics::lines(y=rep(rl$rec_len_y_axis[i], 2), x = c(right_point(rl$int)[i], right_point(rl$int)[i] + (left_point(rl$r)[i] * ifelse(from_last==T,-1,1))), col = ifelse(rl$int@.Data!=0, rl$epd_cols[i], "white"), lty=2))
         suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = right_point(rl$int)[i] + (left_point(rl$r)[i] * ifelse(from_last==T,-1,1)), x1 =right_point(rl$int)[i] + (right_point(rl$r)[i] * ifelse(from_last==T,-1,1)), col = "white", lty=1))
+        graphics::points(y=rep(rl$rec_len_y_axis[i],2), x = rep(right_point(rl$int)[i], 2), bg = "black", col = rl$win_cols[i], pch = 21)
 
-        graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.02) , x= x_pos, labels = rl$lab[i], col ="white", adj =c(.5,0))
+        graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.04) , x= x_pos, labels = rl$lab[i], col ="white", adj =c(.5,0))
         #graphics::lines(y=c(rl$rec_len_y_axis[i] - (scale_fac * 0.015), rl$rec_len_y_axis[i] + (scale_fac * 0.015)), x = rep(rl$dt[i],2), col=rl$win_col[i])
       }
 

@@ -37,6 +37,10 @@
 #' Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
 #'
 #' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episode_group}}.
+#'
+#' @seealso
+#' \code{\link{number_line}} and \code{\link{set_operations}}
+#'
 #' @examples
 #' a <- number_line(-100, 100)
 #' b <- number_line(10, 11.2)

@@ -1,6 +1,6 @@
 #' @title Number line objects
 #'
-#' @description A range of \code{numeric} based values on a number line.
+#' @description \code{number_line} - A range of \code{numeric} based values on a number line.
 #'
 #' @details
 #' A \code{number_line} object represents a range of real numbers on a number line.
@@ -191,23 +191,27 @@ reverse_number_line <- function(x, direction = "both"){
   if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
   if(length(x)==0) return(x)
   if(!(length(direction) %in% c(1, length(x)) & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
-  if(!tolower(direction) %in% c("increasing","decreasing","both") ) stop(paste("`direction` must be either 'increasing', 'decreasing', or 'both'"))
+  direction <- tolower(direction)
+  if(any(!direction %in% c("increasing","decreasing","both")) ) stop(paste("`direction` must be either 'increasing', 'decreasing' or 'both'"))
 
-  f <- x
-  if(tolower(direction) == "decreasing"){
-    f@.Data <- ifelse(x@.Data <0 & is.finite(x@.Data), -x@.Data, x@.Data)
-    c <- ifelse(x@.Data <0 & is.finite(x@.Data), x@.Data, 0)
-  }else if(tolower(direction) == "increasing"){
-    f@.Data <- ifelse(x@.Data >0 & is.finite(x@.Data), -x@.Data, x@.Data)
-    c <- ifelse(x@.Data >0 & is.finite(x@.Data), x@.Data, 0)
-  } else if(tolower(direction) == "both"){
-    f@.Data <- ifelse(is.finite(x@.Data), -x@.Data, x@.Data)
-    c <- ifelse(is.finite(x@.Data), x@.Data, 0)
-  }
+  fnt <- is.finite(as.numeric(x@start)) & is.finite(as.numeric(x@.Data))
 
-  f@start <- f@start + c
+  x[direction=="increasing" & x@.Data>0 & fnt == T] <- diyar::number_line(l= x@start[direction=="increasing" & x@.Data>0 & fnt == T] + x@.Data[direction=="increasing" & x@.Data>0 & fnt == T],
+                                                               r= x@start[direction=="increasing" & x@.Data>0 & fnt == T],
+                                                               id=x@id[direction=="increasing" & x@.Data>0 & fnt == T],
+                                                               gid=x@gid[direction=="increasing" & x@.Data>0 & fnt == T])
 
-  return(f)
+  x[direction=="decreasing" & x@.Data<0 & fnt == T] <- diyar::number_line(l= x@start[direction=="decreasing" & x@.Data<0 & fnt == T] + x@.Data[direction=="decreasing" & x@.Data<0 & fnt == T],
+                                                               r= x@start[direction=="decreasing" & x@.Data<0 & fnt == T],
+                                                               id= x@id[direction=="decreasing" & x@.Data<0 & fnt == T],
+                                                               gid= x@gid[direction=="decreasing" & x@.Data<0 & fnt == T])
+
+  x[direction=="both" & x@.Data !=0 & fnt == T] <- diyar::number_line(l= x@start[direction=="both" & x@.Data !=0 & fnt == T] + x@.Data[direction=="both" & x@.Data !=0 & fnt == T],
+                                             r= x@start[direction=="both" & x@.Data !=0 & fnt == T],
+                                             id= x@id[direction=="both" & x@.Data !=0 & fnt == T],
+                                             gid= x@gid[direction=="both" & x@.Data !=0 & fnt == T])
+
+  return(x)
 }
 
 #' @rdname number_line

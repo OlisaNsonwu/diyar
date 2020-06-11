@@ -126,7 +126,7 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(end_point(1), "'x' is not a number_line object")
   expect_error(number_line_width(1), "'x' is not a number_line object")
   expect_error(reverse_number_line(number_line(10,100), c("both","increasing")), "'direction' must be a character of length 1")
-  expect_error(reverse_number_line(number_line(10,100), "increased"), "`direction` must be either 'increasing', 'decreasing', or 'both'")
+  expect_error(reverse_number_line(number_line(10,100), "increased"), "`direction` must be either 'increasing', 'decreasing' or 'both'")
   expect_warning(number_line(50, "20A"), "'l' and 'r' have different classes. It may need to be reconciled")
   expect_warning(number_line(50, "20A"), "NAs introduced by coercion")
 

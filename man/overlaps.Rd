@@ -123,3 +123,6 @@ include_overlap_method(c("across", "chain"))
 exclude_overlap_method("across")
 exclude_overlap_method(c("across", "chain"))
 }
+\seealso{
+\code{\link{number_line}} and \code{\link{set_operations}}
+}
