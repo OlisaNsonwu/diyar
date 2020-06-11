@@ -1,6 +1,6 @@
 #' @title Number line objects
 #'
-#' @description A range of \code{numeric} based values on a number line.
+#' @description \code{number_line} - A range of \code{numeric} based values on a number line.
 #'
 #' @details
 #' A \code{number_line} object represents a range of real numbers on a number line.

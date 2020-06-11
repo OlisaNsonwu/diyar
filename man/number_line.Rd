@@ -93,7 +93,7 @@ Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default)
 \code{number_line} object
 }
 \description{
-A range of \code{numeric} based values on a number line.
+\code{number_line} - A range of \code{numeric} based values on a number line.
 }
 \details{
 A \code{number_line} object represents a range of real numbers on a number line.
