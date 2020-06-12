@@ -78,7 +78,7 @@
 #' @examples
 #' library(diyar)
 #'
-#' #1. Fixed episodes
+#' # 1. Fixed episodes
 #' data(infections); infections
 #' db_1 <- infections
 #' # 16-day (difference of 15 days) episodes beginning from the earliest record
@@ -86,7 +86,6 @@
 #' # 16-hour (difference of 15 hours) episodes beginning from the earliest record
 #' db_1$fh <- fixed_episodes(db_1$date, case_length = 15,
 #' episode_unit = "hours", display = FALSE)
-#' db_1
 #'
 #' #2. Rolling episodes
 #' # Case length and recurrence periods of 16 days
@@ -94,10 +93,6 @@
 #' # Case length of 16 days and recurrence periods of 11 days
 #' db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
 #' recurrence_length = 10, display = FALSE)
-#' # Case length of 16 days and 2 recurrence periods of 11 days
-#' db_1$rd_c <- rolling_episodes(db_1$date, case_length = 15,
-#' recurrence_length = 10, rolls_max = 2, display = FALSE)
-#' db_1
 #'
 #' # 3. Stratified episode grouping
 #' db_3 <- infections
@@ -108,31 +103,11 @@
 #' case_length = 15, episodes_max = 1, display = FALSE)
 #' db_3
 #'
-#' # 4. Case assignment
+#' # 4. Chronological order
 #' db_4 <- infections
-#'
-#' ## 4.1 Chronological order
-#' db_4$forward_time <- fixed_episodes(db_4$date, case_length = 1,
-#' episode_unit = "months", display = FALSE)
 #' db_4$backward_time <- fixed_episodes(db_4$date, case_length = 1,
 #' episode_unit = "months", from_last = TRUE, display = FALSE)
 #' db_4
-#'
-#' ## 4.2 User defined order
-#' db_4b <- infections
-#' db_4b
-#' # RTI > UTI, or RTI > BSI
-#' db_4b$ord1 <- ifelse(db_4b$infection =="RTI",0,1)
-#' # UTI > BSI > RTI
-#' db_4b$ord2 <- factor(db_4b$infection, levels = c("UTI","BSI","RTI"))
-#'
-#' db_4b$epids_1 <- fixed_episodes(db_4b$date, case_length = 15,
-#' custom_sort = db_4b$ord1, display = FALSE)
-#' db_4b$epids_2 <- fixed_episodes(db_4b$date, case_length = 15,
-#' custom_sort = db_4b$ord2, display = FALSE)
-#' db_4b$epids_2b <- fixed_episodes(db_4b$date, case_length = 15,
-#' custom_sort = db_4b$ord2, bi_direction = TRUE, display = FALSE)
-#' db_4b
 #'
 #' #5. Interval grouping
 #' data(hospital_admissions)
@@ -140,7 +115,6 @@
 #' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 #' hospital_admissions$discharge_dt)
 #' admissions <- hospital_admissions[c("admin_period","epi_len")]
-#' admissions
 #'
 #' # Episodes of overlaping periods of admission
 #' admissions$epi_0 <- fixed_episodes(date=admissions$admin_period, case_length = 0,
@@ -155,18 +129,9 @@
 #' # Episodes of chained admission periods, and those with aligned end periods
 #' admissions$epi_0b <- fixed_episodes(date=admissions$admin_period, case_length = 0,
 #' overlap_methods = c("chain|aligns_end"), group_stats = TRUE, display = FALSE)
-#' admissions["epi_0b"]
 #'
 #'
 #' # Note - episode_group() takes column names not actual values
-#' db_5 <- infections
-#'
-#' db_5$recur <- 20
-#' db_5$epids_f <- episode_group(db_5, date=date, episode_type = "fixed",
-#' case_length = epi_len, display = FALSE)
-#' db_5$epids_r <- episode_group(db_5, date=date, episode_type = "rolling",
-#' case_length = epi_len, recurrence_length = recur, display = FALSE)
-#' db_5
 #'
 #' @aliases episode_group
 #' @export
