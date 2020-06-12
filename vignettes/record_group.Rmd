@@ -250,10 +250,7 @@ patient_list_2[c("forename","surname", "pids_b", "pids_d","pids_e")]
 Sometimes an exact match might be too strict and a less exact but reasonable approximation can be used. For example in `patient_list_2` above, records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. An alternative approach can be to use the surname initials or a Soundex transformation of the actual surname.
 
 ```{r warning=F, message=F}
-library(phonics)
-
-patient_list_2$soundex <- soundex(patient_list_2$surname)
-
+patient_list_2$soundex <- stringdist::phonetic(patient_list_2$surname)
 patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, soundex), 
                                       display = F, to_s4 = T)
 

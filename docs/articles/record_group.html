@@ -81,7 +81,7 @@
     <div class="page-header toc-ignore">
       <h1>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">11 June 2020</h4>
+            <h4 class="date">12 June 2020</h4>
       
       
       <div class="hidden name"><code>record_group.Rmd</code></div>
@@ -445,10 +445,7 @@ patient_list_<span class="dv">2</span>[<span class="kw"><a href="https://www.rdo
 <h2 class="hasAnchor">
 <a href="#approximate-matching---text-transformation-and-range-matching" class="anchor"></a>Approximate matching - text transformation and range matching</h2>
 <p>Sometimes an exact match might be too strict and a less exact but reasonable approximation can be used. For example in <code>patient_list_2</code> above, records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. An alternative approach can be to use the surname initials or a Soundex transformation of the actual surname.</p>
-<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r"><span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/library">library</a></span>(phonics)
-
-patient_list_<span class="dv">2</span><span class="op">$</span>soundex &lt;-<span class="st"> </span><span class="kw">soundex</span>(patient_list_<span class="dv">2</span><span class="op">$</span>surname)
-
+<div class="sourceCode"><pre class="sourceCode r"><code class="sourceCode r">patient_list_<span class="dv">2</span><span class="op">$</span>soundex &lt;-<span class="st"> </span>stringdist<span class="op">::</span><span class="kw"><a href="https://www.rdocumentation.org/packages/stringdist/topics/phonetic">phonetic</a></span>(patient_list_<span class="dv">2</span><span class="op">$</span>surname)
 patient_list_<span class="dv">2</span><span class="op">$</span>pids_e &lt;-<span class="st"> </span><span class="kw"><a href="../reference/record_group.html">record_group</a></span>(patient_list_<span class="dv">2</span>, rd_id, <span class="kw"><a href="https://www.rdocumentation.org/packages/base/topics/c">c</a></span>(forename, soundex), 
                                       <span class="dt">display =</span> F, <span class="dt">to_s4 =</span> T)
 <span class="co">#&gt; Record grouping complete: 1 record(s) with a unique ID.</span>
