@@ -77,59 +77,30 @@
 #'
 #' @examples
 #' library(diyar)
+#' data(infections)
+#' data(hospital_admissions)
 #'
-#' # 1. Fixed episodes
-#' data(infections); infections
 #' db_1 <- infections
-#' # 16-day (difference of 15 days) episodes beginning from the earliest record
-#' db_1$fd <- fixed_episodes(db_1$date, case_length = 15, display = FALSE)
-#' # 16-hour (difference of 15 hours) episodes beginning from the earliest record
-#' db_1$fh <- fixed_episodes(db_1$date, case_length = 15,
-#' episode_unit = "hours", display = FALSE)
+#' db_1$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 #'
-#' #2. Rolling episodes
-#' # Case length and recurrence periods of 16 days
-#' db_1$rd_a <- rolling_episodes(db_1$date, case_length = 15, display = FALSE)
+#' # Fixed episodes
+#' # One 16-day (15-day difference) episode per patient
+#' db_1$epids_p <- fixed_episodes(date=db_1$date, strata = db_1$patient_id,
+#' case_length = 15, episodes_max = 1, display = FALSE)
+#'
+#' # Rolling episodes
 #' # Case length of 16 days and recurrence periods of 11 days
 #' db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
 #' recurrence_length = 10, display = FALSE)
 #'
-#' # 3. Stratified episode grouping
-#' db_3 <- infections
-#'
-#' db_3$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
-#' # One 16-day episode per patient
-#' db_3$epids_p <- fixed_episodes(date=db_3$date, strata = db_3$patient_id,
-#' case_length = 15, episodes_max = 1, display = FALSE)
-#' db_3
-#'
-#' # 4. Chronological order
-#' db_4 <- infections
-#' db_4$backward_time <- fixed_episodes(db_4$date, case_length = 1,
-#' episode_unit = "months", from_last = TRUE, display = FALSE)
-#' db_4
-#'
-#' #5. Interval grouping
-#' data(hospital_admissions)
-#'
+#' # Interval grouping
 #' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 #' hospital_admissions$discharge_dt)
 #' admissions <- hospital_admissions[c("admin_period","epi_len")]
 #'
 #' # Episodes of overlaping periods of admission
-#' admissions$epi_0 <- fixed_episodes(date=admissions$admin_period, case_length = 0,
-#' group_stats = TRUE, to_s4=TRUE)
-#' admissions
-#'
-#' # Overlaping periods of admission seperated by 1 month
-#' admissions$epi_1 <- fixed_episodes(date=admissions$admin_period, case_length = 1,
-#' episode_unit = "months", group_stats = TRUE, display = FALSE)
-#' admissions
-#'
-#' # Episodes of chained admission periods, and those with aligned end periods
-#' admissions$epi_0b <- fixed_episodes(date=admissions$admin_period, case_length = 0,
-#' overlap_methods = c("chain|aligns_end"), group_stats = TRUE, display = FALSE)
-#'
+#' hospital_admissions$epi_0 <- fixed_episodes(date=hospital_admissions$admin_period,
+#' case_length = 0, group_stats = TRUE, to_s4=TRUE)
 #'
 #' # Note - episode_group() takes column names not actual values
 #'
