@@ -34,20 +34,27 @@
 #'
 #' @export
 number_line <- function(l, r, id = NULL, gid = NULL){
+  if(missing(l) & missing(r)) return(new("number_line"))
+  if(length(l) ==0 & length(r)==0) return(new("number_line"))
+
   er1 <- try(as.numeric(l), silent = TRUE)
   er2 <- try(as.numeric(r), silent = TRUE)
   er3 <- try(as.numeric(r) - as.numeric(l), silent = TRUE)
 
-  if(missing(l) & missing(r) & missing(id) & missing(gid)) return(new("number_line"))
-  if(length(l)!=length(r)) stop("'l' and 'r' have different lengths")
+  mxa <- max(c(length(l), length(r), length(id), length(gid)))
+  if(length(l)==1) l <- rep(l, mxa)
+  if(length(r)==1) r <- rep(r, mxa)
+  if(length(id)==1) id <- rep(id, mxa)
+  if(length(gid)==1)gid <- rep(gid, mxa)
+  if(is.null(id) | any(!is.finite(id)) ) id <- 1:length(l)
+  if(is.null(gid) | any(!is.finite(gid)) ) gid <- 1:length(l)
+  if(length(l)!= mean(c(length(r),length(id),length(gid)))) stop("Argument lengths differ or are not equal to 1")
   if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""))
   if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
   if(!(is.numeric(gid) | is.null(gid))) stop(paste("'gid' must be numeric",sep=""))
-
   if(all(class(l)!=class(r))) warning("'l' and 'r' have different classes. It may need to be reconciled")
 
-  if(is.null(id) | any(!is.finite(id)) ) id <- 1:length(l)
-  if(is.null(gid) | any(!is.finite(gid)) ) gid <- 1:length(l)
+
   nl <- methods::new("number_line", .Data = as.numeric(r) - as.numeric(l), start=l, id = id, gid = gid)
   return(nl)
 }

@@ -1,4 +1,18 @@
 
+Version 0.2.0.9000
+==================
+
+New features
+------------
+
+Changes
+-------
+
+-   `l` and `r` must have the same length or be `1`
+
+Bug fixes
+---------
+
 Version 0.1.0
 =============
 
