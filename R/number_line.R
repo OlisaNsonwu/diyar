@@ -110,6 +110,7 @@ left_point <- function(x){
 #' @export
 "left_point<-" <- function(x, value) {
   if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(length(x)==0) return(number_line())
   diyar::number_line(r =diyar::right_point(x),  l=value, id=x@id, gid=x@gid)
 }
 
@@ -125,6 +126,7 @@ right_point <- function(x){
 #' @export
 "right_point<-" <- function(x, value) {
   if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(length(x)==0) return(number_line())
   diyar::number_line(r=value,  l=x@start, id=x@id, gid=x@gid)
 }
 

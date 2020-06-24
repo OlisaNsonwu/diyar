@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-#Version 0.2.0.9000
+#Version 0.1.1.9000
 
 ## New features
 
@@ -17,6 +17,7 @@ knitr::opts_chunk$set(
 + `l` and `r` must have the same length or be `1`
 
 ## Bug fixes
++ `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in some situations
 
 #Version 0.1.0
 ##New features

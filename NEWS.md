@@ -1,5 +1,5 @@
 
-Version 0.2.0.9000
+Version 0.1.1.9000
 ==================
 
 New features
@@ -12,6 +12,8 @@ Changes
 
 Bug fixes
 ---------
+
+-   `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in some situations
 
 Version 0.1.0
 =============

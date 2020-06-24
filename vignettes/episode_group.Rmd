@@ -22,16 +22,16 @@ dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
 ```
 
 #Introduction
-In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-off are used to distinguish between events. This is an important aspect of a case definition. For example, it's often important to distinguish between repeat positive infection results during a pathogen's incubation period. Another example, is distinguishing between infections from a single pathogen and those by multiple pathogens within a certain period in time. 
+In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-off are used to distinguish between events. This is an important aspect of a case definition. For example, it's often important to distinguish between repeat positive infection results during a pathogen's incubation period. Another example, is distinguishing between infections from a single pathogen and those by multiple pathogens over a particular period. 
 
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` provide simple but flexible ways of doing this. They group events into temporal episodes with an index event. This then allows for easy deduplication or a sub-analysis within each episode.
+`fixed_episodes()`, `rolling_episodes()` and `episode_group()` provide simple but flexible ways of doing this. They group events into temporal episodes which then allows for easy deduplication or a sub-analysis within each episode.
 
 # Uses
 
 These functions can implement a variety of case definitions. For example, they can group events into;
 
-+ episodes where each event occurred at points in time e.g. medical diagnoses or traffic incidents
-+ episodes where each event occurred over periods in time e.g. hospital admission or incubation periods. See [interval grouping](#interval_grouping)
++ episodes where events occurred at points in time e.g. medical diagnoses or traffic incidents
++ episodes where events occurred over periods in time e.g. hospital admission or incubation periods. See [interval grouping](#interval_grouping)
 + episodes where the events are known to recur
 + episodes where certain type of events are taken as index (reference) events. See ["user defined case assignment"](#custom_sort)
 + episodes with different durations depending on the type of event. See [stratified grouping](#stratified_grouping)
@@ -63,14 +63,14 @@ Before we begin, let's go over some terms which will pop up now and again.
 + `episode` - all `event` within the same cut-off - `case_length` and `recurrence_length`. Every overlapping `window` forms an `episode`
 + `case event` - index `event` for the entire episode
 + `recurrent event` - first `event` within a `recurrence_length`
-+ `duplicate event` - non-index `events` within an `episode`
-+ `episode tracking/grouping` - the process of grouping episodes. Begins at the index `event` and proceeds forward or backward in time depending on `from_last`.
++ `duplicate event` - repeat `events` of the `case` or `recurrent events`
++ `episode tracking/grouping` - the process of grouping `episodes`. Begins at the index `event` and proceeds forward or backward in time.
 
 In `fixed_episodes()`, a `window` always equates to an `episode`. `events` from a different `window` belongs to a separate `episode`. In `rolling_episodes()`, if two or more `windows` overlap, they are collapsed into a larger `window`, indicating that the `episode` is still on-going or has recurred. As a result, every `event` belonging to both `windows` are now considered part of the same `"rolling episode"`.
 
 ## How to apply a case definition
 ### epid objects
-Firstly, let's go through what `episodes` look like in `diyar`. By default, they are stored as `epid` objects (`S4` object class). An `epid` object is an `episode` identifier with `slots` for useful information on each `episode`. 
+Firstly, let's go through what `episodes` look like in `diyar`. By default, they are stored as `epid` objects (`S4` object class). An `epid` object is an `episode` identifier with `slots` for useful information about each `episode`. 
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(diyar)
@@ -89,7 +89,7 @@ For an `epid` object created from a set of `events` sourced from different `data
 
 + ``r substr(format(ep[1]),1,3) `` - episode identifier
 + ``r substr(format(ep[1]),5,28) `` - episode duration. *Only shown if `group_stats` is `TRUE`*
-+ ``r paste0(unique(substr(format(ep),30,33)), collapse="/") `` - `case`, `duplicate` and `recurrent events` respectively
++ ``r paste0(unique(substr(format(ep),30,33)), collapse="/") `` - type of event i.e. `case`, `duplicate` and `recurrent events` respectively
 
 *See `?fixed_episodes` for the details of every slot, including those not displayed.*
 
@@ -125,7 +125,7 @@ plot_epid(epid = ds$f1, date= ds$date, case_length = 5)
 
 Alternatively, your cut-off can be a specific range. For example, a `case_length` of ``r format(number_line(12, 16))`` means that; repeat `events` within `13` and `17` days after the `reference event` are considered `duplicates` of the `reference event`. 
 
-*Ranges are created by number_line(). See the [number line vignette](number_line.html).*
+*Ranges are created with `number_line()`. See the [number line vignette](number_line.html).*
 
 **Figure 1b: fixed episodes with a cut-off range**
 
@@ -140,7 +140,7 @@ ds$f2
 plot_epid(epid = ds$f2, date= ds$date, case_length = rng)
 ```
 
-By default, `events` before the `13th` day are skipped. You can change `skip_if_b4_lengths` to `FALSE`, so that such `events` are not skipped.
+As above, `events` before the `13th` are skipped. Changing `skip_if_b4_lengths` to `FALSE` will ensure they are not not skipped.
 
 **Figure 1c: fixed episodes where events before the the cut-off range are not skipped**
 
@@ -157,9 +157,9 @@ plot_epid(epid = ds$f3, date= ds$date, case_length = rng)
 ```
 
 ### Reference events
-Your next consideration should be which `events` will be the index `event` (`reference events`). It's common practice for the earliest `event` to be taken as the `reference event`. However, there are times when the most recent `event` will be more relevant for this. For example, if a deceased patient died after a series of positive infection results, the most recent result could be considered more relevant as a `reference event`.
+Your next consideration should be which `event` will be the index `event` (`reference events`). It's common practice for this to be the earliest `event`. However, there are times when the most recent `event` will be more appropriate. For example, if a deceased patient died after a series of positive infection results, the most recent result could be considered more relevant as a `reference event`.
 
-The first approach is the default behaviour for `fixed_epsiodes()` and `rolling_episodes()`. However, by changing `from_last` to `TRUE`, `episode tracking` will begin at the most recent `event` and proceed backwards in time, making that the `reference event`.
+The first approach is the default behaviour for `fixed_epsiodes()` and `rolling_episodes()`. However, by changing `from_last` to `TRUE`, `episode tracking` will begin at the most recent `event` and proceed backwards in time.
 
 **Figure 2: fixed episodes where episode tracking was backwards in time**
 
@@ -176,7 +176,7 @@ plot_epid(epid = ds$f4, date= ds$date, case_length = 5, from_last = T)
 <a id ="custom_sort"></a>
 
 #### User defined reference
-There can be situations when the type of `event`, rather than its chronological order, is more relevant in determining an index `event`. For example, when tracking patients with positive infection results for; human immunodeficiency virus (HIV), hepatitis B virus (HBV) and *Mycobacterium tuberculosis* (MyCt), you may want to track concurrent infections beginning or ending with the HIV diagnosis. The examples below show how to handle situations like this.
+There can be situations when the type of `event`, rather than their chronological position, is more relevant to determining an index `events`. For example, when tracking patients with positive infection results for; human immunodeficiency virus (HIV), hepatitis B virus (HBV) and *Mycobacterium tuberculosis* (MyCt), you may want to track concurrent infections beginning or ending with the HIV diagnosis. The examples below show how to handle situations like this.
 
 ```{r warning=FALSE}
 ds2 <- data.frame(date=  as.Date(c("13/03/2020", "01/04/2020","15/08/2020",
@@ -204,7 +204,7 @@ ds2$ep2_ds <- ds2$ep2@epid_dataset
 ds2
 ```
 
-Notice that in `ep1`, the HIV diagnosis and the HBV diagnosis before it are not grouped into the same `episode` despite being within 6 months of each other. This also happens with the HIV and MyCt diagnoses in `ep2`. This happens because by default, `episode` tracking occurs in one direction of time (`from_last`). You can correct for this by simultaneously tracking `events` in both directions i.e. before and after an index `event`. This is either done by changing `bi_direction` to `TRUE` or by using an applicable cut-off range i.e. `r format(number_line(-6,6))`. See the examples below. 
+Notice that in `ep1`, the HIV diagnosis and the HBV diagnosis before it are not grouped into the same `episode` despite being within 6 months of each other. This also happens with the HIV and MyCt diagnoses in `ep2`. This happens because by default, `episode tracking` occurs in one direction of time (`from_last`). If required, you can simultaneously track `events` in both directions i.e. before and after an index `event`. This is done by either changing `bi_direction` to `TRUE` or by using an applicable cut-off range e.g. `r format(number_line(-6,6))`. See the examples below. 
 
 ```{r warning=FALSE}
 # Track preceeding and concurrent infections up to 6 months BEFORE OR AFTER the HIV diagnosis
@@ -273,11 +273,11 @@ dbf
 <a id ="recurrence" ><a/> 
 
 ### Recurrent events and periods of recurrence
-Another important consideration for a case definition should be if the `events` recurs. For example, if a relapse of the same disease occurs after a  successful treatment therapy, it may be more relevant to treat this as the same `episode` of the initial `event`.
+Another important consideration for a case definition should be if the `events` recur. For example, if a relapse of the same infection occurs after a successful treatment therapy, it may be important to to treat this as the same `episode` of the initial infection.
 
 *fixed_episodes() will treat these as a separate `episodes` while `rolling_episodes()` can treat them as the same `episode`.* 
 
-All arguments in `fixed_episodes()` (including  `case_length`) function the same way as in `rolling_episodes()`. However, the `recurrence_length` argument, which is unique to `rolling_episodes(),` provides the cut-off period for `recurrent events`. For example, a `recurrence_length` of `10` means that; repeat `events` within `11` days of the last `duplicate event` (of the initial index `event`) are considered a recurrence of the index `event`.
+`fixed_episodes()` and `rolling_episodes()` share several arguments. However, the `recurrence_length` argument, which is unique to `rolling_episodes(),`, provides the cut-off period for `recurrent events`. For example, a `recurrence_length` of `10` means that; repeat `events` within `11` days of the last `duplicate event` (of the initial index `event`) are considered a recurrence of the index `event`.
 
 *If `recurrence_length` is not supplied, it's assumed to be the same as the `case_length`.*
 
@@ -293,7 +293,7 @@ ds$r1
 plot_epid(epid = ds$r1, date= ds$date, case_length = 5, recurrence_length = 10)
 ```
 
-Similarly, for `recurrence_length`, your cut-off can be a range. For example, a `recurrence_length` of ``r format(number_line(13, 15))`` means that; repeat `events` within `14` and `16` days after the last `duplicate event` are considered a recurrence of the `reference event`. 
+Similarly, for `recurrence_length`, your cut-off can be a range. For example, a `recurrence_length` of ``r format(number_line(13, 15))`` means that; repeat `events` within `14` and `16` days after the last `duplicate event` are considered a recurrence of the index `event`. 
 
 **Figure 3b: rolling episodes with a cut-off range**
 ```{r warning=FALSE}
@@ -307,7 +307,7 @@ ds$r2
 plot_epid(epid = ds$r2, date= ds$date, case_length = 5, recurrence_length = rng)
 ```
 
-`Events` before the `14th` are skipped by default however, you can also change `skip_if_b4_lengths` to `FALSE`, so that such `events` are not skipped. 
+`Events` before the `14th` are skipped by default however, as before, you can change that with `skip_if_b4_lengths`. 
 
 **Figure 3c: rolling episodes where events before the the cut-off range are not skipped**
 ```{r warning=FALSE}
@@ -374,7 +374,7 @@ plot_epid(epid = df$r3, date = df$date, case_length =14, recurrence_length = 16)
 #### Case windows for both case and recurrent events
 You can use the `case_for_recurrence` argument to specify that both `case` and `recurrence events` should have a `case window`. The default behaviour is that only `case events` have a `case window`. See a demonstration of this below. 
 
-*The `wind_id` slot shows the `window` for every `event`, while `wind_nm` slot shows type of `window` it is.*
+*The `wind_id` slot shows the `window` of every `event`, while `wind_nm` shows what type of `window` it is.*
 
 *Example 1*
 
@@ -444,7 +444,7 @@ plot_epid(epid = df2$r2, date = df2$date, case_length =6, recurrence_length = 4)
 Notice that in the 4 examples, all `events` have been assigned to the same `episode` but the number of `recurrent events` differ.
 
 ### Number of recurrence periods and episodes
-Some case definitions may only require you to track the first `n`-number of `episodes`, or those that only recurred `n`-number of times. You can incorporate these requirements into your analysis using `episodes_max` and `rolls_max` (only applicable to `rolling_episodes()`). When each `strata` (see [stratified grouping](#stratified_grouping)) of the dataset has the maximum number of `episodes` (`episodes_max`), subsequent `events` are skipped and assigned unique episode IDs. The default option for `episodes_max` is `Inf` i.e. continue until every `event` has been grouped into `episodes`. See the examples below.
+Some case definitions may only require you to track the first `n`-number of `episodes`, or that they only recur `n`-number of times. You can incorporate these requirements into your analyses using `episodes_max` and `rolls_max` (only applicable to `rolling_episodes()`). When each `strata` (see [stratified grouping](#stratified_grouping)) of the dataset has the maximum number of `episodes` (`episodes_max`), subsequent `events` are skipped and assigned unique episode IDs. The default option for `episodes_max` is `Inf` i.e. continue until every `event` has been grouped into `episodes`. See the examples below.
 
 ```{r warning=FALSE, message=FALSE}
 data("infections_3");
@@ -501,7 +501,7 @@ dbs$eps_6
 plot_epid(epid = dbs$eps_6, date = dbs$date, case_length =2, recurrence_length = 2)
 ```
 
-Note that if `case_for_recurrence` is `TRUE`, after checking for `recurrence` in the last `recurrence period`, the function will also check for `duplicates` within the `case window` of the last `recurrent event`. See below.
+Note that if `case_for_recurrence` is `TRUE`, after checking for tracking the last `recurrence period`, the function will also check for `duplicates` within the `case window` of the last `recurrent event`. See below.
 
 **Figure 6e: Maximum of one recurrence period per episode per strata when case_for_recurrence is TRUE**
 ```{r message=FALSE, warning=FALSE}
@@ -518,7 +518,7 @@ plot_epid(epid = dbs$eps_7, date = dbs$date, case_length =2, recurrence_length =
 <a id="interval_grouping"></a>
 
 ### Interval grouping
-Some case definitions can involve `events` that occur over a period of time and not a single point in time e.g hospital admissions. `fixed_episodes()` and `rolling_episodes()` can be used to track such `event periods` into `episodes`. This type of `episode` grouping is recommended when the end point of an `event` is known. For example, it's near impossible to know the exact point in time an individual diagnosed with the common cold recovers however, it's a reasonable assumption that a second diagnosis 3 months after is not the same one that was diagnosed initially. For situations like this, the recommend approach is to use the methods we've covered so far. In contrast, hospital admissions typically have recorded admission and discharge times or dates and so interval grouping is recommended. This being said, in several situations both approaches can be used interchangeably. See below. 
+Some case definitions can involve `events` that occur over a defined period of time e.g. hospital admissions. `fixed_episodes()` and `rolling_episodes()` can be used to track such `event periods` into `episodes`. This type of `episode` grouping is recommended when the end point of an `event` is known. For example, it's near impossible to know the exact point in time an individual diagnosed with the common cold recovers however, it's a reasonable assumption that another diagnosis 3 months after the initial one is not the same infection. For situations like this, the recommend approach is to use the methods we've covered so far. In contrast, hospital admissions typically have recorded admission and discharge times or dates and so interval grouping is recommended. This being said, in several situations both approaches can be used interchangeably. See below. 
 
 ```{r message=FALSE, warning=FALSE}
 # Dates
@@ -550,7 +550,7 @@ mth4 <- rolling_episodes(date = periods, case_length =0, display = F)
 mth3; mth4
 ```
 
-In interval grouping, when `case_length` is `0`, `event periods` that overlap with the index `event period` are grouped together as one `episode`. However, if `case_length` is `> 0`, only those within `n`-days (or any time unit) after the `end_point()` of the index `event period` are grouped together. See below. 
+In interval grouping, when `case_length` is `0`, `event periods` that overlap with the index `event period` are grouped together as one `episode`. However, if `case_length` is `> 0`, those that overlap with the index `event` and those within `n`-days (or any time unit) after the `end_point()` of the index `event period` are grouped together. See below. 
 
 ```{r message=FALSE, warning=FALSE}
 hos_admin <- diyar::hospital_admissions
@@ -594,7 +594,7 @@ There are 6 ways `event periods` can overlap (`overlap_methods`). These are `"ex
 
 *The 6 `overlap_methods` are mutually exclusive.*
 
-*There are 2 convenience methods - `"none"` and `"overlap"`. These are mutually inclusive with any the other 6.*
+*There are 2 convenience methods - `"none"` and `"overlap"`. These are mutually inclusive with the other 6.*
 
 ```{r warning=FALSE}
 # wrapper function to use with lapply
@@ -603,9 +603,10 @@ epi_grp_func <- function(x){
                  sn=hos_admin$rd_id, 
                  case_length = 0, 
                  overlap_methods = x, 
-                 display = FALSE, 
-                 to_s4 = TRUE, 
-                 group_stats = TRUE)
+                 display = F, 
+                 to_s4 = T, 
+                 group_stats = T, 
+                 include_index_period = F)
   
   # for the prurpose of this demonstration, limit to overlapped periods    
   epids[epids@epid_total>1]
@@ -702,7 +703,7 @@ eps_b
 plot_epid(epid = eps_b, date = periods, case_length = -2)
 ```
 
-By default, overlapping periods that are outside the 2-day periods are also groupped together. This can be changed with `include_initial_period`. See below.
+By default, overlapping periods that are outside the 2-day periods are also groupped together. This can be changed with `include_index_period`. See below.
 
 **Figure 9c: Fixed episodes with a case_length of -2**
 ```{r message=FALSE, warning=FALSE}
@@ -730,7 +731,7 @@ plot_epid(epid = eps_d, date = periods, case_length = -6)
 <a id= "stratified_grouping"></a>
 
 ### Stratified episode grouping
-In practice, you'll want to track `episodes` separately for groups (`strata`) such as patients, pathogens, sources of infection or any combination of these. This means that `episodes` from one patient will be different from other patients, or `episodes` of HIV diagnoses will be different those of HBV diagnoses. 
+In practice, you'll want to track `episodes` separately for different groups (`strata`) e.g. patients, pathogens, sources of infection or any combination of these. This means that `episodes` from one patient will be different from other patients, or `episodes` of HIV diagnoses will be different those of HBV diagnoses. 
 
 *`episodes` from different `strata` can have a different `case_lengths` and/or `recurrence_lengths`.*
 
@@ -757,7 +758,7 @@ dbs$epids <- rolling_episodes(date=dbs$date, case_length =dbs$epi, to_s4 =TRUE,
 dbs
 ```
 
-Stratified grouping is a faster and easier alternative to performing separate analyses for each subset (`strata`) of the dataset. However, if you must perform these separately, I recommend using a familiar `sn` and changing `to_s4` to `FALSE`. The former is so that you can easily link each `episode` back to the original dataset, while the latter is because binding `S4` objects in my personal opinion is a pain, so `to_s4 = FALSE` changes the `epid` objects to `data.frames`.
+Stratified grouping is a faster and easier alternative to performing separate analyses for each subset (`strata`) of the dataset. However, if you must perform these separately, I recommend using a familiar `sn` and changing `to_s4` to `FALSE`. The former is so that you can easily link each `episode` back to it's corresponding events, while the latter is because binding `S4` objects in my personal opinion is a pain, so `to_s4 = FALSE` changes the `epid` objects to `data.frames`.
 
 *to_s4() and to_df() are convenience functions to change `epid`, `pid`, `number_line` S4 class objects to `data.frames` and vice versa.*
 
@@ -787,11 +788,11 @@ There are a few things to note with stratified grouping;
 
 - Unless required, `case_length` and `recurrence_length` should be consistent for each `strata` otherwise, you'll inadvertently create a sub-strata
 - `Episode grouping` with and without a sub-strata are different and could lead to different results
-- Using a `sub-strata` is not the same as adding that `sub-strata` to the `strata` argument. In the example above, adding `treated` to `strata` will group `treated` infections separately from untreated infections. While this could be the desired outcome depending on your case definition, the case definition above did not require this, only that the `treated` infections last longer.
+- Using a `sub-strata` is not the same as adding that `sub-strata` to the `strata` argument. In the example above, adding `treated` to the `strata` argument will group `treated` infections separately from untreated infections. While this could be the desired outcome in certain situations, the case definition above only requires that the `treated` infections last longer.
 
 ## Cut down your processing time
 
-Some case definitions are so specific that only certain kinds of `episodes` will be required. In such cases, you can save time by skipping `events` from `episodes` that aren't required. There are 3 mechanisms to skip such `events`. 
+Some case definitions are so specific that only certain kinds of `episodes` will be required. In such situations, you can save time by skipping `events` from `episodes` that won't be needed. There are 3 mechanisms to skip such `events`. 
 
 *Skipped `events` are assigned unique episode IDs and their `case_nm` slot is flagged as `"Skipped"`.*
 
@@ -818,7 +819,7 @@ dbs
 ```
 
 ### Skip the nth order (skip order) of custom sort
-In a dataset with multiple levels of `custom_sort`, you can skip `episodes` that will begin with the `nth` level (`skip_order`). A `skip_order` of `1` means that; after every `event` with the first level of your `custom_sort` has been grouped into `episodes`, the tracking process will come to an end.
+In a dataset with multiple levels of `custom_sort`, you can skip `episodes` that will begin with the `nth` level (`skip_order`) of the `cust_sort`. A `skip_order` of `1` means that; after every `event` with the first level of your `custom_sort` has been grouped into `episodes`, the tracking process will come to an end.
 
 This is handy when you're grouping `episodes` from rare and common `events`, the rare `events` are the index `events` and it's a hassle to subset the dataset.
 
@@ -839,10 +840,10 @@ dbf$ep_b_d <- dbf$ep_b@epid_dataset
 dbf
 ```
 
-Notice that in the skipped example `ep_a`, there are no `episodes` that has a `"BSI"` or `"RTI"` record as the `"case"`.
+Notice that in the skipped example `ep_a`, no `episodes` begins with either a `"BSI"` or `"RTI"` record.
 
 ### Skip episodes without records from certain data sources
-The third mechanism is partly a misnomer because it does not skip `events` but rather ungroups `episodes` after they've already been created. After `episodes` have been created, those that do not contain records from certain `data_sources` can be ungrouped using `data_links`. In such instances, the overall execution time will not be shortened but you'll get an `episode` identifier that's relevant to the `data_sources` you're interested in. However, if a `strata` will not produce `episodes` with the required combination of `data_sources`, that entire `strata` will be skipped. If this happens, the overall execution may be shortened.
+The third mechanism is partly a misnomer because it does not skip `events` but rather ungroups `episodes` after they've already been created. After `episodes` have been created, those that do not contain records from certain `data_sources` can be ungrouped using `data_links`. In such instances, the overall execution time will not be shortened but you'll get an `episode` identifier that's relevant to the `data_sources` you're interested in. However, if a `strata` will not produce `episodes` with the required combination of `data_sources`, that entire `strata` will be skipped. If this happens, the total runtime may be shortened.
 
 ```{r warning=FALSE, message=FALSE}
 dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")

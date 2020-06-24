@@ -641,14 +641,12 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
     T1$c1[T1$ec_chk] <- diyar::overlaps(T1$int[T1$ec_chk], T1$tr_c_int_a[T1$ec_chk], methods = T1$methods[T1$ec_chk])
     T1$c2[bdl_e & T1$ec_chk] <- diyar::overlaps(T1$int[bdl_e & T1$ec_chk], T1$tr_c_int_b[bdl_e & T1$ec_chk], methods = T1$methods[bdl_e & T1$ec_chk])
     T1$k1 <- diyar::overlap(T1$int, T1$tr_int)
-    T1$p1[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e) & T1$k1] <- T
-    #T1$p1[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e)] <- diyar::overlap(T1$int[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e)], T1$tr_int[include_index_period & !T1$crx_e & T1$tr_ct_rng_e & !is.na(T1$tr_ct_rng_e)])
+    T1$p1[include_index_period & !T1$crx_e & T1$k1] <- T
 
     T1$r1[T1$rc_chk] <- diyar::overlaps(T1$int[T1$rc_chk], T1$tr_r_int_a[T1$rc_chk], methods = T1$methods[T1$rc_chk])
     T1$r2[bdl_r & T1$rc_chk] <- diyar::overlaps(T1$int[bdl_r & T1$rc_chk], T1$tr_r_int_b[bdl_r & T1$rc_chk], methods = T1$methods[bdl_r & T1$rc_chk])
     T1$k2 <- diyar::overlap(T1$int, T1$tr_int)
-    T1$p2[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r) & T1$k2] <- T
-    #T1$p2[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r)] <- diyar::overlap(T1$int[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r)], T1$tr_int[include_index_period & !T1$crx_r & T1$tr_ct_rng_r & !is.na(T1$tr_ct_rng_r)])
+    T1$p2[include_index_period & !T1$crx_r & T1$k2] <- T
 
     T1$c4[skip_if_b4_lengths & T1$ec_chk] <- diyar::overlaps(T1$int[skip_if_b4_lengths & T1$ec_chk], T1$tr_c_int_c[skip_if_b4_lengths & T1$ec_chk], methods = T1$methods[skip_if_b4_lengths & T1$ec_chk])
     T1$c5[bdl_e & skip_if_b4_lengths & T1$ec_chk] <- diyar::overlaps(T1$int[bdl_e & skip_if_b4_lengths & T1$ec_chk], T1$tr_c_int_d[bdl_e & skip_if_b4_lengths & T1$ec_chk], methods = T1$methods[bdl_e & skip_if_b4_lengths & T1$ec_chk])
@@ -944,6 +942,7 @@ episode_group <- function(df, sn = NULL, strata = NULL, date,
   if(to_s4) T1 <- diyar::to_s4(T1)
   T1
 }
+
 #' @rdname episode_group
 #' @param deduplicate if \code{TRUE}, \code{"dupilcate"} events are excluded from the output.
 #' @param x Record date or interval. Deprecated. Please use \code{date}
