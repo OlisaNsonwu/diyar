@@ -1177,3 +1177,111 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
   }
 
 }
+
+
+#' @rdname episode_group
+episodes <- function(date, case_length, strata, display=T) {
+
+  if(!(any(class(date) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer","Interval")))) stop(paste0("`date` must be a date, datetime, numeric or number_line object:\nX You've supplied a ", class(date), " object."),  call. = F)
+
+  if(any(class(date) %in% c("number_line", "Interval"))){
+    # dt_ai <- diyar::start_point(date)
+    # dt_zi <- diyar::end_point(date)
+  }else{
+    # dt_ai <- date
+    # dt_zi <- date
+    date <- as.number_line(date)
+  }
+
+  int <- date
+
+  case_length <- as.list(case_length)
+  er_cd <- lapply(case_length, function(x){
+    !all(class(x) %in% c("integer","double","numeric", "number_line"))
+  })
+
+  if(rowSums(as.data.frame(er_cd)) > 0){
+    er_nm <- lapply(case_length, function(x){
+      class(x)
+    })
+    er_nm <- unlist(er_nm, use.names = F)
+    er_nm <- er_nm[!duplicated(er_nm) & !er_nm %in% c("integer","double","numeric", "number_line")]
+    er_nm <- paste0(er_nm, collapse=", ")
+    er_nm <- paste0("Every `case_length` must be a numeric or number_line object:\nX You've supplied ", er_nm, " object(s).")
+    stop(er_nm,  call. = F)
+  }
+
+  er_cd <- lapply(case_length, function(x){
+    !length(x) %in% c(1, length(int))
+  })
+  if(rowSums(as.data.frame(er_cd)) > 0){
+    er_nm <- lapply(case_length, length)
+    er_nm <- unlist(er_nm, use.names = F)
+    names(er_nm) <-1:length(er_nm)
+    er_nm <- er_nm[!duplicated(er_nm) & !er_nm %in% c(1, length(int))]
+    er_nm <- paste0("Length of every `case_length` must be 1 or ", length(int), "\nX", paste0("Length of `case_length` ", names(er_nm), " is ", er_nm, collapse="\nX "))
+    stop(er_nm,  call. = F)
+  }
+
+  eps <- diyar:::sep_bdr_nl(case_length)
+  eps <- lapply(eps, function(x){
+    number_line(l= right_point(int) + left_point(x),
+                r= right_point(int) + right_point(x))
+  })
+
+  cri <- as.numeric(factor(strata))
+  n <- as.character(1:length(int))
+  tag <- rep(0, length(int))
+
+  # User order
+  ord <- order(as.numeric(int@start), -as.numeric(right_point(int)))
+  names(cri) <- n; e <- n;  names(e) <- n; names(int) <- n;
+  rm(n)
+  sn <- int@id
+
+  ite <- 1
+  while (min(tag) ==0) {
+    if(display){cat(paste0("Episode or recurrence window ",ite,".\n"))}
+
+    # sort order
+    o <- order(cri, tag, ord, sn, decreasing = T)
+    # sort and pick the earliest record
+    # sort info range
+    for(i in c("e","tag","cri","ord","int", "sn")){
+      assign(i, get(i)[o])
+    }
+    r <- rle(cri)
+    # position of the earliest record per strata
+    p <- as.numeric(names(r$values))
+    # reference range
+    tr_int <- lapply(eps, function(x){
+      rep(x[p], r$lengths)
+    })
+
+
+    # sort `case_length` range
+    #int <- int[o]
+
+    tr_sn <- tr_int[[1]]@id
+    ref_rd <- sn %in% tr_sn
+
+    ovr_chks <- function(y) diyar::overlaps(y, int)
+    skp_chks <- function(y) diyar::overlap(y, int[ep_checks])
+    out_bnd <- function(y) diyar::number_line(0, y)
+
+    # eps_obds <- lapply(eps, out_bnd)
+    ep_checks <- rowSums(as.data.frame(lapply(tr_int, ovr_chks))) > 0
+    # ep_obds_checks <- rowSums(as.data.frame(lapply(eps, skp_chks))) > 0
+
+    cr <- ifelse((ref_rd  | ep_checks==1) &  tag !=2, T, F)
+
+    e[cr] <- tr_sn[cr]
+    tag[cr] <- 2
+    ite <- ite + 1
+  }
+
+  f <- as.numeric(names(e))
+  names(f) <- e
+  epids <- as.numeric(names(sort(f)))
+  return(epids)
+}

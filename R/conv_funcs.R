@@ -68,3 +68,35 @@ logicals_check <- function(x){
     paste0(listr(paste0("'",log_vals,"'")), " must be either TRUE or FALSE")
   }
 }
+
+# @rdname finite_check
+sep_bdr_nl <- function(x){
+  nl_prp <- function(x){
+
+    if(!is.number_line(x)){
+      x <- as.number_line(x)
+      left_point(x) <- 0
+    }
+
+    x@start <- as.numeric(x@start)
+    x <- reverse_number_line(x, "decreasing")
+    crx <- x@start/abs(x@start) != diyar::right_point(x)/abs(diyar::right_point(x))
+    crx[is.na(crx)] <- F
+
+    nl_a <- x
+    left_point(nl_a[crx]) <- 0
+
+    lst <- list(nl_a)
+    if(any(crx)){
+      nl_b <- x
+      right_point(nl_b[crx]) <- 0
+      lst[[2]] <- nl_b
+    }
+    lst
+  }
+
+  b <- lapply(x, nl_prp)
+  txt <- paste0("c(",paste0("b[[",1:length(b),"]]", collapse = ", " ), ")")
+  b <- eval(parse(text=txt))
+  return(b)
+}

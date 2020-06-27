@@ -4,6 +4,7 @@
 \alias{episode_group}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
+\alias{episodes}
 \title{Episode grouping for case definitions and record deduplication}
 \usage{
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
@@ -36,6 +37,8 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   group_stats = FALSE, display = TRUE, deduplicate = FALSE, x,
   to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE, include_index_period = TRUE)
+
+episodes(date, case_length, strata, display = T)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
