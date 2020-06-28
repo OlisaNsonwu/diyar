@@ -1180,20 +1180,21 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
 
 #' @rdname episode_group
-episodes <- function(date, case_length, strata, display=T) {
+episodes <- function(sn = NULL, date, case_length, strata = NULL, display=T) {
 
   if(!(any(class(date) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer","Interval")))) stop(paste0("`date` must be a date, datetime, numeric or number_line object:\nX You've supplied a ", class(date), " object."),  call. = F)
 
-  if(any(class(date) %in% c("number_line", "Interval"))){
-    # dt_ai <- diyar::start_point(date)
-    # dt_zi <- diyar::end_point(date)
-  }else{
-    # dt_ai <- date
-    # dt_zi <- date
-    date <- as.number_line(date)
-  }
+  int <- as.number_line(date)
 
-  int <- date
+  # Record indentifier
+  if(!is.null(sn)){
+    dp_check <- duplicates_check(sn)
+    if(dp_check!=T) stop(paste0("Record identifiers (`sn`) must be unique.\nX Duplicate record indentifiers in ",dp_check,"."),  call. = F)
+    if(!(any(class(sn) %in% c("numeric","integer","Interval")))) stop(paste0("`sn` must be a numeric object:\nX You've supplied a ", class(sn), " object."),  call. = F)
+    fn_check <- finite_check(sn)
+    if(fn_check!=T) stop(paste0("`sn` must have finite values.\nX There are non-finite value in ",fn_check),  call. = F)
+    int@gid <- sn
+  }
 
   case_length <- as.list(case_length)
   er_cd <- lapply(case_length, function(x){
@@ -1226,28 +1227,29 @@ episodes <- function(date, case_length, strata, display=T) {
   eps <- diyar:::sep_bdr_nl(case_length)
   eps <- lapply(eps, function(x){
     number_line(l= right_point(int) + left_point(x),
-                r= right_point(int) + right_point(x))
+                r= right_point(int) + right_point(x),
+                gid = int@gid)
   })
 
   cri <- as.numeric(factor(strata))
-  n <- as.character(1:length(int))
+  #n <- as.character(1:length(int))
   tag <- rep(0, length(int))
 
   # User order
   ord <- order(as.numeric(int@start), -as.numeric(right_point(int)))
-  names(cri) <- n; e <- n;  names(e) <- n; names(int) <- n;
-  rm(n)
-  sn <- int@id
+  names(cri) <- int@id; e <- int@gid;  names(e) <- int@id; names(int) <- int@id
+  # rm(n)
+  #sn <- int@id
 
   ite <- 1
   while (min(tag) ==0) {
     if(display){cat(paste0("Episode or recurrence window ",ite,".\n"))}
 
     # sort order
-    o <- order(cri, tag, ord, sn, decreasing = T)
+    o <- order(cri, tag, ord, int@gid, decreasing = T)
     # sort and pick the earliest record
     # sort info range
-    for(i in c("e","tag","cri","ord","int", "sn")){
+    for(i in c("e","tag","cri","ord","int")){
       assign(i, get(i)[o])
     }
     r <- rle(cri)
@@ -1262,8 +1264,8 @@ episodes <- function(date, case_length, strata, display=T) {
     # sort `case_length` range
     #int <- int[o]
 
-    tr_sn <- tr_int[[1]]@id
-    ref_rd <- sn %in% tr_sn
+    tr_sn <- tr_int[[1]]@gid
+    ref_rd <- int@gid %in% tr_sn
 
     ovr_chks <- function(y) diyar::overlaps(y, int)
     skp_chks <- function(y) diyar::overlap(y, int[ep_checks])
