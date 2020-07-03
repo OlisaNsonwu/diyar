@@ -59,6 +59,8 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
   if(length(x) ==0 & length(y)==0) return(logical())
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "none"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'"))
+
+  method <- ifelse(is.na(methods),"NA", methods)
   mths <- names(split(rep(1, length(methods)), methods))
   mths <- unique(unlist(strsplit(mths, split="\\|")))
 

@@ -87,7 +87,6 @@
 #' # One 16-day (15-day difference) episode per patient
 #' db_1$epids_p <- fixed_episodes(date=db_1$date, strata = db_1$patient_id,
 #' case_length = 15, episodes_max = 1, display = FALSE)
-#'
 #' # Rolling episodes
 #' # Case length of 16 days and recurrence periods of 11 days
 #' db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
@@ -1180,76 +1179,79 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
 
 #' @rdname episode_group
-episodes <- function(sn = NULL, date, case_length, strata = NULL, display=T) {
+episodes <- function(sn = NULL, date, case_length, strata = NULL, display=T, episodes_max = Inf, episode_unit = "days",
+                     overlap_methods = "overlap", skip_order = Inf, custom_sort = NULL, group_stats = TRUE, from_last = FALSE) {
 
-  if(!(any(class(date) %in% c("Date","POSIXct","POSIXt","POSIXlt","number_line","numeric","integer","Interval")))) stop(paste0("`date` must be a date, datetime, numeric or number_line object:\nX You've supplied a ", class(date), " object."),  call. = F)
+  errs <- err_checks_epid(sn=sn, date=date, case_length=case_length, strata=strata, display=display, episodes_max=episodes_max,
+                  episode_unit=episode_unit, overlap_methods = overlap_methods, skip_order=skip_order, custom_sort=custom_sort)
 
+  if(errs!=F) stop(errs, call. = F)
+
+  eps <- as.list(case_length)
   int <- as.number_line(date)
-
-  # Record indentifier
-  if(!is.null(sn)){
-    dp_check <- duplicates_check(sn)
-    if(dp_check!=T) stop(paste0("Record identifiers (`sn`) must be unique.\nX Duplicate record indentifiers in ",dp_check,"."),  call. = F)
-    if(!(any(class(sn) %in% c("numeric","integer","Interval")))) stop(paste0("`sn` must be a numeric object:\nX You've supplied a ", class(sn), " object."),  call. = F)
-    fn_check <- finite_check(sn)
-    if(fn_check!=T) stop(paste0("`sn` must have finite values.\nX There are non-finite value in ",fn_check),  call. = F)
-    int@gid <- sn
+  if(length(episodes_max)==1) episodes_max <- rep(episodes_max, length(int))
+  if(length(skip_order)==1) skip_order <- rep(skip_order, length(int))
+  if(length(overlap_methods)==1) overlap_methods <- rep(overlap_methods, length(int))
+  if(length(strata)==1 | is.null(strata)) {
+    cri <- rep(1, length(int))
+  }else{
+    cri <- match(strata, strata[!duplicated(strata)])
   }
 
-  case_length <- as.list(case_length)
-  er_cd <- lapply(case_length, function(x){
-    !all(class(x) %in% c("integer","double","numeric", "number_line"))
-  })
+  is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
+  episode_unit <- ifelse(is_dt==F,"seconds", episode_unit)
 
-  if(rowSums(as.data.frame(er_cd)) > 0){
-    er_nm <- lapply(case_length, function(x){
-      class(x)
-    })
-    er_nm <- unlist(er_nm, use.names = F)
-    er_nm <- er_nm[!duplicated(er_nm) & !er_nm %in% c("integer","double","numeric", "number_line")]
-    er_nm <- paste0(er_nm, collapse=", ")
-    er_nm <- paste0("Every `case_length` must be a numeric or number_line object:\nX You've supplied ", er_nm, " object(s).")
-    stop(er_nm,  call. = F)
+  if(is_dt==T){
+    int <- number_line(
+      l = as.POSIXct(format(int@start, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S"),
+      r = as.POSIXct(format(right_point(int), "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+    )
   }
 
-  er_cd <- lapply(case_length, function(x){
-    !length(x) %in% c(1, length(int))
-  })
-  if(rowSums(as.data.frame(er_cd)) > 0){
-    er_nm <- lapply(case_length, length)
-    er_nm <- unlist(er_nm, use.names = F)
-    names(er_nm) <-1:length(er_nm)
-    er_nm <- er_nm[!duplicated(er_nm) & !er_nm %in% c(1, length(int))]
-    er_nm <- paste0("Length of every `case_length` must be 1 or ", length(int), "\nX", paste0("Length of `case_length` ", names(er_nm), " is ", er_nm, collapse="\nX "))
-    stop(er_nm,  call. = F)
-  }
+  if(!is.null(sn)) int@gid <- sn
 
-  eps <- diyar:::sep_bdr_nl(case_length)
+  eps <- diyar:::sep_bdr_nl(eps)
+  if(from_last==T) eps <- lapply(eps, invert_number_line)
+
   eps <- lapply(eps, function(x){
-    number_line(l= right_point(int) + left_point(x),
-                r= right_point(int) + right_point(x),
+    number_line(l= right_point(int) + (left_point(x) * diyar::episode_unit[[episode_unit]]) ,
+                r= right_point(int) + (right_point(x) * diyar::episode_unit[[episode_unit]]),
                 gid = int@gid)
   })
 
-  cri <- as.numeric(factor(strata))
-  #n <- as.character(1:length(int))
   tag <- rep(0, length(int))
 
-  # User order
-  ord <- order(as.numeric(int@start), -as.numeric(right_point(int)))
-  names(cri) <- int@id; e <- int@gid;  names(e) <- int@id; names(int) <- int@id
-  # rm(n)
-  #sn <- int@id
+  if(from_last==T){
+    ord <- order(abs(max(as.numeric(int@start)) - as.numeric(int@start)),
+                 abs(max(as.numeric(right_point(int))) - as.numeric(right_point(int))))
+  }else{
+    ord <- order(abs(min(as.numeric(int@start)) - as.numeric(int@start)),
+                 abs(min(as.numeric(right_point(int))) - as.numeric(right_point(int))))
+  }
 
+  if(!is.null(custom_sort)) {
+    c_sort <- as.numeric(as.factor(custom_sort))
+    if(length(c_sort)==1)c_sort <- rep(c_sort, length(int))
+    #ord <- order(as.factor(custom_sort), as.numeric(int@start), -as.numeric(right_point(int)))
+    ord <- order(as.factor(custom_sort), ord)
+  }else{
+    c_sort <- rep(0, length(int))
+    #ord <- order(as.numeric(int@start), -as.numeric(right_point(int)))
+  }
+
+  names(cri) <- int@id; e <- int@gid;  names(e) <- int@id; names(int) <- int@id;
+  epid_n <- rep(0, length(int))
+  case_nm <- rep("", length(int))
+  dist_from_epid <- epid_n
   ite <- 1
   while (min(tag) ==0) {
-    if(display){cat(paste0("Episode or recurrence window ",ite,".\n"))}
+    if(display){cat(paste0("Episode window ",ite,".\n"))}
 
-    # sort order
     o <- order(cri, tag, ord, int@gid, decreasing = T)
-    # sort and pick the earliest record
-    # sort info range
-    for(i in c("e","tag","cri","ord","int")){
+    for(i in c("e","tag","cri","ord",
+               "int","epid_n","overlap_methods",
+               "c_sort", "skip_order", "case_nm",
+               "dist_from_epid")){
       assign(i, get(i)[o])
     }
     r <- rle(cri)
@@ -1260,14 +1262,16 @@ episodes <- function(sn = NULL, date, case_length, strata = NULL, display=T) {
       rep(x[p], r$lengths)
     })
 
-
-    # sort `case_length` range
-    #int <- int[o]
+    # Skip order
+    cri_skp <- cri[c_sort > skip_order];
+    cri_skp <- cri_skp[!duplicated(cri_skp)]
+    tag[cri %in% cri_skp] <- 2
+    rm(cri_skp)
 
     tr_sn <- tr_int[[1]]@gid
     ref_rd <- int@gid %in% tr_sn
 
-    ovr_chks <- function(y) diyar::overlaps(y, int)
+    ovr_chks <- function(y) diyar::overlaps(y, int, methods = overlap_methods)
     skp_chks <- function(y) diyar::overlap(y, int[ep_checks])
     out_bnd <- function(y) diyar::number_line(0, y)
 
@@ -1275,15 +1279,86 @@ episodes <- function(sn = NULL, date, case_length, strata = NULL, display=T) {
     ep_checks <- rowSums(as.data.frame(lapply(tr_int, ovr_chks))) > 0
     # ep_obds_checks <- rowSums(as.data.frame(lapply(eps, skp_chks))) > 0
 
-    cr <- ifelse((ref_rd  | ep_checks==1) &  tag !=2, T, F)
+    cr <- ifelse((ref_rd  | ep_checks==1) &
+                   tag !=2,
+                 T, F)
 
     e[cr] <- tr_sn[cr]
+    case_nm[cr] <- ifelse(ref_rd[cr], "Case", "Duplicate")
+
     tag[cr] <- 2
+
+    # Episode max
+    cri_z <-  cri[cr];
+    cri_z <- cri_z[!duplicated(cri_z)]
+    epid_n[cri %in% cri_z] <- epid_n[cri %in% cri_z] + 1
+    tag[epid_n == episodes_max] <- 2
+    rm(cri_z)
+
     ite <- ite + 1
   }
 
-  f <- as.numeric(names(e))
-  names(f) <- e
-  epids <- as.numeric(names(sort(f)))
-  return(epids)
+  diff_unit <- ifelse(tolower(episode_unit) %in% c("second","minutes"),
+                      paste0(substr(tolower(episode_unit),1,3),"s"),
+                      tolower(episode_unit))
+
+  diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
+
+  fd <- match(1:length(int), names(e))
+  f_e <- e[fd]
+
+  epid_n <- rle(e)
+  epid_n <- rep(epid_n$lengths, epid_n$lengths)
+  lgk <- case_nm=="Case"
+  dist_from_epid <- ((as.numeric(int@start) + as.numeric(right_point(int)))*.5) -
+    rep(((as.numeric(int@start[lgk]) + as.numeric(right_point(int[lgk])))*.5), epid_n[lgk])
+  if(is_dt==T){
+    dist_from_epid <- dist_from_epid / diyar::episode_unit[[episode_unit]]
+    dist_from_epid <- as.difftime(dist_from_epid, units = diff_unit)
+  }
+  dist_from_epid <- dist_from_epid[fd]
+
+  epid <- new("epid",
+           .Data= f_e,
+           dist_from_epid = dist_from_epid,
+           dist_from_wind = dist_from_epid,
+           sn = int@gid[fd],
+           case_nm=case_nm[fd],
+           wind_nm = rep("Case", length(int)),
+           wind_id = f_e)
+
+  names(epid@wind_id) <- NULL
+  if(group_stats == T){
+    # Epid start
+    lgk <- !duplicated(e, fromLast = T)
+    epid_dt_a <-  rep(int@start[lgk], epid_n[lgk])
+
+    # Epid end
+    ord <- order(e, -as.numeric(right_point(int)))
+    tmp_e <- e[ord]
+    tmp_n <- epid_n[ord]
+    epid_dt_z <- right_point(int)[ord]
+    lgk <- !duplicated(tmp_e)
+    epid_dt_z <-  rep(epid_dt_z[lgk], tmp_n[lgk])
+    epid_dt_z <- epid_dt_z[match(names(e), names(tmp_e))]
+    if(is_dt ==T){
+      epid_l <- difftime(epid_dt_z, epid_dt_a, units = diff_unit)
+    }else{
+      epid_l <- epid_dt_z - epid_dt_a
+    }
+
+    names(epid_n) <- NULL
+    names(epid_l) <- NULL
+    names(e) <- NULL
+
+    epid@epid_interval <- number_line(l = epid_dt_a[fd],
+      r = epid_dt_z[fd],
+      gid = f_e
+      )
+    epid@epid_total <- epid_n[fd]
+    epid@epid_length <- epid_l[fd]
+    }
+
+  #epid <- epid[fd]
+  return(epid)
 }

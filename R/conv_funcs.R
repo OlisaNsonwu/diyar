@@ -13,7 +13,18 @@ finite_check <- function(x){
     paste0("[",paste0(fmt(e[1:10]), collapse = ","),", ...]")
   }else if(length(e) == 0)
     TRUE
-  }
+}
+
+
+missing_check <- function(x){
+  e <- which(is.na(as.numeric(x)))
+  if(length(e) %in% 1:10) {
+    paste0("[",listr(fmt(e)),"]")
+  }else if(length(e) > 10) {
+    paste0("[",paste0(fmt(e[1:10]), collapse = ","),", ...]")
+  }else if(length(e) == 0)
+    TRUE
+}
 
 # @rdname finite_check
 enq_vr <- function(x){
@@ -27,11 +38,11 @@ enq_vr <- function(x){
 fmt <- function(x) formatC(x, format="d", big.mark=",")
 
 # @rdname finite_check
-listr <- function(x){
+listr <- function(x, conj="and"){
   p <- x[length(x)]
   f <- x[1:(length(x)-1)]
   f <- paste(f, collapse = ", ")
-  x <- ifelse(length(x) > 1,paste(f,p, sep=" and "), f)
+  x <- ifelse(length(x) > 1, paste0(f, " ", conj, " ",  p), f)
   return(x)
 }
 

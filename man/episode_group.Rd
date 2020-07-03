@@ -38,7 +38,10 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE, include_index_period = TRUE)
 
-episodes(date, case_length, strata, display = T)
+episodes(sn = NULL, date, case_length, strata = NULL, display = T,
+  episodes_max = Inf, episode_unit = "days",
+  overlap_methods = "overlap", skip_order = Inf, custom_sort = NULL,
+  group_stats = TRUE, from_last = FALSE)
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}
@@ -158,7 +161,6 @@ db_1$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 # One 16-day (15-day difference) episode per patient
 db_1$epids_p <- fixed_episodes(date=db_1$date, strata = db_1$patient_id,
 case_length = 15, episodes_max = 1, display = FALSE)
-
 # Rolling episodes
 # Case length of 16 days and recurrence periods of 11 days
 db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
