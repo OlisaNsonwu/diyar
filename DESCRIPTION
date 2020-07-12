@@ -23,6 +23,7 @@ Imports:
     grDevices,
     graphics,
     utils,
+    Rfast,
     dplyr (>= 0.7.5) 
 RoxygenNote: 6.1.1
 Suggests:

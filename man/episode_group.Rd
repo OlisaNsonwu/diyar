@@ -4,7 +4,8 @@
 \alias{episode_group}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
-\alias{episodes}
+\alias{f_episodes}
+\alias{r_episodes}
 \title{Episode grouping for case definitions and record deduplication}
 \usage{
 episode_group(df, sn = NULL, strata = NULL, date, case_length,
@@ -38,10 +39,23 @@ rolling_episodes(date, sn = NULL, strata = NULL, case_length,
   to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE, include_index_period = TRUE)
 
-episodes(sn = NULL, date, case_length, strata = NULL, display = T,
-  episodes_max = Inf, episode_unit = "days",
-  overlap_methods = "overlap", skip_order = Inf, custom_sort = NULL,
-  group_stats = TRUE, from_last = FALSE)
+f_episodes(date, sn = NULL, strata = NULL, case_length,
+  episode_unit = "days", episodes_max = Inf,
+  skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
+  custom_sort = NULL, skip_order = Inf, from_last = FALSE,
+  overlap_methods = "overlap", bi_direction = FALSE,
+  group_stats = TRUE, display = "progress", deduplicate = FALSE,
+  include_index_period = TRUE, to_s4 = TRUE, x,
+  overlap_method = "overlap")
+
+r_episodes(date, sn = NULL, strata = NULL, case_length,
+  recurrence_length, episode_unit = "days", episodes_max = Inf,
+  skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
+  custom_sort = NULL, skip_order = Inf, from_last = FALSE,
+  overlap_methods = "overlap", bi_direction = FALSE,
+  group_stats = TRUE, display = "progress", deduplicate = FALSE,
+  include_index_period = TRUE, to_s4 = TRUE, x,
+  overlap_method = "overlap", episode_type = "fixed")
 }
 \arguments{
 \item{df}{\code{data.frame}. One or more datasets appended together.}

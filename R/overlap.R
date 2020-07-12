@@ -54,8 +54,8 @@
 #' @export
 overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween","overlap","none"),
                     methods = "overlap"){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
   if(length(x) ==0 & length(y)==0) return(logical())
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "none"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'"))
@@ -136,11 +136,11 @@ overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","a
 #' overlap(a, e)
 #' @export
 overlap <- function(x, y){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(missing(y)) stop("argument 'y' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(logical())
 
@@ -160,8 +160,8 @@ overlap <- function(x, y){
 #' exact(a, a)
 #' @export
 exact <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(logical())
 
@@ -177,11 +177,11 @@ exact <- function(x, y){
 #' across(a, e)
 #' @export
 across <- function(x, y){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(missing(y)) stop("argument 'y' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(logical())
 
@@ -201,17 +201,17 @@ across <- function(x, y){
 #' chain(a, c)
 #' @export
 chain <- function(x, y){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(missing(y)) stop("argument 'y' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(logical())
 
   r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
     ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
-  r <- ifelse(!is.finite(r) | x@.Data * y@.Data <0, FALSE, r)
+  r <- ifelse(!is.finite(r) | x@.Data * y@.Data < 0 | is.na(x@.Data * y@.Data), FALSE, r)
   return(r)
 }
 
@@ -222,11 +222,11 @@ chain <- function(x, y){
 #' aligns_start(a, c)
 #' @export
 aligns_start <- function(x, y){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(missing(y)) stop("argument 'y' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(logical())
 
@@ -242,11 +242,11 @@ aligns_start <- function(x, y){
 #' aligns_end(a, c)
 #' @export
 aligns_end <- function(x, y){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(missing(y)) stop("argument 'y' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(logical())
 
@@ -262,11 +262,11 @@ aligns_end <- function(x, y){
 #' inbetween(b, a)
 #' @export
 inbetween <- function(x, y){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(missing(y)) stop("argument 'y' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(logical())
 
@@ -287,11 +287,11 @@ inbetween <- function(x, y){
 #' overlap_method(b, e)
 #' @export
 overlap_method <- function(x, y){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(missing(y)) stop("argument 'y' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
 
   if(length(x) ==0 & length(y)==0) return(character())
 

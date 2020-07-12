@@ -37,6 +37,13 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   if(missing(l) & missing(r)) return(new("number_line"))
   if(length(l) ==0 & length(r)==0) return(new("number_line"))
 
+  # errs <- finite_check(l)
+  # if(errs != T){
+  #   errs <- paste0("`l` must have finite values:\n",
+  #                  "X - There are non-finite values in `l`", errs, ".")
+  #   stop(errs, call. = F)
+  # }
+
   er1 <- try(as.numeric(l), silent = TRUE)
   er2 <- try(as.numeric(r), silent = TRUE)
   er3 <- try(as.numeric(r) - as.numeric(l), silent = TRUE)
@@ -48,14 +55,13 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   if(length(gid)==1)gid <- rep(gid, mxa)
   if(is.null(id) | any(!is.finite(id)) ) id <- 1:length(l)
   if(is.null(gid) | any(!is.finite(gid)) ) gid <- 1:length(l)
-  if(length(l)!= mean(c(length(r),length(id),length(gid)))) stop("Argument lengths differ or are not equal to 1")
-  if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""))
-  if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""))
-  if(!(is.numeric(gid) | is.null(gid))) stop(paste("'gid' must be numeric",sep=""))
-  if(all(class(l)!=class(r))) warning("'l' and 'r' have different classes. It may need to be reconciled")
+  if(length(l)!= mean(c(length(r),length(id),length(gid)))) stop("Argument lengths differ or are not equal to 1", call. = F)
+  if(!is.numeric(er1) | !is.numeric(er2) | !is.numeric(er3)) stop(paste("'l' or 'r' aren't compatible for a number_line object",sep=""), call. = F)
+  if(!(is.numeric(id) | is.null(id))) stop(paste("'id' must be numeric",sep=""), call. = F)
+  if(!(is.numeric(gid) | is.null(gid))) stop(paste("`gid` must be numeric",sep=""), call. = F)
+  if(all(class(l)!=class(r))) warning("`l` and `r` have different classes. They may need to be reconciled", call. = F)
 
-
-  nl <- methods::new("number_line", .Data = as.numeric(r) - as.numeric(l), start=l, id = id, gid = gid)
+  nl <- methods::new("number_line", .Data = ifelse(as.numeric(r) == as.numeric(l) & !is.na(r), 0, as.numeric(r) - as.numeric(l)), start=l, id = id, gid = gid)
   return(nl)
 }
 
@@ -67,17 +73,14 @@ number_line <- function(l, r, id = NULL, gid = NULL){
 #'
 #' @export
 as.number_line <- function(x){
-
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
   er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 
-  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste("'x' can't be coerced to a `number_line` object",sep=""))
-
+  if(!is.numeric(er1) | !is.numeric(er2)) stop("`x` can't be coerced to a `number_line` object.", call. = F)
   if(all(!diyar::is.number_line(x))){
-    x[!is.finite(as.numeric(x))] <- NA
-    x <- methods::new("number_line", .Data = as.numeric(x-x), start= x, id = 1:length(x), gid = 1:length(x))
+    #x[!is.finite(as.numeric(x))] <- NA
+    x <- methods::new("number_line", .Data = rep(0, length(x)), start= x, id = 1:length(x), gid = 1:length(x))
   }
 
   return(x)
@@ -100,8 +103,8 @@ is.number_line <- function(x) class(x)=="number_line"
 #'
 #' @export
 left_point <- function(x){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   x@start
 }
 
@@ -109,7 +112,7 @@ left_point <- function(x){
 #' @param value \code{numeric} based value
 #' @export
 "left_point<-" <- function(x, value) {
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(length(x)==0) return(number_line())
   diyar::number_line(r =diyar::right_point(x),  l=value, id=x@id, gid=x@gid)
 }
@@ -117,15 +120,15 @@ left_point <- function(x){
 #' @rdname number_line
 #' @export
 right_point <- function(x){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   x@start + x@.Data
 }
 
 #' @rdname number_line
 #' @export
 "right_point<-" <- function(x, value) {
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(length(x)==0) return(number_line())
   diyar::number_line(r=value,  l=x@start, id=x@id, gid=x@gid)
 }
@@ -133,8 +136,8 @@ right_point <- function(x){
 #' @rdname number_line
 #' @export
 start_point <- function(x){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start
 }
@@ -142,7 +145,7 @@ start_point <- function(x){
 #' @rdname number_line
 #' @export
 "start_point<-" <- function(x, value) {
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   l <- x@start; r <- value
   l[x@.Data >=0] <- value[x@.Data >=0]
   r[x@.Data >=0] <- (x@start + x@.Data)[x@.Data >=0]
@@ -153,8 +156,8 @@ start_point <- function(x){
 #' @rdname number_line
 #' @export
 end_point <- function(x){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   x <- diyar::reverse_number_line(x,"decreasing")
   x@start + x@.Data
 }
@@ -162,7 +165,7 @@ end_point <- function(x){
 #' @rdname number_line
 #' @export
 "end_point<-" <- function(x, value) {
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
 
   l <- value; r <- (x@start + x@.Data)
   l[x@.Data >=0] <- x@start[x@.Data >=0]
@@ -174,8 +177,8 @@ end_point <- function(x){
 #' @rdname number_line
 #' @export
 number_line_width <- function(x){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   diyar::right_point(x) - diyar::left_point(x)
 }
 
@@ -196,8 +199,8 @@ number_line_width <- function(x){
 #'
 #' @export
 reverse_number_line <- function(x, direction = "both"){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(length(x)==0) return(x)
   if(!(length(direction) %in% c(1, length(x)) & is.character(direction))) stop(paste("'direction' must be a character of length 1"))
   direction <- tolower(direction)
@@ -236,8 +239,8 @@ reverse_number_line <- function(x, direction = "both"){
 #'
 #' @export
 shift_number_line <- function(x, by=1){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(length(x)==0) return(x)
   if(!(length(by) %in% c(1, length(x)))) stop(paste("length of 'by' must be 1 or the same as 'x'",sep=""))
 
@@ -265,8 +268,8 @@ shift_number_line <- function(x, by=1){
 #'
 #' @export
 expand_number_line <- function(x, by=1, point ="both"){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(length(x)==0) return(x)
   if(!all(is.character(point))) stop(paste("'point' must be a character object"))
   if(all(!tolower(point) %in% c("both","start","end","left","right"))) stop(paste("`point` must be either 'left', 'right', 'start', 'end' or 'both'"))
@@ -307,8 +310,8 @@ expand_number_line <- function(x, by=1, point ="both"){
 #'
 #' @export
 invert_number_line <- function(x, point ="both"){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(length(x)==0) return(x)
   if(!all(is.character(point))) stop(paste("'point' must be a character object"))
   if(all(!tolower(point) %in% c("both","start","end","left","right"))) stop(paste("`point` must be either 'left', 'right', 'start', 'end' or 'both'"))
@@ -350,7 +353,7 @@ invert_number_line <- function(x, point ="both"){
 #' @export
 
 compress_number_line <- function(x, method = c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap","none"), collapse =FALSE, deduplicate = TRUE, methods = "overlap"){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
   if(length(x)==0) return(x)
   if(!is.character(method)) stop(paste("'method' must be a character object"))
@@ -424,14 +427,29 @@ compress_number_line <- function(x, method = c("exact", "across","chain","aligns
 #'
 #' @export
 number_line_sequence <- function(x, by=1, length.out = NULL){
-  if(missing(x)) stop("argument 'x' is missing, with no default")
-  if(!diyar::is.number_line(x)) stop(paste0("'x' is not a number_line object"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
+  if(all(!class(by) %in% c("numeric", "integer"))){
+    errs <- paste0("Invalid object type for `by`:\n",
+                   "i - Valid object types are: `integer` or `numeric`.\n",
+                   "X - You've supplied a ", listr(paste0("`", class(by), "` object.")))
+    stop(errs, call. = F)
+  }
+  errs_l <- finite_check(x@start)
+  errs_r <- finite_check(x@.Data)
 
-  fn_check <- finite_check(x)
-  if(fn_check!=T) stop(paste0("Finite values for 'x' required in ",fn_check))
+  if(errs_l != T | errs_r != T){
+    errs <- paste0("`x` must have finite left and right points:\n",
+                   ifelse(errs_l != T, paste0("X - There are non-finite values in `left_point(x)", errs_l, "`.\n"), ""),
+                   ifelse(errs_r != T, paste0("X - There are non-finite values in `right_point(x)", errs_r, "`."), ""))
+    stop(errs, call. = F)
+  }
+
 
   fn_check <- finite_check(by)
-  if(fn_check!=T) stop(paste0("Finite values for 'by' required in ",fn_check))
+  if(fn_check!=T) stop(paste0("`by` must have finite values:\n",
+                              paste0("X - There are non-finite values in `by",fn_check, "`.")),
+                       call. = F)
 
   by <- ifelse(is.nan(x@.Data/abs(x@.Data)), by , x@.Data/abs(x@.Data)  * abs(by))
   if(is.null(length.out)){

@@ -96,14 +96,13 @@ setMethod("c", signature(x = "number_line"), function(x,...) {
   zi <- unlist(list(x, ...))
   id <- gid <- 1:length(zi)
   methods::new("number_line", .Data = zi, id = id, gid = gid, start= ai)
-
 })
 
 #' @rdname number_line-class
 #' @export
 unique.number_line <- function(x, ...){
-  db <- unique(data.frame(l = left_point(x), r = right_point(x), ob = x))
-  db$cri <- paste(as.numeric(db$l), as.numeric(db$r),sep="")
+  db <- data.frame(l = left_point(x), r = right_point(x), ob = x)
+  db$cri <- paste(as.numeric(db$l), "-", as.numeric(db$r))
   db <- subset(db, !duplicated(db$cri))
   x <- db$ob
   return(x)
@@ -183,7 +182,7 @@ format.epid <- function(x, ...){
 #' @rdname epid-class
 #' @export
 unique.epid <- function(x, ...){
-  db <- unique(data.frame(c = x@case_nm, ob = x))
+  db <- data.frame(c = x@case_nm, ob = x)
   db <- subset(db, db$c!="Duplicate")
   x <- db$ob
   return(x)
@@ -294,7 +293,7 @@ format.pid <- function(x, ...){
 #' @rdname pid-class
 #' @export
 unique.pid <- function(x, ...){
-  db <- unique(data.frame(p = x@.Data, ob = x))
+  db <- data.frame(p = x@.Data, ob = x)
   db <- subset(db, !duplicated(db$p))
   x <- db$ob
   return(x)
