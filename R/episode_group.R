@@ -1587,19 +1587,17 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     if(is.null(recurrence_length)){
       rcs <- eps
       overlap_method_b <- overlap_method_a
-
     }else{
       r <- prep_lengths(case_length, overlap_methods, int,
                         episode_unit, bi_direction, from_last,
                         include_index_period)
-      eps <- r$lengths
-      overlap_method_a <- r$method
+      rcs <- r$lengths
+      overlap_method_b <- r$method
     }
   }
 
   if(length(episodes_max)==1) episodes_max <- rep(episodes_max, length(int))
   if(length(skip_order)==1) skip_order <- rep(skip_order, length(int))
-  #if(length(overlap_methods)==1) overlap_methods <- rep(overlap_methods, length(int))
   if(length(strata)==1 | is.null(strata)) {
     cri <- rep(1, length(int))
   }else{
@@ -1671,10 +1669,12 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     }
 
     eps <- lapply(eps, function(x){x[o]})
-    rcs <- lapply(rcs, function(x){x[o]})
-
     overlap_methods_a <- lapply(overlap_methods_a, function(x){x[o]})
-    overlap_methods_b <- lapply(overlap_methods_b, function(x){x[o]})
+
+    if(episode_type == "rolling"){
+      rcs <- lapply(rcs, function(x){x[o]})
+      overlap_methods_b <- lapply(overlap_methods_b, function(x){x[o]})
+    }
 
     r <- rle(cri)
     # position of the earliest record per strata
@@ -1711,17 +1711,21 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
 
     ovr_chks <- function(tr, int, mths) diyar::overlaps(tr, int, methods =mths)
     ep_checks <- rowSums(mapply(ovr_chks, tr_ep_int, rep(list(int), length(tr_ep_int)), overlap_methods)) > 0
-    rc_checks <- rowSums(mapply(ovr_chks, tr_rc_int, rep(list(int), length(tr_rc_int)), overlap_methods)) > 0
+    if(episode_type == "rolling"){
+      rc_checks <- rowSums(mapply(ovr_chks, tr_rc_int, rep(list(int), length(tr_rc_int)), overlap_methods)) > 0
+    }
 
     cr <- ifelse(tr_tag == 0 &
                    (ref_rd  | ep_checks==1) &
                    tag != 2,
                  T, F)
 
-    cr <- ifelse(tr_tag == -1 &
-                   (ref_rd  | rc_checks==1) &
-                   tag != 2,
-                 T, cr)
+    if(episode_type == "rolling"){
+      cr <- ifelse(tr_tag == -1 &
+                     (ref_rd  | rc_checks==1) &
+                     tag != 2,
+                   T, cr)
+    }
 
     e[cr & tr_tag ==  0] <- tr_sn[cr & tr_tag ==  0]
     e[cr & tr_tag == -1] <-  tr_e[cr & tr_tag == -1]
@@ -1742,11 +1746,15 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
 
 
     if(skip_if_b4_lengths == T){
-      rows <- ifelse(from_last == T, Rfast::rowMins, Rfast::rowMaxs)
+      #rows <- ifelse(from_last == T, Rfast::rowMins, Rfast::rowMaxs)
       eps_bounds_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, ifelse(from_last == T, right_point, left_point)))[ifelse(from_last == T, 1,2),]
       #eps_bounds_z <- apply(sapply(tr_int, ifelse(from_last == T, right_point, left_point)), 1, ifelse(from_last == T, min, max), na.rm = TRUE)
       eps_bounds_a <- rep(int[which(names(cri) %in% p)], r$lengths)
       eps_bounds_a <- right_point(eps_bounds_a)
+
+      rcs_bounds_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, ifelse(from_last == T, right_point, left_point)))[ifelse(from_last == T, 1,2),]
+      rcs_bounds_a <- rep(int[which(names(cri) %in% p)], r$lengths)
+      rcs_bounds_a <- right_point(rcs_bounds_a)
 
       skp_crxt <- cri[cr & !ref_rd]
       skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
