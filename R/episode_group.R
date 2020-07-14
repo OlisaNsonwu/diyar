@@ -1177,8 +1177,6 @@ rolling_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurr
 
 }
 
-#' @rdname episode_group
-#' @export
 f_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days",
                      episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                      custom_sort = NULL, skip_order = Inf, from_last = FALSE,
@@ -1525,14 +1523,11 @@ f_episodes <- function(date, sn = NULL, strata = NULL, case_length, episode_unit
   return(epid)
 }
 
-
-#' @rdname episode_group
-#' @export
-r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length, episode_unit = "days",
+r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length = NULL, episode_unit = "days",
                        episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
-                       custom_sort = NULL, skip_order = Inf, from_last = FALSE,
-                       overlap_methods = "overlap", bi_direction = FALSE, group_stats = TRUE,
-                       display = "progress", deduplicate = FALSE, include_index_period = TRUE,
+                       custom_sort = NULL, skip_order = Inf, from_last = FALSE, rolls_max = Inf,
+                       overlap_methods = "overlap", bi_direction = FALSE, group_stats = TRUE, recurrence_from_last = TRUE,
+                       display = "progress", deduplicate = FALSE, include_index_period = TRUE, case_for_recurrence = FALSE,
                        to_s4 = TRUE, x, overlap_method = "overlap", episode_type = "fixed") {
 
   # Deprecated arguments and behaviour
@@ -1567,6 +1562,7 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
   if(is.null(names(data_links))) names(data_links) <- rep("l", length(data_links))
   names(data_links) <- ifelse(names(data_links)=="", "l", names(data_links))
 
+  int <- as.number_line(date)
   is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   episode_unit <- ifelse(is_dt==F,"seconds", tolower(episode_unit))
 
@@ -1576,23 +1572,23 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
       r = as.POSIXct(format(right_point(int), "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
     )
   }
-  int <- as.number_line(date)
+
   r <- prep_lengths(case_length, overlap_methods, int,
                     episode_unit, bi_direction, from_last,
                     include_index_period)
   eps <- r$lengths
-  overlap_method_a <- r$method
+  overlap_methods_a <- r$method
 
   if(episode_type == "rolling"){
     if(is.null(recurrence_length)){
       rcs <- eps
-      overlap_method_b <- overlap_method_a
+      overlap_methods_b <- overlap_methods_a
     }else{
-      r <- prep_lengths(case_length, overlap_methods, int,
+      r <- prep_lengths(recurrence_length, overlap_methods, int,
                         episode_unit, bi_direction, from_last,
                         include_index_period)
       rcs <- r$lengths
-      overlap_method_b <- r$method
+      overlap_methods_b <- r$method
     }
   }
 
@@ -1624,7 +1620,10 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     c_sort <- rep(0, length(int))
   }
 
-  names(cri) <- int@id; e <- int@gid;  names(e) <- int@id; names(int) <- int@id;
+  names(cri) <- int@id; e <- int@gid;
+  names(e) <- int@id; wind_id <- int@gid
+  names(int) <- int@id
+
   if(!is.null(data_source)) {
     if(length(data_source) == 1) data_source <- rep(data_source, length(int))
     names(data_source) <- int@id
@@ -1632,7 +1631,9 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
 
 
   epid_n <- rep(0, length(int))
+  if(episode_type == "rolling") roll_n <- rep(0, length(int))
   case_nm <- rep("", length(int))
+  wind_nm <- case_nm
   dist_from_epid <- epid_n
   ite <- 1
 
@@ -1663,10 +1664,12 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     o <- order(cri, tag, ord, int@gid, decreasing = T)
     for(i in c("e","tag","cri","ord",
                "int","epid_n", "c_sort",
-               "skip_order", "case_nm",
+               "skip_order", "case_nm", "wind_nm", "wind_id",
                "dist_from_epid")){
       assign(i, get(i)[o])
     }
+
+    if(episode_type == "rolling") roll_n <- roll_n[o]
 
     eps <- lapply(eps, function(x){x[o]})
     overlap_methods_a <- lapply(overlap_methods_a, function(x){x[o]})
@@ -1689,9 +1692,19 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
 
     tr_tag <- rep(tag[which(names(cri) %in% p)], r$lengths)
     tr_e <- rep(e[which(names(cri) %in% p)], r$lengths)
+    if (episode_type == "rolling") roll_n <- ifelse(tr_tag == 0, 0, ifelse(tr_tag == -1, roll_n + 1, roll_n))
+    epid_n <- ifelse(tr_tag == 0, epid_n + 1, epid_n)
+    case_nm[epid_n > episodes_max & tag !=2] <- "Case"
+    tag[epid_n > episodes_max & tag !=2] <- 2
 
-    if(length(tr_ep_int[[1]])==0) {
-      #if(skpd >0) cat(paste0(fmt(skpd), " record(s); ", fmt(skpd)," skipped\n"))
+    if(min(tag) == 2){
+      if(tolower(display) == "stats"){
+        current_tagged <- length(cr[cr])
+        msg <- paste0(fmt(current_tot), " record(s); ", fmt(current_tagged)," grouped to episodes", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_tagged + current_skipped))," left to group.")
+        cat(msg, paste0(rep(" ", max_width-nchar(msg)), collapse = ""), "\n", sep="")
+      }else if (tolower(display)=="progress") {
+        progress_bar(length(tag[tag==2])/tot, 100)
+      }
       break
     }
 
@@ -1710,12 +1723,12 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     ref_rd <- int@gid %in% tr_sn
 
     ovr_chks <- function(tr, int, mths) diyar::overlaps(tr, int, methods =mths)
-    ep_checks <- rowSums(mapply(ovr_chks, tr_ep_int, rep(list(int), length(tr_ep_int)), overlap_methods)) > 0
+    ep_checks <- rowSums(mapply(ovr_chks, tr_ep_int, rep(list(int), length(tr_ep_int)), overlap_methods_a)) > 0
     if(episode_type == "rolling"){
-      rc_checks <- rowSums(mapply(ovr_chks, tr_rc_int, rep(list(int), length(tr_rc_int)), overlap_methods)) > 0
+      rc_checks <- rowSums(mapply(ovr_chks, tr_rc_int, rep(list(int), length(tr_rc_int)), overlap_methods_b)) > 0
     }
 
-    cr <- ifelse(tr_tag == 0 &
+    cr <- ifelse(tr_tag %in% c(0, -2) &
                    (ref_rd  | ep_checks==1) &
                    tag != 2,
                  T, F)
@@ -1728,22 +1741,45 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     }
 
     e[cr & tr_tag ==  0] <- tr_sn[cr & tr_tag ==  0]
-    e[cr & tr_tag == -1] <-  tr_e[cr & tr_tag == -1]
+    e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
+    wind_id[cr] <- tr_sn[cr]
 
-    case_nm[cr & tr_tag == 0] <- ifelse(ref_rd[cr & tr_tag == 0], "Case", "Duplicate-C")
+    case_nm[cr & tr_tag == 0] <- ifelse(ref_rd[cr & tr_tag == 0], "Case", "Duplicate_C")
+    wind_nm[cr & tr_tag == 0] <- "Case"
     tag[cr] <- 2
 
     if(episode_type == "rolling"){
-      case_nm[cr & tr_tag == -1 & case_nm == ""] <- "Duplicate-R"
+      case_nm[cr & tr_tag %in% c(-1, -2) & case_nm == ""] <- "Duplicate_R"
+      wind_nm[cr & tr_tag %in% c(-1, -2) & wind_nm == ""] <- "Recurrence"
       o <- order(cri, cr, -ref_rd, tag, -ord, int@gid)
       r <- rle(cri[o])
-      case_nm[which(int@id %in% names(r$values) & tr_tag == -1)] <- "Recurrent"
+      case_nm[which(int@id %in% names(r$values) & tr_tag %in% c(-1, -2) & !ref_rd)] <- "Recurrent"
 
-      o <- order(cri, cr, tag, ord, int@gid)
+      last_tag <- rle(cri[order(cri, -tag)])
+      last_tag <- rep(tag[which(names(cri) %in% names(last_tag$values))], last_tag$lengths)
+      close_epi <- last_tag == 2 | roll_n == rolls_max
+
+      roll_ref <- ord
+      if(recurrence_from_last == FALSE) roll_ref <- -roll_ref
+      o <- order(cri, cr, tag, roll_ref, int@gid)
       r <- rle(cri[o])
-      tag[which(int@id %in% names(r$values) & !ref_rd)] <- -1
+      tag[which(int@id %in% names(r$values) & !(ref_rd & roll_n >= 1) & !close_epi)] <- -1
+
+      if(case_for_recurrence == T){
+        tag[which(int@id %in% names(r$values) & !(ref_rd & roll_n >= 1) & tr_tag == -1 & !close_epi)] <- -2
+      }
     }
 
+    if(min(tag) == 2){
+      current_tagged <- length(cr[cr])
+      if(tolower(display) == "stats"){
+        msg <- paste0(fmt(current_tot), " record(s); ", fmt(current_tagged)," grouped to episodes", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_tagged + current_skipped))," left to group.")
+        cat(msg, paste0(rep(" ", max_width-nchar(msg)), collapse = ""), "\n", sep="")
+      }else if (tolower(display)=="progress") {
+        progress_bar(length(tag[tag==2])/tot, 100)
+      }
+      break
+    }
 
     if(skip_if_b4_lengths == T){
       #rows <- ifelse(from_last == T, Rfast::rowMins, Rfast::rowMaxs)
@@ -1759,21 +1795,34 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
       skp_crxt <- cri[cr & !ref_rd]
       skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
 
-      bnds <- suppressWarnings(
+      epc_bnds <- suppressWarnings(
         number_line(
           l = eps_bounds_a,
           r = eps_bounds_z))
-      ep_obds_checks <- suppressWarnings(overlap(int, bnds))
-      case_nm[which(ep_obds_checks & !cr & cri %in% skp_crxt)] <- "Skipped"
-      tag[which(ep_obds_checks & !cr & cri %in% skp_crxt)] <- 2
+
+      rcs_bnds <- suppressWarnings(
+        number_line(
+          l = rcs_bounds_a,
+          r = rcs_bounds_z))
+
+      ep_obds_checks <- suppressWarnings(overlap(int, epc_bnds))
+      rc_obds_checks <- suppressWarnings(overlap(int, rcs_bnds))
+
+      indx <- which((ep_obds_checks & !cr & cri %in% skp_crxt & tr_tag == 0) |
+                      (rc_obds_checks & !cr & cri %in% skp_crxt & tr_tag == 1 )
+                    )
+
+      case_nm[indx] <- "Skipped"
+      tag[indx] <- 2
     }
 
     # Episode max
-    cri_z <-  cri[cr];
-    cri_z <- cri_z[!duplicated(cri_z)]
-    epid_n[cri %in% cri_z] <- epid_n[cri %in% cri_z] + 1
-    tag[epid_n == episodes_max] <- 2
-    rm(cri_z)
+    # cri_z <-  cri[cr];
+    # cri_z <- cri_z[!duplicated(cri_z)]
+    # epid_n[cri %in% cri_z] <- epid_n[cri %in% cri_z] + 1
+    # case_nm[epid_n == episodes_max & tag !=2] <- "Case"
+    # tag[epid_n == episodes_max & tag !=2] <- 2
+    # rm(cri_z)
 
     current_tagged <- length(cr[cr])
     if(tolower(display) == "stats"){
@@ -1792,37 +1841,57 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
 
   diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
 
-  ord <- order(e, as.numeric(int@start))
+  stat_pos <- int@id
+  ord <- order(e, wind_id, as.numeric(int@start))
   e <- e[ord]
-  case_nm <- case_nm[ord]
+  #case_nm <- case_nm[ord]
   int <- int[ord]
   #cri <- cri[ord]
 
+  #lgk <- case_nm %in% c("Case", "Skipped")
+
   epid_n <- rle(e)
   epid_n <- rep(epid_n$lengths, epid_n$lengths)
-
-  lgk <- case_nm %in% c("Case", "Skipped")
+  lgk <- e[!duplicated(e)]
   dist_from_epid <- ((as.numeric(int@start) + as.numeric(right_point(int)))*.5) -
     rep(((as.numeric(int@start[lgk]) + as.numeric(right_point(int[lgk])))*.5), epid_n[lgk])
+
+  if(episode_type == "rolling"){
+    wind_id <- wind_id[ord]
+    wind_n <- rle(wind_id)
+    wind_n <- rep(wind_n$lengths, wind_n$lengths)
+    lgk <- wind_id[!duplicated(wind_id)]
+    dist_from_wind <- ((as.numeric(int@start) + as.numeric(right_point(int)))*.5) -
+      rep(((as.numeric(int@start[lgk]) + as.numeric(right_point(int[lgk])))*.5), wind_n[lgk])
+  }else{
+    dist_from_wind <- dist_from_epid
+  }
 
   if(is_dt==T){
     dist_from_epid <- dist_from_epid / diyar::episode_unit[[episode_unit]]
     dist_from_epid <- as.difftime(dist_from_epid, units = diff_unit)
+
+    if (episode_type == "rolling"){
+      dist_from_wind <- dist_from_wind / diyar::episode_unit[[episode_unit]]
+      dist_from_wind <- as.difftime(dist_from_wind, units = diff_unit)
+    }else{
+      dist_from_wind <- dist_from_epid
+    }
   }
 
   fd <- match(1:length(int), names(e))
   f_e <- e[fd]; names(f_e) <- NULL
-  dist_from_epid <- dist_from_epid[fd]
+  #dist_from_epid <- dist_from_epid[fd]
 
-
+  retrieve_pos <- match(1:length(int), stat_pos)
   epid <- new("epid",
               .Data= f_e,
-              dist_from_epid = dist_from_epid,
-              dist_from_wind = dist_from_epid,
+              dist_from_epid = dist_from_epid[fd],
+              dist_from_wind = dist_from_epid[fd],
               sn = int@gid[fd],
-              case_nm=case_nm[fd],
-              wind_nm = rep("Case", length(int)),
-              wind_id = f_e)
+              case_nm= case_nm[retrieve_pos],
+              wind_nm = wind_nm[retrieve_pos],
+              wind_id = wind_id[fd])
   names(epid@wind_id) <- NULL
 
   if(!is.null(data_source)){
