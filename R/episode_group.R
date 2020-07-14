@@ -1551,7 +1551,9 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
                           episode_unit = episode_unit, overlap_methods = overlap_methods,
                           skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
                           data_source=data_source, data_links = data_links, include_index_period = include_index_period,
-                          skip_if_b4_lengths = skip_if_b4_lengths, bi_direction = bi_direction, deduplicate = deduplicate)
+                          skip_if_b4_lengths = skip_if_b4_lengths, bi_direction = bi_direction, deduplicate = deduplicate,
+                          rolls_max = rolls_max, case_for_recurrence = case_for_recurrence, recurrence_from_last = recurrence_from_last,
+                          episode_type == episode_type)
 
   if(errs!=F) stop(errs, call. = F)
 
@@ -1593,6 +1595,7 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
   }
 
   if(length(episodes_max)==1) episodes_max <- rep(episodes_max, length(int))
+  if(length(rolls_max)==1) rolls_max <- rep(rolls_max, length(int))
   if(length(skip_order)==1) skip_order <- rep(skip_order, length(int))
   if(length(strata)==1 | is.null(strata)) {
     cri <- rep(1, length(int))
@@ -1664,8 +1667,10 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     o <- order(cri, tag, ord, int@gid, decreasing = T)
     for(i in c("e","tag","cri","ord",
                "int","epid_n", "c_sort",
-               "skip_order", "case_nm", "wind_nm", "wind_id",
-               "dist_from_epid")){
+               "skip_order", "case_nm",
+               "wind_nm", "wind_id",
+               "dist_from_epid", "rolls_max",
+               "episodes_max")){
       assign(i, get(i)[o])
     }
 
@@ -1686,9 +1691,12 @@ r_episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_l
     tr_ep_int <- lapply(eps, function(x){
       rep(x[which(names(cri) %in% p)], r$lengths)
     })
-    tr_rc_int <- lapply(rcs, function(x){
-      rep(x[which(names(cri) %in% p)], r$lengths)
-    })
+
+    if(episode_type == "rolling"){
+      tr_rc_int <- lapply(rcs, function(x){
+        rep(x[which(names(cri) %in% p)], r$lengths)
+      })
+    }
 
     tr_tag <- rep(tag[which(names(cri) %in% p)], r$lengths)
     tr_e <- rep(e[which(names(cri) %in% p)], r$lengths)

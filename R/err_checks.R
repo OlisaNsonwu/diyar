@@ -5,7 +5,8 @@
 
 err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max, episode_unit, data_links,
                             overlap_methods, skip_order, custom_sort, group_stats, from_last, data_source,
-                            include_index_period, bi_direction, skip_if_b4_lengths, deduplicate = deduplicate){
+                            include_index_period, bi_direction, skip_if_b4_lengths, deduplicate,
+                            rolls_max, case_for_recurrence, recurrence_from_last, episode_type){
 
   if(all(class(sn) == "NULL")) sn <- seq_len(length(date))
   if(all(class(data_source) == "NULL")) data_source <- rep("A", length(date))
@@ -26,6 +27,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
     case_length = c("list", "numeric", "number_line"),
     episodes_max = c("numeric","integer"),
+    rolls_max = c("numeric","integer"),
     display = "character",
     episode_unit = "character",
     data_source = "character",
@@ -37,7 +39,9 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     include_index_period = "logical",
     bi_direction = "logical",
     skip_if_b4_lengths = "logical",
-    deduplicate = "logical"
+    deduplicate = "logical",
+    recurrence_from_last = "logical",
+    case_for_recurrence = "logical"
   )
 
   if(is.list(case_length)){
@@ -114,13 +118,17 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     overlap_methods = lims,
     episode_unit = 1,
     episodes_max = lims,
+    rolls_max = lims,
     from_last = 1,
     group_stats = 1,
     include_index_period = 1,
     display = 1,
     bi_direction = 1,
     skip_if_b4_lengths = 1,
-    deduplicate = 1
+    deduplicate = 1,
+    case_for_recurrence = 1,
+    recurrence_from_last = 1,
+    episode_type = 1
   )
 
   if(is.list(case_length)){
