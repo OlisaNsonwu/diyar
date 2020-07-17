@@ -9,16 +9,19 @@ knitr::opts_chunk$set(
 )
 ```
 
-#Version 0.1.1.9000
-+ Better support for `Inf` in `number_line` objects.
-
+#Version 0.2.0.9000
 ## New features
++ Better support for `Inf` in `number_line` objects.
++ Use more than one `case_length` or `recurrence_length` for the same event. Supply these as list.
+    + For each `case_length` and `recurrence_length`, use a different `overlap_method`. Supply these as list of matching lengths to `case_length` and `recurrence_length`. 
 
 ## Changes
-+ `l` and `r` must have the same length or be `1`
++ `l` and `r` must have the same length or be `1`.
++ `case_nm` differentiates between duplicates of `"Case"` (`"Duplicate_C"`) and `"Recurrent"` events (`"Duplicate_R"`).
 
 ## Bug fixes
-+ `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in some situations
++ `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in certain sitations. Corrected.
++ `fixed_episodes`, `rolling_episodes` and `episode_group` - `dist_from_wind` was wrong in cerain situations. Corrected.
 
 #Version 0.1.0
 ##New features

@@ -201,7 +201,7 @@ check_links <- function(cri, data_source, data_links){
 
 prep_lengths <- function(length, overlap_methods, int,
                          episode_unit, bi_direction, from_last,
-                         include_index_period){
+                         include_index_period = F){
   length <- length
   if(class(length) != "list") length <- list(length)
   if(class(overlap_methods) != "list") overlap_methods <- list(overlap_methods)
@@ -211,12 +211,12 @@ prep_lengths <- function(length, overlap_methods, int,
   overlap_methods <- rep(overlap_methods[as.numeric(r$values)], r$lengths)
 
   if(bi_direction == T){
-    is_bdr <- names(length) %in% r$values
+    is_bdr <- names(length) %in% r$values[r$lengths == 2]
     n_length  <- length[!is_bdr]
     if(length(n_length) > 0){
       n_length <- lapply(n_length, invert_number_line)
       length <- c(n_length, length)
-      overlap_methods <- c(overlap_methods[!is_bdr], overlap_methods_a)
+      overlap_methods <- c(overlap_methods[!is_bdr], overlap_methods)
     }
   }
 
@@ -225,7 +225,7 @@ prep_lengths <- function(length, overlap_methods, int,
   length <- lapply(length, function(x){
     number_line(l= right_point(int) + (left_point(x) * diyar::episode_unit[[episode_unit]]),
                 r= right_point(int) + (right_point(x) * diyar::episode_unit[[episode_unit]]),
-                gid = int@gid)})
+                gid = seq_len(length(int)))})
 
   if(include_index_period == T){
     length <- c(length, list(int))
