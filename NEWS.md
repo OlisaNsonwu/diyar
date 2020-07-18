@@ -14,8 +14,9 @@ Changes
 
 -   `l` and `r` must have the same length or be `1`.
 -   `case_nm` differentiates between duplicates of `"Case"` (`"Duplicate_C"`) and `"Recurrent"` events (`"Duplicate_R"`).
--   Episode-level options for `episode_type`, `case_for_recurrence` and `recurrence_from_last`. The length of these arguments can now be the same as `date`. This allows for simultaneous tracking of episodes in different ways within the same instance of `episodes()`. The behaviour for each episode is determined by the corresponding option for the episode's index event (`"Case"`).
+-   Episode-level options for `episode_type`, `skip_if_b4_lengths`, `case_for_recurrence` and `recurrence_from_last`. The length of these arguments can now be the same as `date`. This allows for simultaneous tracking of episodes in different ways within the same instance of `episodes()`. The behaviour for each episode is determined by the corresponding option for the episode's index event (`"Case"`).
     -   `episode_type` - simultaneously track of `"fixed"` and `"rolling"` episodes.
+    -   `skip_if_b4_lengths` - simultaneously track of episodes where events before a cut-off range are either skipped or not.
     -   `case_for_recurrence` - simultaneously track `"rolling"` episodes with and without an additional case window for recurrent events.
     -   `recurrence_from_last` - simultaneously track `"rolling"` episodes with reference windows calculated from the first or last event in the previous window.
 

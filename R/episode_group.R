@@ -1270,6 +1270,14 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
     lead_rec_from_last <- rep(NA, length(int))
   }
 
+  if(length(skip_if_b4_lengths) == 1) skip_if_b4_lengths <- rep(skip_if_b4_lengths, length(int))
+  any_skip_b4_len <- any(skip_if_b4_lengths == T)
+  lead_skip_b4_len <- skip_if_b4_lengths[!duplicated(skip_if_b4_lengths)]
+  one_skip_b4_len <- length(lead_skip_b4_len) == 1
+  if(one_skip_b4_len != T){
+    lead_skip_b4_len <- rep(NA, length(int))
+  }
+
   if(length(episodes_max) == 1) episodes_max <- rep(episodes_max, length(int))
   if(length(rolls_max) == 1) rolls_max <- rep(rolls_max, length(int))
   if(length(skip_order) == 1) skip_order <- rep(skip_order, length(int))
@@ -1365,6 +1373,11 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
       recurrence_from_last <- recurrence_from_last[sort_ord]
     }
 
+    if(one_skip_b4_len != T){
+      lead_skip_b4_len <- lead_skip_b4_len[sort_ord]
+      skip_if_b4_lengths <- skip_if_b4_lengths[sort_ord]
+    }
+
     ep_l <- lapply(ep_l, function(x){x[sort_ord]})
     mths_a <- lapply(mths_a, function(x){x[sort_ord]})
 
@@ -1403,6 +1416,11 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
     if(one_rec_from_last != T){
       tr_rec_from_last <- rep(recurrence_from_last[which(names(cri) %in% p)], r$lengths)
       lead_rec_from_last <- ifelse(tr_tag == 0, tr_rec_from_last, lead_rec_from_last)
+    }
+
+    if(one_skip_b4_len != T){
+      tr_skip_b4_len <- rep(skip_if_b4_lengths[which(names(cri) %in% p)], r$lengths)
+      lead_skip_b4_len <- ifelse(tr_tag == 0, tr_skip_b4_len, lead_skip_b4_len)
     }
 
     if (any_rolling == T) {
@@ -1519,12 +1537,12 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
       break
     }
 
-    if(skip_if_b4_lengths == T){
-      ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int, start_point))
-      ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, end_point))
+    if(any_skip_b4_len == T){
+      ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int[lead_skip_b4_len], start_point))
+      ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int[lead_skip_b4_len], end_point))
 
-      ep_l_bounds_a <- start_point(tr_int)
-      ep_l_bounds_z <- end_point(tr_int)
+      ep_l_bounds_a <- start_point(tr_int[lead_skip_b4_len])
+      ep_l_bounds_z <- end_point(tr_int[lead_skip_b4_len])
 
       ep_l_bounds_a <- ifelse(ep_l_min_a[1,] < ep_l_bounds_a, ep_l_min_a[1,], ep_l_bounds_a)
       ep_l_bounds_z <- ifelse(ep_l_min_z[2,] > ep_l_bounds_z, ep_l_min_z[2,], ep_l_bounds_z)
@@ -1534,14 +1552,14 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
           l = ep_l_bounds_a,
           r = ep_l_bounds_z))
 
-      ep_obds_checks <- suppressWarnings(overlap(int, epc_bnds))
+      ep_obds_checks <- suppressWarnings(overlap(int[lead_skip_b4_len], epc_bnds))
 
       if(any_rolling == T){
-        rc_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_rc_int, start_point))
-        rc_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_rc_int, end_point))
+        rc_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_rc_int[lead_skip_b4_len], start_point))
+        rc_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_rc_int[lead_skip_b4_len], end_point))
 
-        rc_l_bounds_a <- start_point(tr_int)
-        rc_l_bounds_z <- end_point(tr_int)
+        rc_l_bounds_a <- start_point(tr_int[lead_skip_b4_len])
+        rc_l_bounds_z <- end_point(tr_int[lead_skip_b4_len])
 
         rc_l_bounds_a <- ifelse(rc_l_min_a[1,] < rc_l_bounds_a, rc_l_min_a[1,], rc_l_bounds_a)
         rc_l_bounds_z <- ifelse(rc_l_min_z[2,] > rc_l_bounds_z, rc_l_min_z[2,], rc_l_bounds_z)
@@ -1551,19 +1569,27 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
             l = rc_l_bounds_a,
             r = rc_l_bounds_z))
 
-        rc_obds_checks <- suppressWarnings(overlap(int, rc_l_bnds))
+        rc_obds_checks <- suppressWarnings(overlap(int[lead_skip_b4_len], rc_l_bnds))
       }
 
       skp_crxt <- cri[cr & !ref_period]
       skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
-      indx <- (ep_obds_checks & !cr & cri %in% skp_crxt & tr_tag %in% c(0, -2) & case_nm == "")
+      indx <- (ep_obds_checks &
+                 !cr &
+                 cri[lead_skip_b4_len] %in% skp_crxt &
+                 tr_tag[lead_skip_b4_len] %in% c(0, -2) &
+                 case_nm[lead_skip_b4_len] == "")
       if(any_rolling == T){
-        indx <- ifelse((rc_obds_checks & !cr & cri %in% skp_crxt & tr_tag == -1 & case_nm == ""),
+        indx <- ifelse((rc_obds_checks &
+                          !cr &
+                          cri[lead_skip_b4_len] %in% skp_crxt &
+                          tr_tag[lead_skip_b4_len] == -1 &
+                          case_nm[lead_skip_b4_len] == ""),
                        T, indx)
       }
 
-      case_nm[indx] <- "Skipped"
-      tag[indx] <- 2
+      case_nm[lead_skip_b4_len][indx] <- "Skipped"
+      tag[lead_skip_b4_len][indx] <- 2
       rm(skp_crxt); rm(indx)
     }
 
