@@ -116,7 +116,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     strata = c(0, lims),
     data_source = c(0, lims),
     overlap_methods = lims,
-    episode_unit = 1,
+    episode_unit = lims,
     episodes_max = lims,
     rolls_max = lims,
     from_last = lims,
@@ -231,10 +231,24 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
 
   # ------ Check for specific requirements
   # Episode unit - Specific options required
-  if(!tolower(episode_unit) %in% names(diyar::episode_unit)){
-    return(paste0("Invalid values for `episode_unit`:\n",
-                "i - Vaild values are: \"seconds\", \"minutes\", \"hours\", \"days\", \"weeks\", \"months\" or \"years\".\n",
-                "X - You've supplied ", paste0("\"" , episode_unit, "\"", collapse = ", ")))
+  if(any(!tolower(episode_unit) %in% names(diyar::episode_unit))){
+    epu <- episode_unit
+    sn <- 1:length(epu)
+
+    units <- split(sn , epu)
+    units <- units[!tolower(names(units)) %in% names(episode_unit)]
+
+    units <- unlist(lapply(units, function(x){
+      diyar:::missing_check(ifelse(sn %in% x, NA, T), 2)
+    }), use.names = T)
+
+    units <- paste0("\"", names(units),"\"", " at ", units)
+    if(length(units) >3) err <- paste0(paste0(units[1:3], collapse = ", "), " ...") else err <- diyar:::listr(units)
+    errs <-  paste0("Invalid values for `episode_unit`:\n",
+                    "i - Vaild values are: \"seconds\", \"minutes\", \"hours\", \"days\", \"weeks\", \"months\" or \"years\".\n",
+                    "X - You've supplied ", errs, ".")
+
+    return(errs)
   }
 
   # Display - Specific options required

@@ -14,15 +14,16 @@ Changes
 
 -   `l` and `r` must have the same length or be `1`.
 -   `case_nm` differentiates between duplicates of `"Case"` (`"Duplicate_C"`) and `"Recurrent"` events (`"Duplicate_R"`).
--   Strata and episode-level options for most arguments. This allows for greater flexibity within the same instance of `episodes()`.
+-   Strata and episode-level options for most arguments. This gives greater flexibity within the same instance of `episodes()`.
     -   Episode-level - The behaviour for each episode is determined by the corresponding option for it's index event (`"Case"`).
-        -   `episode_type` - simultaneously track `"fixed"` and `"rolling"` episodes.
-        -   `skip_if_b4_lengths` - simultaneously track episodes where events before a cut-off range are either skipped or not.
-        -   `bi_direction` - simultaneously track episodes where other events before index event (in the opposite direction of `from_last`) are either captured or not.
-    -   `case_for_recurrence` - simultaneously track `"rolling"` episodes with and without an additional case window for recurrent events.
-    -   `recurrence_from_last` - simultaneously track `"rolling"` episodes with reference windows calculated from the first or last event in the previous window.
+        -   `episode_type` - simultaneously track both `"fixed"` and `"rolling"` episodes.
+        -   `skip_if_b4_lengths` - simultaneously track episodes where events before a cut-off range are both skipped and not skipped.
+        -   `bi_direction` - simultaneously track episodes where events before index event (opposite direction of `from_last`) are both captured or not captured.
+        -   `episode_unit` - simultaneously track episodes by different units of time.
+        -   `case_for_recurrence` - simultaneously track `"rolling"` episodes with and without an additional case window for recurrent events.
+        -   `recurrence_from_last` - simultaneously track `"rolling"` episodes with reference windows calculated from the first and last event of the previous window.
     -   Strata-level - The behaviour for each episode is determined by the corresponding option for it's `strata`.
-        -   `from_last` - simultaneously track episodes forward and backwards in time.
+        -   `from_last` - simultaneously track episodes in both directions of time - past to present and present to past.
 
 Bug fixes
 ---------

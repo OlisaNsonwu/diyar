@@ -1219,7 +1219,10 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
 
   int <- as.number_line(date)
   is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
-  episode_unit <- ifelse(is_dt == F,"seconds", tolower(episode_unit))
+
+  ep_units <- tolower(episode_unit)
+  if(length(ep_units) == 1) ep_units <- rep(ep_units, length(int))
+  ep_units[!is_dt] <- "seconds"
 
   if(is_dt == T){
     int <- number_line(
@@ -1229,7 +1232,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   }
 
   r <- prep_lengths(case_length, overlap_methods, int,
-                    episode_unit, bi_direction, from_last)
+                    ep_units, bi_direction, from_last)
   ep_l <- r$lengths
   mths_a <- r$method
 
@@ -1247,7 +1250,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
       mths_b <- mths_a
     }else{
       r <- prep_lengths(recurrence_length, overlap_methods, int,
-                        episode_unit, bi_direction, from_last,
+                        ep_units, bi_direction, from_last,
                         include_index_period)
       rc_l <- r$lengths
       mths_b <- r$method
@@ -1323,6 +1326,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   names(cri) <- int@id; e <- int@gid;
   names(e) <- int@id; wind_id <- int@gid
   names(int) <- int@id
+  names(ep_units) <- int@id
   epid_n <- rep(0, length(int))
 
   if(any_rolling == T) roll_n <- rep(0, length(int))
@@ -1615,11 +1619,13 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   cat("\n")
 
   wind_nm[which(case_nm == "Skipped")] <- "Skipped"
-  diff_unit <- ifelse(tolower(episode_unit) %in% c("second","minutes"),
-                      paste0(substr(tolower(episode_unit),1,3),"s"),
-                      tolower(episode_unit))
-
+  ep_units <- ep_units[match(names(e), names(ep_units))]
+  diff_unit <- ifelse(ep_units %in% c("second","minutes"),
+                      paste0(substr(ep_units, 1 ,3), "s"),
+                      ep_units)
   diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
+  diff_unit <- diff_unit[!duplicated(diff_unit)]
+  if(length(diff_unit) > 1) diff_unit <- "days"
 
   stat_pos <- int@id
   sort_ord <- order(e, wind_id, as.numeric(int@start))
@@ -1645,11 +1651,11 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   }
 
   if(is_dt==T){
-    dist_from_epid <- dist_from_epid / diyar::episode_unit[[episode_unit]]
+    dist_from_epid <- dist_from_epid / as.numeric(diyar::episode_unit[ep_units])
     dist_from_epid <- as.difftime(dist_from_epid, units = diff_unit)
 
     if (any_rolling == T){
-      dist_from_wind <- dist_from_wind / diyar::episode_unit[[episode_unit]]
+      dist_from_wind <- dist_from_wind / as.numeric(diyar::episode_unit[ep_units])
       dist_from_wind <- as.difftime(dist_from_wind, units = diff_unit)
     }else{
       dist_from_wind <- dist_from_epid

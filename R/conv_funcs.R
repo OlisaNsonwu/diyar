@@ -5,24 +5,24 @@
 # @param x x
 # @aliases finite_check
 #
-finite_check <- function(x){
+finite_check <- function(x, lim =10){
   e <- which(!is.finite(as.numeric(x)))
-  if(length(e) %in% 1:10) {
+  if(length(e) %in% 1:lim) {
     paste0("[",listr(fmt(e)),"]")
-  }else if(length(e) > 10) {
-    paste0("[",paste0(fmt(e[1:10]), collapse = ", "),", ...]")
+  }else if(length(e) > lim) {
+    paste0("[",paste0(fmt(e[1:lim]), collapse = ", "),", ...]")
   }else if(length(e) == 0)
     TRUE
 }
 
 
-missing_check <- function(x){
+missing_check <- function(x, lim =10){
   e <- which(is.na(x))
-  if(length(e) %in% 1:10) {
+  if(length(e) %in% 1:lim) {
     paste0("[",listr(fmt(e)),"]")
-  }else if(length(e) > 10) {
-    paste0("[",paste0(fmt(e[1:10]), collapse = ", "),", ...]")
-  }else if(length(e) == 0)
+  }else if(length(e) > lim) {
+    paste0("[",paste0(fmt(e[1:lim]), collapse = ", "),", ...]")
+  }else if(length(e) == lim)
     TRUE
 }
 
@@ -231,8 +231,8 @@ prep_lengths <- function(length, overlap_methods, int,
   }
 
   length <- lapply(length, function(x){
-    number_line(l= right_point(int) + (left_point(x) * diyar::episode_unit[[episode_unit]]),
-                r= right_point(int) + (right_point(x) * diyar::episode_unit[[episode_unit]]),
+    number_line(l= right_point(int) + (left_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
+                r= right_point(int) + (right_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
                 gid = seq_len(length(int)))})
 
   # if(include_index_period == T){
