@@ -66,11 +66,11 @@ duplicates_check <- function(x){
 
   if(length(dups)>3){
     paste0(paste0(y, collapse=", "), " ...")
-    }else if (length(y)!=0) {
-      listr(y)
-    }else{
-      TRUE
-      }
+  }else if (length(y)!=0) {
+    listr(y)
+  }else{
+    TRUE
+  }
 }
 # @rdname finite_check
 logicals_check <- function(x){
@@ -210,27 +210,35 @@ prep_lengths <- function(length, overlap_methods, int,
   r <- rle(names(length))
   overlap_methods <- rep(overlap_methods[as.numeric(r$values)], r$lengths)
 
-  if(bi_direction == T){
+  if(any(bi_direction == T)){
     is_bdr <- names(length) %in% r$values[r$lengths == 2]
     n_length  <- length[!is_bdr]
     if(length(n_length) > 0){
-      n_length <- lapply(n_length, invert_number_line)
+      n_length <- lapply(n_length, function(x){
+        x[bi_direction] <- invert_number_line(x)[bi_direction]
+        return(x)
+        })
       length <- c(n_length, length)
       overlap_methods <- c(overlap_methods[!is_bdr], overlap_methods)
     }
   }
 
-  if(from_last == T) length <- lapply(length, invert_number_line)
+  if(any(from_last == T)) {
+    length <- lapply(length, function(x){
+      x[from_last] <- invert_number_line(x)[from_last]
+      return(x)
+    })
+  }
 
   length <- lapply(length, function(x){
     number_line(l= right_point(int) + (left_point(x) * diyar::episode_unit[[episode_unit]]),
                 r= right_point(int) + (right_point(x) * diyar::episode_unit[[episode_unit]]),
                 gid = seq_len(length(int)))})
 
-  if(include_index_period == T){
-    length <- c(length, list(int))
-    overlap_methods <- c(overlap_methods, list("overlap"))
-  }
+  # if(include_index_period == T){
+  #   length <- c(length, list(int))
+  #   overlap_methods <- c(overlap_methods, list("overlap"))
+  # }
 
   overlap_methods <- lapply(overlap_methods, function(x){
     if(length(x)==1) x <- rep(x, length(int))

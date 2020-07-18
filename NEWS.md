@@ -17,6 +17,7 @@ Changes
 -   Episode-level options for `episode_type`, `skip_if_b4_lengths`, `case_for_recurrence` and `recurrence_from_last`. The length of these arguments can now be the same as `date`. This allows for simultaneous tracking of episodes in different ways within the same instance of `episodes()`. The behaviour for each episode is determined by the corresponding option for the episode's index event (`"Case"`).
     -   `episode_type` - simultaneously track of `"fixed"` and `"rolling"` episodes.
     -   `skip_if_b4_lengths` - simultaneously track of episodes where events before a cut-off range are either skipped or not.
+    -   `bi_direction` - simultaneously track episodes where other events before index event (in the opposite direction of `from_last`) are either captured or not.
     -   `case_for_recurrence` - simultaneously track `"rolling"` episodes with and without an additional case window for recurrent events.
     -   `recurrence_from_last` - simultaneously track `"rolling"` episodes with reference windows calculated from the first or last event in the previous window.
 
