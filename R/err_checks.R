@@ -127,7 +127,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     skip_if_b4_lengths = 1,
     deduplicate = 1,
     case_for_recurrence = c(0, lims),
-    recurrence_from_last = 1,
+    recurrence_from_last = c(0, lims),
     episode_type = c(0, lims)
   )
 

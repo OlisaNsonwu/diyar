@@ -1262,6 +1262,14 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
     lead_case_for_rec <- rep(NA, length(int))
   }
 
+  if(length(recurrence_from_last) == 1) recurrence_from_last <- rep(recurrence_from_last, length(int))
+  any_rec_from_last <- any(recurrence_from_last == F)
+  lead_rec_from_last <- recurrence_from_last[!duplicated(recurrence_from_last)]
+  one_rec_from_last <- length(lead_rec_from_last) == 1
+  if(one_rec_from_last != T){
+    lead_rec_from_last <- rep(NA, length(int))
+  }
+
   if(length(episodes_max) == 1) episodes_max <- rep(episodes_max, length(int))
   if(length(rolls_max) == 1) rolls_max <- rep(rolls_max, length(int))
   if(length(skip_order) == 1) skip_order <- rep(skip_order, length(int))
@@ -1352,6 +1360,11 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
       case_for_recurrence <- case_for_recurrence[sort_ord]
     }
 
+    if(one_rec_from_last != T){
+      lead_rec_from_last <- lead_rec_from_last[sort_ord]
+      recurrence_from_last <- recurrence_from_last[sort_ord]
+    }
+
     ep_l <- lapply(ep_l, function(x){x[sort_ord]})
     mths_a <- lapply(mths_a, function(x){x[sort_ord]})
 
@@ -1385,6 +1398,11 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
     if(one_case_for_rec != T){
       tr_case_for_rec <- rep(case_for_recurrence[which(names(cri) %in% p)], r$lengths)
       lead_case_for_rec <- ifelse(tr_tag == 0, tr_case_for_rec, lead_case_for_rec)
+    }
+
+    if(one_rec_from_last != T){
+      tr_rec_from_last <- rep(recurrence_from_last[which(names(cri) %in% p)], r$lengths)
+      lead_rec_from_last <- ifelse(tr_tag == 0, tr_rec_from_last, lead_rec_from_last)
     }
 
     if (any_rolling == T) {
@@ -1472,7 +1490,8 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
       close_epi <- last_tag == 2
 
       roll_ref <- assign_ord
-      if(recurrence_from_last == FALSE) roll_ref <- -roll_ref
+      if(any_rec_from_last == T) roll_ref[!lead_rec_from_last] <- -roll_ref[!lead_rec_from_last]
+
       t_cr <- ifelse(ref_rd & roll_n >= 1, F, cr)
       sort_ord <- order(cri, t_cr, tag, roll_ref, int@gid)
       r <- rle(cri[sort_ord])
