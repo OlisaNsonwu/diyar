@@ -1281,6 +1281,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   if(length(episodes_max) == 1) episodes_max <- rep(episodes_max, length(int))
   if(length(rolls_max) == 1) rolls_max <- rep(rolls_max, length(int))
   if(length(skip_order) == 1) skip_order <- rep(skip_order, length(int))
+  if(length(from_last) == 1) from_last <- rep(from_last, length(int))
 
   if(length(strata) == 1 | is.null(strata)) {
     cri <- rep(1, length(int))
@@ -1291,13 +1292,22 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   int@gid <- int@id
   if(!is.null(sn)) int@gid <- sn
 
-  if(from_last==T){
-    assign_ord <- order(abs(max(as.numeric(int@start)) - as.numeric(int@start)),
-                        -abs(max(as.numeric(right_point(int))) - as.numeric(right_point(int))))
-  }else{
-    assign_ord <- order(abs(min(as.numeric(int@start)) - as.numeric(int@start)),
-                        -abs(min(as.numeric(right_point(int))) - as.numeric(right_point(int))))
-  }
+  ord_a <- abs(max(as.numeric(int@start)) - as.numeric(int@start))
+  ord_z <- abs(max(as.numeric(right_point(int))) - as.numeric(right_point(int)))
+
+  ord_a[!from_last] <- abs(min(as.numeric(int@start)) - as.numeric(int@start[!from_last]))
+  ord_z[!from_last] <- abs(min(as.numeric(right_point(int))) - as.numeric(right_point(int[!from_last])))
+
+  assign_ord <- order(ord_a, -ord_z)
+  rm(ord_a); rm(ord_z)
+
+  # if(from_last==T){
+  #   assign_ord <- order(abs(max(as.numeric(int@start)) - as.numeric(int@start)),
+  #                       -abs(max(as.numeric(right_point(int))) - as.numeric(right_point(int))))
+  # }else{
+  #   assign_ord <- order(abs(min(as.numeric(int@start)) - as.numeric(int@start)),
+  #                       -abs(min(as.numeric(right_point(int))) - as.numeric(right_point(int))))
+  # }
   assign_ord <- match(seq_len(length(int)), assign_ord)
 
   if(!is.null(custom_sort)) {
@@ -1682,8 +1692,13 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
 
   epid_tot <- epid_n[fd]
   if(group_stats == T){
-    epid_dt_a <- lapply(split(as.numeric(int@start), e), ifelse(from_last==F, min, max))
-    epid_dt_z <- lapply(split(as.numeric(right_point(int)), e), ifelse(from_last==F, max, min))
+    ep_func_a <- function(dts, frm_lst) if(all(frm_lst == F)) min(dts) else max(dts)
+    ep_func_z <- function(dts, frm_lst) if(all(frm_lst == F)) max(dts) else min(dts)
+
+    frm_lst <- split(from_last, e)
+    epid_dt_a <- mapply(ep_func_a, split(as.numeric(int@start), e), frm_lst)
+    epid_dt_z <- mapply(ep_func_z, split(as.numeric(right_point(int)), e), frm_lst)
+    rm(frm_lst)
 
     epid_dt_a <- as.numeric(epid_dt_a)[match(e, names(epid_dt_a))]
     epid_dt_z <- as.numeric(epid_dt_z)[match(e, names(epid_dt_z))]

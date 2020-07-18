@@ -119,16 +119,16 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     episode_unit = 1,
     episodes_max = lims,
     rolls_max = lims,
-    from_last = 1,
+    from_last = lims,
     group_stats = 1,
-    include_index_period = 1,
+    include_index_period = lims,
     display = 1,
-    bi_direction = 1,
-    skip_if_b4_lengths = c(0, lims),
+    bi_direction = lims,
+    skip_if_b4_lengths = lims,
     deduplicate = 1,
-    case_for_recurrence = c(0, lims),
-    recurrence_from_last = c(0, lims),
-    episode_type = c(0, lims)
+    case_for_recurrence = lims,
+    recurrence_from_last = lims,
+    episode_type = lims
   )
 
   if(is.list(case_length)){
