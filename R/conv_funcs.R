@@ -241,3 +241,7 @@ prep_lengths <- function(length, overlap_methods, int,
     method = overlap_methods
   )
 }
+
+check_overlap <- function(tr, int, mths) {
+  diyar::overlaps(tr, int, methods = mths)
+}

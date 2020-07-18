@@ -21,13 +21,13 @@ data$rd_id <- 1:nrow(data)
 data$date_int <- as.number_line(data$date)
 data$date_int@id <- 1
 
-r_episodes <-  diyar:::r_episodes
+episodes <-  diyar:::episodes
 
 # episode grouping with episode_group()
 T1 <- head(data,10)
 
 
-test_1 <- r_episodes(strata = T1$pid, date = T1$date, case_length = T1$episode_len, group_stats = T, to_s4 = F)
+test_1 <- episodes(strata = T1$pid, date = T1$date, case_length = T1$episode_len, group_stats = T, to_s4 = F)
 
 t_ds <- head(data,10)
 
@@ -60,8 +60,8 @@ data_2$d <- 13 * diyar::episode_unit$days
 
 test_2 <-
   cbind(data_2,
-        suffix(r_episodes(strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, from_last = F, group_stats = T, to_s4 = F), 1),
-        suffix(r_episodes(strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, from_last = T, group_stats = T, to_s4 = F), 2)
+        suffix(episodes(strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, from_last = F, group_stats = T, to_s4 = F), 1),
+        suffix(episodes(strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, from_last = T, group_stats = T, to_s4 = F), 2)
   )
 
 e_int.1 <- c(
@@ -96,8 +96,8 @@ test_that("test reverse episode grouping", {
 
 # Test 3 - Rolling episodes
 test_3 <- cbind(data_2,
-                suffix(r_episodes(sn=data_2$rd_id, strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, episode_type ="rolling", from_last = F, group_stats = T, to_s4 = F), 1),
-                suffix(r_episodes(sn=data_2$rd_id, strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, episode_type ="rolling", from_last = T, group_stats = T, to_s4 = F), 2)
+                suffix(episodes(sn=data_2$rd_id, strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, episode_type ="rolling", from_last = F, group_stats = T, to_s4 = F), 1),
+                suffix(episodes(sn=data_2$rd_id, strata = data_2$pid, date = data_2$date, case_length = data_2$episode_len_s, episode_type ="rolling", from_last = T, group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
@@ -134,8 +134,8 @@ data_4$recurrence <- 3
 data_4$r <- 3 * diyar::episode_unit$days
 
 test_4 <- cbind(data_4,
-                suffix(r_episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, group_stats = T, to_s4 = F), 1),
-                suffix(r_episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, rolls_max = 1, group_stats = T, to_s4 = F), 2)
+                suffix(episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, group_stats = T, to_s4 = F), 1),
+                suffix(episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, rolls_max = 1, group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
@@ -168,8 +168,8 @@ test_that("test user defined recurrence length and roll_max", {
 
 # Test 5 - Episodes max
 test_5 <- cbind(data_4,
-                suffix(r_episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="fixed", recurrence_length = data_4$recurrence, episodes_max = 1, group_stats = T, to_s4 = F), 1),
-                suffix(r_episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="fixed", recurrence_length = data_4$recurrence, episodes_max = 2, group_stats = T, to_s4 = F), 2)
+                suffix(episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="fixed", recurrence_length = data_4$recurrence, episodes_max = 1, group_stats = T, to_s4 = F), 1),
+                suffix(episodes(sn=data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="fixed", recurrence_length = data_4$recurrence, episodes_max = 2, group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
@@ -207,10 +207,10 @@ test_that("testing user defined episodes_max", {
 
 # Test 6 - Combining rolls_max and episodes_max
 test_6 <- cbind(data_4,
-                suffix(r_episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 1, rolls_max = 1, group_stats = T, to_s4 = F), 1),
-                suffix(r_episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 2, rolls_max = 1, group_stats = T, to_s4 = F), 2),
-                suffix(r_episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 2, rolls_max = 1, group_stats = T, to_s4 = F), 3),
-                suffix(r_episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 2, rolls_max = 3, group_stats = T, to_s4 = F), 4)
+                suffix(episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 1, rolls_max = 1, group_stats = T, to_s4 = F), 1),
+                suffix(episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 2, rolls_max = 1, group_stats = T, to_s4 = F), 2),
+                suffix(episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 2, rolls_max = 1, group_stats = T, to_s4 = F), 3),
+                suffix(episodes(sn= data_4$rd_id, strata = data_4$pid, date = data_4$date, case_length = data_4$episode_len_s, episode_type ="rolling", recurrence_length = data_4$recurrence, episodes_max = 2, rolls_max = 3, group_stats = T, to_s4 = F), 4)
 
 )
 
@@ -272,8 +272,8 @@ data_7$recurrence <- 2
 data_7$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,3)), sep="")
 
 test_7 <- cbind(data_7,
-                suffix(r_episodes(sn= data_7$rd_id, strata = data_7$pid, date = data_7$date, case_length = data_7$episode_len, episode_type ="rolling", recurrence_length = data_7$recurrence, data_source = data_7$dataset, group_stats = T, to_s4 = F), 1),
-                suffix(r_episodes(sn= data_7$rd_id, strata = data_7$pid, date = data_7$date, case_length = data_7$episode_len, episode_type ="rolling", recurrence_length = data_7$recurrence, data_source = paste(data_7$dataset, data_7$episode_len_s, sep="-"), group_stats = T, to_s4 = F), 2)
+                suffix(episodes(sn= data_7$rd_id, strata = data_7$pid, date = data_7$date, case_length = data_7$episode_len, episode_type ="rolling", recurrence_length = data_7$recurrence, data_source = data_7$dataset, group_stats = T, to_s4 = F), 1),
+                suffix(episodes(sn= data_7$rd_id, strata = data_7$pid, date = data_7$date, case_length = data_7$episode_len, episode_type ="rolling", recurrence_length = data_7$recurrence, data_source = paste(data_7$dataset, data_7$episode_len_s, sep="-"), group_stats = T, to_s4 = F), 2)
 )
 
 e_int.1 <- c(
@@ -308,7 +308,7 @@ hospital_infections <- diyar::infections
 # Test 8 - Episode unit
 # 16-hour (difference of 15 hours) episodes, and the most recent record defined as the "Case"
 test_8a <- cbind(hospital_infections,
-                     r_episodes(sn= hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
+                     episodes(sn= hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
                                    from_last = T, episode_unit = "hours", group_stats = T, to_s4 = F))
 
 e_int <- number_line(test_8a$date, test_8a$date)
@@ -326,7 +326,7 @@ test_that("testing; episode grouping by the hour", {
 
 # 15-week (difference of 9072000 seconds) episodes , and the most recent record defined as the "Case"
 test_8b <- cbind(hospital_infections,
-                     r_episodes(sn= hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
+                     episodes(sn= hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
                                    from_last = T, episode_unit = "weeks",  group_stats = T, to_s4 = F))
 
 e_int <- rep(number_line(dttm("31/05/2018 00:00:00"), dttm("01/04/2018 00:00:00")), 11)
@@ -355,7 +355,7 @@ hospital_infections$epi_len <- ifelse(hospital_infections$infection =="RTI", 60,
 
 # n-day episodes beginning with the earliest record with the specified preference; UTI > BSI > RTI
 test_9a <- cbind(hospital_infections,
-                     r_episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
+                     episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
                                    custom_sort = hospital_infections$infection, group_stats = T, to_s4 = F))
 
 e_int <- c(
@@ -382,10 +382,10 @@ hospital_infections$infection_ord <- ifelse(hospital_infections$infection =="RTI
 
 # n-day episodes with duplicates before and after the most recent "RTI" record, otherwise begin at the most recent record
 test_9b <- cbind(hospital_infections,
-                     suffix(r_episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
+                     suffix(episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
                                        custom_sort = hospital_infections$infection_ord, from_last = T, bi_direction = T, group_stats = T, to_s4 = F), 1),
 
-                     suffix(r_episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
+                     suffix(episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, case_length = hospital_infections$epi_len,
                                        custom_sort = hospital_infections$infection_ord, from_last = T, bi_direction = F, group_stats = T, to_s4 = F), 2)
                  )
 
@@ -421,7 +421,7 @@ hospital_infections$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Only one n-day episode per patient_id
 test_10a <- cbind(hospital_infections,
-                      r_episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, strata = hospital_infections$patient_id,
+                      episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, strata = hospital_infections$patient_id,
                                  case_length = hospital_infections$epi_len, episodes_max = 1, from_last = F,
                                  data_source = as.character(hospital_infections$infection), group_stats = T, to_s4 = F))
 
@@ -450,7 +450,7 @@ test_that("testing; stratified grouping", {
 
 
 test_10a.1 <- cbind(hospital_infections,
-                        r_episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, strata = hospital_infections$patient_id,
+                        episodes(sn = hospital_infections$rd_id, date = hospital_infections$date, strata = hospital_infections$patient_id,
                                    case_length = hospital_infections$epi_len, episode_type="rolling",
                                    data_source = as.character(hospital_infections$infection), group_stats = T, to_s4 = F))
 
@@ -463,7 +463,7 @@ hospital_infections$data_source <- paste(hospital_infections$patient_id, hospita
 #hospital_infections <- filter(hospital_infections, strata == "PID 1-UTI")
 
 test_10b <- cbind(hospital_infections,
-                      r_episodes(sn = hospital_infections$rd_id, date = hospital_infections$date,
+                      episodes(sn = hospital_infections$rd_id, date = hospital_infections$date,
                                  strata = hospital_infections$strata,
                                  case_length = hospital_infections$epi_len, episode_type = "rolling",
                                  recurrence_length = hospital_infections$recur, episodes_max = 3,
@@ -505,7 +505,7 @@ admissions
 # episodes of overlaping intervals of admission
 test_11a <- cbind(
   admissions,
-  r_episodes(date = admissions$admin_period, sn=admissions$rd_id, case_length = admissions$epi_len, group_stats = T, to_s4 = F))
+  episodes(date = admissions$admin_period, sn=admissions$rd_id, case_length = admissions$epi_len, group_stats = T, to_s4 = F))
 
 e_int <- c(
   rep(number_line(dttm("01/01/2019 00:00:00"), dttm("15/01/2019 00:00:00")), 7),
@@ -530,7 +530,7 @@ admissions$recur <- 1
 
 test_11b <- cbind(
   admissions,
-  r_episodes(date = admissions$admin_period, sn = admissions$rd_id, case_length = admissions$epi_len,
+  episodes(date = admissions$admin_period, sn = admissions$rd_id, case_length = admissions$epi_len,
              episode_type = "rolling", recurrence_length = admissions$recur, episode_unit = "months", group_stats = T, to_s4 = F))
 
 e_int <- c(
@@ -551,7 +551,7 @@ test_that("testing; intervals grouping for rolling intervals", {
 # fixed episodes of overlaping intervals of admission seperated by 1 month
 admissions$epi_len <- 1
 test_11c <- cbind(admissions,
-                  r_episodes(date = admissions$admin_period, sn = admissions$rd_id, case_length = admissions$epi_len, episode_unit = "months", group_stats = T, to_s4 = F))
+                  episodes(date = admissions$admin_period, sn = admissions$rd_id, case_length = admissions$epi_len, episode_unit = "months", group_stats = T, to_s4 = F))
 
 e_int <- c(
   rep(number_line(dttm("01/01/2019 00:00:00"), dttm("31/01/2019 00:00:00")), 9))
@@ -568,7 +568,7 @@ test_that("testing; intervals grouping with a case length", {
 
 infections <- diyar::infections
 test_that("test that fixed_episodes() with numeric 'date' works the same as compress_number_line()", {
-  a <- r_episodes(date = c(1,1,4,4,1,4,3,2), case_length = 0, to_s4 = T, group_stats = T, deduplicate = F)
+  a <- episodes(date = c(1,1,4,4,1,4,3,2), case_length = 0, to_s4 = T, group_stats = T, deduplicate = F)
   b <- compress_number_line(x = as.number_line(c(1,1,4,4,1,4,3,2)), collapse =T, deduplicate = F)
   expect_equal(a@epid_interval, b)
 })
@@ -584,25 +584,25 @@ test_that("test some generic functions", {
 x <- c("01/04/2019", "04/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")
 x <- date(x)
 df <- data.frame(x=x, c=5, r=10)
-epids_a <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling", group_stats = T)
-epids_b <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling", group_stats = T)
+epids_a <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling", group_stats = T)
+epids_b <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling", group_stats = T)
 
 x <- c("01/04/2019", "04/04/2019", "8/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")
 x <- date(x)
 df <- data.frame(x=x, c=5, r=10)
-epids2_a <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling")
-epids2_b <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling")
+epids2_a <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = T, rolls_max = 1, episode_type = "rolling")
+epids2_b <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, case_for_recurrence = F, rolls_max = 1, episode_type = "rolling")
 
 x <- c("01/04/2019", "04/04/2019", "12/04/2019",  "14/04/2019", "16/04/2019", "19/04/2019")
 x <- date(x)
 df <- data.frame(x=x, c=5, r=10)
-epids3_a <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
-epids3_b <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = F, rolls_max = 2, episode_type = "rolling")
+epids3_a <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
+epids3_b <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = F, rolls_max = 2, episode_type = "rolling")
 
 x <- c(date("01/01/2007"), date("07/01/2007"), date("09/01/2007"), date("19/01/2007"))
 df <- data.frame(x=x, c=5, r=10)
-epids6_a <- r_episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling", recurrence_from_last = T, rolls_max = 2)
-epids6_b <- r_episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling", recurrence_from_last = F, rolls_max = 2)
+epids6_a <- episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling", recurrence_from_last = T, rolls_max = 2)
+epids6_b <- episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling", recurrence_from_last = F, rolls_max = 2)
 
 x <- c("01/04/2019", "07/04/2019", "12/04/2019","21/04/2019","26/04/2019","29/04/2019")
 # x <-  c(rep(1, 5), 6)
@@ -611,9 +611,9 @@ x <- c("01/04/2019", "07/04/2019", "12/04/2019","21/04/2019","26/04/2019","29/04
 x <- date(x)
 df <- data.frame(x=x, c=5, r=20)
 
-epids4_a <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
-epids4_b <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = F, rolls_max = 2, episode_type = "rolling")
-epids4_c <- r_episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = F, case_for_recurrence =T, rolls_max = 2, episode_type = "rolling")
+epids4_a <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = T, rolls_max = 2, episode_type = "rolling")
+epids4_b <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = F, rolls_max = 2, episode_type = "rolling")
+epids4_c <- episodes(date = df$x, case_length = df$c, recurrence_length = df$r, to_s4=T, recurrence_from_last = F, case_for_recurrence =T, rolls_max = 2, episode_type = "rolling")
 
 
 
@@ -649,11 +649,11 @@ test_that("test 'case_for_recurrence' in rolling_episodes", {
 
 x <- date(c("01/01/2007","04/01/2007","12/01/2007","15/01/2007","22/01/2007"))
 df <- data.frame(x=x, c=5, r=10)
-epids_r <- r_episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling")
+epids_r <- episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling")
 
 x <- c(date("01/01/2007"), date("10/01/2007"), date("12/01/2007"), date("15/01/2007"), date("22/01/2007"))
 df <- data.frame(x=x, c=5, r=10)
-epids2_r <- r_episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling")
+epids2_r <- episodes(date = df$x, case_length = df$c,  recurrence_length = df$r, to_s4 = T, episode_type = "rolling")
 
 test_that("test rolling_episodes", {
   expect_equal(epids_r@.Data, rep(1,5))
@@ -665,8 +665,8 @@ test_that("test rolling_episodes", {
 
 d <- seq.Date(date("01/04/2019"), date("18/04/2019"), "3 day" )
 df<- data.frame(date=d)
-df$r1 <- r_episodes(d, case_length = 3, case_for_recurrence = F, to_s4 = T, episode_type = "rolling")
-df$r2 <- r_episodes(d, case_length = 3, case_for_recurrence = T, to_s4 = T, episode_type = "rolling")
+df$r1 <- episodes(d, case_length = 3, case_for_recurrence = F, to_s4 = T, episode_type = "rolling")
+df$r2 <- episodes(d, case_length = 3, case_for_recurrence = T, to_s4 = T, episode_type = "rolling")
 
 test_that("test case_for_recurrence", {
   expect_equal(df$r1@.Data, rep(1,6))
@@ -686,31 +686,31 @@ c7 <- 1
 cs <- c(rep(3,5), rep(1,5))
 df <- data.frame(dt= dts, c1=c1, c2=c2, c3 =c3, c4 =c4, c_sort = cs, c5=c5, c7 = c7, stringsAsFactors = F)
 
-df$ep1 <- r_episodes(date = df$dt, case_length = df$c1)
-df$ep2 <- r_episodes(date = df$dt, case_length = df$c1, bi_direction = T)
+df$ep1 <- episodes(date = df$dt, case_length = df$c1)
+df$ep2 <- episodes(date = df$dt, case_length = df$c1, bi_direction = T)
 # Test - Expect TRUE
 all(df$ep1==df$ep2)
 
-df$ep3 <- r_episodes(date = df$dt, case_length = df$c2)
-df$ep4 <- r_episodes( date = df$dt, case_length = df$c2, bi_direction = T)
+df$ep3 <- episodes(date = df$dt, case_length = df$c2)
+df$ep4 <- episodes( date = df$dt, case_length = df$c2, bi_direction = T)
 # Test - Expect TRUE
 all(df$ep3==df$ep4)
 
-df$ep5 <- r_episodes(date = df$dt, case_length = df$c3)
-df$ep6 <- r_episodes(date = df$dt, case_length = df$c3, bi_direction = T)
+df$ep5 <- episodes(date = df$dt, case_length = df$c3)
+df$ep6 <- episodes(date = df$dt, case_length = df$c3, bi_direction = T)
 # Test - Expect TRUE
 all(df$ep3==df$ep6)
 
-df$ep7 <- r_episodes(date = df$dt, case_length = df$c3, custom_sort = df$c_sort)
+df$ep7 <- episodes(date = df$dt, case_length = df$c3, custom_sort = df$c_sort)
 
-df$ep8 <- r_episodes(date = df$dt, case_length = df$c1, custom_sort = df$c_sort, bi_direction = T)
-df$ep9 <- r_episodes(date = df$dt, case_length = df$c5, custom_sort = df$c_sort, bi_direction = T)
+df$ep8 <- episodes(date = df$dt, case_length = df$c1, custom_sort = df$c_sort, bi_direction = T)
+df$ep9 <- episodes(date = df$dt, case_length = df$c5, custom_sort = df$c_sort, bi_direction = T)
 # Test - Expect TRUE
 all(df$ep8 == df$ep9)
 
 #test that these two should give the same result
-df$ep10 <- r_episodes(date = df$dt, case_length = df$c1, custom_sort = df$c_sort, bi_direction = T, from_last = T)
-df$ep11 <- r_episodes(date = df$dt, case_length = df$c5, custom_sort = df$c_sort, bi_direction = T, from_last = T)
+df$ep10 <- episodes(date = df$dt, case_length = df$c1, custom_sort = df$c_sort, bi_direction = T, from_last = T)
+df$ep11 <- episodes(date = df$dt, case_length = df$c5, custom_sort = df$c_sort, bi_direction = T, from_last = T)
 # Test - Expect TRUE
 all(df$ep10 == df$ep11)
 test_that("test case_for_recurrence", {
@@ -724,14 +724,14 @@ test_that("test case_for_recurrence", {
 
 
 df <- data.frame(x=c(1,6,7,8,10), rc=8, ep =4)
-df$ep1 <- r_episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 1)
-df$ep2 <- r_episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 1)
+df$ep1 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 1)
+df$ep2 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 1)
 
-df$ep3 <- r_episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = T, recurrence_from_last = F, episode_type = "rolling", rolls_max = 1)
-df$ep4 <- r_episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, recurrence_from_last = F, episode_type = "rolling", rolls_max = 1)
+df$ep3 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = T, recurrence_from_last = F, episode_type = "rolling", rolls_max = 1)
+df$ep4 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, recurrence_from_last = F, episode_type = "rolling", rolls_max = 1)
 
-df$ep5 <- r_episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 2)
-df$ep6 <- r_episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 2)
+df$ep5 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 2)
+df$ep6 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 2)
 
 test_that("test wind_id and wind_nm", {
   expect_equal(df$ep1@.Data, rep(1, 5))
@@ -752,14 +752,14 @@ test_that("test wind_id and wind_nm", {
 x <- c(1,6,7,8,10)
 df1 <- data.frame(x=x, rc=0)
 df1$cl <- number_line(9,10)
-df1$ep1 <- r_episodes(date = df1$x, case_length = df1$cl, recurrence_length = df1$rc, episode_type = "rolling")
-df1$ep2 <- r_episodes(date = df1$x, case_length = df1$cl, recurrence_length = df1$rc, episode_type = "rolling", skip_if_b4_lengths = F)
+df1$ep1 <- episodes(date = df1$x, case_length = df1$cl, recurrence_length = df1$rc, episode_type = "rolling")
+df1$ep2 <- episodes(date = df1$x, case_length = df1$cl, recurrence_length = df1$rc, episode_type = "rolling", skip_if_b4_lengths = F)
 
 x <- seq(1,20,3)
 df2 <- data.frame(x=x, rc=0)
 df2$ep <- number_line(6,6)
-df2$ep3 <- r_episodes(date = df2$x, case_length = df2$ep, recurrence_length = df2$rc, episode_type = "rolling")
-df2$ep4 <- r_episodes(date = df2$x, case_length = df2$ep, recurrence_length = df2$rc, episode_type = "rolling", skip_if_b4_lengths = F)
+df2$ep3 <- episodes(date = df2$x, case_length = df2$ep, recurrence_length = df2$rc, episode_type = "rolling")
+df2$ep4 <- episodes(date = df2$x, case_length = df2$ep, recurrence_length = df2$rc, episode_type = "rolling", skip_if_b4_lengths = F)
 
 test_that("test cut-off ranges", {
   expect_equal(df1$ep1@.Data, c(1,2,3,4,1))
@@ -794,30 +794,30 @@ ds$rx <- (max(ds$x)-ds$x)+1
 ds$c2 <- number_line(7,10)
 ds$c3 <- number_line(0,10)
 ds$c4 <- 0
-ds$ep_1 <- r_episodes(date = ds$x, case_length = ds$c1)
-ds$ep_2 <- r_episodes(date = ds$x, case_length = ds$c1, custom_sort = ds$s)
-ds$ep_3 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
-ds$ep_4 <- r_episodes(date = ds$x, case_length = ds$c2)
-ds$ep_5 <- r_episodes(date = ds$x, case_length = ds$c2, episode_type = "rolling")
-ds$ep_6 <- r_episodes(date = ds$x, case_length = ds$c4, recurrence_length = ds$c2, episode_type = "rolling")
-ds$ep_7 <- r_episodes(date = ds$x, case_length = ds$c4, recurrence_length = ds$c3, episode_type = "rolling")
-ds$ep_8 <- r_episodes(date = ds$x, case_length = ds$c2, recurrence_length = ds$c3, episode_type = "rolling")
+ds$ep_1 <- episodes(date = ds$x, case_length = ds$c1)
+ds$ep_2 <- episodes(date = ds$x, case_length = ds$c1, custom_sort = ds$s)
+ds$ep_3 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
+ds$ep_4 <- episodes(date = ds$x, case_length = ds$c2)
+ds$ep_5 <- episodes(date = ds$x, case_length = ds$c2, episode_type = "rolling")
+ds$ep_6 <- episodes(date = ds$x, case_length = ds$c4, recurrence_length = ds$c2, episode_type = "rolling")
+ds$ep_7 <- episodes(date = ds$x, case_length = ds$c4, recurrence_length = ds$c3, episode_type = "rolling")
+ds$ep_8 <- episodes(date = ds$x, case_length = ds$c2, recurrence_length = ds$c3, episode_type = "rolling")
 
 
 ds$c5 <- number_line(-7,-10)
 ds$c6 <- number_line(-10,-0)
 ds$c7 <- number_line(-10, 10)
-ds$ep_9 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, from_last = T)
-ds$ep_10 <- r_episodes(date = ds$rx, case_length = ds$c2, custom_sort = ds$s)
-ds$ep_11 <- r_episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s, from_last = T)
-ds$ep_11.2 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
+ds$ep_9 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, from_last = T)
+ds$ep_10 <- episodes(date = ds$rx, case_length = ds$c2, custom_sort = ds$s)
+ds$ep_11 <- episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s, from_last = T)
+ds$ep_11.2 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
 
-ds$ep_12 <- diyar:::r_episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s)
-ds$ep_13 <- r_episodes(date = ds$x, case_length = ds$c6, custom_sort = ds$s)
+ds$ep_12 <- diyar:::episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s)
+ds$ep_13 <- episodes(date = ds$x, case_length = ds$c6, custom_sort = ds$s)
 
-ds$ep_14 <- r_episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s)
-ds$ep_15 <- r_episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, bi_direction = T)
-ds$ep_16 <- r_episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, from_last = T)
+ds$ep_14 <- episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s)
+ds$ep_15 <- episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, bi_direction = T)
+ds$ep_16 <- episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, from_last = T)
 
 test_that("test concepts in event grouping", {
   # Simple fixed episode grouping
@@ -877,34 +877,34 @@ ds <- ds[order(ds$x@start),]
 ds$c2 <- number_line(7,10)
 ds$c3 <- number_line(0,10)
 ds$c4 <- 0
-ds$ep_1 <- r_episodes(date = ds$x, case_length = ds$c1)
-ds$ep_2 <- r_episodes(date = ds$x, case_length = ds$c1, custom_sort = ds$s)
-ds$ep_3 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
-ds$ep_3.5 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, include_index_period = F)
+ds$ep_1 <- episodes(date = ds$x, case_length = ds$c1)
+ds$ep_2 <- episodes(date = ds$x, case_length = ds$c1, custom_sort = ds$s)
+ds$ep_3 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
+ds$ep_3.5 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, include_index_period = F)
 
-ds$ep_4 <- r_episodes(date = ds$x, case_length = ds$c2)
-ds$ep_5 <- r_episodes(date = ds$x, case_length = ds$c2, episode_type = "rolling")
-ds$ep_5.5 <- r_episodes(date = ds$x, case_length = ds$c2, episode_type = "rolling", include_index_period = F)
-ds$ep_6 <- r_episodes(date =ds$x, case_length = ds$c4, recurrence_length = ds$c2, episode_type = "rolling")
-ds$ep_7 <- r_episodes(date =ds$x, case_length = ds$c4, recurrence_length = ds$c3, episode_type = "rolling")
-ds$ep_8 <- r_episodes(date = ds$x, case_length = ds$c2, recurrence_length = ds$c3, episode_type = "rolling")
+ds$ep_4 <- episodes(date = ds$x, case_length = ds$c2)
+ds$ep_5 <- episodes(date = ds$x, case_length = ds$c2, episode_type = "rolling")
+ds$ep_5.5 <- episodes(date = ds$x, case_length = ds$c2, episode_type = "rolling", include_index_period = F)
+ds$ep_6 <- episodes(date =ds$x, case_length = ds$c4, recurrence_length = ds$c2, episode_type = "rolling")
+ds$ep_7 <- episodes(date =ds$x, case_length = ds$c4, recurrence_length = ds$c3, episode_type = "rolling")
+ds$ep_8 <- episodes(date = ds$x, case_length = ds$c2, recurrence_length = ds$c3, episode_type = "rolling")
 
 ds$c5 <- number_line(-7,-10)
 ds$c6 <- number_line(-10,-0)
 ds$c7 <- number_line(-10, 10)
 
-ds$ep_9 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, from_last = T)
-ds$ep_9.2 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, from_last = T, include_index_period = F)
+ds$ep_9 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, from_last = T)
+ds$ep_9.2 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s, from_last = T, include_index_period = F)
 
-ds$ep_11 <- r_episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s, from_last = T)
-ds$ep_11.2 <- r_episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
+ds$ep_11 <- episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s, from_last = T)
+ds$ep_11.2 <- episodes(date = ds$x, case_length = ds$c2, custom_sort = ds$s)
 
-ds$ep_12 <- r_episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s)
-ds$ep_13 <- r_episodes(date = ds$x, case_length = ds$c6, custom_sort = ds$s)
+ds$ep_12 <- episodes(date = ds$x, case_length = ds$c5, custom_sort = ds$s)
+ds$ep_13 <- episodes(date = ds$x, case_length = ds$c6, custom_sort = ds$s)
 
-ds$ep_14 <- r_episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s)
-ds$ep_15 <- r_episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, bi_direction = T)
-ds$ep_16 <- r_episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, from_last = T)
+ds$ep_14 <- episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s)
+ds$ep_15 <- episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, bi_direction = T)
+ds$ep_16 <- episodes(date = ds$x, case_length = ds$c7, custom_sort = ds$s, from_last = T)
 
 test_that("test concepts in interval grouping", {
   # Simple fixed episode grouping

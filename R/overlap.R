@@ -52,8 +52,7 @@
 #' overlaps(a, g)
 #' overlaps(a, g, methods = "exact|chain")
 #' @export
-overlaps <- function(x, y, method = c("exact","across","chain","aligns_start","aligns_end","inbetween","overlap","none"),
-                    methods = "overlap"){
+overlaps <- function(x, y, methods = "overlap", method = c("exact","across","chain","aligns_start","aligns_end","inbetween","overlap","none")){
   if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
   if(length(x) ==0 & length(y)==0) return(logical())
