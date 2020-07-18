@@ -14,13 +14,14 @@ Changes
 
 -   `l` and `r` must have the same length or be `1`.
 -   `case_nm` differentiates between duplicates of `"Case"` (`"Duplicate_C"`) and `"Recurrent"` events (`"Duplicate_R"`).
+-   Length of `episode_type` can now be the same as `date`. This allows for simultaneous tracking of `"fixed"` and `"rolling"` episodes. The behaviour for each episode is determined by the corresponding value for the episode's index event (`"Case"`).
+-   Length of `case_for_recurrence` can now be the same as `date`. This allows for simultaneous tracking of `"rolling"` episodes with and without an additional case window for recurrent events. The behaviour for each episode is determined by the corresponding value for the episode's index event (`"Case"`).
 
 Bug fixes
 ---------
 
 -   `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in certain sitations. Corrected.
 -   `fixed_episodes`, `rolling_episodes` and `episode_group` - `dist_from_wind` was wrong in cerain situations. Corrected.
--   `fixed_episodes`, `rolling_episodes` and `episode_group` - `wind_nm` was wrong in cerain situations. Corrected.
 
 Version 0.1.0
 =============
