@@ -315,9 +315,15 @@ overlap_method <- function(x, y){
 #' @export
 include_overlap_method <- function(methods){
   lst <- c("overlap", "none", "exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
+  methods <- tolower(methods[!duplicated(methods)])
   methods <- methods[methods %in% lst]
-  methods <- paste(methods,sep="", collapse = "|")
-  methods
+  if(any(methods == "overlap")){
+    "overlap"
+  }else if (any(methods == "none")){
+    "none"
+  }else{
+    paste(methods,sep="", collapse = "|")
+  }
 }
 
 #' @rdname overlaps

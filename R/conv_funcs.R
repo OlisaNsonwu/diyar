@@ -38,11 +38,16 @@ enq_vr <- function(x){
 fmt <- function(x) formatC(x, format="d", big.mark=",")
 
 # @rdname finite_check
-listr <- function(x, conj="and"){
-  p <- x[length(x)]
-  f <- x[1:(length(x)-1)]
-  f <- paste(f, collapse = ", ")
-  x <- ifelse(length(x) > 1, paste0(f, " ", conj, " ",  p), f)
+listr <- function(x, conj=" and", lim = Inf){
+  if(length(x) <= lim){
+    p <- x[length(x)]
+    f <- x[1:(length(x)-1)]
+    f <- paste(f, collapse = ", ")
+    x <- ifelse(length(x) > 1, paste0(f, conj, " ", p), f)
+  }else{
+    x <- paste0(paste0(x[seq_len(lim)], collapse = ", "), " ...")
+  }
+
   return(x)
 }
 
@@ -252,4 +257,52 @@ prep_lengths <- function(length, overlap_methods, int,
 
 check_overlap <- function(tr, int, mths) {
   diyar::overlaps(tr, int, methods = mths)
+}
+
+overlaps_err <- function(opts){
+  opts <- tolower(opts)
+  sn <- 1:length(opts)
+  opts <- split(sn , opts)
+
+  # All possible combinations
+  funx <- function(v){
+    v <- v[!duplicated(v)]
+    lapply(seq_len(length(v)), function(i){
+      shuffle <- c(0:(i-1), i+1, i, (i+2):length(v))
+      shuffle <- shuffle[shuffle %in% 1:length(v)]
+      shuffle <- shuffle[!duplicated(shuffle)]
+      v[shuffle]
+    })
+  }
+
+  m <- c("none", "exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap")
+  pos <- 1:length(m)
+  all_pos <- lapply(pos, function(i){
+    combn(pos, m =i, simplify = F, FUN = funx)
+  })
+  all_pos <- unlist(unlist(all_pos, recursive = F), recursive = F)
+  all_pos <- sapply(all_pos, function(x){
+    paste0(m[x],collapse="|")
+  })
+  all_pos[duplicated(all_pos)]
+
+  opts <- opts[!names(opts) %in% all_pos]
+  opts_len <- length(opts)
+  opts <- head(opts, 5)
+
+  names(opts) <- sapply(strsplit(names(opts), split="\\|"), function(x){
+    paste0(x[!x %in% m], collapse = "|")
+  })
+
+  opts <- unlist(lapply(opts, function(x){
+    missing_check(ifelse(sn %in% x, NA, T), 2)
+  }), use.names = T)
+
+  if(length(opts) > 0){
+    opts <- paste0("\"", names(opts),"\"", " at ", opts)
+    if(opts_len >3) errs <- paste0(paste0(opts, collapse = ", "), " ...") else errs <- diyar:::listr(opts)
+    return(errs)
+  }else{
+    return(character())
+  }
 }

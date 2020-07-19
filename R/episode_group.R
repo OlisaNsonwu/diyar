@@ -1206,7 +1206,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
                           data_source=data_source, data_links = data_links, include_index_period = include_index_period,
                           skip_if_b4_lengths = skip_if_b4_lengths, bi_direction = bi_direction, deduplicate = deduplicate,
                           rolls_max = rolls_max, case_for_recurrence = case_for_recurrence, recurrence_from_last = recurrence_from_last,
-                          episode_type == episode_type)
+                          episode_type = episode_type, recurrence_length=recurrence_length)
 
   if(errs!=F) stop(errs, call. = F)
 
@@ -1236,6 +1236,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   ep_l <- r$lengths
   mths_a <- r$method
 
+  episode_type <- tolower(episode_type)
   if(length(episode_type) == 1) episode_type <- rep(episode_type, length(int))
   any_rolling <- any(episode_type == "rolling")
   lead_epid_type <- episode_type[!duplicated(episode_type)]

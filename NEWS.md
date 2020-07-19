@@ -24,6 +24,9 @@ Changes
         -   `recurrence_from_last` - simultaneously track `"rolling"` episodes with reference windows calculated from the first and last event of the previous window.
     -   Strata-level - The behaviour for each episode is determined by the corresponding option for it's `strata`.
         -   `from_last` - simultaneously track episodes in both directions of time - past to present and present to past.
+-   `include_overlap_method` - `"overlap"` and `"none"` will not combined with other methods.
+    -   `"overlap"` - mutually inclusive with the other methods, so their inclusion is not neccessary.
+    -   `"none"` - mutually exclusive and prioritised over the other methods, so their inclusion is not neccessary.
 
 Bug fixes
 ---------
