@@ -27,6 +27,7 @@ Changes
 -   `include_overlap_method` - `"overlap"` and `"none"` will not combined with other methods.
     -   `"overlap"` - mutually inclusive with the other methods, so their inclusion is not neccessary.
     -   `"none"` - mutually exclusive and prioritised over the other methods, so their inclusion is not neccessary.
+-   `case_length` and `recurrence_length` now accepts missing cut-off points (`NA_real_`) or periods (`number_line(NA_real_, NA_real_)`). This prevents an event from being an index case.
 
 Bug fixes
 ---------

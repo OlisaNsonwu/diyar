@@ -21,7 +21,7 @@ data$rd_id <- 1:nrow(data)
 data$date_int <- as.number_line(data$date)
 data$date_int@id <- 1
 
-episodes <-  diyar:::episodes
+episodes <-  diyar::episodes
 
 # episode grouping with episode_group()
 T1 <- head(data,10)

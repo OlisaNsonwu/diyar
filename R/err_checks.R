@@ -207,7 +207,8 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
 
   # ------ Check for argument with missing values ####
   args_missing_vals <- c(
-    "sn", "date", "case_length", "recurrence_length",
+    "sn", "date",
+    #"case_length", "recurrence_length",
     "overlap_methods", "episode_unit",
     "episodes_max", "from_last",
     "group_stats", "display",
@@ -218,17 +219,17 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     "custom_sort", "skip_order"
   )
 
-  if(class(case_length) == "list"){
-    args_missing_vals <- c(args_missing_vals,
-                           ls()[grepl("^case_length_",ls())])
-    args_missing_vals <- args_missing_vals[args_missing_vals != "case_length"]
-  }
-
-  if(class(recurrence_length) == "list"){
-    args_missing_vals <- c(args_missing_vals,
-                           ls()[grepl("^recurrence_length_",ls())])
-    args_missing_vals <- args_missing_vals[args_missing_vals != "recurrence_length"]
-  }
+  # if(class(case_length) == "list"){
+  #   args_missing_vals <- c(args_missing_vals,
+  #                          ls()[grepl("^case_length_",ls())])
+  #   args_missing_vals <- args_missing_vals[args_missing_vals != "case_length"]
+  # }
+  #
+  # if(class(recurrence_length) == "list"){
+  #   args_missing_vals <- c(args_missing_vals,
+  #                          ls()[grepl("^recurrence_length_",ls())])
+  #   args_missing_vals <- args_missing_vals[args_missing_vals != "recurrence_length"]
+  # }
 
   if(class(overlap_methods) == "list"){
     args_missing_vals <- c(args_missing_vals,
