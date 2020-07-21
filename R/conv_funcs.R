@@ -211,6 +211,8 @@ prep_lengths <- function(length, overlap_methods, int,
   if(class(length) != "list") length <- list(length)
   if(class(overlap_methods) != "list") overlap_methods <- list(overlap_methods)
 
+  if(length(overlap_methods)==1) overlap_methods <- rep(overlap_methods, length(length))
+
   length <- sep_bdr_nl(length)
   r <- rle(names(length))
   overlap_methods <- rep(overlap_methods[as.numeric(r$values)], r$lengths)
@@ -246,7 +248,11 @@ prep_lengths <- function(length, overlap_methods, int,
   # }
 
   overlap_methods <- lapply(overlap_methods, function(x){
-    if(length(x)==1) x <- rep(x, length(int))
+    if(length(x)==1){
+      x <- rep(x, length(int))
+    }else{
+      x
+    }
   })
 
   list(

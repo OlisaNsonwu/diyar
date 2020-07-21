@@ -1,43 +1,42 @@
-#' @name episode_group
-#' @title Episode grouping for case definitions and record deduplication
+#' @name episodes
+#' @title Tacking episodes for case definitions and record deduplication.
 #'
 #' @description Group events into chronological episodes
 #'
-#' @param df \code{data.frame}. One or more datasets appended together.
+#' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
 #' @param sn Unique numerical record identifier. Useful for creating familiar episode identifier. Optional.
-#' @param strata Subsets of the dataset. Episode are tracked separately within each subset. \code{\link{record_group}} is useful in creating these.
+#' @param strata Subsets of the dataset. Episodes are tracked separately within each subset. \code{\link{record_group}} is useful for creating these.
 #' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
 #' @param case_length Cut-off point (\code{numeric}) or period (\code{\link{number_line}}) distinguishing one \code{"case"} from another.
-#' This is the \code{case window}.
-#' @param episodes_max Maximum number of episodes to have within each \code{strata}.
+#' This is the case window.
+#' @param episodes_max Maximum number of episodes permitted within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Cut-off point (\code{numeric}) or period (\code{\link{number_line}}) distinguishing  \code{"recurrent"} events from the index \code{"case"}.
-#' This is the \code{recurrence window}. If \code{NULL} (default), it's assumed to be the same as \code{case_length}.
-#' @param episode_unit Time units. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
-#' @param rolls_max Maximum number of times an episode can reoccur. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source Unique dataset identifier. Useful when the dataset contains data from multiple sources.
-#' @param from_last If \code{TRUE}, episode are tracked backwards in time - starting at the most recent event and proceeding to the earliest.
-#' If \code{FALSE}, it'll be forward in time - starting at the earliest event and proceeding to the most recent one.
+#' @param recurrence_length Cut-off point or period distinguishing a \code{"recurrent"} event from its index \code{"case"}.
+#' This is the recurrence window. If \code{NULL} (default), it's assumed to be the same as \code{case_length}.
+#' @param episode_unit Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
+#' @param rolls_max Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param data_source Unique datasource identifier. Useful when the dataset contains data from multiple sources.
+#' @param from_last If \code{TRUE}, track episodes in reverse chronological order. If \code{TRUE} (default), track episodes in chronological order.
 #' @param overlap_method Deprecated. Please use \code{overlap_methods}. Methods of overlap considered when tacking event. All event are checked by the same set of \code{overlap_method}.
 #' @param overlap_methods Methods of overlap considered when tacking event. Different events can be checked by different sets of \code{overlap_methods}
-#' @param custom_sort  Preferential order for \code{"case"} assignment. Useful in specifying that episode tacking begins at particular events regardless of chronological order.
-#' @param bi_direction If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked. If \code{FALSE} (default), \code{"duplicate"} events are tracked in one direction as determined by \code{from_last}.
-#' @param group_stats If \code{TRUE} (default), the output will include additional information with useful stats for each episode group.
+#' @param custom_sort  Preferential order for selecting index (\code{"case"}) events. Useful for tracking episodes in a non-chronological order.
+#' @param bi_direction If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked. If  \code{FALSE} (default), \code{"duplicate"} events are tracked in one direction only.
+#' @param group_stats If \code{TRUE} (default), episode specific information like episode start and end points are returned. See \code{Value}.
 #' @param display Message printed on screen. Options are; \code{"progress"} (default) or \code{"stats"} for a progress bar or a more detailed breakdown of the tracking process.
 #' @param to_s4 If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.
 #' @param recurrence_from_last If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
 #' If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param case_for_recurrence If \code{TRUE}, both case and recurrence events will have a \code{case window}.
+#' @param case_for_recurrence If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 #' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param skip_order Skip episodes whose \code{case} events have \code{custom_sort} values that are less than or equal to the \code{"nth"} level of \code{custom_sort}.
-#' Useful in skipping episodes that are not required and so minimises the overall processing time. Ignored if \code{custom_sort} is \code{NULL}.
-#' @param data_links Breakup episodes that will not include records from these \code{data_sources}. \code{data_links} should be a \code{list} with every element named 'l' (links) or 'g' (groups).
-#' Useful in skipping episodes that are not required to minimise processing time. Ignored if \code{data_source} is \code{NULL}.
-#' @param skip_if_b4_lengths If \code{TRUE} (default), \code{events} before the cut-off periods - \code{case_length} or the \code{recurrence_length}, are skipped.
+#' @param skip_order \code{"nth"} level of \code{custom_sort}. Episodes with index events beyound this level of preference are skipped.
+#' @param data_links A set of \code{data_sources} required in each episode. \code{stratas} without these will be skipped, and episodes without these will be unlinked. See \code{Details}.
+#' @param skip_if_b4_lengths If \code{TRUE} (default), \code{events} before the cut-off points or periods are skipped.
 #' @param include_index_period If \code{TRUE}, overlaps with the index event or period are grouped together even if they are outside the cut-off period.
+#' @param deduplicate if \code{TRUE}, \code{"duplicate"} events are excluded from the output.
+#' @param x Record date or interval. Deprecated. Please use \code{date}
 #' @return
 #'
-#' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
+#' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE}
 #'
 #' \itemize{
 #' \item \code{sn} - unique record identifier as provided (or generated)
@@ -52,22 +51,40 @@
 #' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
 #' \item \code{epid_length} - difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each episode
-#'
 #' }
 #'
 #' @seealso
 #' \code{\link{record_group}}, \code{\link{overlaps}} and \code{\link{number_line}}
 #'
 #' @details
-#' Episode grouping begins at a reference event (\code{"case"}) and proceeds forward or backward in time depending on \code{from_last}.
-#' If \code{custom_sort} is used, episode grouping can be forced to begin at certain events before proceeding forward or backwards in time.
-#' The maximum duration of a \code{"fixed"} episode is the \code{case_length}. This period is referred to as the \code{case window}. The maximum duration of a \code{"rolling"} episode is the
-#' \code{case_length} plus all periods of recurrence. The recurrence periods are referred to as \code{recurrence windows}.
-#' This is a specified duration (\code{recurrence_length}) after the last or first (depending on \code{recurrence_from_last}) event in the previous window.
-#' Events within this period are considered \code{"recurrent"} events.
+#' Episodes are tracked from an index event in chronological or reverse chronological order as determined by \code{from_last}.
+#' You can use \code{custom_sort} for a non-chronological order however, ties will be broken by \code{from_last}.
 #'
-#' When a \code{data_source} identifier is provided,
-#' \code{epid_dataset} is included in the output. This lists the source of every event in each episode.
+#' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}.
+#' However, a \code{"rolling"} episode can continue to recur therefore, its maximum duration is variable.
+#' A \code{"rolling"} episode will last as long as is permitted (\code{rolls_max}) and there's an event within its period of recurrence (\code{recurrence_length}).
+#'
+#' \bold{\code{episodes()}} will group every record into 5 type of events;
+#'
+#' \itemize{
+#' \item \code{"Case"} - Index case of the episode.
+#' \item \code{"Duplicate_C"} - Duplicate of the index case.
+#' \item \code{"Recurrent"} - Recurrent event of index case.
+#' \item \code{"Duplicate_R"} - Duplicate of the recurrent event.
+#' \item \code{"Skipped"} - Those skipped from the episode tracking process.
+#' }
+#'
+#' \code{data_source} - including this returns \code{epid_dataset}. This lists the source of every event in each episode.
+#'
+#' \code{data_links} should be a \code{list} with every element named 'l' (links) or 'g' (groups).
+#'
+#' \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
+#'
+#' \bold{\code{episode_group()}} as it existed up to \code{v0.1.0} has been retired.
+#' Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
+#'
+#' \bold{\code{fixed_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for the two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
+#' They exist for convenience and to support existing code with minimal disruption.
 #'
 #' @examples
 #' library(diyar)
@@ -79,37 +96,39 @@
 #'
 #' # Fixed episodes
 #' # One 16-day (15-day difference) episode per patient
-#' db_1$epids_p <- fixed_episodes(date=db_1$date, strata = db_1$patient_id,
-#' case_length = 15, episodes_max = 1, display = FALSE)
+#' db_1$epids_p <- fixed_episodes(date=db_1$date,
+#'                                strata = db_1$patient_id,
+#'                                case_length = 15,
+#'                                episodes_max = 1)
 #' # Rolling episodes
 #' # Case length of 16 days and recurrence periods of 11 days
-#' db_1$rd_b <- rolling_episodes(db_1$date, case_length = 15,
-#' recurrence_length = 10, display = FALSE)
+#' db_1$rd_b <- rolling_episodes(db_1$date,
+#'                               case_length = 15,
+#'                               recurrence_length = 10)
 #'
 #' # Interval grouping
 #' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
-#' hospital_admissions$discharge_dt)
+#'                                                 hospital_admissions$discharge_dt)
 #' admissions <- hospital_admissions[c("admin_period","epi_len")]
 #'
 #' # Episodes of overlaping periods of admission
-#' hospital_admissions$epi_0 <- fixed_episodes(date=hospital_admissions$admin_period,
-#' case_length = 0, group_stats = TRUE, to_s4=TRUE)
+#' hospital_admissions$epids_i<- fixed_episodes(date=hospital_admissions$admin_period,
+#'                                             case_length = 0,
+#'                                             overlap_methods = "inbetween")
 #'
-#' # Note - episode_group() takes column names not actual values
+#' @aliases episodes
+#' @export
 #'
-#' @aliases episode_group
-#' @param deduplicate if \code{TRUE}, \code{"dupilcate"} events are excluded from the output.
-#' @param x Record date or interval. Deprecated. Please use \code{date}
-#' @details
-#' \code{fixed_episodes()} and \code{rolling_episodes()} are wrapper functions of \code{episode_group()}.
-#' They are convenient alternatives with the same functionalities.
-#' @rdname episode_group
-episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length = NULL, episode_unit = "days",
-                     episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
-                     custom_sort = NULL, skip_order = Inf, from_last = FALSE, rolls_max = Inf,
-                     overlap_methods = "overlap", bi_direction = FALSE, group_stats = TRUE, recurrence_from_last = TRUE,
-                     display = "progress", deduplicate = FALSE, include_index_period = TRUE, case_for_recurrence = FALSE,
-                     to_s4 = TRUE, x, overlap_method = "overlap", episode_type = "fixed") {
+
+episodes <- function(date, sn = NULL, strata = NULL, case_length,
+                     episode_type = "fixed", recurrence_length = NULL,
+                     episode_unit = "days", episodes_max = Inf, rolls_max = Inf,
+                     skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
+                     custom_sort = NULL, skip_order = Inf, from_last = FALSE,
+                     overlap_methods = "overlap", bi_direction = FALSE, group_stats = TRUE,
+                     display = "progress", deduplicate = FALSE, to_s4 = TRUE,
+                     recurrence_from_last = TRUE, case_for_recurrence = FALSE, include_index_period = TRUE,
+                     x, overlap_method = "overlap") {
 
   # Deprecated arguments and behaviour
   if(missing(overlap_methods) & !missing(overlap_method)) {
@@ -328,6 +347,20 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
       mths_b <- lapply(mths_b, function(x){x[sort_ord]})
     }
 
+    if(is.null(names(mths_a))){
+      names(mths_a) <- rep("a", length(mths_a))
+    }else{
+      names(mths_a) <- ifelse(names(mths_a) %in% c("",NA), "a", names(mths_a))
+    }
+
+    if(any_rolling == T){
+      if(is.null(names(mths_b))){
+        names(mths_b) <- rep("a", length(mths_b))
+      }else{
+        names(mths_b) <- ifelse(names(mths_b) %in% c("",NA), "a", names(mths_b))
+      }
+    }
+
     r <- rle(cri)
     p <- as.numeric(names(r$values))
     cri_tot <- r$lengths
@@ -344,6 +377,18 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
     tr_tag <- rep(tag[which(names(cri) %in% p)], r$lengths)
     tr_e <- rep(e[which(names(cri) %in% p)], r$lengths)
     tr_int <- rep(int[which(names(cri) %in% p)], cri_tot)
+
+    if(any(names(mths_a) == "b") | any(names(mths_a) == "c")){
+      tr_mths_a <- lapply(mths_a, function(x){
+        rep(x[which(names(cri) %in% p)], r$lengths)})
+      }
+    if(any_rolling == T){
+      if(any(names(mths_b) == "b") | any(names(mths_b) == "c")){
+        tr_mths_b <- lapply(mths_b, function(x){
+          rep(x[which(names(cri) %in% p)], r$lengths)
+        })
+      }
+    }
 
     if(one_epid_type != T){
       tr_epid_type <- rep(episode_type[which(names(cri) %in% p)], r$lengths)
@@ -396,10 +441,41 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
     tr_sn <- tr_ep_int[[1]]@gid
     ref_rd <- int@gid %in% tr_sn
 
-    ovr_chks <- function(tr, int, mths) diyar::overlaps(tr, int, methods =mths)
-    ep_checks <- rowSums(mapply(ovr_chks, tr_ep_int, rep(list(int), length(tr_ep_int)), mths_a)) > 0
+    if(any(names(mths_a) == "b") | any(names(mths_a) == "c")){
+      opt_level <- function(opt, mth, tr_mth){
+        if(opt =="b") {
+          tr_mth
+          }else if(opt =="c"){
+            ifelse(mth != tr_mth, paste0(mth, "|", tr_mth), mth)
+          }else{
+            mth
+          }
+      }
+      ov_mth_a <- mapply(opt_level, names(mths_a), mths_a, tr_mths_a, SIMPLIFY = F)
+    }else{
+      ov_mth_a <- mths_a
+    }
+
     if(any_rolling == T){
-      rc_checks <- rowSums(mapply(ovr_chks, tr_rc_int, rep(list(int), length(tr_rc_int)), mths_b)) > 0
+      if(any(names(mths_b) == "b") | any(names(mths_b) == "c")){
+        opt_level <- function(opt, mth, tr_mth){
+          if(opt =="b") {
+            tr_mth
+          }else if(opt =="c"){
+            ifelse(mth != tr_mth, paste0(mth, "|", tr_mth), mth)
+          }else{
+            mth
+          }
+        }
+        ov_mth_b <- mapply(opt_level, names(mths_b), mths_b, tr_mths_b, SIMPLIFY = F)
+      }else{
+        ov_mth_b <- mths_b
+      }
+    }
+    ovr_chks <- function(tr, int, mths) diyar::overlaps(tr, int, methods =mths)
+    ep_checks <- rowSums(mapply(ovr_chks, tr_ep_int, rep(list(int), length(tr_ep_int)), ov_mth_a)) > 0
+    if(any_rolling == T){
+      rc_checks <- rowSums(mapply(ovr_chks, tr_rc_int, rep(list(int), length(tr_rc_int)), ov_mth_b)) > 0
     }
 
     cr <- ifelse(tr_tag %in% c(0, -2) &
@@ -669,19 +745,44 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length, recurrence_len
   return(epid)
 }
 
-#' @rdname episode_group
+#' @rdname episodes
 #' @export
 fixed_episodes <- function(..., episode_type = "fixed") episodes(episode_type = episode_type, ...)
 
-#' @rdname episode_group
+#' @rdname episodes
 #' @export
 rolling_episodes <- function(..., episode_type = "rolling") episodes(episode_type = episode_type, ...)
 
-#' @rdname episode_group
+#' @rdname episodes
 #' @export
 episode_group <- function(df, ...){
   args <- as.list(substitute(...()))
   bridge_episode_group(df=df, args=args)
+}
+
+#' @name windows
+#' @title Window and lengths
+#'
+#' @description XXXX
+#' @export
+epid_windows <- function(date, lengths){
+  date <- as.number_line(date)
+  if(class(lengths) != "number_line"){
+    lengths <- number_line(0, as.numeric(lengths))
+  }
+  number_line(right_point(date) + lengths@start,
+              right_point(date) + right_point(lengths))
+}
+
+#' @rdname windows
+#' @export
+epid_lengths <- function(date, windows){
+  date <- as.number_line(date)
+  if(class(windows) != "number_line"){
+    windows <- number_line(0, as.numeric(windows))
+  }
+  number_line(windows@start - right_point(date),
+              right_point(windows) - right_point(date))
 }
 
 episode_group_old <- function(df, sn = NULL, strata = NULL, date,
@@ -1740,31 +1841,4 @@ rolling_episodes_old <- function(date, sn = NULL, strata = NULL, case_length, re
                          recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links, include_index_period=include_index_period)
   }
 
-}
-
-
-#' @name windows
-#' @title Window and lengths
-#'
-#' @description XXXX
-#' @export
-#'
-epid_windows <- function(date, lengths){
- date <- as.number_line(date)
- if(class(lengths) != "number_line"){
-   lengths <- number_line(0, as.numeric(lengths))
- }
- number_line(right_point(date) + lengths@start,
-             right_point(date) + right_point(lengths))
-}
-
-#' @rdname windows
-#' @export
-epid_lengths <- function(date, windows){
-  date <- as.number_line(date)
-  if(class(windows) != "number_line"){
-    windows <- number_line(0, as.numeric(windows))
-  }
-  number_line(windows@start - right_point(date),
-              right_point(windows) - right_point(date))
 }

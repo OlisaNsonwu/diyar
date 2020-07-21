@@ -71,7 +71,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
   }
 
   if(is.list(overlap_methods)){
-    for (i in 1:length(case_length)) {
+    for (i in 1:length(overlap_methods)) {
       assign(paste0("overlap_methods_",i), overlap_methods[[i]])
       args_classes[[paste0("overlap_methods_",i)]] <- "character"
       args_classes$overlap_methods <- NULL
@@ -400,7 +400,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
   om <- overlap_methods
 
   if(class(cl) != "list") cl <- list(cl)
-  if(class(cl) != "list") om <- list(om)
+  if(class(om) != "list") om <- list(om)
 
   if(!length(om) %in% c(1, length(cl)) ){
     err_title <- "`overlap_methods` must have one element in the list or the same number as `case_length`:\n"
