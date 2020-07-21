@@ -214,7 +214,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     "group_stats", "display",
     "bi_direction", "skip_if_b4_lengths",
     "include_index_period", "case_for_recurrence",
-    "recurrence_from_last", "deduplicate", "strata",
+    "recurrence_from_last", "deduplicate",
     "rolls_max", "display", "group_stats",
     "custom_sort", "skip_order"
   )
@@ -317,9 +317,9 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
   }
 
   # Display - Specific options required ####
-  if(!tolower(display) %in% c("stats","progress")){
+  if(!tolower(display) %in% c("stats", "progress", "none")){
     return(paste0("Invalid values for `display`:\n",
-                  "i - Vaild values are: \"progress\" or \"stats\".\n",
+                  "i - Vaild values are: \"none\", \"progress\" or \"stats\".\n",
                   "X - You've supplied ", paste0("\"" , display, "\"", collapse = ", ")))
   }
 

@@ -22,7 +22,7 @@
 #' @param custom_sort  Preferential order for selecting index (\code{"case"}) events. Useful for tracking episodes in a non-chronological order.
 #' @param bi_direction If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked. If  \code{FALSE} (default), \code{"duplicate"} events are tracked in one direction only.
 #' @param group_stats If \code{TRUE} (default), episode specific information like episode start and end points are returned. See \code{Value}.
-#' @param display Message printed on screen. Options are; \code{"progress"} (default) or \code{"stats"} for a progress bar or a more detailed breakdown of the tracking process.
+#' @param display Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress bar or a more detailed breakdown of the tracking process.
 #' @param to_s4 If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.
 #' @param recurrence_from_last If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
 #' If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.
@@ -126,7 +126,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
                      skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                      custom_sort = NULL, skip_order = Inf, from_last = FALSE,
                      overlap_methods = "overlap", bi_direction = FALSE, group_stats = TRUE,
-                     display = "progress", deduplicate = FALSE, to_s4 = TRUE,
+                     display = "none", deduplicate = FALSE, to_s4 = TRUE,
                      recurrence_from_last = TRUE, case_for_recurrence = FALSE, include_index_period = TRUE,
                      x, overlap_method = "overlap") {
 
@@ -154,6 +154,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
                           rolls_max = rolls_max, case_for_recurrence = case_for_recurrence, recurrence_from_last = recurrence_from_last,
                           episode_type = episode_type, recurrence_length=recurrence_length)
 
+  display <- tolower(display)
   if(errs!=F) stop(errs, call. = F)
 
   dl_lst <- unlist(data_links, use.names = F)
@@ -298,7 +299,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
 
   excluded <- length(tag[tag == 2])
   tot <- length(int)
-  cat("\n")
+  if(display != "none") cat("\n")
   while (min(tag) != 2) {
     if(display == "stats" & excluded >0 & ite ==1) cat(paste0(fmt(tot), " record(s); ", fmt(excluded)," excluded from episode grouping. ", fmt(tot-excluded), " left to group.\n"))
     if(display == "stats"){
@@ -429,7 +430,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
     rm(cri_skp); rm(lgk2); rm(lgk1)
 
     if(min(tag) == 2){
-      if(tolower(display) == "stats"){
+      if(display== "stats"){
         msg <- paste0(fmt(current_tot), " record(s); ", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_skipped))," assigned to unique episodes.")
         cat(msg, "\n", sep="")
       }else if (tolower(display)=="progress") {
@@ -546,7 +547,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
     }
 
     if(min(tag) == 2){
-      if(tolower(display) == "stats"){
+      if(display== "stats"){
         msg <- paste0(fmt(current_tot), " record(s); ", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_skipped))," assigned to unique episodes.")
         cat(msg, "\n", sep="")
       }else if (tolower(display)=="progress") {
@@ -612,7 +613,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
     }
 
     current_tagged <- length(cr[cr])
-    if(tolower(display) == "stats"){
+    if(display== "stats"){
       msg <- paste0(fmt(current_tot), " record(s); ", fmt(current_tagged)," grouped to episodes", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_tagged + current_skipped))," left to group.")
       cat(msg, "\n", sep="")
     }else if (tolower(display)=="progress") {
@@ -620,7 +621,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
     }
     ite <- ite + 1
   }
-  cat("\n")
+  if(display != "none") cat("\n")
 
   wind_nm[which(case_nm == "Skipped")] <- "Skipped"
   ep_units <- ep_units[match(names(e), names(ep_units))]
@@ -734,14 +735,17 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
 
   names(epid) <- NULL
 
-  summ <- paste0("Records: ", fmt(length(epid)), ".\n",
-                 "Skipped records: ", fmt(length(epid[epid@case_nm == "Skipped"])), ".\n",
-                 "Episodes with unique events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot == 1])), ".\n",
-                 "Episodes with multiple events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot > 1])), ".\n")
-  cat(summ)
+  if(display != "none"){
+    summ <- paste0("Records: ", fmt(length(epid)), ".\n",
+                   "Skipped records: ", fmt(length(epid[epid@case_nm == "Skipped"])), ".\n",
+                   "Episodes with unique events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot == 1])), ".\n",
+                   "Episodes with multiple events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot > 1])), ".\n")
+    cat(summ)
+  }
 
   if(deduplicate == T) epid <- epid[!epid@case_nm %in% c("Duplicate_C", "Duplicate_R")]
   if(to_s4 == F) epid <- to_df(epid)
+  if(display == "none") cat("Episode tracking complete!")
   return(epid)
 }
 

@@ -24,7 +24,7 @@ dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
 #Introduction
 In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-off are used to distinguish between events. This is an important aspect of a case definition. For example, it's often important to distinguish between repeat positive infection results during a pathogen's incubation period. Another example, is distinguishing between infections from a single pathogen and those by multiple pathogens over a particular period. 
 
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` provide simple but flexible ways of doing this. They group events into temporal episodes which then allows for easy deduplication or a sub-analysis within each episode.
+`fixed_episodes()`, `rolling_episodes()` and `episodes()` provide simple but flexible ways of doing this. They group events into temporal episodes which then allows for easy deduplication or a sub-analysis within each episode.
 
 # Uses
 
@@ -37,11 +37,11 @@ These functions can implement a variety of case definitions. For example, they c
 + episodes with different durations depending on the type of event. See [stratified grouping](#stratified_grouping)
 
 # Overview
-An episode as produced by `fixed_episodes()`, `rolling_episodes()` or `episode_group()` is a set of events (dated records) within a specified period. Each episode begins with an index event and may contain duplicate or recurrent events. 
+An episode as produced by `fixed_episodes()`, `rolling_episodes()` or `episodes()` is a set of events (dated records) within a specified period. Each episode begins with an index event and may contain duplicate or recurrent events. 
 
 + `fixed_episodes()` - for `"fixed"` episodes that do not include periods of recurrence
 + `rolling_episodes()` - for `"rolling"` episodes which can include periods of recurrence
-+ `episode_group()` - the main function behind `fixed_episodes()` and `rolling_episodes()` 
++ `episodes()` - the main function behind `fixed_episodes()` and `rolling_episodes()` 
 
 # Implementation
 
@@ -114,7 +114,7 @@ ds$date
 **Figure 1a: fixed episodes**
 ```{r warning=FALSE}
 # 6-day (5-day difference) episodes - fixed episodes
-ds$f1 <- fixed_episodes(ds$date, case_length = 5, display = F)
+ds$f1 <- fixed_episodes(ds$date, case_length = 5)
 
 ds$f1
 ```
@@ -131,7 +131,7 @@ Alternatively, your cut-off can be a specific range. For example, a `case_length
 
 ```{r warning=FALSE}
 rng <- number_line(12, 16); rng
-ds$f2 <- fixed_episodes(ds$date, case_length = rng, display = F)
+ds$f2 <- fixed_episodes(ds$date, case_length = rng)
 
 ds$f2
 ```
@@ -145,7 +145,7 @@ As above, `events` before the `13th` are skipped. Changing `skip_if_b4_lengths` 
 **Figure 1c: fixed episodes where events before the the cut-off range are not skipped**
 
 ```{r warning=FALSE}
-ds$f3 <- fixed_episodes(ds$date, case_length = rng, display = F, skip_if_b4_lengths = F)
+ds$f3 <- fixed_episodes(ds$date, case_length = rng, skip_if_b4_lengths = F)
 
 ds$f3
 ```
@@ -164,7 +164,7 @@ The first approach is the default behaviour for `fixed_epsiodes()` and `rolling_
 **Figure 2: fixed episodes where episode tracking was backwards in time**
 
 ```{r warning=FALSE}
-ds$f4 <- fixed_episodes(ds$date, case_length = 5, from_last = T, display = F)
+ds$f4 <- fixed_episodes(ds$date, case_length = 5, from_last = T)
 
 ds$f4
 ```
@@ -189,7 +189,7 @@ ds2$user_ord <- ifelse(ds2$diag=="HIV", 1,2)
 
 # Then track concurrent infections up to 6 months AFTER the HIV diagnosis
 ds2$ep1 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, data_source = ds2$diag,
-                          case_length = 6, episode_unit = "months", display = F)
+                          case_length = 6, episode_unit = "months")
 
 # Using `data_source` populates the `epid_dataset` slot of the `epid` object. 
 # This is useful when you're working with different datasets
@@ -197,7 +197,7 @@ ds2$ep1_ds <- ds2$ep1@epid_dataset
 
 # Track preceeding infections up to 6 months BEFORE the HIV diagnosis
 ds2$ep2 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, data_source = ds2$diag,
-                          case_length = -6, episode_unit = "months", display = F)
+                          case_length = -6, episode_unit = "months")
 
 ds2$ep2_ds <- ds2$ep2@epid_dataset
 
@@ -213,13 +213,13 @@ Notice that in `ep1`, the HIV diagnosis and the HBV diagnosis before it are not 
 # Track diagnoses 6 months AFTER the HIV diagnosis.
   # `bi_direction` then tells the function to also check 6 months BEFORE the HIV diagnosis
 ds2$ep3a <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = 6, 
-                           bi_direction = T, episode_unit = "months", display = F)
+                           bi_direction = T, episode_unit = "months")
 
 # Method 1b
 # Track diagnoses 6 months BEFORE the HIV diagnosis
   # bi_direction` then tells the function to also check 6 months AFTER the HIV diagnosis
 ds2$ep3b <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = -6,
-                           bi_direction = T, episode_unit = "months", display = F, 
+                           bi_direction = T, episode_unit = "months", 
                            data_source = ds2$diag)
 
 ds2$ep3_ds <- ds2$ep3b@epid_dataset
@@ -229,7 +229,7 @@ ds2$ep3_ds <- ds2$ep3b@epid_dataset
   # There's no need for `bi_direction`.
 rng <- number_line(-6, 6)
 ds2$ep4 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rng, episode_unit = "months",
-                          display = F, data_source = ds2$diag)
+                          data_source = ds2$diag)
 
 ds2$ep4_ds <- ds2$ep4@epid_dataset
 
@@ -239,7 +239,7 @@ ds2$ep4_ds <- ds2$ep4@epid_dataset
 # Diagnoses before 2 months on either side are skipped as mentioned in the "cut-offs" section
 rng2 <- number_line(2, 6)
 ds2$ep5 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rng2, 
-                          bi_direction =T, episode_unit = "months", display = F)
+                          bi_direction =T, episode_unit = "months")
 
 ds2
 ```
@@ -259,13 +259,13 @@ dbf$c_sort2 <- ifelse(dbf$infection == "UTI", 1, 2)
 dbf$c_sort3 <- ifelse(dbf$infection == "BSI", 1, 2)
 
 dbf$ep_1 <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, 
-                           custom_sort = dbf$c_sort1, display = F)
+                           custom_sort = dbf$c_sort1)
 
 dbf$ep_2 <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, 
-                           custom_sort = dbf$c_sort2, display = F)
+                           custom_sort = dbf$c_sort2)
 
 dbf$ep_3 <- fixed_episodes(dbf$date, case_length = 15, data_source = dbf$infection, 
-                           custom_sort = dbf$c_sort3, display = F)
+                           custom_sort = dbf$c_sort3)
 
 dbf
 ```
@@ -284,7 +284,7 @@ Another important consideration for a case definition should be if the `events` 
 **Figure 3a: rolling episodes**
 ```{r warning=FALSE}
 # 6-day (5-day difference) episodes with 11-days recurrence periods - rolling episodes
-ds$r1 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = 10, display = F)
+ds$r1 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = 10)
 
 ds$r1
 ```
@@ -298,7 +298,7 @@ Similarly, for `recurrence_length`, your cut-off can be a range. For example, a 
 **Figure 3b: rolling episodes with a cut-off range**
 ```{r warning=FALSE}
 rng <- number_line(13, 15); rng
-ds$r2 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = rng, display = F)
+ds$r2 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = rng)
 
 ds$r2
 ```
@@ -313,7 +313,7 @@ plot_epid(epid = ds$r2, date= ds$date, case_length = 5, recurrence_length = rng)
 ```{r warning=FALSE}
 rng <- number_line(13, 15); rng
 ds$r3 <- rolling_episodes(ds$date, case_length = 5, recurrence_length = rng, 
-                          skip_if_b4_lengths = F, display = F)
+                          skip_if_b4_lengths = F)
 
 ds$r3
 ```
@@ -333,14 +333,13 @@ df <- c("01/04/2019", "11/04/2019", "16/04/2019","21/04/2019", "07/05/2019")
 df <- data.frame(date= as.Date(df, "%d/%m/%Y"))
 
 # 15-day fixed episodes
-df$f1 <- fixed_episodes(df$date, case_length = 14, display = F)
+df$f1 <- fixed_episodes(df$date, case_length = 14)
 
 # 15-day rolling episodes with 15-day recurrence periods
   # Since the first event is the reference event for the next recurrence window and,
   # the recurrence_length is the same the case_length (14-day difference), 
   # the result will be the same as the 15-day fixed-episode (above) 
-df$r1 <- rolling_episodes(df$date, case_length = 14, recurrence_from_last = F, 
-                          to_s4 = T, display = F)
+df$r1 <- rolling_episodes(df$date, case_length = 14, recurrence_from_last = F)
 
 df
 
@@ -350,7 +349,7 @@ all(df$f1==df$r1)
 
 **Figure 4a: Last event in a window taken as the reference event for the next recurrence window (default)**
 ```{r message=FALSE, warning=FALSE}
-df$r2 <- rolling_episodes(df$date, case_length = 14, recurrence_length = 16, display = F)
+df$r2 <- rolling_episodes(df$date, case_length = 14, recurrence_length = 16)
 
 df$r2
 ```
@@ -362,7 +361,7 @@ plot_epid(epid = df$r2, date = df$date, case_length =14, recurrence_length = 16)
 **Figure 4b: First event in a window taken as the reference event for the next recurrence window**
 ```{r message=FALSE, warning=FALSE}
 df$r3 <- rolling_episodes(df$date, case_length = 14, recurrence_length = 16, 
-                          recurrence_from_last = F, display = F)
+                          recurrence_from_last = F)
 
 df$r3
 ```
@@ -385,7 +384,7 @@ df <- data.frame(date= as.Date(df, "%d/%m/%Y"))
 
 **Figure 5a: Case windows for case events only (default)**
 ```{r message=FALSE, warning=FALSE}
-df$r4 <- rolling_episodes(df$date, case_length = 10, display = F)
+df$r4 <- rolling_episodes(df$date, case_length = 10)
 
 df$r4
 ```
@@ -396,8 +395,7 @@ plot_epid(epid = df$r4, date = df$date, case_length =10, recurrence_length = 10)
 
 **Figure 5b: Case windows for case and recurrence events**
 ```{r message=FALSE, warning=FALSE}
-df$r5 <- rolling_episodes(df$date, case_length = 10, case_for_recurrence = T, 
-                          to_s4 = T, display = F)
+df$r5 <- rolling_episodes(df$date, case_length = 10, case_for_recurrence = T)
 
 df$r5
 ```
@@ -420,7 +418,7 @@ df2$date
 
 **Figure 5c: Case windows for case events only (default)**
 ```{r message=FALSE, warning=FALSE}
-df2$r1 <- rolling_episodes(df2$date, case_length = 6, recurrence_length = 4, display = F, sn=df2$sn)
+df2$r1 <- rolling_episodes(df2$date, case_length = 6, recurrence_length = 4, sn=df2$sn)
 
 df2$r1
 ```
@@ -432,7 +430,7 @@ plot_epid(epid = df2$r1, date = df2$date, case_length =6, recurrence_length = 4)
 **Figure 5d: Case windows for case and recurrence events**
 ```{r message=FALSE, warning=FALSE}
 df2$r2 <- rolling_episodes(df2$date, case_length = 6, recurrence_length = 4, 
-                           case_for_recurrence = T, display = F, sn=df2$sn)
+                           case_for_recurrence = T, sn=df2$sn)
 
 df2$r1
 ```
@@ -455,7 +453,7 @@ dbs$date
 
 **Figure 6a: Maximum of one fixed episode per strata**
 ```{r message=FALSE, warning=FALSE}
-dbs$eps_1 <- fixed_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, display = F, 
+dbs$eps_1 <- fixed_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, 
                             episodes_max = 1)
 
 dbs$eps_1
@@ -467,7 +465,7 @@ plot_epid(epid = dbs$eps_1, date = dbs$date, case_length =3)
 
 **Figure 6b: Maximum of two fixed episodes per strata**
 ```{r message=FALSE, warning=FALSE}
-dbs$eps_2 <- fixed_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, display = FALSE, episodes_max = 2)
+dbs$eps_2 <- fixed_episodes(strata = dbs$pid, date = dbs$date, case_length = 3, episodes_max = 2)
 
 dbs$eps_2
 ```
@@ -480,7 +478,7 @@ plot_epid(epid = dbs$eps_2, date = dbs$date, case_length =3)
 
 **Figure 6c: Infinite recurrence periods per episode per strata (default)**
 ```{r message=FALSE, warning=FALSE}
-dbs$eps_4 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = F)
+dbs$eps_4 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2)
 
 dbs$eps_4
 ```
@@ -491,7 +489,7 @@ plot_epid(epid = dbs$eps_4, date = dbs$date, case_length =2, recurrence_length =
 
 **Figure 6d: Maximum of one recurrence period per episode per strata**
 ```{r message=FALSE, warning=FALSE}
-dbs$eps_6 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = F, 
+dbs$eps_6 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2, 
                               rolls_max = 1)
 
 dbs$eps_6
@@ -505,7 +503,7 @@ Note that if `case_for_recurrence` is `TRUE`, after checking for tracking the la
 
 **Figure 6e: Maximum of one recurrence period per episode per strata when case_for_recurrence is TRUE**
 ```{r message=FALSE, warning=FALSE}
-dbs$eps_7 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2,display = F, 
+dbs$eps_7 <- rolling_episodes(strata = dbs$pid, date =dbs$date, case_length = 2, 
                               rolls_max = 1, case_for_recurrence = T)
 
 dbs$eps_7
@@ -532,19 +530,19 @@ dates
 periods
 
 # Track fixed episodes from events with a 5 day cut-off 
-mth1 <- fixed_episodes(date = dates, case_length = 4, display = F)
+mth1 <- fixed_episodes(date = dates, case_length = 4)
 
 # Track fixed episode from periods that are 5 days long 
-mth2 <- fixed_episodes(date = periods, case_length =0, display = F)
+mth2 <- fixed_episodes(date = periods, case_length =0)
 
 # Same results
 mth1; mth2
 
 # Track rolling episodes from events using a 5 day cut-off 
-mth3 <- rolling_episodes(date = dates, case_length = 4, display = F)
+mth3 <- rolling_episodes(date = dates, case_length = 4)
 
 # Track rolling episode from periods that are 5 days long 
-mth4 <- rolling_episodes(date = periods, case_length =0, display = F)
+mth4 <- rolling_episodes(date = periods, case_length =0)
 
 # Same results
 mth3; mth4
@@ -563,7 +561,7 @@ hos_admin$admin_period
 **Figure 7a: Tracking periods of hospital stay (admission -> discharge)**
 ```{r message=FALSE, warning=FALSE}
 hs_epids_a <- fixed_episodes(date=hos_admin$admin_period, case_length = 0, 
-                display=F, group_stats=T)
+                 group_stats=T)
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
@@ -573,7 +571,7 @@ plot_epid(epid = hs_epids_a, date = hos_admin$admin_period, case_length = 0)
 **Figure 7b: Tracking periods of hospital stay up to 20 days after the first discharge**
 ```{r message=FALSE, warning=FALSE}
 hs_epids_b <- fixed_episodes(date=hos_admin$admin_period, case_length = 20, 
-                display=F, group_stats=T)
+                 group_stats=T)
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
@@ -583,7 +581,7 @@ plot_epid(epid = hs_epids_b, date = hos_admin$admin_period, case_length = 20)
 **Figure 7c: Tracking periods of continuous hospital stay i.e. re-admission within 15 days**
 ```{r message=FALSE, warning=FALSE}
 hs_epids_c <- rolling_episodes(date=hos_admin$admin_period, case_length = 0, 
-                recurrence_length=15, display=F, group_stats=T)
+                recurrence_length=15, group_stats=T)
 ```
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
@@ -601,10 +599,10 @@ There are 6 ways `event periods` can overlap (`overlap_methods`). These are `"ex
 epi_grp_func <- function(x){
   epids <- fixed_episodes(date=hos_admin$admin_period, 
                  sn=hos_admin$rd_id, 
-                 case_length = 0, 
-                 overlap_methods = x, 
-                 display = F, 
-                 to_s4 = T, 
+                 case_length = number_line(
+                   -hos_admin$admin_period@.Data,
+                   0), 
+                 overlap_methods = x,
                  group_stats = T, 
                  include_index_period = F)
   
@@ -648,19 +646,26 @@ epids["cb2"]
 **Figure 8a: Grouped episodes when considering only "exact" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["exact"]]
-plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn] , case_length = 0)
+plot_epid(epid = eps, 
+          date = hos_admin$admin_period[eps@sn], 
+          case_length = number_line(-hos_admin$admin_period@.Data[eps@sn],
+                                    0))
 ```
 
 **Figure 8b: Grouped episodes when considering only "chain" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["chain"]]
-plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn] , case_length = 0)
+plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn], 
+          case_length = number_line(-hos_admin$admin_period@.Data[eps@sn],
+                                    0))
 ```
 
 **Figure 8c: Grouped episodes when considering "chain" or "inbetween" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["cb1"]]
-plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn] , case_length = 0)
+plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn], 
+          case_length = number_line(-hos_admin$admin_period@.Data[eps@sn],
+                                    0))
 ```
 
 #### Case and recurrence lengths in interval grouping
@@ -681,7 +686,7 @@ As seen earlier,  positive "length" means that; `event periods` overlapping with
 
 **Figure 9a: Fixed episodes with a case_length of 6**
 ```{r message=FALSE, warning=FALSE}
-eps_a <- fixed_episodes(periods, case_length =6, group_stats = T, display = F)
+eps_a <- fixed_episodes(periods, case_length =6, group_stats = T)
 
 eps_a
 ```
@@ -694,7 +699,7 @@ In contrast, a negative "length" means that; only `event periods` within `n`-day
 
 **Figure 9b: Fixed episodes with a case_length of -2**
 ```{r message=FALSE, warning=FALSE}
-eps_b <- fixed_episodes(periods, case_length =-2, group_stats = T, display = F)
+eps_b <- fixed_episodes(periods, case_length =-2, group_stats = T)
 
 eps_b
 ```
@@ -707,7 +712,7 @@ By default, overlapping periods that are outside the 2-day periods are also grou
 
 **Figure 9c: Fixed episodes with a case_length of -2**
 ```{r message=FALSE, warning=FALSE}
-eps_c <- fixed_episodes(periods, case_length =-2, group_stats = T, display = F,
+eps_c <- fixed_episodes(periods, case_length =-2, group_stats = T,
                         include_index_period = F)
 
 eps_c
@@ -719,7 +724,7 @@ plot_epid(epid = eps_c, date = periods, case_length = -2)
 
 **Figure 9d: Fixed episodes with a case_length of -6**
 ```{r message=FALSE, warning=FALSE}
-eps_d <- fixed_episodes(periods, case_length =-6, group_stats = T, display = F)
+eps_d <- fixed_episodes(periods, case_length =-6, group_stats = T)
 
 eps_d
 ```
@@ -753,7 +758,7 @@ dbs$recur <- ifelse(dbs$infection=="UTI", 30, 0)
 
 dbs$epids <- rolling_episodes(date=dbs$date, case_length =dbs$epi, to_s4 =TRUE, 
                               strata = dbs$infection, recurrence_length = dbs$recur, 
-                              display = FALSE, group_stats = TRUE)
+                              group_stats = TRUE)
 
 dbs
 ```
@@ -777,9 +782,8 @@ In this example, whether or not the infection is `treated` should be viewed as t
 ```{r warning=FALSE}
 dbs <- diyar::infections_4
 
-dbs$epids <- episode_group(dbs, sn=rid, strata=c(pid, organism, source), date=date, 
-                case_length =epi, episode_type = "rolling", recurrence_length = recur,
-                display = FALSE)
+dbs$epids <- episodes(sn = dbs$rid, strata= paste(dbs$pid, dbs$organism, dbs$source), date= dbs$date,
+                case_length = dbs$epi, episode_type = "rolling", recurrence_length = dbs$recur)
 
 dbs
 ```
@@ -807,13 +811,13 @@ dbs$subset <- ifelse(dbs$category!="GP3", NA, "group")
 
 # To skip OR
 dbs$epids_a <- rolling_episodes(strata= dbs$subset, date = dbs$datetime, case_length = 5, 
-                                episode_unit = "hours", recurrence_length = 9, display = TRUE)
+                                episode_unit = "hours", recurrence_length = 9)
 
 #   OR
 
 # Not to skip
 dbs$epids_b <- rolling_episodes(strata= dbs$category, date = dbs$datetime, case_length = 5, 
-                                episode_unit = "hours", recurrence_length = 9, display = TRUE)
+                                episode_unit = "hours", recurrence_length = 9)
 
 dbs
 ```
@@ -855,27 +859,26 @@ dbg$case_len <- 6
 dbg$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,4)), sep="")
 
 # Don't skip any
-dbg$ep_a <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
-                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
-                          display = F)
+dbg$ep_a <- episodes(date = dbg$date, case_length = dbg$case_len, episode_type ="rolling", 
+                          recurrence_length = dbg$recurrence, data_source = dbg$dataset)
 
 # Breakup episodes without events from the `DS3` `data_source` 
   # The `DS3` event MUST BE linked to events from other `data_sources`  
-dbg$ep_b <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
-                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
-                          data_links = "DS3", display = F)
+dbg$ep_b <- episodes(date = dbg$date, case_length = dbg$case_len, episode_type ="rolling", 
+                          recurrence_length = dbg$recurrence, data_source = dbg$dataset, 
+                          data_links = "DS3")
 
 # Breakup episodes without events from the `DS3` `data_source` 
   # The `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   
-dbg$ep_c <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
-                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
-                          data_links = list(g="DS3"), display = F)
+dbg$ep_c <- episodes(date = dbg$date, case_length = dbg$case_len, episode_type ="rolling", 
+                          recurrence_length = dbg$recurrence, data_source = dbg$dataset, 
+                          data_links = list(g="DS3"))
 
 # Breakup episodes without events from the `DS3` `data_source` 
   # The `DS3` event MUST BE linkned to events from the `DS1` `data_source`
-dbg$ep_d <- episode_group(dbg, date = date, case_length = case_len, episode_type ="rolling", 
-                          recurrence_length = recurrence, data_source = dataset, to_s4 = T,
-                          data_links = list(l=c("DS3","DS1")), display = F)
+dbg$ep_d <- episodes(date = dbg$date, case_length = dbg$case_len, episode_type ="rolling", 
+                          recurrence_length = dbg$recurrence, data_source = dbg$dataset, 
+                          data_links = list(l=c("DS3","DS1")))
 
 dbg[c("date", "dataset", "ep_a", "ep_b", "ep_c", "ep_d")]
 ```
@@ -895,15 +898,15 @@ diyar::episode_unit
 
 # 1-day fixed episodes
 fixed_episodes(date = dbs$datetime, case_length = 1, episode_unit = "days", 
-               group_stats = TRUE, display = FALSE)
+               group_stats = TRUE)
 
 # 5-hr fixed episodes
 fixed_episodes(date = dbs$datetime, case_length = 5, episode_unit = "hours", 
-               group_stats = TRUE, display = FALSE)
+               group_stats = TRUE)
 
 # 5-hr rolling episodes
 rolling_episodes(date = dbs$datetime, case_length = 5, episode_unit = "hours", 
-                 group_stats = TRUE, display = FALSE)
+                 group_stats = TRUE)
 ```
 
 ### Use a `strata` from `record_group()`
@@ -916,11 +919,11 @@ dbs <- diyar::infections[c("date","infection")]; dbs
 dbs$rd_id <- c(640,17,58,21,130,79,45,300,40,13,31)
 
 # strata based on matching sources of infection
-dbs$pids <- record_group(dbs, sn = rd_id,  criteria = infection, display = FALSE)
+dbs$pids <- record_group(dbs, sn = rd_id,  criteria = infection)
 
 # stratified grouping 
 dbs$epids <- fixed_episodes(sn = dbs$rd_id, date = dbs$date, strata = dbs$pids, 
-                             to_s4 = TRUE, display = FALSE, case_length = 10)
+                             to_s4 = TRUE, case_length = 10)
 
 dbs
 ```
@@ -933,11 +936,11 @@ vals <- c(8.1,6,12,8.5,12,3,8,15,5,7)
 
 vals
 
-fixed_episodes(vals, case_length = .5, group_stats = T, display = F)
+fixed_episodes(vals, case_length = .5, group_stats = T)
 
-fixed_episodes(vals, case_length = 5, group_stats = T, display = F)
+fixed_episodes(vals, case_length = 5, group_stats = T)
 
-fixed_episodes(vals, case_length = 100, group_stats = T, display = F)
+fixed_episodes(vals, case_length = 100, group_stats = T)
 ```
 
 # Conclusion

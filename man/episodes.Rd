@@ -13,7 +13,7 @@ episodes(date, sn = NULL, strata = NULL, case_length,
   skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
   custom_sort = NULL, skip_order = Inf, from_last = FALSE,
   overlap_methods = "overlap", bi_direction = FALSE,
-  group_stats = TRUE, display = "progress", deduplicate = FALSE,
+  group_stats = TRUE, display = "none", deduplicate = FALSE,
   to_s4 = TRUE, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE, include_index_period = TRUE, x,
   overlap_method = "overlap")
@@ -63,7 +63,7 @@ This is the recurrence window. If \code{NULL} (default), it's assumed to be the 
 
 \item{group_stats}{If \code{TRUE} (default), episode specific information like episode start and end points are returned. See \code{Value}.}
 
-\item{display}{Message printed on screen. Options are; \code{"progress"} (default) or \code{"stats"} for a progress bar or a more detailed breakdown of the tracking process.}
+\item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress bar or a more detailed breakdown of the tracking process.}
 
 \item{deduplicate}{if \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
 
