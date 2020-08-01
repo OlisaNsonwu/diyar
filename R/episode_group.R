@@ -15,14 +15,14 @@
 #' This is the recurrence window. If \code{NULL} (default), it's assumed to be the same as \code{case_length}.
 #' @param episode_unit Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
 #' @param rolls_max Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source Unique datasource identifier. Useful when the dataset contains data from multiple sources.
+#' @param data_source Unique data source identifier. Useful when the dataset contains data from multiple sources.
 #' @param from_last If \code{TRUE}, track episodes in reverse chronological order. If \code{TRUE} (default), track episodes in chronological order.
 #' @param overlap_method Deprecated. Please use \code{overlap_methods}. Methods of overlap considered when tacking event. All event are checked by the same set of \code{overlap_method}.
 #' @param overlap_methods Methods of overlap considered when tacking event. Different events can be checked by different sets of \code{overlap_methods}
 #' @param custom_sort  Preferential order for selecting index (\code{"case"}) events. Useful for tracking episodes in a non-chronological order.
 #' @param bi_direction If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked. If  \code{FALSE} (default), \code{"duplicate"} events are tracked in one direction only.
 #' @param group_stats If \code{TRUE} (default), episode specific information like episode start and end points are returned. See \code{Value}.
-#' @param display Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress bar or a more detailed breakdown of the tracking process.
+#' @param display Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.
 #' @param to_s4 If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.
 #' @param recurrence_from_last If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
 #' If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.
@@ -80,10 +80,10 @@
 #'
 #' \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
 #'
-#' \bold{\code{episode_group()}} as it existed up to \code{v0.1.0} has been retired.
+#' \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
 #' Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
 #'
-#' \bold{\code{fixed_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for the two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
+#' \bold{\code{fixed_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
 #' They exist for convenience and to support existing code with minimal disruption.
 #'
 #' @examples
@@ -434,7 +434,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
         msg <- paste0(fmt(current_tot), " record(s); ", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_skipped))," assigned to unique episodes.")
         cat(msg, "\n", sep="")
       }else if (tolower(display)=="progress") {
-        progress_bar(length(tag[tag == 2])/tot, 100)
+        progress_bar(length(tag[tag == 2])/tot, 100, msg = "Tracking episodes")
       }
       break
     }
@@ -551,7 +551,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
         msg <- paste0(fmt(current_tot), " record(s); ", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_skipped))," assigned to unique episodes.")
         cat(msg, "\n", sep="")
       }else if (tolower(display)=="progress") {
-        progress_bar(length(tag[tag==2])/tot, 100)
+        progress_bar(length(tag[tag==2])/tot, 100, msg = "Tracking episodes")
       }
       break
     }
@@ -617,7 +617,7 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
       msg <- paste0(fmt(current_tot), " record(s); ", fmt(current_tagged)," grouped to episodes", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped)," skipped"), ""), " and ", fmt(current_tot - (current_tagged + current_skipped))," left to group.")
       cat(msg, "\n", sep="")
     }else if (tolower(display)=="progress") {
-      progress_bar(length(tag[tag==2])/tot, 100)
+      progress_bar(length(tag[tag==2])/tot, 100, msg = "Tracking episodes")
     }
     ite <- ite + 1
   }
@@ -736,16 +736,17 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
   names(epid) <- NULL
 
   if(display != "none"){
-    summ <- paste0("Records: ", fmt(length(epid)), ".\n",
-                   "Skipped records: ", fmt(length(epid[epid@case_nm == "Skipped"])), ".\n",
-                   "Episodes with unique events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot == 1])), ".\n",
-                   "Episodes with multiple events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot > 1])), ".\n")
+    summ <- paste0("Summary.",
+                   "Records: ", fmt(length(epid)), "\n",
+                   "Skipped records: ", fmt(length(epid[epid@case_nm == "Skipped"])), "\n",
+                   "Episodes with unique events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot == 1])), "\n",
+                   "Episodes with multiple events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot > 1])), "\n")
     cat(summ)
   }
 
   if(deduplicate == T) epid <- epid[!epid@case_nm %in% c("Duplicate_C", "Duplicate_R")]
   if(to_s4 == F) epid <- to_df(epid)
-  if(display == "none") cat("Episode tracking complete!")
+  if(display == "none") cat("Episode tracking complete!\n")
   return(epid)
 }
 

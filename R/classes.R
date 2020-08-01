@@ -285,9 +285,8 @@ as.pid <- function(x, ...){
 #' @export
 format.pid <- function(x, ...){
   if (length(x)==0) "pid(0)"
-  else return(paste("P.", formatC(x@.Data, width= nchar(max(x@.Data)), flag=0, format = "fg"), " (",
-                    ifelse(x@pid_cri==0,"No Hit", paste("CRI ", formatC(x@pid_cri, width = 2, flag=0, format = "fg"), sep="")),
-                    ")", sep=""))
+  else return(paste0("P.", formatC(x@.Data, width= nchar(max(x@.Data)), flag = 0, format = "fg"),
+                     " (", pid_cri_l(x@pid_cri),")"))
 }
 
 #' @rdname pid-class

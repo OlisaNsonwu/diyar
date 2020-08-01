@@ -47,7 +47,7 @@ This is the recurrence window. If \code{NULL} (default), it's assumed to be the 
 
 \item{skip_if_b4_lengths}{If \code{TRUE} (default), \code{events} before the cut-off points or periods are skipped.}
 
-\item{data_source}{Unique datasource identifier. Useful when the dataset contains data from multiple sources.}
+\item{data_source}{Unique data source identifier. Useful when the dataset contains data from multiple sources.}
 
 \item{data_links}{A set of \code{data_sources} required in each episode. \code{stratas} without these will be skipped, and episodes without these will be unlinked. See \code{Details}.}
 
@@ -63,7 +63,7 @@ This is the recurrence window. If \code{NULL} (default), it's assumed to be the 
 
 \item{group_stats}{If \code{TRUE} (default), episode specific information like episode start and end points are returned. See \code{Value}.}
 
-\item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress bar or a more detailed breakdown of the tracking process.}
+\item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
 
 \item{deduplicate}{if \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
 
@@ -130,10 +130,10 @@ A \code{"rolling"} episode will last as long as is permitted (\code{rolls_max}) 
 
 \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
 
-\bold{\code{episode_group()}} as it existed up to \code{v0.1.0} has been retired.
+\bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
 Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
 
-\bold{\code{fixed_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for the two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
+\bold{\code{fixed_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
 They exist for convenience and to support existing code with minimal disruption.
 }
 \examples{

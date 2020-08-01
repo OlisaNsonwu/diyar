@@ -126,14 +126,14 @@ sep_bdr_nl <- function(x){
   return(b)
 }
 
-progress_bar <- function(prop_complete, max_width){
-  pct_l <- paste0(" Tracking episodes; ", fmt(prop_complete*100),"% complete.")
+progress_bar <- function(prop_complete, max_width, msg){
+  pct_l <- paste0(msg,"; ", fmt(prop_complete*100),"% complete.")
   status_width <- max_width - nchar(pct_l)
   bar_width <- as.integer(prop_complete*status_width)
   space_width <- status_width - bar_width
 
-  status <-paste0(paste0(rep("-", bar_width), collapse = ""),
-                  paste0(rep(" ", space_width), collapse = ""),
+  status <-paste0(ifelse(bar_width < 0, "", paste0(rep("-", bar_width), collapse = "")),
+                  ifelse(space_width < 0, "", paste0(rep(" ", space_width), collapse = "")),
                   pct_l,
                   "\r")
 
@@ -311,4 +311,10 @@ overlaps_err <- function(opts){
   }else{
     return(character())
   }
+}
+
+pid_cri_l <- function(n){
+  ifelse(n == 0,"No Hits",
+         ifelse(n == -1, "Skipped",
+                paste0("CRI ", formatC(n, width = 3, flag = 0, format = "fg"))))
 }

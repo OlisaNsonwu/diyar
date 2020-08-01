@@ -195,7 +195,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
                          ":\n")
     errs <-  paste0(err_title,
                     "i - Expecting a length of ", listr(args_lengths[args_lengths!=0], " or"), ".\n",
-                    "X - Length is ", length(get(arg)), ".\n")
+                    "X - Actual length is ", length(get(arg)), ".\n")
     ifelse(!length(get(arg)) %in%  args_lengths,
            errs, NA_character_)
   }
@@ -345,55 +345,19 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
   # SN - Must be unique ####
   if(!is.null(sn)){
     dp_check <- duplicates_check(sn)
-    if(dp_check!=T) return(paste0("`sn` must be have unique values.\n",
+    if(dp_check!=T) return(paste0("`sn` must be unique values.\n",
                                   "X - Duplicate values in ", dp_check ,"."))
     # fn_check <- finite_check(sn)
     # if(fn_check!=T) return(paste0("`sn` must have finite numeric values:\n",
     #                             "X - There are non-finite values in ",fn_check))
   }
 
-  # data_links - Each element must be named g or l ####
-  dl_lst <- unlist(data_links, use.names = F)
-  ds_lst <- data_source[!duplicated(data_source)]
-  ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
+  err <- err_data_links_1(data_source = data_source, data_links = data_links)
+  if(err != F) return(err)
 
-  if(is.list(data_links) & !is.null(data_source)){
-    nms <- names(data_links); names(nms) <- 1:length(nms)
-    nms <- nms[!tolower(nms) %in% c("l","g","") ]
-    nms
+  err <- err_data_links_2(data_source = data_source, data_links = data_links)
+  if(err != F) return(err)
 
-    invalid_opts <- ifelse(length(nms) > 2,
-                           paste0(paste0("\"", head(nms, 2), "\"", " in [",head(names(nms),2),"]", collapse = ", "), " ..."),
-                           paste0(listr(paste0("\"", nms, "\"", " in [", names(nms),"]")), "."))
-
-    err_title <- "Invalid element names for `data_links`:\n"
-    errs <- paste0(err_title,
-                   "i - Each element in `data_link` (list) must be named \"l\" (links) or \"g\" (groups).\n",
-                   "i - Syntax 1 - `data_links` <- list(l = c(\"DS1\", \"DS2\"), g = c(\"DS3\", \"DS4\"))\n",
-                   "i - Syntax 2 - `data_links` <- c(\"l\" = \"DS5\")\n",
-                   "i - \"l\" - Only return episodes with records from \"DS1\" AND \"DS2\" `data_source`.`\n",
-                   "i - \"g\" - Only return episodes with records from \"DS3\" OR  \"DS4\" `data_source`.`\n",
-                   paste0("X - You've supplied ", invalid_opts))
-
-    if(length(nms)>0) return(errs)
-  }
-
-  # data_links - Values must match what's in data_sources ####
-  if(length(ms_lst)>0 & !all(toupper(dl_lst)=="ANY") & !is.null(data_source)){
-    invalid_opts <- ifelse(length(ms_lst) > 4,
-                           paste0(paste0("\"", head(ms_lst,4), "\"", collapse = ", "), " ..."),
-                           paste0(listr(paste0("\"", ms_lst,"\"")), "."))
-
-    valid_opts <- ifelse(length(ds_lst) > 4,
-                         paste0(paste0("\"", head(ds_lst, 4), "\"", collapse = ", "), " ..."),
-                         paste0(listr(paste0("\"", ds_lst, "\"")), "."))
-
-    err_title <- "Invalid values for `data_links`:\n"
-    errs <- paste0(err_title,
-                   "i - Valid values are those in `data_source`: ", valid_opts, "\n",
-                   "X - You've supplied ", invalid_opts)
-    return(errs)
-  }
 
   # overlap_methods - Check if there are more overlap methods than their are case_lengths ####
   cl <- case_length
@@ -461,7 +425,249 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
   }
 
   return(F)
+}
+
+
+err_sub_criteria_1 <- function(...){
+  args <- list(...)
+
+  err <- lapply(args, function(x){
+    ifelse(is.atomic(x), NA_character_, class(x))
+  })
+  err <- unlist(err, use.names = F)
+  names(err) <- 1:length(err)
+  err <- err[!is.na(err)]
+
+  if(length(err) > 0){
+    paste0("Invalid object type for `sub_criteria`:\n",
+           "i - `sub_criteria` must be an `atomic` vector or a `list of `atomic` vectors.\n",
+           paste0("X - `sub_criteria` ", names(err),"` is a ", err,".", collapse = "\n"))
+  }else{
+    F
+  }
+}
+
+err_sub_criteria_2 <- function(funcs){
+  try_txt <- try(lapply(funcs, function(x){}), silent = T)
+  if(class(try_txt) == "try-error"){
+    attr(try_txt, "condition")$message
+  }else{
+    F
+  }
+}
+
+err_sub_criteria_3 <- function(funcs){
+  err <- sapply(funcs, is.function)
+  names(err) <- 1:length(err)
+  err <- err[!err]
+  if(length(err) > 0){
+    err <- paste0("`funcs` must be functions:\n",
+                  "X - `funcs[c(", diyar:::listr(names(err), conj = ",", lim=3), ")]` ",
+                  ifelse(length(err ==1), "is not a function.", "are not functions."))
+    err
+  }else{
+    F
+  }
+}
+
+err_sub_criteria_4 <- function(..., funcs){
+  if(!length(funcs) %in% c(0, 1, length(list(...)))){
+    stop(paste0("Length of `funcs` must be 1 or the same as `...`:\n"),
+         "i - Expecting 1", ifelse(length(list(...)) > 1, paste0(" or ",length(list(...))), ""), ".\n",
+         "X - You've supplied ", length(funcs), ".")
+  }else{
+    F
+  }
+}
+
+err_sub_criteria_5 <- function(sub_cris, funcs_l){
+  err <- lapply(sub_cris, function(x){
+    func <- x[[2]]
+    vec <- x[[1]]
+    try_txt <- try(func(vec[1], vec[1]), silent = T)
+    if(class(try_txt) == "try-error"){
+      attr(try_txt, "condition")$message
+    }else{
+      NA
+    }
+  })
+
+  err <- unlist(err, use.names = F)
+  names(err) <- 1:length(err)
+  err <- err[!is.na(err)]
+  if(length(funcs_l) == 1) err <- err[!duplicated(err)]
+  if(length(err) > 0){
+    err <- paste0("Unable to evaluate `funcs` with `...`:\n",
+                  "i - Each `func` must have the following syntax and output.\n",
+                  "i - Syntax ~ `func(x, tr_x, ...)`.\n",
+                  "i - Output ~ `TRUE` or `FALSE`.\n",
+                  paste0("X - Issue with ",
+                         ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs[", names(err), "]`") ),": ",
+                         err, ".", collapse = "\n"))
+    err
+  }else{
+    F
+  }
+}
+
+err_sub_criteria_6 <- function(sub_cris, funcs_l){
+  err <- lapply(sub_cris, function(x){
+    func <- x[[2]]
+    vec <- x[[1]]
+    x <- class(func(vec[1], vec[1]))
+    ifelse(x == "logical", NA_character_, x)
+  })
+
+  err <- unlist(err, use.names = F)
+  names(err) <- 1:length(err)
+  err <- err[!is.na(err)]
+  if(length(funcs_l) == 1) err <- err[!duplicated(err)]
+  if(length(err) > 0){
+    err <- paste0("Invalid ouput for `funcs`:\n",
+                  "i - Each `funcs` must evaluate to `TRUE` or `FALSE`.\n",
+                  paste0("X - ",
+                         ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs[", names(err), "]`")),": returns a ",
+                         err, "` object.", collapse = "\n"))
+    err
+  }else{
+    F
+  }
+}
+
+err_data_links_1 <- function(data_source, data_links){
+  # data_links - Each element must be named g or l ####
+  dl_lst <- unlist(data_links, use.names = F)
+  ds_lst <- data_source[!duplicated(data_source)]
+  ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
+
+  if(is.list(data_links) & !is.null(data_source)){
+    nms <- names(data_links); names(nms) <- 1:length(nms)
+    nms <- nms[!tolower(nms) %in% c("l","g","") ]
+    nms
+
+    invalid_opts <- ifelse(length(nms) > 2,
+                           paste0(paste0("\"", head(nms, 2), "\"", " in [",head(names(nms),2),"]", collapse = ", "), " ..."),
+                           paste0(listr(paste0("\"", nms, "\"", " in [", names(nms),"]")), "."))
+
+    err_title <- "Invalid element names for `data_links`:\n"
+    errs <- paste0(err_title,
+                   "i - Each element in `data_link` (list) must be named \"l\" (links) or \"g\" (groups).\n",
+                   "i - Syntax 1 - `data_links` <- list(l = c(\"DS1\", \"DS2\"), g = c(\"DS3\", \"DS4\"))\n",
+                   "i - Syntax 2 - `data_links` <- c(\"l\" = \"DS5\")\n",
+                   "i - \"l\" - Only return episodes with records from \"DS1\" AND \"DS2\" `data_source`.`\n",
+                   "i - \"g\" - Only return episodes with records from \"DS3\" OR  \"DS4\" `data_source`.`\n",
+                   paste0("X - You've supplied ", invalid_opts))
+
+    if(length(nms)>0) errs else F
+  }else{
+    F
+  }
+}
+
+err_data_links_2 <- function(data_source, data_links){
+  dl_lst <- unlist(data_links, use.names = F)
+  ds_lst <- data_source[!duplicated(data_source)]
+  ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
+
+  # data_links - Values must match what's in data_sources ####
+  if(length(ms_lst)>0 & !all(toupper(dl_lst)=="ANY") & !is.null(data_source)){
+    invalid_opts <- ifelse(length(ms_lst) > 4,
+                           paste0(paste0("\"", head(ms_lst,4), "\"", collapse = ", "), " ..."),
+                           paste0(listr(paste0("\"", ms_lst,"\"")), "."))
+
+    valid_opts <- ifelse(length(ds_lst) > 4,
+                         paste0(paste0("\"", head(ds_lst, 4), "\"", collapse = ", "), " ..."),
+                         paste0(listr(paste0("\"", ds_lst, "\"")), "."))
+
+    err_title <- "Invalid values for `data_links`:\n"
+    errs <- paste0(err_title,
+                   "i - Valid values are those in `data_source`: ", valid_opts, "\n",
+                   "X - You've supplied ", invalid_opts)
+    errs
+  }else{
+    F
+  }
+}
+
+err_criteria_1 <- function(criteria){
+  if(class(criteria) != "list") criteria <- list(criteria)
+
+  err <- lapply(criteria, function(x){
+    ifelse(is.atomic(x), NA_character_, class(x))
+  })
+  err <- unlist(err, use.names = F)
+  names(err) <- 1:length(err)
+  err <- err[!is.na(err)]
+
+  if(length(err) > 0){
+    paste0("Invalid object type for `criteria`:\n",
+           "i - `criteria` must be an `atomic` vector or a `list of `atomic` vectors.\n",
+           paste0("X - `criteria ", names(err),"` is a ", err,".", collapse = "\n"))
+  }else{
+    F
+  }
+}
+
+err_criteria_2 <- function(criteria){
+  if(class(criteria) != "list") criteria <- list(criteria)
+
+  err <- lapply(criteria, length)
+  err <- unlist(err, use.names = F)
+  names(err) <- 1:length(err)
+  err <- err[!duplicated(err)]
+
+  if(length(err) > 1){
+    paste0("Length of each `criteria` must be the same:\n",
+           paste0("X - `criteria ", names(err),"` is ", err,".", collapse = "\n"))
+  }else{
+    F
+  }
+}
+
+err_sub_criteria_3dot_1 <- function(...){
+  args <- list(...)
+  err <- lapply(args, length)
+  err <- unlist(err, use.names = F)
+  names(err) <- 1:length(err)
+  err <- err[!duplicated(err)]
+
+  if(length(err) > 1){
+    paste0("Length of each `sub_criteria` must be the same:\n",
+           paste0("X - `sub_criteria ", names(err),"` is ", err,".", collapse = "\n"))
+  }else{
+    F
+  }
+}
+
+err_sn_1 <- function(sn, ref_nm, ref_num){
+  if(!class(sn) %in% c("numeric", "integer", "NULL")){
+    err <- paste0("Invalid object type for `sn`:\n",
+                  "i - Valid object type is `numeric.\n",
+                  "X - You've supplied a `", class(sn), "` object.")
+    return(err)
   }
 
+  if(class(sn) != "NULL"){
+    if(length(sn) != ref_num){
+      err <- paste0("Length of `sn` must be the same as `", ref_nm, "`:\n",
+                    "i - Expecting a length of ", ref_num, ".\n",
+                    "X - Actual length is ", length(sn), ".\n")
+      return(err)
+    }
 
+    dp_check <- duplicates_check(sn)
+    if(dp_check != T){
+      err <- paste0("`sn` must be unique values.\n",
+                    "X - There are duplicate values in ", dp_check ,".")
+      return(err)
+    }
 
+    fn_check <- finite_check(sn)
+    if(fn_check!=T){
+      err <- paste0("`sn` must be finite numeric values:\n",
+                    "X - There are non-finite values in ",fn_check)
+      return(err)
+    }
+  }
+  return(F)
+}

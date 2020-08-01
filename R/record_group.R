@@ -1,16 +1,16 @@
-#' @name record_group
+#' @name links
 #' @title Multistage deterministic record linkage
 #'
-#' @description Group matching or partially matching records in multiple stages of relevance using different criteria.
+#' @description Link records with matching criteria with different levels of relevance.
 #'
-#' @param df \code{data.frame}. One or more datasets appended together.
-#' @param sn Unique numerical record identifier. Optional.
-#' @param strata Subsets of the dataset. Record grouping will be done separately with each subset of the dataset. You can use multiple columns supplied as column names.
-#' @param criteria Column names of attributes to match. Each \code{criteria} is a stage in the process and the order in which they are listed determines the relevance of matches.
-#' @param sub_criteria Matching sub-criteria. Additional matching conditions for each stage (\code{criteria}).
-#' @param data_source Unique dataset identifier. Useful when \code{df} contains data from multiple sources.
-#' @param group_stats If \code{TRUE}, output will include additional columns with useful stats for each record group.
-#' @param display If \code{TRUE} (default), a progress message is printed on screen.
+#' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
+#' @param sn Unique numerical record identifier. Useful for creating familiar episode identifier. Optional.
+#' @param strata Subsets of the dataset. Links are determined separately within each subset.
+#' @param criteria \code{list} of attributes to compare. Comparison is done as an exact match i.e. (\code{==}). See \code{Details}.
+#' @param sub_criteria \code{list} of additional attributes to compare. Comparison is done as an exact match or a user defined \code{function}. See \code{Details}..
+#' @param data_source Unique data source identifier. Useful when the dataset contains data from multiple sources.
+#' @param group_stats If \code{TRUE} (default), group specific information like record counts. See \code{Value}.
+#' @param display Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
 #' @param to_s4 If \code{TRUE} (default), record groups are returned as a \code{\link[=pid-class]{pid}} object.
 #'
 #' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
@@ -25,26 +25,29 @@
 #' }
 #'
 #'
-#' @seealso \code{\link{episode_group}} and \code{\link{number_line}}
+#' @seealso \code{\link{episodes}} and \code{\link{number_line}}
 #'
 #' @details
-#' Record grouping occurs in stages of matching \code{criteria}.
+#' \bold{\code{links()}} performs an ordered multi-staged deterministic linkage.
+#' The order (relevance/priority) is determined by the order of in which each \code{criteria} is listed.
 #'
-#' Records are matched in two ways: an exact match i.e. the equivalent of \code{(==)}, or range matching.
-#' An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-#' To do this, create the range as a \code{\link{number_line}} object and supply it to the \code{criteria} or \code{sub_criteria} argument.
-#' The actual value within each range must be assigned to the \code{gid} slot of the \code{number_line} object.
-#'
-#' A match at each stage is considered more relevant than a match at the next stage.
-#' Therefore, \code{criteria} should be listed in order of decreasing relevance or certainty.
-#'
-#' \code{sub_criteria} can be used to force additional matching conditions at each stage.
-#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} values are grouped together.
+#' \code{sub_criteria} specifies additional matching conditions at each stage (\code{criteria}) of the process.
+#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are grouped together.
 #' If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 #' If there are no matches for a record at every stage, that record is assigned a unique group ID.
 #'
-#' When a \code{data_source} identifier is provided,
-#' \code{pid_dataset} is included in the output. This lists the source of every record in each record group.
+#' By default, records are compared as an exact match i.e. the equivalent of \code{(==)} however, user defined functions are also permitted.
+#' The function must be able to compare two atomic vectors,
+#' return only \code{TRUE} or \code{FALSE},
+#' and have two arguments - \code{x} for the attribute and \code{tr_x} for what it'll be compared against.
+#'
+#' A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
+#'
+#' \code{data_source} - including this returns \code{pid_dataset}. This lists the source of every event in each record group.
+#'
+#' \bold{\code{record_group()}} as it existed before \code{v0.2.0} has been retired.
+#' Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{links()}} moving forward.
+#'
 #'
 #' @examples
 #' library(diyar)
@@ -97,9 +100,313 @@
 #' list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1, to_s4 = TRUE)
 #'
 #' missing_staff_id
-#' @aliases record_group
+#' @aliases links
 #' @export
-record_group <- function(df, sn=NULL, criteria, sub_criteria=NULL, strata = NULL, data_source = NULL, group_stats=FALSE, display=TRUE, to_s4 = TRUE){
+links <- function(criteria,
+                  sub_criteria = NULL,
+                  sn = NULL,
+                  strata = NULL,
+                  to_s4 = TRUE,
+                  data_source = NULL,
+                  data_links = "ANY",
+                  display = "progress"){
+
+  err <- err_data_links_1(data_source = data_source, data_links = data_links)
+  if(err != F) stop(err, call. = F)
+
+  err <- err_data_links_2(data_source = data_source, data_links = data_links)
+  if(err != F) stop(err, call. = F)
+
+  if(class(criteria) != "list") criteria <- list(criteria)
+
+  err <- err_criteria_1(criteria)
+  if(err != F) stop(err, call. = F)
+
+  err <- err_criteria_2(criteria)
+  if(err != F) stop(err, call. = F)
+
+  err <- err_sn_1(sn =sn, ref_num = length(criteria[[1]]), ref_nm = "criteria")
+  if(err != F) stop(err, call. = F)
+
+  if(!is.null(data_source)) {
+    if(length(data_source) == 1) data_source <- rep(data_source, length(criteria[[1]]))
+  }
+
+  if(!is.null(strata)) {
+    if(length(strata) == 1) strata <- rep(strata, length(criteria[[1]]))
+  }
+
+  cri_no <- length(criteria)
+  pr_sn <- 1:length(criteria[[1]])
+
+  if(class(sn) == "NULL"){
+    sn <- 1:length(criteria[[1]])
+  }
+  dl_lst <- unlist(data_links, use.names = F)
+  ds_lst <- data_source[!duplicated(data_source)]
+  ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
+  tag <- rep(0, length(criteria[[1]]))
+  m_tag <- tag
+  pid_cri <- rep(Inf, length(criteria[[1]]))
+  sn_ref <- min(sn) - 1
+  pid <- rep(sn_ref, length(criteria[[1]]))
+  link_id <- pid
+
+  # lgk <- is.na(strata)
+  # skipped <- pr_sn[is.na(strata)]
+  if(display != "none") cat("\n")
+  for(i in 1:cri_no){
+
+    # lgk <- is.na(cri)
+    # cri <- match(cri, cri[!duplicated(cri)]) + max_strata
+    cri <- criteria[[i]]
+    cri <- cri[match(1:length(cri), pr_sn)]
+    lgk <- is.na(cri)
+    if(!is.null(strata)) {
+      lgk[!lgk] <- is.na(strata[!lgk])
+      cri[!lgk] <- paste0(strata[!lgk], " ", cri[!lgk])
+    }
+    cri <- match(cri, cri[!duplicated(cri)])
+    cri[lgk] <- NA_real_
+
+    names(cri) <- 1:length(cri)
+    force_check <- rep(0, length(cri))
+    skip <- force_check
+    m_tag <- force_check
+    min_pid <- sn_ref
+    min_m_tag <- 0
+    c <- 0
+    tot <- length(cri)
+
+    while (min_pid==sn_ref | min_m_tag==-1) {
+      #if(c+1 >1 & display ) cat(paste("\nMatching criteria ",i,": iteration ",c+1, sep=""))
+
+      sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = T)
+      for(vr in c("force_check","tag","cri",
+                  "skip", "pid", "tag","m_tag",
+                  "pid_cri", "sn", "pr_sn")){
+        assign(vr, get(vr)[sort_ord])
+      }
+
+      if(!is.null(strata)) {
+        strata <- strata[sort_ord]
+      }
+      # Reference records
+      r <- rle(cri)
+      p <- as.numeric(names(r$values))
+      #cri_tot <- r$lengths
+      tr_link_id <- rep(link_id[which(names(cri) %in% p)], r$lengths)
+      tr_pid_cri <- rep(pid_cri[which(names(cri) %in% p)], r$lengths)
+      tr_cri <- rep(cri[which(names(cri) %in% p)], r$lengths)
+      tr_tag <- rep(tag[which(names(cri) %in% p)], r$lengths)
+      tr_pid <- rep(pid[which(names(cri) %in% p)], r$lengths)
+      tr_sn <- rep(sn[which(names(cri) %in% p)], r$lengths)
+
+      curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("s",i))]
+      if(length(curr_sub_cri) > 0){
+        sub_cri_match <- sapply(curr_sub_cri, function(set){
+          set_match <- sapply(set, function(a){
+            x <- a[[1]][match(pr_sn, 1:length(cri))]
+            tr_x <- rep(x[which(names(cri) %in% p)], r$lengths)
+            f <- a[[2]]
+            lgk <- as.numeric(f(x, tr_x))
+            ifelse(is.na(lgk), 0, lgk)
+          })
+          ifelse(rowSums(set_match) > 0, 1, 0)
+        })
+        sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match), 1, 0)
+      }else{
+        sub_cri_match <- rep(1, length(cri))
+      }
+
+      # Matches in subcriteria
+      #sub_cri_match <- ifelse(!sub_crx_func(df) %in% c(NA, FALSE),1,0)
+      #sub_cri_match <- 1
+
+      m_tag <- ifelse(m_tag==1 &
+                        sub_cri_match > 0 &
+                        pid_cri <= tr_pid_cri,
+                      -1, m_tag)
+      m_tag <- ifelse(sub_cri_match > 0 &
+                        m_tag ==-1 &
+                        pid == tr_pid & !is.na(tr_pid),
+                      1, m_tag)
+      pid <- ifelse(
+        (m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid)),
+        tr_pid, pid
+      )
+
+      #inherit pid
+      pid <- ifelse(
+        pid == sn_ref & !tr_pid %in% c(sn_ref, NA) & sub_cri_match > 0,
+        tr_pid, pid
+      )
+
+      #assign new pid
+      pid <- ifelse(
+        pid == sn_ref & tr_pid == sn_ref & !is.na(tr_pid) & sub_cri_match > 0,
+        tr_sn, pid
+      )
+
+
+      link_id <- ifelse(
+        (link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
+          ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid))),
+        tr_sn, link_id
+      )
+
+      m_tag <- ifelse(pid != sn_ref & m_tag != -1,1, m_tag)
+      m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag ==-1, 1, m_tag)
+
+
+      skip <- ifelse(m_tag ==-1 & !is.na(m_tag), 0, ifelse(sub_cri_match > 0, 1, skip))
+      lgk <- !is.na(cri)
+      if(length(lgk[lgk]) != 0){
+        min_pid <- min(pid[lgk])
+        min_m_tag <- min(m_tag[lgk])
+      } else{
+        min_pid <- min(pid)
+        min_m_tag <- min(m_tag)
+      }
+
+      if(tolower(display) == "progress" & length(curr_sub_cri) > 0) {
+        msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
+        progress_bar(length(m_tag[m_tag == 1])/tot, nchar(msg), msg = msg)
+      }
+      c <- c+1
+    }
+    if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
+    # rst <- rle(sort(pid))
+    # rst <- rst$values[rst$lengths == 1]
+    # pid[which(pid %in% rst)] <- sn_ref
+
+    if(display %in% c("progress", "stats")){
+      cat(paste0("Checked `criteria ", i,"`.\n"))
+    }
+    if(display == "stats"){
+      assigned <- length(tag[tag == 0 & !pid %in% c(sn_ref, NA)])
+      removed <- length(tag[!duplicated(pid) & !duplicated(pid, fromLast=TRUE)])
+      current_tot <- length(tag[tag == 0 & !pid %in% c(sn_ref, NA)])
+      cat(paste0(fmt(current_tot), " records(s): ",  fmt(current_tot-removed)," linked to record groups and ", fmt(removed)," with no link."))
+    }
+    tag <- ifelse(pid %in% c(sn_ref, NA), 0, 1)
+    link_id[!duplicated(pid) & !duplicated(pid, fromLast=TRUE)] <- sn_ref
+    pid[!duplicated(pid) & !duplicated(pid, fromLast=TRUE)] <- sn_ref
+    tag <- ifelse(pid != sn_ref, 1, 0)
+    pid_cri[tag ==1 & pid_cri == Inf] <- i
+  }
+
+  if(class(strata) != "NULL"){
+    pid_cri[pid == sn_ref & is.na(strata) & pid_cri == Inf] <- -1
+  }
+  pid_cri[pid == sn_ref & pid_cri == Inf] <- 0
+  link_id[pid == sn_ref] <- sn[pid == sn_ref]
+  pid[pid == sn_ref] <- sn[pid == sn_ref]
+  #pid[match(1:length(cri), pr_sn)]
+
+  tmp_pos <- pr_sn
+  fd <- match(1:length(pid), tmp_pos)
+
+  r <- rle(sort(pid))
+  pid_f <- pid[fd]
+  pids <- methods::new("pid",
+               .Data = pid_f,
+               sn = sn[fd],
+               pid_cri = pid_cri[fd],
+               link_id = link_id[fd],
+               pid_total = r$lengths[match(pid_f, r$values)])
+
+  if(!is.null(data_source)){
+    data_source <- data_source[match(pr_sn[fd], 1:length(pids))]
+    # Data links
+    #names(e) <- tmp_pos
+    rst <- check_links(pids@.Data, data_source, data_links)
+    datasets <- rst$ds
+
+    if(!all(toupper(dl_lst) == "ANY")){
+      req_links <- rst$rq
+      pids@pid_total[req_links == F] <- 1
+      pids@pid_cri[req_links == F] <- 0
+      pids@.Data[req_links == F] <- pids@sn[req_links == F]
+      pids@link_id[req_links == F] <- pids@sn[req_links == F]
+      datasets[req_links == F] <- data_source[req_links == F]
+    }
+    pids@pid_dataset <- datasets
+  }
+
+  if(display == "stats") cat("\n")
+  if(display != "none"){
+    cri_dst <- table(pids@pid_cri)
+    cri_n <- as.numeric(names(cri_dst))
+    cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
+    cri_dst <- cri_dst[!is.na(cri_dst)]
+    cri_n <- as.numeric(names(cri_dst))
+    cri_dst <- paste0("   ", pid_cri_l(cri_n), ": ", fmt(cri_dst), collapse = "\n")
+    summ <- paste0("\nSummary.\n",
+                   "Groups:     ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n",
+                   "Records:    ", fmt(tot), "\n",
+                   cri_dst, "\n"
+                   )
+    cat(summ)
+  }
+
+  if(display == "none") cat("Data linkage complete!\n")
+  pids
+}
+#' @export
+#' @rdname links
+sub_criteria <- function(..., funcs = NULL){
+  err <- err_sub_criteria_1(...)
+  if(err != F) stop(err, call. = F)
+
+  err <- err_sub_criteria_3dot_1(...)
+  if(err != F) stop(err, call. = F)
+
+  if(class(funcs) == "NULL"){
+    funcs <- list(function(x, y) x == y & !is.na(x) & !is.na(y))
+  }else{
+    if(class(funcs) != "list") funcs <- list(funcs)
+
+    err <- err_sub_criteria_2(funcs)
+    if(err != F) stop(err, call. = F)
+
+    err <- err_sub_criteria_3(funcs)
+    if(err != F) stop(err, call. = F)
+
+    err <- err_sub_criteria_4(..., funcs = funcs)
+    if(err != F) stop(err, call. = F)
+  }
+
+  if(length(funcs) == 1){
+    funcs <- rep(list(funcs), length(list(...)))
+    funcs <- unlist(funcs)
+    funcs_l <- 1
+  }else{
+    funcs_l <- length(funcs)
+  }
+
+  x <- function(x, y) list(x, y)
+  sub_cris <- mapply(x, list(...), funcs, SIMPLIFY = F)
+
+  err <- err_sub_criteria_5(sub_cris, funcs_l)
+  if(err != F) stop(err, call. = F)
+
+  err <- err_sub_criteria_6(sub_cris, funcs_l)
+  if(err != F) stop(err, call. = F)
+
+  attr(sub_cris, "sub_criteria") <- T
+  sub_cris
+}
+
+#' @export
+#' @rdname links
+range_matching <- function(x, tr_x){
+  overlap(as.number_line(x@gid), tr_x)
+}
+
+record_group_legacy <- function(df, sn=NULL, criteria,
+                                sub_criteria=NULL, strata = NULL, data_source = NULL,
+                                group_stats=FALSE, display=TRUE, to_s4 = TRUE){
 
   if(missing(df)) stop("argument 'df' is missing, with no default")
   if(missing(criteria)) stop("argument 'criteria' is missing, with no default")

@@ -9,8 +9,10 @@ df <- data.frame(
   r_id = c(1:5)
   )
 
+links <- diyar::links
+sub_criteria <- diyar::sub_criteria
 test_1 <- df
-test_1$pids <- record_group(df, criteria=cri_1, group_stats=TRUE)
+test_1$pids <- links(criteria = df$cri_1)
 
 test_that("Matching input and ouput rows", {
   expect_equal(test_1$pids@sn, test_1$r_id)
@@ -28,14 +30,14 @@ test_2b <- test_2a <- df
 test_2a$cri_1 <- ifelse(test_2a$cri_1=="A", NA, test_2a$cri_1 )
 test_2b$cri_1 <- ifelse(test_2b$cri_1=="A", "", test_2b$cri_1 )
 
-test_2a$pids <- record_group(test_2a, criteria = cri_1, group_stats = TRUE)
-test_2b$pids <- record_group(test_2b, criteria = cri_1, group_stats = TRUE)
+test_2a$pids <- links(criteria = test_2a$cri_1)
+test_2b$pids <- links(criteria = test_2b$cri_1)
 
-test_that("test that test blank space or NAs criteria are treated as unique record groups", {
+test_that("test that test `NAs` are treated as unique record groups", {
   expect_equal(test_2a$pids@.Data, c(1,2,3,2,5))
-  expect_equal(test_2b$pids@.Data, c(1,2,3,2,5))
+  #expect_equal(test_2b$pids@.Data, c(1,2,3,2,5))
   expect_equal(test_2a$pids@pid_total, c(1,2,1,2,1))
-  expect_equal(test_2b$pids@pid_total, c(1,2,1,2,1))
+  #expect_equal(test_2b$pids@pid_total, c(1,2,1,2,1))
 })
 
 # Test 3 - Decreasing order of certainty
@@ -51,8 +53,8 @@ test_3b <- test_3a
 
 test_3b$cri_1 <- ifelse(test_3b$r_id==7, NA, test_3b$cri_1 )
 
-test_3a$pids <- record_group(test_3a,r_id, c(cri_1, cri_2), group_stats = TRUE)
-test_3b$pids <- record_group(test_3b,r_id, c(cri_1, cri_2), group_stats = TRUE)
+test_3a$pids <- links(sn = test_3a$r_id, criteria = list(test_3a$cri_1, test_3a$cri_2))
+test_3b$pids <- links(sn = test_3b$r_id, criteria = list(test_3b$cri_1, test_3b$cri_2))
 
 test_that("test that record grouping with >1 criteria follows an order of decreasing certaintity", {
   expect_equal(test_3a$pids@.Data, c(6,2,6,4,2,6,6))
@@ -76,7 +78,9 @@ df_4a <- data.frame(
 )
 
 test_4a <- df_4a
-test_4a$pids <- record_group(df_4a,r_id, c(cri_1, cri_2), list(s2a=c("cri_2a","cri_2b","cri_2c")) , group_stats = TRUE)
+test_4a$pids <- links(sn = test_4a$r_id,
+                      criteria = list(test_4a$cri_1, test_4a$cri_2),
+                      sub_criteria = list(s2 = sub_criteria(test_4a$cri_2a, test_4a$cri_2b, test_4a$cri_2c)))
 
 test_that("test record grouping with 1 set of sub-criteria per criteria", {
   expect_equal(test_4a$pids@.Data, c(1,1,1,1,5,6,6))
@@ -98,7 +102,10 @@ df_5a <- data.frame(
 )
 
 test_5a <- df_5a
-test_5a$pids <- record_group(df_5a,r_id, c(cri_1, cri_2), list(s2a=c("cri_2a","cri_2b"), s2b=c("cri_2c","cri_2d")), group_stats = TRUE)
+test_5a$pids <- links(sn = df_5a$r_id,
+                      criteria = list(df_5a$cri_1, df_5a$cri_2),
+                      sub_criteria = list(s2 = sub_criteria(df_5a$cri_2a, df_5a$cri_2b),
+                                          s2 = sub_criteria(df_5a$cri_2c, df_5a$cri_2d)))
 
 test_that("test record grouping with >1 set of sub-criteria per criteria", {
   expect_equal(test_5a$pids@.Data, c(1,1,3,4,5,6,6))
@@ -110,7 +117,10 @@ test_that("test record grouping with >1 set of sub-criteria per criteria", {
 df_6a <- df_4a
 df_6a$dataset <- c("DS1","DS2","DS1","DS4","DS4","DS1","DS3")
 test_6a <- df_6a
-test_6a$pids <- record_group(df_6a,r_id, c(cri_1, cri_2), list(s2a=c("cri_2a","cri_2b","cri_2c")), data_source = dataset, group_stats = TRUE)
+test_6a$pids <- links(sn = df_6a$r_id,
+                      criteria = list(df_6a$cri_1, df_6a$cri_2),
+                      sub_criteria = list(s2 = sub_criteria(df_6a$cri_2a, df_6a$cri_2b, df_6a$cri_2c)),
+                      data_source = df_6a$dataset)
 
 test_that("test record grouping for deterministic linkage", {
   expect_equal(test_6a$pids@.Data, c(1,1,1,1,5,6,6))
@@ -131,8 +141,13 @@ df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5, df_7$age+5, gid 
 df_7$corrupt_range@gid[3] <- 205
 
 test_7b <- test_7 <- df_7
-test_7$pids <- record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE)
-test_7b$pids <- record_group(df_7, r_id, age_range, group_stats = TRUE)
+test_7$pids <- links(sn = df_7$r_id,
+                     criteria = df_7$cri_1,
+                     sub_criteria = list(s1 = sub_criteria(df_7$age_range, funcs = range_matching)))
+
+test_7b$pids <- links(sn = df_7$r_id,
+                      criteria = rep(1, nrow(df_7)),
+                      sub_criteria = list(s1 = sub_criteria(df_7$age_range, funcs = range_matching)))
 
 test_that("test record grouping using range matching in criteria", {
   expect_equal(test_7$pids@.Data, c(1,1,1,4,4,8,7,8,8,10,11,10,10,14,11))
@@ -146,31 +161,13 @@ test_that("test record grouping using range matching in sub_criteria", {
   expect_equal(test_7b$pids@pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
 })
 
-# Special case. An error i've created but can't test for some reason
-# try(record_group(df_7, r_id, cri_1, list(s1a="corrupt_range"), group_stats = TRUE), silent = TRUE)
-
-df_9 <- df_8 <- df_7
-df_8$r_id <- -df_8$r_id
-df_9$r_id <- c(1,1,3:15)
-
-test_that("test that error and warning messages are returned correctly", {
-  expect_error(record_group(as.list(df_7), r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "A dataframe is required")
-  expect_error(record_group(df_7, record_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'record_id' not found")
-  expect_error(record_group(df_7, r_id, criteria_1, list(s1a="age_range"), group_stats = TRUE), "'criteria_1' not found")
-  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_ranges"), group_stats = TRUE), "'age_ranges' not found")
-  #expect_error(record_group(df_8, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "'r_id' as 'sn' must be > 0")
-  #expect_error(record_group(df_9, r_id, cri_1, list(s1a="age_range"), group_stats = TRUE), "duplicate record indentifier ('sn') in indexes c(1,2)")
-  expect_error(record_group(df_7, r_id, cri_1, list(s1a="age_range"), group_stats = "TRUE", display = "T", to_s4 = "T"), "'group_stats', 'display' and 'to_s4' must be either TRUE or FALSE")
-})
-
-
 dfs <- diyar::infections
-pids <- record_group(dfs, criteria = infection, to_s4 = TRUE)
+pids <- links(criteria = dfs$infection)
 
 test_that("test pid methods", {
-  expect_equal(show(pids), c("P.1 (CRI 01)","P.2 (CRI 01)","P.2 (CRI 01)","P.2 (CRI 01)",
-                             "P.1 (CRI 01)","P.2 (CRI 01)","P.1 (CRI 01)","P.1 (CRI 01)",
-                             "P.9 (CRI 01)","P.9 (CRI 01)","P.1 (CRI 01)"))
+  expect_equal(show(pids), c("P.1 (CRI 001)","P.2 (CRI 001)","P.2 (CRI 001)","P.2 (CRI 001)",
+                             "P.1 (CRI 001)","P.2 (CRI 001)","P.1 (CRI 001)","P.1 (CRI 001)",
+                             "P.9 (CRI 001)","P.9 (CRI 001)","P.1 (CRI 001)"))
   expect_equal(rep(pids,2), rep(pids,2))
   expect_equal(unique(pids), unique(pids))
 })
@@ -180,10 +177,3 @@ test_that("test some generic functions", {
   expect_equal(show(new("pid")), "pid(0)")
   expect_equal(c(as.pid(5), as.pid(5)), rep(as.pid(5), 2))
 })
-
-
-test_that("Missing arguments", {
-  expect_error(record_group(), "argument 'df' is missing, with no default")
-  expect_error(record_group(mtcars), "argument 'criteria' is missing, with no default")
-})
-
