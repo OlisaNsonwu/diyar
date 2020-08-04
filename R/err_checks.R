@@ -38,7 +38,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     recurrence_length = c("list", "numeric", "number_line"),
     episodes_max = c("numeric","integer"),
     rolls_max = c("numeric","integer"),
-    display = "character",
+    display = c("character", "logical"),
     episode_unit = "character",
     data_source = "character",
     data_links = c("list", "character"),
@@ -241,13 +241,9 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
   check_args_missing_vals <- function(x){
     chks <- diyar:::missing_check(get(x))
 
-    err_title <-  ifelse(class(get(x))=="logical",
-                         paste0("`", x, "` must be `TRUE` or `FALSE`."),
-                         "")
-
     err_title <-  ifelse(grepl("^case_length_", x),
                          paste0("Element ", gsub("^case_length_", "", x), " in `case_length` must not contain missing values"),
-                         err_title)
+                         "")
 
     err_title <-  ifelse(grepl("^recurrence_length_", x),
                          paste0("Element ", gsub("^recurrence_length_", "", x), " in `recurrence_length` must not contain missing values"),
@@ -513,6 +509,26 @@ err_sub_criteria_5 <- function(sub_cris, funcs_l){
 err_sub_criteria_6 <- function(sub_cris, funcs_l){
   err <- lapply(sub_cris, function(x){
     func <- x[[2]]
+    ifelse(all(c("x", "tr_x") %in% formalArgs(func)), NA_character_, F)
+  })
+
+  err <- unlist(err, use.names = F)
+  names(err) <- 1:length(err)
+  err <- err[!is.na(err)]
+  if(length(err) > 0){
+    err <- paste0("Invalid arguments for `funcs`:\n",
+                  "i - Each `funcs` must have at lest two arguments named `x` and `tr_x`.\n",
+                  paste0("X - ",
+                         ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs[", names(err), "]`")),": Missing `args` `x` or `tr_x`.", collapse = "\n"))
+    err
+  }else{
+    F
+  }
+}
+
+err_sub_criteria_7 <- function(sub_cris, funcs_l){
+  err <- lapply(sub_cris, function(x){
+    func <- x[[2]]
     vec <- x[[1]]
     x <- class(func(vec[1], vec[1]))
     ifelse(x == "logical", NA_character_, x)
@@ -616,14 +632,31 @@ err_criteria_2 <- function(criteria){
   names(err) <- 1:length(err)
   err <- err[!duplicated(err)]
 
-  if(length(err) > 1){
-    paste0("Length of each `criteria` must be the same:\n",
+  if(!min(err) %in% c(1, max(err)) ){
+    paste0("Length of each `criteria` must be the same or equal to 1:\n",
            paste0("X - `criteria ", names(err),"` is ", err,".", collapse = "\n"))
   }else{
     F
   }
 }
 
+err_criteria_3 <- function(criteria, sub_criteria){
+  if(class(criteria) != "list") criteria <- list(criteria)
+
+  err <- as.numeric(lapply(criteria, length))
+  err2 <- as.numeric(lapply(sub_criteria, function(x){
+    sapply(x, function(x){
+      length(x[[1]]) })
+    }))
+  err <- c(err, unlist(err2, use.names = F))
+  #err <- err[!duplicated(err)]
+
+  if(!min(err) %in% c(1, max(err)) ){
+    "Length of each `criteria` and `sub_criteria` must be the same or equal to 1"
+  }else{
+    F
+  }
+}
 err_sub_criteria_3dot_1 <- function(...){
   args <- list(...)
   err <- lapply(args, length)
@@ -631,8 +664,8 @@ err_sub_criteria_3dot_1 <- function(...){
   names(err) <- 1:length(err)
   err <- err[!duplicated(err)]
 
-  if(length(err) > 1){
-    paste0("Length of each `sub_criteria` must be the same:\n",
+  if(length(err) != 1 | all(err == 0)){
+    paste0("Length of each `sub_criteria` must be the same or equal to 1:\n",
            paste0("X - `sub_criteria ", names(err),"` is ", err,".", collapse = "\n"))
   }else{
     F

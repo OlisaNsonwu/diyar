@@ -2,22 +2,16 @@
 % Please edit documentation in R/record_group.R
 \name{links}
 \alias{links}
-\alias{sub_criteria}
-\alias{range_matching}
 \title{Multistage deterministic record linkage}
 \usage{
 links(criteria, sub_criteria = NULL, sn = NULL, strata = NULL,
   to_s4 = TRUE, data_source = NULL, data_links = "ANY",
   display = "progress")
-
-sub_criteria(..., funcs = NULL)
-
-range_matching(x, tr_x)
 }
 \arguments{
 \item{criteria}{\code{list} of attributes to compare. Comparison is done as an exact match i.e. (\code{==}). See \code{Details}.}
 
-\item{sub_criteria}{\code{list} of additional attributes to compare. Comparison is done as an exact match or a user defined \code{function}. See \code{Details}..}
+\item{sub_criteria}{\code{list} of additional attributes to compare. Comparison is done as an exact match or a user defined \code{function}. See \code{\link{sub_criteria}}}
 
 \item{sn}{Unique numerical record identifier. Useful for creating familiar episode identifier. Optional.}
 
@@ -50,10 +44,10 @@ Link records with matching criteria with different levels of relevance.
 }
 \details{
 \bold{\code{links()}} performs an ordered multi-staged deterministic linkage.
-The order (relevance/priority) is determined by the order of in which each \code{criteria} is listed.
+The order (relevance/priority) of this is determined by the order of in which each \code{criteria} is listed.
 
-\code{sub_criteria} specifies additional matching conditions at each stage (\code{criteria}) of the process.
-If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are grouped together.
+\code{sub_criteria} specifies additional matching conditions for each stage (\code{criteria}) of the process.
+If \code{sub_criteria} is not \code{NULL}, only records with a matching \code{criteria} and \code{sub_criteria} are grouped together.
 If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 If there are no matches for a record at every stage, that record is assigned a unique group ID.
 
@@ -71,55 +65,37 @@ Its current implementation only exists to support existing code with minimal dis
 }
 \examples{
 library(diyar)
-three_people <- data.frame(forename=c("Obinna","James","Ojay","James","Obinna"),
-                           stringsAsFactors = FALSE)
+# Exact match
+links(criteria = c("Obinna","James","Ojay","James","Obinna"))
 
-three_people$pids_a <- record_group(three_people, criteria= forename, to_s4 = TRUE)
-three_people
+# Use defined tests - `sub_criteria()`
+# Matching `sex` an + 20-year age gaps
+age <- c(30,28,40,25,25,29,27)
+sex <- c("M","M","M","F","M","M","F")
+f1 <- function(x, tr_x) (tr_x - x) \%in\% 0:20
+links(criteria = sex,
+      sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f1)))
 
-# To handle missing or unknown data, recode missing or unknown values to NA or "".
-three_people$forename[c(1,4)] <- NA
-three_people$pids_b <- record_group(three_people, criteria= forename, to_s4 =TRUE)
-three_people
+# Matching `sex` an +/- 20-year age gaps
+f2 <- function(x, tr_x) abs(tr_x - x) \%in\% abs(0:20)
+links(criteria = sex,
+      sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f2)))
 
+# Multistage linkage
+# Relevance of matches: `forename` > `surname`
 data(staff_records); staff_records
+links(staff_records,
+      criteria = list(staff_records$forename, staff_records$surname),
+      data_source = staff_records$sex)
 
-# Range matching
-dob <- staff_records["sex"]
-dob$age <- c(30,28,40,25,25,29,27)
-
-# age range: age + 20 years
-dob$range_a <- number_line(dob$age, dob$age+20, gid=dob$age)
-dob$pids_a <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range_a"), to_s4 = TRUE)
-dob[c("sex","age","range_a","pids_a")]
-
-# age range: age +- 20 years
-dob$range_b <- number_line(dob$age-20, dob$age+20, gid=dob$age)
-dob$pids_b <- record_group(dob, criteria = sex, sub_criteria = list(s1a="range_b"), to_s4 = TRUE)
-dob[c("sex","age","range_b","pids_b")]
-
-dob$pids_c <- record_group(dob, criteria = range_b, to_s4 = TRUE)
-dob[c("age","range_b","pids_c")]
-
-
-# Multistage record grouping
-staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
-                                     data_source = sex, display = FALSE, to_s4 = TRUE)
-staff_records
-
-# Add `sex` to the second stage (`cri`) to be more certain
-staff_records$cri_2 <- paste0(staff_records$surname,"-", staff_records$sex)
-staff_records$pids_b <- record_group(staff_records, r_id, c(forename, cri_2),
-                                     data_source = dataset, display = FALSE, to_s4 = TRUE)
-staff_records
-
-# Using sub-criteria
+# Relevance of matches:
+# `staff_id` > `age` AND (`initials`, `hair_colour` or `branch_office`)
 data(missing_staff_id); missing_staff_id
-
-missing_staff_id$pids <- record_group(missing_staff_id, r_id, c(staff_id, age),
-list(s2a=c("initials","hair_colour","branch_office")), data_source = source_1, to_s4 = TRUE)
-
-missing_staff_id
+links(criteria = list(missing_staff_id$staff_id, missing_staff_id$age),
+      sub_criteria = list(s2=sub_criteria(missing_staff_id$initials,
+                                          missing_staff_id$hair_colour,
+                                          missing_staff_id$branch_office)),
+      data_source = missing_staff_id$source_1)
 }
 \seealso{
 \code{\link{episodes}} and \code{\link{number_line}}

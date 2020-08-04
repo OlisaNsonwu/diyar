@@ -8,6 +8,9 @@ New features
 -   Better support for `Inf` in `number_line` objects.
 -   Multiple `case_lengths` or `recurrence_lengths` for the same event.
 -   Multiple sets of `overlap_method` for the corresponding `case_lengths` and `recurrence_lengths`.
+-   New function - `links()` to replace `record_group()`
+-   New function - `sub_criteria()` for use with `links()`
+-   New function - `range_matching()` for use with `sub_criteria()`
 
 Changes
 -------
