@@ -39,7 +39,7 @@
 #' By default, records are compared as an exact match i.e. the equivalent of \code{(==)} however, user defined functions are also permitted.
 #' The function must be able to compare two atomic vectors,
 #' return only \code{TRUE} or \code{FALSE},
-#' and have two arguments - \code{x} for the attribute and \code{tr_x} for what it'll be compared against.
+#' and have two arguments - \code{x} for the attribute and \code{y} for what it'll be compared against.
 #'
 #' A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
 #'
@@ -58,12 +58,12 @@
 #' # Matching `sex` an + 20-year age gaps
 #' age <- c(30,28,40,25,25,29,27)
 #' sex <- c("M","M","M","F","M","M","F")
-#' f1 <- function(x, tr_x) (tr_x - x) %in% 0:20
+#' f1 <- function(x, y) (y - x) %in% 0:20
 #' links(criteria = sex,
 #'       sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f1)))
 #'
 #' # Matching `sex` an +/- 20-year age gaps
-#' f2 <- function(x, tr_x) abs(tr_x - x) %in% abs(0:20)
+#' f2 <- function(x, y) abs(y - x) %in% abs(0:20)
 #' links(criteria = sex,
 #'       sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f2)))
 #'
@@ -111,7 +111,7 @@ links <- function(criteria,
   if(err != F) stop(err, call. = F)
 
   ds_len <- as.numeric(lapply(criteria, length))
-  ds_len_b <- as.numeric(lapply(sub_criteria, function(x){
+  ds_len_b <- as.numeric(sapply(sub_criteria, function(x){
     sapply(x, function(x){
       length(x[[1]]) })
   }))
@@ -194,9 +194,9 @@ links <- function(criteria,
         sub_cri_match <- sapply(curr_sub_cri, function(set){
           set_match <- sapply(set, function(a){
             x <- a[[1]][match(pr_sn, 1:ds_len)]
-            tr_x <- rep(x[which(names(cri) %in% p)], r$lengths)
+            y <- rep(x[which(names(cri) %in% p)], r$lengths)
             f <- a[[2]]
-            lgk <- as.numeric(f(x, tr_x))
+            lgk <- as.numeric(f(x, y))
             ifelse(is.na(lgk), 0, lgk)
           })
           ifelse(rowSums(set_match) > 0, 1, 0)
@@ -347,8 +347,8 @@ links <- function(criteria,
 #' \bold{\code{sub_criteria()}} is the mechanism for providing a subcriteria to an instance of \bold{\code{links()}}.
 #'
 #' Each attribute (\code{atomic}) is compared as an exact match or with a user defined logical test.
-#' The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`tr_x`},
-#' where \code{`tr_x`} is the attribute for one observation being compared against all other attributes (\code{`x`}).
+#' The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`y`},
+#' where \code{`y`} is the attribute for one observation being compared against all other attributes (\code{`x`}).
 #'
 #' Each attribute must have the same length.
 #'
@@ -426,8 +426,8 @@ sub_criteria <- function(..., funcs = NULL){
 #' range_matching(10, 16, range = 6)
 #' range_matching(16, 10, range = 6)
 #' @export
-range_matching <- function(x, tr_x, range = 10){
-  (tr_x - x <= range) & (tr_x - x >= 0)
+range_matching <- function(x, y, range = 10){
+  (y - x <= range) & (y - x >= 0)
 }
 
 record_group_legacy <- function(df, sn=NULL, criteria,
@@ -705,4 +705,11 @@ record_group_legacy <- function(df, sn=NULL, criteria,
   cat(paste(pd,"Record grouping complete: ",fmt(removed + (total_1-tagged_1))," record(s) with a unique ID. \n" , sep =""))
   if(to_s4) df <- diyar::to_s4(df)
   df
+}
+
+#' @rdname links
+#' @export
+record_group <- function(df, ...){
+  args <- as.list(substitute(...()))
+  bridge_record_group(df=df, args=args)
 }

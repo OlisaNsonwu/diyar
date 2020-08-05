@@ -1,4 +1,4 @@
-bridge_episode_group <- function(df, args){
+bridge_record_group <- function(df, args){
 
   if(class(df) != "data.frame"){
     stop(paste0("`df` must be a `data.frame`:\n",
@@ -6,7 +6,7 @@ bridge_episode_group <- function(df, args){
   }
 
   # Missing args ####
-  errs <- lapply(c("date", "case_length"), function(x){
+  errs <- lapply("criteria", function(x){
     if(!x %in% names(args)){
       paste0("argument \"", x,"\" is missing, with no default")
     }else{
@@ -18,12 +18,13 @@ bridge_episode_group <- function(df, args){
   if(length(errs) > 0) stop(errs[1], call. = F)
 
   # Check for cols in data.frame ####
-  cols <- c("sn", "case_length", "recurrence_length",
-            "skip_order", "date", "overlap_methods")
+  cols <- c("sn")
   multi_cols <- c("data_source", "strata")
-  csort_col <- "custom_sort"
 
-  errs <- args[names(args)  %in% c(cols, multi_cols, csort_col)]
+  errs <- args[names(args) %in% unique(c(cols,
+                                         multi_cols,
+                                         enq_vr(args[names(args) == "criteria"][[1]]),
+                                         unlist(args[names(args) == "sub_criteria"])))]
   errs <- lapply(errs, function(x){
     x <- enq_vr(x)
     if(all(as.character(x) %in% c("NULL", "Inf", "TRUE", "FALSE"))){
@@ -45,18 +46,28 @@ bridge_episode_group <- function(df, args){
                 "X - `",errs[1], "` not found in `df`."), call. = F)
   }
 
-  # Pass args to `episodes()` ####
+  # Pass args to `links()` ####
   # Extract atomic vectors from `df`
   cols_args <- args[names(args)  %in% cols]
   cols_args <- lapply(cols_args, function(x){
     if(all(as.character(x) %in% c("NULL", "Inf", "TRUE", "FALSE"))){
       NA_character_
     }else{
-      paste0("df$",x)
+      paste0("df$", x)
     }
   })
   cols_args <- unlist(cols_args, use.names = T)
   cols_args <- cols_args[!is.na(cols_args)]
+
+  # Criteria
+  cri_args <- enq_vr(args[names(args) == "criteria"][[1]])
+
+  # Sub Criteria
+  sub_cri_args <- eval(args[names(args) == "sub_criteria"][[1]])
+  sub_cri_args <- lapply(1:length(sub_cri_args), function(x){
+    paste0(names(sub_cri_args[x]), " = sub_criteria(", paste0("df$", sub_cri_args[[x]], collapse = ", "), ")")
+  })
+  sub_cri_args <- as.character(sub_cri_args)
 
   # strata and data_source columns
   multi_args <- args[names(args)  %in% multi_cols]
@@ -74,34 +85,14 @@ bridge_episode_group <- function(df, args){
   })
   multi_args <- multi_args[!is.na(multi_args)]
 
-  # Handle - custom_sort
-  csort_args <- args[names(args)  %in% csort_col]
-  csort_cols <- enq_vr(csort_args[[1]])
-  if(is.null(csort_cols)){
-    csort_txt <- "custom_sort = eval(csort_args$custom_sort)"
-  }else if(length(csort_cols) > 1){
-    srd <- lapply(csort_cols, function(x){
-      x <- as.numeric(as.factor(df[[x]]))
-      formatC(x, width= nchar(max(x)), flag=0, format = "fg")
-      })
-
-      names(srd) <- csort_cols
-      srd <- as.data.frame(srd, stringsAsFactors = F)
-      srd <- eval(parse(text = paste0("paste0(",paste0("srd$", csort_cols, collapse = ",'-',"),")")))
-      srd <- as.numeric(as.factor(srd))
-      csort_txt <- "custom_sort = eval(srd)"
-  }else{
-    csort_txt <- paste0("custom_sort = eval(", paste0("df$", csort_cols), ")")
-  }
-
   # The rest can go through as they are
-  remainder <- args[!names(args) %in% c(names(cols_args), names(multi_args), csort_col)]
+  remainder <- args[!names(args) %in% c(names(cols_args), names(multi_args), "criteria", "sub_criteria")]
+
   args <- ""
   if(length(cols_args) > 0){
     cols_args <- paste0(names(cols_args), " = ", cols_args, collapse = ", ")
     args <- cols_args
   }
-  args <- cols_args
   if(length(remainder) > 0){
     rest_txt <- paste0(names(remainder), " = eval(remainder$", names(remainder), ")", collapse = ", ")
     args <- paste0(args, ", ", rest_txt)
@@ -110,16 +101,22 @@ bridge_episode_group <- function(df, args){
     multi_txt <- paste0(names(multi_args), " = eval(multi_args$", names(multi_args), ")", collapse = ", ")
     args <- paste0(args, ", ", multi_txt)
   }
-  if(length(csort_cols) > 0){
-    args <- paste0(args, ", ", csort_txt)
+
+  if(length(cri_args) > 0){
+    cri_args <- paste0("criteria = list(", paste0("df$", cri_args, collapse = ", "), ")")
+    args <- paste0(args, ", ", cri_args)
+  }
+  if(length(sub_cri_args) > 0){
+    sub_cri_args <- paste0("sub_criteria = list(", sub_cri_args,")", collapse = ",")
+    args <- paste0(args, ", ", sub_cri_args)
   }
 
   # Pass to `episodes`
-  args <- paste0("diyar:::episodes(", args, ")" )
+  args <- paste0("diyar:::links(", gsub("^,", "", args), ")" )
   # Eval
   eval(parse(text=args))
   # Warn
-  warning(paste0("`episode_group()` has been retired!:\n",
-                 "i - Please use `episodes()`, `fixed_episodes()` or `rolling_episodes()` instead.\n",
-                 "i - Your values were passed to `episodes()`."), call. = F)
+  warning(paste0("`record_group()` has been retired!:\n",
+                 "i - Please use `links()` instead.\n",
+                 "i - Your values were passed to `links()`."), call. = F)
 }

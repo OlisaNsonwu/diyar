@@ -495,7 +495,7 @@ err_sub_criteria_5 <- function(sub_cris, funcs_l){
   if(length(err) > 0){
     err <- paste0("Unable to evaluate `funcs` with `...`:\n",
                   "i - Each `func` must have the following syntax and output.\n",
-                  "i - Syntax ~ `func(x, tr_x, ...)`.\n",
+                  "i - Syntax ~ `func(x, y, ...)`.\n",
                   "i - Output ~ `TRUE` or `FALSE`.\n",
                   paste0("X - Issue with ",
                          ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs[", names(err), "]`") ),": ",
@@ -509,7 +509,7 @@ err_sub_criteria_5 <- function(sub_cris, funcs_l){
 err_sub_criteria_6 <- function(sub_cris, funcs_l){
   err <- lapply(sub_cris, function(x){
     func <- x[[2]]
-    ifelse(all(c("x", "tr_x") %in% formalArgs(func)), NA_character_, F)
+    ifelse(all(c("x", "y") %in% formalArgs(func)), NA_character_, F)
   })
 
   err <- unlist(err, use.names = F)
@@ -517,9 +517,9 @@ err_sub_criteria_6 <- function(sub_cris, funcs_l){
   err <- err[!is.na(err)]
   if(length(err) > 0){
     err <- paste0("Invalid arguments for `funcs`:\n",
-                  "i - Each `funcs` must have at lest two arguments named `x` and `tr_x`.\n",
+                  "i - Each `funcs` must have at lest two arguments named `x` and `y`.\n",
                   paste0("X - ",
-                         ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs[", names(err), "]`")),": Missing `args` `x` or `tr_x`.", collapse = "\n"))
+                         ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs[", names(err), "]`")),": Missing `args` `x` or `y`.", collapse = "\n"))
     err
   }else{
     F
@@ -644,7 +644,7 @@ err_criteria_3 <- function(criteria, sub_criteria){
   if(class(criteria) != "list") criteria <- list(criteria)
 
   err <- as.numeric(lapply(criteria, length))
-  err2 <- as.numeric(lapply(sub_criteria, function(x){
+  err2 <- as.numeric(sapply(sub_criteria, function(x){
     sapply(x, function(x){
       length(x[[1]]) })
     }))

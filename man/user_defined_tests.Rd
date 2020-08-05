@@ -5,7 +5,7 @@
 \alias{range_matching}
 \title{User defined tests}
 \usage{
-range_matching(x, tr_x, range = 10)
+range_matching(x, y, range = 10)
 }
 \description{
 Collection of user defined tests for \code{\bold{\link{sub_criteria}}}

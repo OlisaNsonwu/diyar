@@ -21,8 +21,8 @@ Additional \code{sub_criteria} for each matching \code{criteria} in \code{\link{
 \bold{\code{sub_criteria()}} is the mechanism for providing a subcriteria to an instance of \bold{\code{links()}}.
 
 Each attribute (\code{atomic}) is compared as an exact match or with a user defined logical test.
-The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`tr_x`},
-where \code{`tr_x`} is the attribute for one observation being compared against all other attributes (\code{`x`}).
+The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`y`},
+where \code{`y`} is the attribute for one observation being compared against all other attributes (\code{`x`}).
 
 Each attribute must have the same length.
 

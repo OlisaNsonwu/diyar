@@ -2,11 +2,14 @@
 % Please edit documentation in R/record_group.R
 \name{links}
 \alias{links}
+\alias{record_group}
 \title{Multistage deterministic record linkage}
 \usage{
 links(criteria, sub_criteria = NULL, sn = NULL, strata = NULL,
   to_s4 = TRUE, data_source = NULL, data_links = "ANY",
   display = "progress")
+
+record_group(df, ...)
 }
 \arguments{
 \item{criteria}{\code{list} of attributes to compare. Comparison is done as an exact match i.e. (\code{==}). See \code{Details}.}
@@ -54,7 +57,7 @@ If there are no matches for a record at every stage, that record is assigned a u
 By default, records are compared as an exact match i.e. the equivalent of \code{(==)} however, user defined functions are also permitted.
 The function must be able to compare two atomic vectors,
 return only \code{TRUE} or \code{FALSE},
-and have two arguments - \code{x} for the attribute and \code{tr_x} for what it'll be compared against.
+and have two arguments - \code{x} for the attribute and \code{y} for what it'll be compared against.
 
 A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
 
@@ -72,12 +75,12 @@ links(criteria = c("Obinna","James","Ojay","James","Obinna"))
 # Matching `sex` an + 20-year age gaps
 age <- c(30,28,40,25,25,29,27)
 sex <- c("M","M","M","F","M","M","F")
-f1 <- function(x, tr_x) (tr_x - x) \%in\% 0:20
+f1 <- function(x, y) (y - x) \%in\% 0:20
 links(criteria = sex,
       sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f1)))
 
 # Matching `sex` an +/- 20-year age gaps
-f2 <- function(x, tr_x) abs(tr_x - x) \%in\% abs(0:20)
+f2 <- function(x, y) abs(y - x) \%in\% abs(0:20)
 links(criteria = sex,
       sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f2)))
 
