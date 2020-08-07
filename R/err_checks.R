@@ -2,7 +2,6 @@
 #
 # @description Data validations
 #
-
 err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max, episode_unit, data_links,
                             overlap_methods, skip_order, custom_sort, group_stats, from_last, data_source,
                             include_index_period, bi_direction, skip_if_b4_lengths, deduplicate,

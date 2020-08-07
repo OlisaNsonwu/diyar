@@ -91,7 +91,8 @@ links <- function(criteria,
                   to_s4 = TRUE,
                   data_source = NULL,
                   data_links = "ANY",
-                  display = "progress"){
+                  display = "progress",
+                  group_stats = F){
 
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
   if(err != F) stop(err, call. = F)
@@ -289,14 +290,17 @@ links <- function(criteria,
   tmp_pos <- pr_sn
   fd <- match(1:length(pid), tmp_pos)
 
-  r <- rle(sort(pid))
   pid_f <- pid[fd]
   pids <- methods::new("pid",
                .Data = pid_f,
                sn = sn[fd],
                pid_cri = pid_cri[fd],
-               link_id = link_id[fd],
-               pid_total = r$lengths[match(pid_f, r$values)])
+               link_id = link_id[fd])
+
+  if(group_stats == T){
+    r <- rle(sort(pid))
+    pids@pid_total = r$lengths[match(pid_f, r$values)]
+  }
 
   if(!is.null(data_source)){
     data_source <- data_source[match(pr_sn[fd], 1:length(pids))]
@@ -711,5 +715,13 @@ record_group_legacy <- function(df, sn=NULL, criteria,
 #' @export
 record_group <- function(df, ...){
   args <- as.list(substitute(...()))
+  if (length(names(args)[names(args) == ""] > 0)){
+    err <- paste0("Every argument must be specified:\n",
+           "i- `record_group()` has been retired!\n",
+           "i - Your values will be passed to `links()`.\n",
+           "i - Please specify any argument you've use.")
+    stop(err, call. = F)
+  }
+
   bridge_record_group(df=df, args=args)
 }
