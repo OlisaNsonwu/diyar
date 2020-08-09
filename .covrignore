@@ -1,1 +1,5 @@
-R/in_development.R
+R/dev_funcs.R
+R/retired_funcs.R
+R/conv_funcs.R
+R/err_checks.R
+
