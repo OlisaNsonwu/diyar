@@ -10,6 +10,28 @@ epid_windows(date, lengths)
 
 epid_lengths(date, windows)
 }
+\value{
+\code{\link{number_line}}.
+}
 \description{
-XXXX
+Interpret \code{windows}, \code{case_lengths} and \code{recurrence_lengths} as used in \code{\link{episodes}}.
+}
+\details{
+\bold{\code{epid_windows}} - returns the corresponding period for a given a \code{date}, and \code{case_length} or \code{recurrence_length}.
+\bold{\code{epid_lengths}} - returns the corresponding \code{case_length} or \code{recurrence_length} for a given \code{date} and period.
+}
+\examples{
+library(diyar)
+
+`epid_windows`
+epid_windows(Sys.Date(), 10)
+epid_windows(Sys.Date(), number_line(5, 10))
+epid_windows(Sys.Date(), number_line(-5, 10))
+epid_windows(Sys.Date(), -5)
+
+`epid_lengths`
+epid_lengths(number_line(01, 20), 30)
+epid_lengths(number_line(01, 20), number_line(25, 30))
+epid_lengths(number_line(01, 20), number_line(-10, 30))
+epid_lengths(number_line(01, 20), -10)
 }

@@ -354,7 +354,7 @@ invert_number_line <- function(x, point ="both"){
 
 compress_number_line <- function(x, method = c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap","none"), collapse =FALSE, deduplicate = TRUE, methods = "overlap"){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
+  if(!diyar::is.number_line(x)) stop(paste("`x` must be a `number_line` object."))
   if(length(x)==0) return(x)
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(!(is.logical(collapse) & is.logical(deduplicate) )) stop(paste("'collapse' and 'deduplicate' must be TRUE or FALSE"))

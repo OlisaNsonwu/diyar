@@ -13,16 +13,18 @@ episodes(date, sn = NULL, strata = NULL, case_length,
   skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
   custom_sort = NULL, skip_order = Inf, from_last = FALSE,
   overlap_methods = "overlap", bi_direction = FALSE,
-  group_stats = TRUE, display = "none", deduplicate = FALSE,
-  to_s4 = TRUE, recurrence_from_last = TRUE,
-  case_for_recurrence = FALSE, include_index_period = TRUE, x,
-  overlap_method = "overlap")
+  group_stats = TRUE, display = "none", recurrence_from_last = TRUE,
+  case_for_recurrence = FALSE, include_index_period = TRUE)
 
-fixed_episodes(..., episode_type = "fixed")
+fixed_episodes(..., date, episode_type = "fixed", to_s4 = T,
+  overlap_methods = "overlap", deduplicate = F, display = "progress",
+  overlap_method = "overlap", x)
 
-rolling_episodes(..., episode_type = "rolling")
+rolling_episodes(..., date, episode_type = "rolling", to_s4 = T,
+  overlap_methods = "overlap", deduplicate = F, display = "progress",
+  overlap_method = "overlap", x)
 
-episode_group(df, ...)
+episode_group(df, ..., episode_type = "fixed")
 }
 \arguments{
 \item{date}{Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).}
@@ -65,10 +67,6 @@ This is the recurrence window. If \code{NULL} (default), it's assumed to be the 
 
 \item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
 
-\item{deduplicate}{if \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
-
-\item{to_s4}{If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.}
-
 \item{recurrence_from_last}{If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
 If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.}
 
@@ -77,7 +75,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{include_index_period}{If \code{TRUE}, overlaps with the index event or period are grouped together even if they are outside the cut-off period.}
 
-\item{x}{Record date or interval. Deprecated. Please use \code{date}}
+\item{to_s4}{If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.}
 
 \item{overlap_method}{Deprecated. Please use \code{overlap_methods}. Methods of overlap considered when tacking event. All event are checked by the same set of \code{overlap_method}.}
 
@@ -96,7 +94,6 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item \code{case_nm} - record type in regards to case assignment
 \item \code{dist_from_wind} - duration of each event from its window's reference event
 \item \code{dist_from_epid} - duration of each event from its episode's reference event
-\item \code{epid_total} - number of records in each episode
 \item \code{epid_dataset} - data sources in each episode
 \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
 \item \code{epid_length} - difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
@@ -114,7 +111,7 @@ A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_l
 However, a \code{"rolling"} episode can continue to recur therefore, its maximum duration is variable.
 A \code{"rolling"} episode will last as long as is permitted (\code{rolls_max}) and there's an event within its period of recurrence (\code{recurrence_length}).
 
-\bold{\code{episodes()}} will group every record into 5 type of events;
+\bold{\code{diyar::episodes()}} will group every record into 5 type of events;
 
 \itemize{
 \item \code{"Case"} - Index case of the episode.
@@ -131,9 +128,9 @@ A \code{"rolling"} episode will last as long as is permitted (\code{rolls_max}) 
 \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
 
 \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
+Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{diyar::episodes()}} moving forward.
 
-\bold{\code{fixed_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
+\bold{\code{fixed_diyar::episodes()}} and \bold{\code{rolling_diyar::episodes()}} are wrapper functions for two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
 They exist for convenience and to support existing code with minimal disruption.
 }
 \examples{
@@ -146,13 +143,13 @@ db_1$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Fixed episodes
 # One 16-day (15-day difference) episode per patient
-db_1$epids_p <- fixed_episodes(date=db_1$date,
+db_1$epids_p <- fixed_diyar::episodes(date=db_1$date,
                                strata = db_1$patient_id,
                                case_length = 15,
                                episodes_max = 1)
 # Rolling episodes
 # Case length of 16 days and recurrence periods of 11 days
-db_1$rd_b <- rolling_episodes(db_1$date,
+db_1$rd_b <- rolling_diyar::episodes(db_1$date,
                               case_length = 15,
                               recurrence_length = 10)
 
@@ -162,7 +159,7 @@ hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 admissions <- hospital_admissions[c("admin_period","epi_len")]
 
 # Episodes of overlaping periods of admission
-hospital_admissions$epids_i<- fixed_episodes(date=hospital_admissions$admin_period,
+hospital_admissions$epids_i<- fixed_diyar::episodes(date=hospital_admissions$admin_period,
                                             case_length = 0,
                                             overlap_methods = "inbetween")
 

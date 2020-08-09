@@ -112,40 +112,40 @@ test_that("test changing the number line", {
 })
 
 test_that("test that error and warning messages are returned correctly", {
-  expect_warning(number_line(50, "200"), "'l' and 'r' have different classes. It may need to be reconciled")
-  expect_error(reverse_number_line(1), "'x' is not a number_line object")
-  expect_error(shift_number_line(1), "'x' is not a number_line object")
+  expect_warning(number_line(50, "200"), "`l` and `r` have different classes. They may need to be reconciled")
+  expect_error(reverse_number_line(1), "`x` must be a `number_line` object.")
+  expect_error(shift_number_line(1), "`x` must be a `number_line` object.")
   #expect_error(shift_number_line(number_line(5,6), "A"), "'by' must be a numeric based object of length 1")
-  expect_error(expand_number_line(1), "'x' is not a number_line object")
+  expect_error(expand_number_line(1), "`x` must be a `number_line` object.")
   #expect_error(expand_number_line(number_line(5,6), "A"), "'by' must be a numeric based object of length 1")
   expect_error(expand_number_line(number_line(5,6), 1, 1), "'point' must be a character object")
   expect_error(expand_number_line(number_line(5,6), 1, "AA"), "`point` must be either 'left', 'right', 'start', 'end' or 'both'")
-  expect_error(left_point(1), "'x' is not a number_line object")
-  expect_error(right_point(1), "'x' is not a number_line object")
-  expect_error(start_point(1), "'x' is not a number_line object")
-  expect_error(end_point(1), "'x' is not a number_line object")
-  expect_error(number_line_width(1), "'x' is not a number_line object")
+  expect_error(left_point(1), "`x` must be a `number_line` object.")
+  expect_error(right_point(1), "`x` must be a `number_line` object.")
+  expect_error(start_point(1), "`x` must be a `number_line` object.")
+  expect_error(end_point(1), "`x` must be a `number_line` object.")
+  expect_error(number_line_width(1), "`x` must be a `number_line` object.")
   expect_error(reverse_number_line(number_line(10,100), c("both","increasing")), "'direction' must be a character of length 1")
   expect_error(reverse_number_line(number_line(10,100), "increased"), "`direction` must be either 'increasing', 'decreasing' or 'both'")
-  expect_warning(number_line(50, "20A"), "'l' and 'r' have different classes. It may need to be reconciled")
-  expect_warning(number_line(50, "20A"), "NAs introduced by coercion")
-
-  expect_warning(number_line("10A", 20), "'l' and 'r' have different classes. It may need to be reconciled")
-  expect_warning(number_line("10A", 20), "NAs introduced by coercion")
+  # expect_warning(number_line(50, "20A"), "'l' and 'r' have different classes. It may need to be reconciled")
+  # expect_warning(number_line(50, "20A"), "NAs introduced by coercion")
+  #
+  # expect_warning(number_line("10A", 20), "'l' and 'r' have different classes. It may need to be reconciled")
+  # expect_warning(number_line("10A", 20), "NAs introduced by coercion")
 })
 
 test_that("test that error and warning messages are returned correctly", {
   expect_error(number_line(mtcars, mtcars), "'l' or 'r' aren't compatible for a number_line object")
-  expect_error(as.number_line(mtcars), "'x' can't be coerced to a `number_line` object")
+  expect_error(as.number_line(mtcars), "`x` can't be coerced to a `number_line` object")
 })
 
 test_that("test series function", {
   expect_equal(number_line_sequence(number_line(1, 5))[[1]], c(1:5))
   expect_equal(number_line_sequence(number_line(5, 1), .5)[[1]], seq(5,1,-.5))
-  # expect_error(number_line_sequence(number_line(1, NA), .5)[[1]], "Finite values of 'x' required in indexes c(1)")
+  # expect_error(number_line_sequence(number_line(1, NA), .5)[[1]], "Finite values of `x` required in indexes c(1)")
   # expect_error(number_line_sequence(number_line(1, 2), NA)[[1]], "Finite values of 'by' required in indexes c(1)")
   expect_equal(number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)[[1]], seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
-  expect_error(number_line_sequence(1, .5)[[1]], "'x' is not a number_line object")
+  expect_error(number_line_sequence(1, .5)[[1]], "`x` must be a `number_line` object.")
 })
 
 a <- c(number_line(1,3), number_line(3,3), number_line(5,3))
@@ -154,7 +154,3 @@ test_that("Convert `number_line to data.frame and vice versa`", {
   expect_error(to_s4(), "argument 'df' is missing, with no default")
   expect_error(to_df(), "argument 's4' is missing, with no default")
 })
-
-
-
-

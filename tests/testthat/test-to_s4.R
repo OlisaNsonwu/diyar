@@ -2,11 +2,14 @@ library(testthat)
 library(diyar)
 
 data("infections")
-df <- fixed_episodes(infections$date, case_length = 30, to_s4=F)
-s4 <- fixed_episodes(infections$date, case_length = 30, to_s4=T)
+fixed_episodes <- diyar::fixed_episodes
+record_group <- diyar::record_group
 
-df_2 <- record_group(infections, criteria = infection, to_s4 = F)
-s4_2 <- record_group(infections, criteria = infection, to_s4 = T)
+df <- fixed_episodes(date = infections$date, case_length = 30, to_s4=F, display = "none")
+s4 <- fixed_episodes(date = infections$date, case_length = 30, to_s4=T, display = "none")
+
+df_2 <- record_group(df = infections, criteria = infection, to_s4 = F, display = "none")
+s4_2 <- record_group(df = infections, criteria = infection, to_s4 = T, display = "none")
 
 test_that("test to_s4", {
   expect_equal(to_s4(df), s4)

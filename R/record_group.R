@@ -190,7 +190,7 @@ links <- function(criteria,
       tr_pid <- rep(pid[which(names(cri) %in% p)], r$lengths)
       tr_sn <- rep(sn[which(names(cri) %in% p)], r$lengths)
 
-      curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("c",i))]
+      curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr",i))]
       if(length(curr_sub_cri) > 0){
         sub_cri_match <- sapply(curr_sub_cri, function(set){
           set_match <- sapply(set, function(a){
@@ -340,13 +340,33 @@ links <- function(criteria,
   pids
 }
 
+#' @rdname links
+#' @export
+record_group <- function(df, ...){
+  args <- as.list(substitute(...()))
+  if (length(names(args)[names(args) == ""] > 0)){
+    err <- paste0("Every argument must be specified:\n",
+                  "i- `record_group()` has been retired!\n",
+                  "i - Your values will be passed to `links()`.\n",
+                  "i - Please specify any argument you've use.")
+    stop(err, call. = F)
+  }
+
+  out <- bridge_record_group(df = df, args = args)
+  if(out$err_cd == F) stop(out$err_nm, call. = F)
+
+  warning(paste0("`record_group()` has been retired!:\n",
+                 "i - Please use `links()` instead.\n",
+                 "i - Your values were passed to `links()`."), call. = F)
+  return(out$err_nm)
+}
 #' @name sub_criteria
 #' @title Subcriteria for \bold{\code{\link{links}}}
 #'
 #' @description Additional \code{sub_criteria} for each matching \code{criteria} in \code{\link{links}}.
 #' @param ... Additional attributes to compare.
 #' @param funcs User defined logical test.
-#' @return \code{list}
+#' @return \code{function} or \code{list} of \code{functions}
 #' @details
 #' \bold{\code{sub_criteria()}} is the mechanism for providing a subcriteria to an instance of \bold{\code{links()}}.
 #'
@@ -383,7 +403,7 @@ sub_criteria <- function(..., funcs = NULL){
   if(err != F) stop(err, call. = F)
 
   if(class(funcs) == "NULL"){
-    funcs <- list(function(x, y) x == y & !is.na(x) & !is.na(y))
+    funcs <- list(diyar::exact_match)
   }else{
     if(class(funcs) != "list") funcs <- list(funcs)
 
@@ -420,308 +440,55 @@ sub_criteria <- function(..., funcs = NULL){
   sub_cris
 }
 
-
-#' @name user_defined_tests
+#' @name predefined_tests
 #' @title User defined tests
-#' @description Collection of user defined tests for \code{\bold{\link{sub_criteria}}}
-#' @aliases user_defined_tests
+#' @description A collection of predefined logical tests for \code{\bold{\link{sub_criteria}}}
+#' @aliases predefined_tests
 #' @examples
-#' range_matching(10, 22, range = 6)
-#' range_matching(10, 16, range = 6)
-#' range_matching(16, 10, range = 6)
+#' library(diyar)
+#'
+#' # `exact_match` - test that `x` is equal to `y`
+#' exact_match(x = 1, x = "1")
+#' exact_match(x = 1, y = 1)
+#'
 #' @export
-range_matching <- function(x, y, range = 10){
-  (y - x <= range) & (y - x >= 0)
+exact_match <- function(x, y) {
+  x==y & !is.na(x) & !is.na(y)
 }
 
-record_group_legacy <- function(df, sn=NULL, criteria,
-                                sub_criteria=NULL, strata = NULL, data_source = NULL,
-                                group_stats=FALSE, display=TRUE, to_s4 = TRUE){
+#' @rdname predefined_tests
+#' @examples
+#' # `range_match` - test that `y` is between `x` and `x + range`
+#' range_match(x = 10, y = 16, range = 6)
+#' range_match(x = 16, y = 10, range = 6)
+#'
+#' @export
+range_match <- function(x, y, range = 10){
+  x <- as.numeric(x); y <- as.numeric(y)
+  if(class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
+                                                          "i - Valid object types are: `numeric` or `integer`.\n",
+                                                          "X - You've supplied a", paste0(class(range), collapse = ", "), " object."), call. = F)
 
-  if(missing(df)) stop("argument 'df' is missing, with no default")
-  if(missing(criteria)) stop("argument 'criteria' is missing, with no default")
+  if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
+                                    "X - Length is ", length(range), "."), call. = F)
 
-  if(!is.data.frame(df)) stop(paste("A dataframe is required"))
-  rng_d <- as.character(substitute(df))
-  . <- NULL
-
-  # check that only logicals are passed to arguments that expect logicals.
-  logs_check <- logicals_check(c("group_stats", "display", "to_s4"))
-  if(logs_check!=T) stop(logs_check)
-
-  # Suggesting the use `epid` objects
-  # if(to_s4 == FALSE){
-  #   if (is.null(getOption("diyar.record_group.output"))){
-  #     options("diyar.record_group.output"= TRUE)
-  #   }
-  #   if (getOption("diyar.record_group.output")){
-  #     message(paste("The default output of record_group() will be changed to pid objects in the next release.",
-  #                   "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
-  #                   "",
-  #                   "# Old way - merge or bind (col) results back to the `df`",
-  #                   "df <- cbind(df, record_group(df, criteria= x))",
-  #                   "",
-  #                   "# New way - `pid` objects",
-  #                   "df$pids <- record_group(df, criteria= x, to_s4 = TRUE)",
-  #                   "This message is displayed once per session.", sep = "\n"))
-  #   }
-  #   options("diyar.record_group.output"= FALSE)
-  # }
-
-  # validations
-  ds <- enq_vr(substitute(data_source))
-  df_vars <- names(df)
-  rd_sn <- enq_vr(substitute(sn))
-  st <- enq_vr(substitute(strata))
-
-  sub_cri_lst <- unlist(sub_criteria, use.names = FALSE)
-  cri_lst <- enq_vr(substitute(criteria))
-
-  # Check that col names exist
-  if(any(!unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)) %in% names(df))){
-    missing_cols <- subset(unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)), !unique(c(rd_sn, ds, st, sub_cri_lst, cri_lst)) %in% names(df))
-    missing_cols <- paste(paste("'",missing_cols,"'",sep=""), collapse = "," )
-    stop(paste(missing_cols, "not found"))
-  }
-
-  # Record indentifier
-  if(is.null(rd_sn)){
-    df$sn <- 1:nrow(df)
-  }else{
-    dp_check <- duplicates_check(df[[rd_sn]])
-    if(dp_check!=T) stop(paste0("duplicate record indentifier ('sn') in indexes ",dp_check))
-    df$sn <- df[[rd_sn]]
-  }
-
-  # Dataset identifier
-  if(is.null(ds)){
-    df$dsvr <- "A"
-  }else{
-    df$dsvr <- eval(parse(text = paste0("paste0(",paste0("df$", ds, collapse = ",'-',"),")")))
-  }
-
-  # Strata
-  if(is.null(st)){
-    df$strt <- "A"
-  }else{
-    df$strt <- eval(parse(text = paste0("paste0(",paste0("df$", st, collapse = ",'-',"),")")))
-  }
-
-  # Prep
-  df <- df[unique(c("sn",cri_lst,sub_cri_lst,"dsvr", "strt"))]
-  df$pr_sn <- 1:nrow(df)
-  df$m_tag <- df$tag <- 0
-  df$pid_cri <- Inf
-  df$link_id <- df$pid <- sn_ref <- min(df$sn)-1
-  cri_no <- length(cri_lst)
-
-  # `number_line` object as subcriteria
-  for(i in 1:cri_no){
-    if(is.number_line(df[[cri_lst[i]]])){
-      #dummy var
-      rp_vr <- paste0("dmvr_d",i)
-      df[[rp_vr]] <- 1
-      # make `number_line` object a sub_criteria for the dummy criteria
-      if(is.null(sub_criteria)) sub_criteria <- list()
-      sub_criteria[paste0("s",i,"zr")] <- cri_lst[i]
-      # update criteria list
-      cri_lst[i] <- rp_vr
-    }
-  }
-
-  # update 'sub_cri_lst'
-  sub_cri_lst <- unique(unlist(sub_criteria, use.names = FALSE))
-
-  nls <- lapply(names(df), function(x){
-    is.number_line(df[[x]])
-  })
-
-  nls_nms <- names(df)[as.logical(nls)]
-  if(length(nls_nms) >0){
-    nls <- df[nls_nms]
-
-    for(i in nls_nms){
-      df[[i]] <- df$pr_sn
-    }
-  }
-
-  # Range matching
-  range_match <- function(x, tr_x) {
-    if(any(!diyar::overlaps(diyar::as.number_line(x@gid), x))) {
-      rng_i <- paste(which(!diyar::overlaps(diyar::as.number_line(x@gid), x)), collapse = ",", sep="")
-      rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
-
-      stop(paste("Range matching error: Actual value (gid) is out of range in '",rng_d,"$",rng_v,"[c(",rng_i,")]'",sep=""))
-    }
-
-    diyar::overlaps(diyar::as.number_line(x@gid), tr_x)
-  }
-
-  # Exact matching
-  exact_match <- function(x, tr_x) {
-    x <- ifelse(is.na(x), "", as.character(x))
-    tr_x <- ifelse(is.na(tr_x), "", as.character(tr_x))
-    x == tr_x
-  }
-
-  for(i in 1:cri_no){
-    if(display) cat(paste("\nGroup criteria ",i," - ","`",cri_lst[i],"`", sep=""))
-
-    # Current matching criteria
-    df$cri <- ifelse(df[[cri_lst[i]]] %in% c("", NA), NA, paste0(df$strt,"-", df[[cri_lst[i]]]))
-
-    # Fetch corresponding matching criteria
-    attr <- attributes(sub_criteria)[["names"]]
-    attr <- subset(attr, grepl(paste("s",i,sep=""), attr))
-    curr_attr <- ifelse(length(attr)==0, FALSE, TRUE)
-
-    if(curr_attr){
-      func_1 <- function(x){
-        ifelse(class(nls[[x]]) == "number_line",
-               paste0("range_match(nls$",x,"[df2$",x, "], ", "nls$",x,"[df2$tr_",x,"])"),
-               paste0("exact_match(df2$",x, ", ", "df2$tr_",x,")"))
-      }
-
-      func_1b <- function(x) unlist(lapply(x, func_1))
-
-      func_2 <- function(x){paste(x, collapse = " | ")}
-      func_3 <- function(x){paste("(",x,")", sep="")}
-
-      sub_crx_func <- lapply(sub_criteria[attr], func_1b)
-      sub_crx_func <- lapply(sub_crx_func, func_2)
-      sub_crx_func <- lapply(sub_crx_func, func_3)
-      sub_crx_func <- paste(sub_crx_func, collapse = " & ")
-
-      sub_crx_func <- paste("function(df2){",sub_crx_func,"}",sep="")
-      sub_crx_func <- eval(parse(text = sub_crx_func))
-      curr_sub_cri_lst <- unlist(sub_criteria[attr], use.names = FALSE)
-    }else{
-      sub_crx_func <- function(df2){TRUE}
-      curr_sub_cri_lst <- "sn"
-    }
-
-    df$force_check <- df$skip <- df$m_tag <- c <- min_m_tag <- 0
-    min_pid <- sn_ref
-
-    while (min_pid==sn_ref | min_m_tag==-1) {
-      if(c+1 >1 & display ) cat(paste("\nMatching criteria ",i,": iteration ",c+1, sep=""))
-
-      # Reference records
-      TR <- df[!df$cri %in% c("",NA),]
-      # TR <- TR[order(TR$cri, TR$skip, -TR$force_check, -TR$tag, TR$m_tag, TR$pid_cri, TR$sn),]
-      TR <- dplyr::arrange(TR, TR$cri, TR$skip, -TR$force_check, -TR$tag, TR$m_tag, TR$pid_cri, TR$sn)
-      TR <- TR[!duplicated(TR$cri),]
-      TR <- TR[unique(c("pid","link_id","m_tag","tag", "sn","pid_cri","cri",curr_sub_cri_lst))]
-      names(TR) <- paste0("tr_", names(TR))
-
-      # df <- merge(df, TR, by.x="cri", by.y="tr_cri", all.x=T)
-      df <- dplyr::left_join(df, TR, by= c("cri"="tr_cri"))
-
-      # Matches in subcriteria
-      df$sub_cri_match <- ifelse(!sub_crx_func(df) %in% c(NA, FALSE),1,0)
-
-      df$m_tag <- ifelse(df$m_tag==1 &
-                           df$sub_cri_match==1 & df$pid_cri <= df$tr_pid_cri,
-                         -1, df$m_tag)
-      df$m_tag <- ifelse(df$sub_cri_match==1 & df$m_tag==-1 & df$pid==df$tr_pid & !is.na(df$tr_pid),
-                         1,df$m_tag)
-      df$pid <- ifelse(
-        (df$m_tag==-1 & df$pid!=sn_ref) | (df$sub_cri_match==1 & df$pid==sn_ref & !is.na(df$tr_pid)),
-        df$tr_pid, df$pid
-      )
-
-      #inherit pid
-      df$pid <- ifelse(
-        df$pid==sn_ref & !df$tr_pid %in% c(sn_ref,NA) & df$sub_cri_match==1,
-        df$tr_pid, df$pid
-      )
-
-      #assign new pid
-      df$pid <- ifelse(
-        df$pid==sn_ref & df$tr_pid == sn_ref & !is.na(df$tr_pid) & df$sub_cri_match==1,
-        df$tr_sn, df$pid
-      )
-
-
-      df$link_id <- ifelse(
-        (df$link_id==sn_ref & !is.na(df$tr_link_id) & df$sub_cri_match==1) |
-          ((df$m_tag==-1 & df$pid!=sn_ref) | (df$sub_cri_match==1 & df$pid==sn_ref & !is.na(df$tr_pid))),
-        df$tr_sn, df$link_id
-      )
-
-      df$m_tag <- ifelse(df$pid !=sn_ref & df$m_tag != -1,1, df$m_tag)
-      df$m_tag <- ifelse(df$sn==df$tr_sn & !is.na(df$tr_sn) & df$m_tag ==-1, 1, df$m_tag )
-
-
-      df$skip <- ifelse(df$m_tag ==-1 & !is.na(df$m_tag), 0, ifelse(df$sub_cri_match==1, 1, df$skip))
-      min_pid <- min(df$pid[!df$cri %in% c("",NA)])
-      min_m_tag <- min(df$m_tag[!df$cri %in% c("",NA)])
-      df <- df[c("sn", "pr_sn", "pid", "link_id", "pid_cri", "strt", "cri", cri_lst, sub_cri_lst, "tag", "m_tag", "skip", "dsvr", "force_check")]
-      c <- c+1
-    }
-
-    tagged_1 <- length(df$pid[!df$pid %in% c(sn_ref,NA) & df$tag ==0])
-    total_1 <- length(df$pid[df$tag ==0])
-
-    # Cases that have not been tagged for the print output
-    df$tag <- ifelse(df$pid %in% c(sn_ref,NA),0,1)
-    df$link_id <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,sn_ref,df$link_id)
-    df$pid <- ifelse(duplicated(df$pid) == FALSE & duplicated(df$pid, fromLast=TRUE) == FALSE,sn_ref,df$pid)
-
-    removed <- length(subset(df$pid, df$pid %in% c(sn_ref,NA) & df$tag ==1 ))
-
-    df$tag <- ifelse(df$pid!=sn_ref,1,0)
-    df$pid_cri <- ifelse(df$tag ==1 & df$pid_cri == Inf,i, df$pid_cri)
-
-    if(display) {
-      assigned <- tagged_1-removed
-      cat(paste0("\n", fmt(total_1), " records(s): ",  fmt(assigned)," assigned to record groups and ", fmt(total_1-assigned)," left to group."))
-    }
-  }
-
-  df$pid_cri <- ifelse(df$pid_cri==Inf, 0, df$pid_cri)
-
-  # records not yet assigned a group ID are assigned new unique group IDs
-  df$pid <- ifelse(df$pid==sn_ref, df$sn, df$pid)
-  df$link_id <- ifelse(df$link_id==sn_ref, df$sn, df$link_id)
-  df <- df[c("sn","pid","link_id", "pid_cri","dsvr","pr_sn")]
-
-  if(is.null(ds)){
-    df <- df[order(df$pr_sn), c("sn","pid", "link_id", "pid_cri","pr_sn")]
-  }else{
-    pds2 <- lapply(split(df$dsvr, df$pid), function(x){
-      paste0(sort(unique(x)), collapse=",")
-    })
-
-    df$pid_dataset <- as.character(pds2[as.character(df$pid)])
-    df <- df[order(df$pr_sn), c("sn","pid","link_id", "pid_cri","pid_dataset","pr_sn")]
-  }
-
-  if(group_stats){
-    df <- df[order(df$pid),]
-    df$pid_total <- rep(rle(df$pid)$lengths, rle(df$pid)$lengths)
-    df <- df[order(df$pr_sn),]
-  }
-
-  df$pr_sn <- NULL
-
-  pd <- ifelse(display,"\n","")
-  cat(paste(pd,"Record grouping complete: ",fmt(removed + (total_1-tagged_1))," record(s) with a unique ID. \n" , sep =""))
-  if(to_s4) df <- diyar::to_s4(df)
-  df
+  (y - x <= range) & (y - x >= 0) & !is.na(x) & !is.na(y)
 }
 
-#' @rdname links
+#' @rdname predefined_tests
+#' @examples
+#' # `range_match_legacy` - test that `x` (10) is within `y` (16 - 10)
+#' x_nl <- number_line(10, 16, gid = 10)
+#' y_nl <- number_line(16, 10)
+#'
+#' range_match_legacy(x = x_nl, y = y_nl)
+#'
 #' @export
-record_group <- function(df, ...){
-  args <- as.list(substitute(...()))
-  if (length(names(args)[names(args) == ""] > 0)){
-    err <- paste0("Every argument must be specified:\n",
-           "i- `record_group()` has been retired!\n",
-           "i - Your values will be passed to `links()`.\n",
-           "i - Please specify any argument you've use.")
-    stop(err, call. = F)
-  }
-
-  bridge_record_group(df=df, args=args)
+range_match_legacy <- function(x, y) {
+  if(any(!diyar::overlaps(diyar::as.number_line(x@gid), x))) {
+    rng_i <- paste(head(which(!diyar::overlaps(diyar::as.number_line(x@gid), x)), 5), collapse = ", ", sep="")
+    rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
+    stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
+    }
+  diyar::overlaps(diyar::as.number_line(x@gid), y)
 }

@@ -4,7 +4,7 @@
 #
 err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max, episode_unit, data_links,
                             overlap_methods, skip_order, custom_sort, group_stats, from_last, data_source,
-                            include_index_period, bi_direction, skip_if_b4_lengths, deduplicate,
+                            include_index_period, bi_direction, skip_if_b4_lengths,
                             rolls_max, case_for_recurrence, recurrence_from_last, episode_type, recurrence_length){
 
   if(all(class(sn) == "NULL")) sn <- seq_len(length(date))
@@ -48,7 +48,6 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     include_index_period = "logical",
     bi_direction = "logical",
     skip_if_b4_lengths = "logical",
-    deduplicate = "logical",
     recurrence_from_last = "logical",
     case_for_recurrence = "logical"
   )
@@ -146,7 +145,6 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     display = 1,
     bi_direction = lims,
     skip_if_b4_lengths = lims,
-    deduplicate = 1,
     case_for_recurrence = lims,
     recurrence_from_last = lims,
     episode_type = lims
@@ -213,7 +211,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
     "group_stats", "display",
     "bi_direction", "skip_if_b4_lengths",
     "include_index_period", "case_for_recurrence",
-    "recurrence_from_last", "deduplicate",
+    "recurrence_from_last",
     "rolls_max", "display", "group_stats",
     "custom_sort", "skip_order"
   )

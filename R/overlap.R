@@ -59,8 +59,8 @@ overlaps <- function(x, y, methods = "overlap", method = c("exact","across","cha
   if(!is.character(method)) stop(paste("'method' must be a character object"))
   if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "none"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'"))
 
-  method <- ifelse(is.na(methods),"NA", methods)
-  mths <- names(split(rep(1, length(methods)), methods))
+  methds <- ifelse(is.na(methods),"NA", methods)
+  mths <- names(split(rep(1, length(methds)), methds))
   mths <- unique(unlist(strsplit(mths, split="\\|")))
 
   # invaid methods
@@ -76,7 +76,7 @@ overlaps <- function(x, y, methods = "overlap", method = c("exact","across","cha
     warning("'method' is deprecated. Please use 'methods' instead.")
   }else{
     # `methods` overrides `method` if it's supplied
-    m <- methods
+    m <- methds
   }
 
   # warnings for difference in length(x) and length(y)

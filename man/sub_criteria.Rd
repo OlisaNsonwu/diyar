@@ -12,7 +12,7 @@ sub_criteria(..., funcs = NULL)
 \item{funcs}{User defined logical test.}
 }
 \value{
-\code{list}
+\code{function} or \code{list} of \code{functions}
 }
 \description{
 Additional \code{sub_criteria} for each matching \code{criteria} in \code{\link{links}}.

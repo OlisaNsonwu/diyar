@@ -7,7 +7,7 @@
 \usage{
 links(criteria, sub_criteria = NULL, sn = NULL, strata = NULL,
   to_s4 = TRUE, data_source = NULL, data_links = "ANY",
-  display = "progress")
+  display = "progress", group_stats = F)
 
 record_group(df, ...)
 }
@@ -26,9 +26,9 @@ record_group(df, ...)
 
 \item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.}
 
-\item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
-
 \item{group_stats}{If \code{TRUE} (default), group specific information like record counts. See \code{Value}.}
+
+\item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
 }
 \value{
 \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})

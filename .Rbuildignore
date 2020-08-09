@@ -17,3 +17,4 @@
 ^README\.Rmd$
 ^revdep$
 ^\.covrignore$
+^R\retired_funcs.R$

@@ -182,9 +182,7 @@ format.epid <- function(x, ...){
 #' @rdname epid-class
 #' @export
 unique.epid <- function(x, ...){
-  db <- data.frame(c = x@case_nm, ob = x)
-  db <- subset(db, db$c!="Duplicate")
-  x <- db$ob
+  x <- x[!x@case_nm %in% c("Duplicate_C", "Duplicate_R")]
   return(x)
 }
 
@@ -344,5 +342,4 @@ setMethod("c", signature(x = "pid"), function(x,...) {
 
   methods::new("pid", zi, pid_cri = pid_cri, sn = sn,
                pid_total = pid_total, pid_dataset = pid_dataset, link_id = link_id)
-
 })
