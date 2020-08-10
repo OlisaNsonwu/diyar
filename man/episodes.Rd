@@ -7,13 +7,13 @@
 \alias{episode_group}
 \title{Tacking episodes for case definitions and record deduplication.}
 \usage{
-episodes(date, sn = NULL, strata = NULL, case_length,
-  episode_type = "fixed", recurrence_length = NULL,
-  episode_unit = "days", episodes_max = Inf, rolls_max = Inf,
+episodes(date, case_length = Inf, episode_type = "fixed",
+  recurrence_length = NULL, episode_unit = "days",
+  episodes_max = Inf, rolls_max = Inf, sn = NULL, strata = NULL,
   skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
   custom_sort = NULL, skip_order = Inf, from_last = FALSE,
   overlap_methods = "overlap", bi_direction = FALSE,
-  group_stats = TRUE, display = "none", recurrence_from_last = TRUE,
+  group_stats = FALSE, display = "none", recurrence_from_last = TRUE,
   case_for_recurrence = FALSE, include_index_period = TRUE)
 
 fixed_episodes(..., date, episode_type = "fixed", to_s4 = T,
@@ -29,10 +29,6 @@ episode_group(df, ..., episode_type = "fixed")
 \arguments{
 \item{date}{Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).}
 
-\item{sn}{Unique numerical record identifier. Useful for creating familiar episode identifier. Optional.}
-
-\item{strata}{Subsets of the dataset. Episodes are tracked separately within each subset. \code{\link{record_group}} is useful for creating these.}
-
 \item{case_length}{Cut-off point (\code{numeric}) or period (\code{\link{number_line}}) distinguishing one \code{"case"} from another.
 This is the case window.}
 
@@ -46,6 +42,10 @@ This is the recurrence window. If \code{NULL} (default), it's assumed to be the 
 \item{episodes_max}{Maximum number of episodes permitted within each \code{strata}.}
 
 \item{rolls_max}{Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.}
+
+\item{sn}{Unique numerical record identifier. Useful for creating familiar episode identifier. Optional.}
+
+\item{strata}{Subsets of the dataset. Episodes are tracked separately within each subset. \code{\link{record_group}} is useful for creating these.}
 
 \item{skip_if_b4_lengths}{If \code{TRUE} (default), \code{events} before the cut-off points or periods are skipped.}
 

@@ -116,12 +116,11 @@
 #' @aliases episodes
 #' @export
 #'
-episodes <- function(date, sn = NULL, strata = NULL, case_length,
-                     episode_type = "fixed", recurrence_length = NULL,
+episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = NULL,
                      episode_unit = "days", episodes_max = Inf, rolls_max = Inf,
-                     skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
-                     custom_sort = NULL, skip_order = Inf, from_last = FALSE,
-                     overlap_methods = "overlap", bi_direction = FALSE, group_stats = TRUE,
+                     sn = NULL, strata = NULL, skip_if_b4_lengths = TRUE, data_source = NULL,
+                     data_links = "ANY", custom_sort = NULL, skip_order = Inf, from_last = FALSE,
+                     overlap_methods = "overlap", bi_direction = FALSE, group_stats = FALSE,
                      display = "none",recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, include_index_period = TRUE) {
 
@@ -133,7 +132,6 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
                           skip_if_b4_lengths = skip_if_b4_lengths, bi_direction = bi_direction,
                           rolls_max = rolls_max, case_for_recurrence = case_for_recurrence, recurrence_from_last = recurrence_from_last,
                           episode_type = episode_type, recurrence_length=recurrence_length)
-
   display <- tolower(display)
   if(errs!=F) stop(errs, call. = F)
 
@@ -279,8 +277,10 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
 
   excluded <- length(tag[tag == 2])
   tot <- length(int)
+
   if(display != "none") cat("\n")
   while (min(tag) != 2) {
+
     if(display == "stats" & excluded >0 & ite ==1) cat(paste0(fmt(tot), " record(s); ", fmt(excluded)," excluded from episode grouping. ", fmt(tot-excluded), " left to group.\n"))
     if(display == "stats"){
       msg <- paste0("Episode or recurrence window ", fmt(ite) ,".")
@@ -288,8 +288,8 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
     }
 
     current_tot <- length(tag[tag!=2])
-
     sort_ord <- order(cri, tag, assign_ord, int@gid, decreasing = T)
+
     for(i in c("e","tag","cri","assign_ord",
                "int","epid_n", "c_sort",
                "skip_order", "case_nm",
@@ -453,8 +453,10 @@ episodes <- function(date, sn = NULL, strata = NULL, case_length,
         ov_mth_b <- mths_b
       }
     }
+
     ovr_chks <- function(tr, int, mths) diyar::overlaps(tr, int, methods =mths)
     ep_checks <- rowSums(mapply(ovr_chks, tr_ep_int, rep(list(int), length(tr_ep_int)), ov_mth_a)) > 0
+
     if(any_rolling == T){
       rc_checks <- rowSums(mapply(ovr_chks, tr_rc_int, rep(list(int), length(tr_rc_int)), ov_mth_b)) > 0
     }

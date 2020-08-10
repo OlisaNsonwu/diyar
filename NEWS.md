@@ -13,6 +13,8 @@ New features
 -   New functions - `exact_match()`, `range_match()` and `range_match_legacy()`. Predefined logical tests for use with `sub_criteria()`. User-defined tests can also be used. See `?sub_criteria`.
 -   New function - `epid_lengths()`. Shows the required `case_length` or `recurrence_length` for a given `date` to overlap with a given period. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
 -   New function - `epid_windows()`. Shows the period a given `date` will overlap with for given `case_length` or `recurrence_length`. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
+-   New argument - `strata` in `links()` and `record_group()`. Useful for stratified data linkage. As in startified episode tracking, a record with a missing `strata` (`NA_character_`) is skipped from data linkage.
+    -   Skipped records have a `pid_cri` value of `-1`.
 
 Changes
 -------
