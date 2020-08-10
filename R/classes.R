@@ -93,7 +93,7 @@ setMethod("c", signature(x = "number_line"), function(x,...) {
 
   # id <- unlist(lapply(list(x, ...), function(y) as.number_line(y)@id))
   # gid <- unlist(lapply(list(x, ...), function(y) as.number_line(y)@gid))
-  zi <- unlist(list(x, ...))
+  zi <- unlist(lapply(list(x, ...), function(x) as.number_line(x)@.Data), use.names = F)
   id <- gid <- 1:length(zi)
   methods::new("number_line", .Data = zi, id = id, gid = gid, start= ai)
 })
