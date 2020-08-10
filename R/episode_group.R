@@ -484,6 +484,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     case_nm[cr & tr_tag == 0] <- ifelse(ref_rd[cr & tr_tag == 0], "Case", "Duplicate_C")
     wind_nm[cr & tr_tag %in% c(0, -2) & wind_nm == ""] <- "Case"
+    new_hits <- cr & tag != 2 & !ref_rd
     tag[cr] <- 2
 
     if(include_index_period != T){
@@ -493,11 +494,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(any_rolling == T){
       case_nm[cr & tr_tag %in% c(-1, -2) & case_nm == ""] <- "Duplicate_R"
       wind_nm[cr & tr_tag == -1 & wind_nm == ""] <- "Recurrence"
-      sort_ord <- order(cri, cr, -ref_period, tag, -assign_ord, int@gid)
+      sort_ord <- order(cri, new_hits, -assign_ord, int@gid)
       r <- rle(cri[sort_ord])
       case_nm[which(int@id %in% names(r$values) &
                       tr_tag %in% c(-1) &
-                      !ref_period
+                      new_hits
       )] <- "Recurrent"
 
       t_cri <- cri[order(cri, -tag)]
