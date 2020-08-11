@@ -8,21 +8,25 @@
 \title{Tacking episodes for case definitions and record deduplication.}
 \usage{
 episodes(date, case_length = Inf, episode_type = "fixed",
-  recurrence_length = NULL, episode_unit = "days",
+  recurrence_length = case_length, episode_unit = "days",
   episodes_max = Inf, rolls_max = Inf, sn = NULL, strata = NULL,
   skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
   custom_sort = NULL, skip_order = Inf, from_last = FALSE,
-  overlap_methods = "overlap", bi_direction = FALSE,
+  overlap_methods_c = "overlap", overlap_methods_r = overlap_methods_c,
   group_stats = FALSE, display = "none", recurrence_from_last = TRUE,
-  case_for_recurrence = FALSE, include_index_period = TRUE)
+  case_for_recurrence = FALSE)
 
-fixed_episodes(..., date, episode_type = "fixed", to_s4 = T,
-  overlap_methods = "overlap", deduplicate = F, display = "progress",
-  overlap_method = "overlap", x)
+fixed_episodes(..., date, case_length = Inf, episode_unit = "days",
+  to_s4 = T, overlap_methods_c = "overlap", deduplicate = F,
+  display = "progress", bi_direction = F, include_index_period = T,
+  overlap_methods = "overlap", overlap_method = "overlap", x)
 
-rolling_episodes(..., date, episode_type = "rolling", to_s4 = T,
-  overlap_methods = "overlap", deduplicate = F, display = "progress",
-  overlap_method = "overlap", x)
+rolling_episodes(..., date, case_length = Inf,
+  recurrence_length = case_length, episode_unit = "days", to_s4 = T,
+  overlap_methods_c = "overlap", overlap_methods_r = overlap_methods_c,
+  deduplicate = F, display = "progress", overlap_method = "overlap",
+  bi_direction = F, include_index_period = T,
+  overlap_methods = "overlap", x)
 
 episode_group(df, ..., episode_type = "fixed")
 }
@@ -59,10 +63,6 @@ This is the recurrence window. If \code{NULL} (default), it's assumed to be the 
 
 \item{from_last}{If \code{TRUE}, track episodes in reverse chronological order. If \code{TRUE} (default), track episodes in chronological order.}
 
-\item{overlap_methods}{Methods of overlap considered when tacking event. Different events can be checked by different sets of \code{overlap_methods}}
-
-\item{bi_direction}{If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked. If  \code{FALSE} (default), \code{"duplicate"} events are tracked in one direction only.}
-
 \item{group_stats}{If \code{TRUE} (default), episode specific information like episode start and end points are returned. See \code{Value}.}
 
 \item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
@@ -73,9 +73,13 @@ If \code{FALSE} (default), it will be the first event. Only used if \code{episod
 \item{case_for_recurrence}{If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
+\item{to_s4}{If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.}
+
+\item{bi_direction}{If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked. If  \code{FALSE} (default), \code{"duplicate"} events are tracked in one direction only.}
+
 \item{include_index_period}{If \code{TRUE}, overlaps with the index event or period are grouped together even if they are outside the cut-off period.}
 
-\item{to_s4}{If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.}
+\item{overlap_methods}{Methods of overlap considered when tacking event. Different events can be checked by different sets of \code{overlap_methods}}
 
 \item{overlap_method}{Deprecated. Please use \code{overlap_methods}. Methods of overlap considered when tacking event. All event are checked by the same set of \code{overlap_method}.}
 

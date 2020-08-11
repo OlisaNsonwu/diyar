@@ -4,11 +4,14 @@
 \alias{windows}
 \alias{epid_windows}
 \alias{epid_lengths}
+\alias{index_window}
 \title{Window and lengths}
 \usage{
-epid_windows(date, lengths)
+epid_windows(date, lengths, episode_unit = "days")
 
-epid_lengths(date, windows)
+epid_lengths(date, windows, episode_unit = "days")
+
+index_window(x)
 }
 \value{
 \code{\link{number_line}}.

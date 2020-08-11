@@ -562,7 +562,7 @@ plot_epid(epid = dbs$eps_7, date = dbs$date, case_length =2, recurrence_length =
 <a id="interval_grouping"></a>
 
 ### Interval grouping
-Some case definitions can involve `events` that occur over a defined period of time e.g. hospital admissions. `episodes()` track such `event periods` into `episodes`. This type of `episode tracking` is recommended when the end point of an `event` is known. For example, it's near impossible to know the exact point in time an individual diagnosed with the common cold recovers however, it's a reasonable assumption that another diagnosis 3 months after the initial one is not the same infection. For situations like this, the recommend approach is to use the methods we've covered so far. 
+Some case definitions can involve `events` that occur over a defined period of time e.g. hospital admissions. `episodes()` can track such `event periods` into `episodes`. This type of `episode tracking` is recommended when the end point of an `event` is known. For example, it's near impossible to know the exact point in time an individual diagnosed with the common cold recovers however, it's a reasonable assumption that another diagnosis 3 months after the initial one is not the same infection. For situations like this, the recommend approach is to use the methods we've covered so far. 
 
 In contrast, hospital admissions typically have recorded admission and discharge times or dates, and so interval grouping is recommended for tracking such `events`. This being said, in several situations both approaches can be used interchangeably. See below. 
 

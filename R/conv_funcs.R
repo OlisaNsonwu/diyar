@@ -18,12 +18,14 @@ finite_check <- function(x, lim =10){
 
 missing_check <- function(x, lim =10){
   e <- which(is.na(x))
-  if(length(e) %in% 1:lim) {
-    paste0("[",listr(fmt(e)),"]")
-  }else if(length(e) > lim) {
-    paste0("[",paste0(fmt(e[1:lim]), collapse = ", "),", ...]")
-  }else if(length(e) == lim)
-    TRUE
+  if(length(x[e]) %in% 1:lim) {
+    paste0("[", listr(fmt(e)), "]")
+  }else if(length(x[e]) > lim) {
+    paste0("[", paste0(fmt(e[1:lim]), collapse = ", "),", ...]")
+  }else{
+    T
+  }
+
 }
 
 # @rdname finite_check
@@ -205,7 +207,8 @@ check_links <- function(cri, data_source, data_links){
 }
 
 prep_lengths <- function(length, overlap_methods, int,
-                         episode_unit, bi_direction, from_last,
+                         episode_unit, bi_direction,
+                          #from_last,
                          include_index_period = F){
   length <- length
   if(class(length) != "list") length <- list(length)
@@ -230,17 +233,17 @@ prep_lengths <- function(length, overlap_methods, int,
     }
   }
 
-  if(any(from_last == T)) {
-    length <- lapply(length, function(x){
-      x[from_last] <- invert_number_line(x)[from_last]
-      return(x)
-    })
-  }
+  # if(any(from_last == T)) {
+  #   length <- lapply(length, function(x){
+  #     x[from_last] <- invert_number_line(x)[from_last]
+  #     return(x)
+  #   })
+  # }
 
-  length <- lapply(length, function(x){
-    number_line(l= right_point(int) + (left_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
-                r= right_point(int) + (right_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
-                gid = seq_len(length(int)))})
+  # length <- lapply(length, function(x){
+  #   number_line(l= right_point(int) + (left_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
+  #               r= right_point(int) + (right_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
+  #               gid = seq_len(length(int)))})
 
   # if(include_index_period == T){
   #   length <- c(length, list(int))
