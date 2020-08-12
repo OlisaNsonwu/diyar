@@ -112,10 +112,10 @@ links <- function(criteria,
   if(err != F) stop(err, call. = F)
 
   ds_len <- as.numeric(lapply(criteria, length))
-  ds_len_b <- as.numeric(sapply(sub_criteria, function(x){
+  ds_len_b <- sapply(sub_criteria, function(x){
     sapply(x, function(x){
       length(x[[1]]) })
-  }))
+  })
   ds_len <- max(c(ds_len, unlist(ds_len_b, use.names = F)))
   rm(ds_len_b)
 
@@ -151,7 +151,9 @@ links <- function(criteria,
   for(i in 1:length(criteria)){
     cri <- criteria[[i]]
     if (length(cri) == 1) cri <- rep(cri, ds_len)
-    cri <- cri[match(1:ds_len, pr_sn)]
+    #cri <- cri[match(1:ds_len, pr_sn)]
+    cri <- cri[match(pr_sn, seq_len(ds_len))]
+
     lgk <- is.na(cri)
     if(!is.null(strata)) {
       lgk[!lgk] <- is.na(strata[!lgk])
@@ -173,7 +175,7 @@ links <- function(criteria,
       sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = T)
       for(vr in c("force_check","tag","cri",
                   "skip", "pid", "tag","m_tag",
-                  "pid_cri", "sn", "pr_sn")){
+                  "pid_cri", "sn", "pr_sn", "link_id")){
         assign(vr, get(vr)[sort_ord])
       }
 
@@ -194,7 +196,7 @@ links <- function(criteria,
       if(length(curr_sub_cri) > 0){
         sub_cri_match <- sapply(curr_sub_cri, function(set){
           set_match <- sapply(set, function(a){
-            x <- a[[1]][match(pr_sn, 1:ds_len)]
+            x <- a[[1]][match(pr_sn, seq_len(ds_len))]
             y <- rep(x[which(names(cri) %in% p)], r$lengths)
             f <- a[[2]]
             lgk <- as.numeric(f(x, y))
@@ -217,31 +219,25 @@ links <- function(criteria,
                       1, m_tag)
       pid <- ifelse(
         (m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid)),
-        tr_pid, pid
-      )
+        tr_pid, pid)
 
       #inherit pid
       pid <- ifelse(
         pid == sn_ref & !tr_pid %in% c(sn_ref, NA) & sub_cri_match > 0,
-        tr_pid, pid
-      )
+        tr_pid, pid)
 
       #assign new pid
       pid <- ifelse(
         pid == sn_ref & tr_pid == sn_ref & !is.na(tr_pid) & sub_cri_match > 0,
-        tr_sn, pid
-      )
-
+        tr_sn, pid)
 
       link_id <- ifelse(
         (link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
           ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid))),
-        tr_sn, link_id
-      )
+        tr_sn, link_id)
 
       m_tag <- ifelse(pid != sn_ref & m_tag != -1,1, m_tag)
       m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag ==-1, 1, m_tag)
-
 
       skip <- ifelse(m_tag ==-1 & !is.na(m_tag), 0, ifelse(sub_cri_match > 0, 1, skip))
       lgk <- !is.na(cri)

@@ -592,11 +592,11 @@ err_criteria_3 <- function(criteria, sub_criteria){
   if(class(criteria) != "list") criteria <- list(criteria)
 
   err <- as.numeric(lapply(criteria, length))
-  err2 <- as.numeric(sapply(sub_criteria, function(x){
-    sapply(x, function(x){
+  err2 <- unlist(lapply(sub_criteria, function(x){
+    lapply(x, function(x){
       length(x[[1]]) })
-    }))
-  err <- c(err, unlist(err2, use.names = F))
+  }), use.names = F)
+  err <- c(err, err2)
   #err <- err[!duplicated(err)]
 
   if(!min(err) %in% c(1, max(err)) ){

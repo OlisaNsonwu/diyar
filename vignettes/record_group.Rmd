@@ -49,10 +49,10 @@ data(patient_list);
 dbs <- patient_list[c("forename","surname","sex")]; dbs
 
 # 1 stage <- Matching surname only
-dbs$pids_a <-record_group(dbs, criteria = surname, to_s4 = T)
+dbs$pids_a <- links(criteria = dbs$surname, display = "none")
 
 # 2 stage - Matching surname, then matching sex
-dbs$pids_b <- record_group(dbs, criteria = c(surname, sex), display = F, to_s4 = T)
+dbs$pids_b <- links(criteria = list(dbs$surname, dbs$sex), display = "none")
 
 dbs
 
@@ -66,7 +66,7 @@ The choice and ordering of column names in `criteria` and `sub_criteria` determi
 For example, in `patient_list` above, linking on surnames and then sex (`pid_b`) leads to a different result compared to when linking on sex before surnames (`pid_c`) (See [Record group expansion](#record_expansion)). In `pid_b`, a match on the individual's surname was considered more relevant than a match on their sex. The opposite was the case for `pid_c`. 
 
 ```{r warning=F, message=F}
-dbs$pids_c <- record_group(dbs, criteria =  c(sex, surname), display = F, to_s4 = T)
+dbs$pids_c <- links(criteria =  list(dbs$sex, dbs$surname), display = "none")
 
 dbs
 ```
@@ -77,7 +77,7 @@ Considering the `criteria` used for each, both results are logically correct but
 dbs_2 <- patient_list; dbs_2
 
 dbs_2$cri_2 <- paste(dbs_2$surname, dbs_2$sex,sep="-")
-dbs_2$pid_d <- record_group(dbs_2, rd_id, c(forename, cri_2), display = F, to_s4 = T)
+dbs_2$pid_d <- links(sn = dbs_2$rd_id, list(dbs_2$forename, dbs_2$cri_2), display = "none")
 
 dbs_2
 ```
@@ -93,41 +93,42 @@ data(Opes); Opes
 
 # 1 stage linkage
   # stage 1 - name AND (department OR hair_colour OR date_of_birth)
-Opes$pids_a <- record_group(Opes, criteria = name, 
-                            sub_criteria = list(
-                              "s1a"=c("department","hair_colour","date_of_birth")),
-                            display = F, to_s4 = T)
+Opes$pids_a <- links(criteria = Opes$name,
+                     sub_criteria = list(cr1 = sub_criteria(Opes$department, 
+                                                            Opes$hair_colour, 
+                                                            Opes$date_of_birth)),
+                     display = "none"
+                     )
 
 Opes[c("name","department","hair_colour","date_of_birth","pids_a")]
   
 # 1 stage linkage 
   # stage 1 - name AND ((department OR hair_colour) AND (date_of_birth)) 
-Opes$pids_b <- record_group(Opes, criteria = name, 
-                            sub_criteria = list(
-                              "s1a"=c("department","hair_colour"),
-                              "s1b"=c("date_of_birth")),
-                            display = F, to_s4 = T)
+Opes$pids_b <- links(criteria = Opes$name, 
+                     sub_criteria = list(cr1 = sub_criteria(Opes$department, 
+                                                            Opes$hair_colour),
+                                         cr1 = sub_criteria(Opes$date_of_birth)),
+                     display = "none")
 
 Opes[c("name","department","hair_colour","date_of_birth","pids_b")]
 
 # 1 stage linkage 
   # stage 1 - name AND ((department OR hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))
-Opes$pids_c <- record_group(Opes, criteria = name, 
-                            sub_criteria = list(
-                              "s1a"=c("department","hair_colour"),
-                              "s1b"=c("db_pt1","db_pt2","db_pt3")),
-                            display = F, to_s4 =T)
+Opes$pids_c <- links(criteria = Opes$name, 
+                     sub_criteria = list(cr1 = sub_criteria(Opes$department, 
+                                                            Opes$hair_colour),
+                                         cr1 = sub_criteria(Opes$db_pt1, Opes$db_pt2, Opes$db_pt3)),
+                            display = "none")
 
 Opes[c("name","department","hair_colour","date_of_birth","pids_c")]
 
 # 1 stage linkage 
   # stage 1 - name AND ((department)  AND (hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))
-Opes$pids_d <- record_group(Opes, criteria =name, 
-               sub_criteria = list(
-                 "s1a"=c("department"),
-                 "s1c"=c("hair_colour"),
-                 "s1b"=c("db_pt1","db_pt2","db_pt3")),  
-               display = F, to_s4 = T)
+Opes$pids_d <- links(criteria = Opes$name, 
+                     sub_criteria = list(cr1 = sub_criteria(Opes$department),
+                                         cr1 = sub_criteria(Opes$hair_colour),
+                                         cr1 = sub_criteria(Opes$db_pt1, Opes$db_pt2, Opes$db_pt3)),
+                            display = "none")
 
 Opes[c("name","department","hair_colour","date_of_birth","pids_d")]
 ```
@@ -137,18 +138,17 @@ Note that using `sub_criteria` costs additional processing time, so it should be
 ```{r, warning=F, message=F}
 # 1 stage linkage 
   # stage 1 - name AND ((department)  AND (hair_colour) AND (date_of_birth))
-Opes$pids_e <- record_group(Opes, criteri = name, 
-                            sub_criteria = list(
-                              "s1a"=c("department"), 
-                              "s1b"=c("hair_colour"), 
-                              "s1c"=c("date_of_birth")),
-                            display = T, to_s4 = T)
+Opes$pids_e <- links(criteria = Opes$name, 
+                     sub_criteria = list(cr1 = sub_criteria(Opes$department),
+                                         cr1 = sub_criteria(Opes$hair_colour),
+                                         cr1 = sub_criteria(Opes$date_of_birth)),
+                            display = "none")
 
 Opes$cri <- paste(Opes$name, Opes$date_of_birth, Opes$department, Opes$hair_colour, sep="-")
 
 # 1 stage linkage 
   # stage 1 - name AND department AND hair_colour AND date_of_birth
-Opes$pids_f <- record_group(Opes, criteria = cri,  display = T, to_s4 =T)
+Opes$pids_f <- links(criteria = Opes$cri,  display = "none")
 
 Opes[c("name","department","hair_colour","date_of_birth","pids_e","pids_f")]
 ```
@@ -170,7 +170,9 @@ Existing group IDs can be inherited but will not be overwritten. This is because
 ```{r warning=F}
 data(patient_list_2); patient_list_2
 
-patient_list_2$pids_a <- record_group(patient_list_2, rd_id, c(forename, surname, sex), to_s4 = T, display = F)
+patient_list_2$pids_a <- links(sn = patient_list_2$rd_id, 
+                               criteria = list(patient_list_2$forename, patient_list_2$surname, patient_list_2$sex), 
+                               display = "none")
 
 patient_list_2
 ```
@@ -188,12 +190,18 @@ plot_pid(pid = patient_list_2$pids_a)
 **Figure 2: Record group expansion**
 ```{r warning=F}
 df <- data.frame(
-  forename = c("John", "John", "Jon", "", "Mary","Mary","Mariam", "John", "Henry", "Obinna", "Tomi"),
-  surname = c("Swan", "Swanley", "Swanley", "", "Jane","Jan","Janet", "Swan", "Henderson", "Nelson", "Abdulkareem"), 
-  age = c(12,11,10,10,5,6,6,12,30,31, 2500)
+  forename = c("John", "John", "Jon", 
+               NA_character_, "Mary", "Mary",
+               "Mariam", "John", "Henry",
+               "Obinna", "Tomi"),
+  surname = c("Swan", "Swanley", "Swanley",
+              NA_character_, "Jane", "Jan",
+              "Janet", "Swan", "Henderson", 
+              "Nelson", "Abdulkareem"), 
+  age = c(12, 11, 10, 10, 5, 6, 6, 12, 30, 31, 2500)
 )
 
-df$pids_a <- record_group(df, criteria = c(forename, surname, age), to_s4 = T, display = F)
+df$pids_a <- links(criteria = list(df$forename, df$surname, df$age), display = "none")
  
 df
 ```
@@ -220,8 +228,8 @@ patient_list_2$forename <- ifelse(patient_list_2$rd_id %in% 1:3, "Nil", patient_
     # Stage 1 - forename
     # Stage 2 - surname
 
-patient_list_2$pids_b <- record_group(patient_list_2, criteria = c(forename, surname), 
-                                      display = F, to_s4 =T)
+patient_list_2$pids_b <- links(criteria = list(patient_list_2$forename, patient_list_2$surname), 
+                               display = "none")
 
 patient_list_2[c("forename","surname","pids_b")]
 ```
@@ -232,16 +240,18 @@ In the example above, records 1-3 are assigned a single group ID even though rec
 
 ```{r warning=F, message=F}
 # Using NA as the proxy for missing value
-patient_list_2$forename <- ifelse(patient_list_2$forename=="Nil", NA, patient_list_2$forename)
+patient_list_2$forename <- ifelse(patient_list_2$forename == "Nil", NA, patient_list_2$forename)
 
-patient_list_2$pids_d <- record_group(patient_list_2, rd_id, c(forename, surname), 
-                                      display = F, to_s4 = T)
+patient_list_2$pids_d <- links(sn = patient_list_2$rd_id, 
+                               criteria = list(patient_list_2$forename, patient_list_2$surname), 
+                               display = "none")
 
 # Using "" as the proxy for missing value
-patient_list_2$forename <- ifelse(is.na(patient_list_2$forename),"",patient_list_2$forename)  
+patient_list_2$forename <- ifelse(is.na(patient_list_2$forename), "", patient_list_2$forename)  
 
-patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, surname), 
-                                      display = F, to_s4 = T)
+patient_list_2$pids_e <- links(sn = patient_list_2$rd_id, 
+                               criteria = list(patient_list_2$forename, patient_list_2$surname), 
+                               display = "none")
 
 patient_list_2[c("forename","surname", "pids_b", "pids_d","pids_e")]
 ```
@@ -251,8 +261,9 @@ Sometimes an exact match might be too strict and a less exact but reasonable app
 
 ```{r warning=F, message=F}
 patient_list_2$soundex <- stringdist::phonetic(patient_list_2$surname)
-patient_list_2$pids_e <- record_group(patient_list_2, rd_id, c(forename, soundex), 
-                                      display = F, to_s4 = T)
+patient_list_2$pids_e <- links(sn = patient_list_2$rd_id, 
+                               criteria = list(patient_list_2$forename, patient_list_2$soundex),
+                               display = "none")
 
 patient_list_2[c("forename","surname","soundex","pids_d","pids_e")]
 ```
@@ -268,7 +279,9 @@ Opes_c$date_of_birth <- as.Date(Opes_c$date_of_birth, "%d/%m/%Y")
 Opes_c$range_a <- expand_number_line(as.number_line(Opes_c$date_of_birth), (365*2), "end")
 Opes_c$range_a@gid <- as.numeric(Opes_c$date_of_birth)
 
-Opes_c$pids_a <- record_group(Opes_c, criteria = range_a, to_s4 =T)
+Opes_c$pids_a <- links(criteria = "place_holder",
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$range_a, funcs = diyar::range_match_legacy)),
+                       display ="none")
 
 Opes_c[c("date_of_birth","range_a","pids_a")]
 
@@ -277,7 +290,9 @@ Opes_c$age <- as.numeric(round((Sys.Date() - Opes_c$date_of_birth)/365.5)) # app
 Opes_c$range_b <- expand_number_line(as.number_line(Opes_c$age), 5, "both")
 Opes_c$range_b@gid <- Opes_c$age
 
-Opes_c$pids_b <- record_group(Opes_c, criteria = range_b, to_s4 =T)
+Opes_c$pids_b <- links(criteria = "place_holder",
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$range_b, funcs = diyar::range_match_legacy)),
+                       display = "none")
 
 Opes_c[c("age","range_b","pids_b")]
 ```
