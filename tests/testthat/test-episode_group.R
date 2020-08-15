@@ -2,7 +2,6 @@ context("testing episode_group function")
 
 library(testthat)
 library(diyar)
-library(dplyr)
 
 date <- function(x) as.Date(x, "%d/%m/%Y")
 dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
@@ -726,7 +725,7 @@ c5 <- rep(number_line(-3, -2), 10)
 c4 <- rep(number_line(-3, 3), 10)
 c7 <- 1
 cs <- c(rep(3,5), rep(1,5))
-df <- tibble(dt= dts, c1=c1, c2=c2, c3 =c3, c4 =c4, c_sort = cs, c5=c5, c7 = c7)
+df <- data.frame(dt= dts, c1=c1, c2=c2, c3 =c3, c4 =c4, c_sort = cs, c5=c5, c7 = c7, stringsAsFactors = F)
 
 df$ep1 <- episode_group(df, date=dt, case_length = c1)
 df$ep2 <- episode_group(df, date=dt, case_length = c1, bi_direction = T)

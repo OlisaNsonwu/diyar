@@ -249,7 +249,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
 
 
   check_args_missing_vals <- function(x){
-    chks <- diyar:::missing_check(get(x))
+    chks <- missing_check(get(x))
 
     err_title <- ""
     # err_title <-  ifelse(grepl("^case_length_", x),
@@ -303,7 +303,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
 
   # SN - ####
   err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
-  if(err != F) retrun(err)
+  if(err != F) return(err)
 
   # Data links
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
@@ -406,7 +406,7 @@ err_sub_criteria_3 <- function(funcs){
   err <- err[!err]
   if(length(err) > 0){
     err <- paste0("`funcs` must be functions:\n",
-                  "X - `funcs[c(", diyar:::listr(names(err), conj = ",", lim=3), ")]` ",
+                  "X - `funcs[c(", listr(names(err), conj = ",", lim=3), ")]` ",
                   ifelse(length(err ==1), "is not a function.", "are not functions."))
     err
   }else{
@@ -416,7 +416,7 @@ err_sub_criteria_3 <- function(funcs){
 
 err_sub_criteria_4 <- function(..., funcs){
   if(!length(funcs) %in% c(0, 1, length(list(...)))){
-    stop(paste0("Length of `funcs` must be 1 or the same as `...`:\n"),
+    return(paste0("Length of `funcs` must be 1 or the same as `...`:\n"),
          "i - Expecting 1", ifelse(length(list(...)) > 1, paste0(" or ",length(list(...))), ""), ".\n",
          "X - You've supplied ", length(funcs), ".")
   }else{
@@ -431,7 +431,9 @@ err_sub_criteria_5 <- function(sub_cris, funcs_l){
     try_txt <- try(func(vec[1], vec[1]), silent = T)
     if(class(try_txt) == "try-error"){
       attr(try_txt, "condition")$message
-    }else{
+    }else if(class(try_txt) != "logical"){
+      "Output is not a `logical` object"
+      }else{
       NA
     }
   })
@@ -446,7 +448,7 @@ err_sub_criteria_5 <- function(sub_cris, funcs_l){
                   "i - Syntax ~ `func(x, y, ...)`.\n",
                   "i - Output ~ `TRUE` or `FALSE`.\n",
                   paste0("X - Issue with ",
-                         ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs[", names(err), "]`") ),": ",
+                         ifelse(length(funcs_l) == 1, "`funcs`", paste0("`funcs - ", names(err), "`") ),": ",
                          err, ".", collapse = "\n"))
     err
   }else{
@@ -457,7 +459,7 @@ err_sub_criteria_5 <- function(sub_cris, funcs_l){
 err_sub_criteria_6 <- function(sub_cris, funcs_l){
   err <- lapply(sub_cris, function(x){
     func <- x[[2]]
-    ifelse(all(c("x", "y") %in% formalArgs(func)), NA_character_, F)
+    ifelse(all(c("x", "y") %in% methods::formalArgs(func)), NA_character_, F)
   })
 
   err <- unlist(err, use.names = F)
@@ -566,7 +568,7 @@ err_criteria_1 <- function(criteria){
   if(length(err) > 0){
     paste0("Invalid object type for `criteria`:\n",
            "i - `criteria` must be an `atomic` vector or a `list of `atomic` vectors.\n",
-           paste0("X - `criteria ", names(err),"` is a ", err,".", collapse = "\n"))
+           paste0("X - `criteria ", names(err),"` is a ", err, ".", collapse = "\n"))
   }else{
     F
   }
@@ -580,9 +582,9 @@ err_criteria_2 <- function(criteria){
   names(err) <- 1:length(err)
   err <- err[!duplicated(err)]
 
-  if(!min(err) %in% c(1, max(err)) ){
+  if(!min(err) %in% c(1, max(err)) | min(err) == 0){
     paste0("Length of each `criteria` must be the same or equal to 1:\n",
-           paste0("X - `criteria ", names(err),"` is ", err,".", collapse = "\n"))
+           paste0("X - `criteria ", names(err),"` is ", err, ".", collapse = "\n"))
   }else{
     F
   }
@@ -596,15 +598,19 @@ err_criteria_3 <- function(criteria, sub_criteria){
     lapply(x, function(x){
       length(x[[1]]) })
   }), use.names = F)
-  err <- c(err, err2)
-  #err <- err[!duplicated(err)]
+  err <- err[!duplicated(err)]
+  err2 <- err2[!duplicated(err2)]
 
-  if(!min(err) %in% c(1, max(err)) ){
-    "Length of each `criteria` and `sub_criteria` must be the same or equal to 1"
+  if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
+      return(paste0("Length of each `criteria` and `sub_criteria` must be the same or equal to 1:\n",
+           "i - Expecting ", listr(unique(c(1, err)), conj = " or"), ".\n",
+           "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `criteria` ", ifelse(length(err) == 1, "is", "are"), " ", listr(sort(err)), ".\n",
+           "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of `sub_criteria` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(sort(err2)), "."))
   }else{
     F
   }
 }
+
 err_sub_criteria_3dot_1 <- function(...){
   args <- list(...)
   err <- lapply(args, length)
@@ -832,7 +838,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
   err <- unlist(lapply(arg, function(x){
     x <- class(x)
     if(!any(x %in% obj_types)){
-      x <- listr(paste0("`", x[!x %in% ob_types], "`"), conj = " or")
+      x <- listr(paste0("`", x[!x %in% obj_types], "`"), conj = " or")
     }else{
       x <- NA_character_
     }
@@ -893,7 +899,7 @@ err_epids_checks <- function(date,
                        recurrence_length = c("integer", "numeric", "number_line"),
                        to_s4 = "logical")
 
-  err <- mapply(diyar:::err_object_types,
+  err <- mapply(err_object_types,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
@@ -929,7 +935,7 @@ err_epids_checks <- function(date,
                     recurrence_length = len_lims,
                     to_s4 = 1)
 
-  err <- mapply(diyar:::err_match_ref_len,
+  err <- mapply(err_match_ref_len,
                 args,
                 rep(as.list("date"), length(args_lens)),
                 args_lens[match(names(args), names(args_lens))],
@@ -950,7 +956,7 @@ err_epids_checks <- function(date,
                include_index_period = include_index_period,
                to_s4 = to_s4)
 
-  err <- mapply(diyar:::err_missing_check,
+  err <- mapply(err_missing_check,
                 args,
                 as.list(names(args)))
   err <- unlist(err, use.names = F)

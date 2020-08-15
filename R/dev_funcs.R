@@ -60,17 +60,17 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     dfp$ep_l <- dfp$c <- 0
   }else{
     if(any(class(case_length) %in% c("number_line"))){
-      dfp$ep_l <- dfp$c <- diyar::reverse_number_line(case_length, "decreasing")
+      dfp$ep_l <- dfp$c <- reverse_number_line(case_length, "decreasing")
     }else{
-      dfp$c <- diyar::as.number_line(case_length);
+      dfp$c <- as.number_line(case_length);
       left_point(dfp$c) <- rep(0, length(dfp$c))
       # dfp$ep_l <- number_line(rep(0, length(dfp$c)), left_point(dfp$c))
-      # dfp$c[dfp$c@start <0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start <0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start <0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start<0 & dfp$c@.Data ==0]))
-      # dfp$c[dfp$c@start>=0 & dfp$c@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$c@start>=0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start>=0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start>=0 & dfp$c@.Data ==0]))
-      dfp$c <- diyar::reverse_number_line(dfp$c, "decreasing")
+      # dfp$c[dfp$c@start <0 & dfp$c@.Data ==0] <- number_line(-as.numeric(dfp$dt_z[dfp$c@start <0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start <0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start<0 & dfp$c@.Data ==0]))
+      # dfp$c[dfp$c@start>=0 & dfp$c@.Data ==0] <- number_line(-as.numeric(dfp$dt_z[dfp$c@start>=0 & dfp$c@.Data ==0] - dfp$dt_a[dfp$c@start>=0 & dfp$c@.Data ==0]), as.numeric(dfp$c@start[dfp$c@start>=0 & dfp$c@.Data ==0]))
+      dfp$c <- reverse_number_line(dfp$c, "decreasing")
       n_e <- ifelse(start_point(dfp$c) < 0 & end_point(dfp$c) <=0 , T, F)
-      dfp$c[n_e] <- diyar::reverse_number_line(dfp$c[n_e])
-      # dfp$ep_l <- diyar::reverse_number_line(dfp$ep_l, "decreasing")
+      dfp$c[n_e] <- reverse_number_line(dfp$c[n_e])
+      # dfp$ep_l <- reverse_number_line(dfp$ep_l, "decreasing")
     }
   }
 
@@ -78,17 +78,17 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     dfp$rc_l <- dfp$r <- 0
   }else{
     if(any(class(recurrence_length) %in% c("number_line"))){
-      dfp$rc_l <- dfp$r <- diyar::reverse_number_line(recurrence_length, "decreasing")
+      dfp$rc_l <- dfp$r <- reverse_number_line(recurrence_length, "decreasing")
     }else{
-      dfp$r <- diyar::as.number_line(recurrence_length)
+      dfp$r <- as.number_line(recurrence_length)
       left_point(dfp$r) <- rep(0, length(dfp$r))
       # dfp$rc_l <- number_line(rep(0, length(dfp$r)), left_point(dfp$r))
-      # dfp$r[dfp$r@start <0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start <0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start <0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start<0 & dfp$r@.Data ==0]))
-      # dfp$r[dfp$r@start>=0 & dfp$r@.Data ==0] <- diyar::number_line(-as.numeric(dfp$dt_z[dfp$r@start>=0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start>=0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start>=0 & dfp$r@.Data ==0]))
-      dfp$r <- diyar::reverse_number_line(dfp$r, "decreasing")
+      # dfp$r[dfp$r@start <0 & dfp$r@.Data ==0] <- number_line(-as.numeric(dfp$dt_z[dfp$r@start <0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start <0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start<0 & dfp$r@.Data ==0]))
+      # dfp$r[dfp$r@start>=0 & dfp$r@.Data ==0] <- number_line(-as.numeric(dfp$dt_z[dfp$r@start>=0 & dfp$r@.Data ==0] - dfp$dt_a[dfp$r@start>=0 & dfp$r@.Data ==0]), as.numeric(dfp$r@start[dfp$r@start>=0 & dfp$r@.Data ==0]))
+      dfp$r <- reverse_number_line(dfp$r, "decreasing")
       n_r <- ifelse(start_point(dfp$r) < 0 & end_point(dfp$r) <=0 , T, F)
-      dfp$r[n_r] <- diyar::reverse_number_line(dfp$r[n_r])
-      # dfp$rc_l <- diyar::reverse_number_line(dfp$rc_l, "decreasing")
+      dfp$r[n_r] <- reverse_number_line(dfp$r[n_r])
+      # dfp$rc_l <- reverse_number_line(dfp$rc_l, "decreasing")
     }
   }
 
@@ -134,7 +134,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     dfp$event_nm <- ifelse(duplicated(dfp$cri), "", dfp$event_nm)
 
     dfp$dt_c <- (as.numeric(dfp$dt_a) + as.numeric(dfp$dt_z)) * .5
-    dfp$event_length <- diyar::number_line(dfp$dt_a, dfp$dt_z)@.Data
+    dfp$event_length <- number_line(dfp$dt_a, dfp$dt_z)@.Data
     dfp$p_ord <- order(-dfp$event_length, -as.numeric(dfp$dt_a),  dfp$ord)
 
     mid_pts <- dfp$dt_c
@@ -143,7 +143,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     p_ord <- dfp$p_ord[dfp$event_nm!=""]
 
     # # Check mid-points that are too close (0.04) as this will overlap in the plot.
-    chck <- diyar::compress_number_line(diyar::expand_number_line(as.number_line(mid_pts), 1), deduplicate = F, collapse = T)
+    chck <- compress_number_line(expand_number_line(as.number_line(mid_pts), 1), deduplicate = F, collapse = T)
     # Per overlaping group, order events based on size/length of period
     ord <- lapply(split(p_ord,  chck@gid), function(x){
       order(-x)
@@ -159,7 +159,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
     dfp$e_y[ord>1] <- max(dfp$e_y) + ((ord[ord>1]-1) * 0.25 * scale_fac)
 
     # dfp$e_y <- 1
-    # dfp$e_y[dfp$event_nm!=""] <- max(dfp$e_y) + ((space_out_yy(diyar::expand_number_line(as.number_line(dfp$dt_c[dfp$event_nm!=""]), 1))-1) * 0.05 * scale_fac)
+    # dfp$e_y[dfp$event_nm!=""] <- max(dfp$e_y) + ((space_out_yy(expand_number_line(as.number_line(dfp$dt_c[dfp$event_nm!=""]), 1))-1) * 0.05 * scale_fac)
 
     # Some number_lines may overlap by chance so, space out again incrementally (0.01)
     dfp$e_y <- dfp$e_y  - (1:nrow(dfp) * (scale_fac * 0.02))
@@ -410,14 +410,14 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
 # @examples
 # d <- c(number_line(1,5), number_line(1,2), number_line(2,3),
 # number_line(4,7), number_line(4,5), number_line(1,5))
-# diyar:::plot_number_line(d[c(1,6)])
-# diyar:::plot_number_line(d[c(2,3)])
-# diyar:::plot_number_line(d[c(1,3)])
-# diyar:::plot_number_line(d[c(1:3)])
+# :plot_number_line(d[c(1,6)])
+# :plot_number_line(d[c(2,3)])
+# :plot_number_line(d[c(1,3)])
+# :plot_number_line(d[c(1:3)])
 
 plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
   if(missing(x)) stop("argument 'x' is missing, with no default")
-  df <- diyar::to_df(x)
+  df <- to_df(x)
   if(is.null(strata)){
     df$strata <- 1
   } else{
@@ -425,7 +425,7 @@ plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
   }
 
   df$x <- x
-  df$y <- diyar::reverse_number_line(df$x, "decreasing")
+  df$y <- reverse_number_line(df$x, "decreasing")
 
   # df <- df[order(-(df$end-df$start)), ]
   #x <- x[order(-(df$end-df$start))]
@@ -435,7 +435,7 @@ plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
   # sn_change <- 1
   # #df <- df[nrow(df):1,]
   # while (max(sn_change) ==1) {
-  #   df$c <- diyar::compress_number_line(df$y, deduplicate = F, collapse = T)
+  #   df$c <- compress_number_line(df$y, deduplicate = F, collapse = T)
   #
   #   ord <- lapply(split(1:nrow(df), paste0(df$c@gid,"-", df$sn)), order)
   #   lk_sn <- lapply(split(df$sn, paste0(df$c@gid)), function(x){
@@ -648,7 +648,7 @@ space_out_y <- function(x_axis){
   rows_n <- length(x_axis)
   sn_change <- y_axis <- rep(1, rows_n)
   while (max(sn_change) ==1) {
-    c <- diyar::compress_number_line(x_axis, deduplicate = F, collapse = T)
+    c <- compress_number_line(x_axis, deduplicate = F, collapse = T)
 
     ord <- lapply(split(1:rows_n, paste0(c@gid,"-", y_axis)), order)
     lk_sn <- lapply(split(y_axis, paste0(c@gid)), function(x){

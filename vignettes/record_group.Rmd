@@ -20,12 +20,12 @@ plot_pid <- diyar:::plot_pid
 ```
 
 #Introduction
-Linking multiple datasets to consolidate information is a common task in research, particularly for those involving the use of "big data". Deterministic record linkage is the simplest and most common method of record linkage however, its accuracy relies on data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
+Linking datasets to consolidate information is a common task in research, particularly for those involving the use of "big data". Deterministic record linkage is the simplest and most common method of record linkage however, its accuracy relies on good data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
 
-This function aims to provide a simple, multistage and flexible implementation of deterministic record linkage which tries to improve the linkage of datasets with missing or incorrect group identifiers e.g. customer, patient or admission codes. In such instances, alternative identifiers like dates, names, height or other attributes are used in a specified order of preference.
+This function aims to provide a convenient and flexible approach to multistage deterministic linkage with ways of handlng missing or incorrect data.
 
 #Uses
-Each argument in `record_group()` controls separate aspects of the linkage process. Different combinations of options can be used to link datasets in a variety of ways. Examples of these include;
+`links()` can be used to link datasets in a variety of ways. Examples include;
 
 - Linking datasets on one (or more) matching `criteria`
 - Linking datasets on one (or more) matching `criteria` and one (or more) matching `sub_criteria`. See [record matching](#record_matching)
@@ -33,15 +33,11 @@ Each argument in `record_group()` controls separate aspects of the linkage proce
 - Linking datasets with missing group identifiers. See [handling missing values](#missing_values) 
 
 #Implementation 
-Record linkage is done in stages. A match at each stage is considered more relevant than matches at subsequent stages. Matching records are assigned a unique group ID. The group ID is essentially the record ID (`sn`) of one of the matching records. Therefore, a familiar record ID (`sn`) can prove useful.
+Data matching is done in ordered stages. A match at each stage is considered more relevant than those in subsequent stages. Matched records are assigned a record group identifer. This is the record identifier (`sn`) of one of the matching records therefore, a familiar `sn` can prove useful.
 
-There are matching `criteria` (column) for each stage. These are passed to the function as column names. The argument supports quasiquotation.
+Each matching stage has an attribute or characteristic to match (`criteria`). These must be passed as a `list` of `amotic` vectors.
 
-`sub_criteria` are additional matching conditions (columns) that can be paired with each `criteria`. This is provided as a `list` of named `vectors`. Each named `vector` contains a set of column names. When a `sub_criteria` is used, records will only be assigned to the same group ID if they match on the `criteria`, and at least one named column in each `sub_criteria`. 
-
-Each `sub_criteria` should be paired with a corresponding `criteria`. To do this, the vector name for each `sub_criteria` should be - `"s"` followed by the corresponding `criteria` number e.g. `"s1"` or `"s4"`. When a `criteria` is paired to more than one `sub_criteria`, include a suffix after the `criteria` number e.g. `"s1a"`, `"s1b"` and `"s1c"` ([See examples](#sub_cri_example)). Any `sub_criteria` not paired with a `criteria` will be ignored. The `sub_criteria` argument does not support quasiquotation.
-
-At each stage, the function prints the number of records that were assigned a group ID and how many groups have only one record.
+At each stage, additional matching conditions (`sub_criteria`) can also be specified by supplying a `list` of `sub_crieria()`. Each `sub_criteria()` must be paired to a stage (`criteria`). This is done by naming each element in the list using the syntax - `"cr[n]"`, where `n` is the corresponding stage (`criteria`) of interest ([See examples](#sub_cri_example)). Any unpaired `sub_criteria` will be ignored. When a `sub_criteria` is supplied, records will only be assigned to the same group if they have the same `criteria`, and at least matching attribute in each `sub_criteria()`. See examples below.
 
 ```{r warning=F, message=F}
 library(diyar);
@@ -55,15 +51,77 @@ dbs$pids_a <- links(criteria = dbs$surname, display = "none")
 dbs$pids_b <- links(criteria = list(dbs$surname, dbs$sex), display = "none")
 
 dbs
-
-# Note that exact matching is case sensitive. See range matching.
 ```
+
 <a id = "record_matching"></a>
 
 ## Record matching
-The choice and ordering of column names in `criteria` and `sub_criteria` determines the relevance of matches. This flexibility allows you to link records in different ways. However, you should always consider the most practical combination to get more true matches than false one.
+Attributes are compared for a case sensitive exact match. However, those supplied through `sub_criteria()` can also be compared by any `logical` test applicable to two `atomic` vectors. The logical test must be supplied as a `function` with two named arguments - `x` and `y`, where where `y` is the value for one observation being compared against all other observations (`x`). See some examples below.
 
-For example, in `patient_list` above, linking on surnames and then sex (`pid_b`) leads to a different result compared to when linking on sex before surnames (`pid_c`) (See [Record group expansion](#record_expansion)). In `pid_b`, a match on the individual's surname was considered more relevant than a match on their sex. The opposite was the case for `pid_c`. 
+```{r warning=F, message=F}
+dbs2 <- patient_list[c("forename","surname","sex")]; dbs2
+
+# Matching `sex`, and `forename` initials
+lgl_1 <- function(x, y) substr(x, 1, 1) == substr(y, 1, 1) 
+dbs2$pids_1 <- links(criteria =  list(dbs2$sex), 
+                     sub_criteria = list(
+                       cr1 = sub_criteria(dbs2$forename, funcs = lgl_1)),
+                     display = "none")
+
+# Matching `sex`, and `forename` with character length of 5
+lgl_2 <- function(x, y) nchar(x) == nchar(y) & nchar(x) == 5
+dbs2$pids_2 <- links(criteria =  list(dbs2$sex), 
+                    sub_criteria = list(
+                      cr1 = sub_criteria(dbs2$forename, funcs = lgl_2)),
+                    display = "none")
+
+# Matching `sex`, and `forename` that ends with "y"
+lgl_3 <- function(x, y) substr(x, length(x) - 1, length(x)) == "y"
+dbs2$pids_3 <- links(criteria =  list(dbs2$sex), 
+                    sub_criteria = list(
+                      cr1 = sub_criteria(dbs2$forename, funcs = lgl_3)),
+                    display = "none")
+
+# Matching `sex` and at least one `forename` that ends with "y"
+lgl_4 <- function(x, y) substr(y, length(y) - 1, length(y)) == "y"
+dbs2$pids_4 <- links(criteria =  list(dbs2$sex), 
+                    sub_criteria = list(
+                      cr1 = sub_criteria(dbs2$forename, funcs = lgl_4)),
+                    display = "none")
+```
+
+User-defined logical tests can be very useful for implementing complex matching conditions. For example, you can match observations if they are within a range or list of values, or if they are within a range of each other. See the example below.
+
+```{r message=F, warning=F}
+Opes_c <- Opes[c("date_of_birth", "name", "hair_colour")]
+Opes_c <- Opes["date_of_birth"]
+# approximate age
+Opes_c$age <- as.numeric(round((Sys.Date() - as.Date(Opes_c$date_of_birth, "%d/%m/%Y"))/365.5))
+
+# Match individuals between ages 35 and 55 
+rng1 <- function(x, y) x %in% 35:55
+Opes_c$pids_a <- links(criteria = "place_holder",
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, funcs = rng1)),
+                       display ="none")
+
+# Match individuals with a 5-year age gap between themselves
+rng2 <- function(x, y) abs(y - x) %in% 0:5
+Opes_c$pids_b <- links(criteria = "place_holder",
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, funcs = rng2)),
+                       display ="none")
+
+# Match individuals with more than a 5-year age gap between each other 
+rng3 <- function(x, y) (y - x) > 5
+Opes_c$pids_c <- links(criteria = "place_holder",
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, funcs = rng3)),
+                       display ="none")
+
+Opes_c[c("age","pids_a", "pids_b", "pids_c")]
+```
+
+`links()` goes through repeated checks for matches based on the logical test specified. It's important to remember that at each iteration, only one observation (`y`) is compared with every other observation (`x`). Therefore, in the same record group, two observations (i.e. `x[2]` and `x[3]`) can pass (separately) the same logical test with a third observation (i.e `y`), but not pass the same test when compared with each other. As an example, in `Opes_c$pids_c` above, records 1, 2, 4, 5 and 8 are within a 5-year gap. This has happended because there's more than a 5-year gap between themselves and record 7. 
+
+You should always consider the most practical combination to give you more true positive matches. For example, in `patient_list` above, linking on surnames and then sex (`pid_b`) leads to a different result compared to when linking on sex before surnames (`pid_c` below) (See [Record group expansion](#record_expansion)). In `pid_b`, a match on the individual's surname was considered more relevant than a match on their sex. The opposite was the case for `pid_c`. 
 
 ```{r warning=F, message=F}
 dbs$pids_c <- links(criteria =  list(dbs$sex, dbs$surname), display = "none")
@@ -71,7 +129,7 @@ dbs$pids_c <- links(criteria =  list(dbs$sex, dbs$surname), display = "none")
 dbs
 ```
 
-Considering the `criteria` used for each, both results are logically correct but `pids_b` is not the most practical option given the dataset. For instance, records 3 and 6 which have been grouped together could actually be cousins not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See `pid_d` below;
+Considering the `criteria` used for each, both results are logically correct but `pids_b` is not the most practical option given the dataset. For instance, records 3 and 6 which have been grouped together could actually be cousins and not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See `pid_d` below;
 
 ```{r message=F, warning=F}
 dbs_2 <- patient_list; dbs_2
@@ -82,11 +140,13 @@ dbs_2$pid_d <- links(sn = dbs_2$rd_id, list(dbs_2$forename, dbs_2$cri_2), displa
 dbs_2
 ```
 
-As mentioned earlier, at each stage of record linkage, a `sub_criteria` can be used to supply additional matching conditions. Just like `criteria`, any column in the dataset can be used as a `sub_criteria`.
+```{r echo=F, fig.height=4, fig.width=8.5, message=F, warning=F}
+plot_pid(pid = dbs_2$pid_d)
+```
 
 <a id="sub_cri_example"></a>
 
-Below are examples of record linkage using different combinations of the same `criteria` and `sub_criteria`
+Below are additional examples using different combinations of the same `criteria` and `sub_criteria`
 
 ```{r message=F, warning=F}
 data(Opes); Opes
@@ -133,46 +193,73 @@ Opes$pids_d <- links(criteria = Opes$name,
 Opes[c("name","department","hair_colour","date_of_birth","pids_d")]
 ```
 
-Note that using `sub_criteria` costs additional processing time, so it should be avoided when not needed. For example, the two implementations below (`pids_e` and `pids_f`) will lead to the same outcome but `pids_f` will take less time.
-
-```{r, warning=F, message=F}
-# 1 stage linkage 
-  # stage 1 - name AND ((department)  AND (hair_colour) AND (date_of_birth))
-Opes$pids_e <- links(criteria = Opes$name, 
-                     sub_criteria = list(cr1 = sub_criteria(Opes$department),
-                                         cr1 = sub_criteria(Opes$hair_colour),
-                                         cr1 = sub_criteria(Opes$date_of_birth)),
-                            display = "none")
-
-Opes$cri <- paste(Opes$name, Opes$date_of_birth, Opes$department, Opes$hair_colour, sep="-")
-
-# 1 stage linkage 
-  # stage 1 - name AND department AND hair_colour AND date_of_birth
-Opes$pids_f <- links(criteria = Opes$cri,  display = "none")
-
-Opes[c("name","department","hair_colour","date_of_birth","pids_e","pids_f")]
-```
+## Multi-stage linkage
 
 <a id = "record_expansion"></a>
 
-## Record group expansion
-At each stage of record linkage, records are either assigned a new group ID or inherit an existing one. The following scenario explain how these happen;
+### Group expansion
+By default, matches at different stages are linked together. This means that the more stages (`criteria`) there are in an instance of `links()`, the larger a record group becomes as more records are linked to it. When there are conflicting matches, priority is always given to matches that occured at earlier stages. Therefore, it's important that `criteria` is listed in decreasing order of certainty or relevance. You can disable the link between stages by changing the `expand` argument to `FALSE`. See a simple example below.
 
-- If a record only matches others that have not yet been assigned a group ID, it and the others will then be assigned a new group ID 
-- If a record matches others which already have a group ID, the record will inherit the existing group ID. Note that if it's matched with different records from different group IDs, it will inherit the group ID that was assigned at the earlier stage since that's the more 'relevant' one
-- If a record does not match any other record, it will not be assigned a group ID at that stage. If by the last stage, it still has not matched any other record, it is assigned a unique group ID
+```{r message=F, warning=F}
+data(Opes); Opes
 
-Existing group IDs can be inherited but will not be overwritten. This is because groups formed at earlier stages are considered more "certain" than those formed at subsequent stages. Therefore, it's worth reiterating that `record_group()` expects the `criteria` to be listed in order of decreasing relevance. 
+# 2 stage linkage
+  # stage 1 - link "Opes" in departments that start with the letter "P" THEN 
+  # stage 2 - bridge these to "Opes" whose hair colour starts with the letter "B"
+dept_func <- function(x, y) substr(x, 1, 1) == substr(y, 1, 1) & substr(y, 1, 1) == "P" 
+hair_func <- function(x, y) substr(x, 1, 1) == substr(y, 1, 1) & substr(y, 1, 1) == "B"
 
-**Example 1 - `patient_list`**
+Opes$p_exp_a <- links(criteria = list(Opes$name, Opes$name),
+                     sub_criteria = list(
+                       cr1 = sub_criteria(Opes$department, funcs = dept_func),
+                       cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                     display = "none")
 
-**Figure 1: Record group expansion**
+# 2 stage linkage
+  # stage 1 - link "Opes" in departments that start with the letter "P" THEN 
+  # stage 2 - link "Opes" whose hair colour starts with the letter "B"
+Opes$p_nexp_a <- links(criteria = list(Opes$name, Opes$name),
+                     sub_criteria = list(
+                       cr1 = sub_criteria(Opes$department, funcs = dept_func),
+                       cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                     expand = F,
+                     display = "none")
+
+Opes[c("name","department","hair_colour", "p_exp_a", "p_nexp_a")]
+```
+
+Note that changing `expand` to `TRUE` is not the same as reversing the relevance of your matching conditions, and can therefore give different results. See below.  
+
+```{r message=F, warning=F}
+# The same as `p_exp_a` 
+Opes$p_exp_b <- links(criteria = list(Opes$name, Opes$name),
+                     sub_criteria = list(
+                       cr2 = sub_criteria(Opes$department, funcs = dept_func),
+                       cr1 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                     display = "none")
+
+# Not the same as `p_nexp_a`
+Opes$p_nexp_b <- links(criteria = list(Opes$name, Opes$name),
+                     sub_criteria = list(
+                       cr2 = sub_criteria(Opes$department, funcs = dept_func),
+                       cr1 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                     expand = F,
+                     display = "none")
+
+Opes[c("name","department","hair_colour", "p_exp_a", "p_exp_b", "p_nexp_a", "p_nexp_b")]
+```
+
+***Example 1 of group expansion***
+
 ```{r warning=F}
 data(patient_list_2); patient_list_2
 
-patient_list_2$pids_a <- links(sn = patient_list_2$rd_id, 
-                               criteria = list(patient_list_2$forename, patient_list_2$surname, patient_list_2$sex), 
-                               display = "none")
+patient_list_2$pids_a <- links(
+  sn = patient_list_2$rd_id,
+  criteria = list(patient_list_2$forename, 
+                  patient_list_2$surname,
+                  patient_list_2$sex), 
+  display = "none")
 
 patient_list_2
 ```
@@ -181,13 +268,7 @@ patient_list_2
 plot_pid(pid = patient_list_2$pids_a)
 ```
 
-- Stage 1 (criteria) - Only records 3 and 4 are grouped together and therefore assigned a new group ID (`3`). Records 1 and 2 are excluded from grouping at this stage because of [missing values](#missing_values). Record 5 is not assigned a group ID because it doesn't match any other record. 
-- Stage 2 (criteria) - Records 1 and 2 are grouped together based on matching surnames and assigned a new group ID (`1`). Records 3 and 4 do not match on surnames but remain grouped together since they've already matched on forenames, which is more "certain" as listed in `criteria`. Record 5 is still not assigned a group ID because it doesn't match any other record on surnames. 
-- Stage 3 (criteria) - Record 5 matches record 1 and 3 which belong to different group IDs. However, it will inherit record 3's group ID (`3`) because that was assigned at stage 1 (`"CRI 01"`) as opposed to record 2's group ID which was assigned at stage 2 (`"CRI 02"`).
-
-**Example 2**
-
-**Figure 2: Record group expansion**
+***Example 2 of group expansion***
 ```{r warning=F}
 df <- data.frame(
   forename = c("John", "John", "Jon", 
@@ -207,20 +288,112 @@ df
 ```
 
 ```{r echo=F, fig.height=4, fig.width=8.5, message=F, warning=F}
-diyar:::plot_pid(df$pids_a)
+plot_pid(df$pids_a)
 ```
 
-- Stage 1 (criteria) - Records 1, 2 and 8 have matching surnames and so are grouped together. Similarly, records 5 and 6 are grouped together for the same reason. Record 4 is not assigned a group ID at this stage because of missing values. Records 3, 4, 7, 9, 10 and 11 are also not assigned a group ID at this stage because they do not match any other record. 
-- Stage 2 (criteria) - Record 3 has the same surname as record 2 and so inherits record 2's group ID (`1`). The other records still do not match any other record at this stage and so remain unassigned.  
-- Stage 3 (criteria) - Record 4 has the same age as record record 3 and so inherits it's group ID (`1`). Similarly, record 7 inherits record 6's group ID for the same reason.
-- No hit - Records 9, 10 and 11 did not match any other record on forename, surname or age therefore, they are assigned to unique group IDs.
+### Group shrinkage
+You can also specify the opposite behaviour, where a record group becomes smaller with each subsequent stage. If there are no `sub_criteria`, the easiet way of doing this is to concatnate the attributes in the different stages. See the example below.
+
+```{r message=F, warning=F}
+data(Opes); Opes
+
+# 1 stage linkage
+  # stage 1 - link "Opes" that are in the same department AND have the same day and month of birth 
+Opes$cri <- paste(Opes$name, Opes$department, Opes$db_pt1, sep = " ")
+Opes$p_shk_c <- links(criteria = list(Opes$cri),
+                     display = "none")
+
+Opes[c("name","department","db_pt3", "p_shk_c")]
+```
+
+However, if there are `sub_criteria`, you'll need to use the `shrink` argument. See the example below. The same analysis is repeated using `sub_criteria`.
+
+```{r message=F, warning=F}
+# 3 stage linkage
+  # stage 1 - link "Opes" that have the same name, THEN WITHIN THESE
+  # stage 2 - link "Opes" that are in the same department, THEN WITHIN THESE
+  # stage 3 - link "Opes" have the same day and month of birth 
+Opes$p_shk_d <- links(criteria = list(Opes$name, Opes$department, Opes$db_pt1),
+                      sub_criteria = list(
+                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match),
+                        cr2 = sub_criteria("place_holder", funcs = diyar::exact_match),
+                        cr3 = sub_criteria("place_holder", funcs = diyar::exact_match)
+                      ),
+                      shrink = T,
+                     display = "none")
+
+Opes[c("name","department","db_pt3", "p_shk_c", "p_shk_d")]
+```
+
+Please note that although the `p_shk_c` and `p_shk_d` identifiers are the same, the `pid_cri` slot for both are different reflecting the different ways they were created. `p_shk_d` is the equivalent of three compounding (using `strata`) instances of `links()`. See below.
+
+```{r message=F, warning=F}
+# 1 stage linkage
+  # stage 1 - link "Opes" that have the same name
+Opes$p_shk_e1 <- links(criteria = list(Opes$name),
+                      sub_criteria = list(
+                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match)),
+                      shrink = T,
+                     display = "none")
+
+# Another attempt is made always made at the next for records with no links 
+Opes$e1 <- ifelse(Opes$p_shk_e1@pid_cri == 0, "No Hits", as.character(Opes$p_shk_e1))
+
+# 1 stage linkage
+  # stage 1 - link "Opes" that are in the same department
+Opes$p_shk_e2 <- links(criteria = list(Opes$department),
+                      strata = Opes$e1,
+                       sub_criteria = list(
+                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match)),
+                      shrink = T,
+                     display = "none")
+
+# Another attempt is made always made at the next for records with no links
+Opes$e2 <- ifelse(Opes$p_shk_e1@pid_cri == 0, "No Hits", as.character(Opes$p_shk_e1))
+
+# 1 stage linkage
+  # stage 3 - link "Opes" have the same day and month of birth 
+Opes$p_shk_e3 <- links(criteria = list(Opes$db_pt1),
+                      strata = Opes$e2,
+                       sub_criteria = list(
+                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match)),
+                      shrink = T,
+                     display = "none")
+
+Opes[c("name","department","db_pt3", "p_shk_e1", "p_shk_e2", "p_shk_e3", "p_shk_c", "p_shk_d")]
+```
+
+Note that the `expand` functionality is not always interchangeable with that of `shrink`. See an example of the difference below.
+
+```{r message=F, warning=F}
+data(Opes); Opes
+
+Opes$p_cmp1 <- links(criteria = list("place_holder", "place_holder"),
+                      sub_criteria = list(
+                        cr1 = sub_criteria(Opes$department, funcs = dept_func),
+                        cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                     expand = T,
+                     shrink = F,
+                     display = "none")
+
+Opes$p_cmp2 <- links(criteria = list("place_holder", "place_holder"),
+                      sub_criteria = list(
+                        cr1 = sub_criteria(Opes$department, funcs = dept_func),
+                        cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                     expand = F,
+                     shrink = T,
+                     display = "none")
+
+# `p_cmp1` is not the same as `p_cmp2`
+Opes[c("name", "department", "hair_colour", "p_cmp1", "p_cmp2")]
+```
 
 <a id = "missing_values"></a>
 
 ## Handling missing values
-Records with missing values for a particular `criteria` are excluded from that stage of record linkage. If a record has missing values for every listed `criteria`, it's assigned a unique group ID at the end of the process. 
+Records with missing values for a particular `criteria` are excluded from that stage of the linkage process. If a record has missing values for every listed `criteria`, it's assigned to unique group where it's the only member.
 
-It's common for databases to use specific characters or numbers to represent missing or unknown data e.g. `N/A`, `Nil`, `01/01/1100`, `111111` e.t.c. These pseudo-missing values will need to be re-coded to one of the two recognised by `record_group()` - `NA` or an empty string (`""`). If this is not done, the function will assume the pseudo-missing values are valid values and therefore group them together. This can cause a continuous cascade of false matches as seen below.
+It's common for databases to use specific characters or numbers to represent missing or unknown data e.g. `N/A`, `Nil`, `01/01/1100`, `111111` e.t.c. These pseudo-missing values must need to be re-coded to `NA`, so that `links()` recognises them as missing values. If this is not done, it can lead to a cascade of false matches as seen below.
 
 ```{r warning=F, message=F}
 patient_list_2$forename <- ifelse(patient_list_2$rd_id %in% 1:3, "Nil", patient_list_2$forename)
@@ -228,74 +401,82 @@ patient_list_2$forename <- ifelse(patient_list_2$rd_id %in% 1:3, "Nil", patient_
     # Stage 1 - forename
     # Stage 2 - surname
 
-patient_list_2$pids_b <- links(criteria = list(patient_list_2$forename, patient_list_2$surname), 
+patient_list_2$pids_b <- links(criteria = list(patient_list_2$forename, 
+                                               patient_list_2$surname), 
                                display = "none")
 
 patient_list_2[c("forename","surname","pids_b")]
 ```
 
-<a id = "range_matching"></a>
-
-In the example above, records 1-3 are assigned a single group ID even though record 3 is clearly a different person. This issue can be addressed by recoding `"Nil"` to `NA` or `""`.
+In the example above, records 1-3 are assigned to the same record group even though record 3 seems to be a different person. However, changing `"Nil"` to `NA` lets `links()` know that `"Nil"` is not a valid `forename`, and it should not be compared for matches. See below.
 
 ```{r warning=F, message=F}
-# Using NA as the proxy for missing value
+# `NA` as the proxy for missing value
 patient_list_2$forename <- ifelse(patient_list_2$forename == "Nil", NA, patient_list_2$forename)
 
 patient_list_2$pids_d <- links(sn = patient_list_2$rd_id, 
-                               criteria = list(patient_list_2$forename, patient_list_2$surname), 
+                               criteria = list(patient_list_2$forename, 
+                                               patient_list_2$surname), 
                                display = "none")
 
-# Using "" as the proxy for missing value
-patient_list_2$forename <- ifelse(is.na(patient_list_2$forename), "", patient_list_2$forename)  
-
-patient_list_2$pids_e <- links(sn = patient_list_2$rd_id, 
-                               criteria = list(patient_list_2$forename, patient_list_2$surname), 
-                               display = "none")
-
-patient_list_2[c("forename","surname", "pids_b", "pids_d","pids_e")]
+patient_list_2[c("forename","surname", "pids_b", "pids_d")]
 ```
 
-## Approximate matching - text transformation and range matching
-Sometimes an exact match might be too strict and a less exact but reasonable approximation can be used. For example in `patient_list_2` above, records 3 and 4 seem to be the same individual but are not grouped together because the surnames are not an exact match. An alternative approach can be to use the surname initials or a Soundex transformation of the actual surname.
+<a id="tips"></a>
 
-```{r warning=F, message=F}
-patient_list_2$soundex <- stringdist::phonetic(patient_list_2$surname)
-patient_list_2$pids_e <- links(sn = patient_list_2$rd_id, 
-                               criteria = list(patient_list_2$forename, patient_list_2$soundex),
-                               display = "none")
+## Useful tips in using `links()`
+## `criteria` over `sub_criteria`
 
-patient_list_2[c("forename","surname","soundex","pids_d","pids_e")]
+`sub_criteria` are required for user-defined logical tests however, it take more time to compare a `sub_criteria` than it does a `criteria`. Therefore, you'll save some time if you only use `sub_criteria` when the matching conditions can not be specified as a `criteria`. For example, the defined logical test `lgl_1` (above) was supplied as a `sub_criteria`, but `links()` will create the identfier faster if it was supplied as a `criteria`. See below.
+
+```{r, warning=F, message=F}
+# Matching `sex`, and `forename` initials
+dbs2
+dbs2$initials <- substr(dbs2$forename, 1, 1)
+dbs2$pids_1b <- links(criteria = dbs2$initials,
+                     display = "none")
+
+dbs2[c("forename", "initials", "pids_1", "pids_1b")]
 ```
 
-For continuous data, you can use the function's range matching feature. In range matching, numeric values are "matched" if they are within a specified range of other values. To do this, convert each value to the required range using `number_line()`. Then assign the actual value to the `gid` slot of the resulting `number_line` object. The `number_line` object can then be used as a `criteria` or `sub_criteria`. `number_line` objects are considered a match if they overlap. See the examples below.
+Similarly, mutliple `sub_criteria` with only one attribute, and paired to the same `criteria` should be avoided. Instead, concatnate these attribute together as one `crieria`. For example, the two implementations below (`pids_e` and `pids_f`) will lead to the same outcome but `pids_f` will take less time.
 
-```{r message=F, warning=F}
-Opes_c <- Opes["date_of_birth"]
-Opes_c$date_of_birth
+```{r, warning=F, message=F}
+# 1 stage linkage 
+  # stage 1 - name AND ((department)  AND (hair_colour) AND (year_of_birth))
+Opes$month_of_birth <- substr(Opes$date_of_birth, 4, 5)
+Opes$pids_e <- links(criteria = Opes$name, 
+                     sub_criteria = list(cr1 = sub_criteria(Opes$department),
+                                         cr1 = sub_criteria(Opes$hair_colour),
+                                         cr1 = sub_criteria(Opes$month_of_birth)),
+                            display = "none")
 
-# Match on date of birth + 2 years
-Opes_c$date_of_birth <- as.Date(Opes_c$date_of_birth, "%d/%m/%Y")
-Opes_c$range_a <- expand_number_line(as.number_line(Opes_c$date_of_birth), (365*2), "end")
-Opes_c$range_a@gid <- as.numeric(Opes_c$date_of_birth)
+Opes$cri <- paste(Opes$name, Opes$month_of_birth, Opes$department, Opes$hair_colour, sep="-")
 
-Opes_c$pids_a <- links(criteria = "place_holder",
-                       sub_criteria = list(cr1 = sub_criteria(Opes_c$range_a, funcs = diyar::range_match_legacy)),
-                       display ="none")
+# 1 stage linkage 
+  # stage 1 - name AND department AND hair_colour AND date_of_birth
+Opes$pids_f <- links(criteria = Opes$cri,  display = "none")
 
-Opes_c[c("date_of_birth","range_a","pids_a")]
-
-# Match on age +/- 5 years
-Opes_c$age <- as.numeric(round((Sys.Date() - Opes_c$date_of_birth)/365.5)) # approximate age
-Opes_c$range_b <- expand_number_line(as.number_line(Opes_c$age), 5, "both")
-Opes_c$range_b@gid <- Opes_c$age
-
-Opes_c$pids_b <- links(criteria = "place_holder",
-                       sub_criteria = list(cr1 = sub_criteria(Opes_c$range_b, funcs = diyar::range_match_legacy)),
-                       display = "none")
-
-Opes_c[c("age","range_b","pids_b")]
+Opes[c("name","department","hair_colour","month_of_birth","pids_e","pids_f")]
 ```
+
+This time difference could become more noticeable with larger datasets.
+
+## Convenience vs efficiency
+`links()` is a convenient tool for routine data linkage. However, `links()` is more valuable for handlng complex matching conditions, missing data and multi-stage linkage. The more complex the scenerio, the more likely its convenience outweights the complexity of scripting them. Implementing simple matching conditions or one-stage linkages is possible with `links()`, but this take slightly more time than base `R` alternatives. See the example below.
+
+```{r, warning=F, message=F}
+Opes[c("department")]
+
+Opes$links_a <- links(Opes$department, display = "none")
+
+Opes$links_b <- match(Opes$department, Opes$department[!duplicated(Opes$department)])
+
+Opes[c("department", "links_a", "links_b")]
+
+```
+
+This time difference could become more noticeable with larger datasets.
 
 #Conclusion
 As a general rule, the more unique a criteria, the earlier it should be listed in `criteria`. Also, the set and ordering of `criteria` is a personal choice but should also be a practical one for any given dataset. For example, when linking a vehicular database with no existing identifier, vehicle colour alone is less practical than colour and brand name, which in turn is less practical than colour, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and may need to be relaxed. On the other hand, the dataset could be so small that vehicle colour alone is a sufficient `criteria`. `record_group()` aims to minimize false mismatches due to random data entry errors or missing values. The choice and ordering of `criteria` and `sub_criteria` should balance the availability of alternative identifiers with their practicality as a group identifier.

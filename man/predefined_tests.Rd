@@ -13,14 +13,21 @@ range_match(x, y, range = 10)
 
 range_match_legacy(x, y)
 }
+\arguments{
+\item{x}{Every value of an attribute to compare in \bold{\code{\link{links}}}.}
+
+\item{y}{One value to which is compared against all other values of the same attribute (\code{x})}
+
+\item{range}{Difference between \code{y} and \code{x}.}
+}
 \description{
-A collection of predefined logical tests for \code{\bold{\link{sub_criteria}}}
+A collection of predefined logical tests for \bold{\code{\link{sub_criteria}}}
 }
 \examples{
 library(diyar)
 
 # `exact_match` - test that `x` is equal to `y`
-exact_match(x = 1, x = "1")
+exact_match(x = 1, y = "1")
 exact_match(x = 1, y = 1)
 
 # `range_match` - test that `y` is between `x` and `x + range`

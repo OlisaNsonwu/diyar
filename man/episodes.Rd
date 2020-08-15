@@ -16,17 +16,17 @@ episodes(date, case_length = Inf, episode_type = "fixed",
   group_stats = FALSE, display = "none", recurrence_from_last = TRUE,
   case_for_recurrence = FALSE)
 
-fixed_episodes(..., date, case_length = Inf, episode_unit = "days",
+fixed_episodes(date, case_length = Inf, episode_unit = "days",
   to_s4 = T, overlap_methods_c = "overlap", deduplicate = F,
   display = "progress", bi_direction = F, include_index_period = T,
-  overlap_methods = "overlap", overlap_method = "overlap", x)
+  ..., overlap_methods = "overlap", overlap_method = "overlap", x)
 
-rolling_episodes(..., date, case_length = Inf,
+rolling_episodes(date, case_length = Inf,
   recurrence_length = case_length, episode_unit = "days", to_s4 = T,
   overlap_methods_c = "overlap", overlap_methods_r = overlap_methods_c,
-  deduplicate = F, display = "progress", overlap_method = "overlap",
-  bi_direction = F, include_index_period = T,
-  overlap_methods = "overlap", x)
+  deduplicate = F, display = "progress", bi_direction = F,
+  include_index_period = T, ..., overlap_methods = "overlap",
+  overlap_method = "overlap", x)
 
 episode_group(df, ..., episode_type = "fixed")
 }
@@ -63,6 +63,10 @@ This is the recurrence window. If \code{NULL} (default), it's assumed to be the 
 
 \item{from_last}{If \code{TRUE}, track episodes in reverse chronological order. If \code{TRUE} (default), track episodes in chronological order.}
 
+\item{overlap_methods_c}{Methods of overlap considered when tacking \code{"case"} events. Different events can be checked by different sets of \code{overlap_methods}}
+
+\item{overlap_methods_r}{Methods of overlap considered when tacking \code{"recurrent"} events. Different events can be checked by different sets of \code{overlap_methods}}
+
 \item{group_stats}{If \code{TRUE} (default), episode specific information like episode start and end points are returned. See \code{Value}.}
 
 \item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
@@ -73,15 +77,21 @@ If \code{FALSE} (default), it will be the first event. Only used if \code{episod
 \item{case_for_recurrence}{If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{to_s4}{If \code{TRUE} (default), episodes are returned as an \code{\link[=epid-class]{epid}} object.}
+\item{to_s4}{If \code{TRUE}, episodes are returned as an \code{\link[=epid-class]{epid}} object.}
+
+\item{deduplicate}{if \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
 
 \item{bi_direction}{If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked. If  \code{FALSE} (default), \code{"duplicate"} events are tracked in one direction only.}
 
 \item{include_index_period}{If \code{TRUE}, overlaps with the index event or period are grouped together even if they are outside the cut-off period.}
 
-\item{overlap_methods}{Methods of overlap considered when tacking event. Different events can be checked by different sets of \code{overlap_methods}}
+\item{...}{Arguments passed to \bold{\code{episodes}}}
+
+\item{overlap_methods}{Deprecated. Methods of overlap considered when tacking event. Different events can be checked by different sets of \code{overlap_methods}}
 
 \item{overlap_method}{Deprecated. Please use \code{overlap_methods}. Methods of overlap considered when tacking event. All event are checked by the same set of \code{overlap_method}.}
+
+\item{x}{Deprecated. Record date or interval. Please use \code{date}}
 
 \item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
 }
@@ -115,7 +125,7 @@ A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_l
 However, a \code{"rolling"} episode can continue to recur therefore, its maximum duration is variable.
 A \code{"rolling"} episode will last as long as is permitted (\code{rolls_max}) and there's an event within its period of recurrence (\code{recurrence_length}).
 
-\bold{\code{diyar::episodes()}} will group every record into 5 type of events;
+\bold{\code{episodes()}} will group every record into 5 type of events;
 
 \itemize{
 \item \code{"Case"} - Index case of the episode.
@@ -132,9 +142,9 @@ A \code{"rolling"} episode will last as long as is permitted (\code{rolls_max}) 
 \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
 
 \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{diyar::episodes()}} moving forward.
+Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
 
-\bold{\code{fixed_diyar::episodes()}} and \bold{\code{rolling_diyar::episodes()}} are wrapper functions for two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
+\bold{\code{fixed::episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for two main use cases - tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
 They exist for convenience and to support existing code with minimal disruption.
 }
 \examples{
@@ -147,13 +157,13 @@ db_1$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Fixed episodes
 # One 16-day (15-day difference) episode per patient
-db_1$epids_p <- fixed_diyar::episodes(date=db_1$date,
+db_1$epids_p <- fixed_episodes(date=db_1$date,
                                strata = db_1$patient_id,
                                case_length = 15,
                                episodes_max = 1)
 # Rolling episodes
 # Case length of 16 days and recurrence periods of 11 days
-db_1$rd_b <- rolling_diyar::episodes(db_1$date,
+db_1$rd_b <- rolling_episodes(db_1$date,
                               case_length = 15,
                               recurrence_length = 10)
 
@@ -163,9 +173,9 @@ hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 admissions <- hospital_admissions[c("admin_period","epi_len")]
 
 # Episodes of overlaping periods of admission
-hospital_admissions$epids_i<- fixed_diyar::episodes(date=hospital_admissions$admin_period,
+hospital_admissions$epids_i<- fixed_episodes(date=hospital_admissions$admin_period,
                                             case_length = 0,
-                                            overlap_methods = "inbetween")
+                                            overlap_methods_c = "inbetween")
 
 }
 \seealso{

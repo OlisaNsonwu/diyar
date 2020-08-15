@@ -287,7 +287,7 @@ overlaps_err <- function(opts){
   m <- c("none", "exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap")
   pos <- 1:length(m)
   all_pos <- lapply(pos, function(i){
-    combn(pos, m =i, simplify = F, FUN = funx)
+    utils::combn(pos, m =i, simplify = F, FUN = funx)
   })
   all_pos <- unlist(unlist(all_pos, recursive = F), recursive = F)
   all_pos <- sapply(all_pos, function(x){
@@ -309,7 +309,7 @@ overlaps_err <- function(opts){
 
   if(length(opts) > 0){
     opts <- paste0("\"", names(opts),"\"", " at ", opts)
-    if(opts_len >3) errs <- paste0(paste0(opts, collapse = ", "), " ...") else errs <- diyar:::listr(opts)
+    if(opts_len >3) errs <- paste0(paste0(opts, collapse = ", "), " ...") else errs <- listr(opts)
     return(errs)
   }else{
     return(character())

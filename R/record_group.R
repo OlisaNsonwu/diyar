@@ -10,9 +10,12 @@
 #' @param sub_criteria \code{list} of additional attributes to compare. Comparison is done as an exact match or a user defined \code{function}. See \code{\link{sub_criteria}}
 #' @param data_source Unique data source identifier. Useful when the dataset contains data from multiple sources.
 #' @param group_stats If \code{TRUE} (default), group specific information like record counts. See \code{Value}.
+#' @param data_links A set of \code{data_sources} required in each episode. \code{stratas} without these will be skipped, and episodes without these will be unlinked. See \code{Details}.
+#' @param expand If \code{TRUE}, allows the increases in size of a record group at subsequent stages of the linkage process.
+#' @param shrink If \code{TRUE}, allows the reduction in size of a record group at subsequent stages of the linkage process.
 #' @param display Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
-#' @param to_s4 If \code{TRUE} (default), record groups are returned as a \code{\link[=pid-class]{pid}} object.
-#'
+#' @param to_s4 If \code{TRUE}, record groups are returned as a \code{\link[=pid-class]{pid}} object.
+#' @param ... Arguments passed to \bold{\code{links}}
 #' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 #'
 #' \itemize{
@@ -54,18 +57,18 @@
 #' # Exact match
 #' links(criteria = c("Obinna","James","Ojay","James","Obinna"))
 #'
-#' # Use defined tests - `sub_criteria()`
+#' # Use defined tests using `sub_criteria()`
 #' # Matching `sex` an + 20-year age gaps
-#' age <- c(30,28,40,25,25,29,27)
-#' sex <- c("M","M","M","F","M","M","F")
+#' age <- c(30, 28, 40, 25, 25, 29, 27)
+#' sex <- c("M", "M", "M", "F", "M", "M", "F")
 #' f1 <- function(x, y) (y - x) %in% 0:20
 #' links(criteria = sex,
-#'       sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f1)))
+#'       sub_criteria = list(s1 = sub_criteria(age, funcs = f1)))
 #'
 #' # Matching `sex` an +/- 20-year age gaps
 #' f2 <- function(x, y) abs(y - x) %in% abs(0:20)
 #' links(criteria = sex,
-#'       sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f2)))
+#'       sub_criteria = list(s1 = sub_criteria(age, funcs = f2)))
 #'
 #' # Multistage linkage
 #' # Relevance of matches: `forename` > `surname`
@@ -78,7 +81,7 @@
 #' # `staff_id` > `age` AND (`initials`, `hair_colour` or `branch_office`)
 #' data(missing_staff_id); missing_staff_id
 #' links(criteria = list(missing_staff_id$staff_id, missing_staff_id$age),
-#'       sub_criteria = list(s2=sub_criteria(missing_staff_id$initials,
+#'       sub_criteria = list(s2 = sub_criteria(missing_staff_id$initials,
 #'                                           missing_staff_id$hair_colour,
 #'                                           missing_staff_id$branch_office)),
 #'       data_source = missing_staff_id$source_1)
@@ -88,11 +91,12 @@ links <- function(criteria,
                   sub_criteria = NULL,
                   sn = NULL,
                   strata = NULL,
-                  to_s4 = TRUE,
                   data_source = NULL,
                   data_links = "ANY",
                   display = "progress",
-                  group_stats = F){
+                  group_stats = F,
+                  expand = TRUE,
+                  shrink = FALSE){
 
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
   if(err != F) stop(err, call. = F)
@@ -159,6 +163,13 @@ links <- function(criteria,
       lgk[!lgk] <- is.na(strata[!lgk])
       cri[!lgk] <- paste0(strata[!lgk], " ", cri[!lgk])
     }
+
+    if(shrink == T){
+      cri <- paste0(cri, " ", pid)
+      pid[T==T] <- sn_ref
+      link_id[T==T] <- sn_ref
+    }
+
     cri <- match(cri, cri[!duplicated(cri)])
     cri[lgk] <- NA_real_
 
@@ -171,7 +182,7 @@ links <- function(criteria,
     c <- 0
     tot <- ds_len
 
-    while (min_pid==sn_ref | min_m_tag==-1) {
+    while (min_pid == sn_ref | min_m_tag == -1) {
       sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = T)
       for(vr in c("force_check","tag","cri",
                   "skip", "pid", "tag","m_tag",
@@ -187,20 +198,51 @@ links <- function(criteria,
       p <- as.numeric(names(r$values))
       tr_link_id <- rep(link_id[which(names(cri) %in% p)], r$lengths)
       tr_pid_cri <- rep(pid_cri[which(names(cri) %in% p)], r$lengths)
-      tr_cri <- rep(cri[which(names(cri) %in% p)], r$lengths)
+      #tr_cri <- rep(cri[which(names(cri) %in% p)], r$lengths)
       tr_tag <- rep(tag[which(names(cri) %in% p)], r$lengths)
       tr_pid <- rep(pid[which(names(cri) %in% p)], r$lengths)
       tr_sn <- rep(sn[which(names(cri) %in% p)], r$lengths)
 
-      curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr",i))]
+      curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
       if(length(curr_sub_cri) > 0){
-        sub_cri_match <- sapply(curr_sub_cri, function(set){
-          set_match <- sapply(set, function(a){
-            x <- a[[1]][match(pr_sn, seq_len(ds_len))]
+        sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
+          set <- curr_sub_cri[[i]]
+          set_match <- sapply(1:length(set), function(j){
+            a <- set[[j]]
+            x <- a[[1]]
+            if(length(x) == 1){
+              x <- rep(x, ds_len)
+            }
+            x <- x[match(pr_sn, seq_len(ds_len))]
             y <- rep(x[which(names(cri) %in% p)], r$lengths)
             f <- a[[2]]
-            lgk <- as.numeric(f(x, y))
-            ifelse(is.na(lgk), 0, lgk)
+            #lgk <- try(f(x, y), silent = T)
+            lgk <- f(x, y)
+            if(class(lgk) == "try-error" | class(lgk) != "logical"){
+              if(class(lgk) == "try-error"){
+                err <- attr(lgk, "condition")$message
+              }else{
+                err <- "Output is not a `logical` object"
+              }
+
+              err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                            "i - Each `func` must have the following syntax and output.\n",
+                            "i - Syntax ~ `func(x, y, ...)`.\n",
+                            "i - Output ~ `TRUE` or `FALSE`.\n",
+                            "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+              stop(err, call. = F)
+            }
+            lgk <- as.numeric(lgk)
+            x <- ifelse(is.na(lgk), 0, lgk)
+            if(length(x) == 1) x <- rep(x, length(cri))
+            if(length(x) != length(cri)){
+              err <- paste0("Output length of `funcs` must be 1 or the same as `criteria`:\n",
+                            "i - Unexpected length for `funcs-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+                            "i - Expecting a length of 1 of ", length(cri), ".\n",
+                            "X - Length is ", length(x), ".")
+              stop(err, call. = F)
+            }
+            return(x)
           })
           ifelse(rowSums(set_match) > 0, 1, 0)
         })
@@ -209,37 +251,57 @@ links <- function(criteria,
         sub_cri_match <- rep(1, ds_len)
       }
 
-      m_tag <- ifelse(m_tag==1 &
+      m_tag <- ifelse(m_tag == 1 &
                         sub_cri_match > 0 &
                         pid_cri <= tr_pid_cri,
                       -1, m_tag)
-      m_tag <- ifelse(sub_cri_match > 0 &
-                        m_tag ==-1 &
-                        pid == tr_pid & !is.na(tr_pid),
+      m_tag <- ifelse(m_tag ==-1 &
+                        sub_cri_match > 0 &
+                        pid == tr_pid &
+                        !is.na(tr_pid),
                       1, m_tag)
-      pid <- ifelse(
-        (m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid)),
-        tr_pid, pid)
+
+      # pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))),
+      #               tr_pid, pid)
+
+      pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))) &
+                      ((tr_pid_cri == pid_cri & !expand) | (expand)),
+                    tr_pid, pid)
+
 
       #inherit pid
-      pid <- ifelse(
-        pid == sn_ref & !tr_pid %in% c(sn_ref, NA) & sub_cri_match > 0,
-        tr_pid, pid)
+      # pid <- ifelse(sub_cri_match > 0 &
+      #                 pid == sn_ref &
+      #                 !tr_pid %in% c(sn_ref, NA),
+      #               tr_pid, pid)
+      pid <- ifelse(sub_cri_match > 0 &
+                      pid == sn_ref &
+                      !tr_pid %in% c(sn_ref, NA) &
+                      ((tr_pid_cri == pid_cri & !expand) | (expand)),
+                    tr_pid, pid)
 
       #assign new pid
-      pid <- ifelse(
-        pid == sn_ref & tr_pid == sn_ref & !is.na(tr_pid) & sub_cri_match > 0,
-        tr_sn, pid)
+      pid <- ifelse(((pid == sn_ref &
+                      tr_pid == sn_ref &
+                      !is.na(tr_pid))) &
+                      sub_cri_match > 0,
+                    tr_sn, pid)
 
-      link_id <- ifelse(
-        (link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
-          ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid))),
-        tr_sn, link_id)
+      # link_id <- ifelse((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
+      #                     ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid))),
+      #                   tr_sn, link_id)
+      link_id <- ifelse(((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
+                          ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid)))) &
+                          ((tr_pid_cri == pid_cri & !expand) | (expand)),
+                        tr_sn, link_id)
 
-      m_tag <- ifelse(pid != sn_ref & m_tag != -1,1, m_tag)
-      m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag ==-1, 1, m_tag)
+      m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1, m_tag)
+      m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1, 1, m_tag)
 
-      skip <- ifelse(m_tag ==-1 & !is.na(m_tag), 0, ifelse(sub_cri_match > 0, 1, skip))
+      skip <- ifelse(m_tag ==-1 &
+                       !is.na(m_tag), 0,
+                     ifelse(sub_cri_match > 0,
+                            1, skip))
       lgk <- !is.na(cri)
       if(length(lgk[lgk]) != 0){
         min_pid <- min(pid[lgk])
@@ -270,10 +332,10 @@ links <- function(criteria,
       cat(paste0(fmt(current_tot), " records(s): ",  fmt(current_tot-removed)," linked to record groups and ", fmt(removed)," with no link."))
     }
     tag <- ifelse(pid %in% c(sn_ref, NA), 0, 1)
-    link_id[!duplicated(pid) & !duplicated(pid, fromLast=TRUE)] <- sn_ref
-    pid[!duplicated(pid) & !duplicated(pid, fromLast=TRUE)] <- sn_ref
+    link_id[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
+    pid[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
     tag <- ifelse(pid != sn_ref, 1, 0)
-    pid_cri[tag ==1 & pid_cri == Inf] <- i
+    pid_cri[tag ==1 & (shrink | (pid_cri == Inf & !shrink))] <- i
   }
 
   if(class(strata) != "NULL"){
@@ -287,6 +349,10 @@ links <- function(criteria,
   fd <- match(1:length(pid), tmp_pos)
 
   pid_f <- pid[fd]
+  names(link_id) <- NULL
+  names(pid_f) <- NULL
+  names(sn) <- NULL
+  names(pid_cri) <- NULL
   pids <- methods::new("pid",
                .Data = pid_f,
                sn = sn[fd],
@@ -296,6 +362,7 @@ links <- function(criteria,
   if(group_stats == T){
     r <- rle(sort(pid))
     pids@pid_total = r$lengths[match(pid_f, r$values)]
+    names(pids@pid_total) <- NULL
   }
 
   if(!is.null(data_source)){
@@ -338,7 +405,7 @@ links <- function(criteria,
 
 #' @rdname links
 #' @export
-record_group <- function(df, ...){
+record_group <- function(df, ..., to_s4 = TRUE){
   args <- as.list(substitute(...()))
   if (length(names(args)[names(args) == ""] > 0)){
     err <- paste0("Every argument must be specified:\n",
@@ -349,14 +416,20 @@ record_group <- function(df, ...){
   }
 
   out <- bridge_record_group(df = df, args = args)
-  if(out$err_cd == F) stop(out$err_nm, call. = F)
-
+  if(out$err_cd == F) {
+    stop(out$err_nm, call. = F)
+    }
   warning(paste0("`record_group()` has been retired!:\n",
                  "i - Please use `links()` instead.\n",
                  "i - Your values were passed to `links()`."), call. = F)
-  return(out$err_nm)
+  if(to_s4 != T){
+    return(to_df(out$err_nm))
+  }else{
+    return(out$err_nm)
+  }
 }
 #' @name sub_criteria
+#' @aliases sub_criteria
 #' @title Subcriteria for \bold{\code{\link{links}}}
 #'
 #' @description Additional \code{sub_criteria} for each matching \code{criteria} in \code{\link{links}}.
@@ -368,7 +441,7 @@ record_group <- function(df, ...){
 #'
 #' Each attribute (\code{atomic}) is compared as an exact match or with a user defined logical test.
 #' The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`y`},
-#' where \code{`y`} is the attribute for one observation being compared against all other attributes (\code{`x`}).
+#' where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 #'
 #' Each attribute must have the same length.
 #'
@@ -384,12 +457,12 @@ record_group <- function(df, ...){
 #' @examples
 #' library(diyar)
 #'
-#' sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_matching)
+#' sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match)
 #'
 #' # Link each `sub_critera` a `criteria`.
 #' list(
-#' c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_matching),
-#' c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_matching))
+#' c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match),
+#' c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match))
 #' @export
 sub_criteria <- function(..., funcs = NULL){
   err <- err_sub_criteria_1(...)
@@ -399,7 +472,7 @@ sub_criteria <- function(..., funcs = NULL){
   if(err != F) stop(err, call. = F)
 
   if(class(funcs) == "NULL"){
-    funcs <- list(diyar::exact_match)
+    funcs <- list(exact_match)
   }else{
     if(class(funcs) != "list") funcs <- list(funcs)
 
@@ -437,14 +510,18 @@ sub_criteria <- function(..., funcs = NULL){
 }
 
 #' @name predefined_tests
-#' @title User defined tests
-#' @description A collection of predefined logical tests for \code{\bold{\link{sub_criteria}}}
 #' @aliases predefined_tests
+#' @title User defined tests
+#'
+#' @param x Every value of an attribute to compare in \bold{\code{\link{links}}}.
+#' @param y One value to which is compared against all other values of the same attribute (\code{x})
+#'
+#' @description A collection of predefined logical tests for \bold{\code{\link{sub_criteria}}}
 #' @examples
 #' library(diyar)
 #'
 #' # `exact_match` - test that `x` is equal to `y`
-#' exact_match(x = 1, x = "1")
+#' exact_match(x = 1, y = "1")
 #' exact_match(x = 1, y = 1)
 #'
 #' @export
@@ -453,6 +530,7 @@ exact_match <- function(x, y) {
 }
 
 #' @rdname predefined_tests
+#' @param range Difference between \code{y} and \code{x}.
 #' @examples
 #' # `range_match` - test that `y` is between `x` and `x + range`
 #' range_match(x = 10, y = 16, range = 6)
@@ -461,9 +539,9 @@ exact_match <- function(x, y) {
 #' @export
 range_match <- function(x, y, range = 10){
   x <- as.numeric(x); y <- as.numeric(y)
-  if(class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
+  if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
                                                           "i - Valid object types are: `numeric` or `integer`.\n",
-                                                          "X - You've supplied a", paste0(class(range), collapse = ", "), " object."), call. = F)
+                                                          "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
 
   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
                                     "X - Length is ", length(range), "."), call. = F)
@@ -481,10 +559,10 @@ range_match <- function(x, y, range = 10){
 #'
 #' @export
 range_match_legacy <- function(x, y) {
-  if(any(!diyar::overlaps(diyar::as.number_line(x@gid), x))) {
-    rng_i <- paste(head(which(!diyar::overlaps(diyar::as.number_line(x@gid), x)), 5), collapse = ", ", sep="")
+  if(any(!overlaps(as.number_line(x@gid), x))) {
+    rng_i <- paste(head(which(!overlaps(as.number_line(x@gid), x)), 5), collapse = ", ", sep="")
     rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
     }
-  diyar::overlaps(diyar::as.number_line(x@gid), y)
+  overlaps(as.number_line(x@gid), y)
 }

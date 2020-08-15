@@ -22,7 +22,7 @@ Additional \code{sub_criteria} for each matching \code{criteria} in \code{\link{
 
 Each attribute (\code{atomic}) is compared as an exact match or with a user defined logical test.
 The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`y`},
-where \code{`y`} is the attribute for one observation being compared against all other attributes (\code{`x`}).
+where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 
 Each attribute must have the same length.
 
@@ -38,10 +38,10 @@ Any unlinked \code{sub_criteria} will be ignored.
 \examples{
 library(diyar)
 
-sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_matching)
+sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match)
 
 # Link each `sub_critera` a `criteria`.
 list(
-c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_matching),
-c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_matching))
+c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match),
+c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match))
 }

@@ -6,10 +6,10 @@
 \title{Multistage deterministic record linkage}
 \usage{
 links(criteria, sub_criteria = NULL, sn = NULL, strata = NULL,
-  to_s4 = TRUE, data_source = NULL, data_links = "ANY",
-  display = "progress", group_stats = F)
+  data_source = NULL, data_links = "ANY", display = "progress",
+  group_stats = F, expand = TRUE, shrink = FALSE)
 
-record_group(df, ...)
+record_group(df, ..., to_s4 = TRUE)
 }
 \arguments{
 \item{criteria}{\code{list} of attributes to compare. Comparison is done as an exact match i.e. (\code{==}). See \code{Details}.}
@@ -20,15 +20,23 @@ record_group(df, ...)
 
 \item{strata}{Subsets of the dataset. Links are determined separately within each subset.}
 
-\item{to_s4}{If \code{TRUE} (default), record groups are returned as a \code{\link[=pid-class]{pid}} object.}
-
 \item{data_source}{Unique data source identifier. Useful when the dataset contains data from multiple sources.}
+
+\item{data_links}{A set of \code{data_sources} required in each episode. \code{stratas} without these will be skipped, and episodes without these will be unlinked. See \code{Details}.}
 
 \item{display}{Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.}
 
 \item{group_stats}{If \code{TRUE} (default), group specific information like record counts. See \code{Value}.}
 
+\item{expand}{If \code{TRUE}, allows the increases in size of a record group at subsequent stages of the linkage process.}
+
+\item{shrink}{If \code{TRUE}, allows the reduction in size of a record group at subsequent stages of the linkage process.}
+
 \item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
+
+\item{...}{Arguments passed to \bold{\code{links}}}
+
+\item{to_s4}{If \code{TRUE}, record groups are returned as a \code{\link[=pid-class]{pid}} object.}
 }
 \value{
 \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
@@ -71,18 +79,18 @@ library(diyar)
 # Exact match
 links(criteria = c("Obinna","James","Ojay","James","Obinna"))
 
-# Use defined tests - `sub_criteria()`
+# Use defined tests using `sub_criteria()`
 # Matching `sex` an + 20-year age gaps
-age <- c(30,28,40,25,25,29,27)
-sex <- c("M","M","M","F","M","M","F")
+age <- c(30, 28, 40, 25, 25, 29, 27)
+sex <- c("M", "M", "M", "F", "M", "M", "F")
 f1 <- function(x, y) (y - x) \%in\% 0:20
 links(criteria = sex,
-      sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f1)))
+      sub_criteria = list(s1 = sub_criteria(age, funcs = f1)))
 
 # Matching `sex` an +/- 20-year age gaps
 f2 <- function(x, y) abs(y - x) \%in\% abs(0:20)
 links(criteria = sex,
-      sub_criteria = list(s1 = sub_criteria(dob$age, funcs = f2)))
+      sub_criteria = list(s1 = sub_criteria(age, funcs = f2)))
 
 # Multistage linkage
 # Relevance of matches: `forename` > `surname`
@@ -95,7 +103,7 @@ links(staff_records,
 # `staff_id` > `age` AND (`initials`, `hair_colour` or `branch_office`)
 data(missing_staff_id); missing_staff_id
 links(criteria = list(missing_staff_id$staff_id, missing_staff_id$age),
-      sub_criteria = list(s2=sub_criteria(missing_staff_id$initials,
+      sub_criteria = list(s2 = sub_criteria(missing_staff_id$initials,
                                           missing_staff_id$hair_colour,
                                           missing_staff_id$branch_office)),
       data_source = missing_staff_id$source_1)

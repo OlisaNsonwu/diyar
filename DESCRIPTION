@@ -2,7 +2,7 @@ Package: diyar
 Type: Package
 Title: Multistage Record Linkage and Case Definition for Epidemiological Analysis
 Date: 2020-06-11
-Version: 0.1.1.9000
+Version: 0.2.0.9000
 URL: https://cran.r-project.org/package=diyar
 BugReports: https://github.com/OlisaNsonwu/diyar/issues
 Author: Olisaeloka Nsonwu
@@ -23,8 +23,7 @@ Imports:
     grDevices,
     graphics,
     utils,
-    Rfast,
-    dplyr (>= 0.7.5) 
+    Rfast
 RoxygenNote: 6.1.1
 Suggests:
     stringdist,
