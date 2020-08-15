@@ -4,8 +4,8 @@
 #'
 #' @param x \code{number_line} object
 #' @param y \code{number_line} object
-#' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.
-#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects using different \code{methods}
+#' @param method Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.
+#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}
 #' @aliases overlaps
 #' @return \code{logical}; \code{character}
 #'
@@ -13,30 +13,28 @@
 #'
 #' \bold{7 logical test;}
 #'
-#' \bold{\code{exact()}} - Identical start and end points
+#' \bold{\code{exact()}} - Identical start and endpoints
 #'
-#' \bold{\code{inbetween()}} - start and end points of one \code{number_line} object is in between the start and end points of another.
+#' \bold{\code{inbetween()}} - start and endpoints of one \code{number_line} object is within the start and endpoints of another.
 #'
-#' \bold{\code{across()}} - Start or end points of one \code{number_line} object is in between the start and end points of another.
+#' \bold{\code{across()}} - start or endpoints of one \code{number_line} object is within the start and endpoints of another.
 #'
-#' \bold{\code{chain()}} - Chained i.e. end point of one \code{number_line} object is the same as the start point of another.
+#' \bold{\code{chain()}} - endpoint of one \code{number_line} object is the same as the start point of another.
 #'
-#' \bold{\code{aligns_start()}} - Identical start points only.
+#' \bold{\code{aligns_start()}} - identical start points only.
 #'
-#' \bold{\code{aligns_end()}} - Identical end points only.
+#' \bold{\code{aligns_end()}} - identical endpoints only.
 #'
-#' \bold{\code{overlap()}} - Any kind of overlap.
-#' All other methods are mutually exclusive.
-#' \bold{\code{overlap()}} is just a convenient \code{method} for "ANY" and "ALL" methods of overlap.
+#' \bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" methods of overlap.
 #'
-#' \bold{\code{overlaps()}} - Overlap by any or all 7 methods above.
+#' \bold{\code{overlaps()}} - overlap by any set of the 7 methods above.
 #'
 #' \bold{Describe methods of overlap;}
 #'
-#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object has overlapped.
+#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object have overlapped.
 #' Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
 #'
-#' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episode_group}}.
+#' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episode}}.
 #'
 #' @seealso
 #' \code{\link{number_line}} and \code{\link{set_operations}}
@@ -52,7 +50,7 @@
 #' overlaps(a, g)
 #' overlaps(a, g, methods = "exact|chain")
 #' @export
-overlaps <- function(x, y, methods = "overlap", method = c("exact","across","chain","aligns_start","aligns_end","inbetween","overlap","none")){
+overlaps <- function(x, y, methods = "overlap", method = "overlap"){
   if(!diyar::is.number_line(x)) stop(paste0("`x` must be a `number_line` object."), call. = F)
   if(!diyar::is.number_line(y)) stop(paste0("`y` must be a `number_line` object."), call. = F)
   if(length(x) ==0 & length(y)==0) return(logical())
