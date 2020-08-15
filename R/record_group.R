@@ -1,21 +1,22 @@
 #' @name links
 #' @title Multistage deterministic record linkage
 #'
-#' @description Link records with matching criteria with different levels of relevance.
+#' @description Link records in ordered stages with flexible matching conditions.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
-#' @param sn Unique numerical record identifier. Useful for creating familiar episode identifier. Optional.
-#' @param strata Subsets of the dataset. Links are determined separately within each subset.
-#' @param criteria \code{list} of attributes to compare. Comparison is done as an exact match i.e. (\code{==}). See \code{Details}.
-#' @param sub_criteria \code{list} of additional attributes to compare. Comparison is done as an exact match or a user defined \code{function}. See \code{\link{sub_criteria}}
+#' @param sn Unique numerical record identifier. Useful for creating familiar episode identifiers.
+#' @param strata Subsets. Record groups are tracked separately within each subset.
+#' @param criteria \code{list} of attributes to compare at each stage. Comparisons are done as an exact match i.e. (\code{==}). See \code{Details}.
+#' @param sub_criteria \code{list} of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests \code{function}. See \code{\link{sub_criteria}}
 #' @param data_source Unique data source identifier. Useful when the dataset contains data from multiple sources.
-#' @param group_stats If \code{TRUE} (default), group specific information like record counts. See \code{Value}.
-#' @param data_links A set of \code{data_sources} required in each episode. \code{stratas} without these will be skipped, and episodes without these will be unlinked. See \code{Details}.
-#' @param expand If \code{TRUE}, allows the increases in size of a record group at subsequent stages of the linkage process.
-#' @param shrink If \code{TRUE}, allows the reduction in size of a record group at subsequent stages of the linkage process.
-#' @param display Message printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
-#' @param to_s4 If \code{TRUE}, record groups are returned as a \code{\link[=pid-class]{pid}} object.
+#' @param group_stats If \code{TRUE} (default), group-specific information like record counts. See \code{Value}.
+#' @param data_links A set of \code{data_sources} required in each record group. A \code{strata} without records from these data sources will be skipped, and record groups without these will be unlinked. See \code{Details}.
+#' @param expand If \code{TRUE}, allows increases in the size of a record group at subsequent stages of the linkage process.
+#' @param shrink If \code{TRUE}, allows reductions in the size of a record group at subsequent stages of the linkage process.
+#' @param display The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
+#' @param to_s4 Data type of returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param ... Arguments passed to \bold{\code{links}}
+#'
 #' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
 #'
 #' \itemize{
@@ -28,47 +29,50 @@
 #' }
 #'
 #'
-#' @seealso \code{\link{episodes}} and \code{\link{number_line}}
+#' @seealso \code{\link{episodes}}, \code{\link{predefined_tests}} and \code{\link{sub_criteria}}
 #'
 #' @details
-#' \bold{\code{links()}} performs an ordered multi-staged deterministic linkage.
-#' The order (relevance/priority) of this is determined by the order of in which each \code{criteria} is listed.
+#' \bold{\code{links()}} performs an ordered multistage deterministic linkage.
+#' The relevance or priority of each stage is determined by the order in which they have been listed.
 #'
 #' \code{sub_criteria} specifies additional matching conditions for each stage (\code{criteria}) of the process.
-#' If \code{sub_criteria} is not \code{NULL}, only records with a matching \code{criteria} and \code{sub_criteria} are grouped together.
+#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are linked.
 #' If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 #' If there are no matches for a record at every stage, that record is assigned a unique group ID.
 #'
-#' By default, records are compared as an exact match i.e. the equivalent of \code{(==)} however, user defined functions are also permitted.
-#' The function must be able to compare two atomic vectors,
-#' return only \code{TRUE} or \code{FALSE},
+#' By default, records are compared for an exact match however, user-defined logical tests (\code{function}) are also permitted.
+#' The \code{function} must be able to compare two atomic vectors,
+#' return either \code{TRUE} or \code{FALSE},
 #' and have two arguments - \code{x} for the attribute and \code{y} for what it'll be compared against.
 #'
 #' A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
 #'
-#' \code{data_source} - including this returns \code{pid_dataset}. This lists the source of every event in each record group.
+#' \code{data_source} - including this populates the \code{pid_dataset} slot. See \code{Value}.
+#'
+#' \code{data_links} should be a \code{list} of \code{atomic} vectors with every element named \code{"l"} (links) or \code{"g"} (groups).
+#' \itemize{
+#' \item \code{"l"} - Record groups with records from every listed data source will be retained.
+#' \item \code{"g"} - Record groups with records from any listed data source will be retained.
+#' }
+#' \code{data_links} is useful for skipping record groups that are not required.
 #'
 #' \bold{\code{record_group()}} as it existed before \code{v0.2.0} has been retired.
-#' Its current implementation only exists to support existing code with minimal disruption. Please use \bold{\code{links()}} moving forward.
+#' Its current implementation only exists to support previous code and arguments with minimal disruption. Please use \bold{\code{links()}} moving forward.
 #'
+#' See \code{vignette("links")} for further information.
 #'
 #' @examples
 #' library(diyar)
 #' # Exact match
 #' links(criteria = c("Obinna","James","Ojay","James","Obinna"))
 #'
-#' # Use defined tests using `sub_criteria()`
-#' # Matching `sex` an + 20-year age gaps
+#' # User-defined tests using `sub_criteria()`
+#' # Matching `sex` and + 20-year age gaps
 #' age <- c(30, 28, 40, 25, 25, 29, 27)
 #' sex <- c("M", "M", "M", "F", "M", "M", "F")
 #' f1 <- function(x, y) (y - x) %in% 0:20
 #' links(criteria = sex,
 #'       sub_criteria = list(s1 = sub_criteria(age, funcs = f1)))
-#'
-#' # Matching `sex` an +/- 20-year age gaps
-#' f2 <- function(x, y) abs(y - x) %in% abs(0:20)
-#' links(criteria = sex,
-#'       sub_criteria = list(s1 = sub_criteria(age, funcs = f2)))
 #'
 #' # Multistage linkage
 #' # Relevance of matches: `forename` > `surname`
@@ -78,13 +82,14 @@
 #'       data_source = staff_records$sex)
 #'
 #' # Relevance of matches:
-#' # `staff_id` > `age` AND (`initials`, `hair_colour` or `branch_office`)
+#' # `staff_id` > `age` AND (`initials`, `hair_colour` OR `branch_office`)
 #' data(missing_staff_id); missing_staff_id
 #' links(criteria = list(missing_staff_id$staff_id, missing_staff_id$age),
 #'       sub_criteria = list(s2 = sub_criteria(missing_staff_id$initials,
 #'                                           missing_staff_id$hair_colour,
 #'                                           missing_staff_id$branch_office)),
 #'       data_source = missing_staff_id$source_1)
+#'
 #' @aliases links
 #' @export
 links <- function(criteria,
@@ -149,13 +154,10 @@ links <- function(criteria,
   pid <- rep(sn_ref, ds_len)
   link_id <- pid
 
-  # lgk <- is.na(strata)
-  # skipped <- pr_sn[is.na(strata)]
   if(display != "none") cat("\n")
   for(i in 1:length(criteria)){
     cri <- criteria[[i]]
     if (length(cri) == 1) cri <- rep(cri, ds_len)
-    #cri <- cri[match(1:ds_len, pr_sn)]
     cri <- cri[match(pr_sn, seq_len(ds_len))]
 
     lgk <- is.na(cri)
@@ -198,7 +200,6 @@ links <- function(criteria,
       p <- as.numeric(names(r$values))
       tr_link_id <- rep(link_id[which(names(cri) %in% p)], r$lengths)
       tr_pid_cri <- rep(pid_cri[which(names(cri) %in% p)], r$lengths)
-      #tr_cri <- rep(cri[which(names(cri) %in% p)], r$lengths)
       tr_tag <- rep(tag[which(names(cri) %in% p)], r$lengths)
       tr_pid <- rep(pid[which(names(cri) %in% p)], r$lengths)
       tr_sn <- rep(sn[which(names(cri) %in% p)], r$lengths)
@@ -216,8 +217,7 @@ links <- function(criteria,
             x <- x[match(pr_sn, seq_len(ds_len))]
             y <- rep(x[which(names(cri) %in% p)], r$lengths)
             f <- a[[2]]
-            #lgk <- try(f(x, y), silent = T)
-            lgk <- f(x, y)
+            lgk <- try(f(x, y), silent = T)
             if(class(lgk) == "try-error" | class(lgk) != "logical"){
               if(class(lgk) == "try-error"){
                 err <- attr(lgk, "condition")$message
@@ -261,35 +261,24 @@ links <- function(criteria,
                         !is.na(tr_pid),
                       1, m_tag)
 
-      # pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))),
-      #               tr_pid, pid)
-
+      # inherit pid
       pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))) &
                       ((tr_pid_cri == pid_cri & !expand) | (expand)),
                     tr_pid, pid)
 
-
-      #inherit pid
-      # pid <- ifelse(sub_cri_match > 0 &
-      #                 pid == sn_ref &
-      #                 !tr_pid %in% c(sn_ref, NA),
-      #               tr_pid, pid)
       pid <- ifelse(sub_cri_match > 0 &
                       pid == sn_ref &
                       !tr_pid %in% c(sn_ref, NA) &
                       ((tr_pid_cri == pid_cri & !expand) | (expand)),
                     tr_pid, pid)
 
-      #assign new pid
+      # assign new pid
       pid <- ifelse(((pid == sn_ref &
                       tr_pid == sn_ref &
                       !is.na(tr_pid))) &
                       sub_cri_match > 0,
                     tr_sn, pid)
 
-      # link_id <- ifelse((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
-      #                     ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid))),
-      #                   tr_sn, link_id)
       link_id <- ifelse(((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
                           ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid)))) &
                           ((tr_pid_cri == pid_cri & !expand) | (expand)),
@@ -318,10 +307,6 @@ links <- function(criteria,
       c <- c+1
     }
     if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
-    # rst <- rle(sort(pid))
-    # rst <- rst$values[rst$lengths == 1]
-    # pid[which(pid %in% rst)] <- sn_ref
-
     if(display %in% c("progress", "stats")){
       cat(paste0("Checked `criteria ", i,"`.\n"))
     }
@@ -368,7 +353,6 @@ links <- function(criteria,
   if(!is.null(data_source)){
     data_source <- data_source[match(pr_sn[fd], 1:length(pids))]
     # Data links
-    #names(e) <- tmp_pos
     rst <- check_links(pids@.Data, data_source, data_links)
     datasets <- rst$ds
 
