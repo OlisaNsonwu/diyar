@@ -981,10 +981,10 @@ episode_group <- function(df, ..., episode_type = "fixed"){
 #' @aliases windows
 #' @title Window and lengths
 #'
-#' @param date Date agument as used in \bold{\code{\link{episodes}}}. Can be a \code{date}, \code{datetime},  \code{numeric}) or \code{\link{number_line}} object.
+#' @param date Date agument as used in \bold{\code{\link{episodes}}}.
 #' @param lengths \code{case_length} or \code{recurrence_length} arguments as used in \bold{\code{\link{episodes}}}.
-#' @param episode_unit Time units of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
-#' @param windows A range or period in relation to \code{date} given a particular \code{lengths}.
+#' @param episode_unit Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
+#' @param windows A range or period relative to \code{date} for a given \code{lengths}.
 #'
 #' @description Interpret \code{windows}, \code{case_lengths} and \code{recurrence_lengths} as used in \code{\link{episodes}}.
 #'

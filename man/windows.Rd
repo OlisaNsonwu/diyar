@@ -14,13 +14,13 @@ epid_lengths(date, windows, episode_unit = "days")
 index_window(date)
 }
 \arguments{
-\item{date}{Date agument as used in \bold{\code{\link{episodes}}}. Can be a \code{date}, \code{datetime},  \code{numeric}) or \code{\link{number_line}} object.}
+\item{date}{Date agument as used in \bold{\code{\link{episodes}}}.}
 
 \item{lengths}{\code{case_length} or \code{recurrence_length} arguments as used in \bold{\code{\link{episodes}}}.}
 
-\item{episode_unit}{Time units of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.}
+\item{episode_unit}{Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.}
 
-\item{windows}{A range or period in relation to \code{date} given a particular \code{lengths}.}
+\item{windows}{A range or period relative to \code{date} for a given \code{lengths}.}
 }
 \value{
 \code{\link{number_line}}.

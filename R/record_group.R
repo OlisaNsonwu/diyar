@@ -416,26 +416,25 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' @aliases sub_criteria
 #' @title Subcriteria for \bold{\code{\link{links}}}
 #'
-#' @description Additional \code{sub_criteria} for each matching \code{criteria} in \code{\link{links}}.
+#' @description Additional matching conditions for each stage in \code{\link{links}}.
 #' @param ... Additional attributes to compare.
 #' @param funcs User defined logical test.
 #' @return \code{function} or \code{list} of \code{functions}
 #' @details
-#' \bold{\code{sub_criteria()}} is the mechanism for providing a subcriteria to an instance of \bold{\code{links()}}.
+#' \bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}}.
 #'
-#' Each attribute (\code{atomic}) is compared as an exact match or with a user defined logical test.
+#' Each attribute (\code{atomic} vectors) is compared as an exact match or with a user-defined logical test.
 #' The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`y`},
 #' where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 #'
 #' Each attribute must have the same length.
 #'
-#' \code{funcs} must be a \code{function} or \code{list} of \code{functions} to use on each attribute.
+#' \code{funcs} must be a \code{function} or \code{list} of \code{functions} to use with each attribute.
 #'
 #' Each \code{funcs} must evaluate to \code{TRUE} or \code{FALSE}.
 #'
 #' Each \code{sub_criteria} must be linked to a \code{criteria} in \bold{\code{\link{links}}}.
 #' You can link mutliple \code{sub_criteria} to one \code{criteria}.
-#' It's not neccessary to link a \code{sub_criteria} if there's only one \code{criteria}.
 #' Any unlinked \code{sub_criteria} will be ignored.
 #'
 #' @examples
@@ -448,7 +447,7 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match),
 #' c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match))
 #' @export
-sub_criteria <- function(..., funcs = NULL){
+sub_criteria <- function(..., funcs = diyar::exact_match){
   err <- err_sub_criteria_1(...)
   if(err != F) stop(err, call. = F)
 
