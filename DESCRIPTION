@@ -26,7 +26,6 @@ Imports:
     Rfast
 RoxygenNote: 6.1.1
 Suggests:
-    stringdist,
     knitr,
     rmarkdown,
     testthat,
