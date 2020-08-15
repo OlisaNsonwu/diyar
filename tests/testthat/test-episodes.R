@@ -2,7 +2,6 @@ context("testing episode_group function")
 
 library(testthat)
 library(diyar)
-library(dplyr)
 
 date <- function(x) as.Date(x, "%d/%m/%Y")
 dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
