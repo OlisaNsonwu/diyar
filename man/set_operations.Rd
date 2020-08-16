@@ -25,15 +25,15 @@ subtract_number_lines(x, y)
 Perform set operations on a pair of \code{number_line} objects.
 }
 \details{
-\bold{\code{union_number_lines()}} - Combined range of \code{x} and \code{y}
+\bold{\code{union_number_lines()}} - Return a \code{number_line} object with the combined range of \code{x} and \code{y}
 
-\bold{\code{intersect_number_line()}} - Subset of \code{x} that overlaps with \code{y} and vice versa
+\bold{\code{intersect_number_line()}} - Returns a subset of \code{x} that overlaps with \code{y} and vice versa
 
-\bold{\code{subtract_number_lines()}} - Subset of \code{x} that does not overlap with \code{y} and vice versa.
+\bold{\code{subtract_number_lines()}} - Returns a subset of \code{x} that does not overlap with \code{y} and vice versa.
 Returns a list with two elements;
 \itemize{
-\item \code{n1} - subset before the overlapped range
-\item \code{n2} - subset before the overlapped range
+\item \code{n1} - subset before the overlapped range between \code{x} and \code{y}.
+\item \code{n2} - subset after the overlapped range between \code{x} and \code{y}
 }
 
 The \code{direction} of the returned \code{number_line} will be that of the widest one (\code{x} or \code{y}).

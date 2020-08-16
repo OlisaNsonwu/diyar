@@ -1,20 +1,22 @@
 #' @title Number line objects
 #'
-#' @description \code{number_line} - A range of \code{numeric} based values on a number line.
+#' @description \code{number_line} - A range of \code{numeric} values on a number line.
 #'
 #' @details
 #' A \code{number_line} object represents a range of real numbers on a number line.
 #'
-#' Visually, it's presented as the left (\code{l}) and right (\code{r}) points of the range This may differ from \code{start} and \code{end} points.
-#' The \code{start} point is the lowest number in the range, regardless of whether it's at the \code{left} or \code{right} point.
+#' Visually, it's presented as the \code{left (l)} and \code{right (r) points} of the range. This may differ from \code{start} and \code{end points}.
+#' The \code{start point} is the lowest value in the range, regardless of whether it's at the \code{left} or \code{right point}.
 #'
 #' The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
-#' This is the \code{direction} of the \code{number_line} object.
+#' This is the \code{direction} of the \code{number_line}.
+#' @seealso
+#'  \code{\link{overlaps}}, \code{\link{set_operations}}, \code{\link{episodes}} and \code{\link{links}}
 #'
-#' @param l Left point of the \code{number_line} object. Must be able to be coerced to a finite \code{numeric} value
-#' @param r Right point of the \code{number_line} object. Must be able to be coerced to a finite \code{numeric} value
-#' @param id Unique \code{numeric} element ID. Optional
-#' @param gid Unique \code{numeric} group ID. Optional
+#' @param l Left point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object
+#' @param r Right point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object
+#' @param id Unique \code{numeric} element identifier. Optional
+#' @param gid Unique \code{numeric} group identifier. Optional
 #'
 #' @return \code{number_line} object
 #'
@@ -189,8 +191,8 @@ number_line_width <- function(x){
 #' @details
 #' \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line} object.
 #' A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
-#' The \code{direction} argument determines which type of \code{number_line} objects will be reversed.
-#' \code{number_line} objects with non-finite numeric starts or end points i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
+#' The \code{direction} argument specifies which type of \code{number_line} objects will be reversed.
+#' \code{number_line} objects with non-finite \code{starts} or \code{end points} i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 #' @examples
 #' # Reverse number_line objects
 #' reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
@@ -298,9 +300,9 @@ expand_number_line <- function(x, by=1, point ="both"){
 
 #' @rdname number_line
 #' @details
-#' \bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points to the opposite end of the number line.
+#' \bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points from a negative to positive value or vice versa.
 #' @examples
-#' # Change the width or length of a number_line object
+#' # Invert `number_line` objects
 #' e <- c(number_line(3, 6), number_line(-3, -6), number_line(-3, 6))
 #'
 #' e
@@ -335,7 +337,7 @@ invert_number_line <- function(x, point ="both"){
 #' This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the new expanded \code{number_line} object.
 #' See \code{\link{overlaps}} for further details on overlapping \code{number_line} objects.
 #' If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
-#' \bold{\code{compress_number_line()}} can be an alternative for simple implementations of \code{\link{record_group}} or \code{\link{episode_group}}.
+#' \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}.
 #'
 #' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.
 #' @param methods Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}
@@ -352,7 +354,8 @@ invert_number_line <- function(x, point ="both"){
 #'
 #' @export
 
-compress_number_line <- function(x, method = c("exact", "across","chain","aligns_start","aligns_end","inbetween","overlap","none"), collapse =FALSE, deduplicate = TRUE, methods = "overlap"){
+compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
+                                 deduplicate = TRUE,  method = "overlap"){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(!diyar::is.number_line(x)) stop(paste("`x` must be a `number_line` object."))
   if(length(x)==0) return(x)
