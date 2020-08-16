@@ -20,9 +20,9 @@ plot_number_line <- diyar:::plot_number_line
 ```
 
 #Introduction
-A `number_line` object is a range of `numeric` values on a number line. In `diyar`, how they overlap determine successful matches (see [range matching ](record_group.html#range_matching)) in `record_group()` and overlapping windows (see [interval grouping](episode_group.html#interval_grouping)) in `fixed_episodes()`, `rolling_episodes()` and `episode_group()`. 
+A `number_line` object is a range of `numeric` values on a number line. 
 
-*`number_line` objects are similar to `interval` objects in the `lubridate` package but can support any `numeric` based object class.*.
+*`interval` objects (`lubridate` package) are the inspiration for `number_line` objects. `number_line` objects are similar but support any `numeric` based object class.*
 
 #Overview
 ```{r include=FALSE}
@@ -109,7 +109,7 @@ nl_j <- shift_number_line(nl_c, 2); nl_i
 plot_number_line(rev(c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i)))
 ```
 
-`invert_number_line()` inverts the position of each point on the number line. See below.
+`invert_number_line()` changes each each point on the number line from a positive to negative value and vice versa. See below.
 
 ```{r message=FALSE, warning=FALSE}
 inv <- number_line(c(3,-3,3,-3), c(-6,6,6,-6)); inv
@@ -138,7 +138,7 @@ number_line_sequence(nls, length.out = 3)
 <a id = "overlaps"></a>
 
 ## Overlaps
-`number_line` objects can overlap with each other and do so in six ways - `"exact"`, `"inbetween"`, `"across"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. Each pair of `number_line` objects can only overlap by one these methods. For example, a `number_line` object can not have aligned start and end points, instead that'll be considered an `"exact"` overlap.
+`number_line` objects can overlap with each other and do so in six ways - `"exact"`, `"inbetween"`, `"across"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. Each pair of `number_line` objects can only overlap by one of these methods. For example, a `number_line` object with aligned start and end points will be considered an `"exact"` overlap, not `"aligns_start"` and `"aligns_end"`.
 
 *The 6 `overlap_methods` are mutually exclusive.*
 
@@ -357,7 +357,7 @@ nl_z
 plot_number_line(nl_z, show_overlap=T)
 ```
 
-In the figure above, there are `"across"`, `"chain"`, `"inbetween"` and `"aligns_end"` overlaps but we've chosen to only compress pairs that overlap by `"chain"` and `"aligns_end"` methods. The resulting `number_line` object from compressing ``r paste0(format(nl_z[1:2]), collapse=" and ")`` now overlaps with the resulting `number_line` objects from ``r  paste0(format(nl_z[3:4]), collapse=" and ")``.
+In the figure above, there are `"across"`, `"chain"`, `"inbetween"` and `"aligns_end"` methods of overlap but we've chosen to only compress pairs that overlap by `"chain"` and `"aligns_end"` methods. The resulting `number_line` object from compressing ``r paste0(format(nl_z[1:2]), collapse=" and ")`` now overlaps with the resulting `number_line` objects from ``r  paste0(format(nl_z[3:4]), collapse=" and ")``.
  
 **Figure 9b: Compressing pairs of `number_line` objects by `"chain"` and `"aligns_end"` methods compressed into one**
 
@@ -401,4 +401,4 @@ plot_number_line(cmp_zba, show_overlap=T)
 
 \newline
 
-`fixed_episodes()`, `rolling_episodes()` and `episode_group()` are more advanced implementations of `compress_number_line()`. They can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. They have additional useful features such as controlling the order in which pairs are compressed i.e. chronological order (`from_last`) or a user defined order (`custom_sort`), and using additional periods (`case_length` and `recurrence_length`) before and/or (`bi_direction`) after the reference `number_line` object. See [episode grouping](episode_group.html) for further details.
+`episodes()` is a more advanced implementations of `compress_number_line()`. It can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. It has additional useful features such as controlling the order in which pairs are compressed i.e. chronological order (`from_last`) or a user-defined order (`custom_sort`), and using additional periods (`case_length` and `recurrence_length`) before and/or after the reference `number_line` object. See [episode grouping](episodes.html) for further details.

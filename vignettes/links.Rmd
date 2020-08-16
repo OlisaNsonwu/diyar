@@ -22,14 +22,14 @@ plot_pid <- diyar:::plot_pid
 #Introduction
 Linking datasets to consolidate information is a common task in research, particularly for those involving the use of "big data". Deterministic record linkage is the simplest and most common method of record linkage however, its accuracy relies on good data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
 
-This function aims to provide a convenient and flexible approach to multistage deterministic linkage with mechanims to handle missing or incorrect data.
+`links()` aims to provide a convenient and flexible approach to multistage deterministic linkage with mechanims to handle missing or incorrect data.
 
 #Uses
 `links()` can be used to link datasets in a variety of ways. Examples include;
 
 - Linking datasets on one (or more) matching `criteria`
 - Linking datasets on one (or more) matching `criteria` and one (or more) matching `sub_criteria`. See [record matching](#record_matching)
-- Linking datasets in stages. Each stage is considered more relevant than the subsequent one. See [record group expansion](#record_expansion)
+- Linking datasets in stages. Each stage is considered more relevant than the subsequent one. See [group expansion](#record_expansion)
 - Linking datasets with missing group identifiers. See [handling missing values](#missing_values) 
 
 #Implementation 
@@ -45,12 +45,28 @@ data(patient_list);
 dbs <- patient_list[c("forename","surname","sex")]; dbs
 
 # 1 stage <- Matching surname only
-dbs$pids_a <- links(criteria = dbs$surname, display = "none")
+dbs$pids_a <- links(criteria = dbs$surname, display = "none", group_stats = T)
 
 # 2 stage - Matching surname, then matching sex
 dbs$pids_b <- links(criteria = list(dbs$surname, dbs$sex), display = "none")
 
 dbs
+```
+
+Matched records are assigned to record groups. These are stored as `pid` objects (`S4` object class). A `pid` object is a group identifier with `slots` for additional information about each group. 
+
+For a `pid` object created in multiple stages (`criteria`), the following information will be displayed (`format.pid`);
+
++ ``r substr(format(dbs$pids_a[1]),1,3) `` - group identifier
++ ``r substr(format(dbs$pids_a[1]),6,12) `` - stage when that record was linked
+
+*See `?links` for further details.*
+
+*to_df() transforms `pid` objects to `data.frames`.*
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+cat("to_df(`pid`)")
+to_df(dbs$pids_a)
 ```
 
 <a id = "record_matching"></a>
@@ -427,7 +443,7 @@ patient_list_2[c("forename","surname", "pids_b", "pids_d")]
 ## Tips
 ## `criteria` over `sub_criteria`
 
-`sub_criteria` are required for user-defined logical tests however, it take more time to compare `sub_criteria` than it does  `criteria`. Therefore, you'll save some time if you only use a `sub_criteria` when the matching conditions can not be specified as a `criteria`. For example, the defined logical test `lgl_1` (above) was supplied as a `sub_criteria` however, `links()` will create the identifier faster if it's supplied as a `criteria`. See below.
+`sub_criteria` are required for user-defined logical tests however, it take more time to compare `sub_criteria` than it does  `criteria`. Therefore, you can save some time by only using a `sub_criteria` when the matching conditions can not be specified as a `criteria`. For example, the logical test `lgl_1` (above) was supplied as a `sub_criteria` however, `links()` will create the group identifier faster, if it's supplied as a `criteria`. See below.
 
 ```{r, warning=F, message=F}
 # Matching `sex`, and `forename` initials

@@ -94,7 +94,7 @@ For an `epid` object created from a set of `events` which have been sourced from
 
 *See `?episodes` for further details.*
 
-*to_df() transforms `epid` objects `data.frames`.*
+*to_df() transforms `epid` objects to `data.frames`.*
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 cat("to_df(`epid`)")
