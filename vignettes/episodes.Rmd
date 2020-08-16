@@ -82,7 +82,7 @@ ep <- episodes(date = ds, case_length = 6, group_stats = T, data_source = c("DS1
 
  
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-df <- data.frame(events =ds, data_source = c("DS1","DS1","DS3", "DS1"), epid= ep)
+df <- data.frame(events = ds, data_source = c("DS1","DS1","DS3", "DS1"), epid= ep)
 df
 ```
 
@@ -130,7 +130,8 @@ Alternatively, you can specify a cut-off range. For example, a `case_length` of 
 
 ```{r warning=FALSE}
 rng <- number_line(12, 16); rng
-ds$f2 <- episodes(date = ds$date, case_length = rng, display = "none")
+ds$f2 <- episodes(date = ds$date, case_length = rng, 
+                  display = "none")
 ds$f2
 ```
 
@@ -138,12 +139,13 @@ ds$f2
 plot_epid(epid = ds$f2, date= ds$date, case_length = rng)
 ```
 
-As above, `events` before the `13th` are skipped. Changing `skip_if_b4_lengths` to `FALSE` will prevent this.
+`events` before the `13th` can be skipped by changing `skip_if_b4_lengths` to `TRUE`.
 
 **Figure 1c: fixed episodes where events before the the cut-off range are not skipped**
 
 ```{r warning=FALSE}
-ds$f3 <- episodes(date = ds$date, case_length = rng, display = "none")
+ds$f3 <- episodes(date = ds$date, case_length = rng, 
+                  skip_if_b4_lengths = T, display = "none")
 ds$f3
 ```
 
@@ -332,7 +334,7 @@ ds$r2
 plot_epid(epid = ds$r2, date= ds$date, case_length = 5, recurrence_length = rng)
 ```
 
-By default, `events` before the `14th` are skipped. However, as before, you can change that with `skip_if_b4_lengths`. 
+You can skip `events` before the `14th` by changing `skip_if_b4_lengths` to `TRUE`. 
 
 **Figure 3c: rolling episodes where events before the the cut-off range are not skipped**
 ```{r warning=FALSE}
@@ -784,7 +786,7 @@ By default, overlapping periods that are outside the 2-day period are also linke
 **Figure 9c: Fixed episodes with a case_length of -2**
 ```{r message=FALSE, warning=FALSE}
 eps_c <- episodes(date = periods, 
-                   case_length = -2, 
+                   case_length = list(-2, index_window(periods)), 
                    group_stats = T, display = "none")
 
 eps_c
