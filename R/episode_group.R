@@ -134,7 +134,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                      display = "none") {
-
+  tm_a <- Sys.time()
   errs <- err_checks_epid(sn = sn, date = date, case_length = case_length, strata = strata,
                           display=display, episodes_max = episodes_max, from_last = from_last,
                           episode_unit = episode_unit, overlap_methods_c = overlap_methods_c,
@@ -762,16 +762,21 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   names(epid) <- NULL
 
+  tm_z <- Sys.time()
+  tms <- difftime(tm_z, tm_a)
+  tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
   if(display != "none"){
     summ <- paste0("Summary.\n",
+                   "Time elapsed: ", tms, ".\n",
                    "Records: ", fmt(length(epid)), "\n",
                    "Skipped records: ", fmt(length(epid[epid@case_nm == "Skipped"])), "\n",
                    "Episodes with unique events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot == 1])), "\n",
                    "Episodes with multiple events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot > 1])), "\n")
     cat(summ)
+  }else if(display == "none"){
+    cat(paste0("Episode tracking completed in ", tms, "!\n"))
   }
 
-  if(display == "none") cat("Episode tracking complete!\n")
   return(epid)
 }
 

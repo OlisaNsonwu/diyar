@@ -102,7 +102,7 @@ links <- function(criteria,
                   group_stats = F,
                   expand = TRUE,
                   shrink = FALSE){
-
+  tm_a <- Sys.time()
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
   if(err != F) stop(err, call. = F)
 
@@ -110,6 +110,9 @@ links <- function(criteria,
   if(err != F) stop(err, call. = F)
 
   if(class(criteria) != "list") criteria <- list(criteria)
+
+  err <- err_criteria_0(sub_criteria)
+  if(err != F) stop(err, call. = F)
 
   err <- err_criteria_1(criteria)
   if(err != F) stop(err, call. = F)
@@ -119,6 +122,13 @@ links <- function(criteria,
 
   err <- err_criteria_3(criteria, sub_criteria)
   if(err != F) stop(err, call. = F)
+
+  rut <- attr(sub_criteria, "diyar_sub_criteria")
+  if(class(rut) != "NULL"){
+    if(rut == T){
+      sub_criteria <- list(sub_criteria)
+    }
+  }
 
   ds_len <- as.numeric(lapply(criteria, length))
   ds_len_b <- sapply(sub_criteria, function(x){
@@ -314,7 +324,7 @@ links <- function(criteria,
       assigned <- length(tag[tag == 0 & !pid %in% c(sn_ref, NA)])
       removed <- length(tag[!duplicated(pid) & !duplicated(pid, fromLast=TRUE)])
       current_tot <- length(tag[tag == 0 & !pid %in% c(sn_ref, NA)])
-      cat(paste0(fmt(current_tot), " records(s): ",  fmt(current_tot-removed)," linked to record groups and ", fmt(removed)," with no link."))
+      cat(paste0(fmt(current_tot), " records(s): ",  fmt(current_tot-removed)," linked to record groups and ", fmt(removed)," with no link.\n"))
     }
     tag <- ifelse(pid %in% c(sn_ref, NA), 0, 1)
     link_id[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
@@ -367,6 +377,9 @@ links <- function(criteria,
     pids@pid_dataset <- datasets
   }
 
+  tm_z <- Sys.time()
+  tms <- difftime(tm_z, tm_a)
+  tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
   if(display == "stats") cat("\n")
   if(display != "none"){
     cri_dst <- table(pids@pid_cri)
@@ -376,14 +389,15 @@ links <- function(criteria,
     cri_n <- as.numeric(names(cri_dst))
     cri_dst <- paste0("   ", pid_cri_l(cri_n), ": ", fmt(cri_dst), collapse = "\n")
     summ <- paste0("\nSummary.\n",
+                   "Time elapsed: ", tms, ".\n",
                    "Groups:     ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n",
                    "Records:    ", fmt(tot), "\n",
                    cri_dst, "\n"
                    )
     cat(summ)
+  }else if(display == "none"){
+    cat(paste0("Data linkage completed in ", tms, "!\n"))
   }
-
-  if(display == "none") cat("Data linkage complete!\n")
   pids
 }
 
@@ -489,6 +503,7 @@ sub_criteria <- function(..., funcs = diyar::exact_match){
   err <- err_sub_criteria_6(sub_cris, funcs_l)
   if(err != F) stop(err, call. = F)
 
+  attr(sub_cris, "diyar_sub_criteria") <- T
   sub_cris
 }
 

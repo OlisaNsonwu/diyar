@@ -379,7 +379,7 @@ err_sub_criteria_1 <- function(...){
     ifelse(is.atomic(x), NA_character_, class(x))
   })
   err <- unlist(err, use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
@@ -402,7 +402,7 @@ err_sub_criteria_2 <- function(funcs){
 
 err_sub_criteria_3 <- function(funcs){
   err <- sapply(funcs, is.function)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!err]
   if(length(err) > 0){
     err <- paste0("`funcs` must be functions:\n",
@@ -439,7 +439,7 @@ err_sub_criteria_5 <- function(sub_cris, funcs_l){
   })
 
   err <- unlist(err, use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
   if(length(funcs_l) == 1) err <- err[!duplicated(err)]
   if(length(err) > 0){
@@ -463,7 +463,7 @@ err_sub_criteria_6 <- function(sub_cris, funcs_l){
   })
 
   err <- unlist(err, use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
   if(length(err) > 0){
     err <- paste0("Invalid arguments for `funcs`:\n",
@@ -485,7 +485,7 @@ err_sub_criteria_7 <- function(sub_cris, funcs_l){
   })
 
   err <- unlist(err, use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
   if(length(funcs_l) == 1) err <- err[!duplicated(err)]
   if(length(err) > 0){
@@ -555,6 +555,30 @@ err_data_links_2 <- function(data_source, data_links){
   }
 }
 
+err_criteria_0 <- function(sub_criteria){
+  rut <- attr(sub_criteria, "diyar_sub_criteria")
+  if(class(rut) != "NULL"){
+    if(rut == T){
+      sub_criteria <- list(sub_criteria)
+    }
+  }
+
+  err <- lapply(sub_criteria, function(x){
+    rut <- attr(x, "diyar_sub_criteria")
+    ifelse(!is.null(rut), NA_character_, class(x))
+  })
+  err <- unlist(err, use.names = F)
+  if(length(err) > 0) names(err) <- 1:length(err)
+  err <- err[!is.na(err)]
+
+  if(length(err) > 0){
+    paste0("Each `sub_criteria` must be supplied with `sub_criteria()`:\n",
+           paste0("X - `sub_criteria ", names(err),"` was not supplied with `sub_criteria()`.", collapse = "\n"))
+  }else{
+    F
+  }
+}
+
 err_criteria_1 <- function(criteria){
   if(class(criteria) != "list") criteria <- list(criteria)
 
@@ -562,7 +586,7 @@ err_criteria_1 <- function(criteria){
     ifelse(is.atomic(x), NA_character_, class(x))
   })
   err <- unlist(err, use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
@@ -579,7 +603,7 @@ err_criteria_2 <- function(criteria){
 
   err <- lapply(criteria, length)
   err <- unlist(err, use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!duplicated(err)]
 
   if(!min(err) %in% c(1, max(err)) | min(err) == 0){
@@ -593,6 +617,12 @@ err_criteria_2 <- function(criteria){
 err_criteria_3 <- function(criteria, sub_criteria){
   if(class(criteria) != "list") criteria <- list(criteria)
 
+  rut <- attr(sub_criteria, "diyar_sub_criteria")
+  if(class(rut) != "NULL"){
+    if(rut == T){
+      sub_criteria <- list(sub_criteria)
+    }
+  }
   err <- as.numeric(lapply(criteria, length))
   err2 <- unlist(lapply(sub_criteria, function(x){
     lapply(x, function(x){
@@ -615,7 +645,7 @@ err_sub_criteria_3dot_1 <- function(...){
   args <- list(...)
   err <- lapply(args, length)
   err <- unlist(err, use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!duplicated(err)]
 
   if(length(err) != 1 | all(err == 0)){
@@ -761,7 +791,7 @@ err_overlap_methods_1 <- function(overlap_methods){
     x <- overlaps_err(x)
     ifelse(length(x) == 0, NA_character_, x)
   }), use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
@@ -815,7 +845,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
     x <- length(x)
     ifelse(!x %in% c(ref_len), x, NA_real_)
   }), use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
@@ -844,7 +874,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
     }
     x
   }), use.names = F)
-  names(err) <- 1:length(err)
+  if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
