@@ -11,7 +11,7 @@ episodes(date, case_length = Inf, episode_type = "fixed",
   recurrence_length = case_length, episode_unit = "days",
   episodes_max = Inf, rolls_max = Inf, overlap_methods_c = "overlap",
   overlap_methods_r = overlap_methods_c, sn = NULL, strata = NULL,
-  skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
+  skip_if_b4_lengths = FALSE, data_source = NULL, data_links = "ANY",
   custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
   case_for_recurrence = FALSE, from_last = FALSE,
   group_stats = FALSE, display = "none")

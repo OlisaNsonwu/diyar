@@ -149,8 +149,7 @@ data_4$r <- 3 * diyar::episode_unit$days
 
 test_4 <- cbind(data_4,
                 suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, group_stats = T, to_s4 = F), 1),
-                suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1, group_stats = T, to_s4 = F), 2)
-)
+                suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1, group_stats = T, to_s4 = F), 2))
 
 e_int.1 <- c(
   rep(number_line(dttm("01/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 10)
@@ -793,13 +792,13 @@ test_that("test wind_id and wind_nm", {
 x <- c(1,6,7,8,10)
 df1 <- data.frame(x=x, rc=0)
 df1$cl <- number_line(9,10)
-df1$ep1 <- episode_group(df1, date =x, case_length = cl, recurrence_length = rc, episode_type = "rolling")
+df1$ep1 <- episode_group(df1, date =x, case_length = cl, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = T)
 df1$ep2 <- episode_group(df1, date =x, case_length = cl, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = F)
 
 x <- seq(1,20,3)
 df2 <- data.frame(x=x, rc=0)
 df2$ep <- number_line(6,6)
-df2$ep3 <- episode_group(df2, date =x, case_length = ep, recurrence_length = rc, episode_type = "rolling")
+df2$ep3 <- episode_group(df2, date =x, case_length = ep, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = T)
 df2$ep4 <- episode_group(df2, date =x, case_length = ep, recurrence_length = rc, episode_type = "rolling", skip_if_b4_lengths = F)
 
 test_that("test cut-off ranges", {
@@ -838,12 +837,12 @@ ds$c3 <- number_line(0,10)
 ds$c4 <- 0
 ds$ep_1 <- episode_group(ds, date =x, case_length = c1)
 ds$ep_2 <- episode_group(ds, date =x, case_length = c1, custom_sort = s)
-ds$ep_3 <- episode_group(ds, date =x, case_length = c2, custom_sort = s)
-ds$ep_4 <- episode_group(ds, date =x, case_length = c2)
-ds$ep_5 <- episode_group(ds, date =x, case_length = c2, episode_type = "rolling")
-ds$ep_6 <- episode_group(ds, date =x, case_length = c4, recurrence_length = c2, episode_type = "rolling")
+ds$ep_3 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, skip_if_b4_lengths = T)
+ds$ep_4 <- episode_group(ds, date =x, case_length = c2, skip_if_b4_lengths = T)
+ds$ep_5 <- episode_group(ds, date =x, case_length = c2, episode_type = "rolling", skip_if_b4_lengths = T)
+ds$ep_6 <- episode_group(ds, date =x, case_length = c4, recurrence_length = c2, episode_type = "rolling", skip_if_b4_lengths = T)
 ds$ep_7 <- episode_group(ds, date =x, case_length = c4, recurrence_length = c3, episode_type = "rolling")
-ds$ep_8 <- episode_group(ds, date =x, case_length = c2, recurrence_length = c3, episode_type = "rolling")
+ds$ep_8 <- episode_group(ds, date =x, case_length = c2, recurrence_length = c3, episode_type = "rolling", skip_if_b4_lengths = T)
 
 
 ds$c5 <- number_line(-7,-10)
@@ -852,9 +851,9 @@ ds$c7 <- number_line(-10, 10)
 ds$ep_9 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, from_last = T)
 ds$ep_10 <- episode_group(ds, date =rx, case_length = c2, custom_sort = s)
 ds$ep_11 <- episode_group(ds, date =x, case_length = c5, custom_sort = s, from_last = T)
-ds$ep_11.2 <- episode_group(ds, date =x, case_length = c2, custom_sort = s)
+ds$ep_11.2 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, skip_if_b4_lengths = T)
 
-ds$ep_12 <- episode_group(ds, date =x, case_length = c5, custom_sort = s)
+ds$ep_12 <- episode_group(ds, date =x, case_length = c5, custom_sort = s, skip_if_b4_lengths = T)
 ds$ep_13 <- episode_group(ds, date =x, case_length = c6, custom_sort = s)
 
 ds$ep_14 <- episode_group(ds, date =x, case_length = c7, custom_sort = s)
@@ -920,25 +919,25 @@ ds$c3 <- number_line(0,10)
 ds$c4 <- 0
 ds$ep_1 <- episode_group(ds, date =x, case_length = c1)
 ds$ep_2 <- episode_group(ds, date =x, case_length = c1, custom_sort = s)
-ds$ep_3 <- episode_group(ds, date =x, case_length = c2, custom_sort = s)
-ds$ep_3.5 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, include_index_period = F)
+ds$ep_3 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, skip_if_b4_lengths = T)
+ds$ep_3.5 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, include_index_period = F, skip_if_b4_lengths = T)
 
-ds$ep_4 <- episode_group(ds, date =x, case_length = c2)
-ds$ep_5 <- episode_group(ds, date =x, case_length = c2, episode_type = "rolling")
-ds$ep_5.5 <- episode_group(ds, date =x, case_length = c2, episode_type = "rolling", include_index_period = F)
-ds$ep_6 <- episode_group(ds, date =x, case_length = c4, recurrence_length = c2, episode_type = "rolling")
+ds$ep_4 <- episode_group(ds, date =x, case_length = c2, skip_if_b4_lengths = T)
+ds$ep_5 <- episode_group(ds, date =x, case_length = c2, episode_type = "rolling", skip_if_b4_lengths = T)
+ds$ep_5.5 <- episode_group(ds, date =x, case_length = c2, episode_type = "rolling", include_index_period = F, skip_if_b4_lengths = T)
+ds$ep_6 <- episode_group(ds, date =x, case_length = c4, recurrence_length = c2, episode_type = "rolling", skip_if_b4_lengths = T)
 ds$ep_7 <- episode_group(ds, date =x, case_length = c4, recurrence_length = c3, episode_type = "rolling")
-ds$ep_8 <- episode_group(ds, date =x, case_length = c2, recurrence_length = c3, episode_type = "rolling")
+ds$ep_8 <- episode_group(ds, date =x, case_length = c2, recurrence_length = c3, episode_type = "rolling", skip_if_b4_lengths = T)
 
 ds$c5 <- number_line(-7,-10)
 ds$c6 <- number_line(-10,-0)
 ds$c7 <- number_line(-10, 10)
 
-ds$ep_9 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, from_last = T)
-ds$ep_9.2 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, from_last = T, include_index_period = F)
+ds$ep_9 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, from_last = T, skip_if_b4_lengths = T)
+ds$ep_9.2 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, from_last = T, include_index_period = F, skip_if_b4_lengths = T)
 
 ds$ep_11 <- episode_group(ds, date =x, case_length = c5, custom_sort = s, from_last = T)
-ds$ep_11.2 <- episode_group(ds, date =x, case_length = c2, custom_sort = s)
+ds$ep_11.2 <- episode_group(ds, date =x, case_length = c2, custom_sort = s, skip_if_b4_lengths = T)
 
 ds$ep_12 <- episode_group(ds, date =x, case_length = c5, custom_sort = s)
 ds$ep_13 <- episode_group(ds, date =x, case_length = c6, custom_sort = s)

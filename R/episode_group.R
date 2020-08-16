@@ -130,7 +130,7 @@
 episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = case_length,
                      episode_unit = "days", episodes_max = Inf, rolls_max = Inf,
                      overlap_methods_c = "overlap", overlap_methods_r = overlap_methods_c,
-                     sn = NULL, strata = NULL, skip_if_b4_lengths = TRUE, data_source = NULL,
+                     sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                      display = "none") {
@@ -582,11 +582,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     if(any_skip_b4_len == T){
-      ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int[lead_skip_b4_len], start_point))
-      ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int[lead_skip_b4_len], end_point))
-
-      ep_l_bounds_a <- start_point(tr_int[lead_skip_b4_len])
-      ep_l_bounds_z <- end_point(tr_int[lead_skip_b4_len])
+      lgk <- lead_skip_b4_len & tag != 2
+      ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) start_point(x[lgk])))
+      ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) end_point(x[lgk])))
+      ep_l_bounds_a <- start_point(tr_int[lgk])
+      ep_l_bounds_z <- end_point(tr_int[lgk])
 
       ep_l_bounds_a <- ifelse(ep_l_min_a[1,] < ep_l_bounds_a, ep_l_min_a[1,], ep_l_bounds_a)
       ep_l_bounds_z <- ifelse(ep_l_min_z[2,] > ep_l_bounds_z, ep_l_min_z[2,], ep_l_bounds_z)
@@ -596,14 +596,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           l = ep_l_bounds_a,
           r = ep_l_bounds_z))
 
-      ep_obds_checks <- suppressWarnings(overlap(int[lead_skip_b4_len], epc_bnds))
+      ep_obds_checks <- suppressWarnings(overlap(int[lgk], epc_bnds))
 
       if(any_rolling == T){
-        rc_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_rc_int[lead_skip_b4_len], start_point))
-        rc_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_rc_int[lead_skip_b4_len], end_point))
+        rc_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_rc_int, function(x) start_point(x[lgk])))
+        rc_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_rc_int, function(x) end_point(x[lgk])))
 
-        rc_l_bounds_a <- start_point(tr_int[lead_skip_b4_len])
-        rc_l_bounds_z <- end_point(tr_int[lead_skip_b4_len])
+        rc_l_bounds_a <- start_point(tr_int[lgk])
+        rc_l_bounds_z <- end_point(tr_int[lgk])
 
         rc_l_bounds_a <- ifelse(rc_l_min_a[1,] < rc_l_bounds_a, rc_l_min_a[1,], rc_l_bounds_a)
         rc_l_bounds_z <- ifelse(rc_l_min_z[2,] > rc_l_bounds_z, rc_l_min_z[2,], rc_l_bounds_z)
@@ -613,28 +613,30 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             l = rc_l_bounds_a,
             r = rc_l_bounds_z))
 
-        rc_obds_checks <- suppressWarnings(overlap(int[lead_skip_b4_len], rc_l_bnds))
+        rc_obds_checks <- suppressWarnings(overlap(int[lgk], rc_l_bnds))
       }
 
       ref_period <- overlap(int, tr_int)
       skp_crxt <- cri[cr & !ref_period]
       skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
       indx <- (ep_obds_checks &
-                 !cr &
-                 cri[lead_skip_b4_len] %in% skp_crxt &
-                 tr_tag[lead_skip_b4_len] %in% c(0, -2) &
-                 case_nm[lead_skip_b4_len] == "")
+                 !cr[lgk] &
+                 cri[lgk] %in% skp_crxt &
+                 tr_tag[lgk] %in% c(0, -2) &
+                 case_nm[lgk] == "")
       if(any_rolling == T){
         indx <- ifelse((rc_obds_checks &
-                          !cr &
-                          cri[lead_skip_b4_len] %in% skp_crxt &
-                          tr_tag[lead_skip_b4_len] == -1 &
-                          case_nm[lead_skip_b4_len] == ""),
+                          !cr[lgk] &
+                          cri[lgk] %in% skp_crxt &
+                          tr_tag[lgk] == -1 &
+                          case_nm[lgk] == ""),
                        T, indx)
       }
 
-      case_nm[lead_skip_b4_len][indx] <- "Skipped"
-      tag[lead_skip_b4_len][indx] <- 2
+      if(length(lgk[indx]) > 0){
+        case_nm[lgk][indx] <- "Skipped"
+        tag[lgk][indx] <- 2
+      }
       rm(skp_crxt); rm(indx)
     }
 
