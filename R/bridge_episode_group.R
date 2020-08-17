@@ -35,6 +35,12 @@ bridge_episode_group <- function(df, args, episode_type){
     return(out)
   }
 
+  if(length(episode_type) != 1){
+    err <- paste0("Length of `episode_type` must be 1:\n",
+                  "X - Length is ", length(episode_type), ".")
+    return(err)
+  }
+
   if(!tolower(episode_type) %in% c("rolling","fixed")){
     out <- list(err_nm = paste0("Invalid values for `episode_type`:\n",
                                 "i - Vaild values are: \"fixed\", or \"rolling\".\n",

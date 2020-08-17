@@ -795,7 +795,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #' @export
 fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                            to_s4 = T, overlap_methods_c = "overlap", deduplicate = F,
-                           display = "progress",bi_direction = F,
+                           display = "progress", bi_direction = F,
+                           recurrence_length = case_length,
+                           overlap_methods_r = overlap_methods_c,
                            include_index_period = T, ...,
                            overlap_methods = "overlap", overlap_method = "overlap", x){
   args <- as.list(substitute(...()))
@@ -858,9 +860,10 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
     overlap_methods_c <- c(overlap_methods_c, list(rep("overlap", length(date))))
   }
 
-  epids <- episodes(date = date, episode_type = "fixed",
-                           overlap_methods_c = overlap_methods_c, display = display,
-                           case_length = case_length, episode_unit = ep_units, ...)
+  epids <- episodes(date = date, episode_type = "fixed", overlap_methods_c = overlap_methods_c,
+                    overlap_methods_r = overlap_methods_c, display = display,
+                    case_length = case_length, recurrence_length = case_length,
+                    episode_unit = ep_units, ...)
   if(deduplicate == T) {
     epids <- epids[!epids@case_nm %in% c("Duplicate_C", "Duplicate_R")]
   }

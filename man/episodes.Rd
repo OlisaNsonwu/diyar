@@ -18,8 +18,10 @@ episodes(date, case_length = Inf, episode_type = "fixed",
 
 fixed_episodes(date, case_length = Inf, episode_unit = "days",
   to_s4 = T, overlap_methods_c = "overlap", deduplicate = F,
-  display = "progress", bi_direction = F, include_index_period = T,
-  ..., overlap_methods = "overlap", overlap_method = "overlap", x)
+  display = "progress", bi_direction = F,
+  recurrence_length = case_length,
+  overlap_methods_r = overlap_methods_c, include_index_period = T, ...,
+  overlap_methods = "overlap", overlap_method = "overlap", x)
 
 rolling_episodes(date, case_length = Inf,
   recurrence_length = case_length, episode_unit = "days", to_s4 = T,
