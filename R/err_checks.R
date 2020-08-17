@@ -887,7 +887,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
   }
 }
 
-err_epids_checks <- function(date,
+err_episodes_checks_1 <- function(date,
                              case_length,
                              recurrence_length,
                              episode_type,
@@ -897,7 +897,6 @@ err_epids_checks <- function(date,
                              deduplicate,
                              display,
                              bi_direction,
-                             #from_last,
                              include_index_period ,
                              to_s4){
   # Check for required object types
@@ -1010,5 +1009,168 @@ err_epids_checks <- function(date,
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
   if(err != F) return(err[1])
 
+  return(F)
+}
+
+
+err_episodes_checks_0 <- function(date,
+                                  case_length,
+                                  recurrence_length,
+                                  episode_type,
+                                  episode_unit,
+                                  overlap_methods_c,
+                                  overlap_methods_r,
+                                  display,
+                                  sn,
+                                  episodes_max,
+                                  rolls_max,
+                                  strata,
+                                  skip_if_b4_lengths,
+                                  data_source,
+                                  data_links,
+                                  custom_sort,
+                                  skip_order,
+                                  recurrence_from_last,
+                                  case_for_recurrence,
+                                  from_last,
+                                  group_stats){
+
+  # Check for required object types
+  args <- list(date = date,
+               case_length = case_length,
+               recurrence_length = recurrence_length,
+               episode_type = episode_type,
+               overlap_methods_c = overlap_methods_c,
+               overlap_methods_r = overlap_methods_r,
+               episode_unit = episode_unit,
+               display = display,
+               data_source = data_source,
+               episodes_max = episodes_max,
+               rolls_max = rolls_max,
+               skip_if_b4_lengths = skip_if_b4_lengths,
+               data_links = data_links,
+               skip_order = skip_order,
+               recurrence_from_last = recurrence_from_last,
+               case_for_recurrence = case_for_recurrence,
+               from_last = from_last,
+               group_stats = group_stats)
+
+  args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
+                       episode_type = "character",
+                       overlap_methods_c = "character",
+                       overlap_methods_r = "character",
+                       episode_unit = "character",
+                       display = "character",
+                       case_length = c("integer", "numeric", "number_line"),
+                       recurrence_length = c("integer", "numeric", "number_line"),
+                       episodes_max = c("numeric", "integer"),
+                       rolls_max = c("numeric", "integer"),
+                       data_source = c("character", "NULL"),
+                       data_links = c("list", "character"),
+                       skip_order = c("numeric", "integer"),
+                       skip_if_b4_lengths = "logical",
+                       recurrence_from_last = "logical",
+                       case_for_recurrence = "logical",
+                       from_last = "logical",
+                       group_stats = "logical")
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object lengths
+  len_lims <- c(1, length(date))
+  args <- list(case_length = case_length,
+               recurrence_length = recurrence_length,
+               episode_type = episode_type,
+               episode_unit= episode_unit,
+               overlap_methods_c = overlap_methods_c,
+               overlap_methods_r = overlap_methods_r,
+               display = display,
+               strata = strata,
+               custom_sort = custom_sort,
+               episodes_max = episodes_max,
+               rolls_max = rolls_max,
+               data_source = data_source,
+               data_links = data_links,
+               skip_order = skip_order,
+               skip_if_b4_lengths = skip_if_b4_lengths,
+               recurrence_from_last = recurrence_from_last,
+               case_for_recurrence = case_for_recurrence)
+
+  args_lens <- list(episode_type = len_lims,
+                    overlap_methods_c = len_lims,
+                    overlap_methods_r = len_lims,
+                    episode_unit = len_lims,
+                    display = 1,
+                    case_length = len_lims,
+                    strata = c(0, len_lims),
+                    custom_sort = c(0, len_lims),
+                    recurrence_length = len_lims,
+                    episodes_max = len_lims,
+                    rolls_max = len_lims,
+                    data_source = c(0, len_lims),
+                    data_links = len_lims,
+                    skip_order = len_lims,
+                    skip_if_b4_lengths = len_lims,
+                    recurrence_from_last = len_lims,
+                    case_for_recurrence = len_lims)
+
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("date"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  # Check for missing values where they are not permitted
+  args <- list(date = date,
+               episode_type = episode_type,
+               overlap_methods_c = overlap_methods_c,
+               overlap_methods_r = overlap_methods_r,
+               display = display,
+
+               episodes_max = episodes_max,
+               rolls_max = rolls_max,
+               data_source = data_source,
+               data_links = data_links,
+               skip_order = skip_order,
+               skip_if_b4_lengths = skip_if_b4_lengths,
+               recurrence_from_last = recurrence_from_last,
+               case_for_recurrence = case_for_recurrence)
+
+  err <- mapply(err_missing_check,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  err <- err_data_links_1(data_source = data_source, data_links = data_links)
+  if(err != F) return(err)
+  err <- err_data_links_2(data_source = data_source, data_links = data_links)
+  if(err != F) return(err)
+  err <- err_episode_unit_1(episode_unit = episode_unit)
+  if(err != F) return(err)
+  err <- err_episode_type_1(episode_type = episode_type)
+  if(err != F) return(err)
+  err <- err_display_1(display = display)
+  if(err != F) return(err)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c)
+  if(err != F) return(err)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r)
+  if(err != F) return(err)
+  err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
+  if(err != F) return(err)
+  err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
+  if(err != F) return(err)
+  err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
+  if(err != F) return(err)
   return(F)
 }
