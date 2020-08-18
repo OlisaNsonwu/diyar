@@ -135,15 +135,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                      display = "none") {
   tm_a <- Sys.time()
-  # errs <- err_checks_epid(sn = sn, date = date, case_length = case_length, strata = strata,
-  #                         display=display, episodes_max = episodes_max, from_last = from_last,
-  #                         episode_unit = episode_unit, overlap_methods_c = overlap_methods_c,
-  #                         overlap_methods_r = overlap_methods_r,
-  #                         skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
-  #                         data_source=data_source, data_links = data_links,
-  #                         skip_if_b4_lengths = skip_if_b4_lengths,
-  #                         rolls_max = rolls_max, case_for_recurrence = case_for_recurrence, recurrence_from_last = recurrence_from_last,
-  #                         episode_type = episode_type, recurrence_length=recurrence_length)
   errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
                           display=display, episodes_max = episodes_max, from_last = from_last,
                           episode_unit = episode_unit, overlap_methods_c = overlap_methods_c,
@@ -151,7 +142,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                           skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
                           data_source=data_source, data_links = data_links,
                           skip_if_b4_lengths = skip_if_b4_lengths,
-                          rolls_max = rolls_max, case_for_recurrence = case_for_recurrence, recurrence_from_last = recurrence_from_last,
+                          rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
+                          recurrence_from_last = recurrence_from_last,
                           episode_type = episode_type, recurrence_length=recurrence_length)
 
   display <- tolower(display)

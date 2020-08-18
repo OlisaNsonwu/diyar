@@ -99,28 +99,22 @@ links <- function(criteria,
                   data_source = NULL,
                   data_links = "ANY",
                   display = "progress",
-                  group_stats = F,
+                  group_stats = FALSE,
                   expand = TRUE,
                   shrink = FALSE){
   tm_a <- Sys.time()
-  err <- err_data_links_1(data_source = data_source, data_links = data_links)
-  if(err != F) stop(err, call. = F)
 
-  err <- err_data_links_2(data_source = data_source, data_links = data_links)
-  if(err != F) stop(err, call. = F)
+  err <- err_links_checks_0(criteria = criteria,
+                     sub_criteria = sub_criteria,
+                     sn = SN,
+                     strata = strata,
+                     data_source = data_source,
+                     data_links = data_links,
+                     display = display,
+                     group_stats = group_stats,
+                     expand = expand,
+                     shrink = shrink)
 
-  if(class(criteria) != "list") criteria <- list(criteria)
-
-  err <- err_criteria_0(sub_criteria)
-  if(err != F) stop(err, call. = F)
-
-  err <- err_criteria_1(criteria)
-  if(err != F) stop(err, call. = F)
-
-  err <- err_criteria_2(criteria)
-  if(err != F) stop(err, call. = F)
-
-  err <- err_criteria_3(criteria, sub_criteria)
   if(err != F) stop(err, call. = F)
 
   rut <- attr(sub_criteria, "diyar_sub_criteria")
@@ -129,6 +123,8 @@ links <- function(criteria,
       sub_criteria <- list(sub_criteria)
     }
   }
+
+  if(class(criteria) != "list") criteria <- list(criteria)
 
   ds_len <- as.numeric(lapply(criteria, length))
   ds_len_b <- sapply(sub_criteria, function(x){

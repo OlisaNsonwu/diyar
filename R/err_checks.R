@@ -899,6 +899,28 @@ err_episodes_checks_1 <- function(date,
                              bi_direction,
                              include_index_period ,
                              to_s4){
+  # Check for non-actomic vectors
+  args <- list(date = date,
+               case_length = case_length,
+               recurrence_length = recurrence_length,
+               episode_type = episode_type,
+               episode_unit= episode_unit,
+               overlap_methods_c = overlap_methods_c,
+               overlap_methods_r = overlap_methods_r,
+               deduplicate = deduplicate,
+               display = display,
+               bi_direction = bi_direction,
+               #from_last = from_last,
+               include_index_period = include_index_period,
+               to_s4 = to_s4)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
   # Check for required object types
   args <- list(date = date,
                case_length = case_length,
@@ -1035,6 +1057,34 @@ err_episodes_checks_0 <- function(date,
                                   from_last,
                                   group_stats){
 
+
+  # Check for non-actomic vectors
+  args <- list(date = date,
+               case_length = case_length,
+               recurrence_length = recurrence_length,
+               episode_type = episode_type,
+               episode_unit= episode_unit,
+               overlap_methods_c = overlap_methods_c,
+               overlap_methods_r = overlap_methods_r,
+               display = display,
+               strata = strata,
+               custom_sort = custom_sort,
+               episodes_max = episodes_max,
+               rolls_max = rolls_max,
+               data_source = data_source,
+               data_links = data_links,
+               skip_order = skip_order,
+               skip_if_b4_lengths = skip_if_b4_lengths,
+               recurrence_from_last = recurrence_from_last,
+               case_for_recurrence = case_for_recurrence)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
   # Check for required object types
   args <- list(date = date,
                case_length = case_length,
@@ -1054,6 +1104,7 @@ err_episodes_checks_0 <- function(date,
                case_for_recurrence = case_for_recurrence,
                from_last = from_last,
                group_stats = group_stats)
+
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
@@ -1173,4 +1224,122 @@ err_episodes_checks_0 <- function(date,
   err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
   if(err != F) return(err)
   return(F)
+}
+
+err_links_checks_0 <- function(criteria,
+                                 sub_criteria,
+                                 sn,
+                                 strata,
+                                 data_source,
+                                 data_links,
+                                 display,
+                                 group_stats,
+                                 expand,
+                                 shrink){
+
+
+  # Check for non-actomic vectors
+  args <- list(strata = strata,
+               data_source = data_source,
+               data_links = data_links,
+               display = display,
+               group_stats = group_stats,
+               expand = expand,
+               shrink = shrink,
+               criteria = criteria)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object types
+  args <- list(#strata = strata,
+               data_source = data_source,
+               display = display,
+               group_stats = group_stats,
+               expand = expand,
+               shrink = shrink)
+
+
+  args_classes <- list(display = "character",
+                       data_source = c("character", "NULL"),
+                       data_links = c("list", "character"),
+                       shrink = "logical",
+                       expand = "logical",
+                       group_stats = "logical")
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object lengths
+  if(class(criteria) != "list") criteria <- list(criteria)
+  len_lims <- c(1, length(criteria[[1]]))
+  args <- list(data_source = data_source,
+               display = display,
+               group_stats = group_stats,
+               expand = expand,
+               shrink = shrink)
+
+  args_lens <- list(data_source = c(0, len_lims),
+                    display = 1,
+                    group_stats = 1,
+                    expand = 1,
+                    shrink = 1)
+
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("criteria"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  err <- err_data_links_1(data_source = data_source, data_links = data_links)
+  if(err != F) return(err)
+
+  err <- err_data_links_2(data_source = data_source, data_links = data_links)
+  if(err != F) return(err)
+
+  if(class(criteria) != "list") criteria <- list(criteria)
+
+  err <- err_criteria_0(sub_criteria)
+  if(err != F) return(err)
+
+  err <- err_criteria_1(criteria)
+  if(err != F) return(err)
+
+  err <- err_criteria_2(criteria)
+  if(err != F) return(err)
+
+  err <- err_criteria_3(criteria, sub_criteria)
+  if(err != F) return(err)
+  return(F)
+}
+
+err_atomic_vectors <- function(arg, arg_nm){
+  if(!all(class(arg) == "list")){
+    arg <- list(arg)
+    multi_opts <- F
+  }else{
+    multi_opts <- T
+  }
+  err <- unlist(lapply(arg, is.atomic), use.names = F)
+  if(length(err) > 0) names(err) <- 1:length(err)
+  err <- err[!err]
+
+  if(length(err) > 0){
+    err <- paste0(ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`` must be an `atomic` vector.`\n")
+    return(err)
+  }else{
+    return(F)
+  }
 }
