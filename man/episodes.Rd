@@ -7,28 +7,65 @@
 \alias{episode_group}
 \title{Track episodes for case definitions and record deduplication.}
 \usage{
-episodes(date, case_length = Inf, episode_type = "fixed",
-  recurrence_length = case_length, episode_unit = "days",
-  episodes_max = Inf, rolls_max = Inf, overlap_methods_c = "overlap",
-  overlap_methods_r = overlap_methods_c, sn = NULL, strata = NULL,
-  skip_if_b4_lengths = FALSE, data_source = NULL, data_links = "ANY",
-  custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
-  case_for_recurrence = FALSE, from_last = FALSE,
-  group_stats = FALSE, display = "none")
-
-fixed_episodes(date, case_length = Inf, episode_unit = "days",
-  to_s4 = T, overlap_methods_c = "overlap", deduplicate = F,
-  display = "progress", bi_direction = F,
+episodes(
+  date,
+  case_length = Inf,
+  episode_type = "fixed",
   recurrence_length = case_length,
-  overlap_methods_r = overlap_methods_c, include_index_period = T, ...,
-  overlap_methods = "overlap", overlap_method = "overlap", x)
+  episode_unit = "days",
+  episodes_max = Inf,
+  rolls_max = Inf,
+  overlap_methods_c = "overlap",
+  overlap_methods_r = overlap_methods_c,
+  sn = NULL,
+  strata = NULL,
+  skip_if_b4_lengths = FALSE,
+  data_source = NULL,
+  data_links = "ANY",
+  custom_sort = NULL,
+  skip_order = Inf,
+  recurrence_from_last = TRUE,
+  case_for_recurrence = FALSE,
+  from_last = FALSE,
+  group_stats = FALSE,
+  display = "none"
+)
 
-rolling_episodes(date, case_length = Inf,
-  recurrence_length = case_length, episode_unit = "days", to_s4 = T,
-  overlap_methods_c = "overlap", overlap_methods_r = overlap_methods_c,
-  deduplicate = F, display = "progress", bi_direction = F,
-  include_index_period = T, ..., overlap_methods = "overlap",
-  overlap_method = "overlap", x)
+fixed_episodes(
+  date,
+  case_length = Inf,
+  episode_unit = "days",
+  to_s4 = T,
+  overlap_methods_c = "overlap",
+  deduplicate = F,
+  display = "progress",
+  bi_direction = F,
+  recurrence_length = case_length,
+  overlap_methods_r = overlap_methods_c,
+  include_index_period = T,
+  ...,
+  overlap_methods = "overlap",
+  overlap_method = "overlap",
+  x
+)
+
+rolling_episodes(
+  date,
+  case_length = Inf,
+  recurrence_length = case_length,
+  episode_unit = "days",
+  to_s4 = T,
+  overlap_methods_c = "overlap",
+  overlap_methods_r = overlap_methods_c,
+  deduplicate = F,
+  display = "progress",
+  bi_direction = F,
+  include_index_period = T,
+  ...,
+  overlap_methods = "overlap",
+  overlap_method = "overlap",
+  x
+)
 
 episode_group(df, ..., episode_type = "fixed")
 }

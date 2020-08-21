@@ -15,7 +15,31 @@
 \alias{Opes}
 \alias{episode_unit}
 \title{Datasets in \code{diyar} package}
-\format{data.frame}
+\format{
+data.frame
+
+data.frame
+
+data.frame
+
+data.frame
+
+data.frame
+
+data.frame
+
+data.frame
+
+data.frame
+
+An object of class \code{data.frame} with 5 rows and 4 columns.
+
+data.frame
+
+data.frame
+
+list
+}
 \usage{
 data(staff_records)
 

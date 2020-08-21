@@ -259,7 +259,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
                               paste0("Case length\n(between ",left_point(cl$c)," and ",right_point(cl$c)," day-difference)")))
 
       for(i in 1:nrow(cl)){
-        # Surpressed warning from 0 length arrows
+        # Supressed warning from 0 length arrows
         #suppressWarnings(graphics::lines(y=rep(cl$case_len_y_axis[i], 2), x = c(left_point(cl$int)[i], right_point(cl$int)[i]), col = cl$epd_cols[i], lty=1))
         suppressWarnings(graphics::lines(y=rep(cl$case_len_y_axis[i], 2), x = c(right_point(cl$int)[i], right_point(cl$int)[i] + (left_point(cl$c)[i] * ifelse(from_last==T,-1,1))), col = ifelse(cl$int@.Data!=0, cl$epd_cols[i], "white"), lty=2))
         suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = right_point(cl$int)[i] + (left_point(cl$c)[i] * ifelse(from_last==T,-1,1)), x1 =right_point(cl$int)[i] + (right_point(cl$c)[i] * ifelse(from_last==T,-1,1)), col = "white", lty=1))
@@ -281,7 +281,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
         # Doesn't capture all scenarios yet.
         # Stopped for now. Need's another approach
         # if(cl$dt2[i]!= cl$e_dt_a[i]){
-        #   # Surpressed warning from 0 length arrows
+        #   # Supressed warning from 0 length arrows
         #   # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=cl$case_len_y_axis[i], x0 = cl$dt2[i], x1 = cl$end_dt2[i], col ="white"))
         #   # graphics::text(cex = .7 * scale_fac, y=cl$case_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(cl$dt2[i], cl$end_dt2[i])), labels = cl$lab[i], col ="white", adj =c(.5,0))
         # }
@@ -304,7 +304,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
                               paste0("Recurrence length\n(between ",left_point(rl$r)," and ",right_point(rl$r)," day-difference)")))
 
       for(i in 1:nrow(rl)){
-        # Surpressed warning from 0 length arrows
+        # Supressed warning from 0 length arrows
 
         # if(i == nrow(rl) & i != 1 & rl$end_dt[i] > xlims[2]) x_pos <- ifelse(from_last ==T, rl$dt[i] + (scale_fac * 0.5), rl$dt[i] - (scale_fac * 0.5))
         # else x_pos <- mean(c(rl$dt[i], rl$end_dt[i]))
@@ -327,7 +327,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
       # Should it apply to recurrence length?
       # Stopped for now. Need's another approach
       # if(rl$dt2[i]!= rl$e_dt_a[i]){
-      #   # Surpressed warning from 0 length arrows
+      #   # Supressed warning from 0 length arrows
       #   # suppressWarnings(graphics::arrows(length=0.1,angle=20, y0=rl$rec_len_y_axis[i], x0 = rl$dt2[i], x1 = rl$end_dt2[i], col ="white"))
       #   # graphics::text(cex = .7 * scale_fac, y=rl$rec_len_y_axis[i] + (scale_fac * 0.02) , x=mean(c(rl$dt2[i], rl$end_dt2[i])), labels = rl$lab[i], col ="white", adj =c(.5,0))
       # }

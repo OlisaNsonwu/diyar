@@ -8,7 +8,7 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
                                  group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE,
                                  recurrence_from_last = TRUE, case_for_recurrence =FALSE, include_index_period = TRUE){
   . <- NULL
-
+  dtt_a <- Sys.time()
   if(missing(df)) stop("argument 'df' is missing, with no default")
   if(missing(date)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
@@ -21,7 +21,7 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
 
   # Suggesting the use `epid` objects - Retired since the switc
   # if(to_s4 == FALSE){
-  #   # check if episode_group() was called by fixed_diyar::episodes() or rolling_diyar::episodes()
+  #   # check if episode_group() was called by fixed_episodes() or rolling_episodes()
   #   wrap_func <- c("rolling_episodes","fixed_episodes")
   #   call <- deparse(sys.call(-(sys.nframe()-1)))
   #   lg <- unlist(lapply(wrap_func, function(x){
@@ -428,6 +428,9 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
   rm(df)
   c <- 1
   grouped_epids <- T1[0,0]
+  dtt_z <- Sys.time()
+  print(paste0("Pre loop: ", difftime(dtt_z, dtt_a)))
+  dtt_a <- Sys.time()
   g_vrs <- c("sn","pr_sn","dt_ai","dt_zi", "ds","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
   while (min_tag != 2 & min_episodes <= episodes_max){
     # Seperate out grouped/skipped records
@@ -717,7 +720,9 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
 
     c = c+1
   }
-
+  dtt_z <- Sys.time()
+  print(paste0("Loop: ", difftime(dtt_z, dtt_a)))
+  dtt_a <- Sys.time()
   # Append all events back together
   T1 <- rbind(T1[g_vrs], grouped_epids)
   rm(grouped_epids)
@@ -831,6 +836,9 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
   pd <- ifelse(display,"\n","")
   cat(paste0(pd, "Episode grouping complete: " ,fmt(unique_ids)," record(s) with a unique ID. \n"))
   if(to_s4) T1 <- diyar::to_s4(T1)
+
+  dtt_z <- Sys.time()
+  print(paste0("Post loop: ", difftime(dtt_z, dtt_a)))
   T1
 }
 
@@ -849,11 +857,11 @@ fixed_episodes_retired <- function(date, sn = NULL, strata = NULL, case_length, 
   #     options("diyar.fixed_episodes.output"= TRUE)
   #   }
   #   if (getOption("diyar.fixed_episodes.output")){
-  #     message(paste("The default output of fixed_diyar::episodes() will be changed to epid objects in the next release.",
+  #     message(paste("The default output of fixed_episodes() will be changed to epid objects in the next release.",
   #                   "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
   #                   "",
   #                   "# New way - `epid` objects",
-  #                   "df$epids <- fixed_diyar::episodes(case_length= df$x, to_s4 = TRUE)",
+  #                   "df$epids <- fixed_episodes(case_length= df$x, to_s4 = TRUE)",
   #                   "",
   #                   "This message is displayed once per session.", sep = "\n"))
   #   }
@@ -956,11 +964,11 @@ rolling_episodes_retired <- function(date, sn = NULL, strata = NULL, case_length
   #     options("diyar.rolling_episodes.output"= TRUE)
   #   }
   #   if (getOption("diyar.rolling_episodes.output")){
-  #     message(paste("The default output of rolling_diyar::episodes() will be changed to epid objects in the next release.",
+  #     message(paste("The default output of rolling_episodes() will be changed to epid objects in the next release.",
   #                   "Please consider switching earlier by using 'to_s4=TRUE' or to_s4()",
   #                   "",
   #                   "# New way - `epid` objects",
-  #                   "df$epids <- rolling_diyar::episodes(case_length= df$x, to_s4 = TRUE)",
+  #                   "df$epids <- rolling_episodes(case_length= df$x, to_s4 = TRUE)",
   #                   "",
   #                   "This message is displayed once per session.", sep = "\n"))
   #   }

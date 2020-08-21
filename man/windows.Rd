@@ -46,4 +46,10 @@ epid_lengths(number_line(01, 20), 30)
 epid_lengths(number_line(01, 20), number_line(25, 30))
 epid_lengths(number_line(01, 20), number_line(-10, 30))
 epid_lengths(number_line(01, 20), -10)
+library(diyar)
+
+index_window(20)
+index_window(as.number_line(20))
+index_window(number_line(15, 20))
+
 }

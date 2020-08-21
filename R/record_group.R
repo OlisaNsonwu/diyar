@@ -181,7 +181,7 @@ links <- function(criteria,
     cri <- match(cri, cri[!duplicated(cri)])
     cri[lgk] <- NA_real_
 
-    names(cri) <- 1:ds_len
+    names(cri) <- format(seq_len(ds_len), trim = T, scientific = F)
     force_check <- rep(0, ds_len)
     skip <- force_check
     m_tag <- force_check
@@ -204,11 +204,12 @@ links <- function(criteria,
       # Reference records
       r <- rle(cri)
       p <- as.numeric(names(r$values))
-      tr_link_id <- rep(link_id[which(names(cri) %in% p)], r$lengths)
-      tr_pid_cri <- rep(pid_cri[which(names(cri) %in% p)], r$lengths)
-      tr_tag <- rep(tag[which(names(cri) %in% p)], r$lengths)
-      tr_pid <- rep(pid[which(names(cri) %in% p)], r$lengths)
-      tr_sn <- rep(sn[which(names(cri) %in% p)], r$lengths)
+      q <- as.numeric(names(cri))
+      tr_link_id <- rep(link_id[match(p, q)], r$lengths)
+      tr_pid_cri <- rep(pid_cri[match(p, q)], r$lengths)
+      tr_tag <- rep(tag[match(p, q)], r$lengths)
+      tr_pid <- rep(pid[match(p, q)], r$lengths)
+      tr_sn <- rep(sn[match(p, q)], r$lengths)
 
       curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
       if(length(curr_sub_cri) > 0){
@@ -221,7 +222,7 @@ links <- function(criteria,
               x <- rep(x, ds_len)
             }
             x <- x[match(pr_sn, seq_len(ds_len))]
-            y <- rep(x[which(names(cri) %in% p)], r$lengths)
+            y <- rep(x[match(p, q)], r$lengths)
             f <- a[[2]]
             lgk <- try(f(x, y), silent = T)
             if(class(lgk) == "try-error" | class(lgk) != "logical"){

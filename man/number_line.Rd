@@ -53,8 +53,13 @@ expand_number_line(x, by = 1, point = "both")
 
 invert_number_line(x, point = "both")
 
-compress_number_line(x, methods = "overlap", collapse = FALSE,
-  deduplicate = TRUE, method = "overlap")
+compress_number_line(
+  x,
+  methods = "overlap",
+  collapse = FALSE,
+  deduplicate = TRUE,
+  method = "overlap"
+)
 
 number_line_sequence(x, by = 1, length.out = NULL)
 }

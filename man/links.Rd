@@ -5,9 +5,18 @@
 \alias{record_group}
 \title{Multistage deterministic record linkage}
 \usage{
-links(criteria, sub_criteria = NULL, sn = NULL, strata = NULL,
-  data_source = NULL, data_links = "ANY", display = "progress",
-  group_stats = F, expand = TRUE, shrink = FALSE)
+links(
+  criteria,
+  sub_criteria = NULL,
+  sn = NULL,
+  strata = NULL,
+  data_source = NULL,
+  data_links = "ANY",
+  display = "progress",
+  group_stats = FALSE,
+  expand = TRUE,
+  shrink = FALSE
+)
 
 record_group(df, ..., to_s4 = TRUE)
 }
