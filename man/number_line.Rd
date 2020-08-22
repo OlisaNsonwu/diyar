@@ -141,7 +141,7 @@ number_line(dttm("15/05/2019 13:15:07"), dttm("15/05/2019 15:17:10"))
 # Consider if this needs to be corrected.
 number_line(2, date("05/01/2019"))
 
-# Convert numeric based objects to number_line objects
+# Convert numeric based objects to `number_line` objects
 as.number_line(5.1); as.number_line(date("21/10/2019"))
 
 # A test for number_line objects
@@ -160,9 +160,9 @@ reverse_number_line(number_line(200, -100), "decreasing")
 # Shift number_line objects
 c <- number_line(5, 6)
 # Towards the positive end of the number line
-shift_number_line(x=c(c, c), by=c(2, 3))
+shift_number_line(x = c(c, c), by = c(2, 3))
 # Towards the negative end of the number line
-shift_number_line(x=c(c, c), by=c(-2, -3))
+shift_number_line(x = c(c, c), by = c(-2, -3))
 
 # Change the width or length of a number_line object
 d <- c(number_line(3, 6), number_line(6, 3))

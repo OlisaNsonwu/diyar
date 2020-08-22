@@ -40,20 +40,6 @@ enq_vr <- function(x){
 fmt <- function(x) formatC(x, format="d", big.mark=",")
 
 # @rdname finite_check
-listr <- function(x, conj=" and", lim = Inf){
-  if(length(x) <= lim){
-    p <- x[length(x)]
-    f <- x[1:(length(x)-1)]
-    f <- paste(f, collapse = ", ")
-    x <- ifelse(length(x) > 1, paste0(f, conj, " ", p), f)
-  }else{
-    x <- paste0(paste0(x[seq_len(lim)], collapse = ", "), " ...")
-  }
-
-  return(x)
-}
-
-# @rdname finite_check
 duplicates_check <- function(x){
   pos <- 1:length(x)
   lgk <- duplicated(x)
@@ -293,7 +279,7 @@ overlaps_err <- function(opts){
   all_pos <- sapply(all_pos, function(x){
     paste0(m[x],collapse="|")
   })
-  all_pos[duplicated(all_pos)]
+  #all_pos[duplicated(all_pos)]
 
   opts <- opts[!names(opts) %in% all_pos]
   opts_len <- length(opts)
@@ -316,8 +302,136 @@ overlaps_err <- function(opts){
   }
 }
 
+invalid_opts <- function(vals, opts){
+  sn <- 1:length(vals)
+  vals <- split(sn , vals)
+
+  f1 <- function(x) paste0(x, collapse="|")
+  all_pos <- combns(opts, seq_len(length(opts)), FUN = f1)
+
+  vals <- vals[!names(vals) %in% all_pos]
+  vals_len <- length(vals)
+  vals <- head(vals, 5)
+
+  names(vals) <- sapply(strsplit(names(vals), split="\\|"), function(x){
+    paste0(x[!x %in% opts | is.na(x)], collapse = "|")
+  })
+
+  vals <- unlist(lapply(vals, function(x){
+    missing_check(ifelse(sn %in% x, NA, T), 2)
+  }), use.names = T)
+
+  if(length(vals) > 0){
+    vals <- paste0("\"", names(vals),"\"", " at ", vals)
+    if(vals_len >3) errs <- paste0(paste0(vals, collapse = ", "), " ...") else errs <- listr(vals)
+    return(errs)
+  }else{
+    return(character())
+  }
+}
+
 pid_cri_l <- function(n){
   ifelse(n == 0,"No Hits",
          ifelse(n == -1, "Skipped",
                 paste0("CRI ", formatC(n, width = 3, flag = 0, format = "fg"))))
+}
+
+#' @name combns
+#' @aliases combns
+#' @title Generate every permutation of n elements.
+#' @description An extension of \code{\link{combn}} to generate permutations not ordinarily captured by \code{\link{combn}}.
+#' Each argument should be used as would be used in \code{\link{combn}}.
+#'
+#' @param x Vector source for combination.
+#' @param m Number of elements required. Multiple counts can be supplied.
+#' @param FUN Function applied to each combination.
+#' @param simplfy Logical indicating if the result should be simplified to an array or returned as a list.
+#' @param ... further arguments passed to FUN. Optional.
+#'
+#' @details
+#' \bold{\code{combns}} - Return every possible permutation of . An extension of \code{combn}.
+#'
+#' @return \code{\link{number_line}}.
+#'
+#' @examples
+#' f1 <- function(x) paste0(x, collapse = ",")
+#' combn(x = 1:3, m = 3, FUN = f1, simplify = T)
+#' combns(x = 1:3, m = 3, FUN = f1, simplify = T)
+#' combns(x = 1:3, m = 1:3, FUN = f1, simplify = T)
+#'
+#' @export
+combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
+  funx <- function(v){
+    v <- v[!duplicated(v)]
+    lapply(seq_len(length(v)), function(i){
+      shuffle <- c(0:(i-1), i+1, i, (i+2):length(v))
+      shuffle <- shuffle[shuffle %in% 1:length(v)]
+      shuffle <- shuffle[!duplicated(shuffle)]
+      v[shuffle]
+    })
+  }
+
+  pos <- seq_len(length(x))
+  all_pos <- lapply(m, function(i){
+    utils::combn(pos, m = i, simplify = F, FUN = funx)
+  })
+  all_pos <- unlist(unlist(all_pos, recursive = F), recursive = F)
+  all_pos <- lapply(all_pos, function(y){x[y]})
+
+  if(all(class(FUN) == "NULL")){
+    func <- function(x) x
+  }else{
+    func <- function(x, ...) FUN(x, ...)
+  }
+  all_pos <- sapply(all_pos, func, simplify = simplify)
+  return(all_pos)
+}
+
+
+#' @name listr
+#' @aliases listr
+#' @title Written lists.
+#' @description A convenience function to format \code{atomic} vectors as a written list.
+#'
+#' @param x \code{atomic} vector.
+#' @param sep Separator.
+#' @param conj Final separator.
+#' @param lim Elements to include in the list. Other elements are abbreviated to \code{" ..."}.
+#'
+#'
+#' @return \code{character}.
+#'
+#' @examples
+#' listr(1:5)
+#' listr(1:5, sep = "; ")
+#' listr(1:5, sep = "; ", conj = " and")
+#' listr(1:5, sep = "; ", conj = " and", lim = 2)
+#'
+#' @export
+listr <- function(x, sep = ", ", conj = " and", lim = Inf){
+  err <- err_atomic_vectors(x, "x")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(sep, "sep", c("character"))
+  if(err != F) stop(err, call. = F)
+  err <- err_match_ref_len(sep, "", 1, "sep")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(conj, "conj", c("character"))
+  if(err != F) stop(err, call. = F)
+  err <- err_match_ref_len(conj, "", 1, "conj")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(lim, "lim", c("integer", "numeric"))
+  if(err != F) stop(err, call. = F)
+  err <- err_match_ref_len(lim, "", 1, "lim")
+  if(err != F) stop(err, call. = F)
+
+  if(length(x) <= lim){
+    p <- x[length(x)]
+    f <- x[1:(length(x)-1)]
+    f <- paste(f, collapse = sep)
+    x <- ifelse(length(x) > 1, paste0(f, conj, " ", p), f)
+  }else{
+    x <- paste0(paste0(x[seq_len(lim)], collapse = sep), " ...")
+  }
+
+  return(x)
 }

@@ -38,15 +38,21 @@
 #'
 #' @export
 union_number_lines <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
-  if(length(x) ==0 & length(y)==0) return(logical())
-  if(length(x)!= length(y)) stop(paste("length('x') must be equal to length('y')"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_match_ref_len(y, "x", c(1, length(y)), "y")
+  if(err != F) stop(err, call. = F)
+
+  if(length(y) == 1) y <- rep(y, length(x))
   x <- c(x[1], x); y <- c(x[1], y)
-  o <- c(x[1], diyar::as.number_line(rep(NA_real_, length(x)-1)))
+  o <- c(x[1], as.number_line(rep(NA_real_, length(x)-1)))
 
-  lg <- which(diyar::overlap(x, y))
+  lg <- which(overlap(x, y))
 
   o[lg] <- number_line(
     start_point(number_line(start_point(x[lg]), start_point(y[lg]))),
@@ -54,7 +60,7 @@ union_number_lines <- function(x, y){
   )
 
   dir <- ifelse(abs(x@.Data[lg]) > abs(y@.Data[lg]), x@.Data[lg]/abs(x@.Data[lg]), y@.Data[lg]/abs(y@.Data[lg]))
-  o[lg] <- diyar::reverse_number_line(o[lg], direction= ifelse(dir==1,"decreasing","increasing"))
+  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir==1,"decreasing","increasing"))
 
   return(o[-1])
 }
@@ -72,30 +78,37 @@ union_number_lines <- function(x, y){
 #' nl_1; nl_2; intersect_number_lines(nl_1, nl_2)
 #' @export
 intersect_number_lines <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
-  if(length(x) ==0 & length(y)==0) return(logical())
-  if(length(x)!= length(y)) stop(paste("length('x') must be equal to length('y')"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_match_ref_len(y, "x", c(1, length(y)), "y")
+  if(err != F) stop(err, call. = F)
+
+  if(length(y) == 1) y <- rep(y, length(x))
 
   x <- c(x[1], x); y <- c(x[1], y)
-  o <- c(x[1], diyar::as.number_line(rep(NA_real_, length(x)-1)))
+  o <- c(x[1], as.number_line(rep(NA_real_, length(x)-1)))
 
-  lg <- which(diyar::overlap(x, y))
+  lg <- which(overlap(x, y))
 
-  cnd <- lg[which(diyar::overlaps(as.number_line(start_point(x[lg])), y[lg]))]
+  cnd <- lg[which(overlaps(as.number_line(start_point(x[lg])), y[lg]))]
   o[cnd] <- number_line(l= start_point(x[cnd]), r = right_point(o[cnd]))
 
-  cnd <- lg[which(diyar::overlaps(as.number_line(start_point(y[lg])), x[lg]))]
+  cnd <- lg[which(overlaps(as.number_line(start_point(y[lg])), x[lg]))]
   o[cnd] <- number_line(l= start_point(y[cnd]), r = right_point(o[cnd]))
 
-  cnd <- lg[which(diyar::overlaps(as.number_line(end_point(x[lg])), y[lg]))]
+  cnd <- lg[which(overlaps(as.number_line(end_point(x[lg])), y[lg]))]
   o[cnd] <- number_line(l= end_point(x[cnd]), r = left_point(o[cnd]))
 
-  cnd <- lg[which(diyar::overlaps(as.number_line(end_point(y[lg])), x[lg]))]
+  cnd <- lg[which(overlaps(as.number_line(end_point(y[lg])), x[lg]))]
   o[cnd] <- number_line(l= end_point(y[cnd]), r = left_point(o[cnd]))
 
   dir <- ifelse(abs(x@.Data[lg]) > abs(y@.Data[lg]), x@.Data[lg]/abs(x@.Data[lg]), y@.Data[lg]/abs(y@.Data[lg]))
-  o[lg] <- diyar::reverse_number_line(o[lg], direction= ifelse(dir==1,"decreasing","increasing"))
+  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir==1,"decreasing","increasing"))
   return(o[-1])
 }
 
@@ -107,26 +120,33 @@ intersect_number_lines <- function(x, y){
 #'
 #' @export
 subtract_number_lines <- function(x, y){
-  if(!diyar::is.number_line(x)) stop(paste("'x' is not a number_line object"))
-  if(!diyar::is.number_line(y)) stop(paste("'y' is not a number_line object"))
-  if(length(x) ==0 & length(y)==0) return(logical())
-  if(length(x)!= length(y)) stop(paste("length('x') must be equal to length('y')"))
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_match_ref_len(y, "x", c(1, length(y)), "y")
+  if(err != F) stop(err, call. = F)
+
+  if(length(y) == 1) y <- rep(y, length(x))
 
   x <- c(x[1], x); y <- c(x[1], y)
-  o2 <- o1 <- c(x[1], diyar::as.number_line(rep(NA_real_, length(x)-1)))
+  o2 <- o1 <- c(x[1], as.number_line(rep(NA_real_, length(x)-1)))
 
-  lg <- which(diyar::overlap(x, y))
+  lg <- which(overlap(x, y))
 
-  cnd <- lg[which(!diyar::overlaps(as.number_line(start_point(x[lg])), y[lg]))]
+  cnd <- lg[which(!overlaps(as.number_line(start_point(x[lg])), y[lg]))]
   o1[cnd] <- number_line(l= start_point(x[cnd]), r = start_point(y[cnd]))
 
-  cnd <- lg[which(!diyar::overlaps(as.number_line(start_point(y[lg])), x[lg]))]
+  cnd <- lg[which(!overlaps(as.number_line(start_point(y[lg])), x[lg]))]
   o1[cnd] <- number_line(l= start_point(y[cnd]), r = start_point(x[cnd]))
 
-  cnd <- lg[which(!diyar::overlaps(as.number_line(end_point(x[lg])), y[lg]))]
+  cnd <- lg[which(!overlaps(as.number_line(end_point(x[lg])), y[lg]))]
   o2[cnd] <- number_line(l= end_point(y[cnd]), r = end_point(x[cnd]))
 
-  cnd <- lg[which(!diyar::overlaps(as.number_line(end_point(y[lg])), x[lg]))]
+  cnd <- lg[which(!overlaps(as.number_line(end_point(y[lg])), x[lg]))]
   o2[cnd] <- number_line(l= end_point(x[cnd]), r = end_point(y[cnd]))
 
   list(

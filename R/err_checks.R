@@ -112,10 +112,10 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
                         paste0("Invalid object type for `", arg, "`:\n"),
                         err_title)
     hint <- ifelse(grepl("^data_links_", arg),
-                   paste0("i - You'll need a ", listr(paste0("`", args_classes, "`"), " or"), " object even if `data_source` is ", class(get(arg)), ".\n"),
+                   paste0("i - You'll need a ", listr(paste0("`", args_classes, "`"), conj = " or"), " object even if `data_source` is ", class(get(arg)), ".\n"),
                    "")
     errs <-  paste0(err_title,
-                    "i - Valid object ", ifelse(length(args_classes)==1, "type is", "types are" ), listr(paste0("`", args_classes, "`"), " or"),".\n",
+                    "i - Valid object ", ifelse(length(args_classes)==1, "type is", "types are" ), listr(paste0("`", args_classes, "`"), conj = " or"),".\n",
                     hint,
                     "X - You've supplied a ", listr(paste0("`", class(get(arg)), "`")), " object.")
 
@@ -202,7 +202,7 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
                          " must be 1", ifelse(length(args_lengths>1)," or the same as `date`", ""),
                          ":\n")
     errs <-  paste0(err_title,
-                    "i - Expecting a length of ", listr(args_lengths[args_lengths!=0], " or"), ".\n",
+                    "i - Expecting a length of ", listr(args_lengths[args_lengths!=0], conj = " or"), ".\n",
                     "X - Length is ", length(get(arg)), ".\n")
     ifelse(!length(get(arg)) %in%  args_lengths,
            errs, NA_character_)
@@ -295,10 +295,10 @@ err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max
   if(err != F) return(err)
 
   # Overlap methods ####
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
   if(err != F) return(err)
 
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
   if(err != F) return(err)
 
   # SN - ####
@@ -786,7 +786,7 @@ err_display_1 <- function(display){
   return(F)
 }
 
-err_overlap_methods_1 <- function(overlap_methods){
+err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
   if(all(class(overlap_methods) != "list")){
     overlap_methods <- list(overlap_methods)
   }
@@ -796,7 +796,7 @@ err_overlap_methods_1 <- function(overlap_methods){
   err <- unlist(err, use.names = T)
 
   if(length(err) > 0){
-    err <- paste0("Invalid option for `overlap_methods`\n",
+    err <- paste0("Invalid option for `", overlap_methods_nm, "`\n",
                   "i - Valid options are \"overlap\", \"exact\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\n",
                   "i - Syntax 1 ~ \"aligns_end|exact...\".\n",
                   "i - Syntax 2 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\n",
@@ -850,8 +850,9 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
-    err <- paste0("Length of ", ifelse(multi_opts, "each element in ", ""), "`", arg_nm, "` must be", ifelse(length(ref_len) > 1, " 1 or", ""), " the same as `", ref_nm, ".`\n",
-                  "i - Expecting a length of ", listr(ref_len, conj = " or"), ".\n",
+    err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
+                  ifelse(ref_nm == "", "", paste0("i - Length must be 1 or the same as `", ref_nm, "`.\n")),
+                  "i - Expecting a length of ", listr(unique(ref_len), conj = " or"), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "Length is ", err, ".", collapse = "\n"))
     return(err)
   }
@@ -879,7 +880,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
-    err <- paste0("Invalid object type for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, ".`\n",
+    err <- paste0("Invalid object type for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`.\n",
                   "i - Valid object types are ", listr(paste0("`", obj_types, "`"), conj = " or"), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "You've supplied a ", err, " object.", collapse = "\n"))
     return(err)
@@ -1023,9 +1024,9 @@ err_episodes_checks_1 <- function(date,
   if(err != F) return(err[1])
   err <- err_display_1(display = display)
   if(err != F) return(err[1])
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
   if(err != F) return(err[1])
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
   if(err != F) return(err[1])
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
   if(err != F) return(err[1])
@@ -1214,9 +1215,9 @@ err_episodes_checks_0 <- function(date,
   if(err != F) return(err)
   err <- err_display_1(display = display)
   if(err != F) return(err)
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
   if(err != F) return(err)
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r)
+  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
   if(err != F) return(err)
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
   if(err != F) return(err)
@@ -1340,6 +1341,18 @@ err_atomic_vectors <- function(arg, arg_nm){
   if(length(err) > 0){
     err <- paste0(ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`` must be an `atomic` vector.`\n")
     return(err)
+  }else{
+    return(F)
+  }
+}
+
+err_invalid_opts <- function(arg_vals, arg_nm, valid_opts){
+  errs <- invalid_opts(arg_vals, valid_opts)
+  if(length(errs) > 0){
+    errs <-  paste0("Invalid values for `", arg_nm, "`:\n",
+                    "i - Vaild values are ", listr(paste0("\"", valid_opts, "\""), conj = " or"), ".\n",
+                    "X - You've supplied ", errs, ".")
+    return(errs)
   }else{
     return(F)
   }
