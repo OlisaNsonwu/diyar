@@ -11,16 +11,18 @@ epid_windows(date, lengths, episode_unit = "days")
 
 epid_lengths(date, windows, episode_unit = "days")
 
-index_window(date)
+index_window(date, from_last = F)
 }
 \arguments{
-\item{date}{Date agument as used in \bold{\code{\link{episodes}}}.}
+\item{date}{As used in \bold{\code{\link{episodes}}}.}
 
 \item{lengths}{\code{case_length} or \code{recurrence_length} arguments as used in \bold{\code{\link{episodes}}}.}
 
 \item{episode_unit}{Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.}
 
 \item{windows}{A range or period relative to \code{date} for a given \code{lengths}.}
+
+\item{from_last}{As used in \bold{\code{\link{episodes}}}.}
 }
 \value{
 \code{\link{number_line}}.
@@ -33,7 +35,6 @@ Interpret \code{windows}, \code{case_lengths} and \code{recurrence_lengths} as u
 \bold{\code{epid_lengths}} - returns the corresponding \code{case_length} or \code{recurrence_length} for a given \code{date} and period.
 }
 \examples{
-library(diyar)
 
 # `epid_windows`
 epid_windows(Sys.Date(), 10)
@@ -46,7 +47,6 @@ epid_lengths(number_line(01, 20), 30)
 epid_lengths(number_line(01, 20), number_line(25, 30))
 epid_lengths(number_line(01, 20), number_line(-10, 30))
 epid_lengths(number_line(01, 20), -10)
-library(diyar)
 
 index_window(20)
 index_window(as.number_line(20))

@@ -787,12 +787,13 @@ err_display_1 <- function(display){
 }
 
 err_overlap_methods_1 <- function(overlap_methods){
-  err <- unlist(lapply(overlap_methods, function(x){
-    x <- overlaps_err(x)
-    ifelse(length(x) == 0, NA_character_, x)
-  }), use.names = F)
-  if(length(err) > 0) names(err) <- 1:length(err)
-  err <- err[!is.na(err)]
+  if(all(class(overlap_methods) != "list")){
+    overlap_methods <- list(overlap_methods)
+  }
+
+  err <- lapply(overlap_methods, overlaps_err)
+  names(err) <- seq_len(length(err))
+  err <- unlist(err, use.names = T)
 
   if(length(err) > 0){
     err <- paste0("Invalid option for `overlap_methods`\n",

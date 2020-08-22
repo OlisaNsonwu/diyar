@@ -8,7 +8,6 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
                                  group_stats= FALSE, display=TRUE, deduplicate=FALSE, to_s4 = TRUE,
                                  recurrence_from_last = TRUE, case_for_recurrence =FALSE, include_index_period = TRUE){
   . <- NULL
-  dtt_a <- Sys.time()
   if(missing(df)) stop("argument 'df' is missing, with no default")
   if(missing(date)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
@@ -428,9 +427,6 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
   rm(df)
   c <- 1
   grouped_epids <- T1[0,0]
-  dtt_z <- Sys.time()
-  print(paste0("Pre loop: ", difftime(dtt_z, dtt_a)))
-  dtt_a <- Sys.time()
   g_vrs <- c("sn","pr_sn","dt_ai","dt_zi", "ds","epid","wind_id","wind_nm","case_nm","skip_order", "c_sort", "user_ord", "ord","ord_z", "dist_from_wind", "dist_from_epid")
   while (min_tag != 2 & min_episodes <= episodes_max){
     # Seperate out grouped/skipped records
@@ -451,7 +447,7 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
     T1$wind_nm[T1$cri %in% skip_cris] <- T1$case_nm[T1$cri %in% skip_cris] <- "Skipped"
     T1$epid[T1$cri %in% skip_cris] <- T1$wind_id[T1$cri %in% skip_cris] <- T1$sn[T1$cri %in% skip_cris]
     T1$dist_from_epid[T1$cri %in% skip_cris] <- T1$dist_from_wind[T1$cri %in% skip_cris] <- 0
-    # Seperate out skipped records
+    # Separate out skipped records
     grouped_epids <- rbind(grouped_epids,
                            T1[T1$tag ==2 & !is.na(T1$tag), g_vrs])
 
@@ -720,9 +716,6 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
 
     c = c+1
   }
-  dtt_z <- Sys.time()
-  print(paste0("Loop: ", difftime(dtt_z, dtt_a)))
-  dtt_a <- Sys.time()
   # Append all events back together
   T1 <- rbind(T1[g_vrs], grouped_epids)
   rm(grouped_epids)
@@ -836,9 +829,6 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
   pd <- ifelse(display,"\n","")
   cat(paste0(pd, "Episode grouping complete: " ,fmt(unique_ids)," record(s) with a unique ID. \n"))
   if(to_s4) T1 <- diyar::to_s4(T1)
-
-  dtt_z <- Sys.time()
-  print(paste0("Post loop: ", difftime(dtt_z, dtt_a)))
   T1
 }
 
