@@ -52,12 +52,21 @@ test_that("test that row positions of the resulting dataframe are the same as su
   expect_equal(test_1$sn, head(data,10)$rd_id)
 })
 
-e_int <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("07/04/2018  00:00:00")), 3),
-  rep(number_line(dttm("10/04/2018 00:00:00"), dttm("16/04/2018  00:00:00")), 3),
-  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("25/04/2018  00:00:00")), 3),
-  rep(number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018  00:00:00")), 1)
+l <- c(
+  rep("01/04/2018 00:00:00", 3),
+  rep("10/04/2018 00:00:00", 3),
+  rep("19/04/2018 00:00:00", 3),
+  rep("28/04/2018 00:00:00", 1)
 )
+
+r <- c(
+  rep("07/04/2018  00:00:00", 3),
+  rep("16/04/2018  00:00:00", 3),
+  rep("25/04/2018  00:00:00", 3),
+  rep("28/04/2018  00:00:00", 1)
+)
+
+e_int <- number_line(dttm(l), dttm(r))
 
 test_that("test that test episode identifier is as expected for fixed episodes", {
   expect_equal(test_1$epid, c(1,1,1,4,4,4,7,7,7,10))
@@ -65,7 +74,8 @@ test_that("test that test episode identifier is as expected for fixed episodes",
 
   e_int@id <- 1:10
   e_int@gid <- c(1,1,1,4,4,4,7,7,7,10)
-  expect_equal(test_1$epid_interval, e_int)
+  expect_equal(test_1$epid_start, left_point(e_int))
+  expect_equal(test_1$epid_end, right_point(e_int))
   expect_equal(test_1$epid_total, c(rep(3,9),1))
   expect_equal(test_1$epid_length, as.difftime(c(rep(6,9),0), units = "days" ))
 })
@@ -81,15 +91,10 @@ test_2 <-
         suffix(episode_group(data_2, strata = pid, date = date, case_length = episode_len_s, from_last = T, group_stats = T, to_s4 = F), 2)
   )
 
-e_int.1 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 5),
-  rep(number_line(dttm("16/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 5)
-)
-
-e_int.2 <- c(
-  rep(reverse_number_line(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00"))), 5),
-  rep(reverse_number_line(number_line(dttm("16/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))), 5)
-)
+l <- c(rep("01/04/2018 00:00:00", 5), rep("16/04/2018 00:00:00", 5))
+r <- c(rep("13/04/2018 00:00:00", 5), rep("28/04/2018 00:00:00", 5))
+e_int.1 <- number_line(dttm(l), dttm(r))
+e_int.2 <- reverse_number_line(e_int.1)
 
 test_that("test reverse episode grouping", {
   expect_equal(test_2$epid.1, c(rep(1,5),rep(6,5)))
@@ -101,11 +106,13 @@ test_that("test reverse episode grouping", {
   e_int.1@gid <- c(rep(1,5),rep(6,5))
   e_int.2@gid <- c(rep(5,5),rep(10,5))
 
-  expect_equal(test_2$epid_interval.1, e_int.1)
+  expect_equal(test_2$epid_start.1, left_point(e_int.1))
+  expect_equal(test_2$epid_end.1, right_point(e_int.1))
   expect_equal(test_2$epid_total.1, rep(5,10))
   expect_equal(test_2$epid_length.1, as.difftime(rep(12,10), units = "days" ))
 
-  expect_equal(test_2$epid_interval.2, e_int.2)
+  expect_equal(test_2$epid_start.2, left_point(e_int.2))
+  expect_equal(test_2$epid_end.2, right_point(e_int.2))
   expect_equal(test_2$epid_total.2, rep(5,10))
   expect_equal(test_2$epid_length.2, as.difftime(rep(-12,10), units = "days" ))
 
@@ -116,11 +123,10 @@ test_3 <- cbind(data_2,
                 suffix(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", from_last = F, group_stats = T, to_s4 = F), 1),
                 suffix(episode_group(data_2, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", from_last = T, group_stats = T, to_s4 = F), 2))
 
-e_int.1 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 10))
-
-e_int.2 <- c(
-  rep(reverse_number_line(number_line(dttm("01/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))), 10))
+l <- rep("01/04/2018 00:00:00", 10)
+r <- rep("28/04/2018 00:00:00", 10)
+e_int.1 <- number_line(dttm(l), dttm(r))
+e_int.2 <- reverse_number_line(e_int.1)
 
 test_that("test rolling/recurring episodes", {
   expect_equal(test_3$epid.1, rep(1,10))
@@ -132,11 +138,13 @@ test_that("test rolling/recurring episodes", {
   e_int.1@gid <- rep(1,10)
   e_int.2@gid <- rep(10,10)
 
-  expect_equal(test_3$epid_interval.1, e_int.1)
+  expect_equal(test_3$epid_start.1, left_point(e_int.1))
+  expect_equal(test_3$epid_end.1, right_point(e_int.1))
   expect_equal(test_3$epid_total.1, rep(10,10))
   expect_equal(test_3$epid_length.1, as.difftime(rep(27,10), units = "days" ))
 
-  expect_equal(test_3$epid_interval.2, e_int.2)
+  expect_equal(test_3$epid_start.2, left_point(e_int.2))
+  expect_equal(test_3$epid_end.2, right_point(e_int.2))
   expect_equal(test_3$epid_total.2, rep(10,10))
   expect_equal(test_3$epid_length.2, as.difftime(rep(-27,10), units = "days" ))
 
@@ -151,14 +159,13 @@ test_4 <- cbind(data_4,
                 suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, group_stats = T, to_s4 = F), 1),
                 suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, rolls_max = 1, group_stats = T, to_s4 = F), 2))
 
-e_int.1 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 10)
-)
+l <- rep("01/04/2018 00:00:00", 10)
+r <- rep("28/04/2018 00:00:00", 10)
+e_int.1 <- number_line(dttm(l), dttm(r))
 
-e_int.2 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 6),
-  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 4)
-)
+l <- c(rep("01/04/2018 00:00:00", 6), rep("19/04/2018 00:00:00", 4))
+r <- c(rep("16/04/2018 00:00:00", 6), rep("28/04/2018 00:00:00", 4))
+e_int.2 <- number_line(dttm(l), dttm(r))
 
 test_that("test user defined recurrence length and roll_max", {
   expect_equal(test_4$epid.1, rep(1,10))
@@ -170,11 +177,13 @@ test_that("test user defined recurrence length and roll_max", {
   e_int.1@gid <- rep(1,10)
   e_int.2@gid <- c(rep(1,6), rep(7,4))
 
-  expect_equal(test_4$epid_interval.1, e_int.1)
+  expect_equal(test_4$epid_start.1, left_point(e_int.1))
+  expect_equal(test_4$epid_end.1, right_point(e_int.1))
   expect_equal(test_4$epid_total.1, rep(10,10))
   expect_equal(test_4$epid_length.1, as.difftime(rep(27,10), units = "days" ))
 
-  expect_equal(test_4$epid_interval.2, e_int.2)
+  expect_equal(test_4$epid_start.2, left_point(e_int.2))
+  expect_equal(test_4$epid_end.2, right_point(e_int.2))
   expect_equal(test_4$epid_total.2, c(rep(6,6), rep(4,4)))
   expect_equal(test_4$epid_length.2, as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
 })
@@ -184,19 +193,13 @@ test_5 <- cbind(data_4,
                 suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 1, group_stats = T, to_s4 = F), 1),
                 suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="fixed", recurrence_length = recurrence, episodes_max = 2, group_stats = T, to_s4 = F), 2))
 
-e_int.1 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 5),
-  number_line(dttm("16/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")),
-  number_line(dttm("19/04/2018 00:00:00"), dttm("19/04/2018 00:00:00")),
-  number_line(dttm("22/04/2018 00:00:00"), dttm("22/04/2018 00:00:00")),
-  number_line(dttm("25/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")),
-  number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))
-)
+l <- c(rep("01/04/2018 00:00:00", 5),"16/04/2018 00:00:00","19/04/2018 00:00:00","22/04/2018 00:00:00","25/04/2018 00:00:00","28/04/2018 00:00:00")
+r <- c(rep("13/04/2018 00:00:00", 5),"16/04/2018 00:00:00","19/04/2018 00:00:00","22/04/2018 00:00:00","25/04/2018 00:00:00","28/04/2018 00:00:00")
+e_int.1 <- number_line(dttm(l), dttm(r))
 
-e_int.2 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 5),
-  rep(number_line(dttm("16/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 5)
-)
+l <- c(rep("01/04/2018 00:00:00", 5), rep("16/04/2018 00:00:00", 5))
+r <- c(rep("13/04/2018 00:00:00", 5), rep("28/04/2018 00:00:00", 5))
+e_int.2 <- number_line(dttm(l), dttm(r))
 
 test_that("testing user defined episodes_max", {
   expect_equal(test_5$epid.1, c(rep(1,5),6:10))
@@ -208,11 +211,13 @@ test_that("testing user defined episodes_max", {
   e_int.1@gid <- c(rep(1,5),6:10)
   e_int.2@gid <- c(rep(1,5), rep(6,5))
 
-  expect_equal(test_5$epid_interval.1, e_int.1)
+  expect_equal(test_5$epid_start.1, left_point(e_int.1))
+  expect_equal(test_5$epid_end.1, right_point(e_int.1))
   expect_equal(test_5$epid_total.1, rep(c(rep(5,5), rep(1,5))))
   expect_equal(test_5$epid_length.1, as.difftime(c(rep(12,5), rep(0,5)), units = "days" ))
 
-  expect_equal(test_5$epid_interval.2, e_int.2)
+  expect_equal(test_5$epid_start.2, left_point(e_int.2))
+  expect_equal(test_5$epid_end.2, right_point(e_int.2))
   expect_equal(test_5$epid_total.2, rep(5,10))
   expect_equal(test_5$epid_length.2, as.difftime(rep(12,10), units = "days" ))
 })
@@ -225,25 +230,19 @@ test_6 <- cbind(data_4,
                 suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 1, group_stats = T, to_s4 = F), 3),
                 suffix(episode_group(data_4, sn=rd_id, strata = pid, date = date, case_length = episode_len_s, episode_type ="rolling", recurrence_length = recurrence, episodes_max = 2, rolls_max = 3, group_stats = T, to_s4 = F), 4))
 
-e_int.1 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 6),
-  number_line(dttm("19/04/2018 00:00:00"), dttm("19/04/2018 00:00:00")),
-  number_line(dttm("22/04/2018 00:00:00"), dttm("22/04/2018 00:00:00")),
-  number_line(dttm("25/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")),
-  number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))
-)
+l <- c(rep("01/04/2018 00:00:00", 6),"19/04/2018 00:00:00","22/04/2018 00:00:00","25/04/2018 00:00:00","28/04/2018 00:00:00")
+r <- c(rep("16/04/2018 00:00:00", 6),"19/04/2018 00:00:00","22/04/2018 00:00:00","25/04/2018 00:00:00","28/04/2018 00:00:00")
+e_int.1 <- number_line(dttm(l), dttm(r))
 
-e_int.2 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 6),
-  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 4)
-)
+l <- c(rep("01/04/2018 00:00:00", 6), rep("19/04/2018 00:00:00", 4))
+r <- c(rep("16/04/2018 00:00:00", 6), rep("28/04/2018 00:00:00", 4))
+e_int.2 <- number_line(dttm(l), dttm(r))
 
 e_int.3 <- e_int.2
 
-e_int.4 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("22/04/2018 00:00:00")), 8),
-  rep(number_line(dttm("25/04/2018 00:00:00"), dttm("28/04/2018 00:00:00")), 2)
-)
+l <- c(rep("01/04/2018 00:00:00", 8), rep("25/04/2018 00:00:00", 2))
+r <- c(rep("22/04/2018 00:00:00", 8), rep("28/04/2018 00:00:00", 2))
+e_int.4 <- number_line(dttm(l), dttm(r))
 
 test_that("testing episodes_max and rolls_max combinations", {
   expect_equal(test_6$epid.1, c(rep(1,6),7:10))
@@ -260,19 +259,24 @@ test_that("testing episodes_max and rolls_max combinations", {
   e_int.1@gid <- c(rep(1,6),7:10)
   e_int.3@gid  <- e_int.2@gid <- c(rep(1,6), rep(7,4))
   e_int.4@gid <- c(rep(1,8), rep(9,2))
-  expect_equal(test_6$epid_interval.1, e_int.1)
+  expect_equal(test_6$epid_start.1, left_point(e_int.1))
+  expect_equal(test_6$epid_end.1, right_point(e_int.1))
+
   expect_equal(test_6$epid_total.1, rep(c(rep(6,6), rep(1,4))))
   expect_equal(test_6$epid_length.1, as.difftime(c(rep(15,6), rep(0,4)), units = "days" ))
 
-  expect_equal(test_6$epid_interval.2, e_int.2)
+  expect_equal(test_6$epid_start.2, left_point(e_int.2))
+  expect_equal(test_6$epid_end.2, right_point(e_int.2))
   expect_equal(test_6$epid_total.2, rep(c(rep(6,6), rep(4,4))))
   expect_equal(test_6$epid_length.2, as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
 
-  expect_equal(test_6$epid_interval.3, e_int.3)
+  expect_equal(test_6$epid_start.3, left_point(e_int.3))
+  expect_equal(test_6$epid_end.3, right_point(e_int.3))
   expect_equal(test_6$epid_total.3, rep(c(rep(6,6), rep(4,4))))
   expect_equal(test_6$epid_length.3, as.difftime(c(rep(15,6), rep(9,4)), units = "days" ))
 
-  expect_equal(test_6$epid_interval.4, e_int.4)
+  expect_equal(test_6$epid_start.4, left_point(e_int.4))
+  expect_equal(test_6$epid_end.4, right_point(e_int.4))
   expect_equal(test_6$epid_total.4, rep(c(rep(8,8), rep(2,2))))
   expect_equal(test_6$epid_length.4, as.difftime(rep(c(rep(21,8), rep(3,2))), units = "days" ))
 })
@@ -286,12 +290,9 @@ test_7 <- cbind(data_7,
                 suffix(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = dataset, group_stats = T, to_s4 = F), 1),
                 suffix(episode_group(data_7, sn=rd_id, strata = pid, date = date, case_length = episode_len, episode_type ="rolling", recurrence_length = recurrence, data_source = c(dataset, episode_len_s), group_stats = T, to_s4 = F), 2))
 
-e_int.1 <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("07/04/2018 00:00:00")), 3),
-  rep(number_line(dttm("10/04/2018 00:00:00"), dttm("16/04/2018 00:00:00")), 3),
-  rep(number_line(dttm("19/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")), 3),
-  number_line(dttm("28/04/2018 00:00:00"), dttm("28/04/2018 00:00:00"))
-)
+l <- c(rep("01/04/2018 00:00:00", 3), rep("10/04/2018 00:00:00", 3), rep("19/04/2018 00:00:00", 3), "28/04/2018 00:00:00")
+r <- c(rep("07/04/2018 00:00:00", 3), rep("16/04/2018 00:00:00", 3), rep("25/04/2018 00:00:00", 3), "28/04/2018 00:00:00")
+e_int.1 <- number_line(dttm(l), dttm(r))
 
 test_that("testing epid_dataset", {
   expect_equal(test_7$epid.1, c(rep(1,3),rep(4,3),rep(7,3),10))
@@ -301,13 +302,15 @@ test_that("testing epid_dataset", {
   e_int.1@id <- 1:10
   e_int.1@gid <- c(rep(1,3),rep(4,3),rep(7,3),10)
 
-  expect_equal(test_7$epid_interval.1, e_int.1)
+  expect_equal(test_7$epid_start.1, left_point(e_int.1))
+  expect_equal(test_7$epid_end.1, right_point(e_int.1))
   expect_equal(test_7$epid_total.1, c(rep(3,9),1))
   expect_equal(test_7$epid_length.1, as.difftime(c(rep(6,9),0), units = "days" ))
 
   expect_equal(test_7$epid.1, test_7$epid.2)
   expect_equal(test_7$case_nm.1, test_7$case_nm.2)
-  expect_equal(test_7$epid_interval.1, test_7$epid_interval.2)
+  expect_equal(test_7$epid_start.1, test_7$epid_start.2)
+  expect_equal(test_7$epid_end.1, test_7$epid_end.2)
   expect_equal(test_7$epid_total.1, test_7$epid_total.2)
   expect_equal(test_7$epid_length.1, test_7$epid_length.2)
 
@@ -321,7 +324,7 @@ test_8a <- cbind(hospital_infections,
                  episode_group(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
                                from_last = T, episode_unit = "hours", group_stats = T, to_s4 = F))
 
-e_int <- number_line(test_8a$date, test_8a$date)
+e_int <- number_line(dttm(format(test_8a$date, "%d/%m/%Y 00:00:00")), dttm(format(test_8a$date, "%d/%m/%Y 00:00:00")))
 
 test_that("testing; episode grouping by the hour", {
   expect_equal(test_8a$epid, 1:11)
@@ -329,7 +332,8 @@ test_that("testing; episode grouping by the hour", {
 
   e_int@gid <- e_int@id <- 1:11
 
-  expect_equal(test_8a$epid_interval, e_int)
+  expect_equal(test_8a$epid_start, left_point(e_int))
+  expect_equal(test_8a$epid_end, right_point(e_int))
   expect_equal(test_8a$epid_total, rep(1,11))
   expect_equal(test_8a$epid_length, as.difftime(rep(0,11), units = "hours" ))
 })
@@ -339,7 +343,9 @@ test_8b <- cbind(hospital_infections,
                  episode_group(hospital_infections, sn=rd_id, date = date, case_length = epi_len,
                                from_last = T, episode_unit = "weeks", group_stats = T, to_s4 = F))
 
-e_int <- rep(number_line(dttm("31/05/2018 00:00:00"), dttm("01/04/2018 00:00:00")), 11)
+l <- rep("31/05/2018 00:00:00", 11)
+r <- rep("01/04/2018 00:00:00", 11)
+e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing; episode grouping by weeks", {
   expect_equal(test_8b$epid, rep(11,11))
@@ -348,7 +354,8 @@ test_that("testing; episode grouping by weeks", {
   e_int@gid <- rep(11,11)
 
   expect_equal(test_8b$case_nm, c(rep("Duplicate_C",10),"Case"))
-  expect_equal(test_8b$epid_interval, e_int)
+  expect_equal(test_8b$epid_start, left_point(e_int))
+  expect_equal(test_8b$epid_end, right_point(e_int))
   expect_equal(test_8b$epid_total, rep(11,11))
   expect_equal(round(test_8b$epid_length,6), as.difftime(rep(-8.571429,11), units = "weeks"))
 })
@@ -368,12 +375,9 @@ test_9a <- cbind(hospital_infections,
                  episode_group(hospital_infections, sn = rd_id, date=date, case_length = epi_len,
                                custom_sort = infection, group_stats = T, to_s4 = F))
 
-e_int <- c(
-  number_line(dttm("01/04/2018 00:00:00"), dttm("01/04/2018 00:00:00")),
-  rep(number_line(dttm("07/04/2018 00:00:00"), dttm("07/05/2018 00:00:00")), 6),
-  rep(number_line(dttm("13/05/2018 00:00:00"), dttm("25/05/2018 00:00:00")), 3),
-  number_line(dttm("31/05/2018 00:00:00"), dttm("31/05/2018 00:00:00"))
-)
+l <- c("01/04/2018 00:00:00", rep("07/04/2018 00:00:00", 6), rep("13/05/2018 00:00:00", 3), "31/05/2018 00:00:00")
+r <- c("01/04/2018 00:00:00", rep("07/05/2018 00:00:00", 6), rep("25/05/2018 00:00:00", 3), "31/05/2018 00:00:00")
+e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing episode; custom sort", {
   expect_equal(test_9a$epid, c(1,rep(2,6), rep(8,3), 11))
@@ -382,7 +386,8 @@ test_that("testing episode; custom sort", {
   e_int@id <- 1:11
   e_int@gid <- c(1,rep(2,6), rep(8,3), 11)
 
-  expect_equal(test_9a$epid_interval, e_int)
+  expect_equal(test_9a$epid_start, left_point(e_int))
+  expect_equal(test_9a$epid_end, right_point(e_int))
   expect_equal(test_9a$epid_total, c(1,rep(6,6), rep(3,3), 1))
   expect_equal(test_9a$epid_length, as.difftime(c(0,rep(30,6), rep(12,3), 0), units = "days" ))
 })
@@ -398,12 +403,14 @@ test_9b <- cbind(hospital_infections,
                  suffix(episode_group(hospital_infections, sn = rd_id, date=date, case_length = epi_len,
                                       custom_sort = infection_ord, from_last = T, bi_direction = F, group_stats = T, to_s4 = F), 2))
 
-e_int.1 <- rep(number_line(dttm("31/05/2018 00:00:00"), dttm("01/04/2018 00:00:00")), 11)
+l <- rep("31/05/2018 00:00:00", 11)
+r <- rep("01/04/2018 00:00:00", 11)
+e_int.1 <- number_line(dttm(l), dttm(r))
 
-e_int.2 <- c(
-  rep(number_line(dttm("25/05/2018 00:00:00"), dttm("01/04/2018 00:00:00")), 10),
-  number_line(dttm("31/05/2018 00:00:00"), dttm("31/05/2018 00:00:00"))
-)
+l <- c(rep("25/05/2018 00:00:00", 10), "31/05/2018 00:00:00")
+r <- c(rep("01/04/2018 00:00:00", 10), "31/05/2018 00:00:00")
+e_int.2 <- number_line(dttm(l), dttm(r))
+
 
 test_that("testing; episode grouping with custom sort and bi_direction", {
   expect_equal(test_9b$epid.1, rep(10,11))
@@ -412,7 +419,8 @@ test_that("testing; episode grouping with custom sort and bi_direction", {
   e_int.2@id <- e_int.1@id <- 1:11
   e_int.1@gid <- rep(10,11)
 
-  expect_equal(test_9b$epid_interval.1, e_int.1)
+  expect_equal(test_9b$epid_start.1, left_point(e_int.1))
+  expect_equal(test_9b$epid_end.1, right_point(e_int.1))
   expect_equal(test_9b$epid_total.1, rep(11,11))
   expect_equal(test_9b$epid_length.1, as.difftime(rep(-60,11), units = "days" ))
 
@@ -420,7 +428,8 @@ test_that("testing; episode grouping with custom sort and bi_direction", {
 
   expect_equal(test_9b$epid.2, c(rep(10,10), 11))
   expect_equal(test_9b$case_nm.2, c(rep("Duplicate_C",9),"Case","Case"))
-  expect_equal(test_9b$epid_interval.2, e_int.2)
+  expect_equal(test_9b$epid_start.2, left_point(e_int.2))
+  expect_equal(test_9b$epid_end.2, right_point(e_int.2))
   expect_equal(test_9b$epid_total.2, c(rep(10,10),1))
   expect_equal(test_9b$epid_length.2, as.difftime(c(rep(-54,10), 0), units = "days" ))
 })
@@ -434,15 +443,10 @@ test_10a <- cbind(hospital_infections,
                   episode_group(hospital_infections, sn = rd_id, date=date, strata = patient_id, case_length = epi_len,
                                 episodes_max = 1, from_last = F, data_source = infection, group_stats = T, to_s4 = F))
 
-e_int <- c(
-  rep(number_line(dttm("01/04/2018 00:00:00"), dttm("13/04/2018 00:00:00")), 3),
-  number_line(dttm("19/04/2018 00:00:00"), dttm("19/04/2018 00:00:00")),
-  number_line(dttm("25/04/2018 00:00:00"), dttm("25/04/2018 00:00:00")),
-  number_line(dttm("01/05/2018 00:00:00"), dttm("01/05/2018 00:00:00")),
-  number_line(dttm("07/05/2018 00:00:00"), dttm("07/05/2018 00:00:00")),
-  number_line(dttm("13/05/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
-  rep(number_line(dttm("19/05/2018 00:00:00"), dttm("31/05/2018 00:00:00")), 3)
-)
+l <- c(rep("01/04/2018 00:00:00", 3), "19/04/2018 00:00:00", "25/04/2018 00:00:00", "01/05/2018 00:00:00", "07/05/2018 00:00:00", "13/05/2018 00:00:00", rep("19/05/2018 00:00:00", 3))
+r <- c(rep("13/04/2018 00:00:00", 3), "19/04/2018 00:00:00", "25/04/2018 00:00:00", "01/05/2018 00:00:00", "07/05/2018 00:00:00", "13/05/2018 00:00:00", rep("31/05/2018 00:00:00", 3))
+e_int <- number_line(dttm(l), dttm(r))
+
 
 test_that("testing; stratified grouping", {
   expect_equal(test_10a$epid, c(rep(1,3), 4:8, rep(9,3)))
@@ -451,12 +455,12 @@ test_that("testing; stratified grouping", {
   e_int@id <- 1:11
   e_int@gid <- c(rep(1,3), 4:8, rep(9,3))
 
-  expect_equal(test_10a$epid_interval, e_int)
+  expect_equal(test_10a$epid_start, left_point(e_int))
+  expect_equal(test_10a$epid_end, right_point(e_int))
   expect_equal(test_10a$epid_total, c(rep(3,3), rep(1,5), rep(3,3)))
   expect_equal(test_10a$epid_length, as.difftime(c(rep(12,3), rep(0,5), rep(12,3)), units = "days" ))
   expect_equal(test_10a$epid_dataset, c(rep("BSI,UTI",3), "UTI","BSI","UTI","BSI","BSI",rep("BSI,RTI",3)))
 })
-
 
 test_10a.1 <- cbind(hospital_infections,
                     episode_group(hospital_infections, sn = rd_id, date=date, strata = patient_id, case_length = epi_len,
@@ -469,27 +473,21 @@ test_10b <- cbind(hospital_infections,
                   episode_group(hospital_infections, sn = rd_id, date=date, strata = c(patient_id, infection), case_length = epi_len,
                                 episode_type = "rolling", recurrence_length = recur, episodes_max = 3, data_source = c(patient_id, infection), group_stats = T, to_s4 = F))
 
-e_int <- c(
-  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
-  rep(number_line(dttm("07/04/2018 00:00:00"), dttm("01/05/2018 00:00:00")), 3),
-  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
-  number_line(dttm("07/04/2018 00:00:00"), dttm("01/05/2018 00:00:00")),
-  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
-  number_line(dttm("01/04/2018 00:00:00"), dttm("13/05/2018 00:00:00")),
-  rep(number_line(dttm("19/05/2018 00:00:00"), dttm("25/05/2018 00:00:00")), 2),
-  number_line(dttm("31/05/2018 00:00:00"), dttm("31/05/2018 00:00:00"))
-)
+l <- c("01/04/2018 00:00:00", rep("07/04/2018 00:00:00", 3), "01/04/2018 00:00:00", "07/04/2018 00:00:00", "01/04/2018 00:00:00", "01/04/2018 00:00:00", rep("19/05/2018 00:00:00", 2), "31/05/2018 00:00:00")
+r <- c("13/05/2018 00:00:00", rep("01/05/2018 00:00:00", 3), "13/05/2018 00:00:00", "01/05/2018 00:00:00", "13/05/2018 00:00:00", "13/05/2018 00:00:00", rep("25/05/2018 00:00:00", 2), "31/05/2018 00:00:00")
+e_int <- number_line(dttm(l), dttm(r))
+
 
 test_that("testing; stratified grouping 2", {
   expect_equal(test_10b$epid, c(1,2,2,2,1,2,1,1,9,9, 11))
   expect_equal(test_10b$case_nm, c("Case","Case","Duplicate_C","Recurrent",
                                    "Recurrent", "Duplicate_R", "Recurrent",
-                                   "Duplicate_R","Case","Duplicate_C","Case"
-  ))
+                                   "Duplicate_R","Case","Duplicate_C","Case"))
   e_int@id <- 1:11
   e_int@gid <- c(1,2,2,2,1,2,1,1,9,9, 11)
 
-  expect_equal(test_10b$epid_interval, e_int)
+  expect_equal(test_10b$epid_start, left_point(e_int))
+  expect_equal(test_10b$epid_end, right_point(e_int))
   expect_equal(test_10b$epid_total, c(rep(4,8),2,2,1))
   expect_equal(test_10b$epid_length, as.difftime(c(42, rep(24,3), 42, 24, 42, 42, rep(6,2), 0), units = "days" ))
 })
@@ -507,9 +505,9 @@ test_11a <- cbind(
   admissions,
   episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, group_stats = T, to_s4 = F))
 
-e_int <- c(
-  rep(number_line(dttm("01/01/2019 00:00:00"), dttm("15/01/2019 00:00:00")), 7),
-  rep(number_line(dttm("20/01/2019 00:00:00"), dttm("31/01/2019 00:00:00")), 2))
+l <- c(rep("01/01/2019 00:00:00", 7), rep("20/01/2019 00:00:00", 2))
+r <- c(rep("15/01/2019 00:00:00", 7), rep("31/01/2019 00:00:00", 2))
+e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing; intervals grouping", {
   expect_equal(test_11a$epid, c(rep(2,7), rep(8,2)))
@@ -518,7 +516,8 @@ test_that("testing; intervals grouping", {
   e_int@id <- 1:9
   e_int@gid <- c(rep(2,7), rep(8,2))
 
-  expect_equal(test_11a$epid_interval, e_int)
+  expect_equal(test_11a$epid_start, left_point(e_int))
+  expect_equal(test_11a$epid_end, right_point(e_int))
   expect_equal(test_11a$epid_total, c(rep(7,7), rep(2,2)))
   expect_equal(test_11a$epid_length, as.difftime(c(rep(14,7), rep(11,2)), units = "days" ))
 })
@@ -532,8 +531,9 @@ test_11b <- cbind(
   episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len,
                 episode_type = "rolling", recurrence_length = recur, episode_unit = "months", group_stats = T, to_s4 = F))
 
-e_int <- c(
-  rep(number_line(dttm("01/01/2019 00:00:00"), dttm("31/01/2019 00:00:00")), 9))
+l <- rep("01/01/2019 00:00:00", 9)
+r <- rep("31/01/2019 00:00:00", 9)
+e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing; intervals grouping for rolling intervals", {
   expect_equal(test_11b$epid, rep(2,9))
@@ -542,7 +542,8 @@ test_that("testing; intervals grouping for rolling intervals", {
   e_int@id <- 1:9
   e_int@gid <- rep(2,9)
 
-  expect_equal(test_11b$epid_interval, e_int)
+  expect_equal(test_11b$epid_start, left_point(e_int))
+  expect_equal(test_11b$epid_end, right_point(e_int))
   expect_equal(test_11b$epid_total, rep(9,9))
   expect_equal(test_11b$epid_length, as.difftime(rep(30,9), units = "days" ))
 })
@@ -553,18 +554,21 @@ admissions$epi_len <- 1
 test_11c <- cbind(admissions,
                   episode_group(admissions, date=admin_period, sn=rd_id, case_length = epi_len, episode_unit = "months", group_stats = T, to_s4 = F))
 
-e_int <- c(
-  rep(number_line(dttm("01/01/2019 00:00:00"), dttm("31/01/2019 00:00:00")), 9))
+l <- rep("01/01/2019 00:00:00", 9)
+r <- rep("31/01/2019 00:00:00", 9)
+e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing; intervals grouping with a case length", {
   expect_equal(test_11c$epid, rep(2,9))
   expect_equal(test_11c$case_nm, c("Duplicate_C","Case",rep("Duplicate_C",7)))
   e_int@id <- 1:9
   e_int@gid <- rep(2,9)
-  expect_equal(test_11c$epid_interval, e_int)
+  expect_equal(test_11b$epid_start, left_point(e_int))
+  expect_equal(test_11b$epid_end, right_point(e_int))
   expect_equal(test_11c$epid_total, rep(9,9))
   expect_equal(test_11c$epid_length, as.difftime(rep(30,9), units = "days" ))
 })
+
 
 infections <- diyar::infections
 

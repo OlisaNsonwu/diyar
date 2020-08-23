@@ -333,6 +333,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   excluded <- length(tag[tag == 2])
   tot <- length(int)
+  pri_pos <- seq_len(length(date))
 
   if(display != "none") cat("\n")
   grouped_epids <- list("e" = e[0],
@@ -664,9 +665,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                        T, indx)
       }
 
+      lgk3 <- which(lgk == T)[indx == T]
       if(length(lgk[indx]) > 0){
-        case_nm[lgk][indx] <- "Skipped"
-        tag[lgk][indx] <- 2
+        case_nm[lgk3] <- "Skipped"
+        tag[lgk3] <- 2
       }
       rm(skp_crxt); rm(indx)
     }
@@ -835,13 +837,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     dts_z <- as.numeric(dts_z)[match(e[lgk], names(dts_z))]
 
     case_nm <- case_nm[sort_ord]
-    lead_from_last <- from_last[sort_ord]
-    lead_from_last <- rep(lead_from_last[case_nm %in% c("Case", "Skipped")], epid_n[case_nm %in% c("Case", "Skipped")])
-    epid_dt_a <- ifelse(lead_from_last, right_point(int), as.numeric(int@start))
-    epid_dt_z <- ifelse(lead_from_last, as.numeric(int@start), right_point(int))
+    from_last <- from_last[match(tmp_pos[fd], pri_pos)]
+    epid_dt_a <- ifelse(from_last, right_point(int), as.numeric(int@start))
+    epid_dt_z <- ifelse(from_last, as.numeric(int@start), right_point(int))
 
-    epid_dt_a[lgk] <- ifelse(lead_from_last[lgk], dts_z, dts_a)
-    epid_dt_z[lgk] <- ifelse(lead_from_last[lgk], dts_a, dts_z)
+    epid_dt_a[lgk] <- ifelse(from_last[lgk], dts_z, dts_a)
+    epid_dt_z[lgk] <- ifelse(from_last[lgk], dts_a, dts_z)
 
     if(is_dt ==T){
       epid_dt_a <- as.POSIXct(epid_dt_a, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))

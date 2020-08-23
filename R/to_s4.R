@@ -63,7 +63,12 @@ to_df <- function(s4){
 
   for(i in 1:length(vrs)){
     if (length(methods::slot(s4, vrs[i])) !=0 & vrs[i] !=".Data"){
-      df[[vrs[i]]] <- methods::slot(s4, vrs[i])
+      if(vrs[i] == "epid_interval"){
+        df$epid_start <- left_point(methods::slot(s4, vrs[i]))
+        df$epid_end <- right_point(methods::slot(s4, vrs[i]))
+      }else{
+        df[[vrs[i]]] <- methods::slot(s4, vrs[i])
+      }
     }
   }
   df
