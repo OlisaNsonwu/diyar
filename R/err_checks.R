@@ -797,11 +797,11 @@ err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
 
   if(length(err) > 0){
     err <- paste0("Invalid option for `", overlap_methods_nm, "`\n",
-                  "i - Valid options are \"overlap\", \"exact\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\n",
+                  "i - Valid options are \"overlap\", \"exact\", \"reverse\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\n",
                   "i - Syntax 1 ~ \"aligns_end|exact...\".\n",
                   "i - Syntax 2 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\n",
                   "i - Syntax 3 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\n",
-                  paste0("X - `overlap_methods` ", names(err),   "`: You've supplied ", err, ".", collapse = "\n"))
+                  paste0("X - `", overlap_methods_nm, " ", names(err),   "`: You've supplied ", err, ".", collapse = "\n"))
     return(err)
   }else{
     return(F)
@@ -1060,7 +1060,7 @@ err_episodes_checks_0 <- function(date,
                                   group_stats){
 
 
-  # Check for non-actomic vectors
+  # Check for non-atomic vectors
   args <- list(date = date,
                case_length = case_length,
                recurrence_length = recurrence_length,
@@ -1225,6 +1225,8 @@ err_episodes_checks_0 <- function(date,
   if(err != F) return(err)
   err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
   if(err != F) return(err)
+  err <- err_from_last_1(from_last, strata)
+  if(err != F) return(err)
   return(F)
 }
 
@@ -1357,3 +1359,36 @@ err_invalid_opts <- function(arg_vals, arg_nm, valid_opts){
     return(F)
   }
 }
+
+err_from_last_1 <- function(from_last, strata){
+  # Strata-level options: from_last ####
+  one_val <- from_last[!duplicated(from_last)]
+  one_val <- length(one_val) == 1
+  if(one_val != T){
+    if(class(strata) == "NULL") strata <- "NULL"
+    sp <- split(from_last, strata)
+    opts <- lapply(sp, function(x){
+      x <- x[!duplicated(x)]
+      if(length(x) == 1){
+        NA
+      }else{
+        listr(paste0("\"", x, "\""), lim = 3)
+      }
+    })
+
+    opts <- unlist(opts, use.names = F)
+    names(opts) <- names(sp)
+    opts <- opts[!is.na(opts)]
+
+    if(length(opts) > 0){
+      errs <- paste0("Unique values of `from_last` required in each `strata`:\n",
+                     paste0("X - You've supplied ", listr(paste0(opts, " for ", "\"", names(opts), "\""), lim = 2) ,"."))
+      return(errs)
+    }else{
+      return(F)
+    }
+  }else{
+    return(F)
+  }
+}
+

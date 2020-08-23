@@ -93,11 +93,11 @@ data_2$d <- 13 * diyar::episode_unit$days
 data_2 <- rbind(data_2, data_2)
 test_2 <- cbind(data_2,
                 episodes(strata = paste0(data_2$pid, " ", c(rep("DS-A", 10), rep("DS-B", 10))),
-                        date = data_2$date,
-                        case_length = data_2$episode_len_s,
-                        from_last = c(rep(F, 10), rep(T, 10)),
-                        group_stats = T,
-                        to_s4 = F))
+                         date = data_2$date,
+                         case_length = data_2$episode_len_s,
+                         from_last = c(rep(F, 10), rep(T, 10)),
+                         group_stats = T,
+                         to_s4 = F))
 
 l <- c(rep("01/04/2018 00:00:00", 5), rep("16/04/2018 00:00:00", 5))
 r <- c(rep("13/04/2018 00:00:00", 5), rep("28/04/2018 00:00:00", 5))

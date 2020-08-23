@@ -74,15 +74,15 @@ test_that("test compress function", {
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = 2), "Invalid object type for `collapse`.\ni - Valid object types are `logical`.\nX - You've supplied a `numeric` object.")
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = rep(TRUE,4)), "Invalid length for `collapse`:\ni - Expecting a length of 1.\nX - Length is 4.")
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), deduplicate ="2"), "Invalid object type for `deduplicate`.\ni - Valid object types are `logical`.\nX - You've supplied a `character` object.")
-  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), methods = "crossing"), "Invalid option for `methods`\ni - Valid options are \"overlap\", \"exact\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\ni - Syntax 1 ~ \"aligns_end|exact...\".\ni - Syntax 2 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\ni - Syntax 3 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\nX - `overlap_methods` 1`: You've supplied \"crossing\" at [1].")
+  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), methods = "crossing"), "Invalid option for `methods`\ni - Valid options are \"overlap\", \"exact\", \"reverse\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\ni - Syntax 1 ~ \"aligns_end|exact...\".\ni - Syntax 2 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\ni - Syntax 3 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\nX - `methods 1`: You've supplied \"crossing\" at [1].")
   expect_error(compress_number_line(mtcars, number_line(6, 7), number_line(3, 3)), "Invalid object type for `x`.\ni - Valid object types are `number_line`, `numeric` or `integer`.\nX - You've supplied a `data.frame` object.")
 
 })
 
 test_that("test set overlap functions", {
-  expect_equal(exclude_overlap_method(""),"exact|across|chain|aligns_start|aligns_end|inbetween")
-  expect_equal(exclude_overlap_method("chain"),"exact|across|aligns_start|aligns_end|inbetween")
-  expect_equal(exclude_overlap_method(c("chain","aligns_end")),"exact|across|aligns_start|inbetween")
+  expect_equal(exclude_overlap_method(""),"exact|across|chain|aligns_start|aligns_end|inbetween|reverse")
+  expect_equal(exclude_overlap_method("chain"),"exact|across|aligns_start|aligns_end|inbetween|reverse")
+  expect_equal(exclude_overlap_method(c("chain","aligns_end")),"exact|across|aligns_start|inbetween|reverse")
   expect_equal(include_overlap_method(""),"")
   expect_equal(include_overlap_method("chain"),"chain")
   expect_equal(include_overlap_method(c("chain","aligns_end")),"chain|aligns_end")

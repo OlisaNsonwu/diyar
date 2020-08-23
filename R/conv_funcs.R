@@ -270,7 +270,7 @@ overlaps_err <- function(opts){
     })
   }
 
-  m <- c("none", "exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap")
+  m <- c("none", "exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "reverse")
   pos <- 1:length(m)
   all_pos <- lapply(pos, function(i){
     utils::combn(pos, m =i, simplify = F, FUN = funx)

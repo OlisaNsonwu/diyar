@@ -2,18 +2,20 @@
 #'
 #' @description Identify overlapping \code{number_line} objects
 #'
-#' @param x \code{number_line} object
-#' @param y \code{number_line} object
+#' @param x \code{number_line} object.
+#' @param y \code{number_line} object.
 #' @param method Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.
-#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}
+#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.
 #' @aliases overlaps
 #' @return \code{logical}; \code{character}
 #'
 #' @details
 #'
-#' \bold{7 logical test;}
+#' \bold{8 logical test;}
 #'
-#' \bold{\code{exact()}} - Identical start and endpoints
+#' \bold{\code{exact()}} - Identical left and right points.
+#'
+#' \bold{\code{reverse()}} - Swapped left and right points.
 #'
 #' \bold{\code{inbetween()}} - start and endpoints of one \code{number_line} object is within the start and endpoints of another.
 #'
@@ -45,46 +47,40 @@
 #' c <- number_line(100, 200)
 #' d <- number_line(100, 120)
 #' e <- number_line(50, 120)
-#' g <- number_line(100,100)
+#' g <- number_line(100, 100)
+#' f <- number_line(120, 50)
 #'
 #' overlaps(a, g)
 #' overlaps(a, g, methods = "exact|chain")
 #' @export
 overlaps <- function(x, y, methods = "overlap", method = "overlap"){
-  err <- err_object_types(x, "x", "number_line")
-  if(err != F) stop(err, call. = F)
-  err <- err_object_types(y, "y", "number_line")
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
   if(err != F) stop(err, call. = F)
   if(length(x) == 0 & length(y)== 0) return(logical())
-  if(!is.character(method)) stop(paste("'method' must be a character object"))
-  if(all(!tolower(method) %in% c("exact", "across","chain","aligns_start","aligns_end","inbetween", "overlap", "none"))) stop(paste("`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'"))
-
-  methds <- ifelse(is.na(methods),"NA", methods)
-  mths <- names(split(rep(1, length(methds)), methds))
-  mths <- unique(unlist(strsplit(mths, split="\\|")))
-
-  # invaid methods
-  o <- mths[!tolower(mths) %in% c("exact", "across","chain","aligns_start","aligns_end", "inbetween", "overlap", "none")]
-  if (length(o)>0) stop(paste("\n'", "Valid 'methods' are 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none' \n\n",
-                              "Syntax ~ \"method1|method2|method3...\" \n",
-                              "                 OR                   \n",
-                              "Use ~ include_overlap_method() or exclude_overlap_method()", sep=""))
-
   if(missing(methods) & !missing(method)) {
-    # For continuity, use `method` if `methods` is not supplied but warn that it's deprecated
     m <- paste(method,sep="", collapse = "|")
     warning("'method' is deprecated. Please use 'methods' instead.")
   }else{
-    # `methods` overrides `method` if it's supplied
-    m <- methds
+    m <- methods
   }
 
-  # warnings for difference in length(x) and length(y)
-  if(length(x) != length(y) & (max(length(x), length(y))/min(length(x), length(y))) %% 1 !=0 ) warning("\n  length('x') != length('y')\n  longer object length is not a multiple of shorter object length")
-  if(!all(c(length(x),length(y) %in% length(m))) &
-     ((max(length(m), length(y))/min(length(m), length(y))) %% 1 !=0 |
-      (max(length(m), length(x))/min(length(m), length(x))) %% 1 !=0
-     )) warning("\n  length('method') != length('y') OR length('method') != length('x')\n  longer object length is not a multiple of shorter object length")
+  if(length(x) == 1){
+    err <- err_match_ref_len(x, "y", c(1, length(y)), "x")
+    if(err != F) stop(err, call. = F)
+    x <- rep(x, length(y))
+    err <- err_match_ref_len(m, "y", c(1, length(y)), "method")
+    if(err != F) stop(err, call. = F)
+  }else{
+    err <- err_match_ref_len(y, "x", c(1, length(x)), "y")
+    if(err != F) stop(err, call. = F)
+    err <- err_match_ref_len(method, "x", c(1, length(x)), "method")
+    if(err != F) stop(err, call. = F)
+  }
+  err <- err_object_types(m, "methods", "character")
+  if(err != F) stop(err, call. = F)
+  err <- err_overlap_methods_1(overlap_methods = m, "methods")
+  if(err != F) stop(err, call. = F)
 
   # final check
   p <- rep(F, length(x))
@@ -109,7 +105,6 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
     names(tp) <- ifelse(grepl(i, names(sets)), i, "")
     tp <- tp[names(tp) != ""]
     tp <- unlist(tp, use.names = F)
-    #lgk <- rep(F, length(x))
     lgk <- p
     lgk[tp] <- T
     assign(ab, lgk)
@@ -145,11 +140,11 @@ overlap <- function(x, y){
 
   if(length(x) == 0 & length(y)== 0) return(logical())
 
-  x <- diyar::reverse_number_line(x, direction = "decreasing")
-  y <- diyar::reverse_number_line(y, direction = "decreasing")
+  r <- ((x@start >= y@start & x@start <= y@start + y@.Data) | (x@start <= y@start & x@start >= y@start + y@.Data)) |
+    ((x@start + x@.Data >= y@start & x@start + x@.Data <= y@start + y@.Data) | (x@start + x@.Data <= y@start & x@start + x@.Data >= y@start + y@.Data)) |
+    ((y@start >= x@start & y@start <= x@start + x@.Data) | (y@start <= x@start & y@start >= x@start + x@.Data)) |
+    ((y@start + y@.Data >= x@start & y@start + y@.Data <= x@start + x@.Data) | (y@start + y@.Data <= x@start & y@start + y@.Data >= x@start + x@.Data))
 
-  r <- y@start <= x@start & x@start <= (y@start + y@.Data) |
-    x@start <= y@start & y@start <= (x@start + x@.Data)
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -176,6 +171,25 @@ exact <- function(x, y){
 #' @rdname overlaps
 #' @examples
 #'
+#' reverse(e, e)
+#' reverse(e, f)
+#' @export
+reverse <- function(x, y){
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+
+  if(length(x) == 0 & length(y)== 0) return(logical())
+
+  r <- x@start == y@start + y@.Data & x@start + x@.Data == y@start & abs(x@.Data) != 0
+  r <- ifelse(!is.finite(r), FALSE, r)
+  return(r)
+}
+
+#' @rdname overlaps
+#' @examples
+#'
 #' across(a, b)
 #' across(a, e)
 #' @export
@@ -190,11 +204,8 @@ across <- function(x, y){
 
   if(length(x) == 0 & length(y)== 0) return(logical())
 
-  x <- diyar::reverse_number_line(x, direction = "decreasing")
-  y <- diyar::reverse_number_line(y, direction = "decreasing")
-
-  r <- (y@start > x@start & y@start < (x@start + x@.Data) & (y@start + y@.Data) > (x@start + x@.Data) ) |
-    (x@start > y@start & x@start < (y@start + y@.Data) & (x@start + x@.Data) > (y@start + y@.Data) )
+  r <- ((start_point(x) > start_point(y) & start_point(x) < end_point(y)) & ((end_point(x) < start_point(y)) | (end_point(x) > end_point(y)))) |
+    ((start_point(y) > start_point(x) & start_point(y) < end_point(x)) & ((end_point(y) < start_point(x)) | (end_point(y) > end_point(x))))
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -283,10 +294,10 @@ inbetween <- function(x, y){
 
   if(length(x) == 0 & length(y)== 0) return(logical())
 
-  x <- diyar::reverse_number_line(x, direction = "decreasing")
-  y <- diyar::reverse_number_line(y, direction = "decreasing")
-
-  r <- (x@start > y@start & (x@start + x@.Data) < (y@start + y@.Data)) | (y@start > x@start & (y@start + y@.Data) < (x@start + x@.Data))
+  r <- ((x@start > y@start & x@start < y@start + y@.Data) & (x@start + x@.Data > y@start & x@start + x@.Data < y@start + y@.Data)) |
+    ((y@start > x@start & y@start < x@start + x@.Data) & (y@start + y@.Data > x@start & y@start + y@.Data < x@start + x@.Data)) |
+    ((x@start < y@start & x@start > y@start + y@.Data) & (x@start + x@.Data < y@start & x@start + x@.Data > y@start + y@.Data)) |
+    ((y@start < x@start & y@start > x@start + x@.Data) & (y@start + y@.Data < x@start & y@start + y@.Data > x@start + x@.Data))
   r <- ifelse(!is.finite(r), FALSE, r)
   return(r)
 }
@@ -317,7 +328,7 @@ overlap_method <- function(x, y){
   m <- ifelse(diyar::aligns_start(x, y), paste(m,"aligns_start", sep="|"), m)
   m <- ifelse(diyar::aligns_end(x, y), paste(m,"aligns_end", sep="|"), m)
   m <- ifelse(diyar::inbetween(x, y), paste(m,"inbetween", sep="|"), m)
-
+  m <- ifelse(diyar::reverse(x, y), paste(m,"reverse", sep="|"), m)
   m <- gsub("^\\|","",m)
   m <- ifelse(m=="", "none", m)
   m
@@ -332,7 +343,7 @@ overlap_method <- function(x, y){
 include_overlap_method <- function(methods){
   err <- err_object_types(methods, "methods", "character")
   if(err != F) stop(err, call. = F)
-  lst <- c("overlap", "none", "exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
+  lst <- c("overlap", "none", "exact", "across", "chain", "aligns_start", "aligns_end", "inbetween", "reverse")
   methods <- tolower(methods[!duplicated(methods)])
   methods <- methods[methods %in% lst]
   if(any(methods == "overlap")){
@@ -354,7 +365,7 @@ exclude_overlap_method <- function(methods){
   err <- err_object_types(methods, "methods", "character")
   if(err != F) stop(err, call. = F)
 
-  lst <- c("exact", "across", "chain", "aligns_start", "aligns_end", "inbetween")
+  lst <- c("exact", "across", "chain", "aligns_start", "aligns_end", "inbetween", "reverse")
   methods <- lst[!lst %in% methods]
   methods <- paste(methods,sep="", collapse = "|")
   methods

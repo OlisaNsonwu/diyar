@@ -500,6 +500,15 @@ plot_number_line <- function(x, strata = NULL, show_overlap = FALSE){
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x1, x1), lty=2, col=xd$cols[i])
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x2, x2), lty=2, col=xd$cols[i])
               graphics::text(y = y, x =  mean(c(x1, x2)), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 1, offset = (sf * o))
+            }else if(om %in% c("reverse")){
+              x1 <- ifelse(xd$start[j]<xd$start[i], xd$start[i], xd$start[j])
+              x2 <- ifelse(xd$end[j]<xd$end[i], xd$end[j], xd$end[i])
+              y <- ifelse(xd$start[j]<xd$start[i], xd$sn[i], xd$sn[j])
+              o <- ifelse(xd$start[j]<xd$start[i], -1, .6)
+
+              graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x1, x2), lty=2, col=xd$cols[i])
+              graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(x2, x1), lty=2, col=xd$cols[i])
+              graphics::text(y = y, x =  mean(c(x1, x2)), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 1, offset = (sf * o))
             }else if(om=="aligns_end"){
               graphics::lines(y=c(xd$sn[i], xd$sn[j]), x=c(xd$end[j], xd$end[j]), lty=2, col=xd$cols[i])
               graphics::text(srt = 90, y = xd$sn[i] + (sf * .05), x =  xd$end[j] + (sf * .05), labels = om_l, col=xd$cols[i], cex = (sf * .8), pos = 4, offset = (sf *.6))
