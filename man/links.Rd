@@ -57,6 +57,7 @@ record_group(df, ..., to_s4 = TRUE)
 \item \code{pid_cri} - matching criteria
 \item \code{pid_dataset} - data sources in each group
 \item \code{pid_total} - number of records in each group
+\item \code{iteration} - iteration of the process when each record was linked to its record group
 }
 }
 \description{
@@ -108,8 +109,7 @@ links(criteria = sex,
 # Multistage linkage
 # Relevance of matches: `forename` > `surname`
 data(staff_records); staff_records
-links(staff_records,
-      criteria = list(staff_records$forename, staff_records$surname),
+links(criteria = list(staff_records$forename, staff_records$surname),
       data_source = staff_records$sex)
 
 # Relevance of matches:

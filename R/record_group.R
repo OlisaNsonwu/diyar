@@ -26,6 +26,7 @@
 #' \item \code{pid_cri} - matching criteria
 #' \item \code{pid_dataset} - data sources in each group
 #' \item \code{pid_total} - number of records in each group
+#' \item \code{iteration} - iteration of the process when each record was linked to its record group
 #' }
 #'
 #'
@@ -77,8 +78,7 @@
 #' # Multistage linkage
 #' # Relevance of matches: `forename` > `surname`
 #' data(staff_records); staff_records
-#' links(staff_records,
-#'       criteria = list(staff_records$forename, staff_records$surname),
+#' links(criteria = list(staff_records$forename, staff_records$surname),
 #'       data_source = staff_records$sex)
 #'
 #' # Relevance of matches:
@@ -154,11 +154,13 @@ links <- function(criteria,
   ds_lst <- data_source[!duplicated(data_source)]
   ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
   tag <- rep(0, ds_len)
+  iteration <- tag
   m_tag <- tag
   pid_cri <- rep(Inf, ds_len)
   sn_ref <- min(sn) - 1
   pid <- rep(sn_ref, ds_len)
   link_id <- pid
+  ite <- 1
 
   if(display != "none") cat("\n")
   for(i in 1:length(criteria)){
@@ -187,14 +189,14 @@ links <- function(criteria,
     m_tag <- force_check
     min_pid <- sn_ref
     min_m_tag <- 0
-    c <- 0
     tot <- ds_len
 
     while (min_pid == sn_ref | min_m_tag == -1) {
       sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = T)
       for(vr in c("force_check","tag","cri",
                   "skip", "pid", "tag","m_tag",
-                  "pid_cri", "sn", "pr_sn", "link_id")){
+                  "pid_cri", "sn", "pr_sn",
+                  "link_id", "iteration")){
         assign(vr, get(vr)[sort_ord])
       }
 
@@ -311,7 +313,8 @@ links <- function(criteria,
         msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
         progress_bar(length(m_tag[m_tag == 1])/tot, nchar(msg), msg = msg)
       }
-      c <- c+1
+      iteration[m_tag != 0 & iteration == 0] <- ite
+      ite <- ite + 1
     }
     if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
     if(display %in% c("progress", "stats")){
@@ -327,9 +330,10 @@ links <- function(criteria,
     link_id[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
     pid[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
     tag <- ifelse(pid != sn_ref, 1, 0)
+    iteration[tag == 0 & iteration != 0] <- 0
     pid_cri[tag ==1 & (shrink | (pid_cri == Inf & !shrink))] <- i
   }
-
+  iteration[iteration == 0] <- ite -1
   if(class(strata) != "NULL"){
     pid_cri[pid == sn_ref & is.na(strata) & pid_cri == Inf] <- -1
   }
@@ -349,7 +353,8 @@ links <- function(criteria,
                .Data = pid_f,
                sn = sn[fd],
                pid_cri = pid_cri[fd],
-               link_id = link_id[fd])
+               link_id = link_id[fd],
+               iteration = iteration[fd])
 
   if(group_stats == T){
     r <- rle(sort(pid))

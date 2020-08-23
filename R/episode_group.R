@@ -53,6 +53,7 @@
 #' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
 #' \item \code{epid_length} - the difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 #' \item \code{epid_total} - number of records in each episode
+#' \item \code{iteration} - iteration of the process when each event was tracked to its episode.
 #' }
 #'
 #' @seealso
@@ -112,7 +113,7 @@
 #' db_1$rd_b <- episodes(date = db_1$date,
 #'                      case_length = 15,
 #'                      recurrence_length = 10,
-#'                      episode_unit = "rolling")
+#'                      episode_type = "rolling")
 #'
 #' # Interval grouping
 #' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
@@ -302,6 +303,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   tag <- rep(0, length(int))
+  iteration <- tag
   nms <- format(int@id, trim = T, scientific = F)
   names(cri) <- nms
   e <- int@gid
@@ -348,7 +350,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                         "wind_nm" = wind_nm[0],
                         "wind_id" = wind_id[0],
                         "rolls_max" = rolls_max[0],
-                        "episodes_max" = episodes_max[0])
+                        "episodes_max" = episodes_max[0],
+                        "iteration" = numeric(0))
   while (min(tag) != 2) {
 
     if(display == "stats" & excluded >0 & ite ==1) cat(paste0(fmt(tot), " record(s); ", fmt(excluded), " excluded from episode tracking. ", fmt(tot-excluded), " left.\n"))
@@ -364,7 +367,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                "int","epid_n", "c_sort",
                "skip_order", "case_nm",
                "wind_nm", "wind_id",
-               "rolls_max",
+               "rolls_max", "iteration",
                "episodes_max")){
       assign(i, get(i)[sort_ord])
     }
@@ -470,6 +473,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     lgk1 <- epid_n > episodes_max & tag != 2
     case_nm[lgk1] <- "Skipped"
     tag[lgk1] <- 2
+    iteration[lgk1 & iteration == 0] <- ite
 
     # Skip order
     cri_skp <- cri[c_sort > skip_order];
@@ -478,6 +482,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     current_skipped <- length(cri[lgk1 | lgk2])
     tag[lgk2] <- 2
     case_nm[lgk2] <- "Skipped"
+    iteration[lgk2 & iteration == 0] <- ite
     rm(cri_skp); rm(lgk2); rm(lgk1)
 
     if(min(tag) == 2){
@@ -610,6 +615,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }else if (tolower(display)=="progress") {
         progress_bar((length(tag[tag==2]) + length(grouped_epids$tag))/tot, 100, msg = "Tracking episodes")
       }
+      iteration[iteration == 0] <- ite
       break
     }
 
@@ -672,7 +678,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
       rm(skp_crxt); rm(indx)
     }
-
+    iteration[tag != 0 & iteration == 0] <- ite
     current_tagged <- length(cr[cr])
     if(display== "stats"){
       msg <- paste0(fmt(current_tot), " record(s); ", fmt(current_tagged), " tracked to episodes", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped), " skipped"), ""), " and ", fmt(current_tot - (current_tagged + current_skipped)), " left.")
@@ -685,7 +691,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                "epid_n", "c_sort",
                "skip_order", "case_nm",
                "wind_nm", "wind_id",
-               "rolls_max",
+               "rolls_max", "iteration",
                "episodes_max")){
       grouped_epids[[i]] <- c(grouped_epids[[i]], get(i)[tag == 2])
       assign(i, get(i)[tag != 2])
@@ -741,6 +747,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   case_nm <- c(grouped_epids$case_nm, case_nm)
   wind_nm <- c(grouped_epids$wind_nm, wind_nm)
   wind_id <- c(grouped_epids$wind_id, wind_id)
+  iteration <- c(grouped_epids$iteration, iteration)
 
   idx <- c(grouped_epids$int@id, int@id)
   gidx <- c(grouped_epids$int@gid, int@gid)
@@ -803,7 +810,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
               dist_from_epid = dist_from_epid[fd],
               dist_from_wind = dist_from_wind[fd],
               sn = int@gid[fd],
-              case_nm= case_nm[retrieve_pos],
+              case_nm = case_nm[retrieve_pos],
+              iteration = iteration[retrieve_pos],
               wind_nm = wind_nm[retrieve_pos],
               wind_id = wind_id[fd])
   names(epid@wind_id) <- NULL

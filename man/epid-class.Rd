@@ -45,5 +45,5 @@ as.epid(x)
 \item{exact}{exact}
 }
 \description{
-S4 objects to store the results of \code{\link{fixed_episodes}}, \code{\link{rolling_episodes}} and \code{\link{episode_group}}
+S4 objects to store the results of \code{\link{episodes}}
 }

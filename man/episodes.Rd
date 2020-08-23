@@ -151,6 +151,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
 \item \code{epid_length} - the difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
 \item \code{epid_total} - number of records in each episode
+\item \code{iteration} - iteration of the process when each event was tracked to its episode.
 }
 }
 \description{
@@ -210,7 +211,7 @@ db_1$epids_p <- episodes(date = db_1$date,
 db_1$rd_b <- episodes(date = db_1$date,
                      case_length = 15,
                      recurrence_length = 10,
-                     episode_unit = "rolling")
+                     episode_type = "rolling")
 
 # Interval grouping
 hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,

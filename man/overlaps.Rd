@@ -40,11 +40,11 @@ include_overlap_method(methods)
 exclude_overlap_method(methods)
 }
 \arguments{
-\item{x}{\code{number_line} object}
+\item{x}{\code{number_line} object.}
 
-\item{y}{\code{number_line} object}
+\item{y}{\code{number_line} object.}
 
-\item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}}
+\item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.}
 
 \item{method}{Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.}
 }
