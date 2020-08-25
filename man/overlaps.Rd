@@ -80,7 +80,7 @@ Identify overlapping \code{number_line} objects
 \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object have overlapped.
 Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
 
-\bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episode}}.
+\bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episodes}}.
 }
 \examples{
 a <- number_line(-100, 100)

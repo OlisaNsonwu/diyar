@@ -1,18 +1,26 @@
 
-diyar
-=====
+# diyar
 
-[![CRAN version](http://www.r-pkg.org/badges/version/diyar)](https://cran.r-project.org/package=diyar) [![CRAN RStudio mirror downloads](http://cranlogs.r-pkg.org/badges/diyar)](http://www.r-pkg.org/pkg/diyar) [![Coverage status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master) [![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar)
+[![CRAN
+version](http://www.r-pkg.org/badges/version/diyar)](https://cran.r-project.org/package=diyar)
+[![CRAN RStudio mirror
+downloads](http://cranlogs.r-pkg.org/badges/diyar)](http://www.r-pkg.org/pkg/diyar)
+[![Coverage
+status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master)
+[![Travis build
+status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar)
 
-Overview
---------
+## Overview
 
-Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in epidemiological analysis and other fields of research.
+Record linkage and deduplication of individual-level data, such as
+repeated spells in hospital, or recurrent cases of infection is a common
+task in epidemiological analysis and other fields of research.
 
-The `diyar` package aims to provide a simple and flexible implementation of deterministic record linkage and episode grouping for the application of case definitions in epidemiological analysis.
+The `diyar` package aims to provide a simple and flexible implementation
+of mutlistage deterministic record linkage and episode grouping for the
+application of case definitions in epidemiological analysis.
 
-Installation
-------------
+## Installation
 
 ``` r
 # Install the latest CRAN release 
@@ -23,17 +31,27 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-Cheat sheet
------------
+## Cheat sheet
 
 <a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
 
-Usage
------
+## Usage
 
-There are two main aspects of the `diyar` package; multistage record grouping (`record_group()`) and episode grouping (`fixed_episodes()`, `rolling_episodes()` and `episode_group()`) for applying case definitions in epidemiological analysis. `number_line` objects are used for both.
+There are two main aspects of the `diyar` package; multistage data
+linkage grouping (`links`) and episode tracking (`episodes`).
+`number_line` objects are used in both.
 
--   `number_line` objects - series of real numbers on a number line. These can be manipulated and merged.
+  - `number_line()` - a range of real numbers on a number line.
+      - They can be manipulated - `reverse_number_line`,
+        `shift_number_line`, `expand_number_line`,
+        `number_line_sequence`, `invert_number_line`,
+        `compress_number_line`, `union_number_lines`,
+        `subtract_number_lines`, `intersect_number_lines`.
+      - Logical tests for overlap - `overlaps`, `overlap`, `exact`,
+        `reverse`, `chain`, `across`, `aligns_start`, `aligns_end`,
+        `inbetween`.
+
+<!-- end list -->
 
 ``` r
 library(diyar)
@@ -44,17 +62,13 @@ nl
 #> [1] "2019-04-01 -> 2019-04-30"
 reverse_number_line(nl)
 #> [1] "2019-04-30 <- 2019-04-01"
-shift_number_line(nl, -2)
-#> [1] "2019-03-30 -> 2019-04-28"
-expand_number_line(nl, 2)
-#> [1] "2019-03-30 -> 2019-05-02"
-number_line_sequence(nl, by =3)
-#> [[1]]
-#>  [1] "2019-04-01" "2019-04-04" "2019-04-07" "2019-04-10" "2019-04-13"
-#>  [6] "2019-04-16" "2019-04-19" "2019-04-22" "2019-04-25" "2019-04-28"
+expand_number_line(nl, -2)
+#> [1] "2019-04-03 -> 2019-04-28"
 ```
 
--   `fixed_episodes()`, `rolling_episodes()` and `episode_group()` - Group records into chronological episodes. ***`epid` objects are now the default output. Use `to_s4` or `to_df()` to change this to data.frames***
+  - `episodes()` - Track temporal episodes.
+
+<!-- end list -->
 
 ``` r
 data(infections);
@@ -66,52 +80,81 @@ db$date
 #> [11] "2018-05-31"
 
 # Fixed episodes
-db$f_epid <- fixed_episodes(date = db$date, case_length = 15, display = F, group_stats = T)
-#> Episode grouping complete: 0 record(s) with a unique ID.
+episodes(date = db$date, 
+         case_length = 15, 
+         display = "none", 
+         group_stats = TRUE)
+#> Episode tracking completed in < 0.01 secs!
+#>  [1] "E.01 2018-04-01 -> 2018-04-13 (C)" "E.01 2018-04-01 -> 2018-04-13 (D)"
+#>  [3] "E.01 2018-04-01 -> 2018-04-13 (D)" "E.04 2018-04-19 -> 2018-05-01 (C)"
+#>  [5] "E.04 2018-04-19 -> 2018-05-01 (D)" "E.04 2018-04-19 -> 2018-05-01 (D)"
+#>  [7] "E.07 2018-05-07 -> 2018-05-19 (C)" "E.07 2018-05-07 -> 2018-05-19 (D)"
+#>  [9] "E.07 2018-05-07 -> 2018-05-19 (D)" "E.10 2018-05-25 -> 2018-05-31 (C)"
+#> [11] "E.10 2018-05-25 -> 2018-05-31 (D)"
 
 # Rolling episodes
-db$r_epid <- rolling_episodes(date = db$date, case_length = 15, recurrence_length = 40, display = F,
-                              group_stats = T)
-#> Episode grouping complete: 0 record(s) with a unique ID.
-
-db[c("f_epid","r_epid")]
-#>                               f_epid                           r_epid
-#> 1  E.01 2018-04-01 -> 2018-04-13 (C) E.1 2018-04-01 -> 2018-05-31 (C)
-#> 2  E.01 2018-04-01 -> 2018-04-13 (D) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 3  E.01 2018-04-01 -> 2018-04-13 (D) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 4  E.04 2018-04-19 -> 2018-05-01 (C) E.1 2018-04-01 -> 2018-05-31 (R)
-#> 5  E.04 2018-04-19 -> 2018-05-01 (D) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 6  E.04 2018-04-19 -> 2018-05-01 (D) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 7  E.07 2018-05-07 -> 2018-05-19 (C) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 8  E.07 2018-05-07 -> 2018-05-19 (D) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 9  E.07 2018-05-07 -> 2018-05-19 (D) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 10 E.10 2018-05-25 -> 2018-05-31 (C) E.1 2018-04-01 -> 2018-05-31 (D)
-#> 11 E.10 2018-05-25 -> 2018-05-31 (D) E.1 2018-04-01 -> 2018-05-31 (D)
+episodes(date = db$date, 
+         case_length = 15, 
+         recurrence_length = 40, 
+         display = "none",
+         episode_type = "rolling", 
+         group_stats = TRUE)
+#> Episode tracking completed in < 0.01 secs!
+#>  [1] "E.1 2018-04-01 -> 2018-05-31 (C)" "E.1 2018-04-01 -> 2018-05-31 (D)"
+#>  [3] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (R)"
+#>  [5] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (D)"
+#>  [7] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (D)"
+#>  [9] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (R)"
+#> [11] "E.1 2018-04-01 -> 2018-05-31 (D)"
 ```
 
--   `record_group()` - Perform multistage deterministic linkages while addressing missing data using a specified list of alternative matching criteria or matching range of values. ***`pid` objects are now the default output. Use `to_s4` or `to_df()` to change this to a data.frames***
+  - `links()` - Multistage deterministic linkage with missing data
+
+<!-- end list -->
 
 ``` r
-# Two stages of record grouping
+# Two-stage exact matches
 data(staff_records);
 
-staff_records$pids_a <- record_group(staff_records, sn = r_id, criteria = c(forename, surname),
-                     data_source = sex, display = FALSE)
-#> Record grouping complete: 1 record(s) with a unique ID.
+staff_records$pids_a <- links(criteria = list(staff_records$forename, 
+                                              staff_records$surname),
+                              data_source = staff_records$sex, 
+                              display = "none")
+#> Data linkage completed in < 0.01 secs!
 staff_records
-#>   r_id forename  surname sex    dataset       pids_a
-#> 1    1    James    Green   M Staff list P.1 (CRI 02)
-#> 2    2     <NA> Anderson   M Staff list P.2 (CRI 02)
-#> 3    3    Jamey    Green   M  Pay slips P.1 (CRI 02)
-#> 4    4              <NA>   F  Pay slips P.4 (No Hit)
-#> 5    5  Derrick Anderson   M Staff list P.2 (CRI 02)
-#> 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 02)
-#> 7    7 Christie    Green   F Staff list P.1 (CRI 02)
+#>   r_id forename  surname sex    dataset        pids_a
+#> 1    1    James    Green   M Staff list P.1 (CRI 002)
+#> 2    2     <NA> Anderson   M Staff list P.2 (CRI 002)
+#> 3    3    Jamey    Green   M  Pay slips P.1 (CRI 002)
+#> 4    4              <NA>   F  Pay slips P.4 (No Hits)
+#> 5    5  Derrick Anderson   M Staff list P.2 (CRI 002)
+#> 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 002)
+#> 7    7 Christie    Green   F Staff list P.1 (CRI 002)
+
+# Single-stage user-defined logical tests
+# Matching `sex` and + 20-year age gaps
+age <- c(30, 28, 40, 25, 25, 29, 27)
+sex <- c("M", "M", "M", "F", "M", "M", "F")
+f1 <- function(x, y) (y - x) %in% 0:20
+links(criteria = sex,
+      sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)),
+      display = "none")
+#> Data linkage completed in < 0.01 secs!
+#> [1] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"
+#> [5] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"
+
+# + 20-year age gaps only
+links(criteria = "place_holder",
+      sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)),
+      display = "none")
+#> Data linkage completed in < 0.01 secs!
+#> [1] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"
+#> [5] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"
 ```
 
-Find out more [here](https://olisansonwu.github.io/diyar/index.html)!
+Find out more [here\!](https://olisansonwu.github.io/diyar/index.html)
 
-Bugs and issues
----------------
+## Bugs and issues
 
-Please report any bug or issues with using this package [here](https://github.com/OlisaNsonwu/diyar/issues).
+Please report any bug or issues with using this package
+[here](https://github.com/OlisaNsonwu/diyar/issues).

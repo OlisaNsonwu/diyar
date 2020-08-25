@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 plot_pid <- diyar:::plot_pid
 ```
 
-#Introduction
+# Introduction
 Linking datasets to consolidate information is a common task in research, particularly for those involving the use of "big data". Deterministic record linkage is the simplest and most common method of record linkage however, its accuracy relies on good data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
 
 `links()` aims to provide a convenient and flexible approach to multistage deterministic linkage with mechanims to handle missing or incorrect data.
@@ -72,7 +72,7 @@ to_df(dbs$pids_a)
 <a id = "record_matching"></a>
 
 ## Record matching
-Attributes are checked for case sensitive exact match. However, those supplied through `sub_criteria()` can also be compared by any `logical` test applicable to two `atomic` vectors. The logical test must be supplied as a `function` with two named arguments - `x` and `y`, where `y` is the value for one observation being compared against all other observations (`x`). See some examples below.
+Attributes are checked for a case sensitive exact match. However, those supplied through `sub_criteria()` can also be compared by any `logical` test applicable to two `atomic` vectors. The logical test must be supplied as a `function` with two named arguments - `x` and `y`, where `y` is the value for one observation being compared against all other observations (`x`). See some examples below.
 
 ```{r warning=F, message=F}
 dbs2 <- patient_list[c("forename","surname","sex")]; dbs2

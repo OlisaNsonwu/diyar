@@ -21,10 +21,10 @@ date <- function(x) as.Date(x, "%d/%m/%Y")
 dttm <- function(x) as.POSIXct(x, "UTC",format="%d/%m/%Y %H:%M:%S")
 ```
 
-#Introduction
-In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-offs are used to distinguish between events. This is an important aspect of a case definition. For example, it's often important to distinguish between repeat positive infection results during a pathogen's incubation period. Another example is distinguishing infections by a single pathogen from those involving multiple pathogens over particular periods. 
+# Introduction
+In epidemiological analyses, an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-offs are used to distinguish between events. This is an important aspect of a case definition. For example, it's often important to distinguish between repeat positive infection results during a pathogen's incubation period, or to distinguish infections by a single pathogen from those involving multiple pathogens over certain  periods. 
 
-`episodes()` provide convenient but flexible ways of doing this. It links events into temporal sequence of episodes which then allows for easy deduplication or a sub-analysis within each episode.
+`episodes()` provide a convenient but flexible way of doing this. It links events into temporal sequence of episodes which then allows for easy deduplication or a sub-analysis within each episode.
 
 `fixed_episodes()` and `rolling_episodes()` are wrapper functions of `episodes()`. They exist for convenience and to support code from earlier versions of `diyar (< v0.2.0)`.
 
@@ -82,7 +82,7 @@ ep <- episodes(date = ds, case_length = 6, group_stats = T, data_source = c("DS1
 
  
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-df <- data.frame(events = ds, data_source = c("DS1","DS1","DS3", "DS1"), epid= ep)
+df <- data.frame(events = ds, data_source = c("DS1","DS1","DS3", "DS1"), epid = ep)
 df
 ```
 
@@ -859,8 +859,12 @@ In this example, whether or not the infection is `treated` should be viewed as t
 ```{r warning=FALSE}
 dbs <- diyar::infections_4
 
-dbs$epids <- episodes(sn = dbs$rid, strata= paste(dbs$pid, dbs$organism, dbs$source), date= dbs$date,
-                case_length = dbs$epi, episode_type = "rolling", recurrence_length = dbs$recur, display = "none")
+dbs$epids <- episodes(strata= paste(dbs$pid, dbs$organism, dbs$source), 
+                      date= dbs$date,
+                      case_length = dbs$epi, 
+                      episode_type = "rolling", 
+                      recurrence_length = dbs$recur, 
+                      display = "none")
 
 dbs
 ```
@@ -1036,7 +1040,7 @@ episodes(date = vals, case_length = 100, group_stats = T, display = "none")
 ```
 
 ### Infinite and missing `case_lengths` or `recurrence_lengths`
-You can incorporate missing and infinite cut-offs into your analysis. Events with missing cut-off will not be used as an index period however, they can tracked as a duplicate of another index event. Index events with infinite cut-off will be linked to every other event in it's `strata`.
+You can incorporate missing and infinite cut-offs into your analysis. Events with missing cut-off will not be used as an index period however, they can be tagged as a duplicate of another index event. Index events with infinite cut-off will be linked to every other event in it's `strata`.
 
 ```{r warning=FALSE, message=FALSE}
 vals <- 1:10

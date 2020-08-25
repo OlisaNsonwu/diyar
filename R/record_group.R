@@ -104,16 +104,16 @@ links <- function(criteria,
                   shrink = FALSE){
   tm_a <- Sys.time()
 
-  err <- err_links_checks_0(criteria = criteria,
-                     sub_criteria = sub_criteria,
-                     sn = SN,
-                     strata = strata,
-                     data_source = data_source,
-                     data_links = data_links,
-                     display = display,
-                     group_stats = group_stats,
-                     expand = expand,
-                     shrink = shrink)
+  err <- err_links_checks_0(criteria,
+                     sub_criteria,
+                     sn,
+                     strata,
+                     data_source,
+                     data_links,
+                     display,
+                     group_stats,
+                     expand,
+                     shrink)
 
   if(err != F) stop(err, call. = F)
 
@@ -176,8 +176,8 @@ links <- function(criteria,
 
     if(shrink == T){
       cri <- paste0(cri, " ", pid)
-      pid[T==T] <- sn_ref
-      link_id[T==T] <- sn_ref
+      pid[TRUE] <- sn_ref
+      link_id[TRUE] <- sn_ref
     }
 
     cri <- match(cri, cri[!duplicated(cri)])
@@ -370,11 +370,11 @@ links <- function(criteria,
 
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
-      pids@pid_total[req_links == F] <- 1
-      pids@pid_cri[req_links == F] <- 0
-      pids@.Data[req_links == F] <- pids@sn[req_links == F]
-      pids@link_id[req_links == F] <- pids@sn[req_links == F]
-      datasets[req_links == F] <- data_source[req_links == F]
+      pids@pid_total[!req_links] <- 1
+      pids@pid_cri[!req_links] <- -1
+      pids@.Data[!req_links] <- pids@sn[!req_links]
+      pids@link_id[!req_links] <- pids@sn[!req_links]
+      datasets[!req_links] <- data_source[!req_links]
     }
     pids@pid_dataset <- datasets
   }

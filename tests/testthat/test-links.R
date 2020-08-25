@@ -175,7 +175,6 @@ test_that("test pid methods", {
   expect_equal(unique(pids), unique(pids))
 })
 
-
 test_that("test some generic functions", {
   expect_equal(show(new("pid")), "pid(0)")
   expect_equal(c(as.pid(5), as.pid(5)), rep(as.pid(5), 2))

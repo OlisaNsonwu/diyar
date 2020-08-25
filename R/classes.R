@@ -101,10 +101,7 @@ setMethod("c", signature(x = "number_line"), function(x,...) {
 #' @rdname number_line-class
 #' @export
 unique.number_line <- function(x, ...){
-  db <- data.frame(l = left_point(x), r = right_point(x), ob = x)
-  db$cri <- paste(as.numeric(db$l), "-", as.numeric(db$r))
-  db <- subset(db, !duplicated(db$cri))
-  x <- db$ob
+  x <- x[!duplicated(paste0(x@start, " ", x@.Data))]
   return(x)
 }
 
@@ -218,7 +215,7 @@ setMethod("[", signature(x = "epid"),
             methods::new("epid", x@.Data[i], case_nm = x@case_nm[i], sn = x@sn[i], wind_id = x@wind_id[i], wind_nm = x@wind_nm[i],
                          dist_from_epid = x@dist_from_epid[i], dist_from_wind = x@dist_from_wind[i],
                          epid_length = x@epid_length[i], epid_total = x@epid_total[i], epid_dataset = x@epid_dataset[i],
-                         epid_interval = x@epid_interval[i], epid_interval = x@epid_interval[i], iteration = x@iteration[i])
+                         epid_interval = x@epid_interval[i], iteration = x@iteration[i])
           })
 
 #' @aliases [[,epid-method
@@ -298,7 +295,7 @@ format.pid <- function(x, ...){
 #' @rdname pid-class
 #' @export
 unique.pid <- function(x, ...){
-  x <- x[!is.duplicated(x@.Data)]
+  x <- x[!duplicated(x@.Data)]
   return(x)
 }
 

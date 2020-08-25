@@ -9,36 +9,43 @@ knitr::opts_chunk$set(
 )
 ```
 
-#Version 0.2.0.9000
+# Version 0.2.0.9000
+
 ## New features
 + Better support for `Inf` in `number_line` objects.
-+ Can now use multiple `case_lengths` or `recurrence_lengths` on the same event.
-+ Can now use multiple `overlap_methods` for the corresponding `case_lengths` and `recurrence_lengths`.
-+ New function - `links()` to replace `record_group()`.
-+ New function - `sub_criteria()`. A mechanism to supply subcriteria for a matching criteria in `links()`.
-+ New functions - `exact_match()`, `range_match()` and `range_match_legacy()`. Predefined logical tests for use with `sub_criteria()`. User-defined tests can also be used. See `?sub_criteria`. 
-+ New function - `epid_lengths()`. Shows the required `case_length` or `recurrence_length` for a given `date` to overlap with a given period. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
-+ New function - `epid_windows()`. Shows the period a given `date` will overlap with for given `case_length` or `recurrence_length`. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
-+ New argument - `strata` in `links()` and `record_group()`. Useful for stratified data linkage. As in startified episode tracking, a record with a missing `strata` (`NA_character_`) is skipped from data linkage.
-    + Skipped records have a `pid_cri` value of `-1`.
++ Can now use multiple `case_lengths` or `recurrence_lengths` for the same event.
+    + Can now use multiple `overlap_methods` for the corresponding `case_lengths` and `recurrence_lengths`.
++ New function `links()` to replace `record_group()`.
++ New function `sub_criteria()`. The new way of supplying a `sub_criteria` in `links()`.
++ New functions `exact_match()`, `range_match()` and `range_match_legacy()`. Predefined logical tests for use with `sub_criteria()`. User-defined tests can also be used. See `?sub_criteria`. 
++ New function `custom_sort()` for nested sorting.
++ New function `epid_lengths()` to show the required `case_length` or `recurrence_length` for an analyses. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
++ New function `epid_windows()`. Shows the period a `date` will overlap with given particular `case_lengths` or `recurrence_lengths`. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
++ New argument - `strata` in `links()`. Useful for stratified data linkage. As in stratified episode tracking, a record with a missing `strata` (`NA_character_`) is skipped from data linkage.
++ New argument - `data_links` in `links()`. Un-link record groups that do not include records from certain data sources
++ New convenience functions
+    + `listr()`. Format `atomic` vectors as a written list.
+    + `combns()`. An extension of `combn` to generate permutations not ordinarily captured by `combn`.
++ New `iteration` slot for `pid` and `epid` objects
++ New `overlap_method` - `reverse()`
 
 ## Changes
-+ `l` and `r` must have the same length or be `1`.
-+ `case_nm` differentiates between duplicates of `"Case"` (`"Duplicate_C"`) and `"Recurrent"` events (`"Duplicate_R"`).
-+ Strata and episode-level options for most arguments. This gives greater flexibity within the same instance of `episodes()`. 
-    + Episode-level - The behaviour for each episode is determined by the corresponding option for it's index event (`"Case"`).
++ `number_line()` - `l` and `r` must have the same length or be `1`.
++ `episodes()` - `case_nm` differentiates between duplicates of `"Case"` (`"Duplicate_C"`) and `"Recurrent"` events (`"Duplicate_R"`).
++ Strata and episode-level options for most arguments. This gives greater flexibility within the same instance of `episodes()`. 
+    + Episode-level - The behaviour for each episode is determined by the corresponding option for its index event (`"Case"`).
         + `episode_type` - simultaneously track both `"fixed"` and `"rolling"` episodes.
         + `skip_if_b4_lengths` - simultaneously track episodes where events before a cut-off range are both skipped and not skipped.
-        + `bi_direction` - simultaneously track episodes where events before index event (opposite direction of `from_last`) are both captured or not captured.
         + `episode_unit` - simultaneously track episodes by different units of time.
         + `case_for_recurrence` - simultaneously track `"rolling"` episodes with and without an additional case window for recurrent events.
         + `recurrence_from_last` -  simultaneously track `"rolling"` episodes with reference windows calculated from the first and last event of the previous window.
-    + Strata-level - The behaviour for each episode is determined by the corresponding option for it's `strata`. 
+    + Strata-level - The behaviour for each episode is determined by the corresponding option for its `strata`. Options must be the same in each strata. 
         + `from_last` - simultaneously track episodes in both directions of time - past to present and present to past.
+        + `episodes_max` - simultaneously track different number of episodes within the dataset.
 + `include_overlap_method` - `"overlap"` and `"none"` will not be combined with other methods.
-    + `"overlap"` - mutually inclusive with the other methods, so their inclusion is not neccessary.
-    + `"none"` - mutually exclusive and prioritised over the other methods, so their inclusion is not neccessary.
-+ Events can now have missing cut-off points (`NA_real_`) or periods (`number_line(NA_real_, NA_real_)`) `case_length` and `recurrence_length`. This ensures that the event does not become an index case however, it can still be part of different episode. For reference, an event with a missing `strata` (`NA_character_`) ensures that the event does not become an index case and does not become part of any episode. 
+    + `"overlap"` - mutually inclusive with the other methods, so their inclusion is not necessary.
+    + `"none"` - mutually exclusive and prioritised over the other methods (including `"none"`), so their inclusion is not necessary.
++ Events can now have missing cut-off points (`NA_real_`) or periods (`number_line(NA_real_, NA_real_)`) `case_length` and `recurrence_length`. This ensures that the event does not become an index case however, it can still be part of different episode. For reference, an event with a missing `strata` (`NA_character_`) ensures that the event does not become an index case nor part of any episode. 
 
 ## Bug fixes
 + `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in certain situations. Corrected.

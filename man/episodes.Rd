@@ -218,12 +218,12 @@ hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
                                                 hospital_admissions$discharge_dt)
 admissions <- hospital_admissions[c("admin_period","epi_len")]
 
-# Episodes of overlaping periods of admission
+# Episodes of overlapping periods of admission
 hospital_admissions$epids_i<- episodes(date = hospital_admissions$admin_period,
                                        case_length = 0,
                                        overlap_methods_c = "inbetween")
 
 }
 \seealso{
-\code{\link{epid_length}}, \code{\link{epid_window}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
+\code{\link[=windows]{epid_length}}, \code{\link[=windows]{epid_window}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
 }

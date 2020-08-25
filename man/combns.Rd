@@ -13,9 +13,9 @@ combns(x, m, FUN = NULL, simplify = TRUE, ...)
 
 \item{FUN}{Function applied to each combination.}
 
-\item{...}{further arguments passed to FUN. Optional.}
+\item{simplify}{Logical indicating if the result should be simplified to an array or returned as a list.}
 
-\item{simplfy}{Logical indicating if the result should be simplified to an array or returned as a list.}
+\item{...}{further arguments passed to FUN. Optional.}
 }
 \value{
 \code{\link{number_line}}.
@@ -29,8 +29,8 @@ Each argument should be used as would be used in \code{\link{combn}}.
 }
 \examples{
 f1 <- function(x) paste0(x, collapse = ",")
-combn(x = 1:3, m = 3, FUN = f1, simplify = T)
-combns(x = 1:3, m = 3, FUN = f1, simplify = T)
-combns(x = 1:3, m = 1:3, FUN = f1, simplify = T)
+combn(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
+combns(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
+combns(x = 1:3, m = 1:3, FUN = f1, simplify = TRUE)
 
 }

@@ -15,7 +15,6 @@ finite_check <- function(x, lim =10){
     TRUE
 }
 
-
 missing_check <- function(x, lim =10){
   e <- which(is.na(x))
   if(length(x[e]) %in% 1:lim) {
@@ -185,7 +184,7 @@ check_links <- function(cri, data_source, data_links){
   dset <- unlist(dset[match(cri, names(dset))], use.names = F)
   r <- list(ds=dset)
   if(!all(toupper(dl_lst) == "ANY")){
-    dlks <- lapply(lsts, function(x){x$ds})
+    dlks <- lapply(lsts, function(x){x$rq})
     dlks <- unlist(dlks[match(cri, names(dlks))], use.names = F)
     r$rq <- dlks
   }
@@ -345,7 +344,7 @@ pid_cri_l <- function(n){
 #' @param x Vector source for combination.
 #' @param m Number of elements required. Multiple counts can be supplied.
 #' @param FUN Function applied to each combination.
-#' @param simplfy Logical indicating if the result should be simplified to an array or returned as a list.
+#' @param simplify Logical indicating if the result should be simplified to an array or returned as a list.
 #' @param ... further arguments passed to FUN. Optional.
 #'
 #' @details
@@ -355,9 +354,9 @@ pid_cri_l <- function(n){
 #'
 #' @examples
 #' f1 <- function(x) paste0(x, collapse = ",")
-#' combn(x = 1:3, m = 3, FUN = f1, simplify = T)
-#' combns(x = 1:3, m = 3, FUN = f1, simplify = T)
-#' combns(x = 1:3, m = 1:3, FUN = f1, simplify = T)
+#' combn(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
+#' combns(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
+#' combns(x = 1:3, m = 1:3, FUN = f1, simplify = TRUE)
 #'
 #' @export
 combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
@@ -379,7 +378,7 @@ combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
   all_pos <- lapply(all_pos, function(y){x[y]})
 
   if(all(class(FUN) == "NULL")){
-    func <- function(x) x
+    func <- function(x, ...) x
   }else{
     func <- function(x, ...) FUN(x, ...)
   }

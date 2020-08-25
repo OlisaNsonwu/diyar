@@ -2,376 +2,6 @@
 #
 # @description Data validations
 #
-err_checks_epid <- function(sn, date, case_length, strata, display, episodes_max, episode_unit, data_links,
-                            overlap_methods_c, overlap_methods_r, skip_order, custom_sort, group_stats, from_last, data_source,
-                            skip_if_b4_lengths, rolls_max, case_for_recurrence,
-                            recurrence_from_last, episode_type, recurrence_length){
-
-  if(all(class(sn) == "NULL")) sn <- seq_len(length(date))
-  if(all(class(data_source) == "NULL")) data_source <- "`NULL`"
-  if(all(class(strata) == "NULL")) strata <- "`NULL`"
-
-  if(all(tolower(episode_type) != "rolling")){
-    recurrence_length <- case_length
-    recurrence_from_last <- T
-    case_for_recurrence <- T
-  }else{
-    if(all(class(recurrence_length) == "NULL")) recurrence_length <- 0
-  }
-
-  # ------- Check for missing args ####
-  args <- c("date", "case_length")
-  errs <- lapply(as.list(args), function(x){
-    m <- try(get(x), silent = T)
-    attr(m, "condition")$message
-  })
-
-  errs <- unlist(errs, use.names = F)
-  if(length(errs) > 0) return(errs[1])
-
-  # ------ Check object classes ####
-  args_classes <- list(
-    sn = c("numeric", "integer"),
-    date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-    case_length = c("list", "numeric", "number_line"),
-    recurrence_length = c("list", "numeric", "number_line"),
-    episodes_max = c("numeric","integer"),
-    rolls_max = c("numeric","integer"),
-    display = c("character", "logical"),
-    data_source = "character",
-    data_links = c("list", "character"),
-    overlap_methods_c = c("list", "character"),
-    overlap_methods_r = c("list", "character"),
-    skip_order = c("numeric","integer"),
-    from_last = "logical",
-    group_stats = "logical",
-  #  include_index_period = "logical",
-  #  bi_direction = "logical",
-    skip_if_b4_lengths = "logical",
-    recurrence_from_last = "logical",
-    case_for_recurrence = "logical"
-  )
-
-  if(is.list(case_length)){
-    for (i in 1:length(case_length)) {
-      assign(paste0("case_length_",i), case_length[[i]])
-      args_classes[[paste0("case_length_",i)]] <- c("numeric","number_line")
-      args_classes$case_length <- NULL
-    }
-  }
-
-  if(is.list(recurrence_length)){
-    for (i in 1:length(recurrence_length)) {
-      assign(paste0("recurrence_length_",i), recurrence_length[[i]])
-      args_classes[[paste0("recurrence_length_",i)]] <- c("numeric","number_line")
-      args_classes$recurrence_length <- NULL
-    }
-  }
-
-  if(is.list(overlap_methods_c)){
-    for (i in 1:length(overlap_methods_c)) {
-      assign(paste0("overlap_methods_c_",i), overlap_methods_c[[i]])
-      args_classes[[paste0("overlap_methods_c_",i)]] <- "character"
-      args_classes$overlap_methods_c <- NULL
-    }
-  }
-
-  if(is.list(overlap_methods_r)){
-    for (i in 1:length(overlap_methods_r)) {
-      assign(paste0("overlap_methods_r_",i), overlap_methods_r[[i]])
-      args_classes[[paste0("overlap_methods_r_",i)]] <- "character"
-      args_classes$overlap_methods_r <- NULL
-    }
-  }
-
-  if(is.list(data_links)){
-    for (i in 1:length(data_links)) {
-      assign(paste0("data_links_",i), data_links[[i]])
-      args_classes[[paste0("data_links_",i)]] <- "character"
-      args_classes$data_links <- NULL
-    }
-  }
-
-  check_args_classes <- function(arg, args_classes){
-    err_title <- ifelse(grepl("^case_length_", arg),
-                        paste0("Invalid object type for element ", gsub("^case_length_", "", arg), " in `case_length`:\n"),
-                        "")
-    err_title <- ifelse(grepl("^recurrence_length_", arg),
-                        paste0("Invalid object type for element ", gsub("^recurrence_length_", "", arg), " in `recurrence_length`:\n"),
-                        err_title)
-    err_title <- ifelse(grepl("^data_links_", arg) & err_title == "",
-                        paste0("Invalid object type for element ", gsub("^data_links_", "", arg), " in `data_links`:\n"),
-                        err_title)
-    err_title <- ifelse(grepl("^overlap_methods_c_", arg) & err_title == "",
-                        paste0("Invalid object type for element ", gsub("^overlap_methods_c_", "", arg), " in `overlap_methods_c`:\n"),
-                        err_title)
-    err_title <- ifelse(grepl("^overlap_methods_r_", arg) & err_title == "",
-                        paste0("Invalid object type for element ", gsub("^overlap_methods_r_", "", arg), " in `overlap_methods_r`:\n"),
-                        err_title)
-    err_title <- ifelse(err_title == "",
-                        paste0("Invalid object type for `", arg, "`:\n"),
-                        err_title)
-    hint <- ifelse(grepl("^data_links_", arg),
-                   paste0("i - You'll need a ", listr(paste0("`", args_classes, "`"), conj = " or"), " object even if `data_source` is ", class(get(arg)), ".\n"),
-                   "")
-    errs <-  paste0(err_title,
-                    "i - Valid object ", ifelse(length(args_classes)==1, "type is", "types are" ), listr(paste0("`", args_classes, "`"), conj = " or"),".\n",
-                    hint,
-                    "X - You've supplied a ", listr(paste0("`", class(get(arg)), "`")), " object.")
-
-    ifelse(!all(class(get(arg)) %in% args_classes),
-           errs, NA_character_)
-  }
-
-  errs <- mapply(check_args_classes, names(args_classes), args_classes)
-  errs <- errs[!is.na(errs)]
-
-  if(length(errs) > 0){
-    # errs <- ifelse(1:length(errs) ==1,
-    #        errs,
-    #        paste0("Error: ", errs))
-    #
-    # errs <- paste0(errs, collapse = "\n\n")
-    return(errs[1])
-  }
-
-  # ------ Check argument lengths ####
-  int <- as.number_line(date)
-
-  lims <- c(1, length(int))
-  args_lengths <- list(
-    sn = c(0, lims),
-    date = lims,
-    # case_length = lims,
-    recurrence_length = lims,
-    strata = c(0, lims),
-    data_source = c(0, lims),
-    # overlap_methods = lims,
-    episodes_max = lims,
-    rolls_max = lims,
-    from_last = lims,
-    group_stats = 1,
-    # include_index_period = lims,
-    display = 1,
-    # bi_direction = lims,
-    skip_if_b4_lengths = lims,
-    case_for_recurrence = lims,
-    recurrence_from_last = lims,
-    episode_type = lims
-  )
-
-  # if(is.list(case_length)){
-  #   for (i in 1:length(case_length)) {
-  #     assign(paste0("case_length_",i), case_length[[i]])
-  #     args_lengths[[paste0("case_length_",i)]] <- c(lims)
-  #     args_lengths$case_length <- NULL
-  #   }
-  # }
-
-  if(is.list(recurrence_length)){
-    for (i in 1:length(recurrence_length)) {
-      assign(paste0("recurrence_length_",i), recurrence_length[[i]])
-      args_lengths[[paste0("recurrence_length_",i)]] <- c(lims)
-      args_lengths$recurrence_length <- NULL
-    }
-  }
-
-  # if(is.list(overlap_methods)){
-  #   for (i in 1:length(overlap_methods)) {
-  #     assign(paste0("overlap_methods_",i), overlap_methods[[i]])
-  #     args_lengths[[paste0("overlap_methods_",i)]] <- c(lims)
-  #     args_lengths$overlap_methods <- NULL
-  #   }
-  # }
-
-  check_args_lengths <- function(arg, args_lengths){
-    err_title <- ""
-    # err_title <- ifelse(grepl("^case_length_", arg),
-    #                     paste0("Length of element ", gsub("^case_length_", "", arg), " in `case_length`"),
-    #                     err_title)
-    err_title <- ifelse(grepl("^reccurence_length_", arg),
-                        paste0("Length of element ", gsub("^reccurence_length_", "", arg), " in `reccurence_length`"),
-                        err_title)
-    # err_title <- ifelse(grepl("^overlap_methods_", arg),
-    #                     paste0("Length of element ", gsub("^overlap_methods_", "", arg), " in `overlap_methods`"),
-    #                     err_title)
-    err_title <- ifelse(err_title == "",
-                        paste0("Length of `", arg, "`"),
-                        err_title)
-    err_title <-  paste0(err_title,
-                         " must be 1", ifelse(length(args_lengths>1)," or the same as `date`", ""),
-                         ":\n")
-    errs <-  paste0(err_title,
-                    "i - Expecting a length of ", listr(args_lengths[args_lengths!=0], conj = " or"), ".\n",
-                    "X - Length is ", length(get(arg)), ".\n")
-    ifelse(!length(get(arg)) %in%  args_lengths,
-           errs, NA_character_)
-  }
-
-  errs <- mapply(check_args_lengths, names(args_lengths), args_lengths)
-  errs <- errs[!is.na(errs)]
-
-  if(length(errs) > 0) return(errs[1])
-
-  # ------ Check for argument with missing values ####
-  args_missing_vals <- c(
-    "sn", "date",
-    #"case_length", "recurrence_length",
-    #"overlap_methods",
-    "episodes_max", "from_last",
-    "group_stats", "display",
-    #"bi_direction",
-    "skip_if_b4_lengths",
-    #"include_index_period",
-    "case_for_recurrence",
-    "recurrence_from_last",
-    "rolls_max", "display", "group_stats",
-    "custom_sort", "skip_order"
-  )
-
-  # if(class(case_length) == "list"){
-  #   args_missing_vals <- c(args_missing_vals,
-  #                          ls()[grepl("^case_length_",ls())])
-  #   args_missing_vals <- args_missing_vals[args_missing_vals != "case_length"]
-  # }
-  #
-  # if(class(recurrence_length) == "list"){
-  #   args_missing_vals <- c(args_missing_vals,
-  #                          ls()[grepl("^recurrence_length_",ls())])
-  #   args_missing_vals <- args_missing_vals[args_missing_vals != "recurrence_length"]
-  # }
-
-  # if(class(overlap_methods) == "list"){
-  #   args_missing_vals <- c(args_missing_vals,
-  #                          ls()[grepl("^overlap_methods_",ls())])
-  #   args_missing_vals <- args_missing_vals[args_missing_vals != "overlap_methods"]
-  # }
-
-
-  check_args_missing_vals <- function(x){
-    chks <- missing_check(get(x))
-
-    err_title <- ""
-    # err_title <-  ifelse(grepl("^case_length_", x),
-    #                      paste0("Element ", gsub("^case_length_", "", x), " in `case_length` must not contain missing values"),
-    #                      err_title)
-
-    err_title <-  ifelse(grepl("^recurrence_length_", x),
-                         paste0("Element ", gsub("^recurrence_length_", "", x), " in `recurrence_length` must not contain missing values"),
-                         err_title)
-
-    # err_title <-  ifelse(grepl("^overlap_methods_", x),
-    #                      paste0("Element ", gsub("^overlap_methods_", "", x), " in `case_length` must not contain missing values"),
-    #                      err_title)
-
-    err_title <-  ifelse(err_title=="",
-                         paste0("`", x, "` must not contain missing values."),
-                         err_title)
-
-    errs <-  paste0(err_title,
-                    paste0("\nX - Missing values in ",  chks, "."))
-
-    x <- ifelse(chks==T, NA, errs)
-    x
-  }
-
-  errs <- unlist(lapply(args_missing_vals, check_args_missing_vals), use.names = F)
-  errs <- errs[!is.na(errs)]
-
-  if(length(errs) > 0) return(errs[1])
-
-
-  # ------ Check for specific requirements ####
-  # Episode unit ####
-  err <- err_episode_unit_1(episode_unit = episode_unit)
-  if(err != F) return(err)
-
-  # Episode type ####
-  err <- err_episode_type_1(episode_type = episode_type)
-  if(err != F) return(err)
-
-  # Display - ####
-  err <- err_display_1(display =  display)
-  if(err != F) return(err)
-
-  # Overlap methods ####
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
-  if(err != F) return(err)
-
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
-  if(err != F) return(err)
-
-  # SN - ####
-  err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
-  if(err != F) return(err)
-
-  # Data links
-  err <- err_data_links_1(data_source = data_source, data_links = data_links)
-  if(err != F) return(err)
-
-  err <- err_data_links_2(data_source = data_source, data_links = data_links)
-  if(err != F) return(err)
-
-  err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
-  if(err != F) return(err)
-
-  err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
-  if(err != F) return(err)
-
-  # Strata-level options: episodes_max ####
-  one_ep_max <- episodes_max[!duplicated(episodes_max)]
-  one_ep_max <- length(one_ep_max) == 1
-  if(one_ep_max != T){
-    sp <- split(episodes_max, strata)
-    opts <- lapply(sp, function(x){
-      x <- x[!duplicated(x)]
-      if(length(x) == 1){
-        NA
-      }else{
-        listr(paste0("\"", x, "\""), lim = 3)
-      }
-    })
-
-    opts <- unlist(opts, use.names = F)
-    names(opts) <- names(sp)
-    opts <- opts[!is.na(opts)]
-
-    if(length(opts) > 0){
-      errs <- paste0("Values of `episodes_max` must be unique within each `strata`:\n",
-                     paste0("X - You've supplied ", listr(paste0(opts, " for ", "\"", names(opts), "\""), lim = 2) ,"."))
-      return(errs)
-    }
-  }
-
-  # Strata-level options: from_last ####
-  one_val <- from_last[!duplicated(from_last)]
-  one_val <- length(one_val) == 1
-  if(one_val != T){
-    sp <- split(from_last, strata)
-    opts <- lapply(sp, function(x){
-      x <- x[!duplicated(x)]
-      if(length(x) == 1){
-        NA
-      }else{
-        listr(paste0("\"", x, "\""), lim = 3)
-      }
-    })
-
-    opts <- unlist(opts, use.names = F)
-    names(opts) <- names(sp)
-    opts <- opts[!is.na(opts)]
-
-    if(length(opts) > 0){
-      errs <- paste0("Values of `from_last` must be unique within each `strata`:\n",
-                     paste0("X - You've supplied ", listr(paste0(opts, " for ", "\"", names(opts), "\""), lim = 2) ,"."))
-      return(errs)
-    }
-  }
-
-  return(F)
-}
-
-
 err_sub_criteria_1 <- function(...){
   args <- list(...)
 
@@ -532,7 +162,9 @@ err_data_links_1 <- function(data_source, data_links){
 
 err_data_links_2 <- function(data_source, data_links){
   dl_lst <- unlist(data_links, use.names = F)
+  dl_lst <- as.character(dl_lst)
   ds_lst <- data_source[!duplicated(data_source)]
+  ds_lst <- as.character(ds_lst)
   ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
 
   # data_links - Values must match what's in data_sources ####
@@ -547,7 +179,7 @@ err_data_links_2 <- function(data_source, data_links){
 
     err_title <- "Invalid values for `data_links`:\n"
     errs <- paste0(err_title,
-                   "i - Valid values are those in `data_source`: ", valid_opts, "\n",
+                   "i - Valid values are those in `data_source` i.e. ", valid_opts, "\n",
                    "X - You've supplied ", invalid_opts)
     errs
   }else{
@@ -853,7 +485,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
     err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
                   ifelse(ref_nm == "", "", paste0("i - Length must be 1 or the same as `", ref_nm, "`.\n")),
                   "i - Expecting a length of ", listr(unique(ref_len), conj = " or"), ".\n",
-                  paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "Length is ", err, ".", collapse = "\n"))
+                  paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", err, ".", collapse = "\n"))
     return(err)
   }
 
@@ -901,7 +533,7 @@ err_episodes_checks_1 <- function(date,
                              bi_direction,
                              include_index_period ,
                              to_s4){
-  # Check for non-actomic vectors
+  # Check for non-atomic vectors
   args <- list(date = date,
                case_length = case_length,
                recurrence_length = recurrence_length,
@@ -1096,7 +728,7 @@ err_episodes_checks_0 <- function(date,
                overlap_methods_r = overlap_methods_r,
                episode_unit = episode_unit,
                display = display,
-               data_source = data_source,
+               #data_source = data_source,
                episodes_max = episodes_max,
                rolls_max = rolls_max,
                skip_if_b4_lengths = skip_if_b4_lengths,
@@ -1118,7 +750,7 @@ err_episodes_checks_0 <- function(date,
                        recurrence_length = c("integer", "numeric", "number_line"),
                        episodes_max = c("numeric", "integer"),
                        rolls_max = c("numeric", "integer"),
-                       data_source = c("character", "NULL"),
+                       #data_source = c("character", "NULL"),
                        data_links = c("list", "character"),
                        skip_order = c("numeric", "integer"),
                        skip_if_b4_lengths = "logical",
@@ -1149,7 +781,7 @@ err_episodes_checks_0 <- function(date,
                episodes_max = episodes_max,
                rolls_max = rolls_max,
                data_source = data_source,
-               data_links = data_links,
+               #data_links = data_links,
                skip_order = skip_order,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
@@ -1167,7 +799,7 @@ err_episodes_checks_0 <- function(date,
                     episodes_max = len_lims,
                     rolls_max = len_lims,
                     data_source = c(0, len_lims),
-                    data_links = len_lims,
+                    #data_links = len_lims,
                     skip_order = len_lims,
                     skip_if_b4_lengths = len_lims,
                     recurrence_from_last = len_lims,
@@ -1225,7 +857,9 @@ err_episodes_checks_0 <- function(date,
   if(err != F) return(err)
   err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
   if(err != F) return(err)
-  err <- err_from_last_1(from_last, strata)
+  err <- err_strata_level_args(from_last, strata, "from_last")
+  if(err != F) return(err)
+  err <- err_strata_level_args(episodes_max, strata, "episodes_max")
   if(err != F) return(err)
   return(F)
 }
@@ -1242,7 +876,7 @@ err_links_checks_0 <- function(criteria,
                                  shrink){
 
 
-  # Check for non-actomic vectors
+  # Check for non-atomic vectors
   args <- list(strata = strata,
                data_source = data_source,
                data_links = data_links,
@@ -1360,13 +994,12 @@ err_invalid_opts <- function(arg_vals, arg_nm, valid_opts){
   }
 }
 
-err_from_last_1 <- function(from_last, strata){
-  # Strata-level options: from_last ####
-  one_val <- from_last[!duplicated(from_last)]
-  one_val <- length(one_val) == 1
+err_strata_level_args <- function(arg, strata, arg_nm){
+  one_val <- arg[!duplicated(arg)]
+  one_val <- length(arg) == 1
   if(one_val != T){
     if(class(strata) == "NULL") strata <- "NULL"
-    sp <- split(from_last, strata)
+    sp <- split(arg, strata)
     opts <- lapply(sp, function(x){
       x <- x[!duplicated(x)]
       if(length(x) == 1){
@@ -1381,7 +1014,7 @@ err_from_last_1 <- function(from_last, strata){
     opts <- opts[!is.na(opts)]
 
     if(length(opts) > 0){
-      errs <- paste0("Unique values of `from_last` required in each `strata`:\n",
+      errs <- paste0("Unique values of `", arg_nm, "` required in each `strata`:\n",
                      paste0("X - You've supplied ", listr(paste0(opts, " for ", "\"", names(opts), "\""), lim = 2) ,"."))
       return(errs)
     }else{

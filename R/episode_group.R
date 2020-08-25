@@ -57,7 +57,7 @@
 #' }
 #'
 #' @seealso
-#' \code{\link{epid_length}}, \code{\link{epid_window}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
+#' \code{\link[=windows]{epid_length}}, \code{\link[=windows]{epid_window}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
 #'
 #' @details
 #' Episodes are tracked from index events in chronological sequence as determined by \code{from_last}.
@@ -120,7 +120,7 @@
 #'                                                 hospital_admissions$discharge_dt)
 #' admissions <- hospital_admissions[c("admin_period","epi_len")]
 #'
-#' # Episodes of overlaping periods of admission
+#' # Episodes of overlapping periods of admission
 #' hospital_admissions$epids_i<- episodes(date = hospital_admissions$admin_period,
 #'                                        case_length = 0,
 #'                                        overlap_methods_c = "inbetween")
@@ -303,7 +303,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   tag <- rep(0, length(int))
-  iteration <- tag
+  iteration <- rep(Inf, length(int))
   nms <- format(int@id, trim = T, scientific = F)
   names(cri) <- nms
   e <- int@gid
@@ -326,11 +326,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   lgk <- is.na(strata)
   tag[lgk] <- 2
   case_nm[lgk] <- "Skipped"
+  iteration[lgk] <- 0
 
   if(!is.null(data_source) & !all(toupper(dl_lst) == "ANY")){
     req_links <- check_links(cri, data_source, data_links)$rq
-    tag[req_links == F] <- 2
-    case_nm[req_links == F] <- "Skipped"
+    tag[!req_links] <- 2
+    case_nm[!req_links] <- "Skipped"
+    iteration[!req_links] <- 0
   }
 
   excluded <- length(tag[tag == 2])
@@ -402,16 +404,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     if(is.null(names(mths_a))){
-      names(mths_a) <- rep("a", length(mths_a))
+      names(mths_a) <- rep("r", length(mths_a))
     }else{
-      names(mths_a) <- ifelse(names(mths_a) %in% c("",NA), "a", names(mths_a))
+      names(mths_a) <- ifelse(names(mths_a) %in% c("",NA), "r", names(mths_a))
     }
 
     if(any_rolling == T){
       if(is.null(names(mths_b))){
-        names(mths_b) <- rep("a", length(mths_b))
+        names(mths_b) <- rep("r", length(mths_b))
       }else{
-        names(mths_b) <- ifelse(names(mths_b) %in% c("",NA), "a", names(mths_b))
+        names(mths_b) <- ifelse(names(mths_b) %in% c("",NA), "r", names(mths_b))
       }
     }
 
@@ -433,12 +435,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     tr_e <- rep(e[match(p, q)], r$lengths)
     tr_int <- rep(int[match(p, q)], cri_tot)
 
-    if(any(names(mths_a) == "b") | any(names(mths_a) == "c")){
+    if(any(names(mths_a) == "e") | any(names(mths_a) == "b")){
       tr_mths_a <- lapply(mths_a, function(x){
         rep(x[match(p, q)], r$lengths)})
     }
     if(any_rolling == T){
-      if(any(names(mths_b) == "b") | any(names(mths_b) == "c")){
+      if(any(names(mths_b) == "e") | any(names(mths_b) == "b")){
         tr_mths_b <- lapply(mths_b, function(x){
           rep(x[match(p, q)], r$lengths)
         })
@@ -473,7 +475,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     lgk1 <- epid_n > episodes_max & tag != 2
     case_nm[lgk1] <- "Skipped"
     tag[lgk1] <- 2
-    iteration[lgk1 & iteration == 0] <- ite
+    iteration[lgk1 & iteration == Inf] <- ite
 
     # Skip order
     cri_skp <- cri[c_sort > skip_order];
@@ -482,7 +484,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     current_skipped <- length(cri[lgk1 | lgk2])
     tag[lgk2] <- 2
     case_nm[lgk2] <- "Skipped"
-    iteration[lgk2 & iteration == 0] <- ite
+    iteration[lgk2 & iteration == Inf] <- ite
     rm(cri_skp); rm(lgk2); rm(lgk1)
 
     if(min(tag) == 2){
@@ -498,11 +500,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     tr_sn <- tr_ep_int[[1]]@gid
     ref_rd <- int@gid %in% tr_sn
 
-    if(any(names(mths_a) == "b") | any(names(mths_a) == "c")){
+    if(any(names(mths_a) == "e") | any(names(mths_a) == "b")){
       opt_level <- function(opt, mth, tr_mth){
-        if(opt =="b") {
+        if(opt == "e") {
           tr_mth
-        }else if(opt =="c"){
+        }else if(opt == "b"){
           ifelse(mth != tr_mth, paste0(mth, "|", tr_mth), mth)
         }else{
           mth
@@ -514,11 +516,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     if(any_rolling == T){
-      if(any(names(mths_b) == "b") | any(names(mths_b) == "c")){
+      if(any(names(mths_b) == "e") | any(names(mths_b) == "b")){
         opt_level <- function(opt, mth, tr_mth){
-          if(opt =="b") {
+          if(opt == "e") {
             tr_mth
-          }else if(opt =="c"){
+          }else if(opt == "b"){
             ifelse(mth != tr_mth, paste0(mth, "|", tr_mth), mth)
           }else{
             mth
@@ -615,7 +617,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }else if (tolower(display)=="progress") {
         progress_bar((length(tag[tag==2]) + length(grouped_epids$tag))/tot, 100, msg = "Tracking episodes")
       }
-      iteration[iteration == 0] <- ite
+      iteration[iteration == Inf] <- ite
       break
     }
 
@@ -678,13 +680,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
       rm(skp_crxt); rm(indx)
     }
-    iteration[tag != 0 & iteration == 0] <- ite
+    iteration[tag != 0 & iteration == Inf] <- ite
     current_tagged <- length(cr[cr])
     if(display== "stats"){
       msg <- paste0(fmt(current_tot), " record(s); ", fmt(current_tagged), " tracked to episodes", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped), " skipped"), ""), " and ", fmt(current_tot - (current_tagged + current_skipped)), " left.")
       cat(msg, "\n", sep="")
     }else if (tolower(display)=="progress") {
-      progress_bar((length(tag[tag==2]) + length(grouped_epids$tag))/tot, 100, msg = "Tracking episodes")
+      progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag))/tot, 100, msg = "Tracking episodes")
     }
 
     for(i in c("e", "cri","assign_ord",
@@ -825,12 +827,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
-      epid@dist_from_epid[req_links == F] <- 0
-      epid@dist_from_wind[req_links == F] <- 0
-      epid@case_nm[req_links == F] <- "Skipped"
-      epid@.Data[req_links == F] <- epid@sn[req_links == F]
-      epid@wind_id[req_links == F] <- epid@sn[req_links == F]
-      datasets[req_links == F] <- data_source[req_links == F]
+      epid@dist_from_epid[!req_links] <- 0
+      epid@dist_from_wind[!req_links] <- 0
+      epid@case_nm[!req_links] <- "Skipped"
+      epid@.Data[!req_links] <- epid@sn[!req_links]
+      epid@wind_id[!req_links] <- epid@sn[!req_links]
+      datasets[!req_links] <- data_source[!req_links]
     }
     epid@epid_dataset <- datasets
   }
@@ -1181,8 +1183,8 @@ index_window <- function(date, from_last = F){
 #' @aliases custom_sort
 #' @title Nested sorting
 #'
-#' @param ... Sequence of \code{atomic} vectors. Passed to \code{link\code{order}}.
-#' @param ... Sort order. Passed to \code{link\code{order}}.
+#' @param ... Sequence of \code{atomic} vectors. Passed to \bold{link\code{order}}.
+#' @param decreasing Sort order. Passed to \bold{link\code{order}}.
 #'
 #' @description Returns a sort order after sorting by a vector within another vector.
 #'
