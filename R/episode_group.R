@@ -61,10 +61,10 @@
 #'
 #' @details
 #' Episodes are tracked from index events in chronological sequence as determined by \code{from_last}.
-#' You can use \code{custom_sort} for a non-chronological sequence however, ties will be broken by chronological orders.
+#' You can use \code{custom_sort} for a non-chronological sequence. However, ties will be broken by chronological orders.
 #'
-#' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length},
-#' but a \code{"rolling"} episode can continue to recur therefore, its maximum duration is variable.
+#' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}.
+#' But a \code{"rolling"} episode can continue to recur. therefore, its maximum duration is variable.
 #' A \code{"rolling"} episode will persist as long as is specified by \code{rolls_max}.
 #'
 #' \bold{\code{episodes()}} will categorise records into 5 types of events;
@@ -87,12 +87,12 @@
 #' \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
 #'
 #' \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-#' Its current implementation only exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
+#' Its now exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
 #'
 #' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
 #' They exist for convenience, to support previous code and arguments with minimal disruption.
 #'
-#' See \code{vignette("episodes")} for further information.
+#' See \code{vignette("episodes")} for more information.
 #'
 #' @examples
 #' library(diyar)
@@ -166,8 +166,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ep_units[!is_dt] <- "seconds"
   if(is_dt == T){
     int <- number_line(
-      l = as.POSIXct(format(int@start, "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S"),
-      r = as.POSIXct(format(right_point(int), "%d/%m/%Y %H:%M:%S"), "UTC",format="%d/%m/%Y %H:%M:%S")
+      l = as.POSIXct(format(int@start, "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format ="%d/%m/%Y %H:%M:%S"),
+      r = as.POSIXct(format(right_point(int), "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format ="%d/%m/%Y %H:%M:%S")
     )
   }
 
@@ -855,8 +855,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     epid_dt_z[lgk] <- ifelse(from_last[lgk], dts_a, dts_z)
 
     if(is_dt ==T){
-      epid_dt_a <- as.POSIXct(epid_dt_a, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
-      epid_dt_z <- as.POSIXct(epid_dt_z, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC",format="%d/%m/%Y %H:%M:%S"))
+      epid_dt_a <- as.POSIXct(epid_dt_a, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC", format ="%d/%m/%Y %H:%M:%S"))
+      epid_dt_z <- as.POSIXct(epid_dt_z, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC", format ="%d/%m/%Y %H:%M:%S"))
       epid_l <- difftime(epid_dt_z, epid_dt_a, units = diff_unit)
     }else{
       epid_l <- epid_dt_z - epid_dt_a
@@ -1155,15 +1155,15 @@ epid_lengths <- function(date, windows, episode_unit = "days"){
   is_dt1 <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(is_dt1 == T){
     date <- number_line(
-      l = as.POSIXct(format(date@start, "%d/%m/%Y %H:%M:%S"), "UTC", format="%d/%m/%Y %H:%M:%S"),
-      r = as.POSIXct(format(right_point(date), "%d/%m/%Y %H:%M:%S"), "UTC", format="%d/%m/%Y %H:%M:%S")
+      l = as.POSIXct(format(date@start, "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S"),
+      r = as.POSIXct(format(right_point(date), "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S")
     )
   }
   is_dt2 <- ifelse(!any(class(windows@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(is_dt2 == T){
     windows <- number_line(
-      l = as.POSIXct(format(windows@start, "%d/%m/%Y %H:%M:%S"), "UTC", format="%d/%m/%Y %H:%M:%S"),
-      r = as.POSIXct(format(right_point(windows), "%d/%m/%Y %H:%M:%S"), "UTC", format="%d/%m/%Y %H:%M:%S")
+      l = as.POSIXct(format(windows@start, "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S"),
+      r = as.POSIXct(format(right_point(windows), "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S")
     )
   }
 

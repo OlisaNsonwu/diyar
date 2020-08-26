@@ -39,7 +39,7 @@ For a given `number_line` object e.g. ``r format(exp)``, its main components are
 + `direction` - `"decreasing"` `(<-)`, `"increasing"` `(->)` or no direction `(==)`
 + `number_line_width()` - difference between the left and right points `i.e.` ``r number_line_width(exp) ``
 
-In `"increasing"` `number_line` objects, the `start_point()` is on the `left_point()` while in `"decreasing"` `number_line` objects, the `start_point()` is on the `right_point()`.
+In `"increasing"` `number_line` objects, the `start_point()` is on the `left_point()`. While in `"decreasing"` `number_line` objects, the `start_point()` is on the `right_point()`.
 
 ```{r message=FALSE, warning=FALSE}
 library(diyar)
@@ -74,7 +74,7 @@ plot_number_line(nl_b)
 ```
 
 ## Manipulating `number_line` objects
-`diyar` has convenience functions to reverse, shrink, expand `number_line` objects, or shift the along the number line. 
+`diyar` has convenience functions to reverse, shrink, expand `number_line` objects, or shift them on the number line. 
 
 ```{r message=FALSE, warning=FALSE}
 nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"),
@@ -109,7 +109,7 @@ nl_j <- shift_number_line(nl_c, 2); nl_i
 plot_number_line(rev(c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i)))
 ```
 
-`invert_number_line()` changes each each point on the number line from a positive to negative value and vice versa. See below.
+`invert_number_line()` changes each point on the `number_line` from a positive to a negative value and vice versa. See below.
 
 ```{r message=FALSE, warning=FALSE}
 inv <- number_line(c(3,-3,3,-3), c(-6,6,6,-6)); inv
@@ -123,7 +123,7 @@ invert_number_line(inv, "end")
 
 ```
 
-You can also convert `number_line` objects to a sequence of `numeric` based values
+You can also convert `number_line` objects to a sequence of `numeric` based values.
 
 ```{r message=FALSE, warning=FALSE}
 nls <- c(nl_c, nl_d, nl_e, nl_f, nl_g, nl_h, nl_i, nl_j)
@@ -138,7 +138,7 @@ number_line_sequence(nls, length.out = 3)
 <a id = "overlaps"></a>
 
 ## Overlaps
-`number_line` objects can overlap with each other and do so in six ways - `"exact"`, `"reverse"`, `"inbetween"`, `"across"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. Each pair of `number_line` objects can only overlap by one of these methods. For example, a `number_line` object with aligned start and end points will be considered an `"exact"` overlap, not `"aligns_start"` and `"aligns_end"`.
+`number_line` objects can overlap with each other.  They do so in seven ways - `"exact"`, `"reverse"`, `"inbetween"`, `"across"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. Each pair of `number_line` objects can only overlap by one of these methods. For example, a `number_line` object with aligned start and end points will be considered an `"exact"` overlap, not `"aligns_start"` and `"aligns_end"`.
 
 *The 7 `overlap_methods` are mutually exclusive.*
 
@@ -364,9 +364,9 @@ plot_number_line(f, strata = strata, show_overlap=T)
 ```
 
 ## Collapsing `number_line` objects
-The resulting compressed `number_line` object can yet again overlap with others, especially when not every `method` is used. This doesn't happen by default but you can do so by changing `collapse` to `TRUE`. 
+The resulting compressed `number_line` object can yet again overlap with others. Especially when using specific `methods`. This doesn't happen by default but you can do so by changing `collapse` to `TRUE`. 
 
-It's worth mentioning that this process starts from the first `number_line` object in the set and then proceeds to the last. Therefore, changing their position in the set can lead to different results. 
+It's worth mentioning that this process starts from the first `number_line` object in the set.  Therefore, changing their position in the set can lead to different results.
 
 **Figure 9a: Compressing pairs of `number_line` objects by `"across"`, `"chain"`, `"inbetween"` and `"aligns_end"` methods**
 ```{r message=FALSE, warning=FALSE}
@@ -408,7 +408,7 @@ plot_number_line(cmp_zb, show_overlap=T)
 
 In Fig. 8b, ``r format(nl_z[1])`` came first, so only `number_line` objects that overlapped with ``r format(nl_z[1])`` were compressed. However in Fig. 8c, because of the new positions, ``r format(nl_zb[1])`` came first, so only those that overlapped with ``r format(nl_zb[1])`` were compressed. 
 
-In the example below, we change `collapse` to `TRUE` to collapse (rather than compress) the initial set (`nl_z`) which gives the same result as compressing the rearranged version (`nl_zb`). 
+Changing `collapse` to `TRUE` will collapse (rather than compress) the initial set (`nl_z`). This gives the same result as compressing the rearranged version (`nl_zb`). 
 
 **Figure 9d: pairs of `number_line` objects overlapping by `"chain"` and `"aligns_end" methods collapsed into one**
 
@@ -422,4 +422,4 @@ plot_number_line(cmp_zba, show_overlap=T)
 
 \newline
 
-`episodes()` is a more advanced implementations of `compress_number_line()`. It can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. It has additional useful features such as controlling the order in which pairs are compressed i.e. chronological order (`from_last`) or a user-defined order (`custom_sort`), and using additional periods (`case_length` and `recurrence_length`) before and/or after the reference `number_line` object. See [episode grouping](episodes.html) for further details.
+`episodes()` is a more advanced implementations of `compress_number_line()`. It can compress (`"fixed_episodes"`) and collapse (`"rolling_episodes"`) overlapping `number_line` objects. It has additional useful features such as controlling the order in which pairs are compressed i.e. chronological order (`from_last`) or a user-defined order (`custom_sort`).  See [episode grouping](episodes.html) for more information.

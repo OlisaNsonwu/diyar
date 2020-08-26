@@ -41,10 +41,10 @@
 #' If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 #' If there are no matches for a record at every stage, that record is assigned a unique group ID.
 #'
-#' By default, records are compared for an exact match however, user-defined logical tests (\code{function}) are also permitted.
-#' The \code{function} must be able to compare two atomic vectors,
-#' return either \code{TRUE} or \code{FALSE},
-#' and have two arguments - \code{x} for the attribute and \code{y} for what it'll be compared against.
+#' By default, records are compared for an exact match.
+#' However, user-defined logical tests (function) are also permitted.
+#' The function must be able to compare two atomic vectors and return either TRUE or FALSE.
+#' The function must have two arguments - x for the attribute and y for what it'll be compared against.
 #'
 #' A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
 #'
@@ -58,9 +58,9 @@
 #' \code{data_links} is useful for skipping record groups that are not required.
 #'
 #' \bold{\code{record_group()}} as it existed before \code{v0.2.0} has been retired.
-#' Its current implementation only exists to support previous code and arguments with minimal disruption. Please use \bold{\code{links()}} moving forward.
+#' Its now exists to support previous code and arguments with minimal disruption. Please use \bold{\code{links()}} moving forward.
 #'
-#' See \code{vignette("links")} for further information.
+#' See \code{vignette("links")} for more information.
 #'
 #' @examples
 #' library(diyar)
@@ -440,8 +440,8 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' \bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}}.
 #'
 #' Each attribute (\code{atomic} vectors) is compared as an exact match or with a user-defined logical test.
-#' The test must be supplied as a function with at least two arguments named \code{`x`} and \code{`y`},
-#' where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
+#' The test must be supplied as a function with at least two arguments named \code{`x`} and \code{`y`}.
+#' Where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 #'
 #' Each attribute must have the same length.
 #'

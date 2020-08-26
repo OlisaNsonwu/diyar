@@ -72,10 +72,10 @@ If \code{sub_criteria} is not \code{NULL}, only records with matching \code{crit
 If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 If there are no matches for a record at every stage, that record is assigned a unique group ID.
 
-By default, records are compared for an exact match however, user-defined logical tests (\code{function}) are also permitted.
-The \code{function} must be able to compare two atomic vectors,
-return either \code{TRUE} or \code{FALSE},
-and have two arguments - \code{x} for the attribute and \code{y} for what it'll be compared against.
+By default, records are compared for an exact match.
+However, user-defined logical tests (function) are also permitted.
+The function must be able to compare two atomic vectors and return either TRUE or FALSE.
+The function must have two arguments - x for the attribute and y for what it'll be compared against.
 
 A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
 
@@ -89,9 +89,9 @@ A match at each stage is considered more relevant than a match at the next stage
 \code{data_links} is useful for skipping record groups that are not required.
 
 \bold{\code{record_group()}} as it existed before \code{v0.2.0} has been retired.
-Its current implementation only exists to support previous code and arguments with minimal disruption. Please use \bold{\code{links()}} moving forward.
+Its now exists to support previous code and arguments with minimal disruption. Please use \bold{\code{links()}} moving forward.
 
-See \code{vignette("links")} for further information.
+See \code{vignette("links")} for more information.
 }
 \examples{
 library(diyar)

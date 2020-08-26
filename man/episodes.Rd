@@ -159,10 +159,10 @@ Link events into a chronological sequence of episodes.
 }
 \details{
 Episodes are tracked from index events in chronological sequence as determined by \code{from_last}.
-You can use \code{custom_sort} for a non-chronological sequence however, ties will be broken by chronological orders.
+You can use \code{custom_sort} for a non-chronological sequence. However, ties will be broken by chronological orders.
 
-A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length},
-but a \code{"rolling"} episode can continue to recur therefore, its maximum duration is variable.
+A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}.
+But a \code{"rolling"} episode can continue to recur. therefore, its maximum duration is variable.
 A \code{"rolling"} episode will persist as long as is specified by \code{rolls_max}.
 
 \bold{\code{episodes()}} will categorise records into 5 types of events;
@@ -185,12 +185,12 @@ A \code{"rolling"} episode will persist as long as is specified by \code{rolls_m
 \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
 
 \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-Its current implementation only exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
+Its now exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
 
 \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
 They exist for convenience, to support previous code and arguments with minimal disruption.
 
-See \code{vignette("episodes")} for further information.
+See \code{vignette("episodes")} for more information.
 }
 \examples{
 library(diyar)

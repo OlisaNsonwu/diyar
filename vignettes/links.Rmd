@@ -20,9 +20,7 @@ plot_pid <- diyar:::plot_pid
 ```
 
 # Introduction
-Linking datasets to consolidate information is a common task in research, particularly for those involving the use of "big data". Deterministic record linkage is the simplest and most common method of record linkage however, its accuracy relies on good data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
-
-`links()` aims to provide a convenient and flexible approach to multistage deterministic linkage with mechanism to handle missing or incorrect data.
+Linking datasets to consolidate information is a common task in research, particularly in those using "big data". Deterministic record linkage is the simplest and most common method of doing this. However, its accuracy relies on data quality. `links()` provides a convenient and flexible approach of doing this while handing missing or incorrect data.
 
 #Uses
 `links()` can be used to link datasets in a variety of ways. Examples include;
@@ -37,7 +35,7 @@ Data matching is done in ordered stages. A match at each stage is considered mor
 
 Each matching stage has an attribute or characteristic to match (`criteria`). These must be passed as a `list` of `atomic` vectors.
 
-At each stage, additional matching conditions (`sub_criteria`) can also be specified by supplying a `list` of `sub_crieria()`. Each `sub_criteria()` must be paired to a stage (`criteria`). This is done by naming each element in the list, using the syntax - `"cr[n]"`, where `n` is the corresponding stage (`criteria`) of interest ([See examples](#sub_cri_example)). Any unpaired `sub_criteria` will be ignored. When a `sub_criteria` is supplied, records will only be assigned to the same group if they have the same `criteria`, and at least matching attribute in each `sub_criteria()`. See examples below.
+Additional matching conditions (`sub_criteria`) can also be specified at each stage. This is done by supplying a `list` of `sub_crieria()`. Each `sub_criteria()` must be paired to a stage (`criteria`). This is done by naming each element in the list, using the syntax - `"cr[n]"`. Where `n` is the corresponding stage (`criteria`) of interest ([See examples](#sub_cri_example)). Any unpaired `sub_criteria` will be ignored. Records will only be assigned to the same group if they have the same `criteria`, and at least one matching attribute in each `sub_criteria()`. See examples below.
 
 ```{r warning=F, message=F}
 library(diyar);
@@ -72,7 +70,7 @@ to_df(dbs$pids_a)
 <a id = "record_matching"></a>
 
 ## Record matching
-Attributes are checked for a case sensitive exact match. However, those supplied through `sub_criteria()` can also be compared by any `logical` test applicable to two `atomic` vectors. The logical test must be supplied as a `function` with two named arguments - `x` and `y`, where `y` is the value for one observation being compared against all other observations (`x`). See some examples below.
+Attributes are checked for a case sensitive exact match. Those supplied via a `sub_criteria()` can also be compared by any `logical` test applicable to two `atomic` vectors. The logical test must be supplied as a `function`. This function must have two named arguments - `x` and `y`. Where `y` is the value for one observation to be compared against all other observations (`x`). See some examples below.
 
 ```{r warning=F, message=F}
 dbs2 <- patient_list[c("forename","surname","sex")]; dbs2
@@ -106,7 +104,7 @@ dbs2$pids_4 <- links(criteria =  list(dbs2$sex),
                     display = "none")
 ```
 
-User-defined logical tests can be very useful for implementing complex matching conditions. For example, you can match observations if they are within a range or list of values, or if they are within a range of each other. See the example below.
+User-defined logical tests can be very useful for implementing complex matching conditions. For example, you can match observations if they are within a range or list of values. See the example below.
 
 ```{r message=F, warning=F}
 Opes_c <- Opes[c("date_of_birth", "name", "hair_colour")]
@@ -135,9 +133,9 @@ Opes_c$pids_c <- links(criteria = "place_holder",
 Opes_c[c("age","pids_a", "pids_b", "pids_c")]
 ```
 
-`links()` goes through repeated checks for matches based on the logical test specified. It's important to remember that at each iteration, only one observation (`y`) is compared with every other observation (`x`). Therefore, in the same record group, two observations (i.e. `x[2]` and `x[3]`) can pass (separately) the same logical test with a third observation (i.e `y`), but not pass the same test when compared with each other. As an example, in `Opes_c$pids_c` above, records 1, 2, 4, 5 and 8 are within a 5-year gap of each other. This has happened because there's more than a 5-year gap between themselves and record 7. 
+`links()` goes through repeated checks for matches based on the logical test specified. At each iteration, one observation (`y`) is compared with every other observation (`x`). As a result, two observations (i.e. `x[2]` and `x[3]`) can pass the same logical test compared with a third observation (i.e. `y`).  But not pass the same test when compared with each other. As an example, in `Opes_c$pids_c` above, records 1, 2, 4, 5 and 8 are within a 5-year gap of each other. This has happened because there's more than a 5-year gap between themselves and record 7. 
 
-You should always consider the most practical combination of conditions to give you more true positive matches. For example, in `patient_list` above, linking records on matching surnames and then sex (`pid_b`) leads to a different result compared to when linking on sex before surnames (`pid_c` below) (See [group expansion](#record_expansion)). In `pid_b`, a match on the individual's surname was considered more relevant than a match on their sex. The opposite was the case for `pid_c`. 
+Always aim for the combination of conditions that'll give more true positive matches. Linking records on matching surnames and then sex (`pid_b`) led to a different result. Compared to linking on sex before surnames (`pid_c` below) (See [group expansion](#record_expansion)). In `pid_b`, a match on the individual's surname was considered more relevant than a match on their sex. The opposite was the case for `pid_c`. 
 
 ```{r warning=F, message=F}
 dbs$pids_c <- links(criteria =  list(dbs$sex, dbs$surname), display = "none")
@@ -145,7 +143,7 @@ dbs$pids_c <- links(criteria =  list(dbs$sex, dbs$surname), display = "none")
 dbs
 ```
 
-Considering the `criteria` used for each, both results are logically correct but `pids_b` is not the most practical option given the dataset. For instance, records 3 and 6 which were linked, could be cousins and not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See `pid_d` below;
+Both results are logically correct but `pids_b` is not the most practical option. For instance, records 3 and 6 which were linked but could be cousins and not the same individual. A better combination would be forename at stage 1, followed by surname and sex at stage 2. See `pid_d` below;
 
 ```{r message=F, warning=F}
 dbs_2 <- patient_list; dbs_2
@@ -214,7 +212,7 @@ Opes[c("name","department","hair_colour","date_of_birth","pids_d")]
 <a id = "record_expansion"></a>
 
 ### Group expansion
-By default, matches at different stages are linked together. This means that the more stages (`criteria`) there are in an instance of `links()`, the larger a record group becomes as more records are linked to it. When there are conflicting matches, priority is always given to matches that occurred at earlier stages. Therefore, it's important that; all `criteria` are listed in decreasing order of certainty or relevance. You can disable the link between stages by changing the `expand` argument to `FALSE`. See a simple example below.
+By default, matches at different stages are linked together. The more stages (`criteria`) there are in an instance of `links()`, the larger a record group becomes. Priority is always given to matches that occurred at earlier stages. As a result, it's important that `criteria` are listed in decreasing order of certainty. You can disable the link between stages by changing the `expand` argument to `FALSE`. See a simple example below.
 
 ```{r message=F, warning=F}
 data(Opes); Opes
@@ -244,7 +242,7 @@ Opes$p_nexp_a <- links(criteria = list(Opes$name, Opes$name),
 Opes[c("name","department","hair_colour", "p_exp_a", "p_nexp_a")]
 ```
 
-Note that changing `expand` to `TRUE` is not the same as reversing the relevance of your matching conditions, and can therefore give different results. See below.  
+Note that changing `expand` to `TRUE` is not the same as reversing the relevance of your matching conditions. See below. 
 
 ```{r message=F, warning=F}
 # The same as `p_exp_a` 
@@ -308,7 +306,7 @@ plot_pid(df$pids_a)
 ```
 
 ### Group shrinkage
-You can also specify the opposite behaviour, where a record group becomes smaller with each subsequent stage. If there are no `sub_criteria`, the easiest way of doing this is to concatenate the attributes in the different stages. See the example below.
+You can also specify the opposite behaviour. Where a record group becomes smaller with each subsequent stage. If there is no `sub_criteria`, the easiest way of doing this is to concatenate the attributes in each stage. See the example below.
 
 ```{r message=F, warning=F}
 data(Opes); Opes
@@ -322,7 +320,7 @@ Opes$p_shk_c <- links(criteria = list(Opes$cri),
 Opes[c("name","department","db_pt3", "p_shk_c")]
 ```
 
-However, if there are `sub_criteria`, you'll need to use the `shrink` argument. See the example below. The same analysis is repeated using `sub_criteria`.
+If there's a `sub_criteria`, you'll need to use the `shrink` argument. See the example below. The same analysis is repeated using `sub_criteria`.
 
 ```{r message=F, warning=F}
 # 3 stage linkage
@@ -341,7 +339,7 @@ Opes$p_shk_d <- links(criteria = list(Opes$name, Opes$department, Opes$db_pt1),
 Opes[c("name","department","db_pt3", "p_shk_c", "p_shk_d")]
 ```
 
-Please note that although the `p_shk_c` and `p_shk_d` identifiers are the same, the `pid_cri` slot for both are different reflecting the different ways they were created. `p_shk_d` is the equivalent of three compounding (using `strata`) instances of `links()`. See below.
+Although `p_shk_c` and `p_shk_d` are identical, the `pid_cri` slot for both are different. This reflects the different ways they were created. `p_shk_d` is the equivalent of three compounding (using `strata`) instances of `links()`. See below.
 
 ```{r message=F, warning=F}
 # 1 stage linkage
@@ -424,7 +422,7 @@ patient_list_2$pids_b <- links(criteria = list(patient_list_2$forename,
 patient_list_2[c("forename","surname","pids_b")]
 ```
 
-In the example above, records 1-3 are assigned to the same record group even though record 3 seems to be a different person. However, changing `"Nil"` to `NA` lets `links()` know that `"Nil"` is not a valid `forename`, and it should not be compared for matches. See below.
+In the example above, records 1-3 are assigned to the same record group even though record 3 seems to be a different person. However, changing `"Nil"` to `NA` let `links()` know that `"Nil"` is not a valid `forename`, and it is skipped. See below.
 
 ```{r warning=F, message=F}
 # `NA` as the proxy for missing value
@@ -443,7 +441,7 @@ patient_list_2[c("forename","surname", "pids_b", "pids_d")]
 ## Tips
 ## `criteria` over `sub_criteria`
 
-`sub_criteria` are required for user-defined logical tests however, it take more time to compare `sub_criteria` than it does  `criteria`. Therefore, you can save some time by only using a `sub_criteria` when the matching conditions can not be specified as a `criteria`. For example, the logical test `lgl_1` (above) was supplied as a `sub_criteria` however, `links()` will create the group identifier faster, if it's supplied as a `criteria`. See below.
+`sub_criteria` are required for user-defined logical tests. However, it takes more time to compare `sub_criteria` than it does  `criteria`. You can save some time by only using a `sub_criteria` when the matching conditions can not be specified as a `criteria`. For example, the logical test `lgl_1` (above) was supplied as a `sub_criteria`. `links()` will create that group identifier faster, if it's supplied as a `criteria`. See below.
 
 ```{r, warning=F, message=F}
 # Matching `sex`, and `forename` initials
@@ -455,7 +453,7 @@ dbs2$pids_1b <- links(criteria = dbs2$initials,
 dbs2[c("forename", "initials", "pids_1", "pids_1b")]
 ```
 
-Similarly, multiple `sub_criteria` with only one attribute, and each paired to the same `criteria` should be avoided. Instead, concatenate these attribute together as one `criteria`. For example, the two implementations below (`pids_e` and `pids_f`) will lead to the same outcome but `pids_f` will take less time.
+Similarly,  avoid using single-attribute `sub_criteria` that are paired to the same `criteria`. Instead, concatenate these together as one `criteria`.  For example, the two implementations below (`pids_e` and `pids_f`) will have the same result. But `pids_f` will take less time. 
 
 ```{r, warning=F, message=F}
 # 1 stage linkage 
@@ -479,7 +477,7 @@ Opes[c("name","department","hair_colour","month_of_birth","pids_e","pids_f")]
 This time difference could become more noticeable with larger datasets.
 
 ## Convenience vs efficiency
-`links()` is a convenient tool for routine data linkage. However, `links()` is more valuable for handling complex matching conditions, missing data and multistage linkage. The more complex the scenario, the more likely its convenience outweighs the complexity of scripting them. Implementing simple matching conditions or one-stage linkages is possible with `links()`, but this takes slightly more time than base `R` alternatives. See the example below.
+`links()` is a convenient tool for routine data linkage. But it's more useful in handling complex matching conditions, missing data and multistage linkage. The more complex the scenario, the more likely its convenience outweighs the complexity of scripting them. Simple matching conditions or one-stage linkages are possible with `links()`. But this takes slightly more time than base `R` alternatives. See the example below.
 
 ```{r, warning=F, message=F}
 Opes[c("department")]
@@ -494,5 +492,5 @@ Opes[c("department", "links_a", "links_b")]
 
 This time difference could become more noticeable with larger datasets.
 
-#Conclusion
-As a general rule, the more unique the `criteria`, the earlier it should be used in the linkage process. Also, the specified relevance of each `criteria` is a personal choice, but should also be a practical one for the given dataset. For example, when linking a vehicular database with no existing identifier, vehicle colour alone is less practical than colour and brand name, which in turn is less practical than colour, brand name, make and model. However colour, brand name, make and model and 10 other parameters might be too strict and may need to be relaxed. On the other hand, the dataset could be so small that vehicle colour alone is a sufficient `criteria`. `links()` aims to minimize false mismatches due to random data entry errors or missing values. The choice and ordering of `criteria` and `sub_criteria` should balance the availability of alternative identifiers with their practicality as a group identifier.
+# Conclusion
+As a general rule, the more unique the `criteria`, the earlier it should be used in the linkage process. Always use a reasonable order of relevance for each dataset. Not too strict and not too lax. `links()` will try to reduce false mismatches due to random data entry errors or missing values. Always balance the use of matching attributes with their availability and accuracy.
