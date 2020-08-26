@@ -8,21 +8,29 @@
 
 <title>Function reference • diyar</title>
 
+
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,7 +38,9 @@
 
 
 
+
 <meta property="og:title" content="Function reference" />
+
 
 
 
@@ -44,9 +54,10 @@
 <![endif]-->
 
 
+
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-index">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -60,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -68,7 +79,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -83,13 +94,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+    </li>
+    <li>
+      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
     </li>
     <li>
       <a href="../articles/number_line.html">Number lines and overlaps</a>
-    </li>
-    <li>
-      <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
 </li>
@@ -97,9 +108,13 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/OlisaNsonwu/diyar/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -107,6 +122,7 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
@@ -130,7 +146,24 @@
           <p class="section-desc"></p>
         </th>
       </tr>
+      
+      
+    </tbody><tbody>
+      
+      
       <tr>
+        
+        <td>
+          <p><code><a href="combns.html">combns()</a></code> </p>
+        </td>
+        <td><p>Generate every permutation of n elements.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="custom_sort.html">custom_sort()</a></code> </p>
+        </td>
+        <td><p>Nested sorting</p></td>
+      </tr><tr>
         
         <td>
           <p><code><a href="epid-class.html">as.epid()</a></code> <code><a href="epid-class.html">format(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">unique(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">show(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">rep(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">`[`(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">`[[`(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">c(<i>&lt;epid&gt;</i>)</a></code> </p>
@@ -139,25 +172,37 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="episode_group.html">episode_group()</a></code> <code><a href="episode_group.html">fixed_episodes()</a></code> <code><a href="episode_group.html">rolling_episodes()</a></code> </p>
+          <p><code><a href="episodes.html">episodes()</a></code> <code><a href="episodes.html">fixed_episodes()</a></code> <code><a href="episodes.html">rolling_episodes()</a></code> <code><a href="episodes.html">episode_group()</a></code> </p>
         </td>
-        <td><p>Episode grouping for case definitions and record deduplication</p></td>
+        <td><p>Track episodes for case definitions and record deduplication.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="number_line-class.html">show(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">rep(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[<-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[<-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$<-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">c(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">unique(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">sort(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">format(<i>&lt;number_line&gt;</i>)</a></code> </p>
+          <p><code><a href="links.html">links()</a></code> <code><a href="links.html">record_group()</a></code> </p>
+        </td>
+        <td><p>Multistage deterministic record linkage</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="listr.html">listr()</a></code> </p>
+        </td>
+        <td><p>Written lists.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="number_line-class.html">show(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">rep(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[&lt;-`(<i>&lt;number_line&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[&lt;-`(<i>&lt;number_line&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code> <code><a href="number_line-class.html">`$`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">c(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">unique(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">sort(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">format(<i>&lt;number_line&gt;</i>)</a></code> </p>
         </td>
         <td><p><code>number_line</code> object</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="number_line.html">number_line()</a></code> <code><a href="number_line.html">as.number_line()</a></code> <code><a href="number_line.html">is.number_line()</a></code> <code><a href="number_line.html">left_point()</a></code> <code><a href="number_line.html">`left_point<-`()</a></code> <code><a href="number_line.html">right_point()</a></code> <code><a href="number_line.html">`right_point<-`()</a></code> <code><a href="number_line.html">start_point()</a></code> <code><a href="number_line.html">`start_point<-`()</a></code> <code><a href="number_line.html">end_point()</a></code> <code><a href="number_line.html">`end_point<-`()</a></code> <code><a href="number_line.html">number_line_width()</a></code> <code><a href="number_line.html">reverse_number_line()</a></code> <code><a href="number_line.html">shift_number_line()</a></code> <code><a href="number_line.html">expand_number_line()</a></code> <code><a href="number_line.html">invert_number_line()</a></code> <code><a href="number_line.html">compress_number_line()</a></code> <code><a href="number_line.html">number_line_sequence()</a></code> </p>
+          <p><code><a href="number_line.html">number_line()</a></code> <code><a href="number_line.html">as.number_line()</a></code> <code><a href="number_line.html">is.number_line()</a></code> <code><a href="number_line.html">left_point()</a></code> <code><a href="number_line.html">`left_point&lt;-`()</a></code> <code><a href="number_line.html">right_point()</a></code> <code><a href="number_line.html">`right_point&lt;-`()</a></code> <code><a href="number_line.html">start_point()</a></code> <code><a href="number_line.html">`start_point&lt;-`()</a></code> <code><a href="number_line.html">end_point()</a></code> <code><a href="number_line.html">`end_point&lt;-`()</a></code> <code><a href="number_line.html">number_line_width()</a></code> <code><a href="number_line.html">reverse_number_line()</a></code> <code><a href="number_line.html">shift_number_line()</a></code> <code><a href="number_line.html">expand_number_line()</a></code> <code><a href="number_line.html">invert_number_line()</a></code> <code><a href="number_line.html">compress_number_line()</a></code> <code><a href="number_line.html">number_line_sequence()</a></code> </p>
         </td>
         <td><p>Number line objects</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="overlaps.html">overlaps()</a></code> <code><a href="overlaps.html">overlap()</a></code> <code><a href="overlaps.html">exact()</a></code> <code><a href="overlaps.html">across()</a></code> <code><a href="overlaps.html">chain()</a></code> <code><a href="overlaps.html">aligns_start()</a></code> <code><a href="overlaps.html">aligns_end()</a></code> <code><a href="overlaps.html">inbetween()</a></code> <code><a href="overlaps.html">overlap_method()</a></code> <code><a href="overlaps.html">include_overlap_method()</a></code> <code><a href="overlaps.html">exclude_overlap_method()</a></code> </p>
+          <p><code><a href="overlaps.html">overlaps()</a></code> <code><a href="overlaps.html">overlap()</a></code> <code><a href="overlaps.html">exact()</a></code> <code><a href="overlaps.html">reverse()</a></code> <code><a href="overlaps.html">across()</a></code> <code><a href="overlaps.html">chain()</a></code> <code><a href="overlaps.html">aligns_start()</a></code> <code><a href="overlaps.html">aligns_end()</a></code> <code><a href="overlaps.html">inbetween()</a></code> <code><a href="overlaps.html">overlap_method()</a></code> <code><a href="overlaps.html">include_overlap_method()</a></code> <code><a href="overlaps.html">exclude_overlap_method()</a></code> </p>
         </td>
         <td><p>Overlapping number line objects</p></td>
       </tr><tr>
@@ -175,9 +220,9 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="record_group.html">record_group()</a></code> </p>
+          <p><code><a href="predefined_tests.html">exact_match()</a></code> <code><a href="predefined_tests.html">range_match()</a></code> <code><a href="predefined_tests.html">range_match_legacy()</a></code> </p>
         </td>
-        <td><p>Multistage deterministic record linkage</p></td>
+        <td><p>User defined tests</p></td>
       </tr><tr>
         
         <td>
@@ -187,21 +232,33 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="sub_criteria.html">sub_criteria()</a></code> </p>
+        </td>
+        <td><p>Sub-criteria for <b><code>links</code></b></p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="to_s4.html">to_s4()</a></code> <code><a href="to_s4.html">to_df()</a></code> </p>
         </td>
         <td><p>Change the returned outputs of <code>diyar</code> functions</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="windows.html">epid_windows()</a></code> <code><a href="windows.html">epid_lengths()</a></code> <code><a href="windows.html">index_window()</a></code> </p>
+        </td>
+        <td><p>Window and lengths</p></td>
       </tr>
     </tbody>
     </table>
   </div>
 
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#section-all-functions">All functions</a></li>
-    </ul>
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -209,13 +266,16 @@
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

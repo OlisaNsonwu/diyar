@@ -1,8 +1,9 @@
-pandoc: 1.19.2.1
-pkgdown: 1.3.0
+pandoc: 2.7.3
+pkgdown: 1.5.1
 pkgdown_sha: ~
 articles:
-  episode_group: episode_group.html
+  episodes: episodes.html
+  links: links.html
   number_line: number_line.html
-  record_group: record_group.html
+last_built: 2020-08-26T19:57Z
 

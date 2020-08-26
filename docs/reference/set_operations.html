@@ -8,21 +8,29 @@
 
 <title>Set operations on number line objects — set_operations • diyar</title>
 
+
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +38,10 @@
 
 
 
-<meta property="og:title" content="Set operations on number line objects — set_operations" />
 
+<meta property="og:title" content="Set operations on number line objects — set_operations" />
 <meta property="og:description" content="Perform set operations on a pair of number_line objects." />
-<meta name="twitter:card" content="summary" />
+
 
 
 
@@ -47,9 +55,10 @@
 <![endif]-->
 
 
+
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -63,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
       </span>
     </div>
 
@@ -71,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -86,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+    </li>
+    <li>
+      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
     </li>
     <li>
       <a href="../articles/number_line.html">Number lines and overlaps</a>
-    </li>
-    <li>
-      <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
     </li>
   </ul>
 </li>
@@ -100,9 +109,13 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/OlisaNsonwu/diyar/">
+    <span class="fab fa fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -110,20 +123,19 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Set operations on number line objects</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/set_operations.R'><code>R/set_operations.R</code></a></small>
     <div class="hidden name"><code>set_operations.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
     <p>Perform set operations on a pair of <code>number_line</code> objects.</p>
-    
     </div>
 
     <pre class="usage"><span class='fu'>union_number_lines</span>(<span class='no'>x</span>, <span class='no'>y</span>)
@@ -131,7 +143,7 @@
 <span class='fu'>intersect_number_lines</span>(<span class='no'>x</span>, <span class='no'>y</span>)
 
 <span class='fu'>subtract_number_lines</span>(<span class='no'>x</span>, <span class='no'>y</span>)</pre>
-    
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
@@ -144,77 +156,66 @@
       <td><p><code>number_line</code> object</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
     <p><code>number_line</code>; <code>list</code></p>
-    
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b><code>union_number_lines()</code></b> - Combined range of <code>x</code> and <code>y</code></p>
-<p><b><code>intersect_number_line()</code></b> - Subset of <code>x</code> that overlaps with <code>y</code> and vice versa</p>
-<p><b><code>subtract_number_lines()</code></b> - Subset of <code>x</code> that does not overlap with <code>y</code> and vice versa.
+    <p><b><code>union_number_lines()</code></b> - Return a <code>number_line</code> object with the combined range of <code>x</code> and <code>y</code></p>
+<p><b><code>intersect_number_line()</code></b> - Returns a subset of <code>x</code> that overlaps with <code>y</code> and vice versa</p>
+<p><b><code>subtract_number_lines()</code></b> - Returns a subset of <code>x</code> that does not overlap with <code>y</code> and vice versa.
 Returns a list with two elements;</p><ul>
-<li><p><code>n1</code> - subset before the overlapped range</p></li>
-<li><p><code>n2</code> - subset before the overlapped range</p></li>
+<li><p><code>n1</code> - subset before the overlapped range between <code>x</code> and <code>y</code>.</p></li>
+<li><p><code>n2</code> - subset after the overlapped range between <code>x</code> and <code>y</code></p></li>
 </ul>
-    <p>The <code>direction</code> of the returned <code>number_line</code> will be that of the widest one (<code>x</code> or <code>y</code>).
+
+<p>The <code>direction</code> of the returned <code>number_line</code> will be that of the widest one (<code>x</code> or <code>y</code>).
 If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"increasing direction"</code>.</p>
 <p>If  <code>x</code> and <code>y</code> do not overlap, <code>NA</code> (<code>"NA ?? NA"</code>) is returned.</p>
-    
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='number_line.html'>number_line</a></code> and <code><a href='overlaps.html'>overlaps</a></code></p></div>
-    
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'>
-<span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>9</span>))
-<span class='no'>nl_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>0</span>, <span class='fl'>6</span>))
+<span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>9</span>))
+<span class='no'>nl_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>0</span>, <span class='fl'>6</span>))
 
 <span class='co'># Union</span>
 <span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>union_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 5" "1 -&gt; 5" "5 -&gt; 9"</div><div class='output co'>#&gt; [1] "1 -&gt; 2" "2 -&gt; 3" "0 -&gt; 6"</div><div class='output co'>#&gt; [1] "1 -&gt; 5" "1 -&gt; 5" "0 -&gt; 9"</div><div class='input'>
 
-<span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"01/01/2020"</span>, <span class='st'>"03/01/2020"</span>,<span class='st'>"09/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
-                    <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"09/01/2020"</span>, <span class='st'>"09/01/2020"</span>,<span class='st'>"25/12/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
+<span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"01/01/2020"</span>, <span class='st'>"03/01/2020"</span>,<span class='st'>"09/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
+                    <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"09/01/2020"</span>, <span class='st'>"09/01/2020"</span>,<span class='st'>"25/12/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
 
-<span class='no'>nl_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"04/01/2020"</span>,<span class='st'>"01/01/2020"</span>,<span class='st'>"01/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
-                    <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/as.Date'>as.Date</a></span>(<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"05/01/2020"</span>,<span class='st'>"05/01/2020"</span>,<span class='st'>"03/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
+<span class='no'>nl_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"04/01/2020"</span>,<span class='st'>"01/01/2020"</span>,<span class='st'>"01/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
+                    <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"05/01/2020"</span>,<span class='st'>"05/01/2020"</span>,<span class='st'>"03/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
 
 <span class='co'># Intersect</span>
 <span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>intersect_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
 #&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
 #&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-03 -&gt; 2020-01-05"
-#&gt; [3] "NA ?? NA"                </div><div class='input'>
+#&gt; [3] "NA == NA"                </div><div class='input'>
 <span class='co'># Subtract</span>
 <span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>subtract_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
 #&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
 #&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; $n1
 #&gt; [1] "2020-01-01 -&gt; 2020-01-04" "2020-01-01 -&gt; 2020-01-03"
-#&gt; [3] "NA ?? NA"                
+#&gt; [3] "NA == NA"                
 #&gt; 
 #&gt; $n2
 #&gt; [1] "2020-01-05 -&gt; 2020-01-09" "2020-01-05 -&gt; 2020-01-09"
-#&gt; [3] "NA ?? NA"                
+#&gt; [3] "NA == NA"                
 #&gt; </div><div class='input'>
 </div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#details">Details</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -222,13 +223,16 @@ If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"in
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 
