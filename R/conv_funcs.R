@@ -218,23 +218,6 @@ prep_lengths <- function(length, overlap_methods, int,
     }
   }
 
-  # if(any(from_last == T)) {
-  #   length <- lapply(length, function(x){
-  #     x[from_last] <- invert_number_line(x)[from_last]
-  #     return(x)
-  #   })
-  # }
-
-  # length <- lapply(length, function(x){
-  #   number_line(l= right_point(int) + (left_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
-  #               r= right_point(int) + (right_point(x) * as.numeric(diyar::episode_unit[episode_unit])),
-  #               gid = seq_len(length(int)))})
-
-  # if(include_index_period == T){
-  #   length <- c(length, list(int))
-  #   overlap_methods <- c(overlap_methods, list("overlap"))
-  # }
-
   overlap_methods <- lapply(overlap_methods, function(x){
     if(length(x)==1){
       x <- rep(x, length(int))

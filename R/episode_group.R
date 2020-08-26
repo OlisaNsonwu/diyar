@@ -1129,6 +1129,14 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
   if(class(lengths) != "number_line"){
     lengths <- number_line(0, as.numeric(lengths))
   }
+  is_dt <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
+  if(is_dt == T){
+    date <- number_line(
+      l = as.POSIXct(format(date@start, "%d/%m/%Y %H:%M:%S"), "UTC", format = "%d/%m/%Y %H:%M:%S"),
+      r = as.POSIXct(format(right_point(date), "%d/%m/%Y %H:%M:%S"), "UTC", format = "%d/%m/%Y %H:%M:%S")
+    )
+  }
+
   number_line(right_point(date) + (lengths@start * as.numeric(diyar::episode_unit[episode_unit])),
               right_point(date) + (right_point(lengths) * as.numeric(diyar::episode_unit[episode_unit])))
 }

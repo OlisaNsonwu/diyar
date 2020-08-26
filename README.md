@@ -17,8 +17,7 @@ repeated spells in hospital, or recurrent cases of infection is a common
 task in epidemiological analysis and other fields of research.
 
 The `diyar` package aims to provide a simple and flexible implementation
-of mutlistage deterministic record linkage and episode grouping for the
-application of case definitions in epidemiological analysis.
+of multi-stage deterministic record linkage and episode grouping.
 
 ## Installation
 
@@ -37,11 +36,11 @@ devtools::install_github("OlisaNsonwu/diyar")
 
 ## Usage
 
-There are two main aspects of the `diyar` package; multistage data
-linkage grouping (`links`) and episode tracking (`episodes`).
+There are two main aspects of the `diyar` package; multi-stage data
+linkage grouping (`links()`) and episode tracking (`episodes()`).
 `number_line` objects are used in both.
 
-  - `number_line()` - a range of real numbers on a number line.
+  - `number_line()` - creates a range of real numbers on a number line.
       - They can be manipulated - `reverse_number_line`,
         `shift_number_line`, `expand_number_line`,
         `number_line_sequence`, `invert_number_line`,
@@ -108,7 +107,7 @@ episodes(date = db$date,
 #> [11] "E.1 2018-04-01 -> 2018-05-31 (D)"
 ```
 
-  - `links()` - Multistage deterministic linkage with missing data
+  - `links()` - Multi-stage deterministic linkage with missing data
 
 <!-- end list -->
 

@@ -22,7 +22,7 @@ plot_pid <- diyar:::plot_pid
 # Introduction
 Linking datasets to consolidate information is a common task in research, particularly for those involving the use of "big data". Deterministic record linkage is the simplest and most common method of record linkage however, its accuracy relies on good data quality. Too many incorrect or missing values will often provide an unacceptable number of false matches or mismatches.
 
-`links()` aims to provide a convenient and flexible approach to multistage deterministic linkage with mechanims to handle missing or incorrect data.
+`links()` aims to provide a convenient and flexible approach to multistage deterministic linkage with mechanism to handle missing or incorrect data.
 
 #Uses
 `links()` can be used to link datasets in a variety of ways. Examples include;

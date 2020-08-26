@@ -22,7 +22,7 @@ knitr::opts_chunk$set(
 + New function `epid_lengths()` to show the required `case_length` or `recurrence_length` for an analyses. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
 + New function `epid_windows()`. Shows the period a `date` will overlap with given particular `case_lengths` or `recurrence_lengths`. Useful in confirming the required `case_length` or `recurrence_length` for episode tracking.
 + New argument - `strata` in `links()`. Useful for stratified data linkage. As in stratified episode tracking, a record with a missing `strata` (`NA_character_`) is skipped from data linkage.
-+ New argument - `data_links` in `links()`. Un-link record groups that do not include records from certain data sources
++ New argument - `data_links` in `links()`. Unlink record groups that do not include records from certain data sources
 + New convenience functions
     + `listr()`. Format `atomic` vectors as a written list.
     + `combns()`. An extension of `combn` to generate permutations not ordinarily captured by `combn`.
@@ -49,7 +49,7 @@ knitr::opts_chunk$set(
 
 ## Bug fixes
 + `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in certain situations. Corrected.
-+ `fixed_episodes`, `rolling_episodes` and `episode_group` - `dist_from_wind` was wrong in cerain situations. Corrected.
++ `fixed_episodes`, `rolling_episodes` and `episode_group` - `dist_from_wind` was wrong in certain situations. Corrected.
 
 #Version 0.1.0
 ##New features

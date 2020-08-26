@@ -2,7 +2,7 @@
 % Please edit documentation in R/record_group.R
 \name{sub_criteria}
 \alias{sub_criteria}
-\title{Subcriteria for \bold{\code{\link{links}}}}
+\title{Sub-criteria for \bold{\code{\link{links}}}}
 \usage{
 sub_criteria(..., funcs = diyar::exact_match)
 }
@@ -21,7 +21,7 @@ Additional matching conditions for each stage in \code{\link{links}}.
 \bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}}.
 
 Each attribute (\code{atomic} vectors) is compared as an exact match or with a user-defined logical test.
-The test must be supplied as a funciton with at least two arguments named \code{`x`} and \code{`y`},
+The test must be supplied as a function with at least two arguments named \code{`x`} and \code{`y`},
 where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 
 Each attribute must have the same length.
@@ -31,7 +31,7 @@ Each attribute must have the same length.
 Each \code{funcs} must evaluate to \code{TRUE} or \code{FALSE}.
 
 Each \code{sub_criteria} must be linked to a \code{criteria} in \bold{\code{\link{links}}}.
-You can link mutliple \code{sub_criteria} to one \code{criteria}.
+You can link multiple \code{sub_criteria} to one \code{criteria}.
 Any unlinked \code{sub_criteria} will be ignored.
 }
 \examples{

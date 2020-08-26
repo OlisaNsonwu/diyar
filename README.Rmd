@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ## Overview
 Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in epidemiological analysis and other fields of research. 
 
-The `diyar` package aims to provide a simple and flexible implementation of mutlistage deterministic record linkage and episode grouping for the application of case definitions in epidemiological analysis.
+The `diyar` package aims to provide a simple and flexible implementation of multi-stage deterministic record linkage and episode grouping.
 
 ## Installation
 ```{r eval=FALSE}
@@ -34,9 +34,9 @@ devtools::install_github("OlisaNsonwu/diyar")
 <a href="https://github.com/OlisaNsonwu/diyar/tree/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
 
 ## Usage
-There are two main aspects of the `diyar` package; multistage data linkage grouping (`links`) and episode tracking (`episodes`). `number_line` objects are used in both.
+There are two main aspects of the `diyar` package; multi-stage data linkage grouping (`links()`) and episode tracking (`episodes()`). `number_line` objects are used in both.
 
-+ `number_line()` - a range of real numbers on a number line. 
++ `number_line()` - creates a range of real numbers on a number line. 
     + They can be manipulated - `reverse_number_line`, `shift_number_line`, `expand_number_line`, `number_line_sequence`, `invert_number_line`, `compress_number_line`, `union_number_lines`, `subtract_number_lines`, `intersect_number_lines`.
     +  Logical tests for overlap - `overlaps`, `overlap`, `exact`, `reverse`, `chain`, `across`, `aligns_start`, `aligns_end`, `inbetween`.
     
@@ -73,7 +73,7 @@ episodes(date = db$date,
          group_stats = TRUE)
 ```
 
-+ `links()` - Multistage deterministic linkage with missing data
++ `links()` - Multi-stage deterministic linkage with missing data
 
 ```{r}
 # Two-stage exact matches

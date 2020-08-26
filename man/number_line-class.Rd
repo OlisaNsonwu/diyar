@@ -7,9 +7,7 @@
 \alias{rep,number_line-method}
 \alias{[,number_line-method}
 \alias{[[,number_line-method}
-\alias{[<-,number_line,ANY,ANY,ANY-method}
 \alias{[<-,number_line-method}
-\alias{[[<-,number_line,ANY,ANY,ANY-method}
 \alias{[[<-,number_line-method}
 \alias{$,number_line-method}
 \alias{$<-,number_line-method}
@@ -27,9 +25,9 @@
 
 \S4method{[[}{number_line}(x, i, j, ..., exact = TRUE)
 
-\S4method{[}{number_line,ANY,ANY,ANY}(x, i, j, ...) <- value
+\S4method{[}{number_line}(x, i, j, ...) <- value
 
-\S4method{[[}{number_line,ANY,ANY,ANY}(x, i, j, ...) <- value
+\S4method{[[}{number_line}(x, i, j, ...) <- value
 
 \S4method{$}{number_line}(x, name)
 

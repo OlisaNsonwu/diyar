@@ -26,7 +26,7 @@
   - New argument - `strata` in `links()`. Useful for stratified data
     linkage. As in stratified episode tracking, a record with a missing
     `strata` (`NA_character_`) is skipped from data linkage.
-  - New argument - `data_links` in `links()`. Un-link record groups that
+  - New argument - `data_links` in `links()`. Unlink record groups that
     do not include records from certain data sources
   - New convenience functions
       - `listr()`. Format `atomic` vectors as a written list.
@@ -85,7 +85,7 @@
   - `fixed_episodes`, `rolling_episodes` and `episode_group` -
     `include_index_period` didn’t work in certain situations. Corrected.
   - `fixed_episodes`, `rolling_episodes` and `episode_group` -
-    `dist_from_wind` was wrong in cerain situations. Corrected.
+    `dist_from_wind` was wrong in certain situations. Corrected.
 
 \#Version 0.1.0 \#\#New features
 
