@@ -1,0 +1,67 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: User defined tests</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for predefined_tests {diyar}"><tr><td>predefined_tests {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>User defined tests</h2>
+
+<h3>Description</h3>
+
+<p>A collection of predefined logical tests for <b><code><a href="sub_criteria.html">sub_criteria</a></code></b>
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+exact_match(x, y)
+
+range_match(x, y, range = 10)
+
+range_match_legacy(x, y)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p>Every value of an attribute to compare in <b><code><a href="links.html">links</a></code></b>.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p>One value to which is compared against all other values of the same attribute (<code>x</code>)</p>
+</td></tr>
+<tr valign="top"><td><code>range</code></td>
+<td>
+<p>Difference between <code>y</code> and <code>x</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(diyar)
+
+# `exact_match` - test that `x` is equal to `y`
+exact_match(x = 1, y = "1")
+exact_match(x = 1, y = 1)
+
+# `range_match` - test that `y` is between `x` and `x + range`
+range_match(x = 10, y = 16, range = 6)
+range_match(x = 16, y = 10, range = 6)
+
+# `range_match_legacy` - test that `x` (10) is within `y` (16 - 10)
+x_nl &lt;- number_line(10, 16, gid = 10)
+y_nl &lt;- number_line(16, 10)
+
+range_match_legacy(x = x_nl, y = y_nl)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

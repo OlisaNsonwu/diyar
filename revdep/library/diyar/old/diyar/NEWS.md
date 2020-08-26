@@ -1,4 +1,69 @@
 
+Version 0.1.0
+=============
+
+New features
+------------
+
+-   `record_group()` - `strata` argument. Perform record grouping separately within subsets of a dataset.
+-   `overlap()`, `compress_number_line()`, `fixed_sepisodes()`, `rolling_episodes()` and `episode_group()` - `overlap_methods` and `methods` arguments replaces `overlap_method` and `method` respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing `number_line` objects. `overlap_method` and `method` only permits 1 method per per dataset.
+-   `epid` objects - `win_nm` slot. Shows the type of window each event belongs to i.e. case or recurrence window
+-   `epid` objects - `win_id` slot. Unique ID for each window. The ID is the `sn` of the reference event for each window
+    -   Format of `epid` objects updated to reflect this
+-   `epid` objects - `dist_from_wind` slot. Shows the duration of each event from its window's reference event
+-   `epid` objects - `dist_from_epid` slot. Shows the duration of each event from its episode's reference event
+-   `episode_group()` and `rolling_episodes()` - `recurrence_from_last` argument. Determine if reference events should be the first or last event from the previous window.
+-   `episode_group()` and `rolling_episodes()` - `case_for_recurrence` argument. Determine if recurrent events should have their own case windows or not.
+-   `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `data_links` argument. Ungroup episodes that do not include records from certain `data_source(s)`.
+-   `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `case_length` and `recurrence_length` arguments. You can now use a range (`number_line` object).
+-   `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `case_length` and `recurrence_length` arguments. You can now use a range (`number_line` object).
+-   `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `include_index_period` argument. If `TRUE`, overlaps with the index event or period are groupped together even if they are outside the cut-off range (`case_length` or `recurrence_length`).
+-   `pid` objects - `link_id` slot. Shows the record (`sn` slot) to which every record in the dataset has matched to.
+-   `invert_number_line()` - Invert the `left` and/or `right` points to the opposite end of the number line
+-   `left_point(x)<-`, `right_point(x)<-`, `start_point(x)<-` and `end_point(x)<-` accessor functions
+
+Changes
+-------
+
+-   `overlap()` renamed to `overlaps()`. `overlap()` is now a convenience `overlap_method` for ANY kind of overlap
+-   `"none"` is another convenience `overlap_method` for NO kind of overlap
+-   `expand_number_line()` - new options for `point`; `"left"` and `"right"`
+-   `compress_number_line()` - compressed `number_line` object inherits the direction of the widest `number_line` among overlapping group of `number_line` objects
+-   `overlap_methods` - have been changed such that each pair of `number_line` objects can only overlap in one way. E.g.
+    -   `"chain"` and `"aligns_end"` used to be possible but this is now considered a `"chain"` overlap only
+    -   `"aligns_start"` and `"aligns_end"` use to be possible but this is now considered an `"exact"` overlap
+-   `number_line_sequence()` - Output is now a `list`.
+-   `number_line_sequence()` - now works across multiple `number_line` objects.
+-   `to_df()` - can now change `number_line` objects to data.frames.
+    -   `to_s4()` can do the reverse.
+-   `epid` objects are the default outputs for `fixed_episodes()`, `rolling_episodes()` and `episode_group()`
+-   `pid` objects are the default outputs for `record_group()`
+-   In episode grouping, the `case_nm` for events that were skipped due to `rolls_max` or `episodes_max` is now `"Skipped"`.
+-   In `episode_group()` and `record_group()`, `sn` can be negative numbers but must still be unique
+-   Optimised `episode_group()` and `record_group()`. Runs just a little bit faster ...
+-   Relaxed the requirement for `x` and `y` to have the same lengths in overlap functions.
+    -   The behaviour of overlap functions will now be the same as that of standard R logical tests
+-   `episode_group` - `case_length` and `recurrence_length` arguments. Now accepts negative numbers.
+    -   negative "lengths" will collapse two periods into one, if the second one is within some days before the `end_point()` of the first period.
+        -   if the "lengths" are larger than the `number_line_width()`, both will be collapsed if the second one is within some days (or any other `episode_unit`) before the `start_point()` of the first period.
+-   cheat sheet updated
+
+Bug fixes
+---------
+
+-   Recurrence was not checked if the initial case event had no duplicates. Resolved
+-   `case_nm` wasn't right for rolling episodes. Resolved
+
+Version 0.0.3
+=============
+
+Changes
+-------
+
+-   [\#7](https://github.com/OlisaNsonwu/diyar/issues/7) `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - optimized to take less time when working with large datasets
+-   `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `date` argument now supports numeric values
+-   `compress_number_line()` - the output (`gid` slot) is now a group identifier just like in `epid` objects (`epid_interval`)
+
 Version 0.0.2
 =============
 

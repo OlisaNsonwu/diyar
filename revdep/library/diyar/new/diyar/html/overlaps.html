@@ -1,0 +1,161 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Overlapping number line objects</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for overlaps {diyar}"><tr><td>overlaps {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Overlapping number line objects</h2>
+
+<h3>Description</h3>
+
+<p>Identify overlapping <code>number_line</code> objects
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+overlaps(x, y, methods = "overlap", method = "overlap")
+
+overlap(x, y)
+
+exact(x, y)
+
+reverse(x, y)
+
+across(x, y)
+
+chain(x, y)
+
+aligns_start(x, y)
+
+aligns_end(x, y)
+
+inbetween(x, y)
+
+overlap_method(x, y)
+
+include_overlap_method(methods)
+
+exclude_overlap_method(methods)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>number_line</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>y</code></td>
+<td>
+<p><code>number_line</code> object.</p>
+</td></tr>
+<tr valign="top"><td><code>methods</code></td>
+<td>
+<p>Methods of overlap. Check different pairs of <code>number_line</code> objects by different <code>methods</code>. Options are <code>"exact"</code>, <code>"reverse"</code>, <code>"inbetween"</code>, <code>"across"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>method</code></td>
+<td>
+<p>Deprecated. Please use <code>methods</code> instead. Method of overlap. Check every pair of <code>number_line</code> objects by the same <code>method</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><b>8 logical test;</b>
+</p>
+<p><b><code>exact()</code></b> - Identical left and right points.
+</p>
+<p><b><code>reverse()</code></b> - Swapped left and right points.
+</p>
+<p><b><code>inbetween()</code></b> - start and endpoints of one <code>number_line</code> object is within the start and endpoints of another.
+</p>
+<p><b><code>across()</code></b> - start or endpoints of one <code>number_line</code> object is within the start and endpoints of another.
+</p>
+<p><b><code>chain()</code></b> - endpoint of one <code>number_line</code> object is the same as the start point of another.
+</p>
+<p><b><code>aligns_start()</code></b> - identical start points only.
+</p>
+<p><b><code>aligns_end()</code></b> - identical endpoints only.
+</p>
+<p><b><code>overlap()</code></b> - any kind of overlap. A convenient <code>method</code> for &quot;ANY&quot; and &quot;ALL&quot; methods of overlap.
+</p>
+<p><b><code>overlaps()</code></b> - overlap by any set of the 7 methods above.
+</p>
+<p><b>Describe methods of overlap;</b>
+</p>
+<p><b><code>overlap_method()</code></b> - Shows if and how a pair of <code>number_line</code> object have overlapped.
+Does not show <code>"overlap"</code> since <b><code>overlap()</code></b> is always <code>TRUE</code> when any other method is <code>TRUE</code>.
+</p>
+<p><b><code>include_overlap_method()</code></b> and <b><code>exclude_overlap_method()</code></b> - Conveniently create the required values for <code>methods</code> and <code>overlap_methods</code> in <code><a href="episodes.html">episodes</a></code>.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>logical</code>; <code>character</code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="number_line.html">number_line</a></code> and <code><a href="set_operations.html">set_operations</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+a &lt;- number_line(-100, 100)
+b &lt;- number_line(10, 11.2)
+c &lt;- number_line(100, 200)
+d &lt;- number_line(100, 120)
+e &lt;- number_line(50, 120)
+g &lt;- number_line(100, 100)
+f &lt;- number_line(120, 50)
+
+overlaps(a, g)
+overlaps(a, g, methods = "exact|chain")
+
+overlap(a, b)
+overlap(a, e)
+
+exact(a, g)
+exact(a, a)
+
+reverse(e, e)
+reverse(e, f)
+
+across(a, b)
+across(a, e)
+
+chain(c, d)
+chain(a, c)
+
+aligns_start(c, d)
+aligns_start(a, c)
+
+aligns_end(d, e)
+aligns_end(a, c)
+
+inbetween(a, g)
+inbetween(b, a)
+
+overlap_method(a, c)
+overlap_method(d, c)
+overlap_method(a, g)
+overlap_method(b, e)
+
+include_overlap_method("across")
+include_overlap_method(c("across", "chain"))
+
+exclude_overlap_method("across")
+exclude_overlap_method(c("across", "chain"))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

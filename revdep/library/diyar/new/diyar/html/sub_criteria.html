@@ -1,0 +1,77 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Sub-criteria for *'links'*</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for sub_criteria {diyar}"><tr><td>sub_criteria {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Sub-criteria for <b><code><a href="links.html">links</a></code></b></h2>
+
+<h3>Description</h3>
+
+<p>Additional matching conditions for each stage in <code><a href="links.html">links</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+sub_criteria(..., funcs = diyar::exact_match)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Additional attributes to compare.</p>
+</td></tr>
+<tr valign="top"><td><code>funcs</code></td>
+<td>
+<p>User defined logical test.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><b><code>sub_criteria()</code></b> is the mechanism for providing a <code>sub_criteria</code> to an instance of <b><code>links</code></b>.
+</p>
+<p>Each attribute (<code>atomic</code> vectors) is compared as an exact match or with a user-defined logical test.
+The test must be supplied as a function with at least two arguments named <code>`x`</code> and <code>`y`</code>.
+Where <code>`y`</code> is the value for one observation being compared against all other observations (<code>`x`</code>).
+</p>
+<p>Each attribute must have the same length.
+</p>
+<p><code>funcs</code> must be a <code>function</code> or <code>list</code> of <code>functions</code> to use with each attribute.
+</p>
+<p>Each <code>funcs</code> must evaluate to <code>TRUE</code> or <code>FALSE</code>.
+</p>
+<p>Each <code>sub_criteria</code> must be linked to a <code>criteria</code> in <b><code><a href="links.html">links</a></code></b>.
+You can link multiple <code>sub_criteria</code> to one <code>criteria</code>.
+Any unlinked <code>sub_criteria</code> will be ignored.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code>function</code> or <code>list</code> of <code>functions</code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+library(diyar)
+
+sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match)
+
+# Link each `sub_critera` a `criteria`.
+list(
+c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match),
+c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match))
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>

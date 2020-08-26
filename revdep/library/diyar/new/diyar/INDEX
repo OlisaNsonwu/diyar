@@ -1,12 +1,18 @@
+combns                  Generate every permutation of n elements.
+custom_sort             Nested sorting
 epid-class              'epid' object
-episode_group           Episode grouping for record deduplication and
-                        case assignment
+episodes                Track episodes for case definitions and record
+                        deduplication.
+links                   Multistage deterministic record linkage
+listr                   Written lists.
 number_line             Number line objects
 number_line-class       'number_line' object
-overlap                 Overlapping number line objects
+overlaps                Overlapping number line objects
 pid-class               'pid' objects
-record_group            Multistage deterministic record linkage
-staff_records           Dummy datasets for 'diyar' package
+predefined_tests        User defined tests
+set_operations          Set operations on number line objects
+staff_records           Datasets in 'diyar' package
+sub_criteria            Sub-criteria for *'links'*
 to_s4                   Change the returned outputs of 'diyar'
-                        functions from 'data.frames' to S4 objects, and
-                        vice versa
+                        functions
+windows                 Window and lengths

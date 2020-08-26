@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Window and lengths</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for windows {diyar}"><tr><td>windows {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Window and lengths</h2>
+
+<h3>Description</h3>
+
+<p>Interpret <code>windows</code>, <code>case_lengths</code> and <code>recurrence_lengths</code> as used in <code><a href="episodes.html">episodes</a></code>.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+epid_windows(date, lengths, episode_unit = "days")
+
+epid_lengths(date, windows, episode_unit = "days")
+
+index_window(date, from_last = F)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>date</code></td>
+<td>
+<p>As used in <b><code><a href="episodes.html">episodes</a></code></b>.</p>
+</td></tr>
+<tr valign="top"><td><code>lengths</code></td>
+<td>
+<p><code>case_length</code> or <code>recurrence_length</code> arguments as used in <b><code><a href="episodes.html">episodes</a></code></b>.</p>
+</td></tr>
+<tr valign="top"><td><code>episode_unit</code></td>
+<td>
+<p>Time unit of <code>lengths</code>. Options are &quot;seconds&quot;, &quot;minutes&quot;, &quot;hours&quot;, &quot;days&quot;, &quot;weeks&quot;, &quot;months&quot; or &quot;years&quot;. See <code>diyar::episode_unit</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>windows</code></td>
+<td>
+<p>A range or period relative to <code>date</code> for a given <code>lengths</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>from_last</code></td>
+<td>
+<p>As used in <b><code><a href="episodes.html">episodes</a></code></b>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><b><code>epid_windows</code></b> - returns the corresponding period for a given a <code>date</code>, and <code>case_length</code> or <code>recurrence_length</code>.
+<b><code>epid_lengths</code></b> - returns the corresponding <code>case_length</code> or <code>recurrence_length</code> for a given <code>date</code> and period.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code><a href="number_line.html">number_line</a></code>.
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+
+# `epid_windows`
+epid_windows(Sys.Date(), 10)
+epid_windows(Sys.Date(), number_line(5, 10))
+epid_windows(Sys.Date(), number_line(-5, 10))
+epid_windows(Sys.Date(), -5)
+
+# `epid_lengths`
+epid_lengths(number_line(01, 20), 30)
+epid_lengths(number_line(01, 20), number_line(25, 30))
+epid_lengths(number_line(01, 20), number_line(-10, 30))
+epid_lengths(number_line(01, 20), -10)
+
+index_window(20)
+index_window(as.number_line(20))
+index_window(number_line(15, 20))
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+</body></html>
