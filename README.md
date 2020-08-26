@@ -65,7 +65,7 @@ expand_number_line(nl, -2)
 #> [1] "2019-04-03 -> 2019-04-28"
 ```
 
-  - `episodes()` - Track temporal episodes.
+  - `episodes()` - tracks temporal episodes.
 
 <!-- end list -->
 
@@ -98,7 +98,7 @@ episodes(date = db$date,
          display = "none",
          episode_type = "rolling", 
          group_stats = TRUE)
-#> Episode tracking completed in 0.55 secs!
+#> Episode tracking completed in < 0.01 secs!
 #>  [1] "E.1 2018-04-01 -> 2018-05-31 (C)" "E.1 2018-04-01 -> 2018-05-31 (D)"
 #>  [3] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (R)"
 #>  [5] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (D)"
@@ -107,7 +107,7 @@ episodes(date = db$date,
 #> [11] "E.1 2018-04-01 -> 2018-05-31 (D)"
 ```
 
-  - `links()` - Multistage deterministic linkage with missing data
+  - `links()` - multistage deterministic linkage with missing data.
 
 <!-- end list -->
 

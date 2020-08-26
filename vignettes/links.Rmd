@@ -22,7 +22,7 @@ plot_pid <- diyar:::plot_pid
 # Introduction
 Linking datasets to consolidate information is a common task in research, particularly in those using "big data". Deterministic record linkage is the simplest and most common method of doing this. However, its accuracy relies on data quality. `links()` provides a convenient and flexible approach of doing this while handing missing or incorrect data.
 
-#Uses
+# Uses
 `links()` can be used to link datasets in a variety of ways. Examples include;
 
 - Linking datasets on one (or more) matching `criteria`
@@ -30,7 +30,7 @@ Linking datasets to consolidate information is a common task in research, partic
 - Linking datasets in stages. Each stage is considered more relevant than the subsequent one. See [group expansion](#record_expansion)
 - Linking datasets with missing group identifiers. See [handling missing values](#missing_values) 
 
-#Implementation 
+# Implementation 
 Data matching is done in ordered stages. A match at each stage is considered more relevant than those at subsequent stages. Matched records are assigned a record group identifier. This is the record identifier (`sn`) of one of the matching records therefore, a familiar `sn` can prove useful.
 
 Each matching stage has an attribute or characteristic to match (`criteria`). These must be passed as a `list` of `atomic` vectors.

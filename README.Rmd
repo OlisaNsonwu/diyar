@@ -50,7 +50,7 @@ reverse_number_line(nl)
 expand_number_line(nl, -2)
 ```
 
-+ `episodes()` - Track temporal episodes.
++ `episodes()` - tracks temporal episodes.
 
 ```{r}
 data(infections);
@@ -73,7 +73,7 @@ episodes(date = db$date,
          group_stats = TRUE)
 ```
 
-+ `links()` - Multistage deterministic linkage with missing data
++ `links()` - multistage deterministic linkage with missing data.
 
 ```{r}
 # Two-stage exact matches
