@@ -21,8 +21,8 @@ Additional matching conditions for each stage in \code{\link{links}}.
 \bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}}.
 
 Each attribute (\code{atomic} vectors) is compared as an exact match or with a user-defined logical test.
-The test must be supplied as a function with at least two arguments named \code{`x`} and \code{`y`},
-where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
+The test must be supplied as a function with at least two arguments named \code{`x`} and \code{`y`}.
+Where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 
 Each attribute must have the same length.
 

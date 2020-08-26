@@ -9,7 +9,7 @@ knitr::opts_chunk$set(
 )
 ```
 
-# Version 0.2.0.9000
+# Version 0.2.0
 
 ## New features
 + Better support for `Inf` in `number_line` objects.
