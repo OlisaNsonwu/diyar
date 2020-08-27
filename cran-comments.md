@@ -1,5 +1,21 @@
 ## Resubmission
 This is a resubmission. Summary of changes below:
+*Improvements across board 
+*Updated documentation and vignettes
+*Updated package to v.0.2.0
+
+## Test environments
+* Ubuntu 16.04.6 LTS (on travis-ci), R 4.0.0
+* win-builder (devel and release)
+
+## R CMD check results
+There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments. 
+
+## Downstream dependencies
+*Checked downstream dependencies - All passed
+
+## Resubmission
+This is a resubmission. Summary of changes below:
 *fewer examples
 
 ## Test environments
