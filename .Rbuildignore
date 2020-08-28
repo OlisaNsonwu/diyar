@@ -15,6 +15,7 @@
 ^.*\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
+^LICENSE$
 ^revdep$
 ^\.covrignore$
 ^R/retired_funcs\.R$

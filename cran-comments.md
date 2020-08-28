@@ -5,7 +5,7 @@ This is a resubmission. Summary of changes below:
 *Updated package to v.0.2.0
 
 ## Test environments
-* Ubuntu 16.04.6 LTS (on travis-ci), R 4.0.0
+* Windows 10 (local machine), R 4.0.2
 * win-builder (devel and release)
 
 ## R CMD check results
