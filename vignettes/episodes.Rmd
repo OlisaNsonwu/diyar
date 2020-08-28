@@ -796,8 +796,10 @@ By default, `overlap_methods` is a `record-level` argument. This means that the 
 ```{r warning=FALSE}
 x <- c(number_line(1, 5), number_line(1, 5), number_line(2, 3), 1)
 m <- c("aligns_start", "exact", "inbetween", "aligns_start")
-dfe <- data.frame(x = x, m = m)
-dfe$eps_1 <- episodes(date = dfe$x, case_length = index_window(dfe$x), overlap_methods_c = dfe$m)
+dfe <- data.frame(x = x, m = m, stringsAsFactors = FALSE)
+dfe$eps_1 <- episodes(date = dfe$x, 
+                      case_length = index_window(dfe$x), 
+                      overlap_methods_c = dfe$m)
 dfe
 ```
 
