@@ -7,6 +7,8 @@ This is a resubmission. Summary of changes below:
 ## Test environments
 * Windows 10 (local machine), R 4.0.2
 * win-builder (devel and release)
+* Debian Linux (rhub)
+* Debian Linux (rhub)
 
 ## R CMD check results
 There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments. 

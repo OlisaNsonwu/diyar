@@ -123,7 +123,7 @@
     range (`number_line` object).
   - `episode_group()`, `fixed_episodes()` and `rolling_episodes()` -
     `include_index_period` argument. If `TRUE`, overlaps with the index
-    event or period are groupped together even if they are outside the
+    event or period are grouped together even if they are outside the
     cut-off range (`case_length` or `recurrence_length`).
   - `pid` objects - `link_id` slot. Shows the record (`sn` slot) to
     which every record in the dataset has matched to.
