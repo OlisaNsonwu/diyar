@@ -4,7 +4,7 @@
 [![CRAN
 version](http://www.r-pkg.org/badges/version/diyar)](https://cran.r-project.org/package=diyar)
 [![CRAN RStudio mirror
-downloads](http://cranlogs.r-pkg.org/badges/diyar)](http://www.r-pkg.org/pkg/diyar)
+downloads](https://cranlogs.r-pkg.org/badges/diyar)](https://www.r-pkg.org/pkg/diyar)
 [![Coverage
 status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master)
 <!-- [![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar) -->
