@@ -8,9 +8,9 @@
 finite_check <- function(x, lim =10){
   e <- which(!is.finite(as.numeric(x)))
   if(length(e) %in% 1:lim) {
-    paste0("[",listr(fmt(e)),"]")
+    paste0("[",listr(format(e, scientific = F)),"]")
   }else if(length(e) > lim) {
-    paste0("[",paste0(fmt(e[1:lim]), collapse = ", "),", ...]")
+    paste0("[",paste0(format(e[1:lim]), collapse = ", "),", ...]")
   }else if(length(e) == 0)
     TRUE
 }
@@ -18,9 +18,9 @@ finite_check <- function(x, lim =10){
 missing_check <- function(x, lim =10){
   e <- which(is.na(x))
   if(length(x[e]) %in% 1:lim) {
-    paste0("[", listr(fmt(e)), "]")
+    paste0("[", listr(format(e, scientific = F)), "]")
   }else if(length(x[e]) > lim) {
-    paste0("[", paste0(fmt(e[1:lim]), collapse = ", "),", ...]")
+    paste0("[", paste0(format(e[1:lim], scientific = F), collapse = ", "),", ...]")
   }else{
     T
   }
