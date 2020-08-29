@@ -431,9 +431,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       })
     }
 
-    tr_tag <- rep(tag[match(p, q)], r$lengths)
-    tr_e <- rep(e[match(p, q)], r$lengths)
+    tr_tag <- rep(tag[match(p, q)], cri_tot)
+    tr_e <- rep(e[match(p, q)], cri_tot)
     tr_int <- rep(int[match(p, q)], cri_tot)
+    tr_skip_order <- rep(skip_order[match(p, q)], cri_tot)
+    tr_c_sort <- rep(c_sort[match(p, q)], cri_tot)
 
     if(any(names(mths_a) == "e") | any(names(mths_a) == "b")){
       tr_mths_a <- lapply(mths_a, function(x){
@@ -478,7 +480,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[lgk1 & iteration == Inf] <- ite
 
     # Skip order
-    cri_skp <- cri[c_sort > skip_order];
+    cri_skp <- cri[tr_c_sort > tr_skip_order];
     cri_skp <- cri_skp[!duplicated(cri_skp)]
     lgk2 <- cri %in% cri_skp
     current_skipped <- length(cri[lgk1 | lgk2])
