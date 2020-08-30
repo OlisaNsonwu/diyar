@@ -559,8 +559,10 @@ range_match <- function(x, y, range = 10){
 #'
 #' @export
 range_match_legacy <- function(x, y) {
-  if(any(!overlaps(as.number_line(x@gid), x))) {
-    rng_i <- paste(head(which(!overlaps(as.number_line(x@gid), x)), 5), collapse = ", ", sep="")
+  lg <- overlaps(as.number_line(x@gid), x)
+  lg[is.na(lg)] <- F
+  if(any(!lg)) {
+    rng_i <- paste(head(which(!lg), 5), collapse = ", ", sep="")
     rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
     }

@@ -52,7 +52,9 @@ union_number_lines <- function(x, y){
   x <- c(x[1], x); y <- c(x[1], y)
   o <- c(x[1], as.number_line(rep(NA_real_, length(x)-1)))
 
-  lg <- which(overlap(x, y))
+  lg <- overlap(x, y)
+  lg[is.na(lg)] <- F
+  lg <- which(lg)
 
   o[lg] <- number_line(
     start_point(number_line(start_point(x[lg]), start_point(y[lg]))),
@@ -60,7 +62,7 @@ union_number_lines <- function(x, y){
   )
 
   dir <- ifelse(abs(x@.Data[lg]) > abs(y@.Data[lg]), x@.Data[lg]/abs(x@.Data[lg]), y@.Data[lg]/abs(y@.Data[lg]))
-  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir==1,"decreasing","increasing"))
+  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir==1, "decreasing", "increasing"))
 
   return(o[-1])
 }
@@ -68,14 +70,14 @@ union_number_lines <- function(x, y){
 #' @rdname set_operations
 #' @examples
 #'
-#' nl_1 <- number_line(as.Date(c("01/01/2020", "03/01/2020","09/01/2020"), "%d/%m/%Y"),
+#' nl_3 <- number_line(as.Date(c("01/01/2020", "03/01/2020","09/01/2020"), "%d/%m/%Y"),
 #'                     as.Date(c("09/01/2020", "09/01/2020","25/12/2020"), "%d/%m/%Y"))
 #'
-#' nl_2 <- number_line(as.Date(c("04/01/2020","01/01/2020","01/01/2020"), "%d/%m/%Y"),
+#' nl_4 <- number_line(as.Date(c("04/01/2020","01/01/2020","01/01/2020"), "%d/%m/%Y"),
 #'                     as.Date(c("05/01/2020","05/01/2020","03/01/2020"), "%d/%m/%Y"))
 #'
 #' # Intersect
-#' nl_1; nl_2; intersect_number_lines(nl_1, nl_2)
+#' nl_3; nl_4; intersect_number_lines(nl_3, nl_4)
 #' @export
 intersect_number_lines <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
@@ -93,22 +95,32 @@ intersect_number_lines <- function(x, y){
   x <- c(x[1], x); y <- c(x[1], y)
   o <- c(x[1], as.number_line(rep(NA_real_, length(x)-1)))
 
-  lg <- which(overlap(x, y))
+  lg <- overlap(x, y)
+  lg[is.na(lg)] <- F
+  lg <- which(lg)
 
-  cnd <- lg[which(overlaps(as.number_line(start_point(x[lg])), y[lg]))]
-  o[cnd] <- number_line(l= start_point(x[cnd]), r = right_point(o[cnd]))
+  slg <- overlaps(as.number_line(start_point(x[lg])), y[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(slg)]
+  o[cnd] <- number_line(l = start_point(x[cnd]), r = right_point(o[cnd]))
 
-  cnd <- lg[which(overlaps(as.number_line(start_point(y[lg])), x[lg]))]
-  o[cnd] <- number_line(l= start_point(y[cnd]), r = right_point(o[cnd]))
+  slg <- overlaps(as.number_line(start_point(y[lg])), x[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(slg)]
+  o[cnd] <- number_line(l = start_point(y[cnd]), r = right_point(o[cnd]))
 
-  cnd <- lg[which(overlaps(as.number_line(end_point(x[lg])), y[lg]))]
-  o[cnd] <- number_line(l= end_point(x[cnd]), r = left_point(o[cnd]))
+  slg <- overlaps(as.number_line(end_point(x[lg])), y[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(slg)]
+  o[cnd] <- number_line(l = end_point(x[cnd]), r = left_point(o[cnd]))
 
-  cnd <- lg[which(overlaps(as.number_line(end_point(y[lg])), x[lg]))]
-  o[cnd] <- number_line(l= end_point(y[cnd]), r = left_point(o[cnd]))
+  slg <- overlaps(as.number_line(end_point(y[lg])), x[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(slg)]
+  o[cnd] <- number_line(l = end_point(y[cnd]), r = left_point(o[cnd]))
 
   dir <- ifelse(abs(x@.Data[lg]) > abs(y@.Data[lg]), x@.Data[lg]/abs(x@.Data[lg]), y@.Data[lg]/abs(y@.Data[lg]))
-  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir==1,"decreasing","increasing"))
+  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir == 1, "decreasing", "increasing"))
   return(o[-1])
 }
 
@@ -116,7 +128,7 @@ intersect_number_lines <- function(x, y){
 #' @examples
 #'
 #' # Subtract
-#' nl_1; nl_2; subtract_number_lines(nl_1, nl_2)
+#' nl_3; nl_4; subtract_number_lines(nl_3, nl_4)
 #'
 #' @export
 subtract_number_lines <- function(x, y){
@@ -135,19 +147,29 @@ subtract_number_lines <- function(x, y){
   x <- c(x[1], x); y <- c(x[1], y)
   o2 <- o1 <- c(x[1], as.number_line(rep(NA_real_, length(x)-1)))
 
-  lg <- which(overlap(x, y))
+  lg <- overlap(x, y)
+  lg[is.na(lg)] <- F
+  lg <- which(lg)
 
-  cnd <- lg[which(!overlaps(as.number_line(start_point(x[lg])), y[lg]))]
-  o1[cnd] <- number_line(l= start_point(x[cnd]), r = start_point(y[cnd]))
+  slg <- overlaps(as.number_line(start_point(x[lg])), y[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(!slg)]
+  o1[cnd] <- number_line(l = start_point(x[cnd]), r = start_point(y[cnd]))
 
-  cnd <- lg[which(!overlaps(as.number_line(start_point(y[lg])), x[lg]))]
-  o1[cnd] <- number_line(l= start_point(y[cnd]), r = start_point(x[cnd]))
+  slg <- overlaps(as.number_line(start_point(y[lg])), x[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(!slg)]
+  o1[cnd] <- number_line(l = start_point(y[cnd]), r = start_point(x[cnd]))
 
-  cnd <- lg[which(!overlaps(as.number_line(end_point(x[lg])), y[lg]))]
+  slg <- overlaps(as.number_line(end_point(x[lg])), y[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(!slg)]
   o2[cnd] <- number_line(l= end_point(y[cnd]), r = end_point(x[cnd]))
 
-  cnd <- lg[which(!overlaps(as.number_line(end_point(y[lg])), x[lg]))]
-  o2[cnd] <- number_line(l= end_point(x[cnd]), r = end_point(y[cnd]))
+  slg <- overlaps(as.number_line(end_point(y[lg])), x[lg])
+  slg[is.na(slg)] <- F
+  cnd <- lg[which(!slg)]
+  o2[cnd] <- number_line(l = end_point(x[cnd]), r = end_point(y[cnd]))
 
   list(
     n1 = o1[-1],

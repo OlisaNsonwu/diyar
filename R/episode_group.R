@@ -534,7 +534,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
     }
 
-    ovr_chks <- function(tr, int, mths) overlaps(tr, int, methods = mths)
     ep_checks <- as.matrix(mapply(ovr_chks, tr_ep_int, rep(list(int), length(tr_ep_int)), ov_mth_a))
     if(length(int) == 1){
       ep_checks <- t(ep_checks)
@@ -639,6 +638,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           r = ep_l_bounds_z))
 
       ep_obds_checks <- suppressWarnings(overlap(int[lgk], epc_bnds))
+      ep_obds_checks <- ifelse(is.na(ep_obds_checks), F, ep_obds_checks)
 
       if(any_rolling == T){
         rc_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_rc_int, function(x) start_point(x[lgk])))
@@ -656,9 +656,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             r = rc_l_bounds_z))
 
         rc_obds_checks <- suppressWarnings(overlap(int[lgk], rc_l_bnds))
+        rc_obds_checks <- ifelse(is.na(rc_obds_checks), F, rc_obds_checks)
       }
 
       ref_period <- overlap(int, tr_int)
+      ref_period <- ifelse(is.na(ref_period), F, ref_period)
       skp_crxt <- cri[cr & !ref_period]
       skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
       indx <- (ep_obds_checks &

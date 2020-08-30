@@ -83,7 +83,7 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
   if(err != F) stop(err, call. = F)
 
   # final check
-  p <- rep(F, length(x))
+  p <- rep(NA, length(x))
   sets <- split(1:length(x), m)
 
   # Mutually inclusive methods
@@ -96,7 +96,7 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
   um1 <- um1[!duplicated(um1)]
 
   m_ab <- function(x){
-    x <- ifelse(x=="aligns_start", "as", ifelse(x=="aligns_end", "ae", substr(x,1,2)))
+    ifelse(x=="aligns_start", "as", ifelse(x=="aligns_end", "ae", substr(x,1,2)))
   }
 
   for (i in um1){
@@ -106,7 +106,7 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
     tp <- tp[names(tp) != ""]
     tp <- unlist(tp, use.names = F)
     lgk <- p
-    lgk[tp] <- T
+    lgk[tp & !is.na(tp)] <- T
     assign(ab, lgk)
   }
 
@@ -116,8 +116,7 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
     tst <- get(m_ab(j))
     chg <- func(x, y)
 
-    p[p==F & chg == T & tst == T] <- T
-
+    p[p %in% c(F, NA) & chg == T & !is.na(chg) & tst == T & !is.na(tst)] <- T
   }
 
   return(p)
@@ -145,7 +144,8 @@ overlap <- function(x, y){
     ((y@start >= x@start & y@start <= x@start + x@.Data) | (y@start <= x@start & y@start >= x@start + x@.Data)) |
     ((y@start + y@.Data >= x@start & y@start + y@.Data <= x@start + x@.Data) | (y@start + y@.Data <= x@start & y@start + y@.Data >= x@start + x@.Data))
 
-  r <- ifelse(!is.finite(r), FALSE, r)
+  #r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -164,7 +164,8 @@ exact <- function(x, y){
   if(length(x) == 0 & length(y)== 0) return(logical())
 
   r <- y@start == x@start & x@.Data == y@.Data
-  r <- ifelse(!is.finite(r), FALSE, r)
+  #r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -183,7 +184,8 @@ reverse <- function(x, y){
   if(length(x) == 0 & length(y)== 0) return(logical())
 
   r <- x@start == y@start + y@.Data & x@start + x@.Data == y@start & abs(x@.Data) != 0
-  r <- ifelse(!is.finite(r), FALSE, r)
+  #r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -206,7 +208,8 @@ across <- function(x, y){
 
   r <- ((start_point(x) > start_point(y) & start_point(x) < end_point(y)) & ((end_point(x) < start_point(y)) | (end_point(x) > end_point(y)))) |
     ((start_point(y) > start_point(x) & start_point(y) < end_point(x)) & ((end_point(y) < start_point(x)) | (end_point(y) > end_point(x))))
-  r <- ifelse(!is.finite(r), FALSE, r)
+  #r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -251,7 +254,8 @@ aligns_start <- function(x, y){
   if(length(x) == 0 & length(y)== 0) return(logical())
 
   r <- x@start==y@start & !diyar::exact(x, y)
-  r <- ifelse(!is.finite(r), FALSE, r)
+  #r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -273,7 +277,8 @@ aligns_end <- function(x, y){
   if(length(x) == 0 & length(y)== 0) return(logical())
 
   r <- (x@start + x@.Data) == (y@start + y@.Data) & !diyar::exact(x, y)
-  r <- ifelse(!is.finite(r), FALSE, r)
+  #r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -298,7 +303,8 @@ inbetween <- function(x, y){
     ((y@start > x@start & y@start < x@start + x@.Data) & (y@start + y@.Data > x@start & y@start + y@.Data < x@start + x@.Data)) |
     ((x@start < y@start & x@start > y@start + y@.Data) & (x@start + x@.Data < y@start & x@start + x@.Data > y@start + y@.Data)) |
     ((y@start < x@start & y@start > x@start + x@.Data) & (y@start + y@.Data < x@start & y@start + y@.Data > x@start + x@.Data))
-  r <- ifelse(!is.finite(r), FALSE, r)
+  #r <- ifelse(!is.finite(r), FALSE, r)
+  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 

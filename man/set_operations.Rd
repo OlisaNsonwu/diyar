@@ -50,17 +50,17 @@ nl_2 <- c(number_line(1, 2), number_line(2, 3), number_line(0, 6))
 nl_1; nl_2; union_number_lines(nl_1, nl_2)
 
 
-nl_1 <- number_line(as.Date(c("01/01/2020", "03/01/2020","09/01/2020"), "\%d/\%m/\%Y"),
+nl_3 <- number_line(as.Date(c("01/01/2020", "03/01/2020","09/01/2020"), "\%d/\%m/\%Y"),
                     as.Date(c("09/01/2020", "09/01/2020","25/12/2020"), "\%d/\%m/\%Y"))
 
-nl_2 <- number_line(as.Date(c("04/01/2020","01/01/2020","01/01/2020"), "\%d/\%m/\%Y"),
+nl_4 <- number_line(as.Date(c("04/01/2020","01/01/2020","01/01/2020"), "\%d/\%m/\%Y"),
                     as.Date(c("05/01/2020","05/01/2020","03/01/2020"), "\%d/\%m/\%Y"))
 
 # Intersect
-nl_1; nl_2; intersect_number_lines(nl_1, nl_2)
+nl_3; nl_4; intersect_number_lines(nl_3, nl_4)
 
 # Subtract
-nl_1; nl_2; subtract_number_lines(nl_1, nl_2)
+nl_3; nl_4; subtract_number_lines(nl_3, nl_4)
 
 }
 \seealso{

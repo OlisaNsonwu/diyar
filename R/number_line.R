@@ -420,7 +420,9 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
   if(length(collapse) == 1) collapse <- rep(collapse, length(x))
   while (min(t) == 0 & j<=length(x)){
     l <- x[t == 0][1]
-    h <- (x@id == l@id | overlaps(x, l, methods = m)) & ifelse(collapse, TRUE, (t != 1))
+    lg <- overlaps(x, l, methods = m)
+    lg[is.na(lg)] <- F
+    h <- (x@id == l@id | lg) & ifelse(collapse, TRUE, (t != 1))
 
     if(length(h)>=1){
       mx_in <- ifelse(length(x[h & x@.Data >=0]) >0, max(x[h & x@.Data >=0]@.Data), 0)
