@@ -900,11 +900,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #' @rdname episodes
 #' @export
 fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
-                           to_s4 = T, overlap_methods_c = "overlap", deduplicate = F,
-                           display = "progress", bi_direction = F,
+                           to_s4 = TRUE, overlap_methods_c = "overlap", deduplicate = FALSE,
+                           display = "progress", bi_direction = FALSE,
                            recurrence_length = case_length,
                            overlap_methods_r = overlap_methods_c,
-                           include_index_period = T, ...,
+                           include_index_period = FALSE, ...,
                            overlap_methods = "overlap", overlap_method = "overlap", x){
   args <- as.list(substitute(...()))
   if (length(names(args)[names(args) == ""] > 0)){
@@ -982,10 +982,10 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
 #' @rdname episodes
 #' @export
 rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_length,
-                             episode_unit = "days", to_s4 = T, overlap_methods_c = "overlap",
-                             overlap_methods_r = overlap_methods_c, deduplicate = F,
-                             display = "progress", bi_direction = F,
-                             include_index_period = T, ...,
+                             episode_unit = "days", to_s4 = TRUE, overlap_methods_c = "overlap",
+                             overlap_methods_r = overlap_methods_c, deduplicate = FALSE,
+                             display = "progress", bi_direction = FALSE,
+                             include_index_period = FALSE, ...,
                              overlap_methods = "overlap", overlap_method = "overlap", x) {
 
   args <- as.list(substitute(...()))
