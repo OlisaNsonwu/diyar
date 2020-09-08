@@ -630,7 +630,7 @@ err_episodes_checks_1 <- function(date,
   if(length(err) > 0) return(err[1])
 
   # Check for missing values where they are not permitted
-  args <- list(date = date,
+  args <- list(#date = date,
                episode_type = episode_type,
                overlap_methods_c = overlap_methods_c,
                overlap_methods_r = overlap_methods_r,
@@ -815,7 +815,7 @@ err_episodes_checks_0 <- function(date,
   if(length(err) > 0) return(err[1])
 
   # Check for missing values where they are not permitted
-  args <- list(date = date,
+  args <- list(#date = date,
                episode_type = episode_type,
                overlap_methods_c = overlap_methods_c,
                overlap_methods_r = overlap_methods_r,

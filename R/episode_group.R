@@ -328,6 +328,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   case_nm[lgk] <- "Skipped"
   iteration[lgk] <- 0
 
+  lgk <- is.na(int@start) | is.na(int@.Data)
+  tag[lgk] <- 2
+  case_nm[lgk] <- "Skipped"
+  iteration[lgk] <- 0
+
   if(!is.null(data_source) & !all(toupper(dl_lst) == "ANY")){
     req_links <- check_links(cri, data_source, data_links)$rq
     tag[!req_links] <- 2
@@ -904,7 +909,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                            display = "progress", bi_direction = FALSE,
                            recurrence_length = case_length,
                            overlap_methods_r = overlap_methods_c,
-                           include_index_period = FALSE, ...,
+                           include_index_period = TRUE, ...,
                            overlap_methods = "overlap", overlap_method = "overlap", x){
   args <- as.list(substitute(...()))
   if (length(names(args)[names(args) == ""] > 0)){
@@ -985,7 +990,7 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
                              episode_unit = "days", to_s4 = TRUE, overlap_methods_c = "overlap",
                              overlap_methods_r = overlap_methods_c, deduplicate = FALSE,
                              display = "progress", bi_direction = FALSE,
-                             include_index_period = FALSE, ...,
+                             include_index_period = TRUE, ...,
                              overlap_methods = "overlap", overlap_method = "overlap", x) {
 
   args <- as.list(substitute(...()))
