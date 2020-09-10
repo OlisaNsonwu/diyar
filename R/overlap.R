@@ -65,18 +65,25 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
     m <- methods
   }
 
-  if(length(x) == 1){
+  if(length(x) == 1 & length(y) != 1){
+    x <- rep(x, length(y))
+  }else if(length(y) == 1 & length(x) != 1){
+    y <- rep(y, length(x))
+  }else{
     err <- err_match_ref_len(x, "y", c(1, length(y)), "x")
     if(err != F) stop(err, call. = F)
-    x <- rep(x, length(y))
-    err <- err_match_ref_len(m, "y", c(1, length(y)), "method")
-    if(err != F) stop(err, call. = F)
-  }else{
+
     err <- err_match_ref_len(y, "x", c(1, length(x)), "y")
     if(err != F) stop(err, call. = F)
-    err <- err_match_ref_len(method, "x", c(1, length(x)), "method")
+  }
+
+  if(length(m) == 1 & length(x) != 1){
+    m <- rep(m, length(x))
+  }else{
+    err <- err_match_ref_len(m, "x", c(1, length(x)), "method")
     if(err != F) stop(err, call. = F)
   }
+
   err <- err_object_types(m, "methods", "character")
   if(err != F) stop(err, call. = F)
   err <- err_overlap_methods_1(overlap_methods = m, "methods")
@@ -99,26 +106,20 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
     ifelse(x=="aligns_start", "as", ifelse(x=="aligns_end", "ae", substr(x,1,2)))
   }
 
+  none <- function(x, y) rep(F, length(x))
   for (i in um1){
     assign("tp", sets)
     ab <- m_ab(i)
     names(tp) <- ifelse(grepl(i, names(sets)), i, "")
     tp <- tp[names(tp) != ""]
     tp <- unlist(tp, use.names = F)
-    lgk <- p
-    lgk[tp & !is.na(tp)] <- T
-    assign(ab, lgk)
+
+    func <- get(i)
+    tp <- tp[tp %in% which(p %in% c(FALSE, NA))]
+    lgk <- func(x[tp], y[tp])
+    tp <- tp[which(lgk)]
+    p[tp] <- TRUE
   }
-
-  none <- function(x, y) rep(F, length(x))
-  for (j in um1) {
-    func <- get(j)
-    tst <- get(m_ab(j))
-    chg <- func(x, y)
-
-    p[p %in% c(F, NA) & chg == T & !is.na(chg) & tst == T & !is.na(tst)] <- T
-  }
-
   return(p)
 }
 
@@ -144,8 +145,6 @@ overlap <- function(x, y){
     ((y@start >= x@start & y@start <= x@start + x@.Data) | (y@start <= x@start & y@start >= x@start + x@.Data)) |
     ((y@start + y@.Data >= x@start & y@start + y@.Data <= x@start + x@.Data) | (y@start + y@.Data <= x@start & y@start + y@.Data >= x@start + x@.Data))
 
-
-  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -165,7 +164,6 @@ exact <- function(x, y){
 
   r <- y@start == x@start & x@.Data == y@.Data
 
-  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -185,7 +183,6 @@ reverse <- function(x, y){
 
   r <- x@start == y@start + y@.Data & x@start + x@.Data == y@start & abs(x@.Data) != 0
 
-  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -209,7 +206,6 @@ across <- function(x, y){
   r <- ((start_point(x) > start_point(y) & start_point(x) < end_point(y)) & ((end_point(x) < start_point(y)) | (end_point(x) > end_point(y)))) |
     ((start_point(y) > start_point(x) & start_point(y) < end_point(x)) & ((end_point(y) < start_point(x)) | (end_point(y) > end_point(x))))
 
-  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -233,6 +229,7 @@ chain <- function(x, y){
   r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
     ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
   r <- ifelse(!is.finite(r) | x@.Data * y@.Data < 0 | is.na(x@.Data * y@.Data), FALSE, r)
+
   return(r)
 }
 
@@ -255,7 +252,6 @@ aligns_start <- function(x, y){
 
   r <- x@start==y@start & !diyar::exact(x, y)
 
-  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -278,7 +274,6 @@ aligns_end <- function(x, y){
 
   r <- (x@start + x@.Data) == (y@start + y@.Data) & !diyar::exact(x, y)
 
-  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 
@@ -304,7 +299,6 @@ inbetween <- function(x, y){
     ((x@start < y@start & x@start > y@start + y@.Data) & (x@start + x@.Data < y@start & x@start + x@.Data > y@start + y@.Data)) |
     ((y@start < x@start & y@start > x@start + x@.Data) & (y@start + y@.Data < x@start & y@start + y@.Data > x@start + x@.Data))
 
-  r <- ifelse(is.na(r), NA, r)
   return(r)
 }
 

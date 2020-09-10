@@ -361,13 +361,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                         "iteration" = numeric(0))
   while (min(tag) != 2) {
 
-    if(display == "stats" & excluded >0 & ite ==1) cat(paste0(fmt(tot), " record(s); ", fmt(excluded), " excluded from episode tracking. ", fmt(tot-excluded), " left.\n"))
+    if(display == "stats" & excluded >0 & ite ==1) cat(paste0(fmt(tot), "  ", fmt(excluded), " excluded from episode tracking.","\n"))
     if(display == "stats"){
       msg <- paste0("Episode or recurrence window ", fmt(ite) ,".")
       cat(msg, "\n", sep="")
     }
 
-    current_tot <- length(tag[tag!=2])
     sort_ord <- order(cri, tag, assign_ord, int@gid, decreasing = T)
 
     for(i in c("e","tag","cri","assign_ord",
@@ -496,7 +495,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(min(tag) == 2){
       if(display== "stats"){
-        msg <- paste0(fmt(current_tot), " record(s); ", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped), " skipped"), ""), " and ", fmt(current_tot - (current_skipped)), " assigned to unique episodes.")
+        current_tagged <- length(tag[tag == 2])
+        current_tot <- length(tag)
+        msg <- paste0(fmt(current_tot), " record(s): ", ifelse(current_tagged > current_skipped,
+                                                               paste0(fmt(current_tagged - current_skipped), " tracked.", fmt(current_skipped), " skipped."),
+                                                               paste0(fmt(current_skipped), " skipped.")))
         cat(msg, "\n", sep="")
       }else if (tolower(display)=="progress") {
         progress_bar((length(tag[tag==2]) + length(grouped_epids$tag))/tot, 100, msg = "Tracking episodes")
@@ -618,7 +621,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(min(tag) == 2){
       if(display== "stats"){
-        msg <- paste0(fmt(current_tot), " record(s); ", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped), " skipped"), ""), " and ", fmt(current_tot - (current_skipped)), " assigned to unique episodes.")
+        current_tagged <- length(tag[tag == 2])
+        current_tot <- length(tag)
+        msg <- paste0(fmt(current_tot), " record(s): ", ifelse(current_tagged > current_skipped,
+                                                               paste0(fmt(current_tagged - current_skipped), " tracked.", fmt(current_skipped), " skipped."),
+                                                               paste0(fmt(current_skipped), " skipped.")))
         cat(msg, "\n", sep="")
       }else if (tolower(display)=="progress") {
         progress_bar((length(tag[tag==2]) + length(grouped_epids$tag))/tot, 100, msg = "Tracking episodes")
@@ -690,9 +697,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rm(skp_crxt); rm(indx)
     }
     iteration[tag != 0 & iteration == Inf] <- ite
-    current_tagged <- length(cr[cr])
+    current_tagged <- length(tag[tag == 2])
+    current_tot <- length(tag)
     if(display== "stats"){
-      msg <- paste0(fmt(current_tot), " record(s); ", fmt(current_tagged), " tracked to episodes", ifelse(current_skipped>0, paste0(", ",fmt(current_skipped), " skipped"), ""), " and ", fmt(current_tot - (current_tagged + current_skipped)), " left.")
+      msg <- paste0(fmt(current_tot), " record(s): ", fmt(current_tagged), " tracked.",
+                    ifelse(current_skipped > 0, paste0(", ",fmt(current_skipped), " skipped."), ""))
       cat(msg, "\n", sep="")
     }else if (tolower(display)=="progress") {
       progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag))/tot, 100, msg = "Tracking episodes")
@@ -890,11 +899,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
   if(display != "none"){
     summ <- paste0("Summary.\n",
-                   "Time elapsed: ", tms, ".\n",
-                   "Records: ", fmt(length(epid)), "\n",
-                   "Skipped records: ", fmt(length(epid[epid@case_nm == "Skipped"])), "\n",
-                   "Episodes with unique events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot == 1])), "\n",
-                   "Episodes with multiple events: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot > 1])), "\n")
+                   "Time elapsed:   ", tms, "\n",
+                   "Records:\n",
+                   "  Total:        ", fmt(length(epid)), "\n",
+                   "  Skipped:      ", fmt(length(epid[epid@case_nm == "Skipped"])), "\n",
+                   "Episodes:\n",
+                   "  Total:        ", fmt(length(epid[epid@case_nm == "Case"])), "\n",
+                   "  Single-event: ", fmt(length(epid[epid@case_nm == "Case" & epid_tot == 1])), "\n")
     cat(summ)
   }else if(display == "none"){
     cat(paste0("Episode tracking completed in ", tms, "!\n"))

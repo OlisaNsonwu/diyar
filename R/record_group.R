@@ -162,6 +162,7 @@ links <- function(criteria,
   link_id <- pid
   ite <- 1
 
+  display <- tolower(display)
   if(display != "none") cat("\n")
   for(i in 1:length(criteria)){
     cri <- criteria[[i]]
@@ -324,7 +325,7 @@ links <- function(criteria,
       assigned <- length(tag[tag == 0 & !pid %in% c(sn_ref, NA)])
       removed <- length(tag[!duplicated(pid) & !duplicated(pid, fromLast=TRUE)])
       current_tot <- length(tag[tag == 0 & !pid %in% c(sn_ref, NA)])
-      cat(paste0(fmt(current_tot), " records(s): ",  fmt(current_tot-removed)," linked to record groups and ", fmt(removed)," with no link.\n"))
+      cat(paste0(fmt(current_tot), " records(s): ", fmt(current_tot-removed)," linked.\n"))
     }
     tag <- ifelse(pid %in% c(sn_ref, NA), 0, 1)
     link_id[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
@@ -389,12 +390,16 @@ links <- function(criteria,
     cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
     cri_dst <- cri_dst[!is.na(cri_dst)]
     cri_n <- as.numeric(names(cri_dst))
-    cri_dst <- paste0("   ", pid_cri_l(cri_n), ": ", fmt(cri_dst), collapse = "\n")
+    cri_dst <- paste0("       ", pid_cri_l(cri_n), ":   ", fmt(cri_dst), collapse = "\n")
     summ <- paste0("\nSummary.\n",
-                   "Time elapsed: ", tms, ".\n",
-                   "Groups:     ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n",
-                   "Records:    ", fmt(tot), "\n",
-                   cri_dst, "\n"
+                   "Time elapsed:     ", tms, "\n",
+                   "Records:\n",
+                   "  Total:          ", fmt(tot), "\n",
+                   "    Stages:\n",
+                   cri_dst, "\n",
+                   "Groups:\n",
+                   "   Total:         ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n",
+                   "   Single-record: ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n"
                    )
     cat(summ)
   }else if(display == "none"){
