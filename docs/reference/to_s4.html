@@ -168,11 +168,13 @@ from a <code>data.frame</code> to <a href='number_line-class.html'>number_line</
 <span class='no'>output</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episodes.html'>fixed_episodes</a></span>(<span class='no'>dates</span>, <span class='kw'>case_length</span><span class='kw'>=</span><span class='fl'>30</span>)</div><div class='output co'>#&gt; 
 #&gt; -------------------------------------                               Tracking episodes; 54% complete.-------------------------------------------------------------------Tracking episodes; 100% complete.
 #&gt; Summary.
-#&gt; Time elapsed: &lt; 0.01 secs.
-#&gt; Records: 11
-#&gt; Skipped records: 0
-#&gt; Episodes with unique events: 0
-#&gt; Episodes with multiple events: 2</div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.7 (C)"
+#&gt; Time elapsed:   &lt; 0.01 secs
+#&gt; Records:
+#&gt;   Total:        11
+#&gt;   Skipped:      0
+#&gt; Episodes:
+#&gt;   Total:        2
+#&gt;   Single-event: 0</div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.7 (C)"
 #&gt;  [8] "E.7 (D)" "E.7 (D)" "E.7 (D)" "E.7 (D)"</div><div class='input'>
 <span class='co'># from the a pid/epid object to a data.frame</span>
 <span class='no'>df_output</span> <span class='kw'>&lt;-</span> <span class='fu'>to_df</span>(<span class='no'>output</span>)

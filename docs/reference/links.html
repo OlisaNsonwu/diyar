@@ -255,11 +255,15 @@ Its now exists to support previous code and arguments with minimal disruption. P
 #&gt; Checked `criteria 1`.
 #&gt; 
 #&gt; Summary.
-#&gt; Time elapsed: &lt; 0.01 secs.
-#&gt; Groups:     3
-#&gt; Records:    5
-#&gt;    CRI 001: 4
-#&gt;    No Hits: 1</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 001)" "P.3 (No Hits)" "P.2 (CRI 001)"
+#&gt; Time elapsed:     &lt; 0.01 secs
+#&gt; Records:
+#&gt;   Total:          5
+#&gt;     Stages:
+#&gt;        CRI 001:   4
+#&gt;        No Hits:   1
+#&gt; Groups:
+#&gt;    Total:         3
+#&gt;    Single-record: 3</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 001)" "P.3 (No Hits)" "P.2 (CRI 001)"
 #&gt; [5] "P.1 (CRI 001)"</div><div class='input'>
 <span class='co'># User-defined tests using `sub_criteria()`</span>
 <span class='co'># Matching `sex` and + 20-year age gaps</span>
@@ -271,10 +275,14 @@ Its now exists to support previous code and arguments with minimal disruption. P
 #&gt; Checked `criteria 1`.
 #&gt; 
 #&gt; Summary.
-#&gt; Time elapsed: &lt; 0.01 secs.
-#&gt; Groups:     2
-#&gt; Records:    7
-#&gt;    CRI 001: 7</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.4 (CRI 001)"
+#&gt; Time elapsed:     &lt; 0.01 secs
+#&gt; Records:
+#&gt;   Total:          7
+#&gt;     Stages:
+#&gt;        CRI 001:   7
+#&gt; Groups:
+#&gt;    Total:         2
+#&gt;    Single-record: 2</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.4 (CRI 001)"
 #&gt; [5] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.4 (CRI 001)"</div><div class='input'>
 <span class='co'># Multistage linkage</span>
 <span class='co'># Relevance of matches: `forename` &gt; `surname`</span>
@@ -291,11 +299,15 @@ Its now exists to support previous code and arguments with minimal disruption. P
 #&gt; Checked `criteria 2`.
 #&gt; 
 #&gt; Summary.
-#&gt; Time elapsed: &lt; 0.01 secs.
-#&gt; Groups:     3
-#&gt; Records:    7
-#&gt;    CRI 002: 6
-#&gt;    No Hits: 1</div><div class='output co'>#&gt; [1] "P.1 (CRI 002)" "P.2 (CRI 002)" "P.1 (CRI 002)" "P.4 (No Hits)"
+#&gt; Time elapsed:     &lt; 0.01 secs
+#&gt; Records:
+#&gt;   Total:          7
+#&gt;     Stages:
+#&gt;        CRI 002:   6
+#&gt;        No Hits:   1
+#&gt; Groups:
+#&gt;    Total:         3
+#&gt;    Single-record: 3</div><div class='output co'>#&gt; [1] "P.1 (CRI 002)" "P.2 (CRI 002)" "P.1 (CRI 002)" "P.4 (No Hits)"
 #&gt; [5] "P.2 (CRI 002)" "P.2 (CRI 002)" "P.1 (CRI 002)"</div><div class='input'>
 <span class='co'># Relevance of matches:</span>
 <span class='co'># `staff_id` &gt; `age` AND (`initials`, `hair_colour` OR `branch_office`)</span>
@@ -315,11 +327,15 @@ Its now exists to support previous code and arguments with minimal disruption. P
 #&gt; Checked `criteria 2`.
 #&gt; 
 #&gt; Summary.
-#&gt; Time elapsed: &lt; 0.01 secs.
-#&gt; Groups:     1
-#&gt; Records:    7
-#&gt;    CRI 001: 2
-#&gt;    CRI 002: 5</div><div class='output co'>#&gt; [1] "P.6 (CRI 002)" "P.6 (CRI 002)" "P.6 (CRI 002)" "P.6 (CRI 002)"
+#&gt; Time elapsed:     &lt; 0.01 secs
+#&gt; Records:
+#&gt;   Total:          7
+#&gt;     Stages:
+#&gt;        CRI 001:   2
+#&gt;        CRI 002:   5
+#&gt; Groups:
+#&gt;    Total:         1
+#&gt;    Single-record: 1</div><div class='output co'>#&gt; [1] "P.6 (CRI 002)" "P.6 (CRI 002)" "P.6 (CRI 002)" "P.6 (CRI 002)"
 #&gt; [5] "P.6 (CRI 002)" "P.6 (CRI 001)" "P.6 (CRI 001)"</div><div class='input'>
 </div></pre>
   </div>

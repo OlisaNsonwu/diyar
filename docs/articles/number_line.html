@@ -90,7 +90,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Number lines and overlaps</h1>
             
-            <h4 class="date">28 August 2020</h4>
+            <h4 class="date">10 September 2020</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/number_line.Rmd"><code>vignettes/number_line.Rmd</code></a></small>
       <div class="hidden name"><code>number_line.Rmd</code></div>
@@ -153,35 +153,35 @@
                     <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"07/04/2019"</span>, <span class="st">"%d/%M/%Y"</span>))
 
 <span class="no">nl_c</span>
-<span class="co">#&gt; [1] "2019-08-04 -&gt; 2019-08-07"</span>
+<span class="co">#&gt; [1] "2019-09-04 -&gt; 2019-09-07"</span>
 
 <span class="co"># expand the `number_line` object by 2 days from both ends </span>
 <span class="no">nl_d</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>); <span class="no">nl_d</span>
-<span class="co">#&gt; [1] "2019-08-02 -&gt; 2019-08-09"</span>
+<span class="co">#&gt; [1] "2019-09-02 -&gt; 2019-09-09"</span>
 
 <span class="co"># expand the `number_line` object by 2 days from the lower end</span>
 <span class="no">nl_e</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>, <span class="st">"start"</span>); <span class="no">nl_e</span>
-<span class="co">#&gt; [1] "2019-08-02 -&gt; 2019-08-07"</span>
+<span class="co">#&gt; [1] "2019-09-02 -&gt; 2019-09-07"</span>
 
 <span class="co"># shrink the `number_line` object by 2 days from the upper end</span>
 <span class="no">nl_f</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>, <span class="st">"end"</span>); <span class="no">nl_f</span>
-<span class="co">#&gt; [1] "2019-08-04 -&gt; 2019-08-05"</span>
+<span class="co">#&gt; [1] "2019-09-04 -&gt; 2019-09-05"</span>
 
 <span class="co"># shrink the `number_line` object by 2 days from both ends</span>
 <span class="no">nl_g</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>); <span class="no">nl_g</span>
-<span class="co">#&gt; [1] "2019-08-06 &lt;- 2019-08-05"</span>
+<span class="co">#&gt; [1] "2019-09-06 &lt;- 2019-09-05"</span>
 
 <span class="co"># reverse the direction of the `number_line`</span>
 <span class="no">nl_h</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">reverse_number_line</a></span>(<span class="no">nl_c</span>); <span class="no">nl_h</span>
-<span class="co">#&gt; [1] "2019-08-07 &lt;- 2019-08-04"</span>
+<span class="co">#&gt; [1] "2019-09-07 &lt;- 2019-09-04"</span>
 
 <span class="co"># shift the `number_line` object towards the left of the number line by 2 days </span>
 <span class="no">nl_i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">shift_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>); <span class="no">nl_g</span>
-<span class="co">#&gt; [1] "2019-08-06 &lt;- 2019-08-05"</span>
+<span class="co">#&gt; [1] "2019-09-06 &lt;- 2019-09-05"</span>
 
 <span class="co"># shift the `number_line` object towards the right of the number line by 2 days </span>
 <span class="no">nl_j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">shift_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>); <span class="no">nl_i</span>
-<span class="co">#&gt; [1] "2019-08-02 -&gt; 2019-08-05"</span></pre></body></html></div>
+<span class="co">#&gt; [1] "2019-09-02 -&gt; 2019-09-05"</span></pre></body></html></div>
 <p><strong>Figure 3: Manipulated <code>number_line</code> objects </strong> <img src="number_line_files/figure-html/unnamed-chunk-8-1.png" width="816"></p>
 <p><code><a href="../reference/number_line.html">invert_number_line()</a></code> changes each point on the <code>number_line</code> from a positive to a negative value and vice versa. See below.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">inv</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">3</span>,-<span class="fl">3</span>,<span class="fl">3</span>,-<span class="fl">3</span>), <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(-<span class="fl">6</span>,<span class="fl">6</span>,<span class="fl">6</span>,-<span class="fl">6</span>)); <span class="no">inv</span>
@@ -203,60 +203,60 @@
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">nls</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">nl_c</span>, <span class="no">nl_d</span>, <span class="no">nl_e</span>, <span class="no">nl_f</span>, <span class="no">nl_g</span>, <span class="no">nl_h</span>, <span class="no">nl_i</span>, <span class="no">nl_j</span>)
 
 <span class="no">nls</span>
-<span class="co">#&gt; [1] "2019-08-04 -&gt; 2019-08-07" "2019-08-02 -&gt; 2019-08-09"</span>
-<span class="co">#&gt; [3] "2019-08-02 -&gt; 2019-08-07" "2019-08-04 -&gt; 2019-08-05"</span>
-<span class="co">#&gt; [5] "2019-08-06 &lt;- 2019-08-05" "2019-08-07 &lt;- 2019-08-04"</span>
-<span class="co">#&gt; [7] "2019-08-02 -&gt; 2019-08-05" "2019-08-06 -&gt; 2019-08-09"</span>
+<span class="co">#&gt; [1] "2019-09-04 -&gt; 2019-09-07" "2019-09-02 -&gt; 2019-09-09"</span>
+<span class="co">#&gt; [3] "2019-09-02 -&gt; 2019-09-07" "2019-09-04 -&gt; 2019-09-05"</span>
+<span class="co">#&gt; [5] "2019-09-06 &lt;- 2019-09-05" "2019-09-07 &lt;- 2019-09-04"</span>
+<span class="co">#&gt; [7] "2019-09-02 -&gt; 2019-09-05" "2019-09-06 -&gt; 2019-09-09"</span>
 
 <span class="fu"><a href="../reference/number_line.html">number_line_sequence</a></span>(<span class="no">nls</span>, <span class="kw">by</span><span class="kw">=</span><span class="fl">2</span>)
 <span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "2019-08-04" "2019-08-06"</span>
+<span class="co">#&gt; [1] "2019-09-04" "2019-09-06"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "2019-08-02" "2019-08-04" "2019-08-06" "2019-08-08"</span>
+<span class="co">#&gt; [1] "2019-09-02" "2019-09-04" "2019-09-06" "2019-09-08"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "2019-08-02" "2019-08-04" "2019-08-06"</span>
+<span class="co">#&gt; [1] "2019-09-02" "2019-09-04" "2019-09-06"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[4]]</span>
-<span class="co">#&gt; [1] "2019-08-04"</span>
+<span class="co">#&gt; [1] "2019-09-04"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[5]]</span>
-<span class="co">#&gt; [1] "2019-08-06"</span>
+<span class="co">#&gt; [1] "2019-09-06"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[6]]</span>
-<span class="co">#&gt; [1] "2019-08-07" "2019-08-05"</span>
+<span class="co">#&gt; [1] "2019-09-07" "2019-09-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[7]]</span>
-<span class="co">#&gt; [1] "2019-08-02" "2019-08-04"</span>
+<span class="co">#&gt; [1] "2019-09-02" "2019-09-04"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[8]]</span>
-<span class="co">#&gt; [1] "2019-08-06" "2019-08-08"</span>
+<span class="co">#&gt; [1] "2019-09-06" "2019-09-08"</span>
 
 <span class="fu"><a href="../reference/number_line.html">number_line_sequence</a></span>(<span class="no">nls</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">3</span>)
 <span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "2019-08-04" "2019-08-05" "2019-08-07"</span>
+<span class="co">#&gt; [1] "2019-09-04" "2019-09-05" "2019-09-07"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "2019-08-02" "2019-08-05" "2019-08-09"</span>
+<span class="co">#&gt; [1] "2019-09-02" "2019-09-05" "2019-09-09"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "2019-08-02" "2019-08-04" "2019-08-07"</span>
+<span class="co">#&gt; [1] "2019-09-02" "2019-09-04" "2019-09-07"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[4]]</span>
-<span class="co">#&gt; [1] "2019-08-04" "2019-08-04" "2019-08-05"</span>
+<span class="co">#&gt; [1] "2019-09-04" "2019-09-04" "2019-09-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[5]]</span>
-<span class="co">#&gt; [1] "2019-08-06" "2019-08-05" "2019-08-05"</span>
+<span class="co">#&gt; [1] "2019-09-06" "2019-09-05" "2019-09-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[6]]</span>
-<span class="co">#&gt; [1] "2019-08-07" "2019-08-05" "2019-08-04"</span>
+<span class="co">#&gt; [1] "2019-09-07" "2019-09-05" "2019-09-04"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[7]]</span>
-<span class="co">#&gt; [1] "2019-08-02" "2019-08-03" "2019-08-05"</span>
+<span class="co">#&gt; [1] "2019-09-02" "2019-09-03" "2019-09-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[8]]</span>
-<span class="co">#&gt; [1] "2019-08-06" "2019-08-07" "2019-08-09"</span></pre></body></html></div>
+<span class="co">#&gt; [1] "2019-09-06" "2019-09-07" "2019-09-09"</span></pre></body></html></div>
 <p><a id="overlaps"></a></p>
 </div>
 <div id="overlaps" class="section level2">

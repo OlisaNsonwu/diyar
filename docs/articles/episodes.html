@@ -90,7 +90,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Implementing case definitions for epidemiological analysis in R</h1>
             
-            <h4 class="date">28 August 2020</h4>
+            <h4 class="date">10 September 2020</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/episodes.Rmd"><code>vignettes/episodes.Rmd</code></a></small>
       <div class="hidden name"><code>episodes.Rmd</code></div>
@@ -238,7 +238,7 @@
 <p><strong>Figure 1c: fixed episodes where events before the the cut-off range are not skipped</strong></p>
 <div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">ds</span>$<span class="no">f3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">ds</span>$<span class="no">date</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="no">rng</span>,
                   <span class="kw">skip_if_b4_lengths</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.57 secs!</span>
 <span class="no">ds</span>$<span class="no">f3</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.2 (S)" "E.1 (D)" "E.1 (D)" "E.5 (C)"</span></pre></body></html></div>
 <p><a id="case_assignment"></a></p>
@@ -308,7 +308,7 @@
   <span class="co"># `bi_direction` then makes the function to also check 6 months BEFORE the HIV diagnosis</span>
 <span class="no">ds2</span>$<span class="no">ep3a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">fixed_episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">date</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">user_ord</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">6</span>,
                            <span class="kw">bi_direction</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">episode_unit</span> <span class="kw">=</span> <span class="st">"months"</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.61 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.58 secs!</span>
 
 <span class="co"># Method 1b</span>
 <span class="co"># Track diagnoses 6 months BEFORE the HIV diagnosis</span>
@@ -316,7 +316,7 @@
 <span class="no">ds2</span>$<span class="no">ep3b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">fixed_episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">date</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">user_ord</span>, <span class="kw">case_length</span> <span class="kw">=</span> -<span class="fl">6</span>,
                            <span class="kw">bi_direction</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">episode_unit</span> <span class="kw">=</span> <span class="st">"months"</span>,
                            <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">diag</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.61 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.59 secs!</span>
 
 <span class="co"># Method 2a</span>
 <span class="co"># Track diagnoses 6 months BEFORE or AFTER the HIV diag. </span>
@@ -333,7 +333,7 @@
 <span class="no">rng2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">1</span>, <span class="fl">6</span>)
 <span class="no">ds2</span>$<span class="no">ep5</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">fixed_episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">date</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">user_ord</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="no">rng2</span>,
                           <span class="kw">bi_direction</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">episode_unit</span> <span class="kw">=</span> <span class="st">"months"</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.82 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.73 secs!</span>
 
 <span class="co"># Method 3a</span>
 <span class="co"># Track diagnoses within 1-4 months AFTER the HIV diagnosis, AND </span>
@@ -342,7 +342,7 @@
 <span class="no">rngs</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">1</span>, <span class="fl">4</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">4</span>, <span class="fl">6</span>))
 <span class="no">ds2</span>$<span class="no">ep6</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">fixed_episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">date</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">user_ord</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="no">rngs</span>,
                           <span class="kw">bi_direction</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">episode_unit</span> <span class="kw">=</span> <span class="st">"months"</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 1.35 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 1.27 secs!</span>
 
 <span class="co"># Method 3b</span>
 <span class="co"># Track diagnoses within 2-4 and 4-6 months BEFORE OR AFTER the HIV diagnosis</span>
@@ -362,7 +362,7 @@
 <span class="co">#&gt; [1] "-4 &lt;- -6"</span>
 <span class="no">ds2</span>$<span class="no">ep7</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">date</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">ds2</span>$<span class="no">user_ord</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="no">rngs2</span>,
                     <span class="kw">episode_unit</span> <span class="kw">=</span> <span class="st">"months"</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.84 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.81 secs!</span>
 
 <span class="no">ds2</span>
 <span class="co">#&gt;         date diag user_ord     ep1   ep1_ds     ep2  ep2_ds    ep3a    ep3b</span>
@@ -471,7 +471,7 @@
                   <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="no">rng</span>,
                   <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.53 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.5 secs!</span>
 
 <span class="no">ds</span>$<span class="no">r2</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.1 (R)" "E.1 (D)"</span></pre></body></html></div>
@@ -485,7 +485,7 @@
                   <span class="kw">skip_if_b4_lengths</span> <span class="kw">=</span> <span class="no">F</span>,
                   <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.65 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.51 secs!</span>
 
 <span class="no">ds</span>$<span class="no">r3</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.1 (R)" "E.1 (D)"</span></pre></body></html></div>
@@ -503,7 +503,7 @@
                   <span class="kw">skip_if_b4_lengths</span> <span class="kw">=</span> <span class="no">F</span>,
                   <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.66 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.74 secs!</span>
 
 <span class="no">ds</span>$<span class="no">r4</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.3 (C)" "E.1 (R)" "E.1 (D)"</span></pre></body></html></div>
@@ -550,7 +550,7 @@
                   <span class="kw">recurrence_from_last</span> <span class="kw">=</span> <span class="no">F</span>,
                   <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.56 secs!</span>
+<span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span>
 
 <span class="no">df</span>$<span class="no">r3</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></pre></body></html></div>
@@ -569,7 +569,7 @@
                   <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">10</span>,
                   <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.67 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.56 secs!</span>
 
 <span class="no">df</span>$<span class="no">r4</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.6 (C)"</span></pre></body></html></div>
@@ -579,7 +579,7 @@
                   <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">case_for_recurrence</span> <span class="kw">=</span> <span class="no">T</span>,
                   <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.74 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.57 secs!</span>
 
 <span class="no">df</span>$<span class="no">r5</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (D)" "E.6 (C)"</span></pre></body></html></div>
@@ -599,7 +599,7 @@
                    <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fl">4</span>, <span class="kw">sn</span><span class="kw">=</span><span class="no">df2</span>$<span class="no">sn</span>,
                    <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                    <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.71 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.59 secs!</span>
 
 <span class="no">df2</span>$<span class="no">r1</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></pre></body></html></div>
@@ -609,7 +609,7 @@
                    <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fl">4</span>, <span class="kw">case_for_recurrence</span> <span class="kw">=</span> <span class="no">T</span>,
                    <span class="kw">sn</span><span class="kw">=</span><span class="no">df2</span>$<span class="no">sn</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                    <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.56 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.5 secs!</span>
 
 <span class="no">df2</span>$<span class="no">r1</span>
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (R)" "E.1 (R)" "E.1 (R)"</span></pre></body></html></div>
@@ -659,7 +659,7 @@
                       <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>,
                       <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                       <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.72 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.62 secs!</span>
 
 <span class="no">dbs</span>$<span class="no">eps_4</span>
 <span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"</span>
@@ -687,7 +687,7 @@
                       <span class="kw">rolls_max</span> <span class="kw">=</span> <span class="fl">1</span>,
                       <span class="kw">case_for_recurrence</span> <span class="kw">=</span> <span class="no">T</span>,
                       <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.66 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.65 secs!</span>
 
 <span class="no">dbs</span>$<span class="no">eps_7</span>
 <span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>
@@ -706,11 +706,11 @@
 <span class="no">periods</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="no">dates</span>, <span class="no">dates</span> + <span class="fl">4</span>)
 
 <span class="no">dates</span>
-<span class="co">#&gt; [1] "2019-08-01" "2019-08-05" "2019-08-09" "2019-08-13" "2019-08-17"</span>
+<span class="co">#&gt; [1] "2019-09-01" "2019-09-05" "2019-09-09" "2019-09-13" "2019-09-17"</span>
 <span class="no">periods</span>
-<span class="co">#&gt; [1] "2019-08-01 -&gt; 2019-08-05" "2019-08-05 -&gt; 2019-08-09"</span>
-<span class="co">#&gt; [3] "2019-08-09 -&gt; 2019-08-13" "2019-08-13 -&gt; 2019-08-17"</span>
-<span class="co">#&gt; [5] "2019-08-17 -&gt; 2019-08-21"</span>
+<span class="co">#&gt; [1] "2019-09-01 -&gt; 2019-09-05" "2019-09-05 -&gt; 2019-09-09"</span>
+<span class="co">#&gt; [3] "2019-09-09 -&gt; 2019-09-13" "2019-09-13 -&gt; 2019-09-17"</span>
+<span class="co">#&gt; [5] "2019-09-17 -&gt; 2019-09-21"</span>
 
 <span class="co"># Track fixed episodes from events with a 5 day cut-off </span>
 <span class="no">mth1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">dates</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">4</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
@@ -728,12 +728,12 @@
 <span class="co"># Track rolling episodes from events using a 5 day cut-off </span>
 <span class="no">mth3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">dates</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">4</span>,
                  <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.52 secs!</span>
+<span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Track rolling episode from periods that are 5 days long </span>
 <span class="no">mth4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">periods</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">0</span>,
                  <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.55 secs!</span>
+<span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Same results</span>
 <span class="no">mth3</span>; <span class="no">mth4</span>
@@ -794,7 +794,7 @@
                        <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fl">15</span>, <span class="fu"><a href="../reference/windows.html">index_window</a></span>(<span class="no">hos_admin</span>$<span class="no">admin_period</span>)),
                        <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                        <span class="kw">group_stats</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.53 secs!</span></pre></body></html></div>
+<span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span></pre></body></html></div>
 <p><img src="episodes_files/figure-html/unnamed-chunk-60-1.png" width="816"></p>
 <p>There are 7 ways <code>event periods</code> can overlap (<code>overlap_methods_c</code>/<code>overlap_methods_r</code>). These are <code>"exact"</code>, <code>"reverse"</code>, <code>"across"</code>, <code>"inbetween"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>. These are covered in more detail in an accompanying <a href="number_line.html#overlaps">vignette</a>. You can specify that only <code>event periods</code> which overlap in a certain way should be linked as <code>episodes</code>. See below for a demonstration of this.</p>
 <p><em>The 7 <code>overlap_methods</code> are mutually exclusive.</em></p>
@@ -834,13 +834,13 @@
 )
 
 <span class="no">epids</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html">lapply</a></span>(<span class="no">methods</span>, <span class="no">epi_grp_func</span>)
-<span class="co">#&gt; Episode tracking completed in 0.56 secs!</span>
-<span class="co">#&gt; Episode tracking completed in 0.77 secs!</span>
-<span class="co">#&gt; Episode tracking completed in 0.57 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.61 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.71 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.54 secs!</span>
 <span class="co">#&gt; Episode tracking completed in 0.55 secs!</span>
-<span class="co">#&gt; Episode tracking completed in 0.63 secs!</span>
-<span class="co">#&gt; Episode tracking completed in 0.58 secs!</span>
-<span class="co">#&gt; Episode tracking completed in 0.58 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.59 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.57 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.78 secs!</span>
 <span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span>
 <span class="co">#&gt; Episode tracking completed in 0.67 secs!</span>
 <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">epids</span>) <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html">names</a></span>(<span class="no">methods</span>)
@@ -971,7 +971,7 @@
                       <span class="kw">strata</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">infection</span>,
                       <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">recur</span>,
                       <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.88 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.8 secs!</span>
 
 <span class="no">dbs</span>
 <span class="co">#&gt;          date infection epi recur                            epids</span>
@@ -1004,7 +1004,7 @@
                       <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                       <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">recur</span>,
                       <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.8 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.75 secs!</span>
 
 <span class="no">dbs</span>
 <span class="co">#&gt;    rid       date pid organism source treated epi recur    epids</span>
@@ -1099,18 +1099,18 @@
 <span class="no">dbf</span>$<span class="no">ep_b_d</span> <span class="kw">&lt;-</span> <span class="no">dbf</span>$<span class="no">ep_b</span>@<span class="kw">epid_dataset</span>
 
 <span class="no">dbf</span>
-<span class="co">#&gt;          date infection c_sort     ep_a ep_a_d     ep_b  ep_b_d</span>
-<span class="co">#&gt; 1  2018-04-01       BSI      2 E.01 (S)    BSI E.01 (C)     BSI</span>
-<span class="co">#&gt; 2  2018-04-07       UTI      1 E.02 (S)    UTI E.02 (C)     UTI</span>
-<span class="co">#&gt; 3  2018-04-13       UTI      1 E.03 (S)    UTI E.02 (D)     UTI</span>
-<span class="co">#&gt; 4  2018-04-19       UTI      1 E.04 (S)    UTI E.02 (D)     UTI</span>
-<span class="co">#&gt; 5  2018-04-25       BSI      2 E.05 (S)    BSI E.05 (C)     BSI</span>
-<span class="co">#&gt; 6  2018-05-01       UTI      1 E.06 (S)    UTI E.06 (C) BSI,UTI</span>
-<span class="co">#&gt; 7  2018-05-07       BSI      2 E.07 (S)    BSI E.06 (D) BSI,UTI</span>
-<span class="co">#&gt; 8  2018-05-13       BSI      2 E.08 (S)    BSI E.06 (D) BSI,UTI</span>
-<span class="co">#&gt; 9  2018-05-19       RTI      3 E.09 (S)    RTI E.09 (C)     RTI</span>
-<span class="co">#&gt; 10 2018-05-25       RTI      3 E.10 (S)    RTI E.09 (D)     RTI</span>
-<span class="co">#&gt; 11 2018-05-31       BSI      2 E.11 (S)    BSI E.11 (C)     BSI</span></pre></body></html></div>
+<span class="co">#&gt;          date infection c_sort     ep_a  ep_a_d     ep_b  ep_b_d</span>
+<span class="co">#&gt; 1  2018-04-01       BSI      2 E.01 (S)     BSI E.01 (C)     BSI</span>
+<span class="co">#&gt; 2  2018-04-07       UTI      1 E.02 (C)     UTI E.02 (C)     UTI</span>
+<span class="co">#&gt; 3  2018-04-13       UTI      1 E.02 (D)     UTI E.02 (D)     UTI</span>
+<span class="co">#&gt; 4  2018-04-19       UTI      1 E.02 (D)     UTI E.02 (D)     UTI</span>
+<span class="co">#&gt; 5  2018-04-25       BSI      2 E.05 (S)     BSI E.05 (C)     BSI</span>
+<span class="co">#&gt; 6  2018-05-01       UTI      1 E.06 (C) BSI,UTI E.06 (C) BSI,UTI</span>
+<span class="co">#&gt; 7  2018-05-07       BSI      2 E.06 (D) BSI,UTI E.06 (D) BSI,UTI</span>
+<span class="co">#&gt; 8  2018-05-13       BSI      2 E.06 (D) BSI,UTI E.06 (D) BSI,UTI</span>
+<span class="co">#&gt; 9  2018-05-19       RTI      3 E.09 (S)     RTI E.09 (C)     RTI</span>
+<span class="co">#&gt; 10 2018-05-25       RTI      3 E.10 (S)     RTI E.09 (D)     RTI</span>
+<span class="co">#&gt; 11 2018-05-31       BSI      2 E.11 (S)     BSI E.11 (C)     BSI</span></pre></body></html></div>
 <p>Notice that in the skipped example (<code>ep_a</code>), no <code>episode</code> begins with either a <code>"BSI"</code> or <code>"RTI"</code> record.</p>
 </div>
 <div id="skip-episodes-without-records-from-certain-data-sources" class="section level3">
@@ -1132,7 +1132,7 @@
                      <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="no">dbg</span>$<span class="no">recurrence</span>,
                      <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">dbg</span>$<span class="no">dataset</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.81 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.78 secs!</span>
 
 <span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
   <span class="co"># The `DS3` event MUST BE linked to events from other `data_sources`  </span>
@@ -1143,7 +1143,7 @@
                      <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">dbg</span>$<span class="no">dataset</span>,
                      <span class="kw">data_links</span> <span class="kw">=</span> <span class="st">"DS3"</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.79 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.81 secs!</span>
 
 <span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
   <span class="co"># The `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   </span>
@@ -1154,7 +1154,7 @@
                      <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">dbg</span>$<span class="no">dataset</span>,
                      <span class="kw">data_links</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">g</span><span class="kw">=</span><span class="st">"DS3"</span>),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.76 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.79 secs!</span>
 
 <span class="co"># Breakup episodes without events from the `DS3` `data_source` </span>
   <span class="co"># The `DS3` event MUST BE linked to events from the `DS1` `data_source`</span>
@@ -1162,7 +1162,7 @@
                      <span class="kw">episode_type</span> <span class="kw">=</span><span class="st">"rolling"</span>, <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="no">dbg</span>$<span class="no">recurrence</span>,
                      <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">dbg</span>$<span class="no">dataset</span>, <span class="kw">data_links</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">l</span><span class="kw">=</span><span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"DS3"</span>,<span class="st">"DS1"</span>)),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.77 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.8 secs!</span>
 
 <span class="no">dbg</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>, <span class="st">"dataset"</span>, <span class="st">"ep_a"</span>, <span class="st">"ep_b"</span>, <span class="st">"ep_c"</span>, <span class="st">"ep_d"</span>)]
 <span class="co">#&gt;          date dataset     ep_a     ep_b     ep_c     ep_d</span>
@@ -1261,7 +1261,7 @@
          <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>,
          <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
          <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.69 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.68 secs!</span>
 <span class="co">#&gt;  [1] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (C)"</span>
 <span class="co">#&gt;  [2] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
 <span class="co">#&gt;  [3] "E.1 2019-04-01 00:03:20 -&gt; 2019-04-02 00:05:11 (D)"</span>
@@ -1365,7 +1365,7 @@
 <span class="co">#&gt;  [8] "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>
 
 <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">NA_real_</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Episode tracking completed in 0.6 secs!</span>
+<span class="co">#&gt; Episode tracking completed in 0.54 secs!</span>
 <span class="co">#&gt;  [1] "E.01 (C)" "E.02 (C)" "E.03 (C)" "E.04 (C)" "E.05 (C)" "E.06 (C)"</span>
 <span class="co">#&gt;  [7] "E.07 (C)" "E.08 (C)" "E.09 (C)" "E.10 (C)"</span></pre></body></html></div>
 </div>

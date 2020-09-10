@@ -177,20 +177,18 @@ Any unlinked <code>sub_criteria</code> will be ignored.</p>
 #&gt; [1] 30 28 40 25 25 29 27
 #&gt; 
 #&gt; [[1]][[2]]
-#&gt; function (x, y, range = 10) 
-#&gt; {
-#&gt;     x &lt;- as.numeric(x)
-#&gt;     y &lt;- as.numeric(y)
-#&gt;     if (!class(range) %in% c("numeric", "integer")) 
-#&gt;         stop(paste("Invalid object type for `range`:\n", "i - Valid object types are: `numeric` or `integer`.\n", 
-#&gt;             "X - You've supplied a `", paste0(class(range), collapse = ", "), 
-#&gt;             "`` object."), call. = F)
-#&gt;     if (length(range) != 1) 
-#&gt;         stop(paste("`range` must have a length of 1:\n", "X - Length is ", 
-#&gt;             length(range), "."), call. = F)
-#&gt;     (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
+#&gt; function(x, y, range = 10){
+#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
+#&gt;   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
+#&gt;                                                           "i - Valid object types are: `numeric` or `integer`.\n",
+#&gt;                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
+#&gt; 
+#&gt;   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
+#&gt;                                     "X - Length is ", length(range), "."), call. = F)
+#&gt; 
+#&gt;   (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000023991f10&gt;
+#&gt; &lt;bytecode: 0x0000000024a94230&gt;
 #&gt; &lt;environment: namespace:diyar&gt;
 #&gt; 
 #&gt; 
@@ -205,20 +203,18 @@ Any unlinked <code>sub_criteria</code> will be ignored.</p>
 #&gt; [1] 30 28 40 25 25 29 27
 #&gt; 
 #&gt; $c1[[1]][[2]]
-#&gt; function (x, y, range = 10) 
-#&gt; {
-#&gt;     x &lt;- as.numeric(x)
-#&gt;     y &lt;- as.numeric(y)
-#&gt;     if (!class(range) %in% c("numeric", "integer")) 
-#&gt;         stop(paste("Invalid object type for `range`:\n", "i - Valid object types are: `numeric` or `integer`.\n", 
-#&gt;             "X - You've supplied a `", paste0(class(range), collapse = ", "), 
-#&gt;             "`` object."), call. = F)
-#&gt;     if (length(range) != 1) 
-#&gt;         stop(paste("`range` must have a length of 1:\n", "X - Length is ", 
-#&gt;             length(range), "."), call. = F)
-#&gt;     (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
+#&gt; function(x, y, range = 10){
+#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
+#&gt;   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
+#&gt;                                                           "i - Valid object types are: `numeric` or `integer`.\n",
+#&gt;                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
+#&gt; 
+#&gt;   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
+#&gt;                                     "X - Length is ", length(range), "."), call. = F)
+#&gt; 
+#&gt;   (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000023991f10&gt;
+#&gt; &lt;bytecode: 0x0000000024a94230&gt;
 #&gt; &lt;environment: namespace:diyar&gt;
 #&gt; 
 #&gt; 
@@ -231,20 +227,18 @@ Any unlinked <code>sub_criteria</code> will be ignored.</p>
 #&gt; [1] 30 28 40 25 25 29 27
 #&gt; 
 #&gt; $c2[[1]][[2]]
-#&gt; function (x, y, range = 10) 
-#&gt; {
-#&gt;     x &lt;- as.numeric(x)
-#&gt;     y &lt;- as.numeric(y)
-#&gt;     if (!class(range) %in% c("numeric", "integer")) 
-#&gt;         stop(paste("Invalid object type for `range`:\n", "i - Valid object types are: `numeric` or `integer`.\n", 
-#&gt;             "X - You've supplied a `", paste0(class(range), collapse = ", "), 
-#&gt;             "`` object."), call. = F)
-#&gt;     if (length(range) != 1) 
-#&gt;         stop(paste("`range` must have a length of 1:\n", "X - Length is ", 
-#&gt;             length(range), "."), call. = F)
-#&gt;     (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
+#&gt; function(x, y, range = 10){
+#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
+#&gt;   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
+#&gt;                                                           "i - Valid object types are: `numeric` or `integer`.\n",
+#&gt;                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
+#&gt; 
+#&gt;   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
+#&gt;                                     "X - Length is ", length(range), "."), call. = F)
+#&gt; 
+#&gt;   (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000023991f10&gt;
+#&gt; &lt;bytecode: 0x0000000024a94230&gt;
 #&gt; &lt;environment: namespace:diyar&gt;
 #&gt; 
 #&gt; 

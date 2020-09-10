@@ -185,19 +185,19 @@ If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"in
 <span class='co'># Union</span>
 <span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>union_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 5" "1 -&gt; 5" "5 -&gt; 9"</div><div class='output co'>#&gt; [1] "1 -&gt; 2" "2 -&gt; 3" "0 -&gt; 6"</div><div class='output co'>#&gt; [1] "1 -&gt; 5" "1 -&gt; 5" "0 -&gt; 9"</div><div class='input'>
 
-<span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"01/01/2020"</span>, <span class='st'>"03/01/2020"</span>,<span class='st'>"09/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
+<span class='no'>nl_3</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"01/01/2020"</span>, <span class='st'>"03/01/2020"</span>,<span class='st'>"09/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
                     <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"09/01/2020"</span>, <span class='st'>"09/01/2020"</span>,<span class='st'>"25/12/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
 
-<span class='no'>nl_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"04/01/2020"</span>,<span class='st'>"01/01/2020"</span>,<span class='st'>"01/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
+<span class='no'>nl_4</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"04/01/2020"</span>,<span class='st'>"01/01/2020"</span>,<span class='st'>"01/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
                     <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"05/01/2020"</span>,<span class='st'>"05/01/2020"</span>,<span class='st'>"03/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
 
 <span class='co'># Intersect</span>
-<span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>intersect_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
+<span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>intersect_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
 #&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
 #&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-03 -&gt; 2020-01-05"
 #&gt; [3] "NA == NA"                </div><div class='input'>
 <span class='co'># Subtract</span>
-<span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>subtract_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
+<span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>subtract_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
 #&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
 #&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; $n1
 #&gt; [1] "2020-01-01 -&gt; 2020-01-04" "2020-01-01 -&gt; 2020-01-03"
