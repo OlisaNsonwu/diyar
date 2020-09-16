@@ -1,5 +1,21 @@
 ## Resubmission
 This is a resubmission. Summary of changes below:
+* Unit tests removed submitted build
+
+## Test environments
+* Windows 10 (local machine), R 4.0.2
+* win-builder (release)
+* Fedora (rhub)
+* Linux (rhub)
+
+## R CMD check results
+There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments. 
+
+There was 1 NOTE:
+Could not eliminate this. No messaged dsiplayed. This is a first submission (since the package was archived).
+
+## Resubmission
+This is a resubmission. Summary of changes below:
 *Improvements across board 
 *Updated documentation and vignettes
 *Updated package to v.0.2.0
