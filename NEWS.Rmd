@@ -51,8 +51,8 @@ knitr::opts_chunk$set(
 + `fixed_episodes`, `rolling_episodes` and `episode_group` - `include_index_period` didn't work in certain situations. Corrected.
 + `fixed_episodes`, `rolling_episodes` and `episode_group` - `dist_from_wind` was wrong in certain situations. Corrected.
 
-#Version 0.1.0
-##New features
+# Version 0.1.0
+## New features
 
 + `record_group()` - `strata` argument. Perform record grouping separately within subsets of a dataset.
 + `overlap()`, `compress_number_line()`, `fixed_sepisodes()`, `rolling_episodes()` and `episode_group()` - `overlap_methods` and `methods` arguments replaces `overlap_method` and `method` respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing `number_line` objects. `overlap_method` and `method` only permits 1 method per per dataset.
@@ -71,7 +71,7 @@ knitr::opts_chunk$set(
 + `invert_number_line()` - Invert the `left` and/or `right` points to the opposite end of the number line
 + `left_point(x)<-`, `right_point(x)<-`, `start_point(x)<-` and `end_point(x)<-` accessor functions
 
-##Changes
+## Changes
 + `overlap()` renamed to `overlaps()`. `overlap()` is now a convenience `overlap_method` for ANY kind of overlap
 + `"none"` is another convenience `overlap_method` for NO kind of overlap
 + `expand_number_line()` - new options for `point`; `"left"` and `"right"` 
@@ -95,37 +95,37 @@ knitr::opts_chunk$set(
         + if the "lengths" are larger than the `number_line_width()`, both will be collapsed if the second one is within some days (or any other `episode_unit`) before the `start_point()` of the first period.
 + cheat sheet updated
 
-##Bug fixes
+## Bug fixes
 + Recurrence was not checked if the initial case event had no duplicates. Resolved
 + `case_nm` wasn't right for rolling episodes. Resolved
 
-#Version 0.0.3
-##Changes
+# Version 0.0.3
+## Changes
 + [#7](https://github.com/OlisaNsonwu/diyar/issues/7) `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - optimized to take less time when working with large datasets
 + `episode_group()`, `fixed_episodes()` and `rolling_episodes()` - `date` argument now supports numeric values
 + `compress_number_line()` - the output (`gid` slot) is now a group identifier just like in `epid` objects (`epid_interval`)
 
-#Version 0.0.2
-##New feature
+# Version 0.0.2
+## New feature
 + `pid` S4 object class for results of `record_group()`. This will replace the current default (`data.frame`) in the next major release
 + `epid` S4 object class for results of `episode_group()`, `fixed_episodes()` and `rolling_episodes()`. This will replace the current default (`data.frame`) in the next release
 + `to_s4()` and `to_s4` argument in `record_group()`, `episode_group()`, `fixed_episodes()` and `rolling_episodes()`. Changes their output from a `data.frame` (current default) to `epid` or `pid` objects
 + `to_df()` changes `epid` or `pid` objects to a `data.frame`
 + `deduplicate` argument from `fixed_episodes()` and `rolling_episodes()` added to `episode_group()`
 
-##Changes
+## Changes
 + `fixed_episodes()` and `rolling_episodes()` are now wrapper functions of `episode_group()`. Functionality remains the same but now includes all arguments available to `episode_group()`
 + Changed the output of `fixed_episodes()` and `rolling_episodes()` from `number_line` to `data.frame`, pending the change to `epid` objects 
 + `pid_cri` column returned in `record_group` is now `numeric`. `0` indicates no match.
 + columns can now be used as `criteria` multiple times `record_group()`
 + [#6](https://github.com/OlisaNsonwu/diyar/issues/6) `number_line` objects can now be used as a `criteria` in `record_group()`
 
-##Bug fixes
+## Bug fixes
 + [#3](https://github.com/OlisaNsonwu/diyar/issues/3) - Resolved a bug with `episode_unit` in `episode_group()`
 + [#4](https://github.com/OlisaNsonwu/diyar/issues/4) - Resolved a bug with `bi_direction` in `episode_group()`
 
-#Version 0.0.1
-##Features
+# Version 0.0.1
+## Features
 + `fixed_episodes()` and `rolling_episodes()` - Group records into fixed or rolling episodes of events or period of events.
 + `episode_group()` - A more comprehensive implementation of `fixed_episodes()` and `rolling_episodes()`, with additional features such as user defined case assignment.
 + `record_group()` - Multistage deterministic linkage that addresses missing data.
