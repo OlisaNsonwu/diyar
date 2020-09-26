@@ -7,9 +7,9 @@
 custom_sort(..., decreasing = FALSE)
 }
 \arguments{
-\item{...}{Sequence of \code{atomic} vectors. Passed to \bold{link\code{order}}.}
+\item{...}{Sequence of \code{atomic} vectors. Passed to \bold{\code{\link{order}}}.}
 
-\item{decreasing}{Sort order. Passed to \bold{link\code{order}}.}
+\item{decreasing}{Sort order. Passed to \bold{\code{\link{order}}}.}
 }
 \value{
 \code{numeric} sort order.

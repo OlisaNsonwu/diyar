@@ -1211,8 +1211,8 @@ index_window <- function(date, from_last = F){
 #' @aliases custom_sort
 #' @title Nested sorting
 #'
-#' @param ... Sequence of \code{atomic} vectors. Passed to \bold{link\code{order}}.
-#' @param decreasing Sort order. Passed to \bold{link\code{order}}.
+#' @param ... Sequence of \code{atomic} vectors. Passed to \bold{\code{\link{order}}}.
+#' @param decreasing Sort order. Passed to \bold{\code{\link{order}}}.
 #'
 #' @description Returns a sort order after sorting by a vector within another vector.
 #'
