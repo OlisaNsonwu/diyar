@@ -493,7 +493,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
 }
 
 err_object_types <- function(arg, arg_nm, obj_types){
-  if(!all(class(arg) == "list")){
+  if(!all(class(arg) == "list") | (all(class(arg) == "list") & !"list" %in% obj_types)){
     arg <- list(arg)
     multi_opts <- F
   }else{
@@ -572,16 +572,16 @@ err_episodes_checks_1 <- function(date,
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
-                       overlap_methods_c = "character",
-                       overlap_methods_r = "character",
+                       overlap_methods_c = c("list", "character"),
+                       overlap_methods_r = c("list", "character"),
                        episode_unit = "character",
                        deduplicate = "logical",
                        display = "character",
                        bi_direction = "logical",
                       # from_last = "logical",
                        include_index_period = "logical",
-                       case_length = c("integer", "numeric", "number_line"),
-                       recurrence_length = c("integer", "numeric", "number_line"),
+                       case_length = c("list", "integer", "numeric", "number_line"),
+                       recurrence_length = c("list", "integer", "numeric", "number_line"),
                        to_s4 = "logical")
 
   err <- mapply(err_object_types,
@@ -741,12 +741,12 @@ err_episodes_checks_0 <- function(date,
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
-                       overlap_methods_c = "character",
-                       overlap_methods_r = "character",
+                       overlap_methods_c = c("list", "character"),
+                       overlap_methods_r = c("list", "character"),
                        episode_unit = "character",
                        display = "character",
-                       case_length = c("integer", "numeric", "number_line"),
-                       recurrence_length = c("integer", "numeric", "number_line"),
+                       case_length = c("list", "integer", "numeric", "number_line"),
+                       recurrence_length = c("list", "integer", "numeric", "number_line"),
                        episodes_max = c("numeric", "integer"),
                        rolls_max = c("numeric", "integer"),
                        #data_source = c("character", "NULL"),
@@ -1023,3 +1023,113 @@ err_strata_level_args <- function(arg, strata, arg_nm){
   }
 }
 
+  err_panes_checks_0 <- function(date,
+                                    window,
+                                    windows_min,
+                                    separate,
+                                    display,
+                                    sn,
+                                    strata,
+                                    data_source,
+                                    data_links,
+                                    custom_sort,
+                                    group_stats){
+
+
+    # Check for non-atomic vectors
+    args <- list(date = date,
+                 window = window,
+                 windows_min = windows_min,
+                 separate = separate,
+                 display = display,
+                 strata = strata,
+                 custom_sort = custom_sort,
+                 data_source = data_source,
+                 data_links = data_links)
+
+    err <- mapply(err_atomic_vectors,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = F)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object types
+    args <- list(date = date,
+                 window = window,
+                 windows_min = windows_min,
+                 separate = separate,
+                 display = display,
+                 #strata = strata,
+                 #custom_sort = custom_sort,
+                 #data_source = data_source,
+                 data_links = data_links,
+                 group_stats = group_stats)
+
+    args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
+                         window = c("number_line", "numeric", "integer", "list"),
+                         windows_min = c("number_line", "numeric", "integer"),
+                         separate = "logical",
+                         display = "character",
+                         #data_source = c("character", "NULL"),
+                         data_links = c("list", "character"),
+                         group_stats = "logical")
+
+    err <- mapply(err_object_types,
+                  args,
+                  as.list(names(args)),
+                  args_classes[match(names(args), names(args_classes))])
+    err <- unlist(err, use.names = F)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object lengths
+    len_lims <- c(1, length(date))
+    args <- list(separate = separate,
+                 display = display,
+                 strata = strata,
+                 custom_sort = custom_sort,
+                 data_source = data_source)
+
+    args_lens <- list(separate = 1,
+                      display = 1,
+                      strata = c(0, len_lims),
+                      custom_sort = c(0, len_lims),
+                      data_source = c(0, len_lims))
+
+    err <- mapply(err_match_ref_len,
+                  args,
+                  rep(as.list("date"), length(args_lens)),
+                  args_lens[match(names(args), names(args_lens))],
+                  as.list(names(args)))
+    err <- unlist(err, use.names = F)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for missing values where they are not permitted
+    args <- list(window = window,
+                 windows_min = windows_min,
+                 separate = separate,
+                 display = display,
+                 strata = strata,
+                 custom_sort = custom_sort,
+                 data_source = data_source,
+                 data_links = data_links)
+
+    err <- mapply(err_missing_check,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = F)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    err <- err_data_links_1(data_source = data_source, data_links = data_links)
+    if(err != F) return(err)
+    err <- err_data_links_2(data_source = data_source, data_links = data_links)
+    if(err != F) return(err)
+    err <- err_display_1(display = display)
+    if(err != F) return(err)
+    err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
+    if(err != F) return(err)
+    return(F)
+  }
