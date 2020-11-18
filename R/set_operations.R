@@ -62,7 +62,7 @@ union_number_lines <- function(x, y){
   )
 
   dir <- ifelse(abs(x@.Data[lg]) > abs(y@.Data[lg]), x@.Data[lg]/abs(x@.Data[lg]), y@.Data[lg]/abs(y@.Data[lg]))
-  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir==1, "decreasing", "increasing"))
+  o[lg] <- reverse_number_line(o[lg], direction= ifelse(dir == 1 & !is.na(dir), "decreasing", "increasing"))
 
   return(o[-1])
 }
