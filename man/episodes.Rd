@@ -28,7 +28,8 @@ episodes(
   case_for_recurrence = FALSE,
   from_last = FALSE,
   group_stats = FALSE,
-  display = "none"
+  display = "none",
+  win_criteria = NULL
 )
 
 fixed_episodes(
@@ -115,6 +116,8 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item{group_stats}{If \code{TRUE} (default), episode-specific information like episode start and endpoints are returned. See \code{Value}.}
 
 \item{display}{The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
+
+\item{win_criteria}{\code{list} of additional attributes to compare for overlapping windows. Comparisons are done with user-defined logical tests. See \code{\link{sub_criteria}}}
 
 \item{to_s4}{Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 

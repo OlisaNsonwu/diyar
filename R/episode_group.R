@@ -37,6 +37,7 @@
 #' @param deduplicate if \code{TRUE}, \code{"duplicate"} events are excluded from the output.
 #' @param x Deprecated. Record date or period. Please use \code{date}
 #' @param ... Arguments passed to \bold{\code{episodes}}
+#' @param win_criteria \code{list} of additional attributes to compare for overlapping windows. Comparisons are done with user-defined logical tests. See \code{\link{sub_criteria}}
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE}
@@ -134,18 +135,27 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
-                     display = "none") {
+                     display = "none", win_criteria = NULL) {
   tm_a <- Sys.time()
+
+  rut <- attr(win_criteria, "diyar_sub_criteria")
+  if(class(rut) != "NULL"){
+    if(rut == TRUE){
+      win_criteria <- list(win_criteria)
+    }
+  }
+
   errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
-                          display=display, episodes_max = episodes_max, from_last = from_last,
-                          episode_unit = episode_unit, overlap_methods_c = overlap_methods_c,
-                          overlap_methods_r = overlap_methods_r,
-                          skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
-                          data_source=data_source, data_links = data_links,
-                          skip_if_b4_lengths = skip_if_b4_lengths,
-                          rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
-                          recurrence_from_last = recurrence_from_last,
-                          episode_type = episode_type, recurrence_length=recurrence_length)
+                                display=display, episodes_max = episodes_max, from_last = from_last,
+                                episode_unit = episode_unit, overlap_methods_c = overlap_methods_c,
+                                overlap_methods_r = overlap_methods_r,
+                                skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
+                                data_source=data_source, data_links = data_links,
+                                skip_if_b4_lengths = skip_if_b4_lengths,
+                                rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
+                                recurrence_from_last = recurrence_from_last,
+                                episode_type = episode_type, recurrence_length=recurrence_length,
+                                win_criteria = win_criteria)
   display <- tolower(display)
   if(errs!=F) stop(errs, call. = F)
 
@@ -166,8 +176,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ep_units[!is_dt] <- "seconds"
   if(is_dt == T){
     int <- number_line(
-      l = as.POSIXct(format(int@start, "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format ="%d/%m/%Y %H:%M:%S"),
-      r = as.POSIXct(format(right_point(int), "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format ="%d/%m/%Y %H:%M:%S")
+      l = as.POSIXct(int@start),
+      r = as.POSIXct(right_point(int))
     )
   }
 
@@ -437,6 +447,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     tr_tag <- rep(tag[match(p, q)], cri_tot)
     tr_e <- rep(e[match(p, q)], cri_tot)
+    tr_wind_id <- rep(wind_id[match(p, q)], cri_tot)
     tr_int <- rep(int[match(p, q)], cri_tot)
     tr_skip_order <- rep(skip_order[match(p, q)], cri_tot)
     tr_c_sort <- rep(c_sort[match(p, q)], cri_tot)
@@ -556,14 +567,67 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rc_checks <- rowSums(rc_checks) > 0
     }
 
+    curr_sub_cri <- win_criteria
+    wind_id_check <- sort(wind_id[!tag %in% c(2)])
+    int_check <- c(int[wind_id %in% wind_id_check], grouped_epids$int[grouped_epids$wind_id %in% wind_id_check])
+    wind_id_checks <- c(wind_id[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
+    sn_id_checks <- c(int@gid[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
+
+    if(length(curr_sub_cri) > 0 & length(wind_id_check) > 0){
+      sub_win_match <- sapply(1:length(curr_sub_cri), function(i){
+        set <- curr_sub_cri[[i]]
+        set_match <- sapply(1:length(set), function(j){
+          a <- set[[j]]
+          x <- a[[1]]
+          if(length(x) == 1){
+            x <- rep(x, length(int_check))
+          }
+          x <- x[match(int_check@gid, seq_len(length(int_check)))]
+          f <- a[[2]]
+          a <- split(x, wind_id_checks)
+
+          lgk <- try(lapply(a, f), silent = T)
+          if(class(lgk) == "try-error" | class(unlist(lgk, use.names = FALSE)) != "logical"){
+            if(class(lgk) == "try-error"){
+              err <- attr(lgk, "condition")$message
+            }else{
+              err <- "Output is not a `logical` object"
+            }
+
+            err <- paste0("Unable to evaluate `funcs-", j, "` at `win_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                          "i - Each `func` must have the following syntax and output.\n",
+                          "i - Syntax ~ `func(x, ...)`.\n",
+                          "i - Output ~ `TRUE` or `FALSE`.\n",
+                          "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+            stop(err, call. = F)
+          }
+          lgk <- as.numeric(names(lgk)[as.logical(lgk)])
+          lgk <- lgk[!is.na(lgk)]
+
+          return(wind_id_check %in% lgk)
+        })
+        if(length(wind_id_check) == 1){
+          set_match <- as.matrix(set_match)
+        }
+        ifelse(rowSums(set_match) > 0, 1, 0)
+      })
+      if(length(wind_id_check) == 1){
+        sub_win_match <- as.matrix(sub_win_match)
+      }
+      sub_win_match <- rowSums(sub_win_match) == ncol(sub_win_match)
+      sub_win_match <- tr_wind_id %in% wind_id_check[sub_win_match]
+    }else{
+      sub_win_match <- TRUE
+    }
+
     cr <- ifelse(tr_tag %in% c(0, -2) &
-                   (ref_rd  | ep_checks==1) &
+                   (ref_rd  | (ep_checks == 1 & sub_win_match)) &
                    tag != 2,
                  T, F)
 
     if(any_rolling == T){
       cr <- ifelse(tr_tag == -1 &
-                     (ref_rd  | rc_checks==1) &
+                     (ref_rd  | (rc_checks == 1 & sub_win_match)) &
                      tag != 2,
                    T, cr)
     }
@@ -873,8 +937,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     epid_dt_z[lgk] <- ifelse(from_last[lgk], dts_a, dts_z)
 
     if(is_dt ==T){
-      epid_dt_a <- as.POSIXct(epid_dt_a, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC", format ="%d/%m/%Y %H:%M:%S"))
-      epid_dt_z <- as.POSIXct(epid_dt_z, "UTC", origin = as.POSIXct("01/01/1970 00:00:00", "UTC", format ="%d/%m/%Y %H:%M:%S"))
+      epid_dt_a <- as.POSIXct(epid_dt_a, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
+      epid_dt_z <- as.POSIXct(epid_dt_z, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
       epid_l <- difftime(epid_dt_z, epid_dt_a, units = diff_unit)
     }else{
       epid_l <- epid_dt_z - epid_dt_a
@@ -1152,8 +1216,8 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
   is_dt <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(is_dt == T){
     date <- number_line(
-      l = as.POSIXct(format(date@start, "%d/%m/%Y %H:%M:%S"), "UTC", format = "%d/%m/%Y %H:%M:%S"),
-      r = as.POSIXct(format(right_point(date), "%d/%m/%Y %H:%M:%S"), "UTC", format = "%d/%m/%Y %H:%M:%S")
+      l = as.POSIXct(date@start, "GMT"),
+      r = as.POSIXct(right_point(date), "GMT")
     )
   }
 
@@ -1175,15 +1239,15 @@ epid_lengths <- function(date, windows, episode_unit = "days"){
   is_dt1 <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(is_dt1 == T){
     date <- number_line(
-      l = as.POSIXct(format(date@start, "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S"),
-      r = as.POSIXct(format(right_point(date), "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S")
+      l = as.POSIXct(date@start, "GMT"),
+      r = as.POSIXct(right_point(date), "GMT")
     )
   }
   is_dt2 <- ifelse(!any(class(windows@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(is_dt2 == T){
     windows <- number_line(
-      l = as.POSIXct(format(windows@start, "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S"),
-      r = as.POSIXct(format(right_point(windows), "%d/%m/%Y %H:%M:%S", tz = "UTC"), "UTC", format = "%d/%m/%Y %H:%M:%S")
+      l = as.POSIXct(windows@start, "GMT"),
+      r = as.POSIXct(right_point(windows), "GMT")
     )
   }
 

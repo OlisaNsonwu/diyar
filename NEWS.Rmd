@@ -9,6 +9,17 @@ knitr::opts_chunk$set(
 )
 ```
 
+# Version 0.2.0.9000
+
+## New features
++ New function `panes`
++ New argument - `win_criteria` in `episodes()`. Additional matching criteria for overlapping windows. Only relevant to `"rolling_episodes"`.
+
+## Changes
++ `epid_object` - default time zone for `epid_interval` with `POSIXct` objects is now "GMT".
+
+## Bug fixes
+
 # Version 0.2.0
 
 ## New features

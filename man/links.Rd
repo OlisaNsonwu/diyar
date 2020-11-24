@@ -23,7 +23,7 @@ record_group(df, ..., to_s4 = TRUE)
 \arguments{
 \item{criteria}{\code{list} of attributes to compare at each stage. Comparisons are done as an exact match i.e. (\code{==}). See \code{Details}.}
 
-\item{sub_criteria}{\code{list} of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests \code{function}. See \code{\link{sub_criteria}}}
+\item{sub_criteria}{\code{list} of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests. See \code{\link{sub_criteria}}}
 
 \item{sn}{Unique numerical record identifier. Useful for creating familiar episode identifiers.}
 
@@ -67,15 +67,21 @@ Link records in ordered stages with flexible matching conditions.
 \bold{\code{links()}} performs an ordered multistage deterministic linkage.
 The relevance or priority of each stage is determined by the order in which they have been listed.
 
-\code{sub_criteria} specifies additional matching conditions for each stage (\code{criteria}) of the process.
-If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are linked.
 If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 If there are no matches for a record at every stage, that record is assigned a unique group ID.
+
+The \code{sub_criteria} argument specifies additional matching conditions for each stage (\code{criteria}) of the process.
+If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are linked.
+
+Each \code{sub_criteria} must be linked to a \code{criteria} in \bold{\code{\link{links}}}.
+You can link multiple \code{sub_criteria} to one \code{criteria}.
+Any unlinked \code{sub_criteria} will be ignored.
 
 By default, records are compared for an exact match.
 However, user-defined logical tests (function) are also permitted.
 The function must be able to compare two atomic vectors and return either TRUE or FALSE.
-The function must have two arguments - x for the attribute and y for what it'll be compared against.
+The function must have two arguments at least two arguments named \code{`x`} and \code{`y`}.
+where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 
 A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
 

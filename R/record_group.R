@@ -7,7 +7,7 @@
 #' @param sn Unique numerical record identifier. Useful for creating familiar episode identifiers.
 #' @param strata Subsets. Record groups are tracked separately within each subset.
 #' @param criteria \code{list} of attributes to compare at each stage. Comparisons are done as an exact match i.e. (\code{==}). See \code{Details}.
-#' @param sub_criteria \code{list} of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests \code{function}. See \code{\link{sub_criteria}}
+#' @param sub_criteria \code{list} of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests. See \code{\link{sub_criteria}}
 #' @param data_source Unique data source identifier. Useful when the dataset contains data from multiple sources.
 #' @param group_stats If \code{TRUE} (default), group-specific information like record counts. See \code{Value}.
 #' @param data_links A set of \code{data_sources} required in each record group. A \code{strata} without records from these data sources will be skipped, and record groups without these will be unlinked. See \code{Details}.
@@ -36,15 +36,21 @@
 #' \bold{\code{links()}} performs an ordered multistage deterministic linkage.
 #' The relevance or priority of each stage is determined by the order in which they have been listed.
 #'
-#' \code{sub_criteria} specifies additional matching conditions for each stage (\code{criteria}) of the process.
-#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are linked.
 #' If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
 #' If there are no matches for a record at every stage, that record is assigned a unique group ID.
+#'
+#' The \code{sub_criteria} argument specifies additional matching conditions for each stage (\code{criteria}) of the process.
+#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are linked.
+#'
+#' Each \code{sub_criteria} must be linked to a \code{criteria} in \bold{\code{\link{links}}}.
+#' You can link multiple \code{sub_criteria} to one \code{criteria}.
+#' Any unlinked \code{sub_criteria} will be ignored.
 #'
 #' By default, records are compared for an exact match.
 #' However, user-defined logical tests (function) are also permitted.
 #' The function must be able to compare two atomic vectors and return either TRUE or FALSE.
-#' The function must have two arguments - x for the attribute and y for what it'll be compared against.
+#' The function must have two arguments at least two arguments named \code{`x`} and \code{`y`}.
+#' where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 #'
 #' A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
 #'
@@ -104,6 +110,13 @@ links <- function(criteria,
                   shrink = FALSE){
   tm_a <- Sys.time()
 
+  rut <- attr(sub_criteria, "diyar_sub_criteria")
+  if(class(rut) != "NULL"){
+    if(rut == T){
+      sub_criteria <- list(sub_criteria)
+    }
+  }
+
   err <- err_links_checks_0(criteria,
                      sub_criteria,
                      sn,
@@ -117,12 +130,6 @@ links <- function(criteria,
 
   if(err != F) stop(err, call. = F)
 
-  rut <- attr(sub_criteria, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    if(rut == T){
-      sub_criteria <- list(sub_criteria)
-    }
-  }
 
   if(class(criteria) != "list") criteria <- list(criteria)
 
@@ -435,28 +442,22 @@ record_group <- function(df, ..., to_s4 = TRUE){
 }
 #' @name sub_criteria
 #' @aliases sub_criteria
-#' @title Sub-criteria for \bold{\code{\link{links}}}
+#' @title Sub-criteria
 #'
-#' @description Additional matching conditions for each stage in \code{\link{links}}.
+#' @description Additional matching conditions when using \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
 #' @param ... Additional attributes to compare.
 #' @param funcs User defined logical test.
-#' @return \code{function} or \code{list} of \code{functions}
+#' @return \code{list}
 #' @details
-#' \bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}}.
+#' \bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}} or \bold{\code{episodes}}.
 #'
-#' Each attribute (\code{atomic} vectors) is compared as an exact match or with a user-defined logical test.
-#' The test must be supplied as a function with at least two arguments named \code{`x`} and \code{`y`}.
-#' Where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
+#' Each attribute (\code{atomic} vectors) is compared with a user-defined logical test.
 #'
 #' Each attribute must have the same length.
 #'
 #' \code{funcs} must be a \code{function} or \code{list} of \code{functions} to use with each attribute.
 #'
 #' Each \code{funcs} must evaluate to \code{TRUE} or \code{FALSE}.
-#'
-#' Each \code{sub_criteria} must be linked to a \code{criteria} in \bold{\code{\link{links}}}.
-#' You can link multiple \code{sub_criteria} to one \code{criteria}.
-#' Any unlinked \code{sub_criteria} will be ignored.
 #'
 #' @examples
 #' library(diyar)
@@ -501,18 +502,10 @@ sub_criteria <- function(..., funcs = diyar::exact_match){
   x <- function(x, y) list(x, y)
   sub_cris <- mapply(x, list(...), funcs, SIMPLIFY = F)
 
-  err <- err_sub_criteria_5(sub_cris, funcs_l)
-  if(err != F) stop(err, call. = F)
-
-  err <- err_sub_criteria_6(sub_cris, funcs_l)
-  if(err != F) stop(err, call. = F)
-
-  err <- err_sub_criteria_6(sub_cris, funcs_l)
-  if(err != F) stop(err, call. = F)
-
   attr(sub_cris, "diyar_sub_criteria") <- T
   sub_cris
 }
+
 
 #' @name predefined_tests
 #' @aliases predefined_tests

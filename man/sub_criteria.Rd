@@ -2,7 +2,7 @@
 % Please edit documentation in R/record_group.R
 \name{sub_criteria}
 \alias{sub_criteria}
-\title{Sub-criteria for \bold{\code{\link{links}}}}
+\title{Sub-criteria}
 \usage{
 sub_criteria(..., funcs = diyar::exact_match)
 }
@@ -12,27 +12,21 @@ sub_criteria(..., funcs = diyar::exact_match)
 \item{funcs}{User defined logical test.}
 }
 \value{
-\code{function} or \code{list} of \code{functions}
+\code{list}
 }
 \description{
-Additional matching conditions for each stage in \code{\link{links}}.
+Additional matching conditions when using \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
 }
 \details{
-\bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}}.
+\bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}} or \bold{\code{episodes}}.
 
-Each attribute (\code{atomic} vectors) is compared as an exact match or with a user-defined logical test.
-The test must be supplied as a function with at least two arguments named \code{`x`} and \code{`y`}.
-Where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
+Each attribute (\code{atomic} vectors) is compared with a user-defined logical test.
 
 Each attribute must have the same length.
 
 \code{funcs} must be a \code{function} or \code{list} of \code{functions} to use with each attribute.
 
 Each \code{funcs} must evaluate to \code{TRUE} or \code{FALSE}.
-
-Each \code{sub_criteria} must be linked to a \code{criteria} in \bold{\code{\link{links}}}.
-You can link multiple \code{sub_criteria} to one \code{criteria}.
-Any unlinked \code{sub_criteria} will be ignored.
 }
 \examples{
 library(diyar)

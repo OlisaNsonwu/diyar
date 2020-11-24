@@ -1,4 +1,20 @@
 
+# Version 0.2.0.9000
+
+## New features
+
+  - New function `panes`
+  - New argument - `win_criteria` in `episodes()`. Additional matching
+    criteria for overlapping windows. Only relevant to
+    `"rolling_episodes"`.
+
+## Changes
+
+  - `epid_object` - default time zone for `epid_interval` with `POSIXct`
+    objects is now “GMT”.
+
+## Bug fixes
+
 # Version 0.2.0
 
 ## New features
@@ -87,7 +103,9 @@
   - `fixed_episodes`, `rolling_episodes` and `episode_group` -
     `dist_from_wind` was wrong in certain situations. Corrected.
 
-\#Version 0.1.0 \#\#New features
+# Version 0.1.0
+
+## New features
 
   - `record_group()` - `strata` argument. Perform record grouping
     separately within subsets of a dataset.
@@ -132,88 +150,124 @@
   - `left_point(x)<-`, `right_point(x)<-`, `start_point(x)<-` and
     `end_point(x)<-` accessor functions
 
-\#\#Changes + `overlap()` renamed to `overlaps()`. `overlap()` is now a
-convenience `overlap_method` for ANY kind of overlap + `"none"` is
-another convenience `overlap_method` for NO kind of overlap +
-`expand_number_line()` - new options for `point`; `"left"` and `"right"`
-+ `compress_number_line()` - compressed `number_line` object inherits
-the direction of the widest `number_line` among overlapping group of
-`number_line` objects + `overlap_methods` - have been changed such that
-each pair of `number_line` objects can only overlap in one way. E.g. +
-`"chain"` and `"aligns_end"` used to be possible but this is now
-considered a `"chain"` overlap only + `"aligns_start"` and
-`"aligns_end"` use to be possible but this is now considered an
-`"exact"` overlap + `number_line_sequence()` - Output is now a `list`. +
-`number_line_sequence()` - now works across multiple `number_line`
-objects. + `to_df()` - can now change `number_line` objects to
-data.frames. + `to_s4()` can do the reverse. + `epid` objects are the
-default outputs for `fixed_episodes()`, `rolling_episodes()` and
-`episode_group()` + `pid` objects are the default outputs for
-`record_group()` + In episode grouping, the `case_nm` for events that
-were skipped due to `rolls_max` or `episodes_max` is now `"Skipped"`. +
-In `episode_group()` and `record_group()`, `sn` can be negative numbers
-but must still be unique + Optimised `episode_group()` and
-`record_group()`. Runs just a little bit faster … + Relaxed the
-requirement for `x` and `y` to have the same lengths in overlap
-functions. + The behaviour of overlap functions will now be the same as
-that of standard R logical tests + `episode_group` - `case_length` and
-`recurrence_length` arguments. Now accepts negative numbers. + negative
-“lengths” will collapse two periods into one, if the second one is
-within some days before the `end_point()` of the first period. + if the
-“lengths” are larger than the `number_line_width()`, both will be
-collapsed if the second one is within some days (or any other
-`episode_unit`) before the `start_point()` of the first period. + cheat
-sheet updated
+## Changes
 
-\#\#Bug fixes + Recurrence was not checked if the initial case event had
-no duplicates. Resolved + `case_nm` wasn’t right for rolling episodes.
-Resolved
+  - `overlap()` renamed to `overlaps()`. `overlap()` is now a
+    convenience `overlap_method` for ANY kind of overlap
+  - `"none"` is another convenience `overlap_method` for NO kind of
+    overlap
+  - `expand_number_line()` - new options for `point`; `"left"` and
+    `"right"`
+  - `compress_number_line()` - compressed `number_line` object inherits
+    the direction of the widest `number_line` among overlapping group of
+    `number_line` objects
+  - `overlap_methods` - have been changed such that each pair of
+    `number_line` objects can only overlap in one way. E.g.
+      - `"chain"` and `"aligns_end"` used to be possible but this is now
+        considered a `"chain"` overlap only
+      - `"aligns_start"` and `"aligns_end"` use to be possible but this
+        is now considered an `"exact"` overlap
+  - `number_line_sequence()` - Output is now a `list`.
+  - `number_line_sequence()` - now works across multiple `number_line`
+    objects.
+  - `to_df()` - can now change `number_line` objects to data.frames.
+      - `to_s4()` can do the reverse.
+  - `epid` objects are the default outputs for `fixed_episodes()`,
+    `rolling_episodes()` and `episode_group()`
+  - `pid` objects are the default outputs for `record_group()`
+  - In episode grouping, the `case_nm` for events that were skipped due
+    to `rolls_max` or `episodes_max` is now `"Skipped"`.
+  - In `episode_group()` and `record_group()`, `sn` can be negative
+    numbers but must still be unique
+  - Optimised `episode_group()` and `record_group()`. Runs just a little
+    bit faster …
+  - Relaxed the requirement for `x` and `y` to have the same lengths in
+    overlap functions.
+      - The behaviour of overlap functions will now be the same as that
+        of standard R logical tests
+  - `episode_group` - `case_length` and `recurrence_length` arguments.
+    Now accepts negative numbers.
+      - negative “lengths” will collapse two periods into one, if the
+        second one is within some days before the `end_point()` of the
+        first period.
+          - if the “lengths” are larger than the `number_line_width()`,
+            both will be collapsed if the second one is within some days
+            (or any other `episode_unit`) before the `start_point()` of
+            the first period.
+  - cheat sheet updated
 
-\#Version 0.0.3 \#\#Changes +
-[\#7](https://github.com/OlisaNsonwu/diyar/issues/7) `episode_group()`,
-`fixed_episodes()` and `rolling_episodes()` - optimized to take less
-time when working with large datasets + `episode_group()`,
-`fixed_episodes()` and `rolling_episodes()` - `date` argument now
-supports numeric values + `compress_number_line()` - the output (`gid`
-slot) is now a group identifier just like in `epid` objects
-(`epid_interval`)
+## Bug fixes
 
-\#Version 0.0.2 \#\#New feature + `pid` S4 object class for results of
-`record_group()`. This will replace the current default (`data.frame`)
-in the next major release + `epid` S4 object class for results of
-`episode_group()`, `fixed_episodes()` and `rolling_episodes()`. This
-will replace the current default (`data.frame`) in the next release +
-`to_s4()` and `to_s4` argument in `record_group()`, `episode_group()`,
-`fixed_episodes()` and `rolling_episodes()`. Changes their output from a
-`data.frame` (current default) to `epid` or `pid` objects + `to_df()`
-changes `epid` or `pid` objects to a `data.frame` + `deduplicate`
-argument from `fixed_episodes()` and `rolling_episodes()` added to
-`episode_group()`
+  - Recurrence was not checked if the initial case event had no
+    duplicates. Resolved
+  - `case_nm` wasn’t right for rolling episodes. Resolved
 
-\#\#Changes + `fixed_episodes()` and `rolling_episodes()` are now
-wrapper functions of `episode_group()`. Functionality remains the same
-but now includes all arguments available to `episode_group()` + Changed
-the output of `fixed_episodes()` and `rolling_episodes()` from
-`number_line` to `data.frame`, pending the change to `epid` objects +
-`pid_cri` column returned in `record_group` is now `numeric`. `0`
-indicates no match. + columns can now be used as `criteria` multiple
-times `record_group()` +
-[\#6](https://github.com/OlisaNsonwu/diyar/issues/6) `number_line`
-objects can now be used as a `criteria` in `record_group()`
+# Version 0.0.3
 
-\#\#Bug fixes + [\#3](https://github.com/OlisaNsonwu/diyar/issues/3) -
-Resolved a bug with `episode_unit` in `episode_group()` +
-[\#4](https://github.com/OlisaNsonwu/diyar/issues/4) - Resolved a bug
-with `bi_direction` in `episode_group()`
+## Changes
 
-\#Version 0.0.1 \#\#Features + `fixed_episodes()` and
-`rolling_episodes()` - Group records into fixed or rolling episodes of
-events or period of events. + `episode_group()` - A more comprehensive
-implementation of `fixed_episodes()` and `rolling_episodes()`, with
-additional features such as user defined case assignment. +
-`record_group()` - Multistage deterministic linkage that addresses
-missing data. + `number_line` S4 object. + Used to represent a range of
-numeric values to match using `record_group()` + Used to represent a
-period in time to be grouped using `fixed_episodes()`,
-`rolling_episodes()` and `episode_group()` + Used as the returned output
-of `fixed_episodes()` and `rolling_episodes()`
+  - [\#7](https://github.com/OlisaNsonwu/diyar/issues/7)
+    `episode_group()`, `fixed_episodes()` and `rolling_episodes()` -
+    optimized to take less time when working with large datasets
+  - `episode_group()`, `fixed_episodes()` and `rolling_episodes()` -
+    `date` argument now supports numeric values
+  - `compress_number_line()` - the output (`gid` slot) is now a group
+    identifier just like in `epid` objects (`epid_interval`)
+
+# Version 0.0.2
+
+## New feature
+
+  - `pid` S4 object class for results of `record_group()`. This will
+    replace the current default (`data.frame`) in the next major release
+  - `epid` S4 object class for results of `episode_group()`,
+    `fixed_episodes()` and `rolling_episodes()`. This will replace the
+    current default (`data.frame`) in the next release
+  - `to_s4()` and `to_s4` argument in `record_group()`,
+    `episode_group()`, `fixed_episodes()` and `rolling_episodes()`.
+    Changes their output from a `data.frame` (current default) to `epid`
+    or `pid` objects
+  - `to_df()` changes `epid` or `pid` objects to a `data.frame`
+  - `deduplicate` argument from `fixed_episodes()` and
+    `rolling_episodes()` added to `episode_group()`
+
+## Changes
+
+  - `fixed_episodes()` and `rolling_episodes()` are now wrapper
+    functions of `episode_group()`. Functionality remains the same but
+    now includes all arguments available to `episode_group()`
+  - Changed the output of `fixed_episodes()` and `rolling_episodes()`
+    from `number_line` to `data.frame`, pending the change to `epid`
+    objects
+  - `pid_cri` column returned in `record_group` is now `numeric`. `0`
+    indicates no match.
+  - columns can now be used as `criteria` multiple times
+    `record_group()`
+  - [\#6](https://github.com/OlisaNsonwu/diyar/issues/6) `number_line`
+    objects can now be used as a `criteria` in `record_group()`
+
+## Bug fixes
+
+  - [\#3](https://github.com/OlisaNsonwu/diyar/issues/3) - Resolved a
+    bug with `episode_unit` in `episode_group()`
+  - [\#4](https://github.com/OlisaNsonwu/diyar/issues/4) - Resolved a
+    bug with `bi_direction` in `episode_group()`
+
+# Version 0.0.1
+
+## Features
+
+  - `fixed_episodes()` and `rolling_episodes()` - Group records into
+    fixed or rolling episodes of events or period of events.
+  - `episode_group()` - A more comprehensive implementation of
+    `fixed_episodes()` and `rolling_episodes()`, with additional
+    features such as user defined case assignment.
+  - `record_group()` - Multistage deterministic linkage that addresses
+    missing data.
+  - `number_line` S4 object.
+      - Used to represent a range of numeric values to match using
+        `record_group()`
+      - Used to represent a period in time to be grouped using
+        `fixed_episodes()`, `rolling_episodes()` and `episode_group()`
+      - Used as the returned output of `fixed_episodes()` and
+        `rolling_episodes()`
