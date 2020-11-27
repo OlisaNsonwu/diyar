@@ -4,9 +4,10 @@
 ## New features
 
   - New function `panes`
-  - New argument - `win_criteria` in `episodes()`. Additional matching
-    criteria for overlapping windows. Only relevant to
-    `"rolling_episodes"`.
+  - New argument - `win_criteria` in `episodes()`. Additional conditions
+    for overlapping windows. Only relevant to `"rolling_episodes"`.
+  - New argument - `sub_criteria` in `episodes()`. Additional conditions
+    for temporal links.
 
 ## Changes
 

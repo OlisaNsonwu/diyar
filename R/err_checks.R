@@ -825,7 +825,8 @@ err_episodes_checks_0 <- function(date,
                                   case_for_recurrence,
                                   from_last,
                                   group_stats,
-                                  win_criteria){
+                                  win_criteria,
+                                  sub_criteria){
 
 
   # Check for non-atomic vectors
@@ -996,6 +997,7 @@ err_episodes_checks_0 <- function(date,
   if(err != F) return(err)
   err <- err_strata_level_args(episodes_max, strata, "episodes_max")
   if(err != F) return(err)
+
   if(class(win_criteria) != "NULL"){
     err <- err_sub_criteria_10(date, win_criteria, "date", "win_criteria")
     if(err != F) return(err)
@@ -1006,6 +1008,19 @@ err_episodes_checks_0 <- function(date,
     err <- err_sub_criteria_8(win_criteria, cri_nm = "win_criteria")
     if(err != F) return(err[1])
     err <- err_sub_criteria_9(win_criteria, length(win_criteria), cri_nm = "win_criteria")
+    if(err != F) stop(err, call. = F)
+  }
+
+  if(class(sub_criteria) != "NULL"){
+    err <- err_sub_criteria_8(sub_criteria)
+    if(err != F) return(err[1])
+    err <- err_sub_criteria_10(date, sub_criteria, "date")
+    if(err != F) return(err)
+    err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
+    if(err != F) stop(err, call. = F)
+    err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
+    if(err != F) stop(err, call. = F)
+    err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
     if(err != F) stop(err, call. = F)
   }
   return(F)
@@ -1099,16 +1114,12 @@ err_links_checks_0 <- function(criteria,
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
     if(err != F) return(err[1])
-
     err <- err_sub_criteria_10(criteria, sub_criteria)
     if(err != F) return(err)
-
     err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
     if(err != F) stop(err, call. = F)
-
     err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
     if(err != F) stop(err, call. = F)
-
     err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
     if(err != F) stop(err, call. = F)
   }

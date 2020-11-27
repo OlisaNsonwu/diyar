@@ -37,7 +37,8 @@
 #' @param deduplicate if \code{TRUE}, \code{"duplicate"} events are excluded from the output.
 #' @param x Deprecated. Record date or period. Please use \code{date}
 #' @param ... Arguments passed to \bold{\code{episodes}}
-#' @param win_criteria \code{list} of additional attributes to compare for overlapping windows. Comparisons are done with user-defined logical tests. See \code{\link{sub_criteria}}
+#' @param win_criteria \code{list} Additional conditions for overlapping windows. Comparisons are done with user-defined logical tests. Supplied by \code{\link{sub_criteria}}.
+#' @param sub_criteria \code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE}
@@ -135,13 +136,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
-                     display = "none", win_criteria = NULL) {
+                     display = "none", win_criteria = NULL, sub_criteria = NULL) {
   tm_a <- Sys.time()
 
   rut <- attr(win_criteria, "diyar_sub_criteria")
   if(class(rut) != "NULL"){
     if(rut == TRUE){
       win_criteria <- list(win_criteria)
+    }
+  }
+
+  rut <- attr(sub_criteria, "diyar_sub_criteria")
+  if(class(rut) != "NULL"){
+    if(rut == TRUE){
+      sub_criteria <- list(sub_criteria)
     }
   }
 
@@ -155,7 +163,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
                                 recurrence_from_last = recurrence_from_last,
                                 episode_type = episode_type, recurrence_length=recurrence_length,
-                                win_criteria = win_criteria)
+                                win_criteria = win_criteria, sub_criteria = sub_criteria)
   display <- tolower(display)
   if(errs!=F) stop(errs, call. = F)
 
@@ -568,13 +576,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     curr_sub_cri <- win_criteria
-    wind_id_check <- sort(wind_id[!tag %in% c(2)])
+    wind_id_check <- sort(wind_id[!tag %in% c(0, 2)])
     int_check <- c(int[wind_id %in% wind_id_check], grouped_epids$int[grouped_epids$wind_id %in% wind_id_check])
     wind_id_checks <- c(wind_id[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
     sn_id_checks <- c(int@gid[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
 
     if(length(curr_sub_cri) > 0 & length(wind_id_check) > 0){
-      sub_win_match <- sapply(1:length(curr_sub_cri), function(i){
+      sub_win_checks <- sapply(1:length(curr_sub_cri), function(i){
         set <- curr_sub_cri[[i]]
         set_match <- sapply(1:length(set), function(j){
           a <- set[[j]]
@@ -582,7 +590,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           if(length(x) == 1){
             x <- rep(x, length(int_check))
           }
-          x <- x[match(int_check@gid, seq_len(length(int_check)))]
+          x <- x[int@id]
           f <- a[[2]]
           a <- split(x, wind_id_checks)
 
@@ -612,22 +620,69 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         ifelse(rowSums(set_match) > 0, 1, 0)
       })
       if(length(wind_id_check) == 1){
-        sub_win_match <- as.matrix(sub_win_match)
+        sub_win_checks <- as.matrix(sub_win_checks)
       }
-      sub_win_match <- rowSums(sub_win_match) == ncol(sub_win_match)
-      sub_win_match <- tr_wind_id %in% wind_id_check[sub_win_match]
+      sub_win_checks <- rowSums(sub_win_checks) == ncol(sub_win_checks)
+      sub_win_match <- rep(TRUE, length(int))
+      sub_win_match[tr_wind_id %in% wind_id_check[!sub_win_checks]] <- FALSE
     }else{
       sub_win_match <- TRUE
     }
 
+    curr_sub_cri <- sub_criteria
+    if(length(curr_sub_cri) > 0){
+      sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
+        set <- curr_sub_cri[[i]]
+        set_match <- sapply(1:length(set), function(j){
+          a <- set[[j]]
+          x <- a[[1]]
+          if(length(x) == 1){
+            x <- rep(x, length(int))
+          }
+          x <- x[int@id]
+          y <- rep(x[match(p, q)], r$lengths)
+          f <- a[[2]]
+          lgk <- try(f(x, y), silent = T)
+          if(class(lgk) == "try-error" | class(lgk) != "logical"){
+            if(class(lgk) == "try-error"){
+              err <- attr(lgk, "condition")$message
+            }else{
+              err <- "Output is not a `logical` object"
+            }
+
+            err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                          "i - Each `func` must have the following syntax and output.\n",
+                          "i - Syntax ~ `func(x, y, ...)`.\n",
+                          "i - Output ~ `TRUE` or `FALSE`.\n",
+                          "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+            stop(err, call. = F)
+          }
+          lgk <- as.numeric(lgk)
+          x <- ifelse(is.na(lgk), 0, lgk)
+          return(x)
+        })
+
+        if(length(set_match) == 1){
+          set_match <- as.matrix(set_match)
+        }
+        ifelse(rowSums(set_match) > 0, 1, 0)
+      })
+      if(length(sub_cri_match) == 1){
+        sub_cri_match <- as.matrix(sub_cri_match)
+      }
+      sub_cri_match <- rowSums(sub_cri_match) == ncol(sub_cri_match) | ref_rd
+    }else{
+      sub_cri_match <- rep(TRUE, length(int))
+    }
+
     cr <- ifelse(tr_tag %in% c(0, -2) &
-                   (ref_rd  | (ep_checks == 1 & sub_win_match)) &
+                   (ref_rd  | (ep_checks == 1 & sub_win_match & sub_cri_match)) &
                    tag != 2,
                  T, F)
 
     if(any_rolling == T){
       cr <- ifelse(tr_tag == -1 &
-                     (ref_rd  | (rc_checks == 1 & sub_win_match)) &
+                     (ref_rd  | (rc_checks == 1 & sub_win_match & sub_cri_match)) &
                      tag != 2,
                    T, cr)
     }

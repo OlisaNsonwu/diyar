@@ -29,7 +29,8 @@ episodes(
   from_last = FALSE,
   group_stats = FALSE,
   display = "none",
-  win_criteria = NULL
+  win_criteria = NULL,
+  sub_criteria = NULL
 )
 
 fixed_episodes(
@@ -117,7 +118,9 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{display}{The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
 
-\item{win_criteria}{\code{list} of additional attributes to compare for overlapping windows. Comparisons are done with user-defined logical tests. See \code{\link{sub_criteria}}}
+\item{win_criteria}{\code{list} Additional conditions for overlapping windows. Comparisons are done with user-defined logical tests. Supplied by \code{\link{sub_criteria}}.}
+
+\item{sub_criteria}{\code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.}
 
 \item{to_s4}{Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 
