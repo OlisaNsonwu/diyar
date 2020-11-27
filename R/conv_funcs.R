@@ -118,7 +118,7 @@ progress_bar <- function(prop_complete, max_width, msg){
   a <- gsub("\\s", "", pct_l)
   b <- gsub("\\S", "", pct_l)
   b <- ifelse(b==""," ", b)
-  pct_l <- paste0(msg,"; ", ifelse(prop_complete == 1, "100%", a),"%", b, "complete.")
+  pct_l <- paste0(msg,"; ", ifelse(prop_complete == 1, "100", a),"%", b, "complete.")
   status_width <- max_width - nchar(pct_l)
   bar_width <- as.integer(prop_complete*status_width)
   space_width <- status_width - bar_width
