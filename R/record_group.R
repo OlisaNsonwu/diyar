@@ -79,7 +79,7 @@
 #' sex <- c("M", "M", "M", "F", "M", "M", "F")
 #' f1 <- function(x, y) (y - x) %in% 0:20
 #' links(criteria = sex,
-#'       sub_criteria = list(s1 = sub_criteria(age, funcs = f1)))
+#'       sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)))
 #'
 #' # Multistage linkage
 #' # Relevance of matches: `forename` > `surname`
@@ -167,7 +167,6 @@ links <- function(criteria,
   sn_ref <- min(sn) - 1
   pid <- rep(sn_ref, ds_len)
   link_id <- pid
-  ite <- 1
 
   display <- tolower(display)
   if(display != "none") cat("\n")
@@ -199,6 +198,7 @@ links <- function(criteria,
     min_m_tag <- 0
     tot <- ds_len
 
+    ite <- 1
     while (min_pid == sn_ref | min_m_tag == -1) {
       sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = T)
       for(vr in c("force_check","tag","cri",
@@ -319,9 +319,9 @@ links <- function(criteria,
 
       if(tolower(display) == "progress" & length(curr_sub_cri) > 0) {
         msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
-        progress_bar(length(m_tag[m_tag == 1])/tot, nchar(msg), msg = msg)
+        progress_bar(length(m_tag[m_tag != 0])/tot, nchar(msg), msg = msg)
       }
-      iteration[m_tag != 0 & iteration == 0] <- ite
+      iteration[m_tag != 0 & iteration == 0] <- i + ifelse(length(curr_sub_cri) > 0, (ite/10 - as.integer(ite/10)), 0)
       ite <- ite + 1
     }
     if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
@@ -341,7 +341,7 @@ links <- function(criteria,
     iteration[tag == 0 & iteration != 0] <- 0
     pid_cri[tag ==1 & (shrink | (pid_cri == Inf & !shrink))] <- i
   }
-  iteration[iteration == 0] <- ite -1
+  iteration[iteration == 0] <- i + 1
   if(class(strata) != "NULL"){
     pid_cri[pid == sn_ref & is.na(strata) & pid_cri == Inf] <- -1
   }

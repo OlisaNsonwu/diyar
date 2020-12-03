@@ -513,6 +513,39 @@ err_episode_type_1 <- function(episode_type){
   return(F)
 }
 
+err_by_1 <- function(by){
+  if(any( by <= 0)){
+    by[by <= 0] <- NA_real_
+    err <- missing_check(by)
+
+    if(err != FALSE){
+      errs <-  paste0("Invalid values for `by`:\n",
+                      "i - `by' must be greater than 0.\n",
+                      "X - `by' is less than 1 at ", errs, ".")
+      return(errs)
+    }
+
+  }
+
+  return(F)
+}
+
+err_lnt_out_1 <- function(length.out){
+  if(any( length.out  <= 0)){
+    length.out [length.out  <= 0] <- NA_real_
+    err <- missing_check(length.out )
+
+    if(err != FALSE){
+      errs <-  paste0("Invalid values for `length.out `:\n",
+                      "i - `length.out' must be greater than 0.\n",
+                      "X - `length.out' is less than 1 at ", errs, ".")
+      return(errs)
+    }
+
+  }
+
+  return(F)
+}
 err_display_1 <- function(display){
   if(!any(class(display) %in% c("character"))){
     err <- paste0("Invalid object type for `display`:\n",
@@ -648,6 +681,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
+    obj_types <- ifelse(obj_types == "logical", "logical (`TRUE` or `FALSE`", obj_types)
     err <- paste0("Invalid object type for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`.\n",
                   "i - Valid object types are ", listr(paste0("`", obj_types, "`"), conj = " or"), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "You've supplied a ", err, " object.", collapse = "\n"))
@@ -803,6 +837,108 @@ err_episodes_checks_1 <- function(date,
   return(F)
 }
 
+err_split_nl_1 <- function(x,
+                           by,
+                           length.out,
+                           precision,
+                           fill,
+                           simplify){
+  # Check for non-atomic vectors
+  args <- list(x = x,
+               by = by,
+               length.out = length.out,
+               precision= precision,
+               fill = fill,
+               simplify = simplify)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object types
+  args <- list(x = x,
+               by = by,
+               length.out = length.out,
+               precision= precision,
+               fill = fill,
+               simplify = simplify)
+
+  args_classes <- list(x = c("number_line"),
+               by = c("integer", "numeric", "NULL"),
+               length.out = c("integer", "numeric", "NULL"),
+               precision= "logical",
+               fill = "logical",
+               simplify = "logical")
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object lengths
+  len_lims <- c(1, length(x))
+  args <- list(by = by,
+               length.out = length.out,
+               precision= precision,
+               fill = fill,
+               simplify = simplify)
+
+  args_lens <- list(by = c(len_lims, 0),
+                    length.out = c(len_lims, 0),
+                    precision= len_lims,
+                    fill = len_lims,
+                    simplify = len_lims)
+
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("date"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  # Check for missing values where they are not permitted
+  args <- list(by = by,
+               length.out = length.out,
+               precision= precision,
+               fill = fill,
+               simplify = simplify)
+
+  err <- mapply(err_missing_check,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = F)
+  err <- err[err != F]
+  if(length(err) > 0) return(err[1])
+
+  err <- err_by_1(by)
+  if(err != F) return(err[1])
+  err <- err_lnt_out_1(length.out)
+  if(err != F) return(err[1])
+
+  errs_l <- finite_check(x@start)
+  errs_r <- finite_check(x@.Data)
+
+  if(errs_l != T | errs_r != T){
+    errs <- paste0("`x` must have finite left and right points:\n",
+                   ifelse(errs_l != T, paste0("X - There are non-finite values in `left_point(x)", errs_l, "`.\n"), ""),
+                   ifelse(errs_r != T, paste0("X - There are non-finite values in `right_point(x)", errs_r, "`."), ""))
+    return(errs)
+  }
+
+  fn_check <- finite_check(by)
+  if(fn_check!=T) return(paste0("`by` must have finite values:\n",
+                              paste0("X - There are non-finite values in `by",fn_check, "`.")))
+
+  return(F)
+}
 
 err_episodes_checks_0 <- function(date,
                                   case_length,
@@ -1195,16 +1331,19 @@ err_strata_level_args <- function(arg, strata, arg_nm){
 }
 
   err_panes_checks_0 <- function(date,
-                                    window,
-                                    windows_min,
-                                    separate,
-                                    display,
-                                    sn,
-                                    strata,
-                                    data_source,
-                                    data_links,
-                                    custom_sort,
-                                    group_stats){
+                                 window,
+                                 windows_min,
+                                 separate,
+                                 display,
+                                 sn,
+                                 strata,
+                                 data_source,
+                                 data_links,
+                                 custom_sort,
+                                 group_stats,
+                                 by,
+                                 length.out,
+                                 fill){
 
 
     # Check for non-atomic vectors
@@ -1216,7 +1355,11 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  strata = strata,
                  custom_sort = custom_sort,
                  data_source = data_source,
-                 data_links = data_links)
+                 data_links = data_links,
+                 by = by,
+                 length.out = length.out,
+                 fill = fill,
+                 group_stats = group_stats)
 
     err <- mapply(err_atomic_vectors,
                   args,
@@ -1235,15 +1378,23 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  #custom_sort = custom_sort,
                  #data_source = data_source,
                  data_links = data_links,
+                 group_stats = group_stats,
+                 by = by,
+                 length.out = length.out,
+                 fill = fill,
                  group_stats = group_stats)
 
     args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-                         window = c("number_line", "numeric", "integer", "list"),
+                         window = c("number_line", "numeric"),
                          windows_min = c("number_line", "numeric", "integer"),
                          separate = "logical",
                          display = "character",
                          #data_source = c("character", "NULL"),
                          data_links = c("list", "character"),
+                         group_stats = "logical",
+                         by = c("numeric", "integer", "NULL"),
+                         length.out = c("numeric", "integer", "NULL"),
+                         fill = "logical",
                          group_stats = "logical")
 
     err <- mapply(err_object_types,
@@ -1260,13 +1411,21 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  display = display,
                  strata = strata,
                  custom_sort = custom_sort,
-                 data_source = data_source)
+                 data_source = data_source,
+                 by = by,
+                 length.out = length.out,
+                 fill = fill,
+                 group_stats = group_stats)
 
     args_lens <- list(separate = 1,
                       display = 1,
                       strata = c(0, len_lims),
                       custom_sort = c(0, len_lims),
-                      data_source = c(0, len_lims))
+                      data_source = c(0, len_lims),
+                      by = c(0, len_lims),
+                      length.out = c(0, len_lims),
+                      fill = c(0, len_lims),
+                      group_stats = 1)
 
     err <- mapply(err_match_ref_len,
                   args,
@@ -1285,7 +1444,11 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  strata = strata,
                  custom_sort = custom_sort,
                  data_source = data_source,
-                 data_links = data_links)
+                 data_links = data_links,
+                 by = by,
+                 length.out = length.out,
+                 fill = fill,
+                 group_stats = group_stats)
 
     err <- mapply(err_missing_check,
                   args,
@@ -1302,5 +1465,29 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     if(err != F) return(err)
     err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
     if(err != F) return(err)
+    err <- err_strata_level_args(separate, strata, "separate")
+    if(err != F) return(err)
+
+    if(!is.null(by)){
+      err <- err_by_1(by)
+      if(err != F) return(err[1])
+
+      err <- err_strata_level_args(by, strata, "by")
+      if(err != F) return(err)
+    }
+
+    if(!is.null(length.out)){
+      err <- err_lnt_out_1(length.out)
+      if(err != F) return(err[1])
+
+      err <- err_strata_level_args(length.out, strata, "length.out")
+      if(err != F) return(err)
+    }
+
+    err <- err_strata_level_args(fill, strata, "fill")
+    if(err != F) return(err)
+    err <- err_strata_level_args(windows_min, strata, "windows_min")
+    if(err != F) return(err)
+
     return(F)
   }

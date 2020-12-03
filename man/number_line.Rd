@@ -18,6 +18,7 @@
 \alias{expand_number_line}
 \alias{invert_number_line}
 \alias{compress_number_line}
+\alias{split_number_line}
 \alias{number_line_sequence}
 \title{Number line objects}
 \usage{
@@ -61,6 +62,15 @@ compress_number_line(
   method = "overlap"
 )
 
+split_number_line(
+  x,
+  by = NULL,
+  length.out = 1,
+  precision = FALSE,
+  fill = TRUE,
+  simplify = FALSE
+)
+
 number_line_sequence(x, by = 1, length.out = NULL)
 }
 \arguments{
@@ -79,7 +89,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 \item{direction}{Type of \code{"number_line"} objects to be reversed.
 Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).}
 
-\item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}}
+\item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{split_number_line()}}
 
 \item{point}{\code{"start"} or \code{"end"} point}
 
@@ -91,7 +101,14 @@ Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default)
 
 \item{method}{Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.}
 
-\item{length.out}{desired length of the sequence. Passed to \code{seq()}}
+\item{length.out}{number of splits. For example, \code{1} for two parts and \code{2} for three parts. Passed to \code{seq()}}
+
+\item{precision}{duration between the \code{start_point} and \code{end_point} of consecutive \code{number_line} objects.
+Options are; \code{FLASE} for none or \code{TRUE} for the shortest possible duration or a \code{numeric} value for a specified duration}
+
+\item{fill}{retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.}
+
+\item{simplify}{split into \code{number_line} objects or sequence finite numbers}
 }
 \value{
 \code{number_line} object
@@ -102,8 +119,8 @@ Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default)
 \details{
 A \code{number_line} object represents a range of real numbers on a number line.
 
-Visually, it's presented as the \code{left (l)} and \code{right (r) points} of the range. This may differ from \code{start} and \code{end points}.
-The \code{start point} is the lowest value in the range, regardless of whether it's at the \code{left} or \code{right point}.
+Visually, it's presented as locations; \code{left (l)} and \code{right (r) points}.
+However, these not always the \code{start} and \code{end points} which are the lowest and highest values of the range.
 
 The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
 This is the \code{direction} of the \code{number_line}.
@@ -125,8 +142,10 @@ See \code{\link{overlaps}} for further details on overlapping \code{number_line}
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}.
 
+\bold{\code{split_number_line()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
+
 \bold{\code{number_line_sequence()}} - Convert a \code{number_line} object into a sequence of finite numbers.
-The direction of the sequence will correspond to that of the \code{number_line} object.
+\bold{Deprecated. Please use \code{split_number_line(... simplify = TRUE)}}
 }
 \examples{
 date <- function(x) as.Date(x, "\%d/\%m/\%Y")
@@ -188,15 +207,15 @@ compress_number_line(x)
 compress_number_line(x, collapse=TRUE)
 compress_number_line(x, collapse=TRUE, methods = "inbetween")
 
-# Convert a number line object to its series of real numbers
-number_line_sequence(number_line(1, 5))
-number_line_sequence(number_line(5, 1), .5)
-number_line_sequence(number_line(5:1, 1:5), 1:5)
-
-nl <- number_line(dttm("01/04/2019 00:00:00"), dttm("04/04/2019 00:00:00"))
-
-number_line_sequence(c(nl, nl), c(episode_unit[["days"]] * 1.5, episode_unit[["hours"]] * 12))
-
+# Split number line objects
+x <- number_line(Sys.Date()-5, Sys.Date())
+x
+split_number_line(x, by = 2)
+split_number_line(x, by = 4)
+split_number_line(x, by = 4, fill = FALSE)
+split_number_line(x, length.out = 2)
+split_number_line(x, length.out = 2, precision = TRUE)
+split_number_line(x, length.out = 2, precision = .1)
 }
 \seealso{
 \code{\link{overlaps}}, \code{\link{set_operations}}, \code{\link{episodes}} and \code{\link{links}}

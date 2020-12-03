@@ -110,7 +110,7 @@ age <- c(30, 28, 40, 25, 25, 29, 27)
 sex <- c("M", "M", "M", "F", "M", "M", "F")
 f1 <- function(x, y) (y - x) \%in\% 0:20
 links(criteria = sex,
-      sub_criteria = list(s1 = sub_criteria(age, funcs = f1)))
+      sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)))
 
 # Multistage linkage
 # Relevance of matches: `forename` > `surname`

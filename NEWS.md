@@ -3,11 +3,13 @@
 
 ## New features
 
-  - New function `panes`
+  - New function `panes()`
   - New argument - `win_criteria` in `episodes()`. Additional conditions
     for overlapping windows. Only relevant to `"rolling_episodes"`.
   - New argument - `sub_criteria` in `episodes()`. Additional conditions
     for temporal links.
+  - New function - `split_number_line()`. Split `number_line` objects.
+    Replaces `number_line_sequence()`.
 
 ## Changes
 

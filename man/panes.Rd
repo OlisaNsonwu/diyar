@@ -95,9 +95,7 @@ See \code{vignette("panes")} for more information.
 library(diyar)
 
 events <- c(30, 2, 11, 10, 100)
-windows <-list(number_line(1,3),
-            number_line(9,12),
-            number_line(25,35))
+windows <- number_line(c(1, 9, 25), c(3, 12, 35))
 
 events
 panes(date = events, window = windows, separate = T)

@@ -5,8 +5,8 @@
 #' @details
 #' A \code{number_line} object represents a range of real numbers on a number line.
 #'
-#' Visually, it's presented as the \code{left (l)} and \code{right (r) points} of the range. This may differ from \code{start} and \code{end points}.
-#' The \code{start point} is the lowest value in the range, regardless of whether it's at the \code{left} or \code{right point}.
+#' Visually, it's presented as locations; \code{left (l)} and \code{right (r) points}.
+#' However, these not always the \code{start} and \code{end points} which are the lowest and highest values of the range.
 #'
 #' The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
 #' This is the \code{direction} of the \code{number_line}.
@@ -451,54 +451,109 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 }
 
 #' @rdname number_line
-#' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}
-#' @param length.out desired length of the sequence. Passed to \code{seq()}
+#' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{split_number_line()}
+#' @param length.out number of splits. For example, \code{1} for two parts and \code{2} for three parts. Passed to \code{seq()}
+#' @param precision duration between the \code{start_point} and \code{end_point} of consecutive \code{number_line} objects.
+#' Options are; \code{FLASE} for none or \code{TRUE} for the shortest possible duration or a \code{numeric} value for a specified duration
+#' @param fill retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
+#' @param simplify split into \code{number_line} objects or sequence finite numbers
+#'
 #' @details
-#' \bold{\code{number_line_sequence()}} - Convert a \code{number_line} object into a sequence of finite numbers.
-#' The direction of the sequence will correspond to that of the \code{number_line} object.
+#' \bold{\code{split_number_line()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
+#'
 #' @examples
-#' # Convert a number line object to its series of real numbers
-#' number_line_sequence(number_line(1, 5))
-#' number_line_sequence(number_line(5, 1), .5)
-#' number_line_sequence(number_line(5:1, 1:5), 1:5)
-#'
-#' nl <- number_line(dttm("01/04/2019 00:00:00"), dttm("04/04/2019 00:00:00"))
-#'
-#' number_line_sequence(c(nl, nl), c(episode_unit[["days"]] * 1.5, episode_unit[["hours"]] * 12))
-#'
+#' # Split number line objects
+#' x <- number_line(Sys.Date()-5, Sys.Date())
+#' x
+#' split_number_line(x, by = 2)
+#' split_number_line(x, by = 4)
+#' split_number_line(x, by = 4, fill = FALSE)
+#' split_number_line(x, length.out = 2)
+#' split_number_line(x, length.out = 2, precision = TRUE)
+#' split_number_line(x, length.out = 2, precision = .1)
 #' @export
-number_line_sequence <- function(x, by=1, length.out = NULL){
+#'
+split_number_line <- function(x,
+                              by = NULL,
+                              length.out = 1,
+                              precision = FALSE,
+                              fill = TRUE,
+                              simplify = FALSE){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   err <- err_object_types(x, "x", "number_line")
   if(err != F) stop(err, call. = F)
   if(length(x)==0) return(x)
-  err <- err_match_ref_len(by, "x", c(1, length(x)), "by")
-  if(err != F) stop(err, call. = F)
-  err <- err_object_types(by, "by", c("numeric", "integer"))
-  if(err != F) stop(err, call. = F)
-  err <- err_missing_check(by, "by")
-  if(err != F) stop(err, call. = F)
 
-  errs_l <- finite_check(x@start)
-  errs_r <- finite_check(x@.Data)
+  errs <- err_split_nl_1(x = x,
+                        by = by,
+                        length.out = length.out,
+                        precision = precision,
+                        fill = fill,
+                        simplify = simplify)
 
-  if(errs_l != T | errs_r != T){
-    errs <- paste0("`x` must have finite left and right points:\n",
-                   ifelse(errs_l != T, paste0("X - There are non-finite values in `left_point(x)", errs_l, "`.\n"), ""),
-                   ifelse(errs_r != T, paste0("X - There are non-finite values in `right_point(x)", errs_r, "`."), ""))
-    stop(errs, call. = F)
-  }
+  if(errs!=F) stop(errs, call. = F)
+  change_dir <- x@.Data < 0
 
-
-  fn_check <- finite_check(by)
-  if(fn_check!=T) stop(paste0("`by` must have finite values:\n",
-                              paste0("X - There are non-finite values in `by",fn_check, "`.")),
-                       call. = F)
-
-  by <- ifelse(is.nan(x@.Data/abs(x@.Data)), by , x@.Data/abs(x@.Data)  * abs(by))
-  if(is.null(length.out)){
-    mapply(seq, from=left_point(x), to = right_point(x), by=by, SIMPLIFY = F)
+  if(!is.null(by)){
+    if(length(fill) == 1) fill <- rep(fill, length(x))
+    by <- ifelse(is.nan(x@.Data/abs(x@.Data)), by , x@.Data/abs(x@.Data)  * abs(by))
+    seq.dyr <- function(..., to = 1, fill = TRUE){
+      x <- seq(..., to = to)
+      if(isTRUE(fill) & to != x[length(x)]) x <- c(x, to)
+      x
+    }
+    x <- mapply(seq.dyr, from=left_point(x), to = right_point(x), by=by, SIMPLIFY = FALSE, fill = fill)
   }else{
-    mapply(seq, from=left_point(x), to = right_point(x), length.out = length.out, SIMPLIFY = F)
+    x <- mapply(seq, from=left_point(x), to = right_point(x), length.out = length.out + 1, SIMPLIFY = FALSE)
   }
+
+  if(isTRUE(simplify)){
+    return(
+      if(length(x) == 1){
+        x[[1]]
+      }else{
+        x
+      }
+    )
+  }
+
+  split_nl <- function(set, precision, change_dir){
+    if(isFALSE(precision)){
+      precision <- 0
+    }else if(isTRUE(precision)){
+      c <- max(nchar(set - as.integer(set)))
+      precision <- 1/(10^c)
+    }
+    if(isTRUE(fill)){
+
+    }
+
+    precision <- c(rep(precision, length(set)-2), 0)
+    if(change_dir){
+      number_line(set[-1] - precision, set[-length(set)])
+    }else{
+      number_line(set[-length(set)], set[-1] - precision)
+    }
+  }
+
+  x <- mapply(split_nl, x, precision, change_dir, SIMPLIFY = FALSE)
+
+  if(length(x) == 1){
+    x[[1]]
+  }else{
+    x
+  }
+}
+#' @rdname number_line
+#' @details
+#' \bold{\code{number_line_sequence()}} - Convert a \code{number_line} object into a sequence of finite numbers.
+#' \bold{Deprecated. Please use \code{split_number_line(... simplify = TRUE)}}
+#'
+#' @export
+number_line_sequence <- function(x, by=1, length.out = NULL){
+  x <- split_number_line(x = x, by = by, length.out = length.out, simplify = TRUE)
+  warning(paste0("`number_line_sequence()` has been retired!:\n",
+                 "i - Please use `split_number_line(..., simplify = TRUE)` instead.\n",
+                 "i - Your values were passed to `split_number_line()`."), call. = F)
+  return(x)
 }
