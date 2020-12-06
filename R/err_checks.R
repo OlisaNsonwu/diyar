@@ -681,7 +681,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
-    obj_types <- ifelse(obj_types == "logical", "logical (`TRUE` or `FALSE`", obj_types)
+    obj_types <- ifelse(obj_types == "logical", "logical (`TRUE` or `FALSE`)", obj_types)
     err <- paste0("Invalid object type for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`.\n",
                   "i - Valid object types are ", listr(paste0("`", obj_types, "`"), conj = " or"), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "You've supplied a ", err, " object.", collapse = "\n"))
@@ -869,7 +869,7 @@ err_split_nl_1 <- function(x,
   args_classes <- list(x = c("number_line"),
                by = c("integer", "numeric", "NULL"),
                length.out = c("integer", "numeric", "NULL"),
-               precision= "logical",
+               precision= c("logical","integer", "numeric"),
                fill = "logical",
                simplify = "logical")
 

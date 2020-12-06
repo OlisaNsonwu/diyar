@@ -21,6 +21,7 @@ knitr::opts_chunk$set(
 + `epid_object` - default time zone for `epid_interval` with `POSIXct` objects is now "GMT".
 
 ## Bug fixes
++ "Single-record" was wrong in `links` summary output. Resolved.
 
 # Version 0.2.0
 

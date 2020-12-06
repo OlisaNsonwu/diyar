@@ -422,3 +422,89 @@ listr <- function(x, sep = ", ", conj = " and", lim = Inf){
 
   return(x)
 }
+
+sb_h <- function(x, by) {
+  x$x1 <- x$x1 + by
+  x$x2 <- x$x2 + by
+  x
+}
+
+sb_v <- function(x, by) {
+  x$y1 <- x$y1 + by
+  x$y2 <- x$y2 + by
+  x
+}
+
+
+box_set <- function(x = box, n, by){
+  mapply(sb_h, rep(x, n), (seq_len(n)-1) * by, SIMPLIFY = F)
+}
+
+box_45d <- function(y){
+  x <- y
+  ref_pt <- nrow(y)
+  spacing <- c(0, abs(x$x2[1:(length(x$x1)-1)] - x$x1[-1]))
+  y_int <- (((seq_len(nrow(x))-1) * (x$y2 - x$y1)) + ((seq_len(nrow(x))-1) * spacing))
+  y$x1 <- x$x1[ref_pt]
+  y$x2 <- x$x2[ref_pt]
+  y$y1 <- x$y1 - y_int
+  y$y2 <- x$y2 - y_int
+
+  return(y)
+}
+
+box_45l <- function(y){
+  x <- y
+  ref_pt <- nrow(y)
+  spacing <- c(0, abs(x$y1[1:(length(x$y1)-1)] - x$y2[-1]) )
+  x_int <- (((seq_len(nrow(x))-1) * (x$x2 - x$x1)) + ((seq_len(nrow(x))-1) * spacing))
+  y$y1 <- x$y1[ref_pt]
+  y$y2 <- x$y2[ref_pt]
+  y$x1 <- x$x1 - x_int
+  y$x2 <- x$x2 - x_int
+  y <- y[order(y$x1),]
+  return(y)
+}
+
+box_45u <- function(y){
+  x <- y
+  ref_pt <- 1
+  spacing <- c(0, abs(x$x2[1:(length(x$x1)-1)] - x$x1[-1]))
+  y_int <- (((seq_len(nrow(x))-1) * (x$y2 - x$y1)) + ((seq_len(nrow(x))-1) * spacing))
+  y$x1 <- x$x1[ref_pt]
+  y$x2 <- x$x2[ref_pt]
+  y$y1 <- x$y1 + y_int
+  y$y2 <- x$y2 + y_int
+  y <- y[order(-y$y1),]
+  return(y)
+}
+
+box_45r <- function(y){
+  x <- y
+  ref_pt <- 1
+  spacing <- c(0, abs(x$y1[1:(length(x$y1)-1)] - x$y2[-1]) )
+  x_int <- (((seq_len(nrow(x))-1) * (x$x2 - x$x1)) + ((seq_len(nrow(x))-1) * spacing))
+  y$y1 <- x$y1[ref_pt]
+  y$y2 <- x$y2[ref_pt]
+  y$x1 <- x$x1 + x_int
+  y$x2 <- x$x2 + x_int
+  return(y)
+}
+
+box <- function(by){
+  data.frame(x1 = 1, x2 = by, y1 = 1, y2 = by)
+}
+
+box_ring <- function(boxes_w = 3, order = 1){
+  boxes_n <- order * 2
+  boxes <- box_set(x = list(box(boxes_w)), n = boxes_n, by = boxes_w)
+  h_boxes <- do.call(rbind, boxes)
+  top_box <- sb_h(sb_v(h_boxes, boxes_w * order), boxes_w * -(order-1))
+  boxes <- rbind(
+    top_box
+    ,sb_v(box_45d(top_box), -boxes_w)
+    ,sb_h(box_45l(sb_v(box_45d(top_box), -boxes_w)), -boxes_w)
+    ,sb_v(box_45u(sb_h(box_45l(sb_v(box_45d(top_box), -boxes_w)), -boxes_w)), boxes_w)
+  )
+  boxes
+}

@@ -15,6 +15,8 @@
 #' @param shrink If \code{TRUE}, allows reductions in the size of a record group at subsequent stages of the linkage process.
 #' @param display The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
 #' @param to_s4 Data type of returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' @param schema Plot a schema of the returned \code{\link[=pid-class]{pid}} objects. Useful to visualise the data linkage process.
+#'
 #' @param ... Arguments passed to \bold{\code{links}}
 #'
 #' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
@@ -107,7 +109,8 @@ links <- function(criteria,
                   display = "progress",
                   group_stats = FALSE,
                   expand = TRUE,
-                  shrink = FALSE){
+                  shrink = FALSE,
+                  schema = NULL){
   tm_a <- Sys.time()
 
   rut <- attr(sub_criteria, "diyar_sub_criteria")
@@ -364,9 +367,10 @@ links <- function(criteria,
                link_id = link_id[fd],
                iteration = iteration[fd])
 
+  r <- rle(sort(pid))
+  pid_tot <- r$lengths[match(pid_f, r$values)]
   if(group_stats == T){
-    r <- rle(sort(pid))
-    pids@pid_total = r$lengths[match(pid_f, r$values)]
+    pids@pid_total = pid_tot
     names(pids@pid_total) <- NULL
   }
 
@@ -387,6 +391,30 @@ links <- function(criteria,
     pids@pid_dataset <- datasets
   }
 
+  if(!is.null(schema)){
+    if(schema == "by_pid"){
+      plot_strata_lst <- pids@.Data
+      plot_strata <- plot_strata_lst[!duplicated(plot_strata_lst)]
+      pid_lst <- lapply(plot_strata, function(x){
+        plot_pids(pids[plot_strata_lst == x], paste0("P.", x))
+      })
+      names(pid_lst) <- plot_strata
+    }else if (schema == "by_strata" & !is.null(strata)){
+      plot_strata_lst <- strata
+      plot_strata <- plot_strata_lst[!duplicated(plot_strata_lst)]
+      pid_lst <- lapply(plot_strata, function(x){
+        plot_pids(pids[plot_strata_lst == x], paste0("Strata - ", x))
+      })
+      names(pid_lst) <- plot_strata
+    }else if (schema == "by_ALL"| (schema == "by_strata" & is.null(strata))){
+      plot_strata_lst <- "ALL"
+      plot_strata <- plot_strata_lst[!duplicated(plot_strata_lst)]
+      pid_lst <- lapply(plot_strata, function(x){
+        plot_pids(pids[plot_strata_lst == x], paste0("", x))
+      })
+      names(pid_lst) <- plot_strata
+    }
+  }
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
@@ -406,13 +434,17 @@ links <- function(criteria,
                    cri_dst, "\n",
                    "Groups:\n",
                    "   Total:         ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n",
-                   "   Single-record: ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n"
+                   "   Single-record: ", fmt(length(pids@.Data[!duplicated(pids@.Data) & pid_tot == 1])), "\n"
                    )
     cat(summ)
   }else if(display == "none"){
     cat(paste0("Data linkage completed in ", tms, "!\n"))
   }
-  pids
+  if(is.null(schema)){
+    pids
+  }else{
+    list("pids" = pids, "plots" = pid_lst)
+  }
 }
 
 #' @rdname links
