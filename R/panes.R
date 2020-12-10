@@ -228,7 +228,7 @@ panes <- function(date, window = Inf, windows_min = Inf, separate = FALSE, sn = 
 #'
 panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, sn = NULL, strata = NULL,
                   data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
-                  display = "none", data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE){
+                  display = "none", data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE, schema = "none"){
   tm_a <- Sys.time()
 
   errs <- err_panes_checks_0(date = date,
@@ -248,7 +248,6 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
                              )
 
   if(errs!=F) stop(errs, call. = F)
-
   # mx_win <- max(left_point(windows_min), right_point(windows_min))
   # if(mx_win > length(window)) stop(paste0("x - `windows_min` must be less than the number of windows.\n",
   #                                         "i - You've supplied ", mx_win, "`windows`." ), call. = FALSE)
@@ -261,6 +260,7 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
   names(data_links) <- ifelse(names(data_links)=="", "l", names(data_links))
 
   int <- as.number_line(date)
+  int@id <- seq_len(length(int))
   #windows_min <- number_line(0, windows_min)
   # if(!all(class(window) == "list")) window <- as.list(window)
   # window <- lapply(window, as.number_line)
@@ -335,7 +335,7 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
     ep_checks
   }
 
-  ep_checks <- mapply(checks, splits, splits_windows)
+  ep_checks <- mapply(checks, splits, splits_windows, SIMPLIFY = FALSE)
   ep_checks <- unlist(ep_checks, use.names = FALSE)
   splits_sn <- unlist(splits_sn, use.names = FALSE)
   ep_checks <- ep_checks[match(seq_len(length(int)), splits_sn)]
@@ -352,7 +352,8 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
   lgk <- !overlap(phits, windows_min) | is.na(epid)
   epid[lgk] <- seq_len(length(int))[lgk]
 
-  epid <- sn[match(epid, epid[!duplicated(epid)])]
+  lgk <- !duplicated(epid)
+  epid <- (sn[lgk])[match(epid, epid[lgk])]
   ord <- order(int@start, right_point(int))
 
   i <- seq_len(length(int))[ord]; s <- epid[ord]
@@ -427,6 +428,71 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
     epids@epid_length <- epid_l
   }
 
+  if(schema == "by_epid"){
+    p_cri <- as.numeric(epids@.Data)
+    plot_sets <- p_cri[epid_n > 1]
+    plot_sets <- plot_sets[!duplicated(plot_sets)]
+    plots <- lapply(plot_sets, function(x){
+      plt_cri <- cri[p_cri == x]
+      plt_cri <- plt_cri[!duplicated(plt_cri)]
+      if(!is.null(by) | !is.null(length.out)){
+        splt_wns <- splits_windows[paste0(plt_cri)]
+      }else{
+        splt_wns <- splits_windows
+      }
+
+      plot_panes(int = int[p_cri == x | (cri == plt_cri & epid_n ==1)],
+                 epids = epids[p_cri == x | (cri == plt_cri & epid_n ==1)],
+                 splits_windows = splt_wns,
+                 ep_checks = ep_checks[p_cri == x | (cri == plt_cri & epid_n ==1)],
+                 title = paste0("E.",x),
+                 separate = separate)
+    })
+    names(plots) <- plot_sets
+  }else if (schema == "by_strata" & !is.null(strata)){
+    p_cri <- cri
+    plot_sets <- p_cri
+    plot_sets <- plot_sets[!duplicated(plot_sets)]
+    plots <- lapply(plot_sets, function(x){
+      if(!is.null(by) | !is.null(length.out)){
+        plt_cri <- cri[p_cri == x]
+        plt_cri <- plt_cri[!duplicated(plt_cri)]
+        splt_wns <- splits_windows[paste0(plt_cri)]
+      }else{
+        splt_wns <- splits_windows
+      }
+
+      plot_panes(int = int[p_cri == x],
+                 epids = epids[p_cri == x],
+                 splits_windows = splt_wns,
+                 ep_checks = ep_checks[p_cri == x],
+                 title = paste0("Strata - ",x),
+                 separate = separate)
+    })
+    names(plots) <- plot_sets
+  }else if (schema == "ALL" | (schema == "by_strata" & is.null(strata))){
+    p_cri <- "ALL"
+    plot_sets <- p_cri
+    plot_sets <- plot_sets[!duplicated(plot_sets)]
+    plots <- lapply(plot_sets, function(x){
+      if(!is.null(by) | !is.null(length.out)){
+        plt_cri <- cri[p_cri == x]
+        plt_cri <- plt_cri[!duplicated(plt_cri)]
+        splt_wns <- splits_windows[paste0(plt_cri)]
+      }else{
+        splt_wns <- splits_windows
+      }
+
+      plot_panes(int = int[p_cri == x],
+                 epids = epids[p_cri == x],
+                 splits_windows = splt_wns,
+                 ep_checks = ep_checks[p_cri == x],
+                 title = "ALL",
+                 separate = separate)
+    })
+    names(plots) <- plot_sets
+  }
+
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
@@ -443,5 +509,9 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
   }else if(display == "none"){
     cat(paste0("Episode tracking completed in ", tms, "!\n"))
   }
-  return(epids)
+  if(schema == "none"){
+    epids
+  }else{
+    list("epids" = epids, "plots" = plots)
+  }
 }

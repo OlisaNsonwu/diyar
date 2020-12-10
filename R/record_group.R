@@ -110,7 +110,7 @@ links <- function(criteria,
                   group_stats = FALSE,
                   expand = TRUE,
                   shrink = FALSE,
-                  schema = NULL){
+                  schema = "none"){
   tm_a <- Sys.time()
 
   rut <- attr(sub_criteria, "diyar_sub_criteria")
@@ -391,7 +391,6 @@ links <- function(criteria,
     pids@pid_dataset <- datasets
   }
 
-  if(!is.null(schema)){
     if(schema == "by_pid"){
       plot_strata_lst <- pids@.Data
       plot_strata <- plot_strata_lst[!duplicated(plot_strata_lst)]
@@ -414,7 +413,7 @@ links <- function(criteria,
       })
       names(pid_lst) <- plot_strata
     }
-  }
+
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
@@ -440,7 +439,7 @@ links <- function(criteria,
   }else if(display == "none"){
     cat(paste0("Data linkage completed in ", tms, "!\n"))
   }
-  if(is.null(schema)){
+  if(schema == "none"){
     pids
   }else{
     list("pids" = pids, "plots" = pid_lst)
