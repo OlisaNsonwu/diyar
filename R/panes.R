@@ -353,15 +353,26 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
   epid[lgk] <- seq_len(length(int))[lgk]
 
   lgk <- !duplicated(epid)
-  epid <- (sn[lgk])[match(epid, epid[lgk])]
-  ord <- order(int@start, right_point(int))
+  #epid <- (sn[lgk])[match(epid, epid[lgk])]
+  ord <- order(epid, -c_sort, -as.numeric(int@start), -as.numeric(right_point(int)))
 
-  i <- seq_len(length(int))[ord]; s <- epid[ord]
-  i <- i[!duplicated(s) & case_nm[i] != "Skipped"]
-  case_nm[i] <- "Index"
+  s_epid <- epid[ord]
+  s_sn <- sn[ord]
+  names(s_epid) <- s_sn
+  index_sn <- rle(s_epid)
 
-  r <- rle(epid[order(epid)])
-  epid_n <- rep(r$lengths, r$lengths)
+  pp <- as.numeric(names(index_sn$values))
+  qq <- as.numeric(names(s_epid))
+  epid <- rep(s_sn[match(pp, qq)], index_sn$lengths)
+  epid_n <- rep(index_sn$lengths, index_sn$lengths)
+  #return(list(index_sn = index_sn, sn =sn, s_epid =  s_epid, ord= ord, s_sn = s_sn, epid = epid, s_epid = s_epid))
+  epid <- epid[match(sn, s_sn)]
+  epid_n <- epid_n[match(sn, s_sn)]
+  #return(epid)
+  case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != "Skipped")] <- "Index"
+
+  # r <- rle(epid[order(epid)])
+  # epid_n <- rep(r$lengths, r$lengths)
 
   ei <- epid[which(case_nm %in% c("Index", "Skipped"))]
   ii <- int[which(case_nm %in% c("Index", "Skipped"))]
@@ -428,10 +439,24 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
     epids@epid_length <- epid_l
   }
 
-  if(schema == "by_epid"){
-    p_cri <- as.numeric(epids@.Data)
-    plot_sets <- p_cri[epid_n > 1]
-    plot_sets <- plot_sets[!duplicated(plot_sets)]
+  if(schema != "none"){
+    if(schema == "by_epid"){
+      p_cri <- as.numeric(epids@.Data)
+      plot_sets <- p_cri[epid_n > 1]
+      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      title_seq <- "Episode - E."
+    }else if (schema == "by_strata" & !is.null(strata)){
+      p_cri <- cri
+      plot_sets <- p_cri
+      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      title_seq <- "Strata - "
+    }else if (schema == "by_ALL" | (schema == "by_strata" & is.null(strata))){
+      p_cri <- "ALL"
+      plot_sets <- p_cri
+      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      title_seq <- ""
+    }
+
     plots <- lapply(plot_sets, function(x){
       plt_cri <- cri[p_cri == x]
       plt_cri <- plt_cri[!duplicated(plt_cri)]
@@ -441,53 +466,12 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
         splt_wns <- splits_windows
       }
 
-      plot_panes(int = int[p_cri == x | (cri == plt_cri & epid_n ==1)],
-                 epids = epids[p_cri == x | (cri == plt_cri & epid_n ==1)],
+      lgk <- (p_cri == x | (cri == plt_cri & epid_n == 1))
+      plot_panes(int = int[lgk],
+                 epids = epids[lgk],
                  splits_windows = splt_wns,
-                 ep_checks = ep_checks[p_cri == x | (cri == plt_cri & epid_n ==1)],
-                 title = paste0("E.",x),
-                 separate = separate)
-    })
-    names(plots) <- plot_sets
-  }else if (schema == "by_strata" & !is.null(strata)){
-    p_cri <- cri
-    plot_sets <- p_cri
-    plot_sets <- plot_sets[!duplicated(plot_sets)]
-    plots <- lapply(plot_sets, function(x){
-      if(!is.null(by) | !is.null(length.out)){
-        plt_cri <- cri[p_cri == x]
-        plt_cri <- plt_cri[!duplicated(plt_cri)]
-        splt_wns <- splits_windows[paste0(plt_cri)]
-      }else{
-        splt_wns <- splits_windows
-      }
-
-      plot_panes(int = int[p_cri == x],
-                 epids = epids[p_cri == x],
-                 splits_windows = splt_wns,
-                 ep_checks = ep_checks[p_cri == x],
-                 title = paste0("Strata - ",x),
-                 separate = separate)
-    })
-    names(plots) <- plot_sets
-  }else if (schema == "ALL" | (schema == "by_strata" & is.null(strata))){
-    p_cri <- "ALL"
-    plot_sets <- p_cri
-    plot_sets <- plot_sets[!duplicated(plot_sets)]
-    plots <- lapply(plot_sets, function(x){
-      if(!is.null(by) | !is.null(length.out)){
-        plt_cri <- cri[p_cri == x]
-        plt_cri <- plt_cri[!duplicated(plt_cri)]
-        splt_wns <- splits_windows[paste0(plt_cri)]
-      }else{
-        splt_wns <- splits_windows
-      }
-
-      plot_panes(int = int[p_cri == x],
-                 epids = epids[p_cri == x],
-                 splits_windows = splt_wns,
-                 ep_checks = ep_checks[p_cri == x],
-                 title = "ALL",
+                 ep_checks = ep_checks[lgk],
+                 title = paste0(title_seq, x),
                  separate = separate)
     })
     names(plots) <- plot_sets

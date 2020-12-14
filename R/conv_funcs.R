@@ -508,3 +508,67 @@ box_ring <- function(boxes_w = 3, order = 1){
   )
   boxes
 }
+
+l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
+  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != "Skipped" & pltd$wind_nm == wind_nm,]
+  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != "Skipped"
+  lar <- pltd[lgk,]
+  lens <- lapply(lens, function(x) x[lgk])
+  rec_ls <- nrow(lar)
+  if(rec_ls >0){
+    lar$mid_y_lead <- pltd$mid_y[match(lar$sn, pltd$wind_id)]
+    lar <- lapply(lens, function(x){
+      y <- x
+      left_point(y) <- as.numeric(left_point(x))
+      right_point(y) <- as.numeric(right_point(x))
+
+      # y <- number_line(as.numeric(left_point(x)),
+      #                  as.numeric(right_point(x)))
+      y <- to_df(y[match(y@id, lar$sn)])
+
+      y$id <- NULL
+      y$gid <- NULL
+      y$epid <- lar$epid
+      y$wind_total <- lar$wind_total
+      y$y <- lar$y
+      y$mid_y_lead <- lar$mid_y_lead
+      y$nl_nm <- "len"
+      lar$nl_nm <- "dts"
+      lar$wind_nm_l <- ""
+      y$wind_nm_l <- ifelse(winds$wind_nm == "Case", "Case length", "Recurrence length")
+
+      y$nl_l <- epid_lengths(number_line(lar$start,
+                                         lar$end),
+                             number_line(y$start,
+                                         y$end),
+                             "seconds")
+
+      if(is_dt == TRUE){
+        y$nl_l <- number_line(left_point(y$nl_l)/as.numeric(diyar::episode_unit[epid_unit]),
+                              right_point(y$nl_l)/as.numeric(diyar::episode_unit[epid_unit]))
+      }
+      y$nl_s <- left_point(y$nl_l)
+      y$nl_e <- right_point(y$nl_l)
+
+      lar$nl_s <- y$nl_s
+      lar$nl_e <- y$nl_e
+      y$nl_l <- NULL
+      y <- rbind(y, lar[c("end", "start", "epid", "y", "mid_y_lead", "nl_s", "nl_e", "nl_nm", "wind_nm_l", "wind_total")])
+      y$lab_y <- (y$mid_y_lead + y$y)/2
+      y
+    })
+  }else{
+    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total")]
+    lar$wind_nm_l <- lar$nl_nm <- character()
+    lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
+    lar <- list(lar)
+  }
+  lar
+}
+
+scale_size <- function(size_lims, count_upper_lim, pts_n ){
+  unit_change <- (max(size_lims) - min(size_lims))/(count_upper_lim - 0)
+  s <- max(size_lims) - (ifelse(pts_n > count_upper_lim, count_upper_lim, pts_n) * unit_change)
+  s
+}
+

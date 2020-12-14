@@ -136,7 +136,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
-                     display = "none", win_criteria = NULL, sub_criteria = NULL) {
+                     display = "none", win_criteria = NULL, sub_criteria = NULL, schema = "by_epid") {
   tm_a <- Sys.time()
 
   rut <- attr(win_criteria, "diyar_sub_criteria")
@@ -175,6 +175,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   names(data_links) <- ifelse(names(data_links)=="", "l", names(data_links))
 
   int <- as.number_line(date)
+  #int_bu <- int
   is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
 
   ep_units <- tolower(episode_unit)
@@ -290,8 +291,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   if(length(strata) == 1 | is.null(strata)) {
     cri <- rep(1, length(int))
+    strata_l <- cri
   }else{
     cri <- match(strata, strata[!duplicated(strata)])
+    strata_l <- strata
   }
   int@id <- seq_len(length(int))
   int@gid <- int@id
@@ -362,10 +365,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   tot <- length(int)
   pri_pos <- seq_len(length(date))
 
-  int_bu <- as.number_line(int)
+  int_bu <- int
   ep_l_bu <- ep_l
   if(any_rolling == T){
     rc_l_bu <- rc_l
+  }else{
+    rc_l_bu <- ep_l_bu
   }
 
   if(display != "none") cat("\n")
@@ -902,6 +907,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   rm(idx); rm(gidx)
 
   wind_nm[which(case_nm == "Skipped")] <- "Skipped"
+
+  qfx <- data.frame(i = wind_id, n = wind_nm, stringsAsFactors = F)
+  qfx <- qfx[!duplicated(qfx),]
+  qfx <- qfx[qfx$n == "Recurrence",]
+  wind_nm[wind_id %in% qfx$i] <- "Recurrence"
+  rm(qfx)
+
   ep_units <- ep_units[match(names(e), names(ep_units))]
   diff_unit <- ifelse(ep_units %in% c("second","minutes"),
                       paste0(substr(ep_units, 1 ,3), "s"),
@@ -1019,138 +1031,43 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   names(epid) <- NULL
 
-  pl_dates <- to_df(epid)
-  pl_dates$start <- left_point(int_bu)
-  pl_dates$end <- right_point(int_bu)
-  pl_dates$epid <- as.character(pl_dates$epid)
+  if(schema != "none"){
+    schema <- ifelse(length(epid[epid_tot >1]) == 0 & schema == "by_epid", "by_strata", schema)
+    if(schema == "by_epid"){
+      p_cri <- as.numeric(epid@.Data)
+      plot_sets <- p_cri[epid_n > 1]
+      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      title_seq <- "Episode - E."
+    }else if (schema == "by_strata" & !is.null(strata)){
+      p_cri <- strata_l
+      plot_sets <- p_cri
+      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      title_seq <- "Strata - "
+    }else if (schema == "by_ALL" | (schema == "by_strata" & is.null(strata))){
+      p_cri <- "ALL"
+      plot_sets <- p_cri
+      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      title_seq <- ""
+    }
+    plots <- lapply(plot_sets, function(x){
+      plt_cri <- strata_l[p_cri == x]
+      plt_cri <- plt_cri[!duplicated(plt_cri)]
 
-  # sp should not be more than 1
-  #sp <- length(pl_dates$pane_n[pl_dates$pane_n != 0])/100*2
-  sp <- 1
-  pl_dates$y <- sample(seq(1-sp , 1 + sp, length.out = nrow(pl_dates)),  nrow(pl_dates))
-
-  pl_dates$mid_x <- (as.numeric(pl_dates$start) + as.numeric( pl_dates$end))/2
-  link_sn <- pl_dates[pl_dates$sn %in% pl_dates$wind_id, c("sn", "mid_x", "y")]
-  pl_dates$x_lead <- pl_dates$y_lead <- NULL
-
-  pl_dates$x_lead <- link_sn$mid_x[match(pl_dates$wind_id, link_sn$sn)]
-  pl_dates$y_lead <- link_sn$y[match(pl_dates$wind_id, link_sn$sn)]
-
-  winds <- pl_dates[!duplicated(pl_dates$wind_id) &  pl_dates$wind_nm != "Skipped" & pl_dates$wind_nm == "Case",]
-  case_l_ar <- pl_dates[pl_dates$sn %in% winds$wind_id & pl_dates$case_nm != "Skipped",]
-  case_l_ar <- lapply(ep_l_bu, function(x){
-    y <- to_df(x[case_l_ar$sn])
-    y$id <- NULL
-    y$gid <- NULL
-    y$epid <- case_l_ar$epid
-    y$y <- case_l_ar$y
-    y$nl_nm <- "len"
-    case_l_ar$nl_l <- ""
-    case_l_ar$nl_nm <- "dts"
-    case_l_ar$wind_nm_l <- ""
-    y$wind_nm_l <- ifelse(winds$wind_nm == "Case", "Case length", "Recurrence length")
-    y$nl_l <- paste0(y$wind_nm_l, "\n",
-                     format(epid_lengths(number_line(case_l_ar$start,
-                                                     case_l_ar$end),
-                                         number_line(y$start,
-                                                     y$end))),
-                     " ", episode_unit, "-",
-                     "difference.")
-
-    y <- rbind(y, case_l_ar[c("end", "start", "epid", "y", "nl_nm", "nl_l", "wind_nm_l")])
-    y
-  })
-
-  if(any_rolling == T){
-    winds <- pl_dates[!duplicated(pl_dates$wind_id) &  pl_dates$wind_nm != "Skipped" & pl_dates$wind_nm == "Recurrence",]
-    rc_l_ar <- pl_dates[pl_dates$sn %in% winds$wind_id & pl_dates$case_nm != "Skipped",]
-    rc_l_ar <- lapply(rc_l_bu, function(x){
-      y <- to_df(x[rc_l_ar$sn])
-      y$id <- NULL
-      y$gid <- NULL
-      y$epid <- rc_l_ar$epid
-      y$y <- rc_l_ar$y
-      y$nl_nm <- "len"
-      rc_l_ar$nl_l <- ""
-      rc_l_ar$nl_nm <- "dts"
-      rc_l_ar$wind_nm_l <- ""
-      y$wind_nm_l <- ifelse(winds$wind_nm == "Case", "Case length", "Recurrence length")
-      y$nl_l <- paste0(y$wind_nm_l, "\n",
-                       format(epid_lengths(number_line(rc_l_ar$start,
-                                                       rc_l_ar$end),
-                                           number_line(y$start,
-                                                       y$end))),
-                       " ", episode_unit, "-",
-                       "difference.")
-
-      y <- rbind(y, rc_l_ar[c("end", "start", "epid", "y", "nl_nm", "nl_l", "wind_nm_l")])
-      y
+      lgk <- (p_cri == x | (strata_l %in% plt_cri & epid_tot == 1))
+      #return(list(lgk = lgk, ep_l_bu= ep_l_bu ))
+      plot_epids(epids = epid[lgk],
+                 date = int_bu[lgk],
+                 episode_unit = ep_units[lgk],
+                 case_length = lapply(ep_l_bu, function(k) k[lgk]),
+                 recurrence_length = lapply(rc_l_bu, function(k) k[lgk]),
+                 is_dt = is_dt,
+                 episode_type = episode_type[lgk],
+                 title = paste0(title_seq, x))
     })
-    case_l_ar <- c(case_l_ar, rc_l_ar)
+    names(plots) <- plot_sets
   }
 
-  case_l_ar <- do.call(rbind, case_l_ar)
-
-  # gaps <- case_l_ar[case_l_ar$nl_nm == "len", c("epid", "start", "end", "y")]
-  # gaps <- gaps[order(gaps$epid,
-  #                    gaps$start,
-  #                    gaps$end),]
-  #
-  # gaps$start_lead <- c(gaps$start[2:nrow(gaps)], NA)
-  # gaps$epid_lead <- c(gaps$epid[2:nrow(gaps)], NA)
-  # gaps <- gaps[gaps$epid == gaps$epid_lead & !is.na(gaps$epid_lead),]
-
-  pl_dates$event_nm <- paste0(
-    # ifelse(pl_dates$start == pl_dates$end,
-    #        format(pl_dates$start),
-    #        format(number_line(pl_dates$start,
-    #                           pl_dates$end))),"\n",
-    pl_dates$case_nm,
-    ifelse(pl_dates$sn %in% pl_dates$wind_id,
-           "\n(reference)\n", "\n"),
-    "event")
-
-  breaks <- seq(min(as.numeric(pl_dates$start)), max(as.numeric(pl_dates$start)), length.out = 10)
-  labels <- seq(min(pl_dates$start), max(pl_dates$start), length.out = 10)
-  if(is_dt ==T){
-    labels <- as.Date(labels)
-  }
-
-  pl_dates$start <- as.numeric(pl_dates$start)
-  pl_dates$end <- as.numeric(pl_dates$end)
-
-  pl_dates$mid_x <- as.numeric(pl_dates$mid_x)
-  pl_dates$x_lead <- as.numeric(pl_dates$x_lead)
-
-  case_l_ar$start <- as.numeric(case_l_ar$start)
-  case_l_ar$end <- as.numeric(case_l_ar$end)
-
-  plots <- ggplot2::ggplot(data = pl_dates) +
-    ggplot2::geom_segment(aes(x = start, xend = end, y = y, yend = y)) +
-    ggplot2::geom_point(aes(x = start, y = y, colour = epid)) +
-    ggplot2::geom_point(aes(x = end, y = y, colour = epid)) +
-    ggplot2::geom_segment(ggplot2::aes(x = mid_x, y= y, colour = epid, xend = x_lead, yend = y_lead), alpha = .35, show.legend=FALSE) +
-    ggplot2::geom_segment(ggplot2::aes(x = start, y= y, colour = epid, xend = end, yend = y, linetype = wind_nm_l), alpha = .7, data = case_l_ar[case_l_ar$nl_nm == "len",], arrow = arrow(length=unit(0.3,"cm"), ends="last", type = "open"), show.legend=FALSE) +
-    #ggplot2::geom_segment(ggplot2::aes(x = end, y= y, xend = start_lead, yend = y), linetype = 2, alpha = .7, color= "white", data = gaps, show.legend=FALSE) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = epid, label = nl_l), data = case_l_ar[case_l_ar$nl_nm == "len",], nudge_y = .05, size = 3, show.legend=FALSE) +
-    #ggplot2::geom_rect(aes(xmin = start, xmax = end, ymin = 0, ymax =2, fill = epid), data = case_l_ar, alpha = .15) +
-    #ggplot2::geom_segment(aes(x = start, xend = start, y = 0, yend = 2, color = epid), data = case_l_ar, alpha = .7) +
-    #ggplot2::geom_segment(aes(x = end, xend = end, y = 0, yend = 2, color = epid), data = case_l_ar, alpha = .7) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = epid, label = paste0("SN ", sn)), nudge_y = .05, size = 3, show.legend=FALSE) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = epid, label = event_nm), nudge_y = -.05, size = 3, show.legend=FALSE) +
-    ggplot2::scale_x_continuous(breaks = breaks, labels = labels) +
-    ggplot2::theme(
-      legend.position = "none",
-      legend.background = ggplot2::element_rect(fill = "black"),
-      legend.text = ggplot2::element_text(colour = "white"),
-      plot.background = ggplot2::element_rect(fill = "black"),
-      panel.background = ggplot2::element_rect(fill = "black", colour = "grey"),
-      panel.grid = ggplot2::element_blank(),
-      axis.line.y = ggplot2::element_blank(),
-      axis.text.y = ggplot2::element_blank()
-    )
-
-  return(plots)
+  #return(plots)
 
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
@@ -1168,7 +1085,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }else if(display == "none"){
     cat(paste0("Episode tracking completed in ", tms, "!\n"))
   }
-  return(epid)
+  if(schema == "none"){
+    epids
+  }else{
+    list("epids" = epid, "plots" = plots)
+  }
 }
 
 #' @rdname episodes
