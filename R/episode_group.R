@@ -300,11 +300,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     ep_l[[1]]@gid <- sn
   }
 
-  ord_a <- abs(max(as.numeric(int@start)) - as.numeric(int@start))
-  ord_z <- abs(max(as.numeric(right_point(int))) - as.numeric(right_point(int)))
+  ord_a <- abs(max(as.numeric(int@start), na.rm = TRUE) - as.numeric(int@start))
+  ord_z <- abs(max(as.numeric(right_point(int)), na.rm = TRUE) - as.numeric(right_point(int)))
 
-  ord_a[!from_last] <- abs(min(as.numeric(int@start)) - as.numeric(int@start[!from_last]))
-  ord_z[!from_last] <- abs(min(as.numeric(right_point(int))) - as.numeric(right_point(int[!from_last])))
+  ord_a[!from_last] <- abs(min(as.numeric(int@start), na.rm = TRUE) - as.numeric(int@start[!from_last]))
+  ord_z[!from_last] <- abs(min(as.numeric(right_point(int)), na.rm = TRUE) - as.numeric(right_point(int[!from_last])))
 
   assign_ord <- order(ord_a, -ord_z)
   rm(ord_a); rm(ord_z)
