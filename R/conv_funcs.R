@@ -566,9 +566,12 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
   lar
 }
 
-scale_size <- function(size_lims, count_upper_lim, pts_n ){
+scale_size <- function(size_lims, count_upper_lim, pts_n, decreasing = TRUE){
   unit_change <- (max(size_lims) - min(size_lims))/(count_upper_lim - 0)
-  s <- max(size_lims) - (ifelse(pts_n > count_upper_lim, count_upper_lim, pts_n) * unit_change)
-  s
+  if(decreasing){
+    max(size_lims) - (ifelse(pts_n > count_upper_lim, count_upper_lim, pts_n) * unit_change)
+  }else{
+    min(size_lims) + (ifelse(pts_n > count_upper_lim, count_upper_lim, pts_n) * unit_change)
+  }
 }
 

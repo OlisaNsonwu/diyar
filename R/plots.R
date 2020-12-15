@@ -11,7 +11,7 @@
 #'
 #' @examples
 #' @export
-plot_pids <- function(pids, title = NULL){
+plot_pids <- function(pids, title = NULL, plot_labels = FALSE){
   pl_dt <- to_df(pids)
   cris <- length(unique(pl_dt$pid_cri))
   pl_dt$pid_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("CRI ", pl_dt$pid_cri)))
@@ -55,35 +55,54 @@ plot_pids <- function(pids, title = NULL){
   pl_dt$y <- cords("y")
 
   link_sn <- pl_dt[pl_dt$sn %in% pl_dt$link_id, c("sn", "x", "y")]
-  pl_dt$x_lead <- pl_dt$y_lead <- NULL
 
   pl_dt$x_lead <- link_sn$x[match(pl_dt$link_id, link_sn$sn)]
   pl_dt$y_lead <- link_sn$y[match(pl_dt$link_id, link_sn$sn)]
 
   pl_dt$pid <- as.character(pl_dt$pid)
+  if(isTRUE(plot_labels)){
+    plot_labels <- c("sn", "pid")
+  }
+
+  if(!isFALSE(plot_labels)){
+    pl_dt$event_nm <- ""
+    pl_dt$pid_l <- ""
+    if("sn" %in% plot_labels){
+      pl_dt$event_nm <- paste0("SN ", pl_dt$sn)
+    }
+    if("pid" %in% plot_labels){
+      pl_dt$pid_l <- paste0("P.", pl_dt$pid)
+    }
+  }
+
 
   border$pid_cri <- pl_dt$pid_cri[match(border$pid_box, pl_dt$pid_box)]
   tx_l <- min(pl_dt$x1)
   tx_h <- max(pl_dt$y2)
-
+  boxes_n <- nrow(border)
+  #return(border)
   f <- ggplot2::ggplot(data = pl_dt) +
-    ggplot2::geom_point(ggplot2::aes(x = x, y= y, colour = pid), size = boxes_w * .15, show.legend=FALSE) +
-    ggplot2::geom_segment(ggplot2::aes(x = x, y= y, colour = pid, xend = x_lead, yend = y_lead), alpha = .25, size = boxes_w * .08, show.legend=FALSE) +
-    ggplot2::geom_text(ggplot2::aes(x = x, y= y, colour = pid, label = sn), nudge_x = boxes_w * .025, size = boxes_w * .3, show.legend=FALSE) +
+    ggplot2::geom_point(ggplot2::aes(x = x, y= y, colour = pid), size = scale_size(c(1,3), 125, boxes_n), alpha =.7) +
+    ggplot2::geom_segment(ggplot2::aes(x = x, y= y, colour = pid, xend = x_lead, yend = y_lead), alpha = .4) +
     ggplot2::geom_rect(ggplot2::aes(xmin = x1, xmax = x2, ymin = y1, ymax =y2,  fill = pid_cri), data = border, alpha = .1) +
-    ggplot2::geom_text(ggplot2::aes(x = (x1 + x2)/2, y= (y1 + y2)/2, colour = pid_cri, label = pid_cri), size = boxes_w * 3, alpha = .1, data = border, show.legend = FALSE)
+    ggplot2::geom_text(ggplot2::aes(x = (x1 + x2)/2, y= (y1 + y2)/2, colour = pid_cri, label = pid_cri), size = scale_size(c(9, 30), 125, boxes_n), alpha = scale_size(c(.1, .2), 125, boxes_n, decreasing = FALSE), data = border)
+    if(!isFALSE(plot_labels)){
+      f <- f +
+        ggplot2::geom_text(ggplot2::aes(x = x, y= y, colour = pid, label = event_nm), nudge_y = scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "bottom", size = scale_size(c(2,5), 125, boxes_n), alpha =.7) +
+        ggplot2::geom_text(ggplot2::aes(x = x, y= y, colour = pid, label = pid_l), nudge_y = -scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "top", size = scale_size(c(2,5), 125, boxes_n), alpha =.7)
+      }
 
   if(!is.null(title)){
-    f <- f + ggplot2::geom_text(ggplot2::aes(x = tx_l - (boxes_w * .06), y= tx_h + (boxes_w * .06)), colour = "white", label = title, size = boxes_w * .6, alpha = .1, show.legend=FALSE)
+    f <- f + ggplot2::geom_text(ggplot2::aes(x = min(c(border$x1, border$x2)), y = max(c(border$y1, border$y2))) , colour = "white", label = title, size = 5, nudge_y = scale_size(c(.3, .3), 125, boxes_n, decreasing = FALSE))
   }
   f <- f +
     ggplot2::guides(fill = ggplot2::guide_legend(ncol = 10)) +
     ggplot2::theme(
       legend.position = "none",
-      legend.background = ggplot2::element_rect(fill = "black"),
       legend.text = ggplot2::element_text(colour = "white"),
       plot.background = ggplot2::element_rect(fill = "black"),
-      panel.background = ggplot2::element_rect(fill = "black", colour = "grey"),
+      panel.background = ggplot2::element_rect(fill = "black"),
+      panel.border = ggplot2::element_blank(),
       panel.grid = ggplot2::element_blank(),
       axis.line = ggplot2::element_blank(),
       axis.text = ggplot2::element_blank()
@@ -91,7 +110,7 @@ plot_pids <- function(pids, title = NULL){
   f
 }
 
-plot_panes <- function(int, epids, ep_checks, splits_windows, title = NULL, separate){
+plot_panes <- function(int, epids, ep_checks, splits_windows, title = NULL, separate, plot_labels = FALSE){
 
   plt_df <- to_df(epids)
   plt_df$start <- int@start
@@ -122,7 +141,7 @@ plot_panes <- function(int, epids, ep_checks, splits_windows, title = NULL, sepa
   }
 
   border$y2 <- 2.05
-  border$y1 <- 0.05
+  border$y1 <- 0.00
   border$win_l <- format(number_line(border$start, border$end))
   panes_n <- nrow(border)
 
@@ -165,22 +184,41 @@ plot_panes <- function(int, epids, ep_checks, splits_windows, title = NULL, sepa
 
   plt_df$mid_x <- (plt_df$start + plt_df$end)/2
   link_sn <- plt_df[plt_df$sn %in% plt_df$wind_id, c("sn", "mid_x", "y")]
-  plt_df$x_lead <- plt_df$y_lead <- NULL
 
   plt_df$x_lead <- link_sn$mid_x[match(plt_df$wind_id, link_sn$sn)]
   plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
 
-  plt_df$event_type <- paste0(plt_df$case_nm,
-                              ifelse(plt_df$sn %in% plt_df$wind_id & plt_df$case_nm != "Skipped",
-                                     "\n(reference)\n", "\n"),
-                              "event")
+  if(isTRUE(plot_labels)){
+    plot_labels <- c("sn", "epid", "date", "case_nm")
+  }
 
-  plt_df$event_nm <- number_line(plt_df$start,
-                                 plt_df$end)
-  plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
-                            ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
-                                   format(left_point(plt_df$event_nm)),
-                                   format(plt_df$event_nm)))
+  if(!isFALSE(plot_labels)){
+    plt_df$event_type <- ""
+    plt_df$event_nm <- ""
+    if("epid" %in%  plot_labels){
+      plt_df$event_type <- paste0("E.", plt_df$epid)
+    }
+    if("case_nm" %in%  plot_labels){
+      plt_df$event_type <- paste0(plt_df$event_type, "\n",
+                                  plt_df$case_nm, "\n",
+                                  ifelse(plt_df$sn %in% plt_df$wind_id & plt_df$case_nm != "Skipped",
+                                         "(reference)\n",""),
+                                  "event")
+    }
+    if("date" %in%  plot_labels){
+      plt_df$event_nm <- number_line(plt_df$start,
+                                     plt_df$end)
+      plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
+                                format(left_point(plt_df$event_nm)),
+                                format(plt_df$event_nm))
+    }
+    if("sn" %in%  plot_labels){
+      plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
+                                plt_df$event_nm)
+    }
+  }
+
+
   plt_df <- plt_df[plt_df$finite,]
   plot_pts <- nrow(plt_df)
   min_x <- min(c(plt_df$start, border$start))
@@ -193,9 +231,13 @@ plot_panes <- function(int, epids, ep_checks, splits_windows, title = NULL, sepa
     ggplot2::geom_rect(ggplot2::aes(xmin = start, xmax = end, ymin = y1, ymax =y2, fill = pane_n), data = border, alpha = .2) +
     ggplot2::geom_segment(ggplot2::aes(x = start, xend = start, y = y1, yend = y2, color = pane_n), data = border, alpha = .7) +
     ggplot2::geom_segment(ggplot2::aes(x = end, xend = end, y = y1, yend = y2, color = pane_n), data = border, alpha = .7) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start + end))/2, y= y2, colour = pane_n, label = win_l), data = border, nudge_y = .05, size = 5) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = pane_n, label = event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha= .7, show.legend=FALSE) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = pane_n, label = event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "top", alpha= .7, show.legend=FALSE)
+    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start + end))/2, y= y2, colour = pane_n, label = win_l), data = border, nudge_y = .05, size = 5)
+
+  if(!isFALSE(plot_labels)){
+    f <- f +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = pane_n, label = event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha= .7) +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = pane_n, label = event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "top", alpha= .7)
+    }
 
   if(!is.null(title)){
     f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y= 2.2, label = title), colour = "white", size = 5)
@@ -215,7 +257,7 @@ plot_panes <- function(int, epids, ep_checks, splits_windows, title = NULL, sepa
    f
 }
 
-plot_epids <- function(epids, date,  episode_unit, case_length, recurrence_length = NULL, is_dt, episode_type, title){
+plot_epids <- function(epids, date,  episode_unit, case_length, recurrence_length = NULL, is_dt, episode_type, title, plot_labels = FALSE){
   ep_l_bu <- case_length
   any_rolling <- any(episode_type == "rolling")
   if(any_rolling){
@@ -316,16 +358,36 @@ plot_epids <- function(epids, date,  episode_unit, case_length, recurrence_lengt
     int <- (breaks[2]-breaks[1])
   }
 
+  if(isTRUE(plot_labels)){
+    plot_labels <- c("sn", "epid", "date", "case_nm")
+  }
 
-  plt_df$event_type <- paste0(plt_df$case_nm,
-                              ifelse(plt_df$sn %in% plt_df$wind_id & plt_df$case_nm != "Skipped",
-                                     "\n(reference)\n", "\n"),
-                              "event")
+  if(!isFALSE(plot_labels)){
+    plt_df$event_type <- ""
+    plt_df$event_nm <- ""
+    if("epid" %in%  plot_labels){
+      plt_df$event_type <- paste0("E.", plt_df$epid)
+    }
+    if("case_nm" %in%  plot_labels){
+      plt_df$event_type <- paste0(plt_df$event_type, "\n",
+                                  plt_df$case_nm, "\n",
+                                  ifelse(plt_df$sn %in% plt_df$wind_id & plt_df$case_nm != "Skipped",
+                                         "(reference)\n",""),
+                                  "event")
+    }
+    if("date" %in%  plot_labels){
+      plt_df$event_nm <- number_line(plt_df$start,
+                                     plt_df$end)
+      plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
+                                format(left_point(plt_df$event_nm)),
+                                format(plt_df$event_nm))
+    }
+    if("sn" %in%  plot_labels){
+      plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
+                                plt_df$event_nm)
+    }
+  }
 
-  plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
-                            ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
-                                   format(left_point(plt_df$event_nm)),
-                                   format(plt_df$event_nm)))
 
   if(FALSE){
     plt_df$start[!plt_df$finite] <- sample(seq(max(breaks) + (int * 1),
@@ -376,10 +438,15 @@ plot_epids <- function(epids, date,  episode_unit, case_length, recurrence_lengt
     ggplot2::geom_point(ggplot2::aes(x = end, y = y, colour = epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_segment(ggplot2::aes(x = mid_x, y= y, colour = epid, xend = x_lead, yend = y_lead), alpha = .4) +
     ggplot2::geom_segment(ggplot2::aes(x = start, y= y, xend = end, yend = mid_y_lead, linetype = wind_nm_l), color = "white", alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$wind_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends="last", type = "open")) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= lab_y, label = nl_l), data = case_l_ar[case_l_ar$nl_nm == "len",], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = "white", alpha= .9, vjust = "bottom") +
-    #ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= lab_y, label = nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$no_ar,], nudge_y = scale_size(c(0, 0), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = "white", alpha= .9, vjust = "bottom") +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = epid, label = event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha= .7) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = epid, label = event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "top", alpha= .7)
+    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= lab_y, label = nl_l), data = case_l_ar[case_l_ar$nl_nm == "len",], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = "white", alpha= .9, vjust = "bottom")
+
+  if(!isFALSE(plot_labels)){
+    f <- f +
+      #ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= lab_y, label = nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$no_ar,], nudge_y = scale_size(c(0, 0), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = "white", alpha= .9, vjust = "bottom") +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = epid, label = event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha= .7) +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(start) + as.numeric(end))/2, y= y, colour = epid, label = event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "top", alpha= .7)
+  }
+
 
   if(!is.null(title)){
     f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y= 2.15, label = title), colour = "white", size = 5)
