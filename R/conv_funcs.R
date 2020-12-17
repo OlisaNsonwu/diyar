@@ -575,3 +575,148 @@ scale_size <- function(size_lims, count_upper_lim, pts_n, decreasing = TRUE){
   }
 }
 
+length_to_range <- function(lengths, int, from_last, ep_units){
+  if(!all(class(lengths) == "list")){
+    len <- list(lengths)
+  }else{
+    len <- lengths
+  }
+
+  len <- lapply(len, function(x){
+    if(class(x) != "number_line"){
+      x <- number_line(0, x)
+    }
+    return(x)
+  })
+
+  if(any(from_last == T)) {
+    len <- lapply(len, function(x){
+      x@start <- as.numeric(x@start)
+      x[from_last] <- invert_number_line(x)[from_last]
+      return(x)
+    })
+  }
+
+  len <- lapply(len, function(x){
+    if(length(x) == 1){
+      x <- rep(x, length(int))
+    }
+    x <- epid_windows(int, x, ep_units)
+    return(x)
+  })
+  return(len)
+}
+
+opt_level <- function(opt, mth, tr_mth){
+  if(opt == "e") {
+    tr_mth
+  }else if(opt == "b"){
+    ifelse(mth != tr_mth, paste0(mth, "|", tr_mth), mth)
+  }else{
+    mth
+  }
+}
+
+sub_cri_match <- function(sub_criteria, cri, ref_rd){
+  curr_sub_cri <- sub_criteria
+  if(length(curr_sub_cri) > 0){
+    r <- rle(cri)
+    p <- as.numeric(names(r$values))
+    q <- as.numeric(names(cri))
+
+    cri_match <- sapply(1:length(curr_sub_cri), function(i){
+      set <- curr_sub_cri[[i]]
+      set_match <- sapply(1:length(set), function(j){
+        a <- set[[j]]
+        x <- a[[1]]
+        if(length(x) == 1){
+          x <- rep(x, length(ref_rd))
+        }
+        x <- x[int@id]
+        y <- rep(x[match(p, q)], r$lengths)
+        f <- a[[2]]
+        lgk <- try(f(x, y), silent = TRUE)
+        if(class(lgk) == "try-error" | class(lgk) != "logical"){
+          if(class(lgk) == "try-error"){
+            err <- attr(lgk, "condition")$message
+          }else{
+            err <- "Output is not a `logical` object"
+          }
+
+          err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                        "i - Each `func` must have the following syntax and output.\n",
+                        "i - Syntax ~ `func(x, y, ...)`.\n",
+                        "i - Output ~ `TRUE` or `FALSE`.\n",
+                        "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+          stop(err, call. = FALSE)
+        }
+        lgk <- as.numeric(lgk)
+        x <- ifelse(is.na(lgk), 0, lgk)
+        return(x)
+      })
+
+      if(length(set_match) == 1){
+        set_match <- as.matrix(set_match)
+      }
+      ifelse(rowSums(set_match) > 0, 1, 0)
+    })
+    if(length(cri_match) == 1){
+      cri_match <- as.matrix(cri_match)
+    }
+    cri_match <- rowSums(cri_match) == ncol(cri_match) | ref_rd
+  }else{
+    cri_match <- rep(TRUE, length(ref_rd))
+  }
+  return(cri_match)
+}
+
+win_cri_checks <- function(win_criteria, wind_id_check, tr_wind_id, int_check, current_tot){
+  if(length(win_criteria) > 0 & length(wind_id_check) > 0){
+    sub_win_checks <- sapply(1:length(win_criteria), function(i){
+      set <- win_criteria[[i]]
+      set_match <- sapply(1:length(set), function(j){
+        a <- set[[j]]
+        x <- a[[1]]
+        if(length(x) == 1){
+          x <- rep(x, length(int_check))
+        }
+        x <- x[int@id]
+        f <- a[[2]]
+        a <- split(x, wind_id_checks)
+
+        lgk <- try(lapply(a, f), silent = TRUE)
+        if(class(lgk) == "try-error" | class(unlist(lgk, use.names = FALSE)) != "logical"){
+          if(class(lgk) == "try-error"){
+            err <- attr(lgk, "condition")$message
+          }else{
+            err <- "Output is not a `logical` object"
+          }
+
+          err <- paste0("Unable to evaluate `funcs-", j, "` at `win_criteria` \"", names(win_criteria[i]),"\":\n",
+                        "i - Each `func` must have the following syntax and output.\n",
+                        "i - Syntax ~ `func(x, ...)`.\n",
+                        "i - Output ~ `TRUE` or `FALSE`.\n",
+                        "X - Issue with `funcs - ", j, "` at \"", names(win_criteria[i]),"\": ", err, ".")
+          stop(err, call. = F)
+        }
+        lgk <- as.numeric(names(lgk)[as.logical(lgk)])
+        lgk <- lgk[!is.na(lgk)]
+
+        return(wind_id_check %in% lgk)
+      })
+      if(length(wind_id_check) == 1){
+        set_match <- as.matrix(set_match)
+      }
+      ifelse(rowSums(set_match) > 0, 1, 0)
+    })
+    if(length(wind_id_check) == 1){
+      sub_win_checks <- as.matrix(sub_win_checks)
+    }
+    sub_win_checks <- rowSums(sub_win_checks) == ncol(sub_win_checks)
+    cri_match <- rep(TRUE, current_tot)
+    cri_match[tr_wind_id %in% wind_id_check[!sub_win_checks]] <- FALSE
+  }else{
+    cri_match <- TRUE
+  }
+  return(cri_match)
+}

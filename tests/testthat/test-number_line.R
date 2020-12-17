@@ -140,12 +140,12 @@ test_that("test that error and warning messages are returned correctly", {
 })
 
 test_that("test series function", {
-  expect_equal(number_line_sequence(number_line(1, 5))[[1]], c(1:5))
-  expect_equal(number_line_sequence(number_line(5, 1), .5)[[1]], seq(5,1,-.5))
-  # expect_error(number_line_sequence(number_line(1, NA), .5)[[1]], "Finite values of `x` required in indexes c(1)")
-  # expect_error(number_line_sequence(number_line(1, 2), NA)[[1]], "Finite values of 'by' required in indexes c(1)")
-  expect_equal(number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1)[[1]], seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
-  expect_error(number_line_sequence(1, .5)[[1]], "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_equal(number_line_sequence(number_line(1, 5)), c(1:5))
+  expect_equal(number_line_sequence(number_line(5, 1), .5), seq(5,1,-.5))
+  # expect_error(number_line_sequence(number_line(1, NA), .5), "Finite values of `x` required in indexes c(1)")
+  # expect_error(number_line_sequence(number_line(1, 2), NA), "Finite values of 'by' required in indexes c(1)")
+  expect_equal(number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1), seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
+  expect_error(number_line_sequence(1, .5), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
 })
 
 a <- c(number_line(1,3), number_line(3,3), number_line(5,3))

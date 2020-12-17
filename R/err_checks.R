@@ -962,7 +962,8 @@ err_episodes_checks_0 <- function(date,
                                   from_last,
                                   group_stats,
                                   win_criteria,
-                                  sub_criteria){
+                                  sub_criteria,
+                                  schema){
 
 
   # Check for non-atomic vectors
@@ -983,7 +984,8 @@ err_episodes_checks_0 <- function(date,
                skip_order = skip_order,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
-               case_for_recurrence = case_for_recurrence)
+               case_for_recurrence = case_for_recurrence,
+               schema = schema)
 
   err <- mapply(err_atomic_vectors,
                 args,
@@ -1010,7 +1012,8 @@ err_episodes_checks_0 <- function(date,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
                from_last = from_last,
-               group_stats = group_stats)
+               group_stats = group_stats,
+               schema = schema)
 
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
@@ -1030,7 +1033,8 @@ err_episodes_checks_0 <- function(date,
                        recurrence_from_last = "logical",
                        case_for_recurrence = "logical",
                        from_last = "logical",
-                       group_stats = "logical")
+                       group_stats = "logical",
+                       schema =  "character")
 
   err <- mapply(err_object_types,
                 args,
@@ -1058,7 +1062,8 @@ err_episodes_checks_0 <- function(date,
                skip_order = skip_order,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
-               case_for_recurrence = case_for_recurrence)
+               case_for_recurrence = case_for_recurrence,
+               schema = schema)
 
   args_lens <- list(episode_type = len_lims,
                     overlap_methods_c = len_lims,
@@ -1076,7 +1081,8 @@ err_episodes_checks_0 <- function(date,
                     skip_order = len_lims,
                     skip_if_b4_lengths = len_lims,
                     recurrence_from_last = len_lims,
-                    case_for_recurrence = len_lims)
+                    case_for_recurrence = len_lims,
+                    schema = 1)
 
   err <- mapply(err_match_ref_len,
                 args,
@@ -1092,6 +1098,7 @@ err_episodes_checks_0 <- function(date,
                overlap_methods_c = overlap_methods_c,
                overlap_methods_r = overlap_methods_r,
                display = display,
+               schema = schema,
 
                episodes_max = episodes_max,
                rolls_max = rolls_max,
@@ -1159,6 +1166,9 @@ err_episodes_checks_0 <- function(date,
     err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
     if(err != F) stop(err, call. = F)
   }
+
+  err <- err_spec_vals(schema, "schema", c("none", "by_epid", "by_strata", "by_ALL"))
+  if(err != F) stop(err, call. = F)
   return(F)
 }
 
@@ -1490,4 +1500,32 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     if(err != F) return(err)
 
     return(F)
+  }
+
+  err_spec_vals <- function(x, var, vals){
+    if(any(!tolower(x) %in% tolower(vals))){
+      opts <- x
+      sn <- 1:length(opts)
+
+      opts <- split(sn , opts)
+      opts <- opts[!tolower(names(opts)) %in% tolower(vals)]
+
+      opts <- unlist(lapply(opts, function(x){
+        missing_check(ifelse(sn %in% x, NA, T), 2)
+      }), use.names = T)
+
+      opts <- paste0("\"", names(opts),"\"", " at ", opts)
+      if(length(opts) >3){
+        errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
+      }  else{
+        errs <- listr(opts)
+      }
+      errs <-  paste0("Invalid values for `",var, "`:\n",
+                      "i - Vaild values are ", listr(paste0("\"", vals, "\""), conj = " or"), ".\n",
+                      "X - You've supplied ", errs, ".")
+
+      return(errs)
+    }else{
+      return(F)
+    }
   }
