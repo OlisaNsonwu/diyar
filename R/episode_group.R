@@ -295,10 +295,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   # Order of case-assignment
-  ord_a <- abs(max(as.numeric(int@start)) - as.numeric(int@start))
-  ord_z <- abs(max(as.numeric(right_point(int))) - as.numeric(right_point(int)))
-  ord_a[!from_last] <- abs(min(as.numeric(int@start)) - as.numeric(int@start[!from_last]))
-  ord_z[!from_last] <- abs(min(as.numeric(right_point(int))) - as.numeric(right_point(int[!from_last])))
+  ord_a <- abs(max(as.numeric(int@start), na.rm = TRUE) - as.numeric(int@start))
+  ord_z <- abs(max(as.numeric(right_point(int)), na.rm = TRUE) - as.numeric(right_point(int)))
+  ord_a[!from_last] <- abs(min(as.numeric(int@start), na.rm = TRUE) - as.numeric(int@start[!from_last]))
+  ord_z[!from_last] <- abs(min(as.numeric(right_point(int)), na.rm = TRUE) - as.numeric(right_point(int[!from_last])))
 
   assign_ord <- order(ord_a, -ord_z)
   rm(ord_a); rm(ord_z)
@@ -584,25 +584,38 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                  T, F)
 
     if(isTRUE(any_rolling_epi)){
-      cr <- ifelse(tr_tag == -1 &
+      ref_period <- overlap(int, tr_int)
+      ref_period <- ifelse(is.na(ref_period), FALSE, ref_period)
+
+      #lgk <- tr_tag == 0 & !cri %in% cri[cr & !ref_period & rc_checks != 1]
+      lgk <- tr_tag == 0 & !cri %in% cri[cr & !ref_period] & case_nm != "Skipped" & roll_n < rolls_max
+      edup <- !duplicated(data.frame(cri, int@start, right_point(int)), fromLast = FALSE)
+      lgk[cri %in% cri[edup & ref_period & !ref_rd]] <- FALSE
+
+      tr_tag[lgk] <- -1
+      tag[lgk & ref_rd] <- -1
+      case_nm[lgk & ref_rd] <- "Case"
+      roll_n[lgk] <- roll_n[lgk] + 1
+      cr <- ifelse(tr_tag %in% c(-1, -3) &
                      (ref_rd  | (rc_checks == 1 & w_cri & s_cri)) &
                      tag != 2,
                    T, cr)
     }
 
     # Episode and window IDs
-    e[cr & tag == 0 & tr_tag == 0] <- tr_sn[cr & tag == 0 & tr_tag ==  0]
+    e[cr & tag == 0 & tr_tag %in% c(0, -3)] <- tr_sn[cr & tag == 0 & tr_tag %in% c(0, -3)]
     wind_id[cr & tag == 0] <- tr_sn[cr & tag == 0]
     e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
 
-    case_nm[cr & tr_tag == 0] <- ifelse(ref_rd[cr & tr_tag == 0], "Case", "Duplicate_C")
+    case_nm[cr & tr_tag %in% c(0)] <- ifelse(ref_rd[cr & tr_tag %in% c(0)], "Case", "Duplicate_C")
+    #case_nm[cr & tr_tag %in% c(-3)] <- ifelse(ref_rd[cr & tr_tag %in% c(-3)], "Case", "Duplicate_R")
     wind_nm[cr & tr_tag %in% c(0, -2) & wind_nm == ""] <- "Case"
     new_hits <- cr & tag != 2 & !ref_rd
     tag[cr] <- 2
 
     if(isTRUE(any_rolling_epi)){
       case_nm[cr & tr_tag %in% c(-1, -2) & case_nm == ""] <- "Duplicate_R"
-      wind_nm[cr & tr_tag == -1 & wind_nm == ""] <- "Recurrence"
+      wind_nm[cr & tr_tag %in% c(-1, -3) & wind_nm == ""] <- "Recurrence"
       sort_ord <- order(cri, new_hits, -assign_ord, int@gid)
       r <- rle(cri[sort_ord])
       case_nm[which(int@id %in% names(r$values) &
@@ -826,6 +839,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   r <- rle(e)
   epid_n <- rep(r$lengths, r$lengths)
+  wind_nm[epid_n == 1 & wind_nm == "Recurrence"] <- "Case"
   lgk <- match(r$values, qqq)
   dist_from_epid <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
     rep(((as.numeric(int@start[lgk]) + as.numeric(right_point(int[lgk]))) * .5),  r$lengths)
