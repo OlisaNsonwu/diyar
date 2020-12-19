@@ -820,21 +820,21 @@ err_episodes_checks_1 <- function(date,
   #err <- err_missing_check(from_last, "from_last", 2)
 
   err <- err_episode_unit_1(episode_unit = episode_unit)
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
   err <- err_episode_type_1(episode_type = episode_type)
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
   err <- err_display_1(display = display)
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
 
-  return(F)
+  return(FALSE)
 }
 
 err_split_nl_1 <- function(x,
@@ -878,7 +878,7 @@ err_split_nl_1 <- function(x,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
   err <- unlist(err, use.names = FALSE)
-  err <- err[err != F]
+  err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
   # Check for required object lengths
@@ -919,9 +919,9 @@ err_split_nl_1 <- function(x,
   if(length(err) > 0) return(err[1])
 
   err <- err_by_1(by)
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
   err <- err_lnt_out_1(length.out)
-  if(isTRUE(err)) return(err[1])
+  if(!isFALSE(err)) return(err[1])
 
   errs_l <- finite_check(x@start)
   errs_r <- finite_check(x@.Data)
@@ -963,7 +963,8 @@ err_episodes_checks_0 <- function(date,
                                   group_stats,
                                   win_criteria,
                                   sub_criteria,
-                                  schema){
+                                  schema,
+                                  wind_tot_min){
 
 
   # Check for non-atomic vectors
@@ -985,7 +986,8 @@ err_episodes_checks_0 <- function(date,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
-               schema = schema)
+               schema = schema,
+               wind_tot_min = wind_tot_min)
 
   err <- mapply(err_atomic_vectors,
                 args,
@@ -1013,7 +1015,8 @@ err_episodes_checks_0 <- function(date,
                case_for_recurrence = case_for_recurrence,
                from_last = from_last,
                group_stats = group_stats,
-               schema = schema)
+               schema = schema,
+               wind_tot_min = wind_tot_min)
 
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
@@ -1034,7 +1037,8 @@ err_episodes_checks_0 <- function(date,
                        case_for_recurrence = "logical",
                        from_last = "logical",
                        group_stats = "logical",
-                       schema =  "character")
+                       schema =  "character",
+                       wind_tot_min = c("numeric", "integer"))
 
   err <- mapply(err_object_types,
                 args,
@@ -1063,7 +1067,8 @@ err_episodes_checks_0 <- function(date,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
-               schema = schema)
+               schema = schema,
+               wind_tot_min = wind_tot_min)
 
   args_lens <- list(episode_type = len_lims,
                     overlap_methods_c = len_lims,
@@ -1082,7 +1087,8 @@ err_episodes_checks_0 <- function(date,
                     skip_if_b4_lengths = len_lims,
                     recurrence_from_last = len_lims,
                     case_for_recurrence = len_lims,
-                    schema = 1)
+                    schema = 1,
+                    wind_tot_min = len_lims)
 
   err <- mapply(err_match_ref_len,
                 args,
@@ -1107,7 +1113,8 @@ err_episodes_checks_0 <- function(date,
                skip_order = skip_order,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
-               case_for_recurrence = case_for_recurrence)
+               case_for_recurrence = case_for_recurrence,
+               wind_tot_min = wind_tot_min)
 
   err <- mapply(err_missing_check,
                 args,
@@ -1117,58 +1124,61 @@ err_episodes_checks_0 <- function(date,
   if(length(err) > 0) return(err[1])
 
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_data_links_2(data_source = data_source, data_links = data_links)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_episode_unit_1(episode_unit = episode_unit)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_episode_type_1(episode_type = episode_type)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_display_1(display = display)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_strata_level_args(from_last, strata, "from_last")
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
   err <- err_strata_level_args(episodes_max, strata, "episodes_max")
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
 
   if(class(win_criteria) != "NULL"){
     err <- err_sub_criteria_10(date, win_criteria, "date", "win_criteria")
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_5.1(win_criteria, length(win_criteria), cri_nm = "win_criteria")
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_6.1(win_criteria, length(sub_criteria), cri_nm = "win_criteria")
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_8(win_criteria, cri_nm = "win_criteria")
-    if(isTRUE(err)) return(err[1])
+    if(!isFALSE(err)) return(err[1])
     err <- err_sub_criteria_9(win_criteria, length(win_criteria), cri_nm = "win_criteria")
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
   }
 
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
-    if(isTRUE(err)) return(err[1])
+    if(!isFALSE(err)) return(err[1])
     err <- err_sub_criteria_10(date, sub_criteria, "date")
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
   }
 
   err <- err_spec_vals(schema, "schema", c("none", "by_epid", "by_strata", "by_ALL"))
-  if(isTRUE(err)) stop(err, call. = FALSE)
+  if(!isFALSE(err)) return(err)
+
+  err <- err_wind_tot_min_1(wind_tot_min)
+  if(!isFALSE(err)) return(err)
   return(F)
 }
 
@@ -1250,30 +1260,30 @@ err_links_checks_0 <- function(criteria,
   if(length(err) > 0) return(err[1])
 
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
 
   err <- err_data_links_2(data_source = data_source, data_links = data_links)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
 
   if(class(criteria) != "list") criteria <- list(criteria)
 
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
-    if(isTRUE(err)) return(err[1])
+    if(!isFALSE(err)) return(err[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
-    if(isTRUE(err)) stop(err, call. = FALSE)
+    if(!isFALSE(err)) return(err)
   }
   err <- err_criteria_1(criteria)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
 
   err <- err_criteria_2(criteria)
-  if(isTRUE(err)) return(err)
+  if(!isFALSE(err)) return(err)
 
   return(F)
 }
@@ -1468,36 +1478,36 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     if(length(err) > 0) return(err[1])
 
     err <- err_data_links_1(data_source = data_source, data_links = data_links)
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_data_links_2(data_source = data_source, data_links = data_links)
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_display_1(display = display)
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_strata_level_args(separate, strata, "separate")
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
 
     if(!is.null(by)){
       err <- err_by_1(by)
-      if(isTRUE(err)) return(err[1])
+      if(!isFALSE(err)) return(err[1])
 
       err <- err_strata_level_args(by, strata, "by")
-      if(isTRUE(err)) return(err)
+      if(!isFALSE(err)) return(err)
     }
 
     if(!is.null(length.out)){
       err <- err_lnt_out_1(length.out)
-      if(isTRUE(err)) return(err[1])
+      if(!isFALSE(err)) return(err[1])
 
       err <- err_strata_level_args(length.out, strata, "length.out")
-      if(isTRUE(err)) return(err)
+      if(!isFALSE(err)) return(err)
     }
 
     err <- err_strata_level_args(fill, strata, "fill")
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
     err <- err_strata_level_args(windows_min, strata, "windows_min")
-    if(isTRUE(err)) return(err)
+    if(!isFALSE(err)) return(err)
 
     return(F)
   }
@@ -1527,5 +1537,31 @@ err_strata_level_args <- function(arg, strata, arg_nm){
       return(errs)
     }else{
       return(F)
+    }
+  }
+
+
+  err_wind_tot_min_1 <- function(x){
+    if(any(x < 1)){
+      opts <- x
+      sn <- 1:length(opts)
+      opts <- split(sn[opts < 1] , opts[opts < 1])
+      opts <- head(opts, 5)
+      opts <- unlist(lapply(opts, function(x){
+        missing_check(ifelse(sn %in% x, NA, T), 2)
+      }), use.names = T)
+
+      opts <- paste0("\"", names(opts),"\"", " at ", opts)
+      if(length(opts) >3){
+        errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
+      }  else{
+        errs <- listr(opts)
+      }
+      errs <-  paste0("Invalid values for `", "err_wind_tot_min", "`:\n",
+                      "i - Vaild values are ", "integers > 0", ".\n",
+                      "X - You've supplied ", errs, ".")
+      return(errs)
+    }else{
+      F
     }
   }

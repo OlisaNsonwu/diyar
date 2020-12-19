@@ -15,13 +15,15 @@ knitr::opts_chunk$set(
 + New function `panes()`
 + New argument - `win_criteria` in `episodes()`. Additional conditions for overlapping windows. Only relevant to `"rolling_episodes"`.
 + New argument - `sub_criteria` in `episodes()`. Additional conditions for temporal links.
++ New argument - `wind_tot_min` in `episodes()`. Minimum number of records in an `window` to trigger the next recurrence window. Only applicable to `"rolling episodes"`   
 + New function - `split_number_line()`. Split `number_line` objects. Replaces `number_line_sequence()`.
++ New argument - `schema` in `links()`, `episodes()` and `panes()`. Produce schema diagrams of the record linakge and episodes tracking process.
 
 ## Changes
 + `epid_object` - default time zone for `epid_interval` with `POSIXct` objects is now "GMT".
 
 ## Bug fixes
-+ "Single-record" was wrong in `links` summary output. Resolved.
++ `"Single-record"` was wrong in `links` summary output. Resolved.
 
 # Version 0.2.0
 

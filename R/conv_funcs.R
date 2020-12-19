@@ -714,3 +714,17 @@ win_cri_checks <- function(win_criteria, wind_id_check, tr_wind_id, int_check, c
   }
   return(cri_match)
 }
+
+win_tot_min_checks <- function(wind_id_checks, int_check, tr_wind_id, wind_tot_min){
+  if(length(wind_id_checks) > 0 & !all(wind_tot_min == 1)){
+    si_ord <- order(wind_id_checks, as.numeric(int_check@start))
+    w_i <- wind_id_checks[si_ord]
+    r_i <- rle(w_i)
+    wind_tot <- Inf
+    wind_tot[tr_wind_id %in% wind_id_checks] <- r_i$lengths[match(tr_wind_id[tr_wind_id %in% wind_id_checks], r_i$values)]
+    wtm_cri <- wind_tot >= wind_tot_min
+  }else{
+    wtm_cri <- TRUE
+  }
+  return(wtm_cri)
+}

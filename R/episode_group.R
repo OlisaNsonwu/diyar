@@ -136,7 +136,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
-                     display = "none", win_criteria = NULL, sub_criteria = NULL, schema = "none") {
+                     display = "none", win_criteria = NULL, sub_criteria = NULL, schema = "none", wind_tot_min = 1) {
   tm_a <- Sys.time()
 
   # Standardise `sub_criteria` inputs
@@ -166,7 +166,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 recurrence_from_last = recurrence_from_last,
                                 episode_type = episode_type, recurrence_length=recurrence_length,
                                 win_criteria = win_criteria, sub_criteria = sub_criteria,
-                                schema = schema)
+                                schema = schema, wind_tot_min = wind_tot_min)
 
   if(errs!=F) stop(errs, call. = FALSE)
   inp_n <- length(date)
@@ -193,6 +193,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(length(episodes_max) == 1) episodes_max <- rep(episodes_max, inp_n)
   # `rolls_max`
   if(length(rolls_max) == 1) rolls_max <- rep(rolls_max, inp_n)
+  # `wind_tot_min`
+  if(length(wind_tot_min) == 1) wind_tot_min <- rep(wind_tot_min, inp_n)
   # `skip_order`
   if(length(skip_order) == 1) skip_order <- rep(skip_order, inp_n)
   # `from_last`
@@ -379,6 +381,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                         "wind_nm" = wind_nm[0],
                         "wind_id" = wind_id[0],
                         "rolls_max" = rolls_max[0],
+                        "wind_tot_min" = wind_tot_min[0],
                         "episodes_max" = episodes_max[0],
                         "iteration" = numeric(0))
   ite <- 1
@@ -396,7 +399,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                "int","epid_n", "c_sort",
                "skip_order", "case_nm",
                "wind_nm", "wind_id",
-               "rolls_max", "iteration",
+               "rolls_max", "wind_tot_min", "iteration",
                "episodes_max")){
       assign(i, get(i)[sort_ord])
     }
@@ -561,25 +564,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rc_checks <- rowSums(rc_checks) > 0
     }
 
-    # `wind_id`s to apply `win_criteria`
-    curr_sub_cri <- win_criteria
-    wind_id_check <- sort(wind_id[!tag %in% c(0, 2)])
-    int_check <- c(int[wind_id %in% wind_id_check], grouped_epids$int[grouped_epids$wind_id %in% wind_id_check])
-    wind_id_checks <- c(wind_id[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
-    sn_id_checks <- c(int@gid[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
-
-    # Implement `win_criteria`
-    w_cri <- win_cri_checks(win_criteria = win_criteria,
-                            wind_id_check = wind_id_check,
-                            tr_wind_id = tr_wind_id,
-                            int_check = int_check,
-                            current_tot = current_tot)
     # Implement `sub_criteria`
     s_cri <- sub_cri_match(sub_criteria = sub_criteria,
                            cri = cri,
                            ref_rd = ref_rd)
-    cr <- ifelse(tr_tag %in% c(0, -2) &
-                   (ref_rd  | (ep_checks == 1 & w_cri & s_cri)) &
+    cr <- ifelse(tr_tag %in% c(0) &
+                   (ref_rd  | (ep_checks == 1 & s_cri)) &
                    tag != 2,
                  TRUE, FALSE)
 
@@ -590,8 +580,30 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       case_nm[lgk & ref_rd] <- "Case"
       wind_nm[lgk & ref_rd] <- "Case"
       roll_n[lgk] <- roll_n[lgk] + 1
-      cr <- ifelse(tr_tag %in% c(-1) &
-                     (ref_rd  | (rc_checks == 1 & w_cri & s_cri)) &
+
+      # `wind_id`s to apply `win_criteria`
+      curr_sub_cri <- win_criteria
+      wind_id_check <- sort(wind_id[!tag %in% c(0, 2)])
+      int_check <- c(int[wind_id %in% wind_id_check], grouped_epids$int[grouped_epids$wind_id %in% wind_id_check])
+      wind_id_checks <- c(wind_id[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
+      sn_id_checks <- c(int@gid[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
+
+      # Implement `win_criteria`
+      w_cri <- win_cri_checks(win_criteria = win_criteria,
+                              wind_id_check = wind_id_check,
+                              tr_wind_id = tr_wind_id,
+                              int_check = int_check,
+                              current_tot = current_tot)
+      # Implement `win_tot_min`
+      wtm_cri <- win_tot_min_checks(wind_id_checks = wind_id_checks,
+                                    tr_wind_id = tr_wind_id,
+                                    int_check = int_check,
+                                    wind_tot_min = wind_tot_min)
+      cr <- ifelse(
+                     (
+                       (tr_tag %in% c(-1) & (ref_rd  | (rc_checks == 1 & w_cri & s_cri & wtm_cri))) |
+                         (tr_tag %in% c(-2) & (ref_rd  | (ep_checks == 1 & w_cri & s_cri & wtm_cri)))
+                       ) &
                      tag != 2,
                    TRUE, cr)
     }
