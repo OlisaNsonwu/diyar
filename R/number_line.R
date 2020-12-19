@@ -451,7 +451,7 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 }
 
 #' @rdname number_line
-#' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{split_number_line()}
+#' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{number_line_sequence()}
 #' @param length.out number of splits. For example, \code{1} for two parts and \code{2} for three parts. Passed to \code{seq()}
 #' @param precision duration between the \code{start_point} and \code{end_point} of consecutive \code{number_line} objects.
 #' Options are; \code{FLASE} for none or \code{TRUE} for the shortest possible duration or a \code{numeric} value for a specified duration
@@ -459,21 +459,21 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 #' @param simplify split into \code{number_line} objects or sequence finite numbers
 #'
 #' @details
-#' \bold{\code{split_number_line()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
+#' \bold{\code{number_line_sequence()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
 #'
 #' @examples
 #' # Split number line objects
 #' x <- number_line(Sys.Date()-5, Sys.Date())
 #' x
-#' split_number_line(x, by = 2)
-#' split_number_line(x, by = 4)
-#' split_number_line(x, by = 4, fill = FALSE)
-#' split_number_line(x, length.out = 2)
-#' split_number_line(x, length.out = 2, precision = TRUE)
-#' split_number_line(x, length.out = 2, precision = .1)
+#' number_line_sequence(x, by = 2)
+#' number_line_sequence(x, by = 4)
+#' number_line_sequence(x, by = 4, fill = FALSE)
+#' number_line_sequence(x, length.out = 2)
+#' number_line_sequence(x, length.out = 2, precision = TRUE)
+#' number_line_sequence(x, length.out = 2, precision = .1)
 #' @export
 #'
-split_number_line <- function(x,
+number_line_sequence <- function(x,
                               by = NULL,
                               length.out = 1,
                               precision = FALSE,
@@ -492,11 +492,11 @@ split_number_line <- function(x,
                         simplify = simplify)
 
   if(errs!=F) stop(errs, call. = F)
-  change_dir <- x@.Data < 0
-
+  #change_dir <- x@.Data < 0
+  change_dir <- FALSE
   if(!is.null(by)){
     if(length(fill) == 1) fill <- rep(fill, length(x))
-    by <- ifelse(is.nan(x@.Data/abs(x@.Data)), by , x@.Data/abs(x@.Data)  * abs(by))
+    #by <- ifelse(is.nan(x@.Data/abs(x@.Data)), by , x@.Data/abs(x@.Data)  * abs(by))
     seq.dyr <- function(..., to = 1, fill = TRUE){
       x <- seq(..., to = to)
       if(isTRUE(fill) & to != x[length(x)]) x <- c(x, to)
@@ -544,16 +544,4 @@ split_number_line <- function(x,
     x
   }
 }
-#' @rdname number_line
-#' @details
-#' \bold{\code{number_line_sequence()}} - Convert a \code{number_line} object into a sequence of finite numbers.
-#' \bold{Deprecated. Please use \code{split_number_line(... simplify = TRUE)}}
-#'
-#' @export
-number_line_sequence <- function(x, by=1, length.out = NULL){
-  x <- split_number_line(x = x, by = by, length.out = length.out, simplify = TRUE)
-  warning(paste0("`number_line_sequence()` has been retired!:\n",
-                 "i - Please use `split_number_line(..., simplify = TRUE)` instead.\n",
-                 "i - Your values were passed to `split_number_line()`."), call. = F)
-  return(x)
-}
+

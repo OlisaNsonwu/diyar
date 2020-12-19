@@ -454,7 +454,7 @@ err_sn_1 <- function(sn, ref_nm, ref_num){
       return(err)
     }
   }
-  return(F)
+  return(FALSE)
 }
 
 err_episode_unit_1 <- function(episode_unit){
@@ -481,7 +481,7 @@ err_episode_unit_1 <- function(episode_unit){
 
     return(errs)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
@@ -510,7 +510,7 @@ err_episode_type_1 <- function(episode_type){
     return(errs)
   }
 
-  return(F)
+  return(FALSE)
 }
 
 err_by_1 <- function(by){
@@ -519,15 +519,32 @@ err_by_1 <- function(by){
     err <- missing_check(by)
 
     if(err != FALSE){
-      errs <-  paste0("Invalid values for `by`:\n",
+      err <-  paste0("Invalid values for `by`:\n",
                       "i - `by' must be greater than 0.\n",
-                      "X - `by' is less than 1 at ", errs, ".")
-      return(errs)
+                      "X - `by' is less than 1 at ", err, ".")
+      return(err)
     }
 
   }
 
-  return(F)
+  return(FALSE)
+}
+err_by_2 <- function(by, x){
+  lgk <- (x@.Data > 0 & by < 0) | (x@.Data < 0 & by > 0)
+  if(any(lgk)){
+    by[lgk] <- NA_real_
+    err <- missing_check(by)
+
+    if(err != FALSE){
+      err <-  paste0("Incorrect sign for `by`:\n",
+                     "i - \"+\" and \"-\" integers are required for \"increasing\" and \"decreasing\" `number_lines' respectively.\n",
+                     "X - Incorrect sign at ", err, ".")
+      return(err)
+    }
+
+  }
+
+  return(FALSE)
 }
 
 err_lnt_out_1 <- function(length.out){
@@ -544,7 +561,7 @@ err_lnt_out_1 <- function(length.out){
 
   }
 
-  return(F)
+  return(FALSE)
 }
 err_display_1 <- function(display){
   if(!any(class(display) %in% c("character"))){
@@ -584,7 +601,7 @@ err_display_1 <- function(display){
     return(errs)
   }
 
-  return(F)
+  return(FALSE)
 }
 
 err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
@@ -605,7 +622,7 @@ err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
                   paste0("X - `", overlap_methods_nm, " ", names(err),   "`: You've supplied ", err, ".", collapse = "\n"))
     return(err)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
@@ -621,7 +638,7 @@ err_overlap_methods_2 <- function(overlap_methods, lengths, overlap_methods_nm, 
                    "X - `", lengths_nm, "` has ", length(lengths)," ", ifelse(length(lengths) == 1, "element", "elements"),".")
     return(errs)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
@@ -632,7 +649,7 @@ err_missing_check <- function(x, arg_nm, lim =10){
                   "X - Missing values in ",  err, ".")
     return(err)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
@@ -658,7 +675,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
     return(err)
   }
 
-  return(F)
+  return(FALSE)
 }
 
 err_object_types <- function(arg, arg_nm, obj_types){
@@ -687,7 +704,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
                   paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "You've supplied a ", err, " object.", collapse = "\n"))
     return(err)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
@@ -918,7 +935,7 @@ err_split_nl_1 <- function(x,
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
-  err <- err_by_1(by)
+  err <- err_by_2(by, x)
   if(!isFALSE(err)) return(err[1])
   err <- err_lnt_out_1(length.out)
   if(!isFALSE(err)) return(err[1])
@@ -937,7 +954,7 @@ err_split_nl_1 <- function(x,
   if(fn_check!=T) return(paste0("`by` must have finite values:\n",
                               paste0("X - There are non-finite values in `by",fn_check, "`.")))
 
-  return(F)
+  return(FALSE)
 }
 
 err_episodes_checks_0 <- function(date,
@@ -1197,7 +1214,7 @@ err_episodes_checks_0 <- function(date,
   if(!isFALSE(err)) return(err)
   err <- err_mins_1(recurrence_length_total, "recurrence_length_total")
   if(!isFALSE(err)) return(err)
-  return(F)
+  return(FALSE)
 }
 
 err_links_checks_0 <- function(criteria,
@@ -1303,7 +1320,7 @@ err_links_checks_0 <- function(criteria,
   err <- err_criteria_2(criteria)
   if(!isFALSE(err)) return(err)
 
-  return(F)
+  return(FALSE)
 }
 
 err_atomic_vectors <- function(arg, arg_nm){
@@ -1321,7 +1338,7 @@ err_atomic_vectors <- function(arg, arg_nm){
     err <- paste0(ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`` must be an `atomic` vector.`\n")
     return(err)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
@@ -1333,7 +1350,7 @@ err_invalid_opts <- function(arg_vals, arg_nm, valid_opts){
                     "X - You've supplied ", errs, ".")
     return(errs)
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
@@ -1361,16 +1378,16 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                      paste0("X - You've supplied ", listr(paste0(opts, " for ", "\"", names(opts), "\""), lim = 2) ,"."))
       return(errs)
     }else{
-      return(F)
+      return(FALSE)
     }
   }else{
-    return(F)
+    return(FALSE)
   }
 }
 
   err_panes_checks_0 <- function(date,
                                  window,
-                                 windows_min,
+                                 windows_total ,
                                  separate,
                                  display,
                                  sn,
@@ -1387,7 +1404,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     # Check for non-atomic vectors
     args <- list(date = date,
                  window = window,
-                 windows_min = windows_min,
+                 windows_total  = windows_total ,
                  separate = separate,
                  display = display,
                  strata = strata,
@@ -1409,7 +1426,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     # Check for required object types
     args <- list(date = date,
                  window = window,
-                 windows_min = windows_min,
+                 windows_total  = windows_total ,
                  separate = separate,
                  display = display,
                  #strata = strata,
@@ -1424,7 +1441,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
 
     args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                          window = c("number_line", "numeric"),
-                         windows_min = c("number_line", "numeric", "integer"),
+                         windows_total  = c("number_line", "numeric", "integer"),
                          separate = "logical",
                          display = "character",
                          #data_source = c("character", "NULL"),
@@ -1476,7 +1493,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
 
     # Check for missing values where they are not permitted
     args <- list(window = window,
-                 windows_min = windows_min,
+                 windows_total  = windows_total ,
                  separate = separate,
                  display = display,
                  strata = strata,
@@ -1507,7 +1524,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     if(!isFALSE(err)) return(err)
 
     if(!is.null(by)){
-      err <- err_by_1(by)
+      err <- err_by_2(by, x)
       if(!isFALSE(err)) return(err[1])
 
       err <- err_strata_level_args(by, strata, "by")
@@ -1524,10 +1541,10 @@ err_strata_level_args <- function(arg, strata, arg_nm){
 
     err <- err_strata_level_args(fill, strata, "fill")
     if(!isFALSE(err)) return(err)
-    err <- err_strata_level_args(windows_min, strata, "windows_min")
+    err <- err_strata_level_args(windows_total , strata, "windows_total ")
     if(!isFALSE(err)) return(err)
 
-    return(F)
+    return(FALSE)
   }
 
   err_spec_vals <- function(x, var, vals){
@@ -1554,7 +1571,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
 
       return(errs)
     }else{
-      return(F)
+      return(FALSE)
     }
   }
 

@@ -18,7 +18,6 @@
 \alias{expand_number_line}
 \alias{invert_number_line}
 \alias{compress_number_line}
-\alias{split_number_line}
 \alias{number_line_sequence}
 \title{Number line objects}
 \usage{
@@ -62,7 +61,7 @@ compress_number_line(
   method = "overlap"
 )
 
-split_number_line(
+number_line_sequence(
   x,
   by = NULL,
   length.out = 1,
@@ -70,8 +69,6 @@ split_number_line(
   fill = TRUE,
   simplify = FALSE
 )
-
-number_line_sequence(x, by = 1, length.out = NULL)
 }
 \arguments{
 \item{l}{Left point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object}
@@ -89,7 +86,7 @@ number_line_sequence(x, by = 1, length.out = NULL)
 \item{direction}{Type of \code{"number_line"} objects to be reversed.
 Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).}
 
-\item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{split_number_line()}}
+\item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{number_line_sequence()}}
 
 \item{point}{\code{"start"} or \code{"end"} point}
 
@@ -142,10 +139,7 @@ See \code{\link{overlaps}} for further details on overlapping \code{number_line}
 If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}.
 
-\bold{\code{split_number_line()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
-
-\bold{\code{number_line_sequence()}} - Convert a \code{number_line} object into a sequence of finite numbers.
-\bold{Deprecated. Please use \code{split_number_line(... simplify = TRUE)}}
+\bold{\code{number_line_sequence()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
 }
 \examples{
 date <- function(x) as.Date(x, "\%d/\%m/\%Y")
@@ -210,12 +204,12 @@ compress_number_line(x, collapse=TRUE, methods = "inbetween")
 # Split number line objects
 x <- number_line(Sys.Date()-5, Sys.Date())
 x
-split_number_line(x, by = 2)
-split_number_line(x, by = 4)
-split_number_line(x, by = 4, fill = FALSE)
-split_number_line(x, length.out = 2)
-split_number_line(x, length.out = 2, precision = TRUE)
-split_number_line(x, length.out = 2, precision = .1)
+number_line_sequence(x, by = 2)
+number_line_sequence(x, by = 4)
+number_line_sequence(x, by = 4, fill = FALSE)
+number_line_sequence(x, length.out = 2)
+number_line_sequence(x, length.out = 2, precision = TRUE)
+number_line_sequence(x, length.out = 2, precision = .1)
 }
 \seealso{
 \code{\link{overlaps}}, \code{\link{set_operations}}, \code{\link{episodes}} and \code{\link{links}}

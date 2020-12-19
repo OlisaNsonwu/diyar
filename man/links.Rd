@@ -15,7 +15,8 @@ links(
   display = "progress",
   group_stats = FALSE,
   expand = TRUE,
-  shrink = FALSE
+  shrink = FALSE,
+  schema = "none"
 )
 
 record_group(df, ..., to_s4 = TRUE)
@@ -40,6 +41,8 @@ record_group(df, ..., to_s4 = TRUE)
 \item{expand}{If \code{TRUE}, allows increases in the size of a record group at subsequent stages of the linkage process.}
 
 \item{shrink}{If \code{TRUE}, allows reductions in the size of a record group at subsequent stages of the linkage process.}
+
+\item{schema}{Plot a schema of the returned \code{\link[=pid-class]{pid}} objects. Useful to visualise the data linkage process.}
 
 \item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
 

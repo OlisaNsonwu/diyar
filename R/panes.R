@@ -5,7 +5,7 @@
 #'
 #' @param sn Unique numerical record identifier. Useful for creating familiar episode identifiers.
 #' @param strata Subsets. Episodes are tracked separately within each subset. \code{\link{links}} is useful for creating these.
-#' @param windows_min Minimum number of overlapping windows in an in an episode. See \code{details}
+#' @param windows_total Minimum number of overlapping windows in an in an episode. See \code{details}
 #' @param separate If \code{TRUE}, events under one window are considered separate episodes from those in another. The default is \code{FALSE}.
 #' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
 #' @param window Numeric or time interval supplied as \code{number_line} objects.
@@ -40,6 +40,9 @@
 #' Panes are events that overlaps with particular time or numerical intervals (\code{window}).
 #' Events that overlap with one window are considered part of the same pane and different from events that overlap with another window.
 #'
+#' \code{Overlapping windows are merged}
+#' \code{events across two windows are assigned to the last one listed}
+#'
 #' Unlike \code{\link{episodes}}, panes are not tracked in a sequential order.
 #' However, by default, the earliest event or smallest record is selected as the \code{"Index"} event.
 #' \code{custom_sort} provies some flexibility with regards to which record is taken as the index assignment.
@@ -73,167 +76,20 @@
 #' panes(date = events, window = windows, separate = T)
 #' panes(date = events, window = windows, separate = F)
 #'
-#' panes(date = events, window = windows, separate = T, windows_min = 3)
-#' panes(date = events, window = windows, separate = F, windows_min = 4)
+#' panes(date = events, window = windows, separate = T, windows_total = 3)
+#' panes(date = events, window = windows, separate = F, windows_total = 4)
 #'
 #' @aliases panes
 #' @export
 #'
-panes <- function(date, window = Inf, windows_min = Inf, separate = FALSE, sn = NULL, strata = NULL,
-                     data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
-                     display = "none", data_source = NULL){
-
-
-  errs <- err_panes_checks_0(date = date,
-                   window = window,
-                   windows_min = windows_min,
-                   separate = separate,
-                   display = display,
-                   sn = sn,
-                   strata = strata,
-                   data_source = data_source,
-                   data_links = data_links,
-                   custom_sort = custom_sort,
-                   group_stats = group_stats)
-
-  if(errs!=F) stop(errs, call. = F)
-
-  # mx_win <- max(left_point(windows_min), right_point(windows_min))
-  # if(mx_win > length(window)) stop(paste0("x - `windows_min` must be less than the number of windows.\n",
-  #                                         "i - You've supplied ", mx_win, "`windows`." ), call. = FALSE)
-
-  dl_lst <- unlist(data_links, use.names = F)
-  if(!all(class(data_links) == "list")){
-    data_links <- list(l = data_links)
-  }
-  if(is.null(names(data_links))) names(data_links) <- rep("l", length(data_links))
-  names(data_links) <- ifelse(names(data_links)=="", "l", names(data_links))
-
-  int <- as.number_line(date)
-  windows_min <- number_line(0, windows_min)
-  if(!all(class(window) == "list")) window <- as.list(window)
-  window <- lapply(window, as.number_line)
-
-  if(length(strata) == 1 | is.null(strata)) {
-    cri <- rep(1, length(int))
-  }else{
-    cri <- match(strata, strata[!duplicated(strata)])
-  }
-  if(is.null(sn)) {
-    sn <- seq_len(length(int))
-  }
-  if(!is.null(custom_sort)) {
-    c_sort <- as.numeric(as.factor(custom_sort))
-    if(length(c_sort)==1) c_sort <- rep(c_sort, length(int))
-  }else{
-    c_sort <- rep(0, length(int))
-  }
-
-  if(!is.number_line(windows_min)){
-    windows_min <- as.number_line(windows_min)
-    left_point(windows_min) <- 0
-  }
-
-  # union overlapping windows
-  correct <- combn(seq_len(length(window)), 2, simplify = F)
-  check <- lapply(correct, function(x){
-    union_number_lines(window[[x[1]]], window[[x[2]]])
-  })
-
-  lgk <- unlist(lapply(check, start_point), use.names = F)
-  lgk <- ifelse(is.na(lgk), FALSE, TRUE)
-
-  window <- window[!seq_len(length(window)) %in% unlist(correct[lgk], use.names = F)]
-  window <- c(check[lgk], window)
-
-  # check for events under each window
-  fnx <- function(x){
-    y <- diyar:::ovr_chks(window[[x]], int, rep("overlap", length(int)))
-    ifelse(y, x, 0)
-  }
-
-  checks <- as.matrix(sapply(seq_len(length(window)), fnx))
-  if(length(int) == 1){
-    checks <- t(checks)
-  }
-
-  checks <- Rfast::rowMinsMaxs(checks)
-  lgk <- checks[1,] != checks[2,] & checks[1,] * checks[2,] != 0
-  ep_checks <- checks[2,]
-  ep_checks[lgk] <- (checks[1,])[lgk]
-
-  case_nm <- ifelse(ep_checks == 0, "Skipped", "Duplicate_I")
-  tag <- ifelse(ep_checks == 0,
-                 NA_real_, cri + exp(-ep_checks))
-  epid <- ifelse(!is.na(tag) & rep(!separate, length(int)),
-                 cri + exp(-1),
-                 tag)
-
-  dst <- rle(sort(cri[!is.na(tag) & !duplicated(tag)]))
-  phits <- as.number_line(dst$lengths[match(cri, dst$values)])
-  lgk <- !overlap(phits, windows_min) | is.na(epid)
-  epid[lgk] <- seq_len(length(int))[lgk]
-
-  epid <- sn[match(epid, epid[!duplicated(epid)])]
-  ord <- order(int@start, right_point(int))
-
-  i <- seq_len(length(int))[ord]; s <- epid[ord]
-  i <- i[!duplicated(s) & case_nm[i] != "Skipped"]
-  case_nm[i] <- "Index"
-
-  r <- rle(epid[order(epid)])
-  epid_n <- rep(r$lengths, r$lengths)
-
-  ei <- epid[which(case_nm %in% c("Index", "Skipped"))]
-  ii <- int[which(case_nm %in% c("Index", "Skipped"))]
-  lgk <- match(epid, ei)
-
-  dist_from_epid <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
-    ((as.numeric(ii@start[lgk]) + as.numeric(right_point(ii[lgk]))) * .5)
-
-  wind_nm <- case_nm
-  wind_nm[wind_nm != "Skipped"] <- "Index"
-  epids <- new("epid",
-      .Data= epid,
-      dist_from_epid = dist_from_epid,
-      dist_from_wind = dist_from_epid,
-      sn = sn,
-      case_nm = case_nm,
-      iteration = 1,
-      wind_nm = wind_nm,
-      wind_id = epid)
-
-  if(!is.null(data_source)){
-    # Data links
-    rst <- check_links(epids, data_source, data_links)
-    datasets <- rst$ds
-
-    if(!all(toupper(dl_lst) == "ANY")){
-      req_links <- rst$rq
-      epids@dist_from_epid[!req_links] <- 0
-      epids@dist_from_wind[!req_links] <- 0
-      epids@case_nm[!req_links] <- "Skipped"
-      epids@.Data[!req_links] <- epids@sn[!req_links]
-      epids@wind_id[!req_links] <- epids@sn[!req_links]
-      datasets[!req_links] <- data_source[!req_links]
-    }
-    epids@epid_dataset <- datasets
-  }
-
-  return(epids)
-}
-
-#' @aliases panes
-#' @export
-#'
-panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, sn = NULL, strata = NULL,
+panes <- function(date, window = Inf, windows_total = 1, separate = FALSE, sn = NULL, strata = NULL,
                   data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
                   display = "none", data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE, schema = "none"){
   tm_a <- Sys.time()
 
   errs <- err_panes_checks_0(date = date,
                              window = window,
-                             windows_min = windows_min,
+                             windows_total = windows_total,
                              separate = separate,
                              display = display,
                              sn = sn,
@@ -248,8 +104,8 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
                              )
 
   if(errs!=F) stop(errs, call. = F)
-  # mx_win <- max(left_point(windows_min), right_point(windows_min))
-  # if(mx_win > length(window)) stop(paste0("x - `windows_min` must be less than the number of windows.\n",
+  # mx_win <- max(left_point(windows_total), right_point(windows_total))
+  # if(mx_win > length(window)) stop(paste0("x - `windows_total` must be less than the number of windows.\n",
   #                                         "i - You've supplied ", mx_win, "`windows`." ), call. = FALSE)
 
   dl_lst <- unlist(data_links, use.names = F)
@@ -261,7 +117,7 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
 
   int <- as.number_line(date)
   int@id <- seq_len(length(int))
-  #windows_min <- number_line(0, windows_min)
+  #windows_total <- number_line(0, windows_total)
   # if(!all(class(window) == "list")) window <- as.list(window)
   # window <- lapply(window, as.number_line)
 
@@ -280,15 +136,14 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
     c_sort <- rep(0, length(int))
   }
 
-  if(length(windows_min) == 1){
-    windows_min <- rep(windows_min, length(int))
+  if(is.number_line(windows_total)){
+    windows_total[windows_total@.Data < 0] <- reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
+  }else{
+    windows_total <- number_line(windows_total, Inf)
   }
-
-  if(!is.number_line(windows_min)){
-    windows_min <- as.number_line(windows_min)
-    left_point(windows_min) <- 0
+  if(length(windows_total) == 1){
+    windows_total <- rep(windows_total, length(int))
   }
-
   if(is.null(by) | is.null(length.out)){
     split_cri <- cri
   }else{
@@ -303,7 +158,7 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
     split_bys <- split(by, split_cri)
     splits_func <- function(x, n) {
       n <- n[!duplicated(n)]
-      split_number_line(number_line(min(x@start), max(x@start + x@.Data)), by = n, fill = fill)
+      number_line_sequence(number_line(min(x@start), max(x@start + x@.Data)), by = n, fill = fill)
     }
     splits_windows <- mapply(splits_func, splits, split_bys, SIMPLIFY = FALSE)
   }else if(is.null(by) & !is.null(length.out)){
@@ -311,7 +166,7 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
     split_lnts <- split(length.out, split_cri)
     splits_func <- function(x, n) {
       n <- n[!duplicated(n)]
-      split_number_line(number_line(min(x@start), max(x@start + x@.Data)), length.out = n, fill = fill)
+      number_line_sequence(number_line(min(x@start), max(x@start + x@.Data)), length.out = n, fill = fill)
     }
     splits_windows <- mapply(splits_func, splits, split_lnts, SIMPLIFY = FALSE)
   }else{
@@ -320,18 +175,14 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
 
   checks <- function(dates, windows){
     fnx <- function(x, int = dates){
-      y <- diyar:::ovr_chks(windows[[x]], int, rep("overlap", length(int)))
-      ifelse(y, x, 0)
+      diyar:::ovr_chks(windows[[x]], int, rep("overlap", length(int)), rep(x, length(int)))
     }
 
     checks <- as.matrix(sapply(as.numeric(seq_len(length(windows))), fnx))
     if(length(int) == 1){
       checks <- t(checks)
     }
-    checks <- Rfast::rowMinsMaxs(checks)
-    lgk <- checks[1,] != checks[2,] & checks[1,] * checks[2,] != 0
-    ep_checks <- checks[2,]
-    ep_checks[lgk] <- (checks[1,])[lgk]
+    ep_checks <- Rfast::rowMaxs(checks, value = TRUE)
     ep_checks
   }
 
@@ -348,8 +199,8 @@ panes_2.0 <- function(date, window = Inf, windows_min = Inf, separate = FALSE, s
                  tag)
 
   dst <- rle(sort(cri[!is.na(tag) & !duplicated(tag)]))
-  phits <- as.number_line(dst$lengths[match(cri, dst$values)])
-  lgk <- !overlap(phits, windows_min) | is.na(epid)
+  phits <- dst$lengths[match(cri, dst$values)]
+  lgk <- !(phits >= as.numeric(windows_total@start) & phits <= as.numeric(right_point(windows_total))) | is.na(epid)
   epid[lgk] <- seq_len(length(int))[lgk]
 
   lgk <- !duplicated(epid)

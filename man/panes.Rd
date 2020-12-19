@@ -7,7 +7,7 @@
 panes(
   date,
   window = Inf,
-  windows_min = Inf,
+  windows_total = 1,
   separate = FALSE,
   sn = NULL,
   strata = NULL,
@@ -15,7 +15,11 @@ panes(
   custom_sort = NULL,
   group_stats = FALSE,
   display = "none",
-  data_source = NULL
+  data_source = NULL,
+  by = NULL,
+  length.out = NULL,
+  fill = TRUE,
+  schema = "none"
 )
 }
 \arguments{
@@ -23,7 +27,7 @@ panes(
 
 \item{window}{Numeric or time interval supplied as \code{number_line} objects.}
 
-\item{windows_min}{Minimum number of overlapping windows in an in an episode. See \code{details}}
+\item{windows_total}{Minimum number of overlapping windows in an in an episode. See \code{details}}
 
 \item{separate}{If \code{TRUE}, events under one window are considered separate episodes from those in another. The default is \code{FALSE}.}
 
@@ -68,6 +72,9 @@ Distribute events into panes defined by time or numerical intervals.
 Panes are events that overlaps with particular time or numerical intervals (\code{window}).
 Events that overlap with one window are considered part of the same pane and different from events that overlap with another window.
 
+\code{Overlapping windows are merged}
+\code{events across two windows are assigned to the last one listed}
+
 Unlike \code{\link{episodes}}, panes are not tracked in a sequential order.
 However, by default, the earliest event or smallest record is selected as the \code{"Index"} event.
 \code{custom_sort} provies some flexibility with regards to which record is taken as the index assignment.
@@ -101,8 +108,8 @@ events
 panes(date = events, window = windows, separate = T)
 panes(date = events, window = windows, separate = F)
 
-panes(date = events, window = windows, separate = T, windows_min = 3)
-panes(date = events, window = windows, separate = F, windows_min = 4)
+panes(date = events, window = windows, separate = T, windows_total = 3)
+panes(date = events, window = windows, separate = F, windows_total = 4)
 
 }
 \seealso{

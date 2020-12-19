@@ -11,7 +11,7 @@ epid_windows(date, lengths, episode_unit = "days")
 
 epid_lengths(date, windows, episode_unit = "days")
 
-index_window(date, from_last = F)
+index_window(date, from_last = FALSE)
 }
 \arguments{
 \item{date}{As used in \bold{\code{\link{episodes}}}.}
