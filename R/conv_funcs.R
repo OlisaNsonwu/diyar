@@ -230,9 +230,10 @@ prep_lengths <- function(length, overlap_methods, int,
   )
 }
 
-ovr_chks <- function(tr, int, mths){
+ovr_chks <- function(tr, int, mths, ord){
   x <- overlaps(tr, int, methods = mths)
-  ifelse(is.na(x), F, x)
+  ord[is.na(x)] <-  0
+  as.numeric(ord)
 }
 
 overlaps_err <- function(opts){
@@ -715,14 +716,14 @@ win_cri_checks <- function(win_criteria, wind_id_check, tr_wind_id, int_check, c
   return(cri_match)
 }
 
-win_tot_min_checks <- function(wind_id_checks, int_check, tr_wind_id, wind_tot_min){
-  if(length(wind_id_checks) > 0 & !all(wind_tot_min == 1)){
+win_tot_checks <- function(wind_id_checks, int_check, tr_wind_id, wind_total){
+  if(length(wind_id_checks) > 0 & any(!(wind_total@start == 1 & wind_total@.Data == Inf))){
     si_ord <- order(wind_id_checks, as.numeric(int_check@start))
     w_i <- wind_id_checks[si_ord]
     r_i <- rle(w_i)
     wind_tot <- Inf
     wind_tot[tr_wind_id %in% wind_id_checks] <- r_i$lengths[match(tr_wind_id[tr_wind_id %in% wind_id_checks], r_i$values)]
-    wtm_cri <- wind_tot >= wind_tot_min
+    wtm_cri <- !(wind_tot >= as.numeric(wind_total@start) & wind_tot <= as.numeric(right_point(wind_total)))
   }else{
     wtm_cri <- TRUE
   }

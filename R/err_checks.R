@@ -961,10 +961,12 @@ err_episodes_checks_0 <- function(date,
                                   case_for_recurrence,
                                   from_last,
                                   group_stats,
-                                  win_criteria,
+                                  wind_criteria,
                                   sub_criteria,
                                   schema,
-                                  wind_tot_min){
+                                  wind_total,
+                                  case_length_total,
+                                  recurrence_length_total){
 
 
   # Check for non-atomic vectors
@@ -987,7 +989,9 @@ err_episodes_checks_0 <- function(date,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
                schema = schema,
-               wind_tot_min = wind_tot_min)
+               wind_total = wind_total,
+               case_length_total = case_length_total,
+               recurrence_length_total = recurrence_length_total)
 
   err <- mapply(err_atomic_vectors,
                 args,
@@ -1016,7 +1020,9 @@ err_episodes_checks_0 <- function(date,
                from_last = from_last,
                group_stats = group_stats,
                schema = schema,
-               wind_tot_min = wind_tot_min)
+               wind_total = wind_total,
+               case_length_total = case_length_total,
+               recurrence_length_total = recurrence_length_total)
 
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
@@ -1038,7 +1044,9 @@ err_episodes_checks_0 <- function(date,
                        from_last = "logical",
                        group_stats = "logical",
                        schema =  "character",
-                       wind_tot_min = c("numeric", "integer"))
+                       wind_total = c("numeric", "integer", "number_line"),
+                       case_length_total = c("numeric", "integer", "number_line"),
+                       recurrence_length_total = c("numeric", "integer", "number_line"))
 
   err <- mapply(err_object_types,
                 args,
@@ -1068,7 +1076,9 @@ err_episodes_checks_0 <- function(date,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
                schema = schema,
-               wind_tot_min = wind_tot_min)
+               wind_total = wind_total,
+               case_length_total = case_length_total,
+               recurrence_length_total = recurrence_length_total)
 
   args_lens <- list(episode_type = len_lims,
                     overlap_methods_c = len_lims,
@@ -1088,7 +1098,9 @@ err_episodes_checks_0 <- function(date,
                     recurrence_from_last = len_lims,
                     case_for_recurrence = len_lims,
                     schema = 1,
-                    wind_tot_min = len_lims)
+                    wind_total = len_lims,
+                    case_length_total = len_lims,
+                    recurrence_length_total = len_lims)
 
   err <- mapply(err_match_ref_len,
                 args,
@@ -1114,7 +1126,9 @@ err_episodes_checks_0 <- function(date,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
-               wind_tot_min = wind_tot_min)
+               wind_total = wind_total,
+               case_length_total = case_length_total,
+               recurrence_length_total = recurrence_length_total)
 
   err <- mapply(err_missing_check,
                 args,
@@ -1148,16 +1162,16 @@ err_episodes_checks_0 <- function(date,
   err <- err_strata_level_args(episodes_max, strata, "episodes_max")
   if(!isFALSE(err)) return(err)
 
-  if(class(win_criteria) != "NULL"){
-    err <- err_sub_criteria_10(date, win_criteria, "date", "win_criteria")
+  if(class(wind_criteria) != "NULL"){
+    err <- err_sub_criteria_10(date, wind_criteria, "date", "wind_criteria")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.1(win_criteria, length(win_criteria), cri_nm = "win_criteria")
+    err <- err_sub_criteria_5.1(wind_criteria, length(wind_criteria), cri_nm = "wind_criteria")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.1(win_criteria, length(sub_criteria), cri_nm = "win_criteria")
+    err <- err_sub_criteria_6.1(wind_criteria, length(sub_criteria), cri_nm = "wind_criteria")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_8(win_criteria, cri_nm = "win_criteria")
+    err <- err_sub_criteria_8(wind_criteria, cri_nm = "wind_criteria")
     if(!isFALSE(err)) return(err[1])
-    err <- err_sub_criteria_9(win_criteria, length(win_criteria), cri_nm = "win_criteria")
+    err <- err_sub_criteria_9(wind_criteria, length(wind_criteria), cri_nm = "wind_criteria")
     if(!isFALSE(err)) return(err)
   }
 
@@ -1177,7 +1191,11 @@ err_episodes_checks_0 <- function(date,
   err <- err_spec_vals(schema, "schema", c("none", "by_epid", "by_strata", "by_ALL"))
   if(!isFALSE(err)) return(err)
 
-  err <- err_wind_tot_min_1(wind_tot_min)
+  err <- err_mins_1(wind_total, "wind_total")
+  if(!isFALSE(err)) return(err)
+  err <- err_mins_1(case_length_total, "case_length_total")
+  if(!isFALSE(err)) return(err)
+  err <- err_mins_1(recurrence_length_total, "recurrence_length_total")
   if(!isFALSE(err)) return(err)
   return(F)
 }
@@ -1540,12 +1558,12 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     }
   }
 
-
-  err_wind_tot_min_1 <- function(x){
-    if(any(x < 1)){
+  err_mins_1 <- function(x, arg){
+    lgk <- start_point(as.number_line(x)) < 1
+    if(any(lgk)){
       opts <- x
       sn <- 1:length(opts)
-      opts <- split(sn[opts < 1] , opts[opts < 1])
+      opts <- split(sn[lgk] , format(opts[lgk]))
       opts <- head(opts, 5)
       opts <- unlist(lapply(opts, function(x){
         missing_check(ifelse(sn %in% x, NA, T), 2)
@@ -1557,7 +1575,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
       }  else{
         errs <- listr(opts)
       }
-      errs <-  paste0("Invalid values for `", "err_wind_tot_min", "`:\n",
+      errs <-  paste0("Invalid values for `", arg, "`:\n",
                       "i - Vaild values are ", "integers > 0", ".\n",
                       "X - You've supplied ", errs, ".")
       return(errs)

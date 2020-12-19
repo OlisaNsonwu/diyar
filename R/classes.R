@@ -101,7 +101,7 @@ setMethod("c", signature(x = "number_line"), function(x,...) {
 #' @rdname number_line-class
 #' @export
 unique.number_line <- function(x, ...){
-  x <- x[!duplicated(paste0(x@start, " ", x@.Data))]
+  x <- x[!duplicated(data.frame(x@start, x@.Data))]
   return(x)
 }
 
