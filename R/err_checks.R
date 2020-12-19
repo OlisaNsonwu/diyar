@@ -8,7 +8,7 @@ err_sub_criteria_1 <- function(..., cri_nm = "sub_criteria"){
   err <- lapply(args, function(x){
     ifelse(is.atomic(x), NA_character_, class(x))
   })
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
@@ -140,7 +140,7 @@ err_sub_criteria_5.0 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
   })
 
 
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
     err <- paste0("Invalid arguments for `funcs` in `", cri_nm, "`:\n",
@@ -166,7 +166,7 @@ err_sub_criteria_5.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
   })
 
 
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
     err <- paste0("Invalid arguments for `funcs` in `", cri_nm, "`:\n",
@@ -191,7 +191,7 @@ err_sub_criteria_7 <- function(sub_cris, funcs_l){
     })
   })
 
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
     err <- paste0("Invalid ouput for `funcs`:\n",
@@ -220,7 +220,7 @@ err_sub_criteria_9 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
     y
   })
 
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
     err <- paste0("Invalid ouput for `funcs` in `", cri_nm, "`` :\n",
@@ -268,7 +268,7 @@ err_sub_criteria_8 <- function(x, cri_nm = "sub_criteria"){
 
 err_data_links_1 <- function(data_source, data_links){
   # data_links - Each element must be named g or l ####
-  dl_lst <- unlist(data_links, use.names = F)
+  dl_lst <- unlist(data_links, use.names = FALSE)
   ds_lst <- data_source[!duplicated(data_source)]
   ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
 
@@ -297,7 +297,7 @@ err_data_links_1 <- function(data_source, data_links){
 }
 
 err_data_links_2 <- function(data_source, data_links){
-  dl_lst <- unlist(data_links, use.names = F)
+  dl_lst <- unlist(data_links, use.names = FALSE)
   dl_lst <- as.character(dl_lst)
   ds_lst <- data_source[!duplicated(data_source)]
   ds_lst <- as.character(ds_lst)
@@ -335,7 +335,7 @@ err_sub_criteria_0 <- function(sub_criteria){
     rut <- attr(x, "diyar_sub_criteria")
     ifelse(!is.null(rut), NA_character_, class(x))
   })
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
@@ -353,7 +353,7 @@ err_criteria_1 <- function(criteria){
   err <- lapply(criteria, function(x){
     ifelse(is.atomic(x), NA_character_, class(x))
   })
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
@@ -370,7 +370,7 @@ err_criteria_2 <- function(criteria){
   if(class(criteria) != "list") criteria <- list(criteria)
 
   err <- lapply(criteria, length)
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!duplicated(err)]
 
@@ -395,7 +395,7 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err2 <- unlist(lapply(sub_criteria, function(x){
     lapply(x, function(x){
       length(x[[1]]) })
-  }), use.names = F)
+  }), use.names = FALSE)
   err <- err[!duplicated(err)]
   err2 <- err2[!duplicated(err2)]
 
@@ -412,7 +412,7 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
 err_sub_criteria_3dot_1 <- function(..., cri_nm = "sub_criteria"){
   args <- list(...)
   err <- lapply(args, length)
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!duplicated(err)]
 
@@ -646,7 +646,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
   err <- unlist(lapply(arg, function(x){
     x <- length(x)
     ifelse(!x %in% c(ref_len), x, NA_real_)
-  }), use.names = F)
+  }), use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
@@ -676,7 +676,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
       x <- NA_character_
     }
     x
-  }), use.names = F)
+  }), use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
@@ -721,7 +721,7 @@ err_episodes_checks_1 <- function(date,
   err <- mapply(err_atomic_vectors,
                 args,
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -758,7 +758,7 @@ err_episodes_checks_1 <- function(date,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -795,7 +795,7 @@ err_episodes_checks_1 <- function(date,
                 rep(as.list("date"), length(args_lens)),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -813,26 +813,26 @@ err_episodes_checks_1 <- function(date,
   err <- mapply(err_missing_check,
                 args,
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
   #err <- err_missing_check(from_last, "from_last", 2)
 
   err <- err_episode_unit_1(episode_unit = episode_unit)
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
   err <- err_episode_type_1(episode_type = episode_type)
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
   err <- err_display_1(display = display)
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
 
   return(F)
 }
@@ -854,7 +854,7 @@ err_split_nl_1 <- function(x,
   err <- mapply(err_atomic_vectors,
                 args,
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -877,7 +877,7 @@ err_split_nl_1 <- function(x,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -900,7 +900,7 @@ err_split_nl_1 <- function(x,
                 rep(as.list("date"), length(args_lens)),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -914,14 +914,14 @@ err_split_nl_1 <- function(x,
   err <- mapply(err_missing_check,
                 args,
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
   err <- err_by_1(by)
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
   err <- err_lnt_out_1(length.out)
-  if(err != F) return(err[1])
+  if(isTRUE(err)) return(err[1])
 
   errs_l <- finite_check(x@start)
   errs_r <- finite_check(x@.Data)
@@ -990,7 +990,7 @@ err_episodes_checks_0 <- function(date,
   err <- mapply(err_atomic_vectors,
                 args,
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -1040,7 +1040,7 @@ err_episodes_checks_0 <- function(date,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -1089,7 +1089,7 @@ err_episodes_checks_0 <- function(date,
                 rep(as.list("date"), length(args_lens)),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -1112,63 +1112,63 @@ err_episodes_checks_0 <- function(date,
   err <- mapply(err_missing_check,
                 args,
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_data_links_2(data_source = data_source, data_links = data_links)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_episode_unit_1(episode_unit = episode_unit)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_episode_type_1(episode_type = episode_type)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_display_1(display = display)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_strata_level_args(from_last, strata, "from_last")
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
   err <- err_strata_level_args(episodes_max, strata, "episodes_max")
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
 
   if(class(win_criteria) != "NULL"){
     err <- err_sub_criteria_10(date, win_criteria, "date", "win_criteria")
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_sub_criteria_5.1(win_criteria, length(win_criteria), cri_nm = "win_criteria")
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
     err <- err_sub_criteria_6.1(win_criteria, length(sub_criteria), cri_nm = "win_criteria")
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
     err <- err_sub_criteria_8(win_criteria, cri_nm = "win_criteria")
-    if(err != F) return(err[1])
+    if(isTRUE(err)) return(err[1])
     err <- err_sub_criteria_9(win_criteria, length(win_criteria), cri_nm = "win_criteria")
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
   }
 
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
-    if(err != F) return(err[1])
+    if(isTRUE(err)) return(err[1])
     err <- err_sub_criteria_10(date, sub_criteria, "date")
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
     err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
     err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
   }
 
   err <- err_spec_vals(schema, "schema", c("none", "by_epid", "by_strata", "by_ALL"))
-  if(err != F) stop(err, call. = F)
+  if(isTRUE(err)) stop(err, call. = FALSE)
   return(F)
 }
 
@@ -1197,7 +1197,7 @@ err_links_checks_0 <- function(criteria,
   err <- mapply(err_atomic_vectors,
                 args,
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -1221,7 +1221,7 @@ err_links_checks_0 <- function(criteria,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
@@ -1245,35 +1245,35 @@ err_links_checks_0 <- function(criteria,
                 rep(as.list("criteria"), length(args_lens)),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
-  err <- unlist(err, use.names = F)
+  err <- unlist(err, use.names = FALSE)
   err <- err[err != F]
   if(length(err) > 0) return(err[1])
 
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
 
   err <- err_data_links_2(data_source = data_source, data_links = data_links)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
 
   if(class(criteria) != "list") criteria <- list(criteria)
 
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
-    if(err != F) return(err[1])
+    if(isTRUE(err)) return(err[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
     err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
     err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
-    if(err != F) stop(err, call. = F)
+    if(isTRUE(err)) stop(err, call. = FALSE)
   }
   err <- err_criteria_1(criteria)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
 
   err <- err_criteria_2(criteria)
-  if(err != F) return(err)
+  if(isTRUE(err)) return(err)
 
   return(F)
 }
@@ -1285,7 +1285,7 @@ err_atomic_vectors <- function(arg, arg_nm){
   }else{
     multi_opts <- T
   }
-  err <- unlist(lapply(arg, is.atomic), use.names = F)
+  err <- unlist(lapply(arg, is.atomic), use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!err]
 
@@ -1324,7 +1324,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
       }
     })
 
-    opts <- unlist(opts, use.names = F)
+    opts <- unlist(opts, use.names = FALSE)
     names(opts) <- names(sp)
     opts <- opts[!is.na(opts)]
 
@@ -1374,7 +1374,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     err <- mapply(err_atomic_vectors,
                   args,
                   as.list(names(args)))
-    err <- unlist(err, use.names = F)
+    err <- unlist(err, use.names = FALSE)
     err <- err[err != F]
     if(length(err) > 0) return(err[1])
 
@@ -1411,7 +1411,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                   args,
                   as.list(names(args)),
                   args_classes[match(names(args), names(args_classes))])
-    err <- unlist(err, use.names = F)
+    err <- unlist(err, use.names = FALSE)
     err <- err[err != F]
     if(length(err) > 0) return(err[1])
 
@@ -1442,7 +1442,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                   rep(as.list("date"), length(args_lens)),
                   args_lens[match(names(args), names(args_lens))],
                   as.list(names(args)))
-    err <- unlist(err, use.names = F)
+    err <- unlist(err, use.names = FALSE)
     err <- err[err != F]
     if(length(err) > 0) return(err[1])
 
@@ -1463,41 +1463,41 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     err <- mapply(err_missing_check,
                   args,
                   as.list(names(args)))
-    err <- unlist(err, use.names = F)
+    err <- unlist(err, use.names = FALSE)
     err <- err[err != F]
     if(length(err) > 0) return(err[1])
 
     err <- err_data_links_1(data_source = data_source, data_links = data_links)
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_data_links_2(data_source = data_source, data_links = data_links)
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_display_1(display = display)
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_strata_level_args(separate, strata, "separate")
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
 
     if(!is.null(by)){
       err <- err_by_1(by)
-      if(err != F) return(err[1])
+      if(isTRUE(err)) return(err[1])
 
       err <- err_strata_level_args(by, strata, "by")
-      if(err != F) return(err)
+      if(isTRUE(err)) return(err)
     }
 
     if(!is.null(length.out)){
       err <- err_lnt_out_1(length.out)
-      if(err != F) return(err[1])
+      if(isTRUE(err)) return(err[1])
 
       err <- err_strata_level_args(length.out, strata, "length.out")
-      if(err != F) return(err)
+      if(isTRUE(err)) return(err)
     }
 
     err <- err_strata_level_args(fill, strata, "fill")
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
     err <- err_strata_level_args(windows_min, strata, "windows_min")
-    if(err != F) return(err)
+    if(isTRUE(err)) return(err)
 
     return(F)
   }

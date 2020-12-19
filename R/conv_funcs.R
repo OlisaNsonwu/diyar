@@ -113,29 +113,23 @@ sep_bdr_nl <- function(x){
   return(b)
 }
 
-progress_bar <- function(prop_complete, max_width, msg){
-  pct_l <- formatC(prop_complete*100, digits = 5, format = "fg")
-  a <- gsub("\\s", "", pct_l)
-  b <- gsub("\\S", "", pct_l)
-  b <- ifelse(b==""," ", b)
-  pct_l <- paste0(msg,"; ", ifelse(prop_complete == 1, "100", a),"%", b, "complete.")
+progress_bar <- function(n, d, max_width, msg){
+  prop_complete <- n/d
+  mx_l <- max(nchar(c(n, d)))
+  d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
+  n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
+  pct_l <- paste0(msg,"; ", n, " of ", d, " completed.")
+
   status_width <- max_width - nchar(pct_l)
-  bar_width <- as.integer(prop_complete*status_width)
+  bar_width <- floor(prop_complete*status_width)
   space_width <- status_width - bar_width
 
-  status <-paste0(ifelse(bar_width < 0, "", paste0(rep("-", bar_width), collapse = "")),
-                  ifelse(space_width < 0, "", paste0(rep(" ", space_width), collapse = "")),
+  status <-paste0(paste0(rep("-", bar_width), collapse = ""),
+                  paste0(rep(" ", space_width), collapse = ""),
                   pct_l,
                   "\r")
-
-  if(prop_complete==1){
-    # cat(paste0("\033[0;32m",status,"\033[0m"))
-    cat(status, "\r",sep="")
-  }else{
-    cat(status, "\r",sep="")
-  }
+  cat(status, "\r",sep="")
 }
-
 datasets_xx <- function(by, val, sep = ","){
   #by_uniq <- by[!duplicated(by)]
 

@@ -168,7 +168,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 win_criteria = win_criteria, sub_criteria = sub_criteria,
                                 schema = schema)
 
-  if(errs!=F) stop(errs, call. = F)
+  if(errs!=F) stop(errs, call. = FALSE)
   inp_n <- length(date)
   # Standardise inputs
   # `display`
@@ -209,7 +209,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   int <- as.number_line(date)
   is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
 
-  if(is_dt == T){
+  if(isTRUE(is_dt)){
     int <- number_line(
       l = as.POSIXct(int@start),
       r = as.POSIXct(right_point(int))
@@ -264,26 +264,26 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   # Place holders for episode-level inputs
   # `case_for_recurrence`
   if(length(case_for_recurrence) == 1) case_for_recurrence <- rep(case_for_recurrence, inp_n)
-  any_case_for_rec <- any(case_for_recurrence == T)
+  any_case_for_rec <- any(case_for_recurrence == TRUE)
   lead_case_for_rec <- case_for_recurrence[!duplicated(case_for_recurrence)]
   one_case_for_rec <- length(lead_case_for_rec) == 1
-  if(one_case_for_rec != T){
+  if(isFALSE(one_case_for_rec)){
     lead_case_for_rec <- rep(NA, inp_n)
   }
   # `recurrence_from_last`
   if(length(recurrence_from_last) == 1) recurrence_from_last <- rep(recurrence_from_last, inp_n)
-  any_rec_from_last <- any(recurrence_from_last == F)
+  any_rec_from_last <- any(recurrence_from_last == FALSE)
   lead_rec_from_last <- recurrence_from_last[!duplicated(recurrence_from_last)]
   one_rec_from_last <- length(lead_rec_from_last) == 1
-  if(one_rec_from_last != T){
+  if(isFALSE(one_rec_from_last)){
     lead_rec_from_last <- rep(NA, inp_n)
   }
   # `skip_if_b4_lengths`
   if(length(skip_if_b4_lengths) == 1) skip_if_b4_lengths <- rep(skip_if_b4_lengths, inp_n)
-  any_skip_b4_len <- any(skip_if_b4_lengths == T)
+  any_skip_b4_len <- any(skip_if_b4_lengths == TRUE)
   lead_skip_b4_len <- skip_if_b4_lengths[!duplicated(skip_if_b4_lengths)]
   one_skip_b4_len <- length(lead_skip_b4_len) == 1
-  if(one_skip_b4_len != T){
+  if(isFALSE(one_skip_b4_len)){
     lead_skip_b4_len <- rep(NA, inp_n)
   }
 
@@ -514,14 +514,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rm(cri_skp); rm(lgk2); rm(lgk1)
 
     if(min(tag) == 2){
-      if(display== "stats"){
+      if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
         msg <- paste0(fmt(current_tot), " record(s): ", ifelse(current_tagged > current_skipped,
-                                                               paste0(fmt(current_tagged - current_skipped), " tracked.", fmt(current_skipped), " skipped."),
+                                                               paste0(fmt(current_tagged - current_skipped), " tracked. ", fmt(current_skipped), " skipped."),
                                                                paste0(fmt(current_skipped), " skipped.")))
         cat(msg, "\n", sep="")
-      }else if (tolower(display)=="progress") {
-        progress_bar((length(tag[tag==2]) + length(grouped_epids$tag))/inp_n, 100, msg = "Tracking episodes")
+      }else if (tolower(display) == "progress") {
+        progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
       }
       break
     }
@@ -581,41 +581,34 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     cr <- ifelse(tr_tag %in% c(0, -2) &
                    (ref_rd  | (ep_checks == 1 & w_cri & s_cri)) &
                    tag != 2,
-                 T, F)
+                 TRUE, FALSE)
 
     if(isTRUE(any_rolling_epi)){
-      ref_period <- overlap(int, tr_int)
-      ref_period <- ifelse(is.na(ref_period), FALSE, ref_period)
-
-      #lgk <- tr_tag == 0 & !cri %in% cri[cr & !ref_period & rc_checks != 1]
-      lgk <- tr_tag == 0 & !cri %in% cri[cr & !ref_period] & case_nm != "Skipped" & roll_n < rolls_max
-      edup <- !duplicated(data.frame(cri, int@start, right_point(int)), fromLast = FALSE)
-      lgk[cri %in% cri[edup & ref_period & !ref_rd]] <- FALSE
-
+      lgk <- tr_tag == 0 & !cri %in% cri[cr & !ref_rd] & case_nm != "Skipped" & roll_n < rolls_max
       tr_tag[lgk] <- -1
       tag[lgk & ref_rd] <- -1
       case_nm[lgk & ref_rd] <- "Case"
+      wind_nm[lgk & ref_rd] <- "Case"
       roll_n[lgk] <- roll_n[lgk] + 1
-      cr <- ifelse(tr_tag %in% c(-1, -3) &
+      cr <- ifelse(tr_tag %in% c(-1) &
                      (ref_rd  | (rc_checks == 1 & w_cri & s_cri)) &
                      tag != 2,
-                   T, cr)
+                   TRUE, cr)
     }
 
     # Episode and window IDs
-    e[cr & tag == 0 & tr_tag %in% c(0, -3)] <- tr_sn[cr & tag == 0 & tr_tag %in% c(0, -3)]
+    e[cr & tag == 0 & tr_tag %in% c(0)] <- tr_sn[cr & tag == 0 & tr_tag %in% c(0)]
     wind_id[cr & tag == 0] <- tr_sn[cr & tag == 0]
     e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
 
     case_nm[cr & tr_tag %in% c(0)] <- ifelse(ref_rd[cr & tr_tag %in% c(0)], "Case", "Duplicate_C")
-    #case_nm[cr & tr_tag %in% c(-3)] <- ifelse(ref_rd[cr & tr_tag %in% c(-3)], "Case", "Duplicate_R")
     wind_nm[cr & tr_tag %in% c(0, -2) & wind_nm == ""] <- "Case"
     new_hits <- cr & tag != 2 & !ref_rd
     tag[cr] <- 2
 
     if(isTRUE(any_rolling_epi)){
       case_nm[cr & tr_tag %in% c(-1, -2) & case_nm == ""] <- "Duplicate_R"
-      wind_nm[cr & tr_tag %in% c(-1, -3) & wind_nm == ""] <- "Recurrence"
+      wind_nm[cr & tr_tag %in% c(-1) & wind_nm == ""] <- "Recurrence"
       sort_ord <- order(cri, new_hits, -assign_ord, int@gid)
       r <- rle(cri[sort_ord])
       case_nm[which(int@id %in% names(r$values) &
@@ -669,8 +662,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                                                paste0(fmt(current_tagged - current_skipped), " tracked.", fmt(current_skipped), " skipped."),
                                                                paste0(fmt(current_skipped), " skipped.")))
         cat(msg, "\n", sep="")
-      }else if (tolower(display)=="progress") {
-        progress_bar((length(tag[tag==2]) + length(grouped_epids$tag))/inp_n, 100, msg = "Tracking episodes")
+      }else if (tolower(display) == "progress") {
+        progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
       }
       iteration[iteration == Inf] <- ite
       break
@@ -741,12 +734,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
     iteration[tag != 0 & iteration == Inf] <- ite
     current_tagged <- length(tag[tag == 2])
-    if(display== "stats"){
+    if(display == "stats"){
       msg <- paste0(fmt(current_tot), " record(s): ", fmt(current_tagged), " tracked.",
                     ifelse(current_skipped > 0, paste0(", ",fmt(current_skipped), " skipped."), ""))
       cat(msg, "\n", sep="")
-    }else if (tolower(display)=="progress") {
-      progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag))/inp_n, 100, msg = "Tracking episodes")
+    }else if (tolower(display) == "progress") {
+      progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
     }
 
     # Subset out all linked records
@@ -839,7 +832,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   r <- rle(e)
   epid_n <- rep(r$lengths, r$lengths)
-  wind_nm[epid_n == 1 & wind_nm == "Recurrence"] <- "Case"
   lgk <- match(r$values, qqq)
   dist_from_epid <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
     rep(((as.numeric(int@start[lgk]) + as.numeric(right_point(int[lgk]))) * .5),  r$lengths)
@@ -1025,29 +1017,29 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
   if (length(names(args)[names(args) == ""] > 0)){
     err <- paste0("Every argument must be specified:\n",
                   "i - Please specify any argument you've used.")
-    stop(err, call. = F)
+    stop(err, call. = FALSE)
   }
   # Deprecated arguments and behaviour
   if(missing(overlap_methods_c) & !missing(overlap_methods)) {
     overlap_methods_c <- overlap_methods
     warning(paste0("`overlap_methods` is deprecated:\n",
                    "i - Please use `overlap_methods_c` instead.\n",
-                   "i - Your values were passed to `overlap_methods_c`."), call. = F)
+                   "i - Your values were passed to `overlap_methods_c`."), call. = FALSE)
   }else if(missing(overlap_methods_c) & !missing(overlap_method)) {
     overlap_methods <- paste0(overlap_method[!duplicated(overlap_method)], collapse = "|")
     warning(paste0("`overlap_method` is deprecated:\n",
                    "i - Please use `overlap_methods_c` instead.\n",
-                   "i - Your values were passed to `overlap_methods`."), call. = F)
+                   "i - Your values were passed to `overlap_methods`."), call. = FALSE)
   }
 
   if(missing(date) & !missing(x)) {
     date <- x
     warning(paste0("`x` is deprecated and will be removed in the next release:\n",
                    "i - Please use `date` instead.\n",
-                   "i - Your values were passed to `date`."), call. = F)
+                   "i - Your values were passed to `date`."), call. = FALSE)
   }
   if(class(display) == "logical"){
-    display <- ifelse(display == F, "none", "stats")
+    display <- ifelse(display == FALSE, "none", "stats")
   }
   err <- err_episodes_checks_1(date = date,
                                case_length = case_length,
@@ -1062,8 +1054,8 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                                include_index_period = include_index_period,
                                to_s4 = to_s4)
 
-  if(err != F){
-    stop(err, call. = F)
+  if(isTRUE(err)){
+    stop(err, call. = FALSE)
   }
 
   ep_units <- tolower(episode_unit)
@@ -1076,7 +1068,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
   case_length <- r$lengths
   overlap_methods_c <- r$method
 
-  if(include_index_period == T){
+  if(isTRUE(include_index_period)){
     case_length <- c(case_length, list(index_window(date)))
     overlap_methods_c <- c(overlap_methods_c, list(rep("overlap", length(date))))
   }
@@ -1085,10 +1077,10 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                     overlap_methods_r = overlap_methods_c, display = display,
                     case_length = case_length, recurrence_length = case_length,
                     episode_unit = ep_units, ...)
-  if(deduplicate == T) {
+  if(isTRUE(deduplicate)) {
     epids <- epids[!epids@case_nm %in% c("Duplicate_C", "Duplicate_R")]
   }
-  if(to_s4 == F){
+  if(isFALSE(to_s4)){
     epids <- to_df(epids)
   }
   return(epids)
@@ -1107,7 +1099,7 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
   if (length(names(args)[names(args) == ""] > 0)){
     err <- paste0("Every argument must be specified:\n",
                   "i - Please specify any argument you've used.")
-    stop(err, call. = F)
+    stop(err, call. = FALSE)
   }
 
   # Deprecated arguments and behaviour
@@ -1115,33 +1107,33 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
     overlap_methods_c <- overlap_methods
     warning(paste0("`overlap_methods` is deprecated:\n",
                    "i - Please use `overlap_methods_c` instead.\n",
-                   "i - Your values were passed to `overlap_methods_c`."), call. = F)
+                   "i - Your values were passed to `overlap_methods_c`."), call. = FALSE)
   }else if(missing(overlap_methods_c) & !missing(overlap_method)) {
     overlap_methods_c <- paste0(overlap_method[!duplicated(overlap_method)], collapse = "|")
     warning(paste0("`overlap_method` is deprecated:\n",
                    "i - Please use `overlap_methods_c` instead.\n",
-                   "i - Your values were passed to `overlap_methods`."), call. = F)
+                   "i - Your values were passed to `overlap_methods`."), call. = FALSE)
   }
   if(missing(overlap_methods_r) & !missing(overlap_methods)) {
     overlap_methods_r <- overlap_methods
     warning(paste0("`overlap_methods` is deprecated:\n",
                    "i - Please use `overlap_methods_r` instead.\n",
-                   "i - Your values were passed to `overlap_methods_c`."), call. = F)
+                   "i - Your values were passed to `overlap_methods_c`."), call. = FALSE)
   }else if(missing(overlap_methods_r) & !missing(overlap_method)) {
     overlap_methods_r <- paste0(overlap_method[!duplicated(overlap_method)], collapse = "|")
     warning(paste0("`overlap_method` is deprecated:\n",
                    "i - Please use `overlap_methods_c` instead.\n",
-                   "i - Your values were passed to `overlap_methods`."), call. = F)
+                   "i - Your values were passed to `overlap_methods`."), call. = FALSE)
   }
 
   if(missing(date) & !missing(x)) {
     date <- x
     warning(paste0("`x` is deprecated and will be removed in the next release:\n",
                    "i - Please use `date` instead.\n",
-                   "i - Your values were passed to `date`."), call. = F)
+                   "i - Your values were passed to `date`."), call. = FALSE)
   }
   if(class(display) == "logical"){
-    display <- ifelse(display == F, "none", "stats")
+    display <- ifelse(display == FALSE, "none", "stats")
   }
   err <- err_episodes_checks_1(date = date,
                                case_length = case_length,
@@ -1156,8 +1148,8 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
                                include_index_period = include_index_period,
                                to_s4 = to_s4)
 
-  if(err != F){
-    stop(err, call. = F)
+  if(isTRUE(err)){
+    stop(err, call. = FALSE)
   }
 
   ep_units <- tolower(episode_unit)
@@ -1175,7 +1167,7 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
   recurrence_length <- r$lengths
   overlap_methods_r <- r$method
 
-  if(include_index_period == T){
+  if(isTRUE(include_index_period)){
     case_length <- c(case_length, list(index_window(date)))
     recurrence_length <- c(recurrence_length, list(index_window(date)))
     overlap_methods_c <- c(overlap_methods_c, list(rep("overlap", length(date))))
@@ -1186,10 +1178,10 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
                     overlap_methods_c = overlap_methods_c, overlap_methods_r = overlap_methods_r,
                     display = display, case_length = case_length, recurrence_length = recurrence_length,
                     episode_unit = ep_units, ...)
-  if(to_s4 == F){
+  if(isFALSE(to_s4)){
     epids <- to_df(epids)
   }
-  if(deduplicate == T) {
+  if(isTRUE(deduplicate)) {
     epids <- epids[!epids@case_nm %in% c("Duplicate_C", "Duplicate_R")]
   }
   return(epids)
@@ -1204,16 +1196,16 @@ episode_group <- function(df, ..., episode_type = "fixed"){
                   "i- `episode_group()` has been retired!\n",
                   "i - Your values will be passed to `links()`.\n",
                   "i - Please specify any argument you've used.")
-    stop(err, call. = F)
+    stop(err, call. = FALSE)
   }
 
   out <- bridge_episode_group(df=df, args=args, episode_type = episode_type)
-  if(out$err_cd == F) stop(out$err_nm, call. = F)
+  if(out$err_cd == FALSE) stop(out$err_nm, call. = FALSE)
 
   # Warn
   warning(paste0("`episode_group()` has been retired!:\n",
                  "i - Please use `episodes()`, `fixed_episodes()` or `rolling_episodes()` instead.\n",
-                 "i - Your values were passed to `episodes()`."), call. = F)
+                 "i - Your values were passed to `episodes()`."), call. = FALSE)
   return(out$err_nm)
 }
 
@@ -1248,8 +1240,8 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
   if(class(lengths) != "number_line"){
     lengths <- number_line(0, as.numeric(lengths))
   }
-  is_dt <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
-  if(is_dt == T){
+  is_dt <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
+  if(isTRUE(is_dt)){
     date <- number_line(
       l = as.POSIXct(date@start, "GMT"),
       r = as.POSIXct(right_point(date), "GMT")
@@ -1271,15 +1263,15 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
 epid_lengths <- function(date, windows, episode_unit = "days"){
   date <- as.number_line(date)
   windows <- as.number_line(windows)
-  is_dt1 <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
-  if(is_dt1 == T){
+  is_dt1 <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
+  if(isTRUE(is_dt1)){
     date <- number_line(
       l = as.POSIXct(date@start, "GMT"),
       r = as.POSIXct(right_point(date), "GMT")
     )
   }
-  is_dt2 <- ifelse(!any(class(windows@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
-  if(is_dt2 == T){
+  is_dt2 <- ifelse(!any(class(windows@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
+  if(isTRUE(is_dt2)){
     windows <- number_line(
       l = as.POSIXct(windows@start, "GMT"),
       r = as.POSIXct(right_point(windows), "GMT")
@@ -1299,10 +1291,10 @@ epid_lengths <- function(date, windows, episode_unit = "days"){
 #' index_window(number_line(15, 20))
 #'
 #' @export
-index_window <- function(date, from_last = F){
+index_window <- function(date, from_last = FALSE){
   window <- as.number_line(date)
   window <- number_line(-window@.Data, 0)
-  window[from_last == T] <- invert_number_line(window[from_last == T])
+  window[from_last == TRUE] <- invert_number_line(window[from_last == TRUE])
   window
 }
 
