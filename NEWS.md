@@ -4,23 +4,31 @@
 ## New features
 
   - New function `panes()`
-  - New argument - `win_criteria` in `episodes()`. Additional conditions
-    for overlapping windows. Only relevant to `"rolling_episodes"`.
+  - New argument - `wind_criteria` in `episodes()`. Additional
+    conditions for overlapping windows. Only relevant to
+    `"rolling_episodes"`.
   - New argument - `sub_criteria` in `episodes()`. Additional conditions
     for temporal links.
-  - New argument - `wind_tot_min` in `episodes()`. Minimum number of
+  - New argument - `wind_total` in `episodes()`. Minimum number of
     records in an `window` to trigger the next recurrence window. Only
     applicable to `"rolling episodes"`  
-  - New function - `split_number_line()`. Split `number_line` objects.
-    Replaces `number_line_sequence()`.
   - New argument - `schema` in `links()`, `episodes()` and `panes()`.
-    Produce schema diagrams of the record linakge and episodes tracking
+    Produce schema diagrams of the record linkage and episodes tracking
+    process.
+  - New argument - `case_length_total` in `episodes()`. Number of hits
+    from multiple `case_lengths` required for a `window`/`episode`.
+  - New argument - `recurrence_length_total` in `episodes()`. Number of
+    hits from multiple `recurrence_lengths` required for a
+    `window`/`episode`.
+  - New argument - `schema` in `links()`, `episodes()` and `panes()`.
+    Produce schema diagrams of the record linkage and episodes tracking
     process.
 
 ## Changes
 
-  - `epid_object` - default time zone for `epid_interval` with `POSIXct`
-    objects is now “GMT”.
+  - `epid_object` - default time zone for an `epid_interval` with
+    `POSIXct` objects is now “GMT”.
+  - `number_line_sequence()` - splits number\_line objects.
 
 ## Bug fixes
 

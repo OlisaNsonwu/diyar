@@ -539,21 +539,21 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
                              "seconds")
 
       if(is_dt == TRUE){
-        y$nl_l <- number_line(left_point(y$nl_l)/as.numeric(diyar::episode_unit[epid_unit]),
-                              right_point(y$nl_l)/as.numeric(diyar::episode_unit[epid_unit]))
+        y$nl_l <- number_line(left_point(y$nl_l)/as.numeric(diyar::episode_unit[[lar$episode_unit]]),
+                              right_point(y$nl_l)/as.numeric(diyar::episode_unit[[lar$episode_unit]]))
       }
       y$nl_s <- left_point(y$nl_l)
       y$nl_e <- right_point(y$nl_l)
-
+      y$episode_unit <- lar$episode_unit
       lar$nl_s <- y$nl_s
       lar$nl_e <- y$nl_e
       y$nl_l <- NULL
-      y <- rbind(y, lar[c("end", "start", "epid", "y", "mid_y_lead", "nl_s", "nl_e", "nl_nm", "wind_nm_l", "wind_total")])
+      y <- rbind(y, lar[c("end", "start", "epid", "y", "mid_y_lead", "nl_s", "nl_e", "nl_nm", "wind_nm_l", "wind_total", "episode_unit")])
       y$lab_y <- (y$mid_y_lead + y$y)/2
       y
     })
   }else{
-    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total")]
+    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "episode_unit")]
     lar$wind_nm_l <- lar$nl_nm <- character()
     lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
     lar <- list(lar)

@@ -202,7 +202,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     wind_total <- number_line(wind_total, Inf)
   }
   if(length(wind_total) == 1) wind_total <- rep(wind_total, inp_n)
-
   # `skip_order`
   if(length(skip_order) == 1) skip_order <- rep(skip_order, inp_n)
   # `from_last`
@@ -1018,12 +1017,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     dts_z <- as.numeric(dts_z)[match(e[lgk], names(dts_z))]
 
     case_nm <- case_nm[sort_ord]
-    from_last <- from_last[match(tmp_pos[fd], pri_pos)]
-    epid_dt_a <- ifelse(from_last, right_point(int), as.numeric(int@start))
-    epid_dt_z <- ifelse(from_last, as.numeric(int@start), right_point(int))
+    frm_last <- from_last[match(tmp_pos[fd], pri_pos)]
+    epid_dt_a <- ifelse(frm_last, right_point(int), as.numeric(int@start))
+    epid_dt_z <- ifelse(frm_last, as.numeric(int@start), right_point(int))
 
-    epid_dt_a[lgk] <- ifelse(from_last[lgk], dts_z, dts_a)
-    epid_dt_z[lgk] <- ifelse(from_last[lgk], dts_a, dts_z)
+    epid_dt_a[lgk] <- ifelse(frm_last[lgk], dts_z, dts_a)
+    epid_dt_z[lgk] <- ifelse(frm_last[lgk], dts_a, dts_z)
 
     if(isTRUE(is_dt)){
       epid_dt_a <- as.POSIXct(epid_dt_a, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
@@ -1067,6 +1066,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       plot_sets <- plot_sets[!duplicated(plot_sets)]
       title_seq <- ""
     }
+    if(class(case_length) != "list"){
+      case_length <- list(case_length)
+    }
+    case_length <- lapply(case_length, function(x){
+      if(length(x) == 1) x <- rep(x, inp_n)
+      x
+    })
+    if(class(recurrence_length) != "list"){
+      recurrence_length <- list(recurrence_length)
+    }
+    recurrence_length <- lapply(recurrence_length, function(x){
+      if(length(x) == 1) x <- rep(x, inp_n)
+      x
+    })
     plots <- lapply(plot_sets, function(x){
       plt_cri <- strata_l[p_cri == x]
       plt_cri <- plt_cri[!duplicated(plt_cri)]
@@ -1075,10 +1088,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       plot_epids(epids = epids[lgk],
                  date = int_bu[lgk],
                  episode_unit = ep_units[lgk],
-                 case_length = lapply(ep_l_bu, function(k) k[lgk]),
-                 recurrence_length = lapply(rc_l_bu, function(k) k[lgk]),
-                 is_dt = is_dt,
+                 case_length = lapply(case_length, function(k) k[lgk]),
+                 recurrence_length = lapply(recurrence_length, function(k) k[lgk]),
                  episode_type = episode_type[lgk],
+                 from_last = from_last[lgk],
                  title = paste0(title_seq, x))
     })
     names(plots) <- plot_sets
