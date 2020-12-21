@@ -12,7 +12,7 @@ links(
   strata = NULL,
   data_source = NULL,
   data_links = "ANY",
-  display = "progress",
+  display = "none",
   group_stats = FALSE,
   expand = TRUE,
   shrink = FALSE,

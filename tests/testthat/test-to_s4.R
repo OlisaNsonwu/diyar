@@ -21,6 +21,6 @@ test_that("test to_s4", {
   expect_equal(to_df(s4_2)$pid, df_2$pid)
   expect_equal(to_df(s4_2)$pid_cri, df_2$pid_cri)
   expect_equal(to_df(s4_2)$sn, df_2$sn)
-  expect_error(to_df(mtcars),"'s4' must be an epid or pid object")
+  expect_error(to_df(mtcars),"'s4' must be an `epid`, `pid`, `pane` or `number_line` object")
   expect_error(to_s4(letters),"'df' must be a data.frame")
 })

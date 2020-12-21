@@ -13,6 +13,7 @@
 \alias{$<-,number_line-method}
 \alias{c,number_line-method}
 \alias{unique.number_line}
+\alias{seq.number_line}
 \alias{sort.number_line}
 \alias{format.number_line}
 \title{\code{number_line} object}
@@ -36,6 +37,8 @@
 \S4method{c}{number_line}(x, ...)
 
 \method{unique}{number_line}(x, ...)
+
+\method{seq}{number_line}(x, precision = FALSE, fill = TRUE, simplify = FALSE, ...)
 
 \method{sort}{number_line}(x, decreasing = FALSE, ...)
 

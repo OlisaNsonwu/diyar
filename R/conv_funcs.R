@@ -612,7 +612,7 @@ opt_level <- function(opt, mth, tr_mth){
   }
 }
 
-sub_cri_match <- function(sub_criteria, cri, ref_rd){
+sub_cri_match_1 <- function(sub_criteria, cri, ref_rd, pr_sn){
   curr_sub_cri <- sub_criteria
   if(length(curr_sub_cri) > 0){
     r <- rle(cri)
@@ -627,7 +627,7 @@ sub_cri_match <- function(sub_criteria, cri, ref_rd){
         if(length(x) == 1){
           x <- rep(x, length(ref_rd))
         }
-        x <- x[int@id]
+        x <- x[pr_sn]
         y <- rep(x[match(p, q)], r$lengths)
         f <- a[[2]]
         lgk <- try(f(x, y), silent = TRUE)
@@ -664,8 +664,91 @@ sub_cri_match <- function(sub_criteria, cri, ref_rd){
   }
   return(cri_match)
 }
+sub_cri_match_2 <- function(sub_criteria, cri, ref_rd, pr_sn){
+  curr_sub_cri <- sub_criteria
+  ds_len <- length(cri)
+  if(length(curr_sub_cri) > 0){
+    r <- rle(cri)
+    p <- as.numeric(names(r$values))
+    q <- as.numeric(names(cri))
 
-win_cri_checks <- function(win_criteria, wind_id_check, tr_wind_id, int_check, current_tot){
+    sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
+      set <- curr_sub_cri[[i]]
+      set_match <- sapply(1:length(set), function(j){
+        a <- set[[j]]
+        x <- a[[1]]
+        if(length(x) == 1){
+          x <- rep(x, ds_len)
+        }
+        x <- x[match(pr_sn, seq_len(ds_len))]
+        y <- rep(x[match(p, q)], r$lengths)
+        f1 <- a[[2]]
+        lgk <- try(f1(x, y), silent = T)
+        if(class(lgk) == "try-error" | class(lgk) != "logical"){
+          if(class(lgk) == "try-error"){
+            err <- attr(lgk, "condition")$message
+          }else{
+            err <- "Output is not a `logical` object"
+          }
+
+          err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                        "i - Each `func` must have the following syntax and output.\n",
+                        "i - Syntax ~ `function(x, y, ...)`.\n",
+                        "i - Output ~ `TRUE` or `FALSE`.\n",
+                        "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+          stop(err, call. = F)
+        }
+        lgk <- as.numeric(lgk)
+        out1 <- ifelse(is.na(lgk), 0, lgk)
+        if(length(out1) == 1) out1 <- rep(out1, length(cri))
+        if(length(out1) != length(cri)){
+          err <- paste0("Output length of `funcs` must be 1 or the same as `criteria`:\n",
+                        "i - Unexpected length for `funcs-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+                        "i - Expecting a length of 1 of ", length(cri), ".\n",
+                        "X - Length is ", length(out1), ".")
+          stop(err, call. = F)
+        }
+
+        f2 <- a[[3]]
+        lgk <- try(f2(x, y), silent = T)
+        if(class(lgk) == "try-error" | class(lgk) != "logical"){
+          if(class(lgk) == "try-error"){
+            err <- attr(lgk, "condition")$message
+          }else{
+            err <- "Output is not a `logical` object"
+          }
+
+          err <- paste0("Unable to evaluate `equva-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                        "i - Each `func` must have the following syntax and output.\n",
+                        "i - Syntax ~ `function(x, y, ...)`.\n",
+                        "i - Output ~ `TRUE` or `FALSE`.\n",
+                        "X - Issue with `equva - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+          stop(err, call. = F)
+        }
+        lgk <- as.numeric(lgk)
+        out2 <- ifelse(is.na(lgk), 0, lgk)
+        if(length(out2) == 1) out2 <- rep(out2, length(cri))
+        if(length(out2) != length(cri)){
+          err <- paste0("Output length of `equva` must be 1 or the same as `criteria`:\n",
+                        "i - Unexpected length for `equva-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+                        "i - Expecting a length of 1 of ", length(cri), ".\n",
+                        "X - Length is ", length(out2), ".")
+          stop(err, call. = F)
+        }
+        return(c(out1, out2))
+      })
+      ifelse(rowSums(set_match) > 0, 1, 0)
+    })
+    sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | ref_rd, 1, 0)
+    sub_cri_match.rf <- sub_cri_match[((length(sub_cri_match)/2)+1):length(sub_cri_match)]
+    sub_cri_match <- sub_cri_match[1:(length(sub_cri_match)/2)]
+  }else{
+    sub_cri_match <- rep(1, ds_len)
+    sub_cri_match.rf <- sub_cri_match
+  }
+  return(list(sub_cri_match, sub_cri_match.rf))
+}
+win_cri_checks <- function(win_criteria, wind_id_check, tr_wind_id, int_check, current_tot, pr_sn){
   if(length(win_criteria) > 0 & length(wind_id_check) > 0){
     sub_win_checks <- sapply(1:length(win_criteria), function(i){
       set <- win_criteria[[i]]
@@ -675,7 +758,7 @@ win_cri_checks <- function(win_criteria, wind_id_check, tr_wind_id, int_check, c
         if(length(x) == 1){
           x <- rep(x, length(int_check))
         }
-        x <- x[int@id]
+        x <- x[pr_sn]
         f <- a[[2]]
         a <- split(x, wind_id_checks)
 
@@ -728,4 +811,71 @@ win_tot_checks <- function(wind_id_checks, int_check, tr_wind_id, wind_total){
     wtm_cri <- TRUE
   }
   return(wtm_cri)
+}
+
+links_summary <- function(pids, tms = "??", display = "stats"){
+  if(display == "stats") cat("\n")
+  if(display != "none"){
+    r <- rle(sort(pids@.Data))
+    pid_tot <- r$lengths[match(pids@.Data, r$values)]
+    cri_dst <- table(pids@pid_cri)
+    cri_n <- as.numeric(names(cri_dst))
+    cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
+    cri_dst <- cri_dst[!is.na(cri_dst)]
+    cri_n <- as.numeric(names(cri_dst))
+    cri_dst <- paste0("       ", pid_cri_l(cri_n), ":   ", fmt(cri_dst), collapse = "\n")
+    summ <- paste0("\nSummary.\n",
+                   "Time elapsed:     ", tms, "\n",
+                   "Iterations:           ", fmt(max(pids@iteration)), "\n",
+                   "Records:\n",
+                   "  Total:          ", fmt(length(pids)), "\n",
+                   "    Stages:\n",
+                   cri_dst, "\n",
+                   "Groups:\n",
+                   "   Total:         ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n",
+                   "   Single-record: ", fmt(length(pids@.Data[!duplicated(pids@.Data) & pid_tot == 1])), "\n"
+    )
+  }else if(display == "none"){
+    summ <- paste0("Data linkage completed in ", tms, "!\n")
+  }
+return(summ)
+}
+
+episodes_summary <- function(epids, tms = "??", display = "stats"){
+  if(display != "none"){
+    r <- rle(sort(epids@.Data))
+    epid_tot <- r$lengths[match(epids@.Data, r$values)]
+    summ <- paste0("Summary.\n",
+                   "Time elapsed:   ", tms, "\n",
+                   "Iterations:     ", fmt(max(epids@iteration)), "\n",
+                   "Records:\n",
+                   "  Total:        ", fmt(length(epids)), "\n",
+                   "  Skipped:      ", fmt(length(epids[epids@case_nm == "Skipped"])), "\n",
+                   "Episodes:\n",
+                   "  Total:        ", fmt(length(epids[epids@case_nm == "Case"])), "\n",
+                   "  Single-event: ", fmt(length(epids[epids@case_nm == "Case" & epid_tot == 1])), "\n")
+  }else if(display == "none"){
+    summ <- paste0("Episode tracking completed in ", tms, "!\n")
+  }
+  return(summ)
+}
+
+txt_to_nl <- function(x){
+  number_line(
+    l = as.numeric(gsub("->.*$|==.*$|<-.*$", "", x)),
+    r = as.numeric(gsub("^.*->|^.*==|^.*<-", "", x))
+  )
+}
+
+pane_checks <- function(dates, windows){
+  fnx <- function(x, int = dates){
+    diyar:::ovr_chks(windows[[x]], int, rep("overlap", length(int)), rep(x, length(int)))
+  }
+
+  checks <- as.matrix(sapply(as.numeric(seq_len(length(windows))), fnx))
+  if(length(dates) == 1){
+    checks <- t(checks)
+  }
+  ep_checks <- Rfast::rowMaxs(checks, value = TRUE)
+  ep_checks
 }

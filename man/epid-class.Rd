@@ -6,6 +6,7 @@
 \alias{as.epid}
 \alias{format.epid}
 \alias{unique.epid}
+\alias{summary.epid}
 \alias{show,epid-method}
 \alias{rep,epid-method}
 \alias{[,epid-method}
@@ -18,6 +19,8 @@ as.epid(x)
 \method{format}{epid}(x, ...)
 
 \method{unique}{epid}(x, ...)
+
+\method{summary}{epid}(x, ...)
 
 \S4method{show}{epid}(object)
 

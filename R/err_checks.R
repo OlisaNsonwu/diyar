@@ -54,12 +54,12 @@ err_sub_criteria_4 <- function(..., funcs){
   }
 }
 
-err_sub_criteria_6.0 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
+err_sub_criteria_6.0 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2, cri_nm = "sub_criteria"){
   err <- lapply(seq_len(length(sub_cris)), function(i){
     l1 <- sub_cris[[i]]
     y <- lapply(seq_len(length(l1)), function(j){
       l2 <- l1[[j]]
-      func <- l2[[2]]
+      func <- l2[[funcs_pos]]
       vec <- l2[[1]]
       try_txt <- try(func(x = vec[1], y = vec[1]), silent = T)
       if(class(try_txt) == "try-error"){
@@ -71,16 +71,16 @@ err_sub_criteria_6.0 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
       }
     })
     y <- unlist(y)
-    names(y) <- paste0("`funcs` ", seq_len(length(y)), " of ", toupper(names(sub_cris)[i]))
+    names(y) <- paste0("`", funcs_l, "` ", seq_len(length(y)), " of ", toupper(names(sub_cris)[i]))
     y
   })
 
   err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
-    err <- paste0("Unable to evaluate `funcs` in `", cri_nm, "`:\n",
-                  "i - Each `func` must have the following syntax and output.\n",
-                  "i - Syntax ~ `func(x, y, ...)`.\n",
+    err <- paste0("Unable to evaluate `", funcs_l, "` in `", cri_nm, "`:\n",
+                  "i - Each `", funcs_l, "` must have the following syntax and output.\n",
+                  "i - Syntax ~ `function(x, y, ...)`.\n",
                   "i - Output ~ `TRUE` or `FALSE`.\n",
                   paste0("X - Issues with ", names(err) ,": ",
                          err, ".", collapse = "\n"))
@@ -116,7 +116,7 @@ err_sub_criteria_6.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
   if(length(err) > 0){
     err <- paste0("Unable to evaluate `funcs` in `", cri_nm, "`:\n",
                   "i - Each `func` must have the following syntax and output.\n",
-                  "i - Syntax ~ `func(x, ...)`.\n",
+                  "i - Syntax ~ `function(x, ...)`.\n",
                   "i - Output ~ `TRUE` or `FALSE`.\n",
                   paste0("X - Issues with ", names(err) ,": ",
                          err, ".", collapse = "\n"))
@@ -126,16 +126,16 @@ err_sub_criteria_6.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
   }
 }
 
-err_sub_criteria_5.0 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
+err_sub_criteria_5.0 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2, cri_nm = "sub_criteria"){
   err <- lapply(seq_len(length(sub_cris)), function(i){
     l1 <- sub_cris[[i]]
     y <- lapply(seq_len(length(l1)), function(j){
       l2 <- l1[[j]]
-      func <- l2[[2]]
+      func <- l2[[funcs_pos]]
       ifelse(all(c("x", "y") %in% methods::formalArgs(func)), NA_character_, F)
     })
     y <- unlist(y)
-    names(y) <- paste0("`funcs` ", seq_len(length(y)), " of ", toupper(names(sub_cris)[i]))
+    names(y) <- paste0("`", funcs_l,"` ", seq_len(length(y)), " of ", toupper(names(sub_cris)[i]))
     y
   })
 
@@ -143,8 +143,8 @@ err_sub_criteria_5.0 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
   err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
-    err <- paste0("Invalid arguments for `funcs` in `", cri_nm, "`:\n",
-                  "i - Each `funcs` must have at least two arguments named `x` and `y`.\n",
+    err <- paste0("Invalid arguments for `", funcs_l, "` in `", cri_nm, "`:\n",
+                  "i - Each `", funcs_l, "` must have at least two arguments named `x` and `y`.\n",
                   paste0("X - ", names(err),": Missing `args` `x` or `y`.", collapse = "\n"))
     err
   }else{
@@ -178,12 +178,12 @@ err_sub_criteria_5.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
   }
 }
 
-err_sub_criteria_7 <- function(sub_cris, funcs_l){
+err_sub_criteria_7 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2){
   err <- lapply(seq_len(length(sub_cris)), function(i){
     l1 <- sub_cris[[i]]
     y <- lapply(seq_len(length(l1)), function(j){
       l2 <- l1[[j]]
-      func <- l2[[2]]
+      func <- l2[[funcs_pos]]
       vec <- l2[[1]]
       e <- func(vec[1:5], vec[1:5])
       x <- class(e)
@@ -194,9 +194,9 @@ err_sub_criteria_7 <- function(sub_cris, funcs_l){
   err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
-    err <- paste0("Invalid ouput for `funcs`:\n",
-                  "i - Output of each `funcs` must have a length of `x` and `y`.\n",
-                  "i - Output of each `funcs` must evaluate to `TRUE` or `FALSE`.\n",
+    err <- paste0("Invalid ouput for `", funcs_l, "`:\n",
+                  "i - Output of each `", funcs_l, "` must have a length of `x` and `y`.\n",
+                  "i - Output of each `", funcs_l ,"` must evaluate to `TRUE` or `FALSE`.\n",
                   paste0("X - ", names(err),": returns a ", err, "` object.", collapse = "\n"))
     err
   }else{
@@ -1197,11 +1197,17 @@ err_episodes_checks_0 <- function(date = 1,
     if(!isFALSE(err)) return(err[1])
     err <- err_sub_criteria_10(date, sub_criteria, "date")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
+    err <- err_sub_criteria_5.0(sub_criteria)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
+    err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
+    err <- err_sub_criteria_6.0(sub_criteria)
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_6.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_7(sub_criteria)
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_7(sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
   }
 
@@ -1307,11 +1313,17 @@ err_links_checks_0 <- function(criteria,
     if(!isFALSE(err)) return(err[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.0(sub_criteria, length(sub_criteria))
+    err <- err_sub_criteria_5.0(sub_criteria)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.0(sub_criteria, length(sub_criteria))
+    err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_7(sub_criteria, length(sub_criteria))
+    err <- err_sub_criteria_6.0(sub_criteria)
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_6.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_7(sub_criteria)
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_7(sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
   }
   err <- err_criteria_1(criteria)
@@ -1385,11 +1397,10 @@ err_strata_level_args <- function(arg, strata, arg_nm){
   }
 }
 
-  err_panes_checks_0 <- function(date,
+  err_partitions_checks_0 <- function(date,
                                  window,
                                  windows_total ,
                                  separate,
-                                 display,
                                  sn,
                                  strata,
                                  data_source,
@@ -1406,7 +1417,6 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  window = window,
                  windows_total  = windows_total ,
                  separate = separate,
-                 display = display,
                  strata = strata,
                  custom_sort = custom_sort,
                  data_source = data_source,
@@ -1428,7 +1438,6 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  window = window,
                  windows_total  = windows_total ,
                  separate = separate,
-                 display = display,
                  #strata = strata,
                  #custom_sort = custom_sort,
                  #data_source = data_source,
@@ -1443,7 +1452,6 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                          window = c("number_line", "numeric"),
                          windows_total  = c("number_line", "numeric", "integer"),
                          separate = "logical",
-                         display = "character",
                          #data_source = c("character", "NULL"),
                          data_links = c("list", "character"),
                          group_stats = "logical",
@@ -1463,7 +1471,6 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     # Check for required object lengths
     len_lims <- c(1, length(date))
     args <- list(separate = separate,
-                 display = display,
                  strata = strata,
                  custom_sort = custom_sort,
                  data_source = data_source,
@@ -1473,7 +1480,6 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  group_stats = group_stats)
 
     args_lens <- list(separate = 1,
-                      display = 1,
                       strata = c(0, len_lims),
                       custom_sort = c(0, len_lims),
                       data_source = c(0, len_lims),
@@ -1495,7 +1501,6 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     args <- list(window = window,
                  windows_total  = windows_total ,
                  separate = separate,
-                 display = display,
                  strata = strata,
                  custom_sort = custom_sort,
                  data_source = data_source,
@@ -1516,15 +1521,13 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     if(!isFALSE(err)) return(err)
     err <- err_data_links_2(data_source = data_source, data_links = data_links)
     if(!isFALSE(err)) return(err)
-    err <- err_display_1(display = display)
-    if(!isFALSE(err)) return(err)
     err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
     if(!isFALSE(err)) return(err)
     err <- err_strata_level_args(separate, strata, "separate")
     if(!isFALSE(err)) return(err)
 
     if(!is.null(by)){
-      err <- err_by_2(by, x)
+      err <- err_by_2(by, date)
       if(!isFALSE(err)) return(err[1])
 
       err <- err_strata_level_args(by, strata, "by")

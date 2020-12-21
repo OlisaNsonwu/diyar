@@ -146,11 +146,11 @@ df_7$corrupt_range@gid[3] <- 205
 test_7b <- test_7 <- df_7
 test_7$pids <- links(sn = df_7$r_id,
                      criteria = df_7$cri_1,
-                     sub_criteria = list(cr1 = sub_criteria(df_7$age_range, funcs = range_match_legacy)))
+                     sub_criteria = list(cr1 = sub_criteria(df_7$age_range, funcs = range_match_legacy, equva = diyar::exact)))
 
 test_7b$pids <- links(sn = df_7$r_id,
                       criteria = rep(1, nrow(df_7)),
-                      sub_criteria = list(cr1 = sub_criteria(df_7$age_range, funcs = range_match_legacy)))
+                      sub_criteria = list(cr1 = sub_criteria(df_7$age_range, funcs = range_match_legacy, equva = diyar::exact)))
 
 test_that("test record grouping using range matching in criteria", {
   expect_equal(test_7$pids@.Data, c(1,1,1,4,4,8,7,8,8,10,11,10,10,14,11))

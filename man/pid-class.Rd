@@ -6,6 +6,7 @@
 \alias{as.pid}
 \alias{format.pid}
 \alias{unique.pid}
+\alias{summary.pid}
 \alias{show,pid-method}
 \alias{rep,pid-method}
 \alias{[,pid-method}
@@ -18,6 +19,8 @@ as.pid(x, ...)
 \method{format}{pid}(x, ...)
 
 \method{unique}{pid}(x, ...)
+
+\method{summary}{pid}(x, ...)
 
 \S4method{show}{pid}(object)
 

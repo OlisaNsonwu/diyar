@@ -49,8 +49,8 @@
 #' \item \code{wind_id} - unique window identifier
 #' \item \code{wind_nm} - type of window i.e. "Case" or "Recurrence"
 #' \item \code{case_nm} - record type in regards to case assignment
-#' \item \code{dist_from_wind} - duration of each event from its window's reference event
-#' \item \code{dist_from_epid} - duration of each event from its episode's reference event
+#' \item \code{dist_wind_index} - duration of each event from its window's reference event
+#' \item \code{dist_epid_index} - duration of each event from its episode's reference event
 #' \item \code{epid_dataset} - data sources in each episode
 #' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
 #' \item \code{epid_length} - the difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
@@ -620,9 +620,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     # Implement `sub_criteria`
-    s_cri <- sub_cri_match(sub_criteria = sub_criteria,
-                           cri = cri,
-                           ref_rd = ref_rd)
+    s_cri <- sub_cri_match_1(sub_criteria = sub_criteria,
+                             cri = cri,
+                             ref_rd = ref_rd,
+                             pr_sn = int@id)
     cr <- ifelse(tr_tag %in% c(0) &
                    (ref_rd  | (ep_checks >= 1 & s_cri)) &
                    tag != 2,
@@ -657,7 +658,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 wind_id_check = wind_id_check,
                                 tr_wind_id = tr_wind_id,
                                 int_check = int_check,
-                                current_tot = current_tot)
+                                current_tot = current_tot,
+                                pr_sn = int@id)
       }else{
         w_cri <- TRUE
       }
@@ -926,7 +928,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   ep_units <- ep_units[match(names(e), names(ep_units))]
 
-  # `dist_from_epid` and `dist_from_wind`
+  # `dist_epid_index` and `dist_wind_index`
   stat_pos <- int@id
   sort_ord <- order(e, wind_id, as.numeric(int@start))
   e <- e[sort_ord]
@@ -936,21 +938,21 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   r <- rle(e)
   epid_n <- rep(r$lengths, r$lengths)
   lgk <- match(r$values, qqq)
-  dist_from_epid <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
+  dist_epid_index <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
     rep(((as.numeric(int@start[lgk]) + as.numeric(right_point(int[lgk]))) * .5),  r$lengths)
 
   if(isTRUE(any_rolling_epi)){
     wind_id <- wind_id[sort_ord]
     r <- rle(wind_id)
     lgk <- match(r$values, qqq)
-    dist_from_wind <- ((as.numeric(int@start) + as.numeric(right_point(int)))*.5) -
+    dist_wind_index <- ((as.numeric(int@start) + as.numeric(right_point(int)))*.5) -
       rep(((as.numeric(int@start[lgk]) + as.numeric(right_point(int[lgk])))*.5), r$lengths)
   }else{
-    dist_from_wind <- dist_from_epid
+    dist_wind_index <- dist_epid_index
     wind_id <- e
   }
 
-  # Units for `dist_from_epid` and `dist_from_wind`
+  # Units for `dist_epid_index` and `dist_wind_index`
   diff_unit <- ifelse(ep_units %in% c("second","minutes"),
                       paste0(substr(ep_units, 1 ,3), "s"),
                       ep_units)
@@ -959,14 +961,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(length(diff_unit) > 1) diff_unit <- "days"
 
   if(isTRUE(is_dt)){
-    dist_from_epid <- dist_from_epid / as.numeric(diyar::episode_unit[ep_units])
-    dist_from_epid <- as.difftime(dist_from_epid, units = diff_unit)
+    dist_epid_index <- dist_epid_index / as.numeric(diyar::episode_unit[ep_units])
+    dist_epid_index <- as.difftime(dist_epid_index, units = diff_unit)
 
     if (isTRUE(any_rolling_epi)){
-      dist_from_wind <- dist_from_wind / as.numeric(diyar::episode_unit[ep_units])
-      dist_from_wind <- as.difftime(dist_from_wind, units = diff_unit)
+      dist_wind_index <- dist_wind_index / as.numeric(diyar::episode_unit[ep_units])
+      dist_wind_index <- as.difftime(dist_wind_index, units = diff_unit)
     }else{
-      dist_from_wind <- dist_from_epid
+      dist_wind_index <- dist_epid_index
     }
   }
 
@@ -978,8 +980,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   # `epid` object
   epids <- new("epid",
               .Data= e[fd],
-              dist_from_epid = dist_from_epid[fd],
-              dist_from_wind = dist_from_wind[fd],
+              dist_epid_index = dist_epid_index[fd],
+              dist_wind_index = dist_wind_index[fd],
               sn = int@gid[fd],
               case_nm = case_nm[retrieve_pos],
               iteration = iteration[retrieve_pos],
@@ -996,8 +998,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
-      epids@dist_from_epid[!req_links] <- 0
-      epids@dist_from_wind[!req_links] <- 0
+      epids@dist_epid_index[!req_links] <- 0
+      epids@dist_wind_index[!req_links] <- 0
       epids@case_nm[!req_links] <- "Skipped"
       epids@.Data[!req_links] <- epids@sn[!req_links]
       epids@wind_id[!req_links] <- epids@sn[!req_links]
@@ -1100,19 +1102,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
-  if(display != "none"){
-    summ <- paste0("Summary.\n",
-                   "Time elapsed:   ", tms, "\n",
-                   "Records:\n",
-                   "  Total:        ", fmt(length(epids)), "\n",
-                   "  Skipped:      ", fmt(length(epids[epids@case_nm == "Skipped"])), "\n",
-                   "Episodes:\n",
-                   "  Total:        ", fmt(length(epids[epids@case_nm == "Case"])), "\n",
-                   "  Single-event: ", fmt(length(epids[epids@case_nm == "Case" & epid_tot == 1])), "\n")
-    cat(summ)
-  }else if(display == "none"){
-    cat(paste0("Episode tracking completed in ", tms, "!\n"))
-  }
+
+  cat("Episode tracked in ", tms, "!\n", sep = "")
 
   if(schema == "none"){
     return(epids)

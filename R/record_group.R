@@ -106,7 +106,7 @@ links <- function(criteria,
                   strata = NULL,
                   data_source = NULL,
                   data_links = "ANY",
-                  display = "progress",
+                  display = "none",
                   group_stats = FALSE,
                   expand = TRUE,
                   shrink = FALSE,
@@ -173,6 +173,7 @@ links <- function(criteria,
 
   display <- tolower(display)
   if(display != "none") cat("\n")
+  ite <- 1
   for(i in 1:length(criteria)){
     cri <- criteria[[i]]
     if (length(cri) == 1) cri <- rep(cri, ds_len)
@@ -200,8 +201,7 @@ links <- function(criteria,
     min_pid <- sn_ref
     min_m_tag <- 0
     tot <- ds_len
-
-    ite <- 1
+    #ite <- 1
     while (min_pid == sn_ref | min_m_tag == -1) {
       sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = T)
       for(vr in c("force_check","tag","cri",
@@ -225,51 +225,88 @@ links <- function(criteria,
       tr_sn <- rep(sn[match(p, q)], r$lengths)
 
       curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
-      if(length(curr_sub_cri) > 0){
-        sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
-          set <- curr_sub_cri[[i]]
-          set_match <- sapply(1:length(set), function(j){
-            a <- set[[j]]
-            x <- a[[1]]
-            if(length(x) == 1){
-              x <- rep(x, ds_len)
-            }
-            x <- x[match(pr_sn, seq_len(ds_len))]
-            y <- rep(x[match(p, q)], r$lengths)
-            f <- a[[2]]
-            lgk <- try(f(x, y), silent = T)
-            if(class(lgk) == "try-error" | class(lgk) != "logical"){
-              if(class(lgk) == "try-error"){
-                err <- attr(lgk, "condition")$message
-              }else{
-                err <- "Output is not a `logical` object"
-              }
+      # if(length(curr_sub_cri) > 0){
+      #   sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
+      #     set <- curr_sub_cri[[i]]
+      #     set_match <- sapply(1:length(set), function(j){
+      #       a <- set[[j]]
+      #       x <- a[[1]]
+      #       if(length(x) == 1){
+      #         x <- rep(x, ds_len)
+      #       }
+      #       x <- x[match(pr_sn, seq_len(ds_len))]
+      #       y <- rep(x[match(p, q)], r$lengths)
+      #       f1 <- a[[2]]
+      #       lgk <- try(f1(x, y), silent = T)
+      #       if(class(lgk) == "try-error" | class(lgk) != "logical"){
+      #         if(class(lgk) == "try-error"){
+      #           err <- attr(lgk, "condition")$message
+      #         }else{
+      #           err <- "Output is not a `logical` object"
+      #         }
+      #
+      #         err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+      #                       "i - Each `func` must have the following syntax and output.\n",
+      #                       "i - Syntax ~ `function(x, y, ...)`.\n",
+      #                       "i - Output ~ `TRUE` or `FALSE`.\n",
+      #                       "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+      #         stop(err, call. = F)
+      #       }
+      #       lgk <- as.numeric(lgk)
+      #       out1 <- ifelse(is.na(lgk), 0, lgk)
+      #       if(length(out1) == 1) out1 <- rep(out1, length(cri))
+      #       if(length(out1) != length(cri)){
+      #         err <- paste0("Output length of `funcs` must be 1 or the same as `criteria`:\n",
+      #                       "i - Unexpected length for `funcs-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+      #                       "i - Expecting a length of 1 of ", length(cri), ".\n",
+      #                       "X - Length is ", length(out1), ".")
+      #         stop(err, call. = F)
+      #       }
+      #
+      #       f2 <- a[[3]]
+      #       lgk <- try(f2(x, y), silent = T)
+      #       if(class(lgk) == "try-error" | class(lgk) != "logical"){
+      #         if(class(lgk) == "try-error"){
+      #           err <- attr(lgk, "condition")$message
+      #         }else{
+      #           err <- "Output is not a `logical` object"
+      #         }
+      #
+      #         err <- paste0("Unable to evaluate `equva-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+      #                       "i - Each `func` must have the following syntax and output.\n",
+      #                       "i - Syntax ~ `function(x, y, ...)`.\n",
+      #                       "i - Output ~ `TRUE` or `FALSE`.\n",
+      #                       "X - Issue with `equva - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+      #         stop(err, call. = F)
+      #       }
+      #       lgk <- as.numeric(lgk)
+      #       out2 <- ifelse(is.na(lgk), 0, lgk)
+      #       if(length(out2) == 1) out2 <- rep(out2, length(cri))
+      #       if(length(out2) != length(cri)){
+      #         err <- paste0("Output length of `equva` must be 1 or the same as `criteria`:\n",
+      #                       "i - Unexpected length for `equva-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+      #                       "i - Expecting a length of 1 of ", length(cri), ".\n",
+      #                       "X - Length is ", length(out2), ".")
+      #         stop(err, call. = F)
+      #       }
+      #       return(c(out1, out2))
+      #     })
+      #     ifelse(rowSums(set_match) > 0, 1, 0)
+      #   })
+      #   sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | tr_sn == sn, 1, 0)
+      #   sub_cri_match.rf <- sub_cri_match[((length(sub_cri_match)/2)+1):length(sub_cri_match)]
+      #   sub_cri_match <- sub_cri_match[1:(length(sub_cri_match)/2)]
+      # }else{
+      #   sub_cri_match <- rep(1, ds_len)
+      #   sub_cri_match.rf <- sub_cri_match
+      # }
+      sub_cri_match <- sub_cri_match_2(sub_criteria = curr_sub_cri,
+                               cri = cri,
+                               ref_rd = tr_sn == sn,
+                               pr_sn = pr_sn)
 
-              err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
-                            "i - Each `func` must have the following syntax and output.\n",
-                            "i - Syntax ~ `func(x, y, ...)`.\n",
-                            "i - Output ~ `TRUE` or `FALSE`.\n",
-                            "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
-              stop(err, call. = F)
-            }
-            lgk <- as.numeric(lgk)
-            x <- ifelse(is.na(lgk), 0, lgk)
-            if(length(x) == 1) x <- rep(x, length(cri))
-            if(length(x) != length(cri)){
-              err <- paste0("Output length of `funcs` must be 1 or the same as `criteria`:\n",
-                            "i - Unexpected length for `funcs-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
-                            "i - Expecting a length of 1 of ", length(cri), ".\n",
-                            "X - Length is ", length(x), ".")
-              stop(err, call. = F)
-            }
-            return(x)
-          })
-          ifelse(rowSums(set_match) > 0, 1, 0)
-        })
-        sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | tr_sn == sn, 1, 0)
-      }else{
-        sub_cri_match <- rep(1, ds_len)
-      }
+      sub_cri_match.rf <- sub_cri_match[[2]]
+      sub_cri_match <- sub_cri_match[[1]]
 
       m_tag <- ifelse(m_tag == 1 &
                         sub_cri_match > 0 &
@@ -305,7 +342,17 @@ links <- function(criteria,
                         tr_sn, link_id)
 
       m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1, m_tag)
+      m_tag <- ifelse(m_tag != 1 & sub_cri_match.rf == 1, 1, m_tag)
+
       m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1, 1, m_tag)
+      # link_id <- ifelse(pid == sn_ref &
+      #                     m_tag == 1 &
+      #                     sub_cri_match == 0 & sub_cri_match.rf > 0,
+      #                   sn, link_id)
+      pid <- ifelse(pid == sn_ref &
+                      m_tag == 1 &
+                      sub_cri_match == 0 & sub_cri_match.rf > 0,
+                    sn, pid)
 
       skip <- ifelse(m_tag ==-1 &
                        !is.na(m_tag), 0,
@@ -322,9 +369,10 @@ links <- function(criteria,
 
       if(tolower(display) == "progress" & length(curr_sub_cri) > 0) {
         msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
-        progress_bar(length(m_tag[m_tag != 0])/tot, nchar(msg), msg = msg)
+        #progress_bar(length(m_tag[m_tag != 0]), tot, nchar(msg), msg = msg)
       }
-      iteration[m_tag != 0 & iteration == 0] <- i + ifelse(length(curr_sub_cri) > 0, (ite/10 - as.integer(ite/10)), 0)
+      #iteration[m_tag != 0 & iteration == 0] <- i + ifelse(length(curr_sub_cri) > 0, (ite/10 - as.integer(ite/10)), 0)
+      iteration[pid != sn_ref & iteration == 0] <- ite
       ite <- ite + 1
     }
     if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
@@ -344,7 +392,7 @@ links <- function(criteria,
     iteration[tag == 0 & iteration != 0] <- 0
     pid_cri[tag ==1 & (shrink | (pid_cri == Inf & !shrink))] <- i
   }
-  iteration[iteration == 0] <- i + 1
+  iteration[iteration == 0] <- ite - 1
   if(class(strata) != "NULL"){
     pid_cri[pid == sn_ref & is.na(strata) & pid_cri == Inf] <- -1
   }
@@ -417,28 +465,9 @@ links <- function(criteria,
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
-  if(display == "stats") cat("\n")
-  if(display != "none"){
-    cri_dst <- table(pids@pid_cri)
-    cri_n <- as.numeric(names(cri_dst))
-    cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
-    cri_dst <- cri_dst[!is.na(cri_dst)]
-    cri_n <- as.numeric(names(cri_dst))
-    cri_dst <- paste0("       ", pid_cri_l(cri_n), ":   ", fmt(cri_dst), collapse = "\n")
-    summ <- paste0("\nSummary.\n",
-                   "Time elapsed:     ", tms, "\n",
-                   "Records:\n",
-                   "  Total:          ", fmt(tot), "\n",
-                   "    Stages:\n",
-                   cri_dst, "\n",
-                   "Groups:\n",
-                   "   Total:         ", fmt(length(pids@.Data[!duplicated(pids@.Data)])), "\n",
-                   "   Single-record: ", fmt(length(pids@.Data[!duplicated(pids@.Data) & pid_tot == 1])), "\n"
-                   )
-    cat(summ)
-  }else if(display == "none"){
-    cat(paste0("Data linkage completed in ", tms, "!\n"))
-  }
+
+  cat("Records linked in ", tms, "!\n", sep = "")
+
   if(schema == "none"){
     pids
   }else{
@@ -500,7 +529,7 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match),
 #' c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match))
 #' @export
-sub_criteria <- function(..., funcs = diyar::exact_match){
+sub_criteria <- function(..., funcs = diyar::exact_match, equva = diyar::exact_match){
   err <- err_sub_criteria_1(...)
   if(err != F) stop(err, call. = F)
 
@@ -530,8 +559,31 @@ sub_criteria <- function(..., funcs = diyar::exact_match){
     funcs_l <- length(funcs)
   }
 
-  x <- function(x, y) list(x, y)
-  sub_cris <- mapply(x, list(...), funcs, SIMPLIFY = F)
+  if(class(equva) == "NULL"){
+    equva <- list(exact_match)
+  }else{
+    if(class(equva) != "list") equva <- list(equva)
+
+    err <- err_sub_criteria_2(equva)
+    if(err != F) stop(err, call. = F)
+
+    err <- err_sub_criteria_3(equva)
+    if(err != F) stop(err, call. = F)
+
+    err <- err_sub_criteria_4(..., funcs = equva)
+    if(err != F) stop(err, call. = F)
+  }
+
+  if(length(equva) == 1){
+    equva <- rep(list(equva), length(list(...)))
+    equva <- unlist(equva)
+    equva_l <- 1
+  }else{
+    equva_l <- length(equva)
+  }
+
+  x <- function(x, y, z) list(x, y, z)
+  sub_cris <- mapply(x, list(...), funcs, equva, SIMPLIFY = F)
 
   attr(sub_cris, "diyar_sub_criteria") <- T
   sub_cris
