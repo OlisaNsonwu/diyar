@@ -629,8 +629,27 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       sub_win_match <- TRUE
     }
 
+    cr <- ifelse(tr_tag %in% c(0, -2) &
+                   (ref_rd  | (ep_checks == 1 & sub_win_match)) &
+                   tag != 2,
+                 T, F)
+
+    if(any_rolling == T){
+      cr <- ifelse(tr_tag == -1 &
+                     (ref_rd  | (rc_checks == 1 & sub_win_match)) &
+                     tag != 2,
+                   T, cr)
+    }
+
     curr_sub_cri <- sub_criteria
+
     if(length(curr_sub_cri) > 0){
+      cri.2 <- cri + as.numeric(cr)/10
+      sc_ord <- order(cri.2, -ref_rd, decreasing = T)
+      cri.2 <- cri.2[sc_ord]
+      rrr <- rle(cri.2)
+      lgk <- !duplicated(cri.2, fromLast = TRUE)
+
       sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
         set <- curr_sub_cri[[i]]
         set_match <- sapply(1:length(set), function(j){
@@ -640,7 +659,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             x <- rep(x, length(int))
           }
           x <- x[int@id]
-          y <- rep(x[match(p, q)], r$lengths)
+          x <- x[sc_ord]
+          y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
           f <- a[[2]]
           lgk <- try(f(x, y), silent = T)
           if(class(lgk) == "try-error" | class(lgk) != "logical"){
@@ -659,6 +679,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           }
           lgk <- as.numeric(lgk)
           x <- ifelse(is.na(lgk), 0, lgk)
+          retrieve_pos <- match(1:length(cri.2), sc_ord)
+          x <- x[retrieve_pos]
           return(x)
         })
 
@@ -675,18 +697,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       sub_cri_match <- rep(TRUE, length(int))
     }
 
-    cr <- ifelse(tr_tag %in% c(0, -2) &
-                   (ref_rd  | (ep_checks == 1 & sub_win_match & sub_cri_match)) &
-                   tag != 2,
-                 T, F)
-
-    if(any_rolling == T){
-      cr <- ifelse(tr_tag == -1 &
-                     (ref_rd  | (rc_checks == 1 & sub_win_match & sub_cri_match)) &
-                     tag != 2,
-                   T, cr)
-    }
-
+    cr[cr & !sub_cri_match] <- FALSE
     e[cr & tag == 0 & tr_tag == 0] <- tr_sn[cr & tag == 0 & tr_tag ==  0]
     wind_id[cr & tag == 0] <- tr_sn[cr & tag == 0]
     e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
