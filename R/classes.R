@@ -215,7 +215,7 @@ summary.epid <- function(x, ...){
                  "  Skipped:      ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
                  "Episodes:\n",
                  "  Total:        ", fmt(length(x[x@case_nm %in% c("Index", "Case")])), "\n",
-                 "  Single-event: ", fmt(length(x[x@case_nm %in% c("Index", "Case") & epid_tot == 1])), "\n")
+                 "  Single-record: ", fmt(length(x[x@case_nm %in% c("Index", "Case") & epid_tot == 1])), "\n")
   cat(summ)
 }
 
@@ -293,7 +293,17 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 #' @title \code{pane} object
 #'
 #' @description
-#' S4 objects to store the results of \code{\link{episodes}}
+#' S4 objects to store the results of \code{\link{partitions}}
+#'
+#' @slot sn Unique record identifier.
+#' @slot .Data Unique \code{pane} identifier.
+#' @slot case_nm Record type in regards to index assignment.
+#' @slot window_list A list of \code{windows} considered for each \code{pane}.
+#' @slot dist_pane_index The difference between each event and it's index event.
+#' @slot pane_dataset Data sources in each \code{pane}.
+#' @slot pane_interval The start and end dates of each \code{pane}. A \code{\link{number_line}} object.
+#' @slot pane_length The duration or length of (\code{pane_interval}).
+#' @slot pane_total The number of records in each \code{pane}.
 #'
 #' @aliases pane-class
 #' @importFrom "methods" "new"
@@ -304,7 +314,7 @@ setClass("pane", contains = "numeric", representation(sn = "numeric", case_nm = 
                                                       window_list = "character", window_matched = "numeric",
                                                       pane_interval = "number_line",
                                                       pane_length= "ANY", pane_total = "numeric",
-                                                      pane_dataset = "character", iteration = "numeric"))
+                                                      pane_dataset = "character"))
 
 #' @rdname pane-class
 #' @export
@@ -321,8 +331,7 @@ as.pane <- function(x){
                     case_nm = rep(NA_character_, length(x)),
                     window_list = rep(NA_character_, length(x)),
                     pane_interval = as.number_line(rep(NA_real_, length(x))), pane_total = rep(NA_real_, length(x)),
-                    pane_dataset = rep(NA_character_, length(x)),
-                    iteration = rep(NA_real_, length(x)))
+                    pane_dataset = rep(NA_character_, length(x)))
 
   if(class(y) =="number_line"){
     x@pane_interval <- y
@@ -353,13 +362,13 @@ summary.pane <- function(x, ...){
   pane_tot <- r$lengths[match(x@.Data, r$values)]
   summ <- paste0("",
                  "",
-                 "Iterations:     ", fmt(max(x@iteration)), "\n",
+                 "",
                  "Records:\n",
                  "  Total:        ", fmt(length(x)), "\n",
                  "  Skipped:      ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
-                 "Episodes:\n",
+                 "Panes:\n",
                  "  Total:        ", fmt(length(x[x@case_nm %in% c("Index", "Case")])), "\n",
-                 "  Single-event: ", fmt(length(x[x@case_nm %in% c("Index", "Case") & pane_tot == 1])), "\n")
+                 "  Single-record: ", fmt(length(x[x@case_nm %in% c("Index", "Case") & pane_tot == 1])), "\n")
   cat(summ)
 }
 
@@ -378,7 +387,7 @@ setMethod("rep", signature(x = "pane"), function(x, ...) {
                case_nm = rep(x@case_nm, ...), window_list = rep(x@window_list, ...),
                pane_interval = rep(x@pane_interval, ...),
                pane_length = rep(x@pane_length, ...), pane_total = rep(x@pane_total, ...),
-               pane_dataset = rep(x@pane_dataset, ...), iteration = rep(x@iteration, ...))
+               pane_dataset = rep(x@pane_dataset, ...))
 })
 
 #' @aliases [,pane-method
@@ -392,7 +401,7 @@ setMethod("[", signature(x = "pane"),
                          sn = x@sn[i], window_matched = x@window_matched[i],
                          dist_pane_index = x@dist_pane_index[i], pane_length = x@pane_length[i],
                          pane_total = x@pane_total[i], pane_dataset = x@pane_dataset[i],
-                         pane_interval = x@pane_interval[i], iteration = x@iteration[i])
+                         pane_interval = x@pane_interval[i])
           })
 
 #' @aliases [[,pane-method
@@ -404,7 +413,7 @@ setMethod("[[", signature(x = "pane"),
                          sn = x@sn[i], window_matched = x@window_matched[i],
                          dist_pane_index = x@dist_pane_index[i],
                          pane_length = x@pane_length[i], pane_total = x@pane_total[i], pane_dataset = x@pane_dataset[i],
-                         pane_interval = x@pane_interval[i], iteration = x@iteration[i])
+                         pane_interval = x@pane_interval[i])
           })
 
 #' @rdname pane-class
@@ -423,13 +432,11 @@ setMethod("c", signature(x = "pane"), function(x,...) {
   pane_length <- unlist(lapply(list(x, ...), function(y) y@pane_length))
   pane_total <- unlist(lapply(list(x, ...), function(y) y@pane_total))
   pane_dataset <- unlist(lapply(list(x, ...), function(y) y@pane_dataset))
-  iteration <- unlist(lapply(list(x, ...), function(y) y@iteration))
   zi <- unlist(list(x, ...))
 
   methods::new("pane", zi, case_nm = case_nm, window_list = window_list, sn = sn, window_matched = window_matched,
                pane_length = pane_length, pane_total = pane_total, pane_dataset = pane_dataset,
-               pane_interval = ei, dist_pane_index = dist_pane_index,
-               iteration = iteration)
+               pane_interval = ei, dist_pane_index = dist_pane_index)
 
 })
 
@@ -438,7 +445,15 @@ setMethod("c", signature(x = "pane"), function(x,...) {
 #' @title \code{pid} objects
 #'
 #' @description
-#' S4 objects to store the results of \code{\link{record_group}}
+#' S4 objects to store the results of \code{\link{links}}
+#'
+#' @slot sn Unique record identifier
+#' @slot .Data Unique group identifier
+#' @slot link_id Unique record identifier for matching records
+#' @slot pid_cri Matching criteria
+#' @slot pid_dataset Data sources in each group.
+#' @slot pid_total The number of records in each group
+#' @slot iteration The iteration of the linkage process when a record was linked to its group
 #'
 #' @aliases pid-class
 #' @importFrom "methods" "new"

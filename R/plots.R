@@ -451,16 +451,17 @@ schema.pids <- function(x, title = NULL, show_labels = FALSE){
     pts <- split(reverse_number_line(number_line(dt[[paste0(cord,"1")]], dt[[paste0(cord,"2")]]), direction = "decreasing"), dt$pid_box)
     pts <- unlist(lapply(pts, function(x){
       y <- unique(x)
+      wd <- y@.Data
       y <- seq(left_point(y), right_point(y), length.out = length(x))
-      y[1] <- y[1] + (bw * .1)
+      y[1] <- y[1] + (wd * .1)
       if(length(y) > 1){
-        y[length(y)] <- y[length(y)] + (bw * -.1)
+        y[length(y)] <- y[length(y)] + (wd * -.1)
         y <- sample(y, length(y))
       }
       y
     }), use.names = F)
     sn <- unlist(split(seq_len(nrow(dt)), dt$pid_box), use.names = F)
-    pts <- pts[sort(sn)]
+    pts <- pts[order(sn)]
     pts
   }
 
@@ -550,16 +551,17 @@ plot_pids <- function(pids, title = NULL, show_labels = FALSE){
     pts <- split(reverse_number_line(number_line(dt[[paste0(cord,"1")]], dt[[paste0(cord,"2")]]), direction = "decreasing"), dt$pid_box)
     pts <- unlist(lapply(pts, function(x){
       y <- unique(x)
+      wd <- y@.Data
       y <- seq(left_point(y), right_point(y), length.out = length(x))
-      y[1] <- y[1] + (bw * .1)
+      y[1] <- y[1] + (wd * .1)
       if(length(y) > 1){
-        y[length(y)] <- y[length(y)] + (bw * -.1)
+        y[length(y)] <- y[length(y)] + (wd * -.1)
         y <- sample(y, length(y))
       }
       y
     }), use.names = F)
     sn <- unlist(split(seq_len(nrow(dt)), dt$pid_box), use.names = F)
-    pts <- pts[sort(sn)]
+    pts <- pts[order(sn)]
     pts
   }
 

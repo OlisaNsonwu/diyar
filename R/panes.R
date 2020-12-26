@@ -1,69 +1,52 @@
 #' @name partitions
-#' @title Separate events into time intervals.
+#' @title Distribute events into time intervals.
 #'
-#' @description Distribute events into partitions defined by time or numerical intervals.
-#' Records in each partition are assigned a unique identifier with relevant group data - \code{pane} objects.
+#' @description Distribute events into groups defined by time or numerical boundaries.
+#' Records in each group are assigned a unique identifier with relevant group-level data.
 #'
 #' @param sn Unique numerical record identifier. Useful for creating familiar pane identifiers.
-#' @param strata Subsets of the dataset. Panes are created separately for each \code{strata}. See \code{\link{links}}.
+#' @param strata Subsets of the dataset. Panes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will skip that record.
 #' @param windows_total Minimum number of matched \code{windows} required for pane. See \code{details}
 #' @param separate If \code{TRUE}, events matched to different \code{windows} are not linked.
 #' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
 #' @param window Numeric or time intervals. Supplied as \code{number_line} objects.
-#' @param data_source Unique data source identifier. Useful when the dataset has data from multiple sources.
+#' @param data_source Unique data source identifier. Includes a list of data sources of for each record in a \code{panes}.
 #' @param custom_sort Preferred order for selecting \code{"index"} events.
 #' @param group_stats If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes' start and endpoints.
-#' @param data_links A set of \code{data_sources} required for pane. A \code{strata} without records from these \code{data_sources} are skipped. See \code{Details}.
+#' @param data_links A set of \code{data_sources} required in a \code{pane}. A \code{pane} without records from these \code{data_sources} are skipped or unlinked. See \code{Details}.
+#' @param schema Return a schema of the \code{pane} object. Options are; \code{"none"} (default), \code{"by_pane"}, \code{"by_strata"} or \code{"by_ALL"}.
+#' @param group_stats If \code{TRUE} (default), returns group-specific information like record counts. See \code{Value}.
 #' @return
 #'
-#' @return \code{\link[=pane-class]{pane}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE}
-#'
-#' \itemize{
-#' \item \code{sn} - unique record identifier as provided (or generated)
-#' \item \code{pane | .Data} - unique episode identifier
-#' \item \code{case_nm} - record type in regards to index assignment
-#' \item \code{window_list} - record type in regards to index assignment
-#' \item \code{dist_wind_index} - duration of each event from its window's reference event
-#' \item \code{dist_pane_index} - duration of each event from its episode's reference event
-#' \item \code{pane_dataset} - data sources in each episode
-#' \item \code{pane_interval} - episode start and end dates. A \code{\link{number_line}} object.
-#' \item \code{pane_length} - the difference between episode start and end dates (\code{difftime}).
-#' \item \code{pane_total} - number of records in each episode
-#' \item \code{iteration} - iteration of the process when each event was tracked to its episode.
-#' }
+#' @return \code{\link[=pane-class]{pane}} or \code{list} (\code{\link[=pane-class]{pane}} and \code{ggplot}) object
 #'
 #' @seealso
 #' \code{\link[=pane-class]{pane}}, \code{\link{number_line_sequence}}, \code{\link{episodes}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
 #'
 #' @details
-#' A pane consists of events that match to a specific time or numerical intervals (\code{window}).
+#' Each group is referred to as a pane. A pane consists of events within a specific time or numerical intervals (\code{window}).
 #'
-#' Each \code{Windows} must cover a separate interval. Overlapping \code{Windows} are merged before events are partitioned.
-#' Events that occur during two \code{windows} are assigned to the last one listed.
+#' Each \code{window} must cover a separate interval. Overlapping \code{windows} are merged before events are distributed into panes.
+#' Events that occur over two \code{windows} are assigned to the last one listed.
 #'
-#' Alternatively, you can create \code{windows} by splitting the period between the earliest and most recent time points into equal parts (\code{length.out}), or a sequence of intervals with fixed widths (\code{by}).
+#' Alternatively, you can create \code{windows} by splitting a period into equal parts (\code{length.out}), or into a sequence of intervals with fixed widths (\code{by}).
 #'
-#' By default, the earliest event is taken as the \code{"Index"} event.
+#' By default, the earliest event is taken as the \code{"Index"} event of the pane.
 #' An alternative can be chosen with \code{custom_sort}.
 #'
 #' \bold{\code{partitions()}} will categorise records into 3 types;
-#'
 #' \itemize{
 #' \item \code{"Index"} - Index event/record of the pane.
-#' \item \code{"Duplicate_I"} - Duplicate of the \code{"Index"} case.
+#' \item \code{"Duplicate_I"} - Duplicate of the \code{"Index"} record.
 #' \item \code{"Skipped"} - Records that are not assigned to a pane.
 #' }
-#'
-#' If \code{data_source} is provided, \code{pane_dataset} is added to the \code{pane} object. See \code{Value}.
 #'
 #' \code{data_links} must be a \code{list} of \code{atomic} vectors, with every element named \code{"l"} (links) or \code{"g"} (groups).
 #'
 #' \itemize{
-#' \item \code{"l"} - only panes with records from every listed \code{data_source} will be retained.
-#' \item \code{"g"} - only panes with records from any listed data source will be retained.
+#' \item if named \code{"l"}, only \code{panes} with records from every listed \code{data_source} will be retained.
+#' \item if named \code{"g"}, only \code{panes} with records from any listed \code{data_source} will be retained.
 #' }
-#'
-#' Assigning \code{NA} to \code{data_links} will exclude an event from being partitioned.
 #'
 #' See \code{vignette("partitions")} for more information.
 #'
@@ -72,11 +55,11 @@
 #' windows <- number_line(c(1, 9, 25), c(3, 12, 35))
 #'
 #' events
-#' partitions(date = events, window = windows, separate = TRUE)
-#' partitions(date = events, window = windows, separate = FALSE)
-#'
-#' partitions(date = events, window = windows, separate = TRUE, windows_total = 3)
-#' partitions(date = events, window = windows, separate = FALSE, windows_total = 4)
+#' partitions(date = events, length.out = 3, separate = TRUE, schema = "by_ALL")
+#' partitions(date = events, by = 10, separate = TRUE, schema = "by_ALL")
+#' partitions(date = events, window = windows, separate = TRUE, schema = "by_ALL")
+#' partitions(date = events, window = windows, separate = FALSE, schema = "by_ALL")
+#' partitions(date = events, window = windows, separate = FALSE, schema = "by_ALL", windows_total = 4)
 #'
 #' @aliases partitions
 #' @export
@@ -84,7 +67,7 @@
 partitions <- function(date, window = number_line(0, Inf), windows_total = 1, separate = FALSE, sn = NULL, strata = NULL,
                   data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
                   data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE,
-                  schema = "none", ...){
+                  schema = "none"){
   tm_a <- Sys.time()
 
   # Validations
@@ -160,6 +143,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     split_fills <- split(fill, split_cri)
     splits_func <- function(x, n, f) {
       n <- n[!duplicated(n)]
+      f <- f[!duplicated(f)]
       number_line_sequence(number_line(min(x@start), max(x@start + x@.Data)), by = n, fill = f)
     }
     splits_windows <- mapply(splits_func, splits, split_bys, split_fills, SIMPLIFY = FALSE)
@@ -170,6 +154,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     split_fills <- split(fill, split_cri)
     splits_func <- function(x, n, f) {
       n <- n[!duplicated(n)]
+      f <- f[!duplicated(f)]
       number_line_sequence(number_line(min(x@start), max(x@start + x@.Data)), length.out = n, fill = f)
     }
     splits_windows <- mapply(splits_func, splits, split_lnts, split_fills, SIMPLIFY = FALSE)
@@ -185,7 +170,6 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   window_list <- window_list[match(split_cri, nms)]
 
   # Partition records into `windows`
-  window_matched <- pane_checks(dates = int, windows = splits_windows)
   window_matched <- mapply(pane_checks, splits, splits_windows, SIMPLIFY = FALSE)
   window_matched <- unlist(window_matched, use.names = FALSE)
   splits_sn <- unlist(splits_sn, use.names = FALSE)
@@ -234,8 +218,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                window_matched = window_matched,
                sn = sn,
                case_nm = case_nm,
-               window_list = window_list,
-               iteration = rep(1, length(int)))
+               window_list = window_list)
 
   if(!is.null(data_source)){
     # Implement `data_links`
@@ -316,8 +299,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
       schema(x = panes[lgk],
              int = int[lgk],
              title = paste0(title_seq, x),
-             separate = separate,
-             ...)
+             separate = separate)
     })
     names(plots) <- plot_sets
   }
@@ -326,7 +308,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
-  cat("Records partioned in ", tms, "!\n", sep = "")
+  cat("Records partitioned in ", tms, "!\n", sep = "")
 
   # output
   if(schema == "none"){

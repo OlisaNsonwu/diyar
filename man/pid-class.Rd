@@ -48,5 +48,23 @@ as.pid(x, ...)
 \item{exact}{exact}
 }
 \description{
-S4 objects to store the results of \code{\link{record_group}}
+S4 objects to store the results of \code{\link{links}}
 }
+\section{Slots}{
+
+\describe{
+\item{\code{sn}}{Unique record identifier}
+
+\item{\code{.Data}}{Unique group identifier}
+
+\item{\code{link_id}}{Unique record identifier for matching records}
+
+\item{\code{pid_cri}}{Matching criteria}
+
+\item{\code{pid_dataset}}{Data sources in each group.}
+
+\item{\code{pid_total}}{The number of records in each group}
+
+\item{\code{iteration}}{The iteration of the linkage process when a record was linked to its group}
+}}
+

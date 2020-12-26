@@ -130,6 +130,18 @@ progress_bar <- function(n, d, max_width, msg){
                   "\r")
   cat(status, "\r",sep="")
 }
+
+progress_txt <- function(n, d, msg){
+  prop_complete <- n/d
+  mx_l <- max(nchar(c(n, d)))
+  d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
+  n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
+  pct_l <- paste0(msg,"; ", n, " of ", d, " completed.")
+
+  status <-paste0(pct_l,"\r")
+  cat(status, "\r",sep="")
+}
+
 datasets_xx <- function(by, val, sep = ","){
   #by_uniq <- by[!duplicated(by)]
 
@@ -612,12 +624,14 @@ opt_level <- function(opt, mth, tr_mth){
   }
 }
 
-sub_cri_match_1 <- function(sub_criteria, cri, ref_rd, pr_sn){
+sub_cri_match_1 <- function(sub_criteria, cri, cr, ref_rd, pr_sn){
   curr_sub_cri <- sub_criteria
   if(length(curr_sub_cri) > 0){
-    r <- rle(cri)
-    p <- as.numeric(names(r$values))
-    q <- as.numeric(names(cri))
+    cri.2 <- cri + as.numeric(cr)/10
+    sc_ord <- order(cri.2, -ref_rd, decreasing = T)
+    cri.2 <- cri.2[sc_ord]
+    rrr <- rle(cri.2)
+    lgk <- !duplicated(cri.2, fromLast = TRUE)
 
     cri_match <- sapply(1:length(curr_sub_cri), function(i){
       set <- curr_sub_cri[[i]]
@@ -628,7 +642,8 @@ sub_cri_match_1 <- function(sub_criteria, cri, ref_rd, pr_sn){
           x <- rep(x, length(ref_rd))
         }
         x <- x[pr_sn]
-        y <- rep(x[match(p, q)], r$lengths)
+        x <- x[sc_ord]
+        y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
         f <- a[[2]]
         lgk <- try(f(x, y), silent = TRUE)
         if(class(lgk) == "try-error" | class(lgk) != "logical"){
@@ -647,6 +662,9 @@ sub_cri_match_1 <- function(sub_criteria, cri, ref_rd, pr_sn){
         }
         lgk <- as.numeric(lgk)
         x <- ifelse(is.na(lgk), 0, lgk)
+        x <- ifelse(is.na(lgk), 0, lgk)
+        retrieve_pos <- match(1:length(cri.2), sc_ord)
+        x <- x[retrieve_pos]
         return(x)
       })
 
@@ -664,13 +682,18 @@ sub_cri_match_1 <- function(sub_criteria, cri, ref_rd, pr_sn){
   }
   return(cri_match)
 }
-sub_cri_match_2 <- function(sub_criteria, cri, ref_rd, pr_sn){
+sub_cri_match_2 <- function(sub_criteria, cri, cr = NULL, ref_rd, pr_sn, spr = FALSE){
+  if(is.null(cr)){
+    cr <- rep(TRUE, length(cri))
+  }
   curr_sub_cri <- sub_criteria
   ds_len <- length(cri)
   if(length(curr_sub_cri) > 0){
-    r <- rle(cri)
-    p <- as.numeric(names(r$values))
-    q <- as.numeric(names(cri))
+    cri.2 <- cri + as.numeric(cr)/10
+    sc_ord <- order(cri.2, -ref_rd, decreasing = T)
+    cri.2 <- cri.2[sc_ord]
+    rrr <- rle(cri.2)
+    lgk <- !duplicated(cri.2, fromLast = TRUE)
 
     sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
       set <- curr_sub_cri[[i]]
@@ -680,8 +703,9 @@ sub_cri_match_2 <- function(sub_criteria, cri, ref_rd, pr_sn){
         if(length(x) == 1){
           x <- rep(x, ds_len)
         }
-        x <- x[match(pr_sn, seq_len(ds_len))]
-        y <- rep(x[match(p, q)], r$lengths)
+        x <- x[pr_sn]
+        x <- x[sc_ord]
+        y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
         f1 <- a[[2]]
         lgk <- try(f1(x, y), silent = T)
         if(class(lgk) == "try-error" | class(lgk) != "logical"){
@@ -708,45 +732,60 @@ sub_cri_match_2 <- function(sub_criteria, cri, ref_rd, pr_sn){
                         "X - Length is ", length(out1), ".")
           stop(err, call. = F)
         }
+        retrieve_pos <- match(1:length(cri.2), sc_ord)
+        out1 <- out1[retrieve_pos]
 
-        f2 <- a[[3]]
-        lgk <- try(f2(x, y), silent = T)
-        if(class(lgk) == "try-error" | class(lgk) != "logical"){
-          if(class(lgk) == "try-error"){
-            err <- attr(lgk, "condition")$message
-          }else{
-            err <- "Output is not a `logical` object"
+        if(isTRUE(spr)){
+          f2 <- a[[3]]
+          lgk <- try(f2(x, y), silent = T)
+          if(class(lgk) == "try-error" | class(lgk) != "logical"){
+            if(class(lgk) == "try-error"){
+              err <- attr(lgk, "condition")$message
+            }else{
+              err <- "Output is not a `logical` object"
+            }
+
+            err <- paste0("Unable to evaluate `equva-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                          "i - Each `func` must have the following syntax and output.\n",
+                          "i - Syntax ~ `function(x, y, ...)`.\n",
+                          "i - Output ~ `TRUE` or `FALSE`.\n",
+                          "X - Issue with `equva - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+            stop(err, call. = F)
           }
-
-          err <- paste0("Unable to evaluate `equva-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
-                        "i - Each `func` must have the following syntax and output.\n",
-                        "i - Syntax ~ `function(x, y, ...)`.\n",
-                        "i - Output ~ `TRUE` or `FALSE`.\n",
-                        "X - Issue with `equva - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
-          stop(err, call. = F)
+          lgk <- as.numeric(lgk)
+          out2 <- ifelse(is.na(lgk), 0, lgk)
+          if(length(out2) == 1) out2 <- rep(out2, length(cri))
+          if(length(out2) != length(cri)){
+            err <- paste0("Output length of `equva` must be 1 or the same as `criteria`:\n",
+                          "i - Unexpected length for `equva-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+                          "i - Expecting a length of 1 of ", length(cri), ".\n",
+                          "X - Length is ", length(out2), ".")
+            stop(err, call. = F)
+          }
+          out2 <- out2[retrieve_pos]
+          out1 <- c(out1, out2)
         }
-        lgk <- as.numeric(lgk)
-        out2 <- ifelse(is.na(lgk), 0, lgk)
-        if(length(out2) == 1) out2 <- rep(out2, length(cri))
-        if(length(out2) != length(cri)){
-          err <- paste0("Output length of `equva` must be 1 or the same as `criteria`:\n",
-                        "i - Unexpected length for `equva-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
-                        "i - Expecting a length of 1 of ", length(cri), ".\n",
-                        "X - Length is ", length(out2), ".")
-          stop(err, call. = F)
-        }
-        return(c(out1, out2))
+        return(out1)
       })
       ifelse(rowSums(set_match) > 0, 1, 0)
     })
     sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | ref_rd, 1, 0)
-    sub_cri_match.rf <- sub_cri_match[((length(sub_cri_match)/2)+1):length(sub_cri_match)]
-    sub_cri_match <- sub_cri_match[1:(length(sub_cri_match)/2)]
+
+    if(isTRUE(spr)){
+      sub_cri_match.rf <- sub_cri_match[((length(sub_cri_match)/2)+1):length(sub_cri_match)]
+      sub_cri_match <- sub_cri_match[1:(length(sub_cri_match)/2)]
+      return(list(sub_cri_match, sub_cri_match.rf))
+    }else{
+      return(list(sub_cri_match))
+    }
   }else{
     sub_cri_match <- rep(1, ds_len)
-    sub_cri_match.rf <- sub_cri_match
+    if(isTRUE(spr)){
+      return(list(sub_cri_match, sub_cri_match))
+    }else{
+      return(list(sub_cri_match))
+    }
   }
-  return(list(sub_cri_match, sub_cri_match.rf))
 }
 win_cri_checks <- function(win_criteria, wind_id_check, tr_wind_id, int_check, current_tot, pr_sn){
   if(length(win_criteria) > 0 & length(wind_id_check) > 0){

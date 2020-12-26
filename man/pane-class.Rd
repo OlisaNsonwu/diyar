@@ -48,5 +48,27 @@ as.pane(x)
 \item{exact}{exact}
 }
 \description{
-S4 objects to store the results of \code{\link{episodes}}
+S4 objects to store the results of \code{\link{partitions}}
 }
+\section{Slots}{
+
+\describe{
+\item{\code{sn}}{Unique record identifier.}
+
+\item{\code{.Data}}{Unique \code{pane} identifier.}
+
+\item{\code{case_nm}}{Record type in regards to index assignment.}
+
+\item{\code{window_list}}{A list of \code{windows} considered for each \code{pane}.}
+
+\item{\code{dist_pane_index}}{The difference between each event and it's index event.}
+
+\item{\code{pane_dataset}}{Data sources in each \code{pane}.}
+
+\item{\code{pane_interval}}{The start and end dates of each \code{pane}. A \code{\link{number_line}} object.}
+
+\item{\code{pane_length}}{The duration or length of (\code{pane_interval}).}
+
+\item{\code{pane_total}}{The number of records in each \code{pane}.}
+}}
+

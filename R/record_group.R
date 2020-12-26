@@ -1,72 +1,60 @@
 #' @name links
 #' @title Multistage deterministic record linkage
 #'
-#' @description Link records in ordered stages with flexible matching conditions.
+#' @description Link records with matching criteria in ordered stages of relevance.
+#' Each set of linked records are assigned a unique identifier with relevant group-level data.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
-#' @param sn Unique numerical record identifier. Useful for creating familiar episode identifiers.
-#' @param strata Subsets. Record groups are tracked separately within each subset.
-#' @param criteria \code{list} of attributes to compare at each stage. Comparisons are done as an exact match i.e. (\code{==}). See \code{Details}.
-#' @param sub_criteria \code{list} of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests. See \code{\link{sub_criteria}}
-#' @param data_source Unique data source identifier. Useful when the dataset contains data from multiple sources.
-#' @param group_stats If \code{TRUE} (default), group-specific information like record counts. See \code{Value}.
-#' @param data_links A set of \code{data_sources} required in each record group. A \code{strata} without records from these data sources will be skipped, and record groups without these will be unlinked. See \code{Details}.
-#' @param expand If \code{TRUE}, allows increases in the size of a record group at subsequent stages of the linkage process.
-#' @param shrink If \code{TRUE}, allows reductions in the size of a record group at subsequent stages of the linkage process.
+#' @param sn Unique numerical record identifier. Useful for creating familiar group identifiers.
+#' @param strata Subsets of the dataset. Record groups are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will skip that record.
+#' @param criteria \code{list} of attributes to compare. Each element of the list is a stage in the linkage process. See \code{Details}.
+#' @param sub_criteria \code{list} of additional attributes to compare at each stage of the linkage process. Comparisons are done as an exact match or with user-defined logical tests. See \code{\link{sub_criteria}}
+#' @param data_source Unique data source identifier. Includes a list of data sources of for each record in a \code{pid}.
+#' @param group_stats If \code{TRUE} (default), returns group-specific information like record counts. See \code{Value}.
+#' @param data_links A set of \code{data_sources} required in a \code{pid}. A \code{pid} without records from these \code{data_sources} are skipped or unlinked. See \code{Details}.
+#' @param expand If \code{TRUE}, allows a record group to expand with each subsequent stage of the linkage process.
+#' @param shrink If \code{TRUE}, forces a record group to shrink with each subsequent stage of the linkage process.
 #' @param display The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
-#' @param to_s4 Data type of returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
-#' @param schema Plot a schema of the returned \code{\link[=pid-class]{pid}} objects. Useful to visualise the data linkage process.
-#'
+#' @param to_s4 Object type of the returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' @param schema Return a schema of the \code{\link[=pid-class]{pid}} object. Options are; \code{"none"} (default), \code{"by_pid"}, \code{"by_strata"} or \code{"by_ALL"}.
 #' @param ... Arguments passed to \bold{\code{links}}
 #'
-#' @return \code{\link[=pid-class]{pid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE})
+#' @return \code{\link[=pid-class]{pid}} or \code{list} (\code{\link[=pid-class]{pid}} and \code{ggplot}) object
 #'
-#' \itemize{
-#' \item \code{sn} - unique record identifier as provided (or generated)
-#' \item \code{pid | .Data} - unique group identifier
-#' \item \code{link_id} - unique record identifier of matching records
-#' \item \code{pid_cri} - matching criteria
-#' \item \code{pid_dataset} - data sources in each group
-#' \item \code{pid_total} - number of records in each group
-#' \item \code{iteration} - iteration of the process when each record was linked to its record group
-#' }
-#'
-#'
-#' @seealso \code{\link{episodes}}, \code{\link{predefined_tests}} and \code{\link{sub_criteria}}
+#' @seealso \code{\link{episodes}}, \code{\link{partitions}}, \code{\link{predefined_tests}} and \code{\link{sub_criteria}}
 #'
 #' @details
-#' \bold{\code{links()}} performs an ordered multistage deterministic linkage.
-#' The relevance or priority of each stage is determined by the order in which they have been listed.
+#' Priority of matches in multistage linkages is given to matches that occurred at earlier stages (\code{criteria}) of the linkage process.
+#' Therefore, it's important for each \code{criteria} to be listed in order of decreasing relevance.
 #'
-#' If a record has missing values for any \code{criteria}, that record is skipped at that stage, and another attempt is made at the next stage.
-#' If there are no matches for a record at every stage, that record is assigned a unique group ID.
+#' Records with missing \code{criteria} (\code{NA}) are skipped at each stage.
+#' Another attempt will be made to match the record at the next stage.
+#' If a record does not match any other record by the end of the linkage process, it is assigned a unique group ID.
 #'
-#' The \code{sub_criteria} argument specifies additional matching conditions for each stage (\code{criteria}) of the process.
-#' If \code{sub_criteria} is not \code{NULL}, only records with matching \code{criteria} and \code{sub_criteria} are linked.
+#' A \code{sub_criteria} is a means of specifying additional matching conditions for a stage of the linkage process.
+#' When used, only records with matching \code{criteria} and \code{sub_criteria} are linked.
 #'
 #' Each \code{sub_criteria} must be linked to a \code{criteria} in \bold{\code{\link{links}}}.
-#' You can link multiple \code{sub_criteria} to one \code{criteria}.
+#' You can also link multiple \code{sub_criteria} to one \code{criteria}.
 #' Any unlinked \code{sub_criteria} will be ignored.
 #'
 #' By default, records are compared for an exact match.
-#' However, user-defined logical tests (function) are also permitted.
-#' The function must be able to compare two atomic vectors and return either TRUE or FALSE.
-#' The function must have two arguments at least two arguments named \code{`x`} and \code{`y`}.
-#' where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
-#'
-#' A match at each stage is considered more relevant than a match at the next stage. Therefore, \code{criteria} should always be listed in order of decreasing relevance.
-#'
-#' \code{data_source} - including this populates the \code{pid_dataset} slot. See \code{Value}.
-#'
-#' \code{data_links} should be a \code{list} of \code{atomic} vectors with every element named \code{"l"} (links) or \code{"g"} (groups).
-#' \itemize{
-#' \item \code{"l"} - Record groups with records from every listed data source will be retained.
-#' \item \code{"g"} - Record groups with records from any listed data source will be retained.
+#' However, user-defined logical tests (function) are also permitted. Such test must meet 3 requirements:
+#' \enumerate{
+#' \item It must be able to compare two atomic vectors
+#' \item It must have two arguments at least two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
+#' \item It must return either TRUE or FALSE.
 #' }
-#' \code{data_links} is useful for skipping record groups that are not required.
+#'
+#' \code{data_links} must be a \code{list} of \code{atomic} vectors, with every element named \code{"l"} (links) or \code{"g"} (groups).
+#'
+#' \itemize{
+#' \item if named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
+#' \item if named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
+#' }
 #'
 #' \bold{\code{record_group()}} as it existed before \code{v0.2.0} has been retired.
-#' Its now exists to support previous code and arguments with minimal disruption. Please use \bold{\code{links()}} moving forward.
+#' Its now exists to support previous code and arguments with minimal disruption. Please use \bold{\code{links()}} instead.
 #'
 #' See \code{vignette("links")} for more information.
 #'
@@ -98,6 +86,14 @@
 #'                                           missing_staff_id$branch_office)),
 #'       data_source = missing_staff_id$source_1)
 #'
+#' # Group expansion and shrinkage
+#' match_cri <- list(c(1,NA,NA,1,NA,NA),
+#'                   c(1,1,1,2,2,2),
+#'                   c(3,3,3,2,2,2))
+#' links(criteria = match_cri, expand = TRUE)
+#' links(criteria = match_cri, expand = FALSE)
+#' links(criteria = match_cri, shrink =  TRUE)
+#'
 #' @aliases links
 #' @export
 links <- function(criteria,
@@ -119,7 +115,7 @@ links <- function(criteria,
       sub_criteria <- list(sub_criteria)
     }
   }
-
+  # Validations
   err <- err_links_checks_0(criteria,
                      sub_criteria,
                      sn,
@@ -131,38 +127,42 @@ links <- function(criteria,
                      expand,
                      shrink)
 
-  if(err != F) stop(err, call. = F)
-
-
+  if(err != FALSE) stop(err, call. = FALSE)
   if(class(criteria) != "list") criteria <- list(criteria)
 
+  # Maximum no. of records from all criteria
   ds_len <- as.numeric(lapply(criteria, length))
   ds_len_b <- sapply(sub_criteria, function(x){
     sapply(x, function(x){
       length(x[[1]]) })
   })
-  ds_len <- max(c(ds_len, unlist(ds_len_b, use.names = F)))
+  ds_len <- max(c(ds_len, unlist(ds_len_b, use.names = FALSE)))
   rm(ds_len_b)
 
-  err <- err_sn_1(sn =sn, ref_num = ds_len, ref_nm = "criteria")
+  err <- err_sn_1(sn = sn, ref_num = ds_len, ref_nm = "criteria")
   if(err != F) stop(err, call. = F)
 
   if(!is.null(data_source)) {
     if(length(data_source) == 1) data_source <- rep(data_source, ds_len)
   }
 
+  # Standardise inputs
+    # `strata`
   if(!is.null(strata)) {
     if(length(strata) == 1) strata <- rep(strata, ds_len)
   }
-
-  pr_sn <- 1:ds_len
-
+    # `sn`
+  pr_sn <- seq_len(ds_len)
   if(class(sn) == "NULL"){
-    sn <- 1:ds_len
+    sn <- pr_sn
   }
-  dl_lst <- unlist(data_links, use.names = F)
+    # `data_links`
+  dl_lst <- unlist(data_links, use.names = FALSE)
   ds_lst <- data_source[!duplicated(data_source)]
   ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
+    # `display`
+  display <- tolower(display)
+  # Place holders for group-level options
   tag <- rep(0, ds_len)
   iteration <- tag
   m_tag <- tag
@@ -170,40 +170,40 @@ links <- function(criteria,
   sn_ref <- min(sn) - 1
   pid <- rep(sn_ref, ds_len)
   link_id <- pid
+  n_seq <- seq_len(ds_len)
 
-  display <- tolower(display)
   if(display != "none") cat("\n")
   ite <- 1
   for(i in 1:length(criteria)){
+    # Current stage
     cri <- criteria[[i]]
+      # Standardise `criteria` input
     if (length(cri) == 1) cri <- rep(cri, ds_len)
-    cri <- cri[match(pr_sn, seq_len(ds_len))]
-
+    # Re-order to current sort order
+    cri <- cri[match(pr_sn, n_seq)]
+    # Identify records to be skipped
     lgk <- is.na(cri)
     if(!is.null(strata)) {
       lgk[!lgk] <- is.na(strata[!lgk])
       cri[!lgk] <- paste0(strata[!lgk], " ", cri[!lgk])
     }
-
-    if(shrink == T){
+    # Prevent `pid` from expanding
+    if(shrink == TRUE){
       cri <- paste0(cri, " ", pid)
       pid[TRUE] <- sn_ref
       link_id[TRUE] <- sn_ref
     }
-
+    # Encode current `criteria`
     cri <- match(cri, cri[!duplicated(cri)])
     cri[lgk] <- NA_real_
 
-    names(cri) <- format(seq_len(ds_len), trim = T, scientific = F)
     force_check <- rep(0, ds_len)
     skip <- force_check
     m_tag <- force_check
     min_pid <- sn_ref
     min_m_tag <- 0
-    tot <- ds_len
-    #ite <- 1
     while (min_pid == sn_ref | min_m_tag == -1) {
-      sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = T)
+      sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = TRUE)
       for(vr in c("force_check","tag","cri",
                   "skip", "pid", "tag","m_tag",
                   "pid_cri", "sn", "pr_sn",
@@ -216,109 +216,38 @@ links <- function(criteria,
       }
       # Reference records
       r <- rle(cri)
-      p <- as.numeric(names(r$values))
-      q <- as.numeric(names(cri))
-      tr_link_id <- rep(link_id[match(p, q)], r$lengths)
-      tr_pid_cri <- rep(pid_cri[match(p, q)], r$lengths)
-      tr_tag <- rep(tag[match(p, q)], r$lengths)
-      tr_pid <- rep(pid[match(p, q)], r$lengths)
-      tr_sn <- rep(sn[match(p, q)], r$lengths)
+      lgk <- !duplicated(cri, fromLast = TRUE) | is.na(cri)
+      tr_link_id <- rep(link_id[lgk], r$lengths[match(cri[lgk], r$values)])
+      tr_pid_cri <- rep(pid_cri[lgk], r$lengths[match(cri[lgk], r$values)])
+      tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
+      tr_pid <- rep(pid[lgk], r$lengths[match(cri[lgk], r$values)])
+      tr_sn <- rep(sn[lgk], r$lengths[match(cri[lgk], r$values)])
 
+      # Implement `sub_criteria`
       curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
-      # if(length(curr_sub_cri) > 0){
-      #   sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
-      #     set <- curr_sub_cri[[i]]
-      #     set_match <- sapply(1:length(set), function(j){
-      #       a <- set[[j]]
-      #       x <- a[[1]]
-      #       if(length(x) == 1){
-      #         x <- rep(x, ds_len)
-      #       }
-      #       x <- x[match(pr_sn, seq_len(ds_len))]
-      #       y <- rep(x[match(p, q)], r$lengths)
-      #       f1 <- a[[2]]
-      #       lgk <- try(f1(x, y), silent = T)
-      #       if(class(lgk) == "try-error" | class(lgk) != "logical"){
-      #         if(class(lgk) == "try-error"){
-      #           err <- attr(lgk, "condition")$message
-      #         }else{
-      #           err <- "Output is not a `logical` object"
-      #         }
-      #
-      #         err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
-      #                       "i - Each `func` must have the following syntax and output.\n",
-      #                       "i - Syntax ~ `function(x, y, ...)`.\n",
-      #                       "i - Output ~ `TRUE` or `FALSE`.\n",
-      #                       "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
-      #         stop(err, call. = F)
-      #       }
-      #       lgk <- as.numeric(lgk)
-      #       out1 <- ifelse(is.na(lgk), 0, lgk)
-      #       if(length(out1) == 1) out1 <- rep(out1, length(cri))
-      #       if(length(out1) != length(cri)){
-      #         err <- paste0("Output length of `funcs` must be 1 or the same as `criteria`:\n",
-      #                       "i - Unexpected length for `funcs-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
-      #                       "i - Expecting a length of 1 of ", length(cri), ".\n",
-      #                       "X - Length is ", length(out1), ".")
-      #         stop(err, call. = F)
-      #       }
-      #
-      #       f2 <- a[[3]]
-      #       lgk <- try(f2(x, y), silent = T)
-      #       if(class(lgk) == "try-error" | class(lgk) != "logical"){
-      #         if(class(lgk) == "try-error"){
-      #           err <- attr(lgk, "condition")$message
-      #         }else{
-      #           err <- "Output is not a `logical` object"
-      #         }
-      #
-      #         err <- paste0("Unable to evaluate `equva-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
-      #                       "i - Each `func` must have the following syntax and output.\n",
-      #                       "i - Syntax ~ `function(x, y, ...)`.\n",
-      #                       "i - Output ~ `TRUE` or `FALSE`.\n",
-      #                       "X - Issue with `equva - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
-      #         stop(err, call. = F)
-      #       }
-      #       lgk <- as.numeric(lgk)
-      #       out2 <- ifelse(is.na(lgk), 0, lgk)
-      #       if(length(out2) == 1) out2 <- rep(out2, length(cri))
-      #       if(length(out2) != length(cri)){
-      #         err <- paste0("Output length of `equva` must be 1 or the same as `criteria`:\n",
-      #                       "i - Unexpected length for `equva-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
-      #                       "i - Expecting a length of 1 of ", length(cri), ".\n",
-      #                       "X - Length is ", length(out2), ".")
-      #         stop(err, call. = F)
-      #       }
-      #       return(c(out1, out2))
-      #     })
-      #     ifelse(rowSums(set_match) > 0, 1, 0)
-      #   })
-      #   sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | tr_sn == sn, 1, 0)
-      #   sub_cri_match.rf <- sub_cri_match[((length(sub_cri_match)/2)+1):length(sub_cri_match)]
-      #   sub_cri_match <- sub_cri_match[1:(length(sub_cri_match)/2)]
-      # }else{
-      #   sub_cri_match <- rep(1, ds_len)
-      #   sub_cri_match.rf <- sub_cri_match
-      # }
       sub_cri_match <- sub_cri_match_2(sub_criteria = curr_sub_cri,
                                cri = cri,
                                ref_rd = tr_sn == sn,
-                               pr_sn = pr_sn)
+                               pr_sn = pr_sn,
+                               spr = TRUE)
 
-      sub_cri_match.rf <- sub_cri_match[[2]]
+      equals_ref_rd <- sub_cri_match[[2]]
       sub_cri_match <- sub_cri_match[[1]]
 
+      # Track records checked for the current `sub_criteria`
+        # Records with matching `sub_criteria` from earlier stages should trigger a re-check for possible updates to the link
       m_tag <- ifelse(m_tag == 1 &
                         sub_cri_match > 0 &
                         pid_cri <= tr_pid_cri,
                       -1, m_tag)
-      m_tag <- ifelse(m_tag ==-1 &
+          # A re-check that doesn't lead to a change in link should not be checked again
+      m_tag <- ifelse(m_tag == -1 &
                         sub_cri_match > 0 &
                         pid == tr_pid &
                         !is.na(tr_pid),
                       1, m_tag)
 
-      # inherit pid
+      # Expand record groups
       pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))) &
                       ((tr_pid_cri == pid_cri & !expand) | (expand)),
                     tr_pid, pid)
@@ -329,35 +258,34 @@ links <- function(criteria,
                       ((tr_pid_cri == pid_cri & !expand) | (expand)),
                     tr_pid, pid)
 
-      # assign new pid
+      # Assign new IDs for newly matched records
       pid <- ifelse(((pid == sn_ref &
                       tr_pid == sn_ref &
                       !is.na(tr_pid))) &
                       sub_cri_match > 0,
                     tr_sn, pid)
-
+      # Matching records
       link_id <- ifelse(((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
                           ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid)))) &
                           ((tr_pid_cri == pid_cri & !expand) | (expand)),
                         tr_sn, link_id)
 
+      # Identify records that match others previously checked for a `sub_criteria`
+        # Skip from another check
       m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1, m_tag)
-      m_tag <- ifelse(m_tag != 1 & sub_cri_match.rf == 1, 1, m_tag)
+      m_tag <- ifelse(m_tag != 1 & equals_ref_rd == 1, 1, m_tag)
 
       m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1, 1, m_tag)
-      # link_id <- ifelse(pid == sn_ref &
-      #                     m_tag == 1 &
-      #                     sub_cri_match == 0 & sub_cri_match.rf > 0,
-      #                   sn, link_id)
       pid <- ifelse(pid == sn_ref &
                       m_tag == 1 &
-                      sub_cri_match == 0 & sub_cri_match.rf > 0,
+                      sub_cri_match == 0 & equals_ref_rd > 0,
                     sn, pid)
 
-      skip <- ifelse(m_tag ==-1 &
+      skip <- ifelse(m_tag == -1 &
                        !is.na(m_tag), 0,
                      ifelse(sub_cri_match > 0,
                             1, skip))
+      # Track checks for valid `criteria` entries
       lgk <- !is.na(cri)
       if(length(lgk[lgk]) != 0){
         min_pid <- min(pid[lgk])
@@ -369,9 +297,8 @@ links <- function(criteria,
 
       if(tolower(display) == "progress" & length(curr_sub_cri) > 0) {
         msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
-        #progress_bar(length(m_tag[m_tag != 0]), tot, nchar(msg), msg = msg)
+        progress_txt(length(m_tag[m_tag != 0]), ds_len, msg = msg)
       }
-      #iteration[m_tag != 0 & iteration == 0] <- i + ifelse(length(curr_sub_cri) > 0, (ite/10 - as.integer(ite/10)), 0)
       iteration[pid != sn_ref & iteration == 0] <- ite
       ite <- ite + 1
     }
@@ -385,6 +312,7 @@ links <- function(criteria,
       current_tot <- length(tag[tag == 0 & !pid %in% c(sn_ref, NA)])
       cat(paste0(fmt(current_tot), " records(s): ", fmt(current_tot-removed)," linked.\n"))
     }
+
     tag <- ifelse(pid %in% c(sn_ref, NA), 0, 1)
     link_id[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
     pid[!duplicated(pid) & !duplicated(pid, fromLast = TRUE)] <- sn_ref
@@ -404,10 +332,10 @@ links <- function(criteria,
   fd <- match(1:length(pid), tmp_pos)
 
   pid_f <- pid[fd]
-  names(link_id) <- NULL
-  names(pid_f) <- NULL
-  names(sn) <- NULL
-  names(pid_cri) <- NULL
+  # names(link_id) <- NULL
+  # names(pid_f) <- NULL
+  # names(sn) <- NULL
+  # names(pid_cri) <- NULL
   pids <- methods::new("pid",
                .Data = pid_f,
                sn = sn[fd],
@@ -417,13 +345,13 @@ links <- function(criteria,
 
   r <- rle(sort(pid))
   pid_tot <- r$lengths[match(pid_f, r$values)]
-  if(group_stats == T){
+  if(group_stats == TRUE){
     pids@pid_total = pid_tot
-    names(pids@pid_total) <- NULL
+    #names(pids@pid_total) <- NULL
   }
 
   if(!is.null(data_source)){
-    data_source <- data_source[match(pr_sn[fd], 1:length(pids))]
+    data_source <- data_source[match(pr_sn[fd], n_seq)]
     # Data links
     rst <- check_links(pids@.Data, data_source, data_links)
     datasets <- rst$ds

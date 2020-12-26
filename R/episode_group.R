@@ -619,15 +619,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rc_checks <- Rfast::rowMaxs(rc_checks, value = TRUE)
     }
 
-    # Implement `sub_criteria`
-    s_cri <- sub_cri_match_1(sub_criteria = sub_criteria,
-                             cri = cri,
-                             ref_rd = ref_rd,
-                             pr_sn = int@id)
     cr <- ifelse(tr_tag %in% c(0) &
-                   (ref_rd  | (ep_checks >= 1 & s_cri)) &
+                   (ref_rd  | (ep_checks >= 1)) &
                    tag != 2,
                  TRUE, FALSE)
+
     if(isTRUE(any_epl_min_curr)){
       dst <- rle(sort(cri[cr & !duplicated(ep_checks) & ep_checks != 0]))
       ep_phits <- rep(0, current_tot)
@@ -676,8 +672,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
       cr2 <- ifelse(
                      (
-                       (tr_tag %in% c(-1) & (ref_rd | (rc_checks >= 1 & w_cri & s_cri & wtm_cri))) |
-                         (tr_tag %in% c(-2) & (ref_rd | (ep_checks >= 1 & w_cri & s_cri & wtm_cri)))
+                       (tr_tag %in% c(-1) & (ref_rd | (rc_checks >= 1 & w_cri & wtm_cri))) |
+                         (tr_tag %in% c(-2) & (ref_rd | (ep_checks >= 1 & w_cri & wtm_cri)))
                        ) &
                      tag != 2,
                    TRUE, FALSE)
@@ -695,6 +691,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rm(cr2)
     }
 
+    # Implement `sub_criteria`
+    s_cri <- sub_cri_match_2(sub_criteria = sub_criteria,
+                             cri = cri,
+                             ref_rd = ref_rd,
+                             pr_sn = int@id,
+                             spr = FALSE)[[1]]
+    cr[!s_cri & cr & !ref_rd] <- FALSE
     # Episode and window IDs
     e[cr & tag == 0 & tr_tag %in% c(0)] <- tr_sn[cr & tag == 0 & tr_tag %in% c(0)]
     wind_id[cr & tag == 0] <- tr_sn[cr & tag == 0]
