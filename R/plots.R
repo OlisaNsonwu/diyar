@@ -171,7 +171,7 @@ schema.pane <- function(x, int, separate, title = NULL, show_labels = FALSE) {
 
 #' @rdname schema
 #' @export
-schema.epids <- function(x, date, episode_unit, case_length,
+schema.epid <- function(x, date, episode_unit, case_length,
                        recurrence_length = case_length, episode_type,
                        from_last, title = NULL, show_labels = FALSE,
                        show_skipped = TRUE, show_non_finite = FALSE){
@@ -423,7 +423,7 @@ schema.epids <- function(x, date, episode_unit, case_length,
 }
 #' @rdname schema
 #' @export
-schema.pids <- function(x, title = NULL, show_labels = FALSE){
+schema.pid <- function(x, title = NULL, show_labels = FALSE){
   pids <- x
   pl_dt <- to_df(pids)
   cris <- length(unique(pl_dt$pid_cri))

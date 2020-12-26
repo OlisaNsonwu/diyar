@@ -496,6 +496,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     p <- as.numeric(names(r$values))
     q <- as.numeric(names(cri))
     cri_tot <- r$lengths
+
+    # lgk <- !duplicated(cri, fromLast = TRUE)
+    # tr_link_id <- rep(link_id[lgk], r$lengths[match(cri[lgk], r$values)])
+
     tr_ep_int <- lapply(ep_l, function(x){
       rep(x[match(p, q)], r$lengths)
     })

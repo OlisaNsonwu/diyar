@@ -3,15 +3,15 @@
 \name{schema}
 \alias{schema}
 \alias{schema.pane}
-\alias{schema.epids}
-\alias{schema.pids}
+\alias{schema.epid}
+\alias{schema.pid}
 \title{schema}
 \usage{
 schema(x, ...)
 
 \method{schema}{pane}(x, int, separate, title = NULL, show_labels = FALSE)
 
-\method{schema}{epids}(
+\method{schema}{epid}(
   x,
   date,
   episode_unit,
@@ -25,7 +25,7 @@ schema(x, ...)
   show_non_finite = FALSE
 )
 
-\method{schema}{pids}(x, title = NULL, show_labels = FALSE)
+\method{schema}{pid}(x, title = NULL, show_labels = FALSE)
 }
 \arguments{
 \item{title}{Title of \code{ggplot} object}

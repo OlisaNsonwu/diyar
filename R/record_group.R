@@ -332,10 +332,6 @@ links <- function(criteria,
   fd <- match(1:length(pid), tmp_pos)
 
   pid_f <- pid[fd]
-  # names(link_id) <- NULL
-  # names(pid_f) <- NULL
-  # names(sn) <- NULL
-  # names(pid_cri) <- NULL
   pids <- methods::new("pid",
                .Data = pid_f,
                sn = sn[fd],
@@ -347,7 +343,6 @@ links <- function(criteria,
   pid_tot <- r$lengths[match(pid_f, r$values)]
   if(group_stats == TRUE){
     pids@pid_total = pid_tot
-    #names(pids@pid_total) <- NULL
   }
 
   if(!is.null(data_source)){
@@ -367,28 +362,24 @@ links <- function(criteria,
     pids@pid_dataset <- datasets
   }
 
+  if(schema != "none"){
     if(schema == "by_pid"){
-      plot_strata_lst <- pids@.Data
-      plot_strata <- plot_strata_lst[!duplicated(plot_strata_lst)]
-      pid_lst <- lapply(plot_strata, function(x){
-        plot_pids(pids[plot_strata_lst == x], paste0("P.", x))
-      })
-      names(pid_lst) <- plot_strata
+      p_cri <- pids@.Data
+      title_seq <- "Pid - P."
     }else if (schema == "by_strata" & !is.null(strata)){
-      plot_strata_lst <- strata
-      plot_strata <- plot_strata_lst[!duplicated(plot_strata_lst)]
-      pid_lst <- lapply(plot_strata, function(x){
-        plot_pids(pids[plot_strata_lst == x], paste0("Strata - ", x))
-      })
-      names(pid_lst) <- plot_strata
+      p_cri <- strata
+      title_seq <- "Strata - "
     }else if (schema == "by_ALL"| (schema == "by_strata" & is.null(strata))){
-      plot_strata_lst <- "ALL"
-      plot_strata <- plot_strata_lst[!duplicated(plot_strata_lst)]
-      pid_lst <- lapply(plot_strata, function(x){
-        plot_pids(pids[plot_strata_lst == x], paste0("", x))
-      })
-      names(pid_lst) <- plot_strata
+      p_cri <- "ALL"
+      title_seq <- ""
     }
+    plot_sets <- p_cri[!duplicated(p_cri)]
+    plots <- lapply(plot_sets, function(x){
+      schema(x = pids[p_cri == x],
+             title = paste0(title_seq, x))
+    })
+    names(plots) <- plot_sets
+  }
 
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
@@ -399,7 +390,7 @@ links <- function(criteria,
   if(schema == "none"){
     pids
   }else{
-    list("pids" = pids, "plots" = pid_lst)
+    list("pids" = pids, "plots" = plots)
   }
 }
 
