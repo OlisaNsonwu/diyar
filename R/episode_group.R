@@ -136,18 +136,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
-                     display = "none", wind_criteria = NULL, case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria, schema = "none", wind_total = 1,
+                     display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria, schema = "none",
                      case_length_total = 1, recurrence_length_total = case_length_total) {
   tm_a <- Sys.time()
 
   # Standardise `sub_criteria` inputs
-  rut <- attr(wind_criteria, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    if(rut == TRUE){
-      wind_criteria <- list(wind_criteria)
-    }
-  }
-
   rut <- attr(case_sub_criteria, "diyar_sub_criteria")
   if(class(rut) != "NULL"){
     if(rut == TRUE){
@@ -173,9 +166,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
                                 recurrence_from_last = recurrence_from_last,
                                 episode_type = episode_type, recurrence_length = recurrence_length,
-                                wind_criteria = wind_criteria, case_sub_criteria = case_sub_criteria,
+                                case_sub_criteria = case_sub_criteria,
                                 recurrence_sub_criteria = recurrence_sub_criteria, schema = schema,
-                                wind_total = wind_total, case_length_total = case_length_total,
+                                case_length_total = case_length_total,
                                 recurrence_length_total = recurrence_length_total)
 
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
@@ -203,13 +196,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(length(episodes_max) == 1) episodes_max <- rep(episodes_max, inp_n)
   # `rolls_max`
   if(length(rolls_max) == 1) rolls_max <- rep(rolls_max, inp_n)
-  # `wind_total`
-  if(is.number_line(wind_total)){
-    wind_total[wind_total@.Data < 0] <- reverse_number_line(wind_total[wind_total@.Data < 0], "decreasing")
-  }else{
-    wind_total <- number_line(wind_total, Inf)
-  }
-  if(length(wind_total) == 1) wind_total <- rep(wind_total, inp_n)
   # `skip_order`
   if(length(skip_order) == 1) skip_order <- rep(skip_order, inp_n)
   # `from_last`
@@ -422,7 +408,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                         "wind_nm" = wind_nm[0],
                         "wind_id" = wind_id[0],
                         "rolls_max" = rolls_max[0],
-                        "wind_total" = wind_total[0],
                         "episodes_max" = episodes_max[0],
                         "iteration" = numeric(0))
   ite <- 1
@@ -435,7 +420,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     any_rolling_epi_curr <- any(episode_type == "rolling")
     any_epl_min_curr <- any(!(case_length_total@start == 1 & case_length_total@.Data == Inf))
     any_rcl_min_curr <- any(!(recurrence_length_total@start == 1 & recurrence_length_total@.Data == Inf))
-    any_wdt_min_curr <- any(!(wind_total@start == 1 & wind_total@.Data == Inf))
     # Sort dataset on order of case-assignment
     sort_ord <- order(cri, tag, assign_ord, int@gid, decreasing = TRUE)
 
@@ -443,7 +427,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                "int","epid_n", "c_sort",
                "skip_order", "case_nm",
                "wind_nm", "wind_id",
-               "rolls_max", "wind_total", "iteration",
+               "rolls_max", "iteration",
                "episodes_max")){
       assign(i, get(i)[sort_ord])
     }
@@ -656,41 +640,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       wind_nm[lgk & ref_rd] <- "Case"
       roll_n[lgk] <- roll_n[lgk] + 1
 
-      if(isTRUE(any_wdt_min_curr) | length(wind_criteria) > 0){
-        # `wind_id`s to apply `wind_criteria` or `wind_total`
-        curr_sub_cri <- wind_criteria
-        wind_id_check <- sort(wind_id[!tag %in% c(0, 2)])
-        int_check <- c(int[wind_id %in% wind_id_check], grouped_epids$int[grouped_epids$wind_id %in% wind_id_check])
-        wind_id_checks <- c(wind_id[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
-        sn_id_checks <- c(int@gid[wind_id %in% wind_id_check], grouped_epids$wind_id[grouped_epids$wind_id %in% wind_id_check])
-      }
-
-      if(length(wind_criteria) > 0){
-        # Implement `wind_criteria`
-        w_cri <- win_cri_checks(wind_criteria = wind_criteria,
-                                wind_id_check = wind_id_check,
-                                tr_wind_id = tr_wind_id,
-                                int_check = int_check,
-                                current_tot = current_tot,
-                                pr_sn = int@id)
-      }else{
-        w_cri <- TRUE
-      }
-
-      # Implement `wind_total`
-      if(isTRUE(any_wdt_min_curr)){
-        wtm_cri <- win_tot_checks(wind_id_checks = wind_id_checks,
-                                  tr_wind_id = tr_wind_id,
-                                  int_check = int_check,
-                                  wind_total = wind_total)
-      }else{
-        wtm_cri <- TRUE
-      }
-
       cr2 <- ifelse(
                      (
-                       (tr_tag %in% c(-1) & (ref_rd | (rc_checks >= 1 & w_cri & wtm_cri))) |
-                         (tr_tag %in% c(-2) & (ref_rd | (ep_checks >= 1 & w_cri & wtm_cri)))
+                       (tr_tag %in% c(-1) & (ref_rd | (rc_checks >= 1))) |
+                         (tr_tag %in% c(-2) & (ref_rd | (ep_checks >= 1)))
                        ) &
                      tag != 2,
                    TRUE, FALSE)

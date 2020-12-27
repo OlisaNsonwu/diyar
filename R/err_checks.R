@@ -984,11 +984,9 @@ err_episodes_checks_0 <- function(date = 1,
                                   case_for_recurrence = TRUE,
                                   from_last = TRUE,
                                   group_stats = TRUE,
-                                  wind_criteria = NULL,
                                   case_sub_criteria = NULL,
                                   recurrence_sub_criteria = NULL,
                                   schema = "none",
-                                  wind_total = 1,
                                   case_length_total = 1,
                                   recurrence_length_total = 1){
 
@@ -1013,7 +1011,6 @@ err_episodes_checks_0 <- function(date = 1,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
                schema = schema,
-               wind_total = wind_total,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total)
 
@@ -1044,7 +1041,6 @@ err_episodes_checks_0 <- function(date = 1,
                from_last = from_last,
                group_stats = group_stats,
                schema = schema,
-               wind_total = wind_total,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total)
 
@@ -1068,7 +1064,6 @@ err_episodes_checks_0 <- function(date = 1,
                        from_last = "logical",
                        group_stats = "logical",
                        schema =  "character",
-                       wind_total = c("numeric", "integer", "number_line"),
                        case_length_total = c("numeric", "integer", "number_line"),
                        recurrence_length_total = c("numeric", "integer", "number_line"))
 
@@ -1100,7 +1095,6 @@ err_episodes_checks_0 <- function(date = 1,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
                schema = schema,
-               wind_total = wind_total,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total)
 
@@ -1122,7 +1116,6 @@ err_episodes_checks_0 <- function(date = 1,
                     recurrence_from_last = len_lims,
                     case_for_recurrence = len_lims,
                     schema = 1,
-                    wind_total = len_lims,
                     case_length_total = len_lims,
                     recurrence_length_total = len_lims)
 
@@ -1150,7 +1143,6 @@ err_episodes_checks_0 <- function(date = 1,
                skip_if_b4_lengths = skip_if_b4_lengths,
                recurrence_from_last = recurrence_from_last,
                case_for_recurrence = case_for_recurrence,
-               wind_total = wind_total,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total)
 
@@ -1185,19 +1177,6 @@ err_episodes_checks_0 <- function(date = 1,
   if(!isFALSE(err)) return(err)
   err <- err_strata_level_args(episodes_max, strata, "episodes_max")
   if(!isFALSE(err)) return(err)
-
-  if(class(wind_criteria) != "NULL"){
-    err <- err_sub_criteria_10(date, wind_criteria, "date", "wind_criteria")
-    if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.1(wind_criteria, length(wind_criteria), cri_nm = "wind_criteria")
-    if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.1(wind_criteria, length(case_sub_criteria), cri_nm = "wind_criteria")
-    if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_8(wind_criteria, cri_nm = "wind_criteria")
-    if(!isFALSE(err)) return(err[1])
-    err <- err_sub_criteria_9(wind_criteria, length(wind_criteria), cri_nm = "wind_criteria")
-    if(!isFALSE(err)) return(err)
-  }
 
   if(class(case_sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(case_sub_criteria, cri_nm = "case_sub_criteria")
@@ -1238,9 +1217,6 @@ err_episodes_checks_0 <- function(date = 1,
   }
 
   err <- err_spec_vals(schema, "schema", c("none", "by_epid", "by_strata", "by_ALL"))
-  if(!isFALSE(err)) return(err)
-
-  err <- err_mins_1(wind_total, "wind_total")
   if(!isFALSE(err)) return(err)
   err <- err_mins_1(case_length_total, "case_length_total")
   if(!isFALSE(err)) return(err)

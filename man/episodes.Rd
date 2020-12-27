@@ -29,10 +29,9 @@ episodes(
   from_last = FALSE,
   group_stats = FALSE,
   display = "none",
-  wind_criteria = NULL,
   case_sub_criteria = NULL,
+  recurrence_sub_criteria = case_sub_criteria,
   schema = "none",
-  wind_total = 1,
   case_length_total = 1,
   recurrence_length_total = case_length_total
 )
@@ -122,8 +121,6 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{display}{The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
 
-\item{wind_criteria}{\code{list} Additional conditions for overlapping windows. Comparisons are done with user-defined logical tests. Supplied by \code{\link{sub_criteria}}.}
-
 \item{case_sub_criteria}{\code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.}
 
 \item{to_s4}{Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
@@ -143,6 +140,8 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item{x}{Deprecated. Record date or period. Please use \code{date}}
 
 \item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
+
+\item{wind_criteria}{\code{list} Additional conditions for overlapping windows. Comparisons are done with user-defined logical tests. Supplied by \code{\link{sub_criteria}}.}
 }
 \value{
 
