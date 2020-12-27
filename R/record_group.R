@@ -504,6 +504,11 @@ sub_criteria <- function(..., funcs = diyar::exact_match, equva = diyar::exact_m
   x <- function(x, y, z) list(x, y, z)
   sub_cris <- mapply(x, list(...), funcs, equva, SIMPLIFY = F)
 
+  err <- err_sub_criteria_7(list(sub_cris), cri_nm = "sub_criteria")
+  if(!isFALSE(err)) stop(err, call. = FALSE)
+  err <- err_sub_criteria_7(list(sub_cris), funcs_l = "equva", funcs_pos = 3, cri_nm = "sub_criteria")
+  if(!isFALSE(err)) stop(err, call. = FALSE)
+
   attr(sub_cris, "diyar_sub_criteria") <- T
   sub_cris
 }

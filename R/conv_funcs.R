@@ -767,8 +767,14 @@ sub_cri_match_2 <- function(sub_criteria, cri, cr = NULL, ref_rd, pr_sn, spr = F
         }
         return(out1)
       })
+      if(length(set_match) == 1){
+        set_match <- as.matrix(set_match)
+      }
       ifelse(rowSums(set_match) > 0, 1, 0)
     })
+    if(length(sub_cri_match) == 1){
+      sub_cri_match <- as.matrix(sub_cri_match)
+    }
     sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | ref_rd, 1, 0)
 
     if(isTRUE(spr)){

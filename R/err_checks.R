@@ -178,7 +178,7 @@ err_sub_criteria_5.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
   }
 }
 
-err_sub_criteria_7 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2){
+err_sub_criteria_7 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2, cri_nm = "case_sub_criteria"){
   err <- lapply(seq_len(length(sub_cris)), function(i){
     l1 <- sub_cris[[i]]
     y <- lapply(seq_len(length(l1)), function(j){
@@ -187,17 +187,23 @@ err_sub_criteria_7 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2){
       vec <- l2[[1]]
       e <- func(vec[1:5], vec[1:5])
       x <- class(e)
-      ifelse(x == "logical" & length(e) == 5, NA_character_, x)
+      # ifelse(x == "logical" & length(e) == 5, NA_character_, paste0("`", funcs_l, " ", j, "` in ",
+      #                                                               "`", cri_nm, " ", i, "`",
+      #                                                               " returned a `", x, "` object."))
+      ifelse(x == "logical" & length(e) == 5, NA_character_, paste0("Issues with ",
+                                                                    "`", funcs_l, "`-", j, " in ",
+                                                                    "`", cri_nm, "`-", i, "."))
     })
+    y
   })
 
   err <- unlist(err, use.names = FALSE)
   err <- err[!is.na(err)]
   if(length(err) > 0){
     err <- paste0("Invalid ouput for `", funcs_l, "`:\n",
-                  "i - Output of each `", funcs_l, "` must have a length of `x` and `y`.\n",
-                  "i - Output of each `", funcs_l ,"` must evaluate to `TRUE` or `FALSE`.\n",
-                  paste0("X - ", names(err),": returns a ", err, "` object.", collapse = "\n"))
+                  "i - Each `", funcs_l, "` output must have a length of 1 or the same length as `...`.\n",
+                  "i - Each `", funcs_l, "` output must evaluate to `TRUE` or `FALSE`.\n",
+                  paste0("X - ", err, collapse = "\n"))
     err
   }else{
     F
@@ -980,6 +986,7 @@ err_episodes_checks_0 <- function(date = 1,
                                   group_stats = TRUE,
                                   wind_criteria = NULL,
                                   case_sub_criteria = NULL,
+                                  recurrence_sub_criteria = NULL,
                                   schema = "none",
                                   wind_total = 1,
                                   case_length_total = 1,
@@ -1193,21 +1200,40 @@ err_episodes_checks_0 <- function(date = 1,
   }
 
   if(class(case_sub_criteria) != "NULL"){
-    err <- err_sub_criteria_8(case_sub_criteria)
+    err <- err_sub_criteria_8(case_sub_criteria, cri_nm = "case_sub_criteria")
     if(!isFALSE(err)) return(err[1])
-    err <- err_sub_criteria_10(date, case_sub_criteria, "date")
+    err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.0(case_sub_criteria)
+    err <- err_sub_criteria_5.0(case_sub_criteria, cri_nm = "case_sub_criteria")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "case_sub_criteria")
     if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_6.0(case_sub_criteria)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    err <- err_sub_criteria_6.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "case_sub_criteria")
     if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_7(case_sub_criteria)
     if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_7(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    if(!isFALSE(err)) return(err)
+  }
+
+  if(class(recurrence_sub_criteria) != "NULL"){
+    err <- err_sub_criteria_8(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
+    if(!isFALSE(err)) return(err[1])
+    err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_5.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_5.0(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_6.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_6.0(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_7(recurrence_sub_criteria)
+    if(!isFALSE(err)) return(err)
+    err <- err_sub_criteria_7(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
   }
 
