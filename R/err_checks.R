@@ -713,8 +713,8 @@ err_episodes_checks_1 <- function(date,
                              recurrence_length,
                              episode_type,
                              episode_unit,
-                             overlap_methods_c,
-                             overlap_methods_r,
+                             case_overlap_methods,
+                             recurrence_overlap_methods,
                              deduplicate,
                              display,
                              bi_direction,
@@ -726,8 +726,8 @@ err_episodes_checks_1 <- function(date,
                recurrence_length = recurrence_length,
                episode_type = episode_type,
                episode_unit= episode_unit,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                deduplicate = deduplicate,
                display = display,
                bi_direction = bi_direction,
@@ -747,8 +747,8 @@ err_episodes_checks_1 <- function(date,
                case_length = case_length,
                recurrence_length = recurrence_length,
                episode_type = episode_type,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                episode_unit = episode_unit,
                deduplicate = deduplicate,
                display = display,
@@ -759,8 +759,8 @@ err_episodes_checks_1 <- function(date,
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
-                       overlap_methods_c = c("list", "character"),
-                       overlap_methods_r = c("list", "character"),
+                       case_overlap_methods = c("list", "character"),
+                       recurrence_overlap_methods = c("list", "character"),
                        episode_unit = "character",
                        deduplicate = "logical",
                        display = "character",
@@ -785,8 +785,8 @@ err_episodes_checks_1 <- function(date,
                recurrence_length = recurrence_length,
                episode_type = episode_type,
                episode_unit= episode_unit,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                deduplicate = deduplicate,
                display = display,
                bi_direction = bi_direction,
@@ -795,8 +795,8 @@ err_episodes_checks_1 <- function(date,
                to_s4 = to_s4)
 
   args_lens <- list(episode_type = len_lims,
-                    overlap_methods_c = len_lims,
-                    overlap_methods_r = len_lims,
+                    case_overlap_methods = len_lims,
+                    recurrence_overlap_methods = len_lims,
                     episode_unit = len_lims,
                     deduplicate = 1,
                     display = 1,
@@ -818,8 +818,8 @@ err_episodes_checks_1 <- function(date,
 
   # Check for missing values where they are not permitted
   args <- list(episode_type = episode_type,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                deduplicate = deduplicate,
                display = display,
                bi_direction = bi_direction,
@@ -842,13 +842,13 @@ err_episodes_checks_1 <- function(date,
   if(!isFALSE(err)) return(err[1])
   err <- err_display_1(display = display)
   if(!isFALSE(err)) return(err[1])
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
+  err <- err_overlap_methods_1(overlap_methods = case_overlap_methods, "case_overlap_methods")
   if(!isFALSE(err)) return(err[1])
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
+  err <- err_overlap_methods_1(overlap_methods = recurrence_overlap_methods, "recurrence_overlap_methods")
   if(!isFALSE(err)) return(err[1])
-  err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
+  err <- err_overlap_methods_2(overlap_methods = case_overlap_methods, lengths = case_length, overlap_methods_nm = "case_overlap_methods", lengths_nm = "case_length")
   if(!isFALSE(err)) return(err[1])
-  err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
+  err <- err_overlap_methods_2(overlap_methods = recurrence_overlap_methods, lengths = recurrence_length, overlap_methods_nm = "recurrence_overlap_methods", lengths_nm = "recurrence_length")
   if(!isFALSE(err)) return(err[1])
 
   return(FALSE)
@@ -962,8 +962,8 @@ err_episodes_checks_0 <- function(date = 1,
                                   recurrence_length = 1,
                                   episode_type = "fixed",
                                   episode_unit = "days",
-                                  overlap_methods_c = "overlap",
-                                  overlap_methods_r = "overlap",
+                                  case_overlap_methods = "overlap",
+                                  recurrence_overlap_methods = "overlap",
                                   display = "none",
                                   sn = seq_len(length(date)),
                                   episodes_max = 1,
@@ -992,8 +992,8 @@ err_episodes_checks_0 <- function(date = 1,
                recurrence_length = recurrence_length,
                episode_type = episode_type,
                episode_unit= episode_unit,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                display = display,
                strata = strata,
                custom_sort = custom_sort,
@@ -1022,8 +1022,8 @@ err_episodes_checks_0 <- function(date = 1,
                case_length = case_length,
                recurrence_length = recurrence_length,
                episode_type = episode_type,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                episode_unit = episode_unit,
                display = display,
                #data_source = data_source,
@@ -1044,8 +1044,8 @@ err_episodes_checks_0 <- function(date = 1,
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
-                       overlap_methods_c = c("list", "character"),
-                       overlap_methods_r = c("list", "character"),
+                       case_overlap_methods = c("list", "character"),
+                       recurrence_overlap_methods = c("list", "character"),
                        episode_unit = "character",
                        display = "character",
                        case_length = c("list", "integer", "numeric", "number_line"),
@@ -1079,8 +1079,8 @@ err_episodes_checks_0 <- function(date = 1,
                recurrence_length = recurrence_length,
                episode_type = episode_type,
                episode_unit= episode_unit,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                display = display,
                strata = strata,
                custom_sort = custom_sort,
@@ -1098,8 +1098,8 @@ err_episodes_checks_0 <- function(date = 1,
                recurrence_length_total = recurrence_length_total)
 
   args_lens <- list(episode_type = len_lims,
-                    overlap_methods_c = len_lims,
-                    overlap_methods_r = len_lims,
+                    case_overlap_methods = len_lims,
+                    recurrence_overlap_methods = len_lims,
                     episode_unit = len_lims,
                     display = 1,
                     case_length = len_lims,
@@ -1130,8 +1130,8 @@ err_episodes_checks_0 <- function(date = 1,
 
   # Check for missing values where they are not permitted
   args <- list(episode_type = episode_type,
-               overlap_methods_c = overlap_methods_c,
-               overlap_methods_r = overlap_methods_r,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
                display = display,
                schema = schema,
 
@@ -1164,13 +1164,13 @@ err_episodes_checks_0 <- function(date = 1,
   if(!isFALSE(err)) return(err)
   err <- err_display_1(display = display)
   if(!isFALSE(err)) return(err)
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_c, "overlap_methods_c")
+  err <- err_overlap_methods_1(overlap_methods = case_overlap_methods, "case_overlap_methods")
   if(!isFALSE(err)) return(err)
-  err <- err_overlap_methods_1(overlap_methods = overlap_methods_r, "overlap_methods_r")
+  err <- err_overlap_methods_1(overlap_methods = recurrence_overlap_methods, "recurrence_overlap_methods")
   if(!isFALSE(err)) return(err)
-  err <- err_overlap_methods_2(overlap_methods = overlap_methods_c, lengths = case_length, overlap_methods_nm = "overlap_methods_c", lengths_nm = "case_length")
+  err <- err_overlap_methods_2(overlap_methods = case_overlap_methods, lengths = case_length, overlap_methods_nm = "case_overlap_methods", lengths_nm = "case_length")
   if(!isFALSE(err)) return(err)
-  err <- err_overlap_methods_2(overlap_methods = overlap_methods_r, lengths = recurrence_length, overlap_methods_nm = "overlap_methods_r", lengths_nm = "recurrence_length")
+  err <- err_overlap_methods_2(overlap_methods = recurrence_overlap_methods, lengths = recurrence_length, overlap_methods_nm = "recurrence_overlap_methods", lengths_nm = "recurrence_length")
   if(!isFALSE(err)) return(err)
   err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
   if(!isFALSE(err)) return(err)

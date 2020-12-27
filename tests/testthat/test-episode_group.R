@@ -548,7 +548,7 @@ test_that("testing; intervals grouping for rolling intervals", {
   expect_equal(test_11b$epid_length, as.difftime(rep(30,9), units = "days" ))
 })
 
-# fixed episodes of overlaping intervals of admission seperated by 1 month
+# fixed episodes of overlapping intervals of admission separated by 1 month
 admissions$epi_len <- 1
 
 test_11c <- cbind(admissions,

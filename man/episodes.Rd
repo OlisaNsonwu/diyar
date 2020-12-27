@@ -15,8 +15,8 @@ episodes(
   episode_unit = "days",
   episodes_max = Inf,
   rolls_max = Inf,
-  overlap_methods_c = "overlap",
-  overlap_methods_r = overlap_methods_c,
+  case_overlap_methods = "overlap",
+  recurrence_overlap_methods = case_overlap_methods,
   sn = NULL,
   strata = NULL,
   skip_if_b4_lengths = FALSE,
@@ -42,12 +42,12 @@ fixed_episodes(
   case_length = Inf,
   episode_unit = "days",
   to_s4 = TRUE,
-  overlap_methods_c = "overlap",
+  case_overlap_methods = "overlap",
   deduplicate = FALSE,
   display = "progress",
   bi_direction = FALSE,
   recurrence_length = case_length,
-  overlap_methods_r = overlap_methods_c,
+  recurrence_overlap_methods = case_overlap_methods,
   include_index_period = TRUE,
   ...,
   overlap_methods = "overlap",
@@ -61,8 +61,8 @@ rolling_episodes(
   recurrence_length = case_length,
   episode_unit = "days",
   to_s4 = TRUE,
-  overlap_methods_c = "overlap",
-  overlap_methods_r = overlap_methods_c,
+  case_overlap_methods = "overlap",
+  recurrence_overlap_methods = case_overlap_methods,
   deduplicate = FALSE,
   display = "progress",
   bi_direction = FALSE,
@@ -92,9 +92,9 @@ This is the recurrence window. By default, it's the same as \code{case_length}.}
 
 \item{rolls_max}{Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{overlap_methods_c}{Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})}
+\item{case_overlap_methods}{Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})}
 
-\item{overlap_methods_r}{Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})}
+\item{recurrence_overlap_methods}{Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})}
 
 \item{sn}{Unique numerical record identifier. Useful for creating familiar episode identifiers.}
 
@@ -136,9 +136,9 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{...}{Arguments passed to \bold{\code{episodes}}}
 
-\item{overlap_methods}{Deprecated. Please use \code{overlap_methods_c} or \code{overlap_methods_r}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})}
+\item{overlap_methods}{Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})}
 
-\item{overlap_method}{Deprecated. Please use \code{overlap_methods_c} or \code{overlap_methods_r}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.}
+\item{overlap_method}{Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.}
 
 \item{x}{Deprecated. Record date or period. Please use \code{date}}
 
@@ -231,7 +231,7 @@ admissions <- hospital_admissions[c("admin_period","epi_len")]
 # Episodes of overlapping periods of admission
 hospital_admissions$epids_i<- episodes(date = hospital_admissions$admin_period,
                                        case_length = 0,
-                                       overlap_methods_c = "inbetween")
+                                       case_overlap_methods = "inbetween")
 
 }
 \seealso{
