@@ -979,7 +979,7 @@ err_episodes_checks_0 <- function(date = 1,
                                   from_last = TRUE,
                                   group_stats = TRUE,
                                   wind_criteria = NULL,
-                                  sub_criteria = NULL,
+                                  case_sub_criteria = NULL,
                                   schema = "none",
                                   wind_total = 1,
                                   case_length_total = 1,
@@ -1184,7 +1184,7 @@ err_episodes_checks_0 <- function(date = 1,
     if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_5.1(wind_criteria, length(wind_criteria), cri_nm = "wind_criteria")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.1(wind_criteria, length(sub_criteria), cri_nm = "wind_criteria")
+    err <- err_sub_criteria_6.1(wind_criteria, length(case_sub_criteria), cri_nm = "wind_criteria")
     if(!isFALSE(err)) return(err)
     err <- err_sub_criteria_8(wind_criteria, cri_nm = "wind_criteria")
     if(!isFALSE(err)) return(err[1])
@@ -1192,22 +1192,22 @@ err_episodes_checks_0 <- function(date = 1,
     if(!isFALSE(err)) return(err)
   }
 
-  if(class(sub_criteria) != "NULL"){
-    err <- err_sub_criteria_8(sub_criteria)
+  if(class(case_sub_criteria) != "NULL"){
+    err <- err_sub_criteria_8(case_sub_criteria)
     if(!isFALSE(err)) return(err[1])
-    err <- err_sub_criteria_10(date, sub_criteria, "date")
+    err <- err_sub_criteria_10(date, case_sub_criteria, "date")
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.0(sub_criteria)
+    err <- err_sub_criteria_5.0(case_sub_criteria)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.0(sub_criteria)
+    err <- err_sub_criteria_6.0(case_sub_criteria)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_6.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    err <- err_sub_criteria_6.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_7(sub_criteria)
+    err <- err_sub_criteria_7(case_sub_criteria)
     if(!isFALSE(err)) return(err)
-    err <- err_sub_criteria_7(sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    err <- err_sub_criteria_7(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(!isFALSE(err)) return(err)
   }
 

@@ -38,7 +38,7 @@
 #' @param x Deprecated. Record date or period. Please use \code{date}
 #' @param ... Arguments passed to \bold{\code{episodes}}
 #' @param wind_criteria \code{list} Additional conditions for overlapping windows. Comparisons are done with user-defined logical tests. Supplied by \code{\link{sub_criteria}}.
-#' @param sub_criteria \code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.
+#' @param case_sub_criteria \code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE}
@@ -136,7 +136,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
-                     display = "none", wind_criteria = NULL, sub_criteria = NULL, schema = "none", wind_total = 1,
+                     display = "none", wind_criteria = NULL, case_sub_criteria = NULL, schema = "none", wind_total = 1,
                      case_length_total = 1, recurrence_length_total = case_length_total) {
   tm_a <- Sys.time()
 
@@ -148,10 +148,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
   }
 
-  rut <- attr(sub_criteria, "diyar_sub_criteria")
+  rut <- attr(case_sub_criteria, "diyar_sub_criteria")
   if(class(rut) != "NULL"){
     if(rut == TRUE){
-      sub_criteria <- list(sub_criteria)
+      case_sub_criteria <- list(case_sub_criteria)
     }
   }
 
@@ -166,7 +166,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
                                 recurrence_from_last = recurrence_from_last,
                                 episode_type = episode_type, recurrence_length=recurrence_length,
-                                wind_criteria = wind_criteria, sub_criteria = sub_criteria,
+                                wind_criteria = wind_criteria, case_sub_criteria = case_sub_criteria,
                                 schema = schema, wind_total = wind_total, case_length_total = case_length_total,
                                 recurrence_length_total = recurrence_length_total)
 
@@ -691,8 +691,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rm(cr2)
     }
 
-    # Implement `sub_criteria`
-    s_cri <- sub_cri_match_2(sub_criteria = sub_criteria,
+    # Implement `case_sub_criteria`
+    s_cri <- sub_cri_match_2(sub_criteria = case_sub_criteria,
                              cri = cri,
                              ref_rd = ref_rd,
                              pr_sn = int@id,

@@ -30,7 +30,7 @@ episodes(
   group_stats = FALSE,
   display = "none",
   wind_criteria = NULL,
-  sub_criteria = NULL,
+  case_sub_criteria = NULL,
   schema = "none",
   wind_total = 1,
   case_length_total = 1,
@@ -124,7 +124,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{wind_criteria}{\code{list} Additional conditions for overlapping windows. Comparisons are done with user-defined logical tests. Supplied by \code{\link{sub_criteria}}.}
 
-\item{sub_criteria}{\code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.}
+\item{case_sub_criteria}{\code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.}
 
 \item{to_s4}{Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 
