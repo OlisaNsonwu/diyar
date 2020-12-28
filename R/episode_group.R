@@ -751,66 +751,33 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # Events in between `case_length`s and `recurrence_length`s
     if(isTRUE(any_skip_b4_len)){
-      lgk <- lead_skip_b4_len & tag != 2
-      ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) start_point(x[lgk])))
-      ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) end_point(x[lgk])))
-      ep_l_bounds_a <- start_point(tr_int[lgk])
-      ep_l_bounds_z <- end_point(tr_int[lgk])
-
-      ep_l_bounds_a <- ifelse(ep_l_min_a[1,] < ep_l_bounds_a, ep_l_min_a[1,], ep_l_bounds_a)
-      ep_l_bounds_z <- ifelse(ep_l_min_z[2,] > ep_l_bounds_z, ep_l_min_z[2,], ep_l_bounds_z)
-
-      epc_bnds <- suppressWarnings(
-        number_line(
-          l = ep_l_bounds_a,
-          r = ep_l_bounds_z))
-
-      ep_obds_checks <- suppressWarnings(overlap(int[lgk], epc_bnds))
-      ep_obds_checks <- ifelse(is.na(ep_obds_checks), FALSE, ep_obds_checks)
-
+      lgk <- lead_skip_b4_len & tag != 2 & tr_tag %in% c(0, -2)
+      lgk <- check_skips(lgk = lgk,
+                         lead_skip_b4_len = lead_skip_b4_len,
+                         cri = cri,
+                         cr = cr,
+                         vr = vr,
+                         tr_ep_int = tr_ep_int,
+                         tr_int = tr_int,
+                         int = int,
+                         case_nm = case_nm)
       if(isTRUE(any_rolling_epi_curr)){
-        rc_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_rc_int, function(x) start_point(x[lgk])))
-        rc_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_rc_int, function(x) end_point(x[lgk])))
-
-        rc_l_bounds_a <- start_point(tr_int[lgk])
-        rc_l_bounds_z <- end_point(tr_int[lgk])
-
-        rc_l_bounds_a <- ifelse(rc_l_min_a[1,] < rc_l_bounds_a, rc_l_min_a[1,], rc_l_bounds_a)
-        rc_l_bounds_z <- ifelse(rc_l_min_z[2,] > rc_l_bounds_z, rc_l_min_z[2,], rc_l_bounds_z)
-
-        rc_l_bnds <- suppressWarnings(
-          number_line(
-            l = rc_l_bounds_a,
-            r = rc_l_bounds_z))
-
-        rc_obds_checks <- suppressWarnings(overlap(int[lgk], rc_l_bnds))
-        rc_obds_checks <- ifelse(is.na(rc_obds_checks), FALSE, rc_obds_checks)
+        lgk2 <- lead_skip_b4_len & tag != 2 & tr_tag %in% c(-1)
+        lgk2 <- check_skips(lgk = lgk2,
+                           lead_skip_b4_len = lead_skip_b4_len,
+                           cri = cri,
+                           cr = cr,
+                           vr = vr,
+                           tr_ep_int = tr_rc_int,
+                           tr_int = tr_int,
+                           int = int,
+                           case_nm = case_nm)
+        lgk <- c(lgk, lgk2)
+        lgk <- lgk[!duplicated(lgk)]
       }
 
-      ref_period <- overlap(int, tr_int)
-      ref_period <- ifelse(is.na(ref_period), FALSE, ref_period)
-      skp_crxt <- cri[vr & !ref_period]
-      skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
-      indx <- (ep_obds_checks &
-                 !cr[lgk] &
-                 cri[lgk] %in% skp_crxt &
-                 tr_tag[lgk] %in% c(0, -2) &
-                 case_nm[lgk] == "")
-      if(isTRUE(any_rolling_epi_curr)){
-        indx <- ifelse((rc_obds_checks &
-                          !cr[lgk] &
-                          cri[lgk] %in% skp_crxt &
-                          tr_tag[lgk] == -1 &
-                          case_nm[lgk] == ""),
-                       TRUE, indx)
-      }
-
-      lgk3 <- which(lgk == TRUE)[indx == TRUE]
-      if(length(lgk[indx]) > 0){
-        case_nm[lgk3] <- "Skipped"
-        tag[lgk3] <- 2
-      }
-      rm(skp_crxt); rm(indx)
+      case_nm[lgk] <- "Skipped"
+      tag[lgk] <- 2
     }
     iteration[tag != 0 & iteration == Inf] <- ite
     current_tagged <- length(tag[tag == 2])

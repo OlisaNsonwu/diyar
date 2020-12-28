@@ -924,3 +924,36 @@ pane_checks <- function(dates, windows){
   ep_checks <- Rfast::rowMaxs(checks, value = TRUE)
   ep_checks
 }
+
+check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, int, case_nm){
+  if(length(lgk[lgk]) > 0){
+    ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) start_point(x[lgk])))
+    ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) end_point(x[lgk])))
+    ep_l_bounds_a <- start_point(tr_int[lgk])
+    ep_l_bounds_z <- end_point(tr_int[lgk])
+
+    ep_l_bounds_a <- ifelse(ep_l_min_a[1,] < ep_l_bounds_a, ep_l_min_a[1,], ep_l_bounds_a)
+    ep_l_bounds_z <- ifelse(ep_l_min_z[2,] > ep_l_bounds_z, ep_l_min_z[2,], ep_l_bounds_z)
+
+    epc_bnds <- suppressWarnings(
+      number_line(
+        l = ep_l_bounds_a,
+        r = ep_l_bounds_z))
+
+    ep_obds_checks <- suppressWarnings(overlap(int[lgk], epc_bnds))
+    ep_obds_checks <- ifelse(is.na(ep_obds_checks), FALSE, ep_obds_checks)
+
+    ref_period <- overlap(int, tr_int)
+    ref_period <- ifelse(is.na(ref_period), FALSE, ref_period)
+    skp_crxt <- cri[vr & !ref_period]
+    skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
+    indx <- (ep_obds_checks &
+               !cr[lgk] &
+               cri[lgk] %in% skp_crxt &
+               case_nm[lgk] == "")
+    lgk <- which(lgk == TRUE)[indx == TRUE]
+    return(lgk)
+  }else{
+    return(numeric())
+  }
+}
