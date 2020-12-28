@@ -739,7 +739,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
         msg <- paste0(fmt(current_tot), " record(s): ", ifelse(current_tagged > current_skipped,
-                                                               paste0(fmt(current_tagged - current_skipped), " tracked.", fmt(current_skipped), " skipped."),
+                                                               paste0(fmt(current_tagged - current_skipped), " tracked. ", fmt(current_skipped), " skipped."),
                                                                paste0(fmt(current_skipped), " skipped.")))
         cat(msg, "\n", sep="")
       }else if (tolower(display) == "progress") {
@@ -782,7 +782,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[tag != 0 & iteration == Inf] <- ite
     current_tagged <- length(tag[tag == 2])
     if(display == "stats"){
-      msg <- paste0(fmt(current_tot), " record(s): ", fmt(current_tagged), " tracked.",
+      msg <- paste0(fmt(current_tot), " record(s): ", fmt(current_tagged), " tracked. ",
                     ifelse(current_skipped > 0, paste0(", ",fmt(current_skipped), " skipped."), ""))
       cat(msg, "\n", sep="")
     }else if (tolower(display) == "progress") {
