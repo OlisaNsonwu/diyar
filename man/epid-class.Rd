@@ -50,3 +50,31 @@ as.epid(x)
 \description{
 S4 objects to store the results of \code{\link{episodes}}
 }
+\section{Slots}{
+
+\describe{
+\item{\code{sn}}{Unique record identifier.}
+
+\item{\code{epid}}{.Data Unique \code{episode} identifier.}
+
+\item{\code{wind_id}}{Unique window identifier.}
+
+\item{\code{wind_nm}}{Type of window i.e. "Case" or "Recurrence".}
+
+\item{\code{case_nm}}{Record type in regards to case assignment.}
+
+\item{\code{dist_wind_index}}{Unit difference between each record and its window's reference record.}
+
+\item{\code{dist_epid_index}}{Unit difference between each record and its episode's reference record.}
+
+\item{\code{epid_dataset}}{Data sources in each \code{episode}.}
+
+\item{\code{epid_interval}}{The start and end dates of each \code{episode}. A \code{\link{number_line}} object.}
+
+\item{\code{epid_length}}{The duration or length of (\code{epid_interval}).}
+
+\item{\code{epid_total}}{The number of records in each \code{episode}.}
+
+\item{\code{iteration}}{The iteration of the tracking process when a record was linked to its episode.}
+}}
+

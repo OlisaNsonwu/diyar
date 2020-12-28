@@ -63,8 +63,8 @@ S4 objects to store the results of \code{\link{links}}
 
 \item{\code{pid_dataset}}{Data sources in each group.}
 
-\item{\code{pid_total}}{The number of records in each group}
+\item{\code{pid_total}}{The number of records in each group.}
 
-\item{\code{iteration}}{The iteration of the linkage process when a record was linked to its group}
+\item{\code{iteration}}{The iteration of the linkage process when a record was linked to its group.}
 }}
 

@@ -147,6 +147,19 @@ format.number_line <- function(x, ...){
 #' @name epid-class
 #' @title \code{epid} object
 #'
+#' @slot sn Unique record identifier.
+#' @slot epid .Data Unique \code{episode} identifier.
+#' @slot wind_id Unique window identifier.
+#' @slot wind_nm Type of window i.e. "Case" or "Recurrence".
+#' @slot case_nm Record type in regards to case assignment.
+#' @slot dist_wind_index Unit difference between each record and its window's reference record.
+#' @slot dist_epid_index Unit difference between each record and its episode's reference record.
+#' @slot epid_dataset Data sources in each \code{episode}.
+#' @slot epid_interval The start and end dates of each \code{episode}. A \code{\link{number_line}} object.
+#' @slot epid_length The duration or length of (\code{epid_interval}).
+#' @slot epid_total The number of records in each \code{episode}.
+#' @slot iteration The iteration of the tracking process when a record was linked to its episode.
+#'
 #' @description
 #' S4 objects to store the results of \code{\link{episodes}}
 #'
@@ -452,8 +465,8 @@ setMethod("c", signature(x = "pane"), function(x,...) {
 #' @slot link_id Unique record identifier for matching records
 #' @slot pid_cri Matching criteria
 #' @slot pid_dataset Data sources in each group.
-#' @slot pid_total The number of records in each group
-#' @slot iteration The iteration of the linkage process when a record was linked to its group
+#' @slot pid_total The number of records in each group.
+#' @slot iteration The iteration of the linkage process when a record was linked to its group.
 #'
 #' @aliases pid-class
 #' @importFrom "methods" "new"

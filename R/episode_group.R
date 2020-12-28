@@ -1,29 +1,30 @@
 #' @name episodes
-#' @title Track episodes for case definitions and record deduplication.
+#' @title Link events to chronological episodes.
 #'
-#' @description Link events into a chronological sequence of episodes.
+#' @description Link events that have matching attributes and are within specified durations of each other.
+#' Records in each episode are assigned a unique identifier with relevant group-level data.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
 #' @param sn Unique numerical record identifier. Useful for creating familiar episode identifiers.
-#' @param strata Subsets. Episodes are tracked separately within each subset. \code{\link{links}} is useful for creating these.
+#' @param strata Subsets of the dataset. Episodes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will skip that record.
 #' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
 #' @param case_length Cut-off point (\code{numeric}) or period (\code{\link{number_line}}), distinguishing one \code{"case"} from another.
 #' This is the case window.
 #' @param episodes_max The maximum number of episodes permitted within each \code{strata}.
 #' @param episode_type \code{"fixed"} or \code{"rolling"}.
-#' @param recurrence_length Cut-off point or period distinguishing a \code{"recurrent"} event from its index \code{"case"}.
+#' @param recurrence_length Cut-off point or period distinguishing a \code{"recurrent"} event from its index event.
 #' This is the recurrence window. By default, it's the same as \code{case_length}.
 #' @param episode_unit Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
 #' @param rolls_max Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique data source identifier. Useful when the dataset has data from multiple sources.
-#' @param from_last Chronological sequence of episode tracking. Ascending (\code{TRUE}) or descending \code{TRUE}.
+#' @param from_last Chronological order for episode tracking i.e. ascending (\code{TRUE}) or descending \code{TRUE}.
 #' @param overlap_method Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.
 #' @param overlap_methods Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
 #' @param case_overlap_methods Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
 #' @param recurrence_overlap_methods Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
-#' @param custom_sort  Preferential order for selecting index (\code{"case"}) events. Required for tracking episodes in a non-chronological sequence.
+#' @param custom_sort  Preferential order for index (\code{"case"}) events.
 #' @param bi_direction If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
-#' @param group_stats If \code{TRUE} (default), episode-specific information like episode start and endpoints are returned. See \code{Value}.
+#' @param group_stats If \code{TRUE} (default), episode-specific information like episode start and endpoints are returned.
 #' @param display The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.
 #' @param to_s4 Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param recurrence_from_last If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
@@ -31,42 +32,28 @@
 #' @param case_for_recurrence If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 #' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param skip_order \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
-#' @param data_links A set of \code{data_sources} required in each episode. A \code{strata} without records from these data sources will be skipped, and episodes without these will be unlinked. See \code{Details}.
-#' @param skip_if_b4_lengths If \code{TRUE} (default), \code{events} before the cut-off points or periods are skipped.
+#' @param data_links A set of \code{data_sources} required in each episode. An \code{episode} without records from these \code{data_sources} will be skipped or unlinked. See \code{Details}.
+#' @param skip_if_b4_lengths If \code{TRUE} (default), \code{events} before the cut-off points or periods, or not captured by \code{"case_sub_criteria"} or \code{"recurrence_sub_criteria"} are skipped.
 #' @param include_index_period If \code{TRUE}, overlaps with the index event or period are linked even if they are outside the cut-off period.
 #' @param deduplicate if \code{TRUE}, \code{"duplicate"} events are excluded from the output.
 #' @param x Deprecated. Record date or period. Please use \code{date}
 #' @param ... Arguments passed to \bold{\code{episodes}}
-#' @param wind_criteria \code{list} Additional conditions for overlapping windows. Comparisons are done with user-defined logical tests. Supplied by \code{\link{sub_criteria}}.
-#' @param case_sub_criteria \code{list} Additional conditions after temporal links are established. Supplied by \code{\link{sub_criteria}}.
+#' @param case_sub_criteria Matching conditions for "case" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.
+#' @param recurrence_sub_criteria Matching conditions for "recurrence" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.
+#' @param schema Return a schema of the \code{epid} object. Options are; \code{"none"} (default), \code{"by_epid"}, \code{"by_strata"} or \code{"by_ALL"}.
 #' @return
 #'
-#' @return \code{\link[=epid-class]{epid}} objects or \code{data.frame} if \code{to_s4} is \code{FALSE}
-#'
-#' \itemize{
-#' \item \code{sn} - unique record identifier as provided (or generated)
-#' \item \code{epid | .Data} - unique episode identifier
-#' \item \code{wind_id} - unique window identifier
-#' \item \code{wind_nm} - type of window i.e. "Case" or "Recurrence"
-#' \item \code{case_nm} - record type in regards to case assignment
-#' \item \code{dist_wind_index} - duration of each event from its window's reference event
-#' \item \code{dist_epid_index} - duration of each event from its episode's reference event
-#' \item \code{epid_dataset} - data sources in each episode
-#' \item \code{epid_interval} - episode start and end dates. A \code{\link{number_line}} object.
-#' \item \code{epid_length} - the difference between episode start and end dates (\code{difftime}). If possible, it's the same unit as \code{episode_unit} otherwise, a difference in days is returned
-#' \item \code{epid_total} - number of records in each episode
-#' \item \code{iteration} - iteration of the process when each event was tracked to its episode.
-#' }
+#' @return \code{\link[=epid-class]{epid}} or \code{list} (\code{\link[=epid-class]{epid}} and \code{ggplot}) object
 #'
 #' @seealso
-#' \code{\link[=windows]{epid_length}}, \code{\link[=windows]{epid_window}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
+#' \code{\link{custom_sort}}, \code{\link{sub_criteria}}, \code{\link[=windows]{epid_length}}, \code{\link[=windows]{epid_window}}, \code{\link{partitions}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
 #'
 #' @details
-#' Episodes are tracked from index events in chronological sequence as determined by \code{from_last}.
-#' You can use \code{custom_sort} for a non-chronological sequence. However, ties will be broken by chronological orders.
+#' Episodes begin with an index event. Records within a specified duration of this index event are then linked as episodes.
+#' By default, this is done in ascending order of events however, this can be changed to descending (\code{from_last}) or a custom order \code{custom_sort}.
+#' Ties are always broken by the chronological order of events.
 #'
-#' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}.
-#' But a \code{"rolling"} episode can continue to recur. therefore, its maximum duration is variable.
+#' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}, while a \code{"rolling"} episode can continue to recur.
 #' A \code{"rolling"} episode will persist as long as is specified by \code{rolls_max}.
 #'
 #' \bold{\code{episodes()}} will categorise records into 5 types of events;
@@ -79,20 +66,17 @@
 #' \item \code{"Skipped"} - Those skipped from the episode tracking process.
 #' }
 #'
-#' \code{data_source} - including this populates the \code{epid_dataset} slot. See \code{Value}.
-#'
 #' \code{data_links} should be a \code{list} of \code{atomic} vectors with every element named \code{"l"} (links) or \code{"g"} (groups).
 #' \itemize{
-#' \item \code{"l"} - Episodes with records from every listed data source will be retained.
-#' \item \code{"g"} - Episodes with records from any listed data source will be retained.
+#' \item if named \code{"l"}, only \code{episodes} with records from every listed \code{data_source} will be retained.
+#' \item if named \code{"g"}, only \code{episodes} with records from any listed \code{data_source} will be retained.
 #' }
-#' \code{data_links} and \code{skip_order} are useful for skipping episodes that are not required to minimise processing time.
 #'
 #' \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-#' Its now exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} moving forward.
+#' Its now exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} instead.
 #'
 #' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
-#' They exist for convenience, to support previous code and arguments with minimal disruption.
+#' They exist for convenience, and to support previous code with minimal disruption.
 #'
 #' See \code{vignette("episodes")} for more information.
 #'
@@ -131,9 +115,9 @@
 #' @export
 #'
 episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = case_length,
-                     episode_unit = "days", episodes_max = Inf, rolls_max = Inf,
+                     episode_unit = "days", strata = NULL, sn = NULL, episodes_max = Inf, rolls_max = Inf,
                      case_overlap_methods = "overlap", recurrence_overlap_methods = case_overlap_methods,
-                     sn = NULL, strata = NULL, skip_if_b4_lengths = FALSE, data_source = NULL,
+                      skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                      display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria, schema = "none",
