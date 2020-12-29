@@ -218,9 +218,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   })
   # `case_length`
   ep_l <- length_to_range(lengths = case_length,
-                          int = int,
+                          date = int,
                           from_last = from_last,
-                          ep_units = ep_units)
+                          episode_unit = ep_units)
 
   lead_epid_type <- episode_type[!duplicated(episode_type)]
   one_epid_type <- length(lead_epid_type) == 1
@@ -243,9 +243,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     })
     # `recurrence_length`
     rc_l <- length_to_range(lengths = recurrence_length,
-                            int = int,
+                            date = int,
                             from_last = from_last,
-                            ep_units = ep_units)
+                            episode_unit = ep_units)
   }
 
   # Place holders for episode-level inputs
@@ -603,12 +603,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     # Implement `case_sub_criteria`
-    c_sub_cri <- sub_cri_match_2(sub_criteria = case_sub_criteria,
-                                 cri = cri,
-                                 cr = cr,
-                                 ref_rd = ref_rd,
-                                 pr_sn = int@id,
-                                 spr = FALSE)[[1]]
+    c_sub_cri <- sub_cri_checks(sub_criteria = case_sub_criteria,
+                                strata = cri,
+                                temporal_link = cr,
+                                index_record = ref_rd,
+                                sn = int@id,
+                                skip_repeats = FALSE)[[1]]
+
     cr[!c_sub_cri & cr & !ref_rd & tr_tag %in% c(0, -2)] <- FALSE
 
     if(isTRUE(any_rolling_epi_curr)){
@@ -638,12 +639,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         cr2[!ref_rd & cr2 & !(rc_phits >= as.numeric(lead_rcl_min@start) & rc_phits <= as.numeric(right_point(lead_rcl_min)))] <- FALSE
       }
 
-      r_sub_cri <- sub_cri_match_2(sub_criteria = recurrence_sub_criteria,
-                                   cri = cri,
-                                   cr = cr,
-                                   ref_rd = ref_rd,
-                                   pr_sn = int@id,
-                                   spr = FALSE)[[1]]
+      r_sub_cri <- sub_cri_checks(sub_criteria = recurrence_sub_criteria,
+                                  strata = cri,
+                                  temporal_link = cr,
+                                  index_record = ref_rd,
+                                  sn = int@id,
+                                  skip_repeats = FALSE)[[1]]
+
       cr2[!r_sub_cri & cr2 & !ref_rd & tr_tag %in% c(-1)] <- FALSE
 
       cr[!cr & cr2] <- TRUE

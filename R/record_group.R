@@ -226,11 +226,11 @@ links <- function(criteria,
 
       # Implement `sub_criteria`
       curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
-      sub_cri_match <- sub_cri_match_2(sub_criteria = curr_sub_cri,
-                                       cri = cri,
-                                       ref_rd = tr_sn == sn,
-                                       pr_sn = pr_sn,
-                                       spr = TRUE)
+      sub_cri_match <- sub_cri_checks(sub_criteria = curr_sub_cri,
+                                      strata = cri,
+                                      index_record = tr_sn == sn,
+                                      sn = pr_sn,
+                                      skip_repeats = TRUE)
 
       equals_ref_rd <- sub_cri_match[[2]]
       sub_cri_match <- sub_cri_match[[1]]
