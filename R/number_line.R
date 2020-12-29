@@ -88,7 +88,7 @@ as.number_line <- function(x){
 #' is.number_line(a); is.number_line(b)
 #'
 #' @export
-is.number_line <- function(x) all(class(x) =="number_line")
+is.number_line <- function(x) all(class(x) == "number_line")
 
 #' @rdname number_line
 #' @examples

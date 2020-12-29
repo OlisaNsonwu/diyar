@@ -3,6 +3,7 @@
 \docType{class}
 \name{epid-class}
 \alias{epid-class}
+\alias{is.epid}
 \alias{as.epid}
 \alias{format.epid}
 \alias{unique.epid}
@@ -14,6 +15,8 @@
 \alias{c,epid-method}
 \title{\code{epid} object}
 \usage{
+is.epid(x)
+
 as.epid(x)
 
 \method{format}{epid}(x, ...)
@@ -78,3 +81,9 @@ S4 objects to store the results of \code{\link{episodes}}
 \item{\code{iteration}}{The iteration of the tracking process when a record was linked to its episode.}
 }}
 
+\examples{
+# A test for epid objects
+a <- episodes(date = 1)
+is.epid(a); is.epid(2)
+
+}

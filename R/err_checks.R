@@ -1610,3 +1610,260 @@ err_strata_level_args <- function(arg, strata, arg_nm){
       F
     }
   }
+
+  err_schema_epid_0 <- function(x,
+                                date,
+                                case_length,
+                                recurrence_length,
+                                episode_unit,
+                                episode_type,
+                                from_last,
+                                title,
+                                show_labels,
+                                show_skipped,
+                                show_non_finite,
+                                dark_mode){
+
+    err <- err_object_types(x, "x", "epid")
+    if(err != FALSE) return(err)
+    err <- err_match_ref_len(date, "x", length(x), "date")
+    if(err != FALSE) return(err)
+
+    errs <- err_episodes_checks_0(date = date, case_length = case_length,
+                                  recurrence_length = recurrence_length,
+                                  episode_unit = episode_unit,
+                                  episode_type = episode_type, from_last = from_last)
+
+    if(!isFALSE(errs)) return(errs)
+
+    # Check for non-atomic vectors
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 show_skipped = show_skipped,
+                 show_non_finite = show_non_finite,
+                 dark_mode = dark_mode)
+
+    err <- mapply(err_atomic_vectors,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object types
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 show_skipped = show_skipped,
+                 show_non_finite = show_non_finite,
+                 dark_mode = dark_mode)
+
+    args_classes <- list(title = c("character", "NULL"),
+                         show_labels = c("character", "logical"),
+                         show_skipped = "logical",
+                         show_non_finite = "logical",
+                         dark_mode = "logical")
+
+    err <- mapply(err_object_types,
+                  args,
+                  as.list(names(args)),
+                  args_classes[match(names(args), names(args_classes))])
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object lengths
+    len_lims <- 1
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 show_skipped = show_skipped,
+                 show_non_finite = show_non_finite,
+                 dark_mode = dark_mode)
+
+    args_lens <- list(title = c(0, len_lims),
+                      show_labels = len_lims,
+                      show_skipped = len_lims,
+                      show_non_finite = len_lims,
+                      dark_mode = len_lims)
+
+    err <- mapply(err_match_ref_len,
+                  args,
+                  rep(as.list("x"), length(args_lens)),
+                  args_lens[match(names(args), names(args_lens))],
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for missing values where they are not permitted
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 show_skipped = show_skipped,
+                 show_non_finite = show_non_finite,
+                 dark_mode = dark_mode)
+
+    err <- mapply(err_missing_check,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "length_arrow", "length_label"))
+    if(!isFALSE(err)) return(err[1])
+
+    return(FALSE)
+  }
+
+  err_schema_pane_0 <- function(x,
+                                date,
+                                title,
+                                show_labels,
+                                dark_mode){
+
+    err <- err_object_types(x, "x", "pane")
+    if(err != FALSE) return(err)
+    err <- err_match_ref_len(date, "x", length(x), "date")
+    if(err != FALSE) return(err)
+
+    errs <- err_episodes_checks_0(date = date)
+    if(!isFALSE(errs)) return(errs)
+
+    # Check for non-atomic vectors
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    err <- mapply(err_atomic_vectors,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object types
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    args_classes <- list(title = c("character", "NULL"),
+                         show_labels = c("character", "logical"),
+                         dark_mode = "logical")
+
+    err <- mapply(err_object_types,
+                  args,
+                  as.list(names(args)),
+                  args_classes[match(names(args), names(args_classes))])
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object lengths
+    len_lims <- 1
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    args_lens <- list(title = c(0, len_lims),
+                      show_labels = len_lims,
+                      dark_mode = len_lims)
+
+    err <- mapply(err_match_ref_len,
+                  args,
+                  rep(as.list("x"), length(args_lens)),
+                  args_lens[match(names(args), names(args_lens))],
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for missing values where they are not permitted
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    err <- mapply(err_missing_check,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
+    if(!isFALSE(err)) return(err[1])
+
+    return(FALSE)
+  }
+
+  err_schema_pid_0 <- function(x,
+                               title,
+                               show_labels,
+                               dark_mode){
+
+    err <- err_object_types(x, "x", "pid")
+    if(err != FALSE) return(err)
+
+    # Check for non-atomic vectors
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    err <- mapply(err_atomic_vectors,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object types
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    args_classes <- list(title = c("character", "NULL"),
+                         show_labels = c("character", "logical"),
+                         dark_mode = "logical")
+
+    err <- mapply(err_object_types,
+                  args,
+                  as.list(names(args)),
+                  args_classes[match(names(args), names(args_classes))])
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object lengths
+    len_lims <- 1
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    args_lens <- list(title = c(0, len_lims),
+                      show_labels = len_lims,
+                      dark_mode = len_lims)
+
+    err <- mapply(err_match_ref_len,
+                  args,
+                  rep(as.list("x"), length(args_lens)),
+                  args_lens[match(names(args), names(args_lens))],
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    # Check for missing values where they are not permitted
+    args <- list(title = title,
+                 show_labels = show_labels,
+                 dark_mode = dark_mode)
+
+    err <- mapply(err_missing_check,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != F]
+    if(length(err) > 0) return(err[1])
+
+    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
+    if(!isFALSE(err)) return(err[1])
+
+    return(FALSE)
+  }

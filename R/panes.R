@@ -304,7 +304,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
 
       lgk <- (p_cri == x | (cri == plt_cri & pane_n == 1))
       schema(x = panes[lgk],
-             int = int[lgk],
+             date = int[lgk],
              title = paste0(title_seq, x),
              separate = separate,
              ...)

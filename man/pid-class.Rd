@@ -3,6 +3,7 @@
 \docType{class}
 \name{pid-class}
 \alias{pid-class}
+\alias{is.pid}
 \alias{as.pid}
 \alias{format.pid}
 \alias{unique.pid}
@@ -14,6 +15,8 @@
 \alias{c,pid-method}
 \title{\code{pid} objects}
 \usage{
+is.pid(x)
+
 as.pid(x, ...)
 
 \method{format}{pid}(x, ...)
@@ -68,3 +71,9 @@ S4 objects to store the results of \code{\link{links}}
 \item{\code{iteration}}{The iteration of the linkage process when a record was linked to its group.}
 }}
 
+\examples{
+# A test for pid objects
+a <- links(criteria = 1)
+is.pid(a); is.pid(2)
+
+}

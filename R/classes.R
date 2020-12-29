@@ -174,6 +174,15 @@ setClass("epid", contains = "numeric", representation(sn = "numeric", wind_id = 
                                                       epid_dataset = "character", iteration = "numeric"))
 
 #' @rdname epid-class
+#' @examples
+#' # A test for epid objects
+#' a <- episodes(date = 1)
+#' is.epid(a); is.epid(2)
+#'
+#' @export
+is.epid <- function(x) all(class(x) == "epid")
+
+#' @rdname epid-class
 #' @export
 as.epid <- function(x){
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
@@ -330,6 +339,15 @@ setClass("pane", contains = "numeric", representation(sn = "numeric", case_nm = 
                                                       pane_dataset = "character"))
 
 #' @rdname pane-class
+#' @examples
+#' # A test for pane objects
+#' a <- episodes(date = 1)
+#' is.pane(a); is.pane(2)
+#'
+#' @export
+is.pane <- function(x) all(class(x) == "pane")
+
+#' @rdname pane-class
 #' @export
 as.pane <- function(x){
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
@@ -476,6 +494,15 @@ setClass("pid", contains = "numeric", representation(sn = "numeric", pid_cri= "n
                                                      pid_dataset ="character", pid_total = "numeric", iteration = "numeric"))
 
 #' @rdname pid-class
+#' @examples
+#' # A test for pid objects
+#' a <- links(criteria = 1)
+#' is.pid(a); is.pid(2)
+#'
+#' @export
+is.pid <- function(x) all(class(x) == "pid")
+
+#' @rdname pid-class
 #' @export
 as.pid <- function(x, ...){
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
@@ -578,3 +605,5 @@ setMethod("c", signature(x = "pid"), function(x,...) {
   methods::new("pid", zi, pid_cri = pid_cri, sn = sn,
                pid_total = pid_total, pid_dataset = pid_dataset, link_id = link_id, iteration = iteration)
 })
+
+

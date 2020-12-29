@@ -3,6 +3,7 @@
 \docType{class}
 \name{pane-class}
 \alias{pane-class}
+\alias{is.pane}
 \alias{as.pane}
 \alias{format.pane}
 \alias{unique.pane}
@@ -14,6 +15,8 @@
 \alias{c,pane-method}
 \title{\code{pane} object}
 \usage{
+is.pane(x)
+
 as.pane(x)
 
 \method{format}{pane}(x, ...)
@@ -72,3 +75,9 @@ S4 objects to store the results of \code{\link{partitions}}
 \item{\code{pane_total}}{The number of records in each \code{pane}.}
 }}
 
+\examples{
+# A test for pane objects
+a <- episodes(date = 1)
+is.pane(a); is.pane(2)
+
+}
