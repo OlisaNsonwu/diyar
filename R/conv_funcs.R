@@ -203,7 +203,7 @@ check_links <- function(cri, data_source, data_links){
 
 prep_lengths <- function(length, overlap_methods, int,
                          episode_unit, bi_direction,
-                          #from_last,
+                         #from_last,
                          include_index_period = F){
   length <- length
   if(class(length) != "list") length <- list(length)
@@ -222,7 +222,7 @@ prep_lengths <- function(length, overlap_methods, int,
       n_length <- lapply(n_length, function(x){
         x[bi_direction] <- invert_number_line(x)[bi_direction]
         return(x)
-        })
+      })
       length <- c(n_length, length)
       overlap_methods <- c(overlap_methods[!is_bdr], overlap_methods)
     }
@@ -525,12 +525,13 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
   if(rec_ls >0){
     lar$mid_y_lead <- pltd$mid_y[match(lar$sn, pltd$wind_id)]
     lar <- lapply(lens, function(x){
-      y <- x
-      left_point(y) <- as.numeric(left_point(x))
-      right_point(y) <- as.numeric(right_point(x))
-
-      # y <- number_line(as.numeric(left_point(x)),
-      #                  as.numeric(right_point(x)))
+      y <- number_line(as.numeric(left_point(x)),
+                       as.numeric(right_point(x)),
+                       id = x@id,
+                       gid = x@gid)
+      # y <- x
+      # left_point(y) <- as.numeric(left_point(x))
+      # right_point(y) <- as.numeric(right_point(x))
       y <- to_df(y[match(y@id, lar$sn)])
 
       y$id <- NULL
@@ -551,8 +552,8 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
                              "seconds")
 
       if(is_dt == TRUE){
-        y$nl_l <- number_line(left_point(y$nl_l)/as.numeric(diyar::episode_unit[[lar$episode_unit]]),
-                              right_point(y$nl_l)/as.numeric(diyar::episode_unit[[lar$episode_unit]]))
+        y$nl_l <- number_line(left_point(y$nl_l)/as.numeric(diyar::episode_unit[lar$episode_unit]),
+                              right_point(y$nl_l)/as.numeric(diyar::episode_unit[lar$episode_unit]))
       }
       y$nl_s <- left_point(y$nl_l)
       y$nl_e <- right_point(y$nl_l)
@@ -883,7 +884,7 @@ links_summary <- function(pids, tms = "??", display = "stats"){
   }else if(display == "none"){
     summ <- paste0("Data linkage completed in ", tms, "!\n")
   }
-return(summ)
+  return(summ)
 }
 
 episodes_summary <- function(epids, tms = "??", display = "stats"){

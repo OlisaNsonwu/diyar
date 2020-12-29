@@ -324,7 +324,7 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 #' @export
 setClass("pane", contains = "numeric", representation(sn = "numeric", case_nm = "character",
                                                       dist_pane_index = "ANY",
-                                                      window_list = "character", window_matched = "numeric",
+                                                      window_list = "list", window_matched = "numeric",
                                                       pane_interval = "number_line",
                                                       pane_length= "ANY", pane_total = "numeric",
                                                       pane_dataset = "character"))

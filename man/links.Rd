@@ -16,7 +16,8 @@ links(
   group_stats = FALSE,
   expand = TRUE,
   shrink = FALSE,
-  schema = "none"
+  schema = "none",
+  ...
 )
 
 record_group(df, ..., to_s4 = TRUE)
@@ -44,9 +45,9 @@ record_group(df, ..., to_s4 = TRUE)
 
 \item{schema}{Return a schema of the \code{\link[=pid-class]{pid}} object. Options are; \code{"none"} (default), \code{"by_pid"}, \code{"by_strata"} or \code{"by_ALL"}.}
 
-\item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
-
 \item{...}{Arguments passed to \bold{\code{links}}}
+
+\item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
 
 \item{to_s4}{Object type of the returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 }

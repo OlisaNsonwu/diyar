@@ -1379,7 +1379,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
       if(length(x) == 1){
         NA
       }else{
-        listr(paste0("\"", x, "\""), lim = 3)
+        listr(paste0("\"", unlist(lapply(x, format), use.names = FALSE), "\""), lim = 3)
       }
     })
 
@@ -1451,7 +1451,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                  group_stats = group_stats)
 
     args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-                         window = c("number_line", "numeric"),
+                         window = c("number_line", "numeric", "list"),
                          windows_total  = c("number_line", "numeric", "integer"),
                          separate = "logical",
                          #data_source = c("character", "NULL"),
@@ -1546,7 +1546,12 @@ err_strata_level_args <- function(arg, strata, arg_nm){
 
     err <- err_strata_level_args(fill, strata, "fill")
     if(!isFALSE(err)) return(err)
-    err <- err_strata_level_args(windows_total , strata, "windows_total ")
+    err <- err_strata_level_args(windows_total , strata, "windows_total")
+    if(!isFALSE(err)) return(err)
+    if(is.number_line(window)){
+      window <- list(window)
+    }
+    err <- err_strata_level_args(window , strata, "window")
     if(!isFALSE(err)) return(err)
 
     return(FALSE)

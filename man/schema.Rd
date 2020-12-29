@@ -9,7 +9,7 @@
 \usage{
 schema(x, ...)
 
-\method{schema}{pane}(x, int, separate, title = NULL, show_labels = FALSE)
+\method{schema}{pane}(x, int, separate, title = NULL, show_labels = c("window_label"))
 
 \method{schema}{epid}(
   x,
@@ -20,17 +20,17 @@ schema(x, ...)
   episode_type,
   from_last,
   title = NULL,
-  show_labels = FALSE,
+  show_labels = c("length_arrow"),
   show_skipped = TRUE,
   show_non_finite = FALSE
 )
 
-\method{schema}{pid}(x, title = NULL, show_labels = FALSE)
+\method{schema}{pid}(x, title = NULL, show_labels = TRUE)
 }
 \arguments{
-\item{title}{Title of \code{ggplot} object}
+\item{x}{\code{pid}, \code{epid}, or \code{pane}  object}
 
-\item{pids}{\code{pid} object}
+\item{title}{Title of \code{ggplot} object}
 }
 \value{
 \code{ggplot}

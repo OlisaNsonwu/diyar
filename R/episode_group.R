@@ -121,7 +121,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                      display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria, schema = "none",
-                     case_length_total = 1, recurrence_length_total = case_length_total) {
+                     case_length_total = 1, recurrence_length_total = case_length_total, ...) {
   tm_a <- Sys.time()
 
   # Standardise `sub_criteria` inputs
@@ -224,7 +224,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   lead_epid_type <- episode_type[!duplicated(episode_type)]
   one_epid_type <- length(lead_epid_type) == 1
-  if(one_epid_type != T){
+  if(isFALSE(one_epid_type)){
     lead_epid_type <- rep("", inp_n)
   }
 
@@ -330,13 +330,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   # Place holders for episode-level options
   tag <- rep(0, inp_n)
   iteration <- rep(Inf, inp_n)
-  nms <- format(int@id, trim = T, scientific = F)
-  names(cri) <- nms
+
   e <- int@gid
-  names(e) <- nms
   wind_id <- int@gid
-  names(int) <- nms
-  names(ep_units) <- nms
   epid_n <- rep(0, inp_n)
 
   if(isTRUE(any_rolling_epi)) roll_n <- rep(0, inp_n)
@@ -345,7 +341,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   if(!is.null(data_source)) {
     if(length(data_source) == 1) data_source <- rep(data_source, inp_n)
-    names(data_source) <- nms
   }
 
   # User-specified records to skip
@@ -793,32 +788,30 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rm(idx); rm(gidx)
 
     if(isTRUE(any_rolling_epi_curr)) roll_n <- roll_n[tag != 2]
-    if(one_epid_type != T){
+    if(isFALSE(one_epid_type)){
       lead_epid_type <- lead_epid_type[tag != 2]
       episode_type <- episode_type[tag != 2]
     }
-
-    if(one_case_for_rec != T){
+    if(isFALSE(one_case_for_rec)){
       lead_case_for_rec <- lead_case_for_rec[tag != 2]
       case_for_recurrence <- case_for_recurrence[tag != 2]
     }
-    if(one_rec_from_last != T){
+    if(isFALSE(one_rec_from_last)){
       lead_rec_from_last <- lead_rec_from_last[tag != 2]
       recurrence_from_last <- recurrence_from_last[tag != 2]
     }
-    if(one_skip_b4_len != T){
+    if(isFALSE(one_skip_b4_len)){
       lead_skip_b4_len <- lead_skip_b4_len[tag != 2]
       skip_if_b4_lengths <- skip_if_b4_lengths[tag != 2]
     }
-    if(one_epl_min != T){
+    if(isFALSE(one_epl_min)){
       lead_epl_min <- lead_epl_min[tag != 2]
       case_length_total <- case_length_total[tag != 2]
     }
-    if(one_rcl_min != T){
+    if(isFALSE(one_rcl_min)){
       lead_rcl_min <- lead_rcl_min[tag != 2]
       recurrence_length_total <- recurrence_length_total[tag != 2]
     }
-
     ep_l <- lapply(ep_l, function(x){x[tag != 2]})
     mths_a <- lapply(mths_a, function(x){x[tag != 2]})
 
@@ -858,7 +851,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   wind_nm[wind_id %in% qfx$i] <- "Recurrence"
   rm(qfx)
 
-  ep_units <- ep_units[match(names(e), names(ep_units))]
+  ep_units <- ep_units[match(int@id, seq_len(inp_n))]
 
   # `dist_epid_index` and `dist_wind_index`
   stat_pos <- int@id
@@ -902,9 +895,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
   }
 
-  tmp_pos <- names(e)
+  tmp_pos <- int@id
   fd <- match(1:length(int), tmp_pos)
-  f_e <- e[fd]; names(e) <- NULL; names(f_e) <- NULL
+  f_e <- e[fd]
 
   retrieve_pos <- match(1:length(int), stat_pos)
   # `epid` object
@@ -917,10 +910,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
               iteration = iteration[retrieve_pos],
               wind_nm = wind_nm[retrieve_pos],
               wind_id = wind_id[fd])
-  names(epids@wind_id) <- NULL
+
   # `epid_dataset` slot
   if(!is.null(data_source)){
-    data_source <- data_source[match(tmp_pos[fd], names(data_source))]
+    data_source <- data_source[match(tmp_pos[fd], seq_len(inp_n))]
     # Data links
     names(e) <- tmp_pos
     rst <- check_links(e[fd], data_source, data_links)
@@ -964,11 +957,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       epid_l <- epid_dt_z - epid_dt_a
     }
 
-    names(epid_n) <- NULL
-    names(epid_l) <- NULL
-    names(e) <- NULL
-    names(epid_tot) <- NULL
-
     epids@epid_interval <- number_line(l = epid_dt_a[fd],
                                       r = epid_dt_z[fd],
                                       gid = f_e)
@@ -977,8 +965,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     # `epid_length` slot
     epids@epid_length <- epid_l[fd]
   }
-
-  names(epids) <- NULL
 
   if(schema != "none"){
     schema <- ifelse(length(epids[epid_tot >1]) == 0 & schema == "by_epid", "by_strata", schema)
@@ -1017,14 +1003,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       plt_cri <- plt_cri[!duplicated(plt_cri)]
 
       lgk <- (p_cri == x | (strata_l %in% plt_cri & epid_tot == 1))
-      plot_epids(epids = epids[lgk],
-                 date = int_bu[lgk],
-                 episode_unit = ep_units[lgk],
-                 case_length = lapply(case_length, function(k) k[lgk]),
-                 recurrence_length = lapply(recurrence_length, function(k) k[lgk]),
-                 episode_type = episode_type[lgk],
-                 from_last = from_last[lgk],
-                 title = paste0(title_seq, x))
+      schema(x = epids[lgk],
+             date = int_bu[lgk],
+             episode_unit = ep_units[lgk],
+             case_length = lapply(case_length, function(k) k[lgk]),
+             recurrence_length = lapply(recurrence_length, function(k) k[lgk]),
+             episode_type = episode_type[lgk],
+             from_last = from_last[lgk],
+             title = paste0(title_seq, x),
+             ...)
     })
     names(plots) <- plot_sets
   }

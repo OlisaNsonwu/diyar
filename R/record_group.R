@@ -106,7 +106,8 @@ links <- function(criteria,
                   group_stats = FALSE,
                   expand = TRUE,
                   shrink = FALSE,
-                  schema = "none"){
+                  schema = "none",
+                  ...){
   tm_a <- Sys.time()
 
   rut <- attr(sub_criteria, "diyar_sub_criteria")
@@ -117,15 +118,15 @@ links <- function(criteria,
   }
   # Validations
   err <- err_links_checks_0(criteria,
-                     sub_criteria,
-                     sn,
-                     strata,
-                     data_source,
-                     data_links,
-                     display,
-                     group_stats,
-                     expand,
-                     shrink)
+                            sub_criteria,
+                            sn,
+                            strata,
+                            data_source,
+                            data_links,
+                            display,
+                            group_stats,
+                            expand,
+                            shrink)
 
   if(err != FALSE) stop(err, call. = FALSE)
   if(class(criteria) != "list") criteria <- list(criteria)
@@ -147,20 +148,20 @@ links <- function(criteria,
   }
 
   # Standardise inputs
-    # `strata`
+  # `strata`
   if(!is.null(strata)) {
     if(length(strata) == 1) strata <- rep(strata, ds_len)
   }
-    # `sn`
+  # `sn`
   pr_sn <- seq_len(ds_len)
   if(class(sn) == "NULL"){
     sn <- pr_sn
   }
-    # `data_links`
+  # `data_links`
   dl_lst <- unlist(data_links, use.names = FALSE)
   ds_lst <- data_source[!duplicated(data_source)]
   ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
-    # `display`
+  # `display`
   display <- tolower(display)
   # Place holders for group-level options
   tag <- rep(0, ds_len)
@@ -177,7 +178,7 @@ links <- function(criteria,
   for(i in 1:length(criteria)){
     # Current stage
     cri <- criteria[[i]]
-      # Standardise `criteria` input
+    # Standardise `criteria` input
     if (length(cri) == 1) cri <- rep(cri, ds_len)
     # Re-order to current sort order
     cri <- cri[match(pr_sn, n_seq)]
@@ -226,21 +227,21 @@ links <- function(criteria,
       # Implement `sub_criteria`
       curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
       sub_cri_match <- sub_cri_match_2(sub_criteria = curr_sub_cri,
-                               cri = cri,
-                               ref_rd = tr_sn == sn,
-                               pr_sn = pr_sn,
-                               spr = TRUE)
+                                       cri = cri,
+                                       ref_rd = tr_sn == sn,
+                                       pr_sn = pr_sn,
+                                       spr = TRUE)
 
       equals_ref_rd <- sub_cri_match[[2]]
       sub_cri_match <- sub_cri_match[[1]]
 
       # Track records checked for the current `sub_criteria`
-        # Records with matching `sub_criteria` from earlier stages should trigger a re-check for possible updates to the link
+      # Records with matching `sub_criteria` from earlier stages should trigger a re-check for possible updates to the link
       m_tag <- ifelse(m_tag == 1 &
                         sub_cri_match > 0 &
                         pid_cri <= tr_pid_cri,
                       -1, m_tag)
-          # A re-check that doesn't lead to a change in link should not be checked again
+      # A re-check that doesn't lead to a change in link should not be checked again
       m_tag <- ifelse(m_tag == -1 &
                         sub_cri_match > 0 &
                         pid == tr_pid &
@@ -260,25 +261,25 @@ links <- function(criteria,
 
       # Assign new IDs for newly matched records
       pid <- ifelse(((pid == sn_ref &
-                      tr_pid == sn_ref &
-                      !is.na(tr_pid))) &
+                        tr_pid == sn_ref &
+                        !is.na(tr_pid))) &
                       sub_cri_match > 0,
                     tr_sn, pid)
       # Matching records
       link_id <- ifelse(((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
-                          ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid)))) &
+                           ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid)))) &
                           ((tr_pid_cri == pid_cri & !expand) | (expand)),
                         tr_sn, link_id)
 
       # Identify records that match others previously checked for a `sub_criteria`
-        # Skip from another check
+      # Skip from another check
       m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1, m_tag)
       m_tag <- ifelse(m_tag != 1 & equals_ref_rd == 1, 1, m_tag)
 
       m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1, 1, m_tag)
       pid <- ifelse(pid == sn_ref &
                       m_tag == 1 &
-                      sub_cri_match == 0 & equals_ref_rd > 0,
+                      equals_ref_rd > 0,
                     sn, pid)
 
       skip <- ifelse(m_tag == -1 &
@@ -333,11 +334,11 @@ links <- function(criteria,
 
   pid_f <- pid[fd]
   pids <- methods::new("pid",
-               .Data = pid_f,
-               sn = sn[fd],
-               pid_cri = pid_cri[fd],
-               link_id = link_id[fd],
-               iteration = iteration[fd])
+                       .Data = pid_f,
+                       sn = sn[fd],
+                       pid_cri = pid_cri[fd],
+                       link_id = link_id[fd],
+                       iteration = iteration[fd])
 
   r <- rle(sort(pid))
   pid_tot <- r$lengths[match(pid_f, r$values)]
@@ -376,7 +377,8 @@ links <- function(criteria,
     plot_sets <- p_cri[!duplicated(p_cri)]
     plots <- lapply(plot_sets, function(x){
       schema(x = pids[p_cri == x],
-             title = paste0(title_seq, x))
+             title = paste0(title_seq, x),
+             ...)
     })
     names(plots) <- plot_sets
   }
@@ -409,7 +411,7 @@ record_group <- function(df, ..., to_s4 = TRUE){
   out <- bridge_record_group(df = df, args = args)
   if(out$err_cd == F) {
     stop(out$err_nm, call. = F)
-    }
+  }
   warning(paste0("`record_group()` has been retired!:\n",
                  "i - Please use `links()` instead.\n",
                  "i - Your values were passed to `links()`."), call. = F)
@@ -545,8 +547,8 @@ exact_match <- function(x, y) {
 range_match <- function(x, y, range = 10){
   x <- as.numeric(x); y <- as.numeric(y)
   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
-                                                          "i - Valid object types are: `numeric` or `integer`.\n",
-                                                          "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
+                                                           "i - Valid object types are: `numeric` or `integer`.\n",
+                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
 
   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
                                     "X - Length is ", length(range), "."), call. = F)
@@ -570,6 +572,6 @@ range_match_legacy <- function(x, y) {
     rng_i <- paste(head(which(!lg), 5), collapse = ", ", sep="")
     rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
-    }
+  }
   overlaps(as.number_line(x@gid), y)
 }

@@ -67,7 +67,7 @@
 partitions <- function(date, window = number_line(0, Inf), windows_total = 1, separate = FALSE, sn = NULL, strata = NULL,
                   data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
                   data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE,
-                  schema = "none"){
+                  schema = "none", ...){
   tm_a <- Sys.time()
 
   # Validations
@@ -129,7 +129,10 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     windows_total <- rep(windows_total, length(int))
   }
   # Strata-specific `windows`
-  if(is.null(by) | is.null(length.out)){
+  if(is.number_line(window)){
+    window <- list(compress_number_line(as.number_line(window), deduplicate = TRUE, collapse = TRUE))
+  }
+  if(!is.null(by) | !is.null(length.out) | length(window) > 1){
     split_cri <- cri
   }else{
     split_cri <- rep(1, length(int))
@@ -159,15 +162,19 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     }
     splits_windows <- mapply(splits_func, splits, split_lnts, split_fills, SIMPLIFY = FALSE)
   }else{
-    splits_windows <- list(`1` = compress_number_line(as.number_line(window), deduplicate = TRUE, collapse = TRUE))
+    if(length(window) == 1){
+      splits_windows <- window
+      names(splits_windows) <- "1"
+    }else{
+      splits_windows <- split(window, split_cri)
+      splits_windows <- lapply(splits_windows, function(x) x[!duplicated(x)])
+      splits_windows <- unlist(splits_windows, recursive = FALSE)
+      splits_windows <- lapply(splits_windows, function(x) compress_number_line(x, deduplicate = TRUE, collapse = TRUE))
+    }
   }
-  # List of `windows` per strata
-  window_list <- lapply(splits_windows, function(x){
-    paste0(format(x), collapse = ", ")
-  })
-  window_list <- unlist(window_list, use.names = FALSE)
+
   nms <- names(splits_windows)
-  window_list <- window_list[match(split_cri, nms)]
+  window_list <- splits_windows[match(split_cri, nms)]
 
   # Partition records into `windows`
   window_matched <- mapply(pane_checks, splits, splits_windows, SIMPLIFY = FALSE)
@@ -299,7 +306,8 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
       schema(x = panes[lgk],
              int = int[lgk],
              title = paste0(title_seq, x),
-             separate = separate)
+             separate = separate,
+             ...)
     })
     names(plots) <- plot_sets
   }
@@ -310,7 +318,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
 
   cat("Records partitioned in ", tms, "!\n", sep = "")
 
-  # output
+  # Output
   if(schema == "none"){
     panes
   }else{

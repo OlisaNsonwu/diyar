@@ -18,7 +18,8 @@ partitions(
   by = NULL,
   length.out = NULL,
   fill = TRUE,
-  schema = "none"
+  schema = "none",
+  ...
 )
 }
 \arguments{
