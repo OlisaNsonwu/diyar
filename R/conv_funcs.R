@@ -330,30 +330,6 @@ pid_cri_l <- function(n){
                 paste0("CRI ", formatC(n, width = 3, flag = 0, format = "fg"))))
 }
 
-#' @name combns
-#' @aliases combns
-#' @title Generate every permutation of n elements.
-#' @description An extension of \code{\link{combn}} to generate permutations not ordinarily captured by \code{\link{combn}}.
-#' Each argument should be used as would be used in \code{\link{combn}}.
-#'
-#' @param x Vector source for combination.
-#' @param m Number of elements required. Multiple counts can be supplied.
-#' @param FUN Function applied to each combination.
-#' @param simplify Logical indicating if the result should be simplified to an array or returned as a list.
-#' @param ... further arguments passed to FUN. Optional.
-#'
-#' @details
-#' \bold{\code{combns}} - Return every possible permutation of . An extension of \code{combn}.
-#'
-#' @return \code{\link{number_line}}.
-#'
-#' @examples
-#' f1 <- function(x) paste0(x, collapse = ",")
-#' combn(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
-#' combns(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
-#' combns(x = 1:3, m = 1:3, FUN = f1, simplify = TRUE)
-#'
-#' @export
 combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
   funx <- function(v){
     v <- v[!duplicated(v)]
