@@ -75,9 +75,9 @@ S4 objects representing a range of numeric values
 \describe{
 \item{\code{start}}{First value in the range.}
 
-\item{\code{id}}{Optional unique record id.}
+\item{\code{id}}{Unique element id. Optional.}
 
-\item{\code{gid}}{Optional unique group id.}
+\item{\code{gid}}{Unique group id. Optional.}
 
 \item{\code{.Data}}{Length, duration or width of the range.}
 }}

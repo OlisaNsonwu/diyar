@@ -75,9 +75,9 @@ number_line_sequence(
 
 \item{r}{Right point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object}
 
-\item{id}{Unique \code{numeric} element identifier. Optional}
+\item{id}{Unique element identifier. Optional}
 
-\item{gid}{Unique \code{numeric} group identifier. Optional}
+\item{gid}{Unique group identifier. Optional}
 
 \item{x}{\code{number_line} object}
 
@@ -111,16 +111,14 @@ Options are; \code{FLASE} for none or \code{TRUE} for the shortest possible dura
 \code{number_line} object
 }
 \description{
-\code{number_line} - A range of \code{numeric} values on a number line.
+A range of \code{numeric} values.
 }
 \details{
-A \code{number_line} object represents a range of real numbers on a number line.
+A \code{number_line} object represents a range of numbers on a number line.
 
-Visually, it's presented as locations; \code{left (l)} and \code{right (r) points}.
-However, these not always the \code{start} and \code{end points} which are the lowest and highest values of the range.
-
+It's made up of a \code{start} and \code{end point} which are the beginning and end of the range respectively.
 The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
-This is the \code{direction} of the \code{number_line}.
+This is the \code{direction} of the \code{number_line} object.
 
 \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line} object.
 A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
@@ -134,33 +132,27 @@ The \code{direction} argument specifies which type of \code{number_line} objects
 \bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points from a negative to positive value or vice versa.
 
 \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} objects into a new \code{number_line} object that covers the \code{start} and \code{end} points of the originals.
-This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the new expanded \code{number_line} object.
+This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the newly expanded \code{number_line} object.
 See \code{\link{overlaps}} for further details on overlapping \code{number_line} objects.
-If a familiar (but unique) \code{id} is used when creating the \code{number_line} objects,
 \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}.
 
 \bold{\code{number_line_sequence()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
 }
 \examples{
 date <- function(x) as.Date(x, "\%d/\%m/\%Y")
-dttm <- function(x) as.POSIXct(x, "UTC",format="\%d/\%m/\%Y \%H:\%M:\%S")
+dttm <- function(x) as.POSIXct(x, "UTC", format = "\%d/\%m/\%Y \%H:\%M:\%S")
 
-number_line(-100, 100); number_line(10, 11.2)
+number_line(-100, 100)
 
-# Other numeric based object classes are also compatible
+# Also compatible with other numeric based object classes
 number_line(dttm("15/05/2019 13:15:07"), dttm("15/05/2019 15:17:10"))
 
-# However, a warning is given if 'l' and 'r' have different classes.
-# Consider if this needs to be corrected.
-number_line(2, date("05/01/2019"))
-
-# Convert numeric based objects to `number_line` objects
+# Coerce applicable object classes to `number_line` objects
 as.number_line(5.1); as.number_line(date("21/10/2019"))
 
 # A test for number_line objects
-a <- number_line(0, -100)
-b <- number_line(date("25/04/2019"), date("01/01/2019"))
-is.number_line(a); is.number_line(b)
+a <- number_line(date("25/04/2019"), date("01/01/2019"))
+is.number_line(a)
 
 # Structure of a number_line object
 left_point(a); right_point(a); start_point(a); end_point(a)
@@ -170,14 +162,13 @@ reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
 reverse_number_line(number_line(200, -100), "increasing")
 reverse_number_line(number_line(200, -100), "decreasing")
 
-# Shift number_line objects
 c <- number_line(5, 6)
-# Towards the positive end of the number line
+# Shift number_line objects towards the positive end of the number line
 shift_number_line(x = c(c, c), by = c(2, 3))
-# Towards the negative end of the number line
+# Shift number_line objects towards the negative end of the number line
 shift_number_line(x = c(c, c), by = c(-2, -3))
 
-# Change the width or length of a number_line object
+# Change the duration, width or length of a number_line object
 d <- c(number_line(3, 6), number_line(6, 3))
 
 expand_number_line(d, 2)
@@ -188,13 +179,12 @@ expand_number_line(d, 2, "end")
 
 # Invert `number_line` objects
 e <- c(number_line(3, 6), number_line(-3, -6), number_line(-3, 6))
-
 e
 invert_number_line(e)
 invert_number_line(e, "start")
 invert_number_line(e, "end")
 
-# Collapse number line objects
+# Collapse `number_line` objects
 x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
 compress_number_line(x, deduplicate = FALSE)
 compress_number_line(x)
@@ -202,7 +192,7 @@ compress_number_line(x, collapse=TRUE)
 compress_number_line(x, collapse=TRUE, methods = "inbetween")
 
 # Split number line objects
-x <- number_line(Sys.Date()-5, Sys.Date())
+x <- number_line(Sys.Date() - 5, Sys.Date())
 x
 number_line_sequence(x, by = 2)
 number_line_sequence(x, by = 4)

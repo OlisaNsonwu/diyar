@@ -6,8 +6,8 @@
 #' S4 objects representing a range of numeric values
 #'
 #' @slot start First value in the range.
-#' @slot id Optional unique record id.
-#' @slot gid Optional unique group id.
+#' @slot id Unique element id. Optional.
+#' @slot gid Unique group id. Optional.
 #' @slot .Data Length, duration or width of the range.
 #' @importFrom "methods" "new"
 #' @importFrom "utils" "head"
