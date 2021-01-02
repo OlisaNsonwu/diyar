@@ -10,6 +10,7 @@
 \alias{summary.pid}
 \alias{show,pid-method}
 \alias{rep,pid-method}
+\alias{[,pid,ANY,ANY,ANY-method}
 \alias{[,pid-method}
 \alias{[[,pid-method}
 \alias{c,pid-method}
@@ -29,7 +30,7 @@ as.pid(x, ...)
 
 \S4method{rep}{pid}(x, ...)
 
-\S4method{[}{pid}(x, i, j, ..., drop = TRUE)
+\S4method{[}{pid,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{pid}(x, i, j, ..., exact = TRUE)
 
@@ -51,18 +52,18 @@ as.pid(x, ...)
 \item{exact}{exact}
 }
 \description{
-S4 objects to store the results of \code{\link{links}}
+S4 objects storing the result of \code{\link{links}}.
 }
 \section{Slots}{
 
 \describe{
-\item{\code{sn}}{Unique record identifier}
+\item{\code{sn}}{Unique record identifier.}
 
-\item{\code{.Data}}{Unique group identifier}
+\item{\code{.Data}}{Unique group identifier.}
 
-\item{\code{link_id}}{Unique record identifier for matching records}
+\item{\code{link_id}}{Unique record identifier for matching records.}
 
-\item{\code{pid_cri}}{Matching criteria}
+\item{\code{pid_cri}}{Matching criteria.}
 
 \item{\code{pid_dataset}}{Data sources in each group.}
 
@@ -73,7 +74,7 @@ S4 objects to store the results of \code{\link{links}}
 
 \examples{
 # A test for pid objects
-a <- links(criteria = 1)
-is.pid(a); is.pid(2)
+pd <- links(criteria = 1)
+is.pid(pd); is.pid(2)
 
 }

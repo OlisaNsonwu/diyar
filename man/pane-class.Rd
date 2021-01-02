@@ -10,6 +10,7 @@
 \alias{summary.pane}
 \alias{show,pane-method}
 \alias{rep,pane-method}
+\alias{[,pane,ANY,ANY,ANY-method}
 \alias{[,pane-method}
 \alias{[[,pane-method}
 \alias{c,pane-method}
@@ -29,7 +30,7 @@ as.pane(x)
 
 \S4method{rep}{pane}(x, ...)
 
-\S4method{[}{pane}(x, i, j, ..., drop = TRUE)
+\S4method{[}{pane,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{pane}(x, i, j, ..., exact = TRUE)
 
@@ -51,7 +52,7 @@ as.pane(x)
 \item{exact}{exact}
 }
 \description{
-S4 objects to store the results of \code{\link{partitions}}
+S4 objects storing the result of \code{\link{partitions}}.
 }
 \section{Slots}{
 
@@ -77,7 +78,7 @@ S4 objects to store the results of \code{\link{partitions}}
 
 \examples{
 # A test for pane objects
-a <- episodes(date = 1)
-is.pane(a); is.pane(2)
+pn <- partitions(date = 1, by = 1)
+is.pane(pn); is.pane(2)
 
 }

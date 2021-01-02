@@ -128,7 +128,7 @@ links <- function(criteria,
                             expand,
                             shrink)
 
-  if(err != FALSE) stop(err, call. = FALSE)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
   if(class(criteria) != "list") criteria <- list(criteria)
 
   # Maximum no. of records from all criteria
@@ -141,7 +141,7 @@ links <- function(criteria,
   rm(ds_len_b)
 
   err <- err_sn_1(sn = sn, ref_num = ds_len, ref_nm = "criteria")
-  if(err != F) stop(err, call. = F)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
 
   if(!is.null(data_source)) {
     if(length(data_source) == 1) data_source <- rep(data_source, ds_len)
@@ -405,16 +405,16 @@ record_group <- function(df, ..., to_s4 = TRUE){
                   "i- `record_group()` has been retired!\n",
                   "i - Your values will be passed to `links()`.\n",
                   "i - Please specify any argument you've use.")
-    stop(err, call. = F)
+    stop(err, call. = FALSE)
   }
 
   out <- bridge_record_group(df = df, args = args)
   if(out$err_cd == F) {
-    stop(out$err_nm, call. = F)
+    stop(out$err_nm, call. = FALSE)
   }
   warning(paste0("`record_group()` has been retired!:\n",
                  "i - Please use `links()` instead.\n",
-                 "i - Your values were passed to `links()`."), call. = F)
+                 "i - Your values were passed to `links()`."), call. = FALSE)
   if(to_s4 != T){
     return(to_df(out$err_nm))
   }else{
@@ -450,12 +450,14 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match),
 #' c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match))
 #' @export
-sub_criteria <- function(..., funcs = diyar::exact_match, equva = diyar::exact_match){
+sub_criteria <- function(...,
+                         funcs = diyar::exact_match,
+                         equva = diyar::exact_match){
   err <- err_sub_criteria_1(...)
-  if(err != F) stop(err, call. = F)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
 
   err <- err_sub_criteria_3dot_1(...)
-  if(err != F) stop(err, call. = F)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
 
   if(class(funcs) == "NULL"){
     funcs <- list(exact_match)
@@ -463,13 +465,13 @@ sub_criteria <- function(..., funcs = diyar::exact_match, equva = diyar::exact_m
     if(class(funcs) != "list") funcs <- list(funcs)
 
     err <- err_sub_criteria_2(funcs)
-    if(err != F) stop(err, call. = F)
+    if(!isFALSE(err)) stop(err, call. = FALSE)
 
     err <- err_sub_criteria_3(funcs)
-    if(err != F) stop(err, call. = F)
+    if(!isFALSE(err)) stop(err, call. = FALSE)
 
     err <- err_sub_criteria_4(..., funcs = funcs)
-    if(err != F) stop(err, call. = F)
+    if(!isFALSE(err)) stop(err, call. = FALSE)
   }
 
   if(length(funcs) == 1){
@@ -486,13 +488,13 @@ sub_criteria <- function(..., funcs = diyar::exact_match, equva = diyar::exact_m
     if(class(equva) != "list") equva <- list(equva)
 
     err <- err_sub_criteria_2(equva)
-    if(err != F) stop(err, call. = F)
+    if(!isFALSE(err)) stop(err, call. = FALSE)
 
     err <- err_sub_criteria_3(equva)
-    if(err != F) stop(err, call. = F)
+    if(!isFALSE(err)) stop(err, call. = FALSE)
 
     err <- err_sub_criteria_4(..., funcs = equva)
-    if(err != F) stop(err, call. = F)
+    if(!isFALSE(err)) stop(err, call. = FALSE)
   }
 
   if(length(equva) == 1){
@@ -511,7 +513,7 @@ sub_criteria <- function(..., funcs = diyar::exact_match, equva = diyar::exact_m
   err <- err_sub_criteria_7(list(sub_cris), funcs_l = "equva", funcs_pos = 3, cri_nm = "sub_criteria")
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
-  attr(sub_cris, "diyar_sub_criteria") <- T
+  attr(sub_cris, "diyar_sub_criteria") <- TRUE
   sub_cris
 }
 
@@ -548,10 +550,10 @@ range_match <- function(x, y, range = 10){
   x <- as.numeric(x); y <- as.numeric(y)
   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
                                                            "i - Valid object types are: `numeric` or `integer`.\n",
-                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
+                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = FALSE)
 
   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
-                                    "X - Length is ", length(range), "."), call. = F)
+                                    "X - Length is ", length(range), "."), call. = FALSE)
 
   (y - x <= range) & (y - x >= 0) & !is.na(x) & !is.na(y)
 }

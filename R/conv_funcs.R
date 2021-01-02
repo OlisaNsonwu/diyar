@@ -616,14 +616,31 @@ sub_cri_checks <- function(sub_criteria, strata, temporal_link = NULL, index_rec
       set_match <- sapply(1:length(set), function(j){
         a <- set[[j]]
         x <- a[[1]]
-        if(length(x) == 1){
-          x <- rep(x, ds_len)
+        if(class(x) == "list"){
+          x <- lapply(x, function(x){
+            if(length(x) == 1){
+              x <- rep(x, ds_len)
+            }
+            x <- x[sn]
+            x <- x[sc_ord]
+            x
+          })
+
+          y <- lapply(x, function(x){
+            y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
+            y
+          })
+        }else{
+          if(length(x) == 1){
+            x <- rep(x, ds_len)
+          }
+          x <- x[sn]
+          x <- x[sc_ord]
+          y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
         }
-        x <- x[sn]
-        x <- x[sc_ord]
-        y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
+
         f1 <- a[[2]]
-        lgk <- try(f1(x, y), silent = T)
+        lgk <- try(f1(x, y), silent = TRUE)
         if(class(lgk) == "try-error" | class(lgk) != "logical"){
           if(class(lgk) == "try-error"){
             err <- attr(lgk, "condition")$message

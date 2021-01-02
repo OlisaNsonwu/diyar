@@ -10,6 +10,7 @@
 \alias{summary.epid}
 \alias{show,epid-method}
 \alias{rep,epid-method}
+\alias{[,epid,ANY,ANY,ANY-method}
 \alias{[,epid-method}
 \alias{[[,epid-method}
 \alias{c,epid-method}
@@ -29,7 +30,7 @@ as.epid(x)
 
 \S4method{rep}{epid}(x, ...)
 
-\S4method{[}{epid}(x, i, j, ..., drop = TRUE)
+\S4method{[}{epid,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{epid}(x, i, j, ..., exact = TRUE)
 
@@ -51,14 +52,14 @@ as.epid(x)
 \item{exact}{exact}
 }
 \description{
-S4 objects to store the results of \code{\link{episodes}}
+S4 objects storing the result of \code{\link{episodes}}.
 }
 \section{Slots}{
 
 \describe{
 \item{\code{sn}}{Unique record identifier.}
 
-\item{\code{epid}}{.Data Unique \code{episode} identifier.}
+\item{\code{.Data}}{Unique \code{episode} identifier.}
 
 \item{\code{wind_id}}{Unique window identifier.}
 
@@ -82,8 +83,8 @@ S4 objects to store the results of \code{\link{episodes}}
 }}
 
 \examples{
-# A test for epid objects
-a <- episodes(date = 1)
-is.epid(a); is.epid(2)
+# A test for `epid` objects
+ep <- episodes(date = 1)
+is.epid(ep); is.epid(2)
 
 }
