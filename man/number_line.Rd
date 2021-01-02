@@ -65,7 +65,6 @@ number_line_sequence(
   x,
   by = NULL,
   length.out = 1,
-  precision = FALSE,
   fill = TRUE,
   simplify = FALSE
 )
@@ -99,9 +98,6 @@ Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default)
 \item{method}{Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.}
 
 \item{length.out}{number of splits. For example, \code{1} for two parts and \code{2} for three parts. Passed to \code{seq()}}
-
-\item{precision}{duration between the \code{start_point} and \code{end_point} of consecutive \code{number_line} objects.
-Options are; \code{FLASE} for none or \code{TRUE} for the shortest possible duration or a \code{numeric} value for a specified duration}
 
 \item{fill}{retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.}
 

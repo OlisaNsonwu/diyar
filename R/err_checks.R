@@ -867,14 +867,12 @@ err_episodes_checks_1 <- function(date,
 err_split_nl_1 <- function(x,
                            by,
                            length.out,
-                           precision,
                            fill,
                            simplify){
   # Check for non-atomic vectors
   args <- list(x = x,
                by = by,
                length.out = length.out,
-               precision= precision,
                fill = fill,
                simplify = simplify)
 
@@ -889,14 +887,12 @@ err_split_nl_1 <- function(x,
   args <- list(x = x,
                by = by,
                length.out = length.out,
-               precision= precision,
                fill = fill,
                simplify = simplify)
 
   args_classes <- list(x = c("number_line"),
                by = c("integer", "numeric", "NULL"),
                length.out = c("integer", "numeric", "NULL"),
-               precision= c("logical","integer", "numeric"),
                fill = "logical",
                simplify = "logical")
 
@@ -912,13 +908,11 @@ err_split_nl_1 <- function(x,
   len_lims <- c(1, length(x))
   args <- list(by = by,
                length.out = length.out,
-               precision= precision,
                fill = fill,
                simplify = simplify)
 
   args_lens <- list(by = c(len_lims, 0),
                     length.out = c(len_lims, 0),
-                    precision= len_lims,
                     fill = len_lims,
                     simplify = len_lims)
 
@@ -934,7 +928,6 @@ err_split_nl_1 <- function(x,
   # Check for missing values where they are not permitted
   args <- list(by = by,
                length.out = length.out,
-               precision= precision,
                fill = fill,
                simplify = simplify)
 

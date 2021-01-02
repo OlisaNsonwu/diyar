@@ -451,8 +451,6 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 #' @rdname number_line
 #' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{number_line_sequence()}
 #' @param length.out number of splits. For example, \code{1} for two parts and \code{2} for three parts. Passed to \code{seq()}
-#' @param precision duration between the \code{start_point} and \code{end_point} of consecutive \code{number_line} objects.
-#' Options are; \code{FLASE} for none or \code{TRUE} for the shortest possible duration or a \code{numeric} value for a specified duration
 #' @param fill retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
 #' @param simplify split into \code{number_line} objects or sequence finite numbers
 #'
@@ -474,7 +472,6 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 number_line_sequence <- function(x,
                               by = NULL,
                               length.out = 1,
-                              precision = FALSE,
                               fill = TRUE,
                               simplify = FALSE){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
@@ -485,11 +482,10 @@ number_line_sequence <- function(x,
   errs <- err_split_nl_1(x = x,
                         by = by,
                         length.out = length.out,
-                        precision = precision,
                         fill = fill,
                         simplify = simplify)
 
-  if(errs!=FALSE) stop(errs, call. = FALSE)
+  if(errs != FALSE) stop(errs, call. = FALSE)
   #change_dir <- x@.Data < 0
   change_dir <- FALSE
   if(!is.null(by)){
@@ -515,26 +511,15 @@ number_line_sequence <- function(x,
     )
   }
 
-  split_nl <- function(set, precision, change_dir){
-    if(isFALSE(precision)){
-      precision <- 0
-    }else if(isTRUE(precision)){
-      c <- max(nchar(set - as.integer(set)))
-      precision <- 1/(10^c)
-    }
-    if(isTRUE(fill)){
-
-    }
-
-    precision <- c(rep(precision, length(set) - 2), 0)
+  split_nl <- function(set, change_dir){
     if(change_dir){
-      number_line(set[-1] - precision, set[-length(set)])
+      number_line(set[-1], set[-length(set)])
     }else{
-      number_line(set[-length(set)], set[-1] - precision)
+      number_line(set[-length(set)], set[-1])
     }
   }
 
-  x <- mapply(split_nl, x, precision, change_dir, SIMPLIFY = FALSE)
+  x <- mapply(split_nl, x, change_dir, SIMPLIFY = FALSE)
 
   if(length(x) == 1){
     x[[1]]
