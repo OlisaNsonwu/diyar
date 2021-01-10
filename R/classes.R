@@ -270,12 +270,12 @@ unique.epid <- function(x, ...){
 summary.epid <- function(x, ...){
   r <- rle(sort(x@.Data))
   epid_tot <- r$lengths[match(x@.Data, r$values)]
-  summ <- paste0("Iterations:     ", fmt(max(x@iteration)), "\n",
+  summ <- paste0("Iterations:       ", fmt(max(x@iteration)), "\n",
                  "Records:\n",
-                 "  Total:        ", fmt(length(x)), "\n",
-                 "  Skipped:      ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
+                 "  Total:          ", fmt(length(x)), "\n",
+                 "  Skipped:        ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
                  "Episodes:\n",
-                 "  Total:        ", fmt(length(x[x@case_nm == "Case"])), "\n",
+                 "  Total:          ", fmt(length(x[x@case_nm == "Case"])), "\n",
                  "  With one record: ", fmt(length(x[x@case_nm == "Case" & epid_tot == 1])), "\n")
   cat(summ)
 }
@@ -480,10 +480,10 @@ summary.pane <- function(x, ...){
   r <- rle(sort(x@.Data))
   pane_tot <- r$lengths[match(x@.Data, r$values)]
   summ <- paste0("Records:\n",
-                 "  Total:        ", fmt(length(x)), "\n",
-                 "  Skipped:      ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
+                 "  Total:          ", fmt(length(x)), "\n",
+                 "  Skipped:        ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
                  "Panes:\n",
-                 "  Total:        ", fmt(length(x[x@case_nm == "Index"])), "\n",
+                 "  Total:          ", fmt(length(x[x@case_nm == "Index"])), "\n",
                  "  With one record: ", fmt(length(x[x@case_nm == "Index" & pane_tot == 1])), "\n")
   cat(summ)
 }
@@ -666,14 +666,14 @@ summary.pid <- function(x, ...){
   cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
   cri_dst <- cri_dst[!is.na(cri_dst)]
   cri_n <- as.numeric(names(cri_dst))
-  cri_dst <- paste0("       ", pid_cri_l(cri_n), ":   ", fmt(cri_dst), collapse = "\n")
-  summ <- paste0("Iterations:       ", fmt(max(x@iteration)), "\n",
+  cri_dst <- paste0("       ", pid_cri_l(cri_n), ":     ", fmt(cri_dst), collapse = "\n")
+  summ <- paste0("Iterations:         ", fmt(max(x@iteration)), "\n",
                  "Records:\n",
-                 "  Total:          ", fmt(length(x)), "\n",
+                 "  Total:            ", fmt(length(x)), "\n",
                  "    Stages:\n",
                  cri_dst, "\n",
                  "Groups:\n",
-                 "   Total:         ", fmt(length(x@.Data[!duplicated(x@.Data)])), "\n",
+                 "   Total:           ", fmt(length(x@.Data[!duplicated(x@.Data)])), "\n",
                  "   With one record: ", fmt(length(x@.Data[!duplicated(x@.Data) & pid_tot == 1])), "\n"
   )
   cat(summ)

@@ -133,9 +133,15 @@ links <- function(criteria,
 
   # Maximum no. of records from all criteria
   ds_len <- as.numeric(lapply(criteria, length))
-  ds_len_b <- sapply(sub_criteria, function(x){
+  ds_len_b <- sub_criteria[grepl("cr[0-9]", names(sub_criteria))]
+  ds_len_b <- sapply(ds_len_b, function(x){
     sapply(x, function(x){
-      length(x[[1]]) })
+      if(class(x[[1]]) == "list"){
+        length(x[[1]][[1]])
+      }else{
+        length(x[[1]])
+      }
+       })
   })
   ds_len <- max(c(ds_len, unlist(ds_len_b, use.names = FALSE)))
   rm(ds_len_b)
@@ -576,4 +582,190 @@ range_match_legacy <- function(x, y) {
     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
   }
   overlaps(as.number_line(x@gid), y)
+}
+
+#' @name links_probabilistic
+#' @title Probabilistic record linkage
+#'
+#' @description A specific use case of \code{links} to achieve probabilistic record linkage.
+#'
+#' @param blocking_attribute Subsets of the dataset.
+#' @param attribute \code{list} of attributes to compare.
+#' @param cmp_func \code{list} of functions to used as string comparators for each \code{attribute}. See \code{Details}.
+#' @param cmp_threshold \code{list} of real numbers. These are thresholds for what's considered a match. See \code{Details}.
+#' @param probabilistic if \code{TRUE}, matching weights are calculated using XXX and XXX method for XXX.
+#' @param m_prob m-probability for each attribute.
+#' @param weight_threshold Minimum threshold for linked records. See \code{Details}.
+#'
+#' @param ... Arguments passed to \bold{\code{links}}
+#'
+#' @return \code{\link[=pid-class]{pid}} or \code{list} (\code{\link[=pid-class]{pid}} and \code{ggplot}) object
+#'
+#' @seealso \code{\link{links}},  \code{\link{episodes}}, \code{\link{partitions}}, \code{\link{predefined_tests}} and \code{\link{sub_criteria}}
+#'
+#' @details
+#' XXXXXX
+#'
+#' @aliases links_probabilistic
+#' @export
+links_probabilistic <- function(attribute,
+                                blocking_attribute = NULL,
+                                cmp_func = diyar::exact_match,
+                                cmp_threshold = .95,
+                                probabilistic = TRUE,
+                                m_prob = .95,
+                                weight_threshold = 1,
+                                ...
+){
+
+  if(is.null(names(attribute))){
+    names(attribute) <- paste0("var_", seq_len(length(attribute)))
+  }
+  # Attribute names
+  attr_nm <- names(attribute)
+
+  # Threshold for agreement in each attribute
+  if(length(cmp_threshold) == 1 & length(attribute) > 1){
+    cmp_threshold <- rep(cmp_threshold, length(attribute))
+  }
+
+  # String comparator for each attribute
+  if(class(cmp_func) != "list"){
+    cmp_func <- list(cmp_func)
+  }
+  if(length(cmp_func) == 1 & length(attribute) > 1){
+    cmp_func <- rep(cmp_func, length(attribute))
+  }
+
+  # u-probabilities
+  if(isTRUE(probabilistic)){
+    u_probs <- lapply(attribute, function(x){
+      x_cd <- match(x, x[!duplicated(x)])
+      r <- rle(sort(x_cd))
+      n <- r$lengths[match(x_cd, r$values)]
+      n/length(x_cd)
+    })
+  }
+
+  # Weight or probabilistic matching
+  prob_link <- function(x, y,
+                        agree = cmp_threshold,
+                        m_pb = m_prob,
+                        thresh = weight_threshold,
+                        show_stats = FALSE){
+    # Number of attributes
+    attr_n <- length(x)/2
+
+    # Weights from a string comparator
+    wts <- lapply(seq_len(attr_n), function(i){
+      curr_func <- cmp_func[[i]]
+      wts <- curr_func(x[[i]], y[[i]])
+      wts[is.na(wts)] <- 0
+      wts
+    })
+
+    # Agreement/disagreement based on `agreement` for each attribute
+    matches <- lapply(seq_len(attr_n), function(i){
+      match <- wts[[i]] >= agree[i]
+      match & !is.na(match)
+    })
+
+    out_2 <- sapply(wts, function(x) x)
+    if(isTRUE(show_stats)){
+      out_1 <- sapply(matches, function(x) x)
+      out_a <- cbind(out_2, rowSums(out_2), rowSums(out_2) >= thresh)
+      colnames(out_a) <- c(paste0("cmp.",attr_nm),
+                           "cmp.weight",
+                           "cmp.threshold")
+    }
+
+    # If weight based, matches are assigned based on the string comparisons
+    if(isFALSE(probabilistic)){
+      return(rowSums(out_2) >= thresh)
+    }
+
+    # If probabilistic, weight is based on m- and u-probabilities
+    pwts <- sapply(seq_len(attr_n), function(i){
+      pwts <- rep(0, length(matches[[i]]))
+      curr_match <- matches[[i]]
+      curr_uprob <- x[[i + attr_n]]
+      # agreements
+      pwts[curr_match] <- log2(m_pb/curr_uprob[curr_match])
+      # disagreements
+      pwts[!curr_match] <- log2((1 - m_pb)/(1 - curr_uprob[!curr_match]) )
+      pwts
+    })
+
+    # Matches above the `threshold` are linked
+    if(isTRUE(show_stats)){
+      out_b <- cbind(pwts, rowSums(pwts), rowSums(pwts) >= thresh)
+      colnames(out_b) <- c(paste0("prb.", attr_nm),
+                           "prb.weight",
+                           "prb.threshold")
+      return(cbind(out_a, out_b))
+    }else{
+      return(rowSums(pwts) >= thresh)
+    }
+  }
+
+  # Identify identical records to skip repeat checks
+  same_rec_func <- function(x, y){
+    attr_n <- length(x)
+    lgk <- sapply(seq_len(attr_n), function(i){
+      lgk <- x[i][[1]] == y[i][[1]]
+      lgk[is.na(lgk)] <- FALSE
+      lgk
+    })
+    rowSums(lgk) == attr_n
+  }
+
+  pids <- links(criteria = "place_holder",
+                strata = blocking_attribute,
+                sub_criteria = list("cr1" = sub_criteria(c(attribute, u_probs),
+                                                         funcs = prob_link,
+                                                         equva = same_rec_func)),
+                ...)
+
+  # Re-calculate weights for linked records
+  if(is.pid(pids)){
+    pds <- pids
+  }else{
+    pds <- pids$pids
+  }
+  x <- c(attribute, u_probs)
+  y <- lapply(x, function(k){
+    k[match(pds@link_id, pds@sn)]
+  })
+  pid_weights <- prob_link(x, y,
+                           agree = cmp_threshold,
+                           m_pb = m_prob,
+                           thresh = weight_threshold,
+                           show_stats = TRUE)
+  # Mask unlinked records
+  pid_weights[pds@pid_cri %in% -1:0,] <- NA_real_
+  # Output
+  pids <- list(pids = pids,
+               pid_weights = pid_weights)
+  return(pids)
+}
+
+#' @rdname links_probabilistic
+fetch_thresholds <- function(attribute, m_prob = .99){
+  u_probs <- lapply(attribute, function(x){
+    x_cd <- match(x, x[!duplicated(x)])
+    r <- rle(x_cd)
+    n <- r$lengths[match(x_cd, r$values)]
+    n/length(x_cd)
+  })
+
+  max_thresh <- max(rowSums(sapply(u_probs, function(x){
+    log2(m_prob/x)
+  })))
+
+
+  min_thresh <- min(rowSums(sapply(u_probs, function(x){
+    log2((1 - m_prob)/(1 - x))
+  })))
+  list(minimum_threshold = min_thresh,
+       maximum_threshold = max_thresh)
 }

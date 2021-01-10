@@ -61,7 +61,12 @@ err_sub_criteria_6.0 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2, cri
       l2 <- l1[[j]]
       func <- l2[[funcs_pos]]
       vec <- l2[[1]]
-      try_txt <- try(func(x = vec[1], y = vec[1]), silent = T)
+      if(class(vec) == "list"){
+        vec <- lapply(vec, function(x) x[1:5])
+      }else{
+        vec <- vec[1:5]
+      }
+      try_txt <- try(func(x = vec, y = vec), silent = T)
       if(class(try_txt) == "try-error"){
         attr(try_txt, "condition")$message
       }else if(class(try_txt) != "logical"){
