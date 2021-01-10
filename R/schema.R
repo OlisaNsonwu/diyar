@@ -17,6 +17,7 @@
 #' @param show_non_finite Show/hide records with non-finite \code{date} values
 #' @param show_labels Show/hide certain parts of the schema. See \code{Details}
 #' @param dark_mode Use a black/white background for each plot.
+#' @param orientation Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})
 #'
 #' @return list of \code{ggplot} objects
 #' @details
@@ -512,22 +513,33 @@ schema.epid <- function(x, date, episode_unit, case_length,
 #' @rdname schema
 #' @importFrom rlang .data
 #' @export
-schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE){
+schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE, orientation = "by_pid"){
   . <- NULL
 
   # Validations
   errs <- err_schema_pid_0(x = x,
                            title = title,
                            show_labels = show_labels,
-                           dark_mode = dark_mode)
+                           dark_mode = dark_mode,
+                           orientation = orientation)
 
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
 
   # Plot data
   pids <- x
   pl_dt <- to_df(pids)
-  cris <- length(unique(pl_dt$pid_cri))
-  pl_dt$pid_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("CRI ", pl_dt$pid_cri)))
+
+  if(orientation == "by_pid"){
+    pl_dt$link_col <- paste0("P. ", pl_dt$pid)
+    pl_dt$pid_box_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("CRI ", pl_dt$pid_cri)))
+  }else if(orientation == "by_pid_cri"){
+    pl_dt$pid_box_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("P. ", pl_dt$pid)))
+    pl_dt$link_col <- ifelse(pl_dt$pid_cri %in% -1:0, "", paste0("CRI ", pl_dt$pid_cri))
+  }
+
+  cris <- pl_dt$pid_box_cri
+  cris <- cris[!duplicated(cris)]
+  cris <- length(cris)
 
   # N-cycle of pid_cri boxes
   order <- ceiling(cris / 8)
@@ -540,7 +552,7 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE){
   mx <- boxes_w * order
   border$pid_box <- seq_len(nrow(border))
 
-  pl_dt$pid_box <- match(pl_dt$pid_cri,  pl_dt$pid_cri[!duplicated(pl_dt$pid_cri)] )
+  pl_dt$pid_box <- match(pl_dt$pid_box_cri,  pl_dt$pid_box_cri[!duplicated(pl_dt$pid_box_cri)] )
 
   atc_ljoin <- function(x, y, key, data){
     split(data[[x]], data[[key]])
@@ -594,11 +606,11 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE){
     }
     # Show record `pid` is requested
     if("pid" %in% show_labels){
-      pl_dt$pid_l <- paste0("P.", pl_dt$pid)
+      pl_dt$pid_l <- pl_dt$link_col
     }
   }
 
-  border$pid_cri <- pl_dt$pid_cri[match(border$pid_box, pl_dt$pid_box)]
+  border$pid_box_cri <- pl_dt$pid_box_cri[match(border$pid_box, pl_dt$pid_box)]
   tx_l <- min(pl_dt$x1)
   tx_h <- max(pl_dt$y2)
   boxes_n <- nrow(border)
@@ -612,14 +624,14 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE){
   }
 
   f <- ggplot2::ggplot(data = pl_dt) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$pid), size = scale_size(c(1,3), 125, boxes_n), alpha = .7 + ifelse(!dark_mode, .1, 0)) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$pid, xend = .data$x_lead, yend = .data$y_lead), alpha = .4 + ifelse(!dark_mode, .1, 0)) +
-    ggplot2::geom_rect(ggplot2::aes(xmin = .data$x1, xmax = .data$x2, ymin = .data$y1, ymax = .data$y2,  fill = .data$pid_cri), data = border, alpha = .1 + ifelse(!dark_mode, .1, 0)) +
-    ggplot2::geom_text(ggplot2::aes(x = (.data$x1 + .data$x2)/2, y = (.data$y1 + .data$y2)/2, label = .data$pid_cri), size = scale_size(c(9, 30), 125, boxes_n), color = txt_col, alpha = scale_size(c(.1, .2), 125, boxes_n, decreasing = FALSE), data = border)
+    ggplot2::geom_point(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col), size = scale_size(c(1,3), 125, boxes_n), alpha = .7 + ifelse(!dark_mode, .1, 0)) +
+    ggplot2::geom_segment(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, xend = .data$x_lead, yend = .data$y_lead), alpha = .4 + ifelse(!dark_mode, .1, 0)) +
+    ggplot2::geom_rect(ggplot2::aes(xmin = .data$x1, xmax = .data$x2, ymin = .data$y1, ymax = .data$y2,  fill = .data$pid_box_cri), data = border, alpha = .1 + ifelse(!dark_mode, .1, 0)) +
+    ggplot2::geom_text(ggplot2::aes(x = (.data$x1 + .data$x2)/2, y = (.data$y1 + .data$y2)/2, label = .data$pid_box_cri), size = scale_size(c(9, 30), 125, boxes_n), color = txt_col, alpha = scale_size(c(.1, .2), 125, boxes_n, decreasing = FALSE), data = border)
   if(!isFALSE(show_labels)){
     f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$pid, label = .data$event_nm), nudge_y = scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "bottom", size = scale_size(c(2,5), 125, boxes_n), alpha = .7) +
-      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$pid, label = .data$pid_l), nudge_y = -scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "top", size = scale_size(c(2,5), 125, boxes_n), alpha = .7)
+      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$event_nm), nudge_y = scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "bottom", size = scale_size(c(2,5), 125, boxes_n), alpha = .7) +
+      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$pid_l), nudge_y = -scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "top", size = scale_size(c(2,5), 125, boxes_n), alpha = .7)
   }
 
   if(!is.null(title)){

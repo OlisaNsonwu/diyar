@@ -33,7 +33,13 @@ schema(x, ...)
   dark_mode = TRUE
 )
 
-\method{schema}{pid}(x, title = NULL, show_labels = TRUE, dark_mode = TRUE)
+\method{schema}{pid}(
+  x,
+  title = NULL,
+  show_labels = TRUE,
+  dark_mode = TRUE,
+  orientation = "by_pid"
+)
 }
 \arguments{
 \item{x}{\code{pid}, \code{epid}, or \code{pane} object.}
@@ -61,6 +67,8 @@ schema(x, ...)
 \item{show_skipped}{Show/hide \code{"Skipped"} records}
 
 \item{show_non_finite}{Show/hide records with non-finite \code{date} values}
+
+\item{orientation}{Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
 }
 \value{
 list of \code{ggplot} objects
