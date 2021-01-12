@@ -194,8 +194,6 @@ number_line_sequence(x, by = 2)
 number_line_sequence(x, by = 4)
 number_line_sequence(x, by = 4, fill = FALSE)
 number_line_sequence(x, length.out = 2)
-number_line_sequence(x, length.out = 2, precision = TRUE)
-number_line_sequence(x, length.out = 2, precision = .1)
 }
 \seealso{
 \code{\link{overlaps}}, \code{\link{set_operations}}, \code{\link{episodes}} and \code{\link{links}}

@@ -74,7 +74,7 @@ as.number_line <- function(x){
   if(!is.numeric(er1) | !is.numeric(er2)) stop("`x` can't be coerced to a `number_line` object.", call. = FALSE)
   if(all(!is.number_line(x))){
     x <- methods::new("number_line",
-                      .Data = rep(0, length(x)),
+                      .Data = rep(0L, length(x)),
                       start = x,
                       id = 1:length(x),
                       gid = 1:length(x))
@@ -465,8 +465,6 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 #' number_line_sequence(x, by = 4)
 #' number_line_sequence(x, by = 4, fill = FALSE)
 #' number_line_sequence(x, length.out = 2)
-#' number_line_sequence(x, length.out = 2, precision = TRUE)
-#' number_line_sequence(x, length.out = 2, precision = .1)
 #' @export
 #'
 number_line_sequence <- function(x,
@@ -486,11 +484,10 @@ number_line_sequence <- function(x,
                         simplify = simplify)
 
   if(errs != FALSE) stop(errs, call. = FALSE)
-  #change_dir <- x@.Data < 0
+  # change_dir <- x@.Data < 0
   change_dir <- FALSE
   if(!is.null(by)){
     if(length(fill) == 1) fill <- rep(fill, length(x))
-    #by <- ifelse(is.nan(x@.Data/abs(x@.Data)), by , x@.Data/abs(x@.Data)  * abs(by))
     seq.dyr <- function(..., to = 1, fill = TRUE){
       x <- seq(..., to = to)
       if(isTRUE(fill) & to != x[length(x)]) x <- c(x, to)
@@ -512,8 +509,8 @@ number_line_sequence <- function(x,
   }
 
   split_nl <- function(set, change_dir){
-    if(change_dir){
-      number_line(set[-1], set[-length(set)])
+    if(length(set) == 1){
+      as.number_line(set)
     }else{
       number_line(set[-length(set)], set[-1])
     }

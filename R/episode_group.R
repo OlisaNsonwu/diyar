@@ -1291,7 +1291,7 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
 #' date <- number_line(Sys.Date(), Sys.Date() + 20)
 #' epid_lengths(date, Sys.Date() + 30)
 #' epid_lengths(date, number_line(Sys.Date() + 25, Sys.Date() + 30))
-#' epid_lengths(date, number_line(Sys.Date() -10, Sys.Date() 30))
+#' epid_lengths(date, number_line(Sys.Date() - 10, Sys.Date() + 30))
 #' epid_lengths(date, Sys.Date() - 10)
 #' @export
 epid_lengths <- function(date, windows, episode_unit = "days"){

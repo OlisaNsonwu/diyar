@@ -52,7 +52,7 @@ epid_windows(date, -5)
 date <- number_line(Sys.Date(), Sys.Date() + 20)
 epid_lengths(date, Sys.Date() + 30)
 epid_lengths(date, number_line(Sys.Date() + 25, Sys.Date() + 30))
-epid_lengths(date, number_line(Sys.Date() -10, Sys.Date() 30))
+epid_lengths(date, number_line(Sys.Date() - 10, Sys.Date() + 30))
 epid_lengths(date, Sys.Date() - 10)
 
 # Which `length` is required to cover the `date`?

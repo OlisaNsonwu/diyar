@@ -23,7 +23,8 @@ Imports:
     graphics,
     utils,
     Rfast,
-    ggplot2
+    ggplot2,
+    rlang
 RoxygenNote: 7.1.1
 Suggests:
     knitr,

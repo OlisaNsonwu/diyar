@@ -133,12 +133,10 @@ unique.number_line <- function(x, ...){
 #' @rdname number_line-class
 #' @export
 seq.number_line <- function(x,
-                            precision = FALSE,
                             fill = TRUE,
                             simplify = FALSE,
                             ...){
   x <- number_line_sequence(x,
-                            precision = precision,
                             fill = fill,
                             simplify = simplify,
                             ...)

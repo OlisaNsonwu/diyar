@@ -552,7 +552,7 @@ err_by_2 <- function(by, x){
 
     if(err != FALSE){
       err <-  paste0("Incorrect sign for `by`:\n",
-                     "i - \"+\" and \"-\" integers are required for \"increasing\" and \"decreasing\" `number_lines' respectively.\n",
+                     "i - \"+\" and \"-\" are required for \"increasing\" and \"decreasing\" `number_lines' respectively.\n",
                      "X - Incorrect sign at ", err, ".")
       return(err)
     }
