@@ -50,13 +50,15 @@ to_s4 <- function(df){
 #' @export
 to_df <- function(s4){
   if(missing(s4)) stop("argument 's4' is missing, with no default")
-  if(!class(s4) %in% c("epid","pid","number_line")) stop("'s4' must be an epid or pid object")
+  if(!class(s4) %in% c("epid","pid","number_line", "pane")) stop("'s4' must be an `epid`, `pid`, `pane` or `number_line` object")
   if(all(class(s4)=="epid")){
     df <- data.frame(epid = s4@.Data, stringsAsFactors = FALSE)
   }else if(all(class(s4)=="pid")){
     df <- data.frame(pid = s4@.Data, stringsAsFactors = FALSE)
   }else if(all(class(s4)=="number_line")){
     df <- data.frame(end = s4@start + s4@.Data, stringsAsFactors = FALSE)
+  }else if(all(class(s4)=="pane")){
+    df <- df <- data.frame(pane = s4@.Data, stringsAsFactors = FALSE)
   }
 
   vrs <- methods::slotNames(s4)
@@ -65,8 +67,12 @@ to_df <- function(s4){
     if (length(methods::slot(s4, vrs[i])) !=0 & vrs[i] !=".Data"){
       if(vrs[i] == "epid_interval"){
         df$epid_start <- left_point(methods::slot(s4, vrs[i]))
-        df$epid_end <- right_point(methods::slot(s4, vrs[i]))
-      }else{
+        if(length(right_point(methods::slot(s4, vrs[i]))) == 0) df$epid_end <- NULL else df$epid_end <- right_point(methods::slot(s4, vrs[i]))
+      }else if(vrs[i] == "pane_interval"){
+        df$pane_start <- left_point(methods::slot(s4, vrs[i]))
+        if(length(right_point(methods::slot(s4, vrs[i]))) == 0) df$pane_end <- NULL else df$pane_end <- right_point(methods::slot(s4, vrs[i]))
+      }
+      else{
         df[[vrs[i]]] <- methods::slot(s4, vrs[i])
       }
     }

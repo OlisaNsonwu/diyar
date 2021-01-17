@@ -113,27 +113,33 @@ sep_bdr_nl <- function(x){
   return(b)
 }
 
-progress_bar <- function(prop_complete, max_width, msg){
-  pct_l <- formatC(prop_complete*100, digits = 5, format = "fg")
-  a <- gsub("\\s", "", pct_l)
-  b <- gsub("\\S", "", pct_l)
-  b <- ifelse(b==""," ", b)
-  pct_l <- paste0(msg,"; ", ifelse(prop_complete == 1, "100", a),"%", b, "complete.")
+progress_bar <- function(n, d, max_width, msg){
+  prop_complete <- n/d
+  mx_l <- max(nchar(c(n, d)))
+  d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
+  n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
+  pct_l <- paste0(msg,"; ", n, " of ", d, " completed.")
+
   status_width <- max_width - nchar(pct_l)
-  bar_width <- as.integer(prop_complete*status_width)
+  bar_width <- floor(prop_complete*status_width)
   space_width <- status_width - bar_width
 
-  status <-paste0(ifelse(bar_width < 0, "", paste0(rep("-", bar_width), collapse = "")),
-                  ifelse(space_width < 0, "", paste0(rep(" ", space_width), collapse = "")),
+  status <-paste0(paste0(rep("-", bar_width), collapse = ""),
+                  paste0(rep(" ", space_width), collapse = ""),
                   pct_l,
                   "\r")
+  cat(status, "\r",sep="")
+}
 
-  if(prop_complete==1){
-    # cat(paste0("\033[0;32m",status,"\033[0m"))
-    cat(status, "\r",sep="")
-  }else{
-    cat(status, "\r",sep="")
-  }
+progress_txt <- function(n, d, msg){
+  prop_complete <- n/d
+  mx_l <- max(nchar(c(n, d)))
+  d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
+  n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
+  pct_l <- paste0(msg,"; ", n, " of ", d, " completed.")
+
+  status <-paste0(pct_l,"\r")
+  cat(status, "\r",sep="")
 }
 
 datasets_xx <- function(by, val, sep = ","){
@@ -197,7 +203,7 @@ check_links <- function(cri, data_source, data_links){
 
 prep_lengths <- function(length, overlap_methods, int,
                          episode_unit, bi_direction,
-                          #from_last,
+                         #from_last,
                          include_index_period = F){
   length <- length
   if(class(length) != "list") length <- list(length)
@@ -216,7 +222,7 @@ prep_lengths <- function(length, overlap_methods, int,
       n_length <- lapply(n_length, function(x){
         x[bi_direction] <- invert_number_line(x)[bi_direction]
         return(x)
-        })
+      })
       length <- c(n_length, length)
       overlap_methods <- c(overlap_methods[!is_bdr], overlap_methods)
     }
@@ -236,9 +242,10 @@ prep_lengths <- function(length, overlap_methods, int,
   )
 }
 
-ovr_chks <- function(tr, int, mths){
+ovr_chks <- function(tr, int, mths, ord){
   x <- overlaps(tr, int, methods = mths)
-  ifelse(is.na(x), F, x)
+  ord[is.na(x)] <-  0
+  as.numeric(ord)
 }
 
 overlaps_err <- function(opts){
@@ -323,30 +330,6 @@ pid_cri_l <- function(n){
                 paste0("CRI ", formatC(n, width = 3, flag = 0, format = "fg"))))
 }
 
-#' @name combns
-#' @aliases combns
-#' @title Generate every permutation of n elements.
-#' @description An extension of \code{\link{combn}} to generate permutations not ordinarily captured by \code{\link{combn}}.
-#' Each argument should be used as would be used in \code{\link{combn}}.
-#'
-#' @param x Vector source for combination.
-#' @param m Number of elements required. Multiple counts can be supplied.
-#' @param FUN Function applied to each combination.
-#' @param simplify Logical indicating if the result should be simplified to an array or returned as a list.
-#' @param ... further arguments passed to FUN. Optional.
-#'
-#' @details
-#' \bold{\code{combns}} - Return every possible permutation of . An extension of \code{combn}.
-#'
-#' @return \code{\link{number_line}}.
-#'
-#' @examples
-#' f1 <- function(x) paste0(x, collapse = ",")
-#' combn(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
-#' combns(x = 1:3, m = 3, FUN = f1, simplify = TRUE)
-#' combns(x = 1:3, m = 1:3, FUN = f1, simplify = TRUE)
-#'
-#' @export
 combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
   funx <- function(v){
     v <- v[!duplicated(v)]
@@ -507,4 +490,433 @@ box_ring <- function(boxes_w = 3, order = 1){
     ,sb_v(box_45u(sb_h(box_45l(sb_v(box_45d(top_box), -boxes_w)), -boxes_w)), boxes_w)
   )
   boxes
+}
+
+l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
+  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != "Skipped" & pltd$wind_nm == wind_nm,]
+  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != "Skipped"
+  lar <- pltd[lgk,]
+  lens <- lapply(lens, function(x) x[lgk])
+  rec_ls <- nrow(lar)
+  if(rec_ls >0){
+    lar$mid_y_lead <- pltd$mid_y[match(lar$sn, pltd$wind_id)]
+    lar <- lapply(lens, function(x){
+      y <- number_line(as.numeric(left_point(x)),
+                       as.numeric(right_point(x)),
+                       id = x@id,
+                       gid = x@gid)
+      y <- to_df(y[match(y@id, lar$sn)])
+
+      y$id <- NULL
+      y$gid <- NULL
+      y$epid <- lar$epid
+      y$wind_total <- lar$wind_total
+      y$y <- lar$y
+      y$mid_y_lead <- lar$mid_y_lead
+      y$nl_nm <- "len"
+      lar$nl_nm <- "dts"
+      lar$wind_nm_l <- ""
+      y$wind_nm_l <- ifelse(winds$wind_nm == "Case", "Case length", "Recurrence length")
+
+      y$nl_l <- epid_lengths(number_line(lar$start,
+                                         lar$end),
+                             number_line(y$start,
+                                         y$end),
+                             "seconds")
+
+      if(is_dt == TRUE){
+        y$nl_l <- number_line(left_point(y$nl_l)/as.numeric(diyar::episode_unit[lar$episode_unit]),
+                              right_point(y$nl_l)/as.numeric(diyar::episode_unit[lar$episode_unit]))
+      }
+      y$nl_s <- left_point(y$nl_l)
+      y$nl_e <- right_point(y$nl_l)
+      y$episode_unit <- lar$episode_unit
+      lar$nl_s <- y$nl_s
+      lar$nl_e <- y$nl_e
+      y$nl_l <- NULL
+      y <- rbind(y, lar[c("end", "start", "epid", "y", "mid_y_lead", "nl_s", "nl_e", "nl_nm", "wind_nm_l", "wind_total", "episode_unit")])
+      y$lab_y <- (y$mid_y_lead + y$y)/2
+      y
+    })
+  }else{
+    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "episode_unit")]
+    lar$wind_nm_l <- lar$nl_nm <- character()
+    lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
+    lar <- list(lar)
+  }
+  lar
+}
+
+scale_size <- function(size_lims, count_upper_lim, pts_n, decreasing = TRUE){
+  unit_change <- (max(size_lims) - min(size_lims))/(count_upper_lim - 0)
+  if(decreasing){
+    max(size_lims) - (ifelse(pts_n > count_upper_lim, count_upper_lim, pts_n) * unit_change)
+  }else{
+    min(size_lims) + (ifelse(pts_n > count_upper_lim, count_upper_lim, pts_n) * unit_change)
+  }
+}
+
+length_to_range <- function(lengths, date, from_last, episode_unit){
+  if(!all(class(lengths) == "list")){
+    len <- list(lengths)
+  }else{
+    len <- lengths
+  }
+
+  len <- lapply(len, function(x){
+    if(class(x) != "number_line"){
+      x <- number_line(0, x)
+    }
+    return(x)
+  })
+
+  if(any(from_last == T)) {
+    len <- lapply(len, function(x){
+      x@start <- as.numeric(x@start)
+      x[from_last] <- invert_number_line(x)[from_last]
+      return(x)
+    })
+  }
+
+  len <- lapply(len, function(x){
+    if(length(x) == 1){
+      x <- rep(x, length(date))
+    }
+    x <- epid_windows(date, x, episode_unit)
+    return(x)
+  })
+  return(len)
+}
+
+opt_level <- function(opt, mth, tr_mth){
+  if(opt == "e") {
+    tr_mth
+  }else if(opt == "b"){
+    ifelse(mth != tr_mth, paste0(mth, "|", tr_mth), mth)
+  }else{
+    mth
+  }
+}
+
+sub_cri_checks <- function(sub_criteria, strata, temporal_link = NULL, index_record, sn, skip_repeats = FALSE){
+  if(is.null(temporal_link)){
+    temporal_link <- rep(TRUE, length(strata))
+  }
+  curr_sub_cri <- sub_criteria
+  ds_len <- length(strata)
+  if(length(curr_sub_cri) > 0){
+    cri.2 <- strata + as.numeric(temporal_link)/10
+    sc_ord <- order(cri.2, -index_record, decreasing = TRUE)
+    cri.2 <- cri.2[sc_ord]
+    rrr <- rle(cri.2)
+    lgk <- !duplicated(cri.2, fromLast = TRUE)
+    skp_cri <- cri.2 < 0
+    sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
+      set <- curr_sub_cri[[i]]
+      set_match <- sapply(1:length(set), function(j){
+        a <- set[[j]]
+        x <- a[[1]]
+        if(class(x) == "list"){
+          x <- lapply(x, function(x){
+            if(length(x) == 1){
+              x <- rep(x, ds_len)
+            }
+            x <- x[sn]
+            x <- x[sc_ord]
+            x
+          })
+
+          y <- lapply(x, function(x){
+            y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
+            y
+          })
+        }else{
+          if(length(x) == 1){
+            x <- rep(x, ds_len)
+          }
+          x <- x[sn]
+          x <- x[sc_ord]
+          y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
+        }
+
+        f1 <- a[[2]]
+        lgk <- try(f1(x, y), silent = TRUE)
+        if(class(lgk) == "try-error" | class(lgk) != "logical"){
+          if(class(lgk) == "try-error"){
+            err <- attr(lgk, "condition")$message
+          }else{
+            err <- "Output is not a `logical` object"
+          }
+
+          err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                        "i - Each `func` must have the following syntax and output.\n",
+                        "i - Syntax ~ `function(x, y, ...)`.\n",
+                        "i - Output ~ `TRUE` or `FALSE`.\n",
+                        "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+          stop(err, call. = F)
+        }
+        lgk <- as.numeric(lgk)
+        lgk[skp_cri] <- TRUE
+        out1 <- ifelse(is.na(lgk), 0, lgk)
+        if(length(out1) == 1) out1 <- rep(out1, length(cri.2))
+        if(length(out1) != length(cri.2)){
+          err <- paste0("Output length of `funcs` must be 1 or the same as `criteria`:\n",
+                        "i - Unexpected length for `funcs-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+                        "i - Expecting a length of 1 of ", length(cri.2), ".\n",
+                        "X - Length is ", length(out1), ".")
+          stop(err, call. = F)
+        }
+        retrieve_pos <- match(1:length(cri.2), sc_ord)
+        out1 <- out1[retrieve_pos]
+
+        if(isTRUE(skip_repeats)){
+          f2 <- a[[3]]
+          lgk <- try(f2(x, y), silent = T)
+          if(class(lgk) == "try-error" | class(lgk) != "logical"){
+            if(class(lgk) == "try-error"){
+              err <- attr(lgk, "condition")$message
+            }else{
+              err <- "Output is not a `logical` object"
+            }
+
+            err <- paste0("Unable to evaluate `equva-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
+                          "i - Each `func` must have the following syntax and output.\n",
+                          "i - Syntax ~ `function(x, y, ...)`.\n",
+                          "i - Output ~ `TRUE` or `FALSE`.\n",
+                          "X - Issue with `equva - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
+            stop(err, call. = F)
+          }
+          lgk <- as.numeric(lgk)
+          lgk[skp_cri] <- TRUE
+          out2 <- ifelse(is.na(lgk), 0, lgk)
+          if(length(out2) == 1) out2 <- rep(out2, length(cri.2))
+          if(length(out2) != length(cri.2)){
+            err <- paste0("Output length of `equva` must be 1 or the same as `criteria`:\n",
+                          "i - Unexpected length for `equva-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
+                          "i - Expecting a length of 1 of ", length(cri.2), ".\n",
+                          "X - Length is ", length(out2), ".")
+            stop(err, call. = F)
+          }
+          out2 <- out2[retrieve_pos]
+          out1 <- c(out1, out2)
+        }
+        return(out1)
+      })
+      if(length(set_match) == 1){
+        set_match <- as.matrix(set_match)
+      }
+      ifelse(rowSums(set_match) > 0, 1, 0)
+    })
+    if(length(sub_cri_match) == 1){
+      sub_cri_match <- as.matrix(sub_cri_match)
+    }
+    sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | index_record, 1, 0)
+
+    if(isTRUE(skip_repeats)){
+      sub_cri_match.rf <- sub_cri_match[((length(sub_cri_match)/2)+1):length(sub_cri_match)]
+      sub_cri_match <- sub_cri_match[1:(length(sub_cri_match)/2)]
+      return(list(sub_cri_match, sub_cri_match.rf))
+    }else{
+      return(list(sub_cri_match))
+    }
+  }else{
+    sub_cri_match <- rep(1, ds_len)
+    if(isTRUE(skip_repeats)){
+      return(list(sub_cri_match, sub_cri_match))
+    }else{
+      return(list(sub_cri_match))
+    }
+  }
+}
+
+pane_checks <- function(dates, windows){
+  fnx <- function(x, int = dates){
+    diyar:::ovr_chks(windows[[x]], int, rep("overlap", length(int)), rep(x, length(int)))
+  }
+
+  checks <- as.matrix(sapply(as.numeric(seq_len(length(windows))), fnx))
+  if(length(dates) == 1){
+    checks <- t(checks)
+  }
+  ep_checks <- Rfast::rowMaxs(checks, value = TRUE)
+  ep_checks
+}
+
+check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, int, case_nm){
+  if(length(lgk[lgk]) > 0){
+    ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) start_point(x[lgk])))
+    ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) end_point(x[lgk])))
+    ep_l_bounds_a <- start_point(tr_int[lgk])
+    ep_l_bounds_z <- end_point(tr_int[lgk])
+
+    ep_l_bounds_a <- ifelse(ep_l_min_a[1,] < ep_l_bounds_a, ep_l_min_a[1,], ep_l_bounds_a)
+    ep_l_bounds_z <- ifelse(ep_l_min_z[2,] > ep_l_bounds_z, ep_l_min_z[2,], ep_l_bounds_z)
+
+    epc_bnds <- suppressWarnings(
+      number_line(
+        l = ep_l_bounds_a,
+        r = ep_l_bounds_z))
+
+    ep_obds_checks <- suppressWarnings(overlap(int[lgk], epc_bnds))
+    ep_obds_checks <- ifelse(is.na(ep_obds_checks), FALSE, ep_obds_checks)
+
+    ref_period <- overlap(int, tr_int)
+    ref_period <- ifelse(is.na(ref_period), FALSE, ref_period)
+    skp_crxt <- cri[vr & !ref_period]
+    skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
+    indx <- (ep_obds_checks &
+               !cr[lgk] &
+               cri[lgk] %in% skp_crxt &
+               case_nm[lgk] == "")
+    lgk <- which(lgk == TRUE)[indx == TRUE]
+    return(lgk)
+  }else{
+    return(numeric())
+  }
+}
+
+sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlaps = FALSE){
+  nl <- x
+  if(isTRUE(deduplicate)){
+    nl <- unique(nl)
+  }
+  labs <- seq(min(c(left_point(nl), right_point(nl))), max(c(left_point(nl), right_point(nl))), length.out = 8)
+  brks <- as.numeric(labs)
+  labs <- round(labs)
+  nl <- number_line(l = as.numeric(left_point(nl)),
+                    r = as.numeric(right_point(nl)))
+  nl <- sort(nl)
+  grps <- compress_number_line(nl, collapse = TRUE, deduplicate = FALSE)
+  plt_df <- to_df(nl)
+  plt_df$sn <- seq_len(nrow(plt_df))
+  plt_df$wind_id <- grps@gid
+
+  # Alternating boundaries (y-axis) for each window
+  winds <- plt_df$wind_id
+  winds <- winds[!duplicated(winds)]
+  nl_winds_n <- length(winds)
+  wind_br_a <- rep(0, nl_winds_n)
+  wind_br_z <- rep(0.9, nl_winds_n)
+  wind_br_a[seq_len(nl_winds_n) %% 2 == 1] <- 1.1
+  wind_br_z[seq_len(nl_winds_n) %% 2 == 1] <- 2
+  winds_sn <- split(plt_df$sn, plt_df$wind_id)
+
+  # Random `y` coordinates within each window's boundary (above)
+  cord_y <- lapply(seq_len(nl_winds_n), function(i){
+    if(length(winds_sn[[i]]) > 1){
+      sample(seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]])),
+             length(winds_sn[[i]]))
+    }else{
+      wind_br_a[i]
+    }
+  })
+
+  # Evenly distributed `y` coordinates within each window's boundary (above)
+  cord_y <- lapply(seq_len(nl_winds_n), function(i){
+    seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]]))
+  })
+  winds_sn <- unlist(winds_sn, use.names = FALSE)
+  cord_y <- unlist(cord_y, use.names = FALSE)
+  plt_df$y <- cord_y[match(plt_df$sn, winds_sn)]
+  #winds_cord_y <- split(plt_df$y, pl_winds)
+
+  set <- seq_len(length(nl))
+  if(isTRUE(show_overlaps)){
+
+    mths <- lapply(set, function(x){
+      j <- set[set > x]
+      i <- rep(x, length(j))
+      nl.i <- nl[i]
+      nl.j <- nl[j]
+      m <- overlap_method(nl[i], nl[j])
+      x1 <- rep(NA, length(j)); x2 <- x1
+
+      x1[m == "aligns_start"] <- left_point(nl.i[m == "aligns_start",])
+
+      x1[m == "aligns_end"] <- right_point(nl.i[m == "aligns_end",])
+
+      lgk <- m %in% c("exact", "reverse", "inbetween")
+      x1[lgk] <- (start_point(nl.i[lgk,]) + end_point(nl.i[lgk,]))/2
+
+      lgk <- m == "chain" & nl.i@.Data > 0 & nl.j@.Data > 0 & end_point(nl.i) == start_point(nl.j)
+      x1[lgk] <- end_point(nl.i[lgk,])
+
+      lgk <- m == "chain" & nl.i@.Data > 0 & nl.j@.Data > 0 & start_point(nl.i) == end_point(nl.j)
+      x1[lgk] <- start_point(nl.i[lgk,])
+
+      lgk <- m == "chain" & nl.i@.Data < 0 & nl.j@.Data < 0 & end_point(nl.i) == start_point(nl.j)
+      x1[lgk] <- end_point(nl.i[lgk,])
+
+      lgk <- m == "chain" & nl.i@.Data < 0 & nl.j@.Data < 0 & start_point(nl.i) == end_point(nl.j)
+      x1[lgk] <- start_point(nl.i[lgk,])
+
+      mth <- data.frame(x1 = x1,
+                        y1 = plt_df$y[i],
+                        y2 = plt_df$y[j],
+                        m = m,
+                        g = plt_df$wind_id[i],
+                        id1 = plt_df$sn[i],
+                        id2 = plt_df$sn[j])
+      mth <- mth[mth$m != "none" & !is.na(mth$x1),]
+      mth
+    })
+
+    mths <- do.call("rbind", mths)
+    mths <- mths[!duplicated(mths),]
+
+    sn_ord <- order(mths$g)
+    win_r <- mths$g[sn_ord]
+    r <- rle(win_r)
+    r <- sequence(r$length)
+    mths$rd_rnk <- r[match(sn_ord, seq_len(length(sn_ord)))]
+    mths$txt_y <- mths$y2 - ((mths$y2 - mths$y1)/ 2^mths$rd_rnk)
+    mths$txt_inc <- !duplicated(data.frame(mths$x1,
+                                           mths$m))
+  }else{
+    mths <- structure(list(x1 = numeric(0), y1 = numeric(0), y2 = numeric(0),
+                           m = character(0), g = integer(0), id1 = integer(0), id2 = integer(0),
+                           rd_rnk = integer(0), txt_y = numeric(0), txt_inc = logical(0)),
+                      row.names = character(0),
+                      class = "data.frame")
+  }
+
+  if(isTRUE(dark_mode)){
+    bg_col <- "black"
+    txt_col <- "white"
+  }else{
+    bg_col <- "white"
+    txt_col <- "black"
+  }
+
+  ggplot2::ggplot(data = plt_df) +
+    ggplot2::geom_point(aes(x = .data$start, y = .data$y),
+                        colour = txt_col,
+                        size = scale_size(c(1,3), 150, nrow(plt_df))) +
+    ggplot2::geom_segment(aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y),
+                          arrow =  ggplot2::arrow(length = ggplot2::unit(scale_size(c(.3,.2), 150, nrow(plt_df)), "cm"), ends = "last", type = "open"),
+                          data = plt_df[nl@.Data != 0,],
+                          colour = txt_col,
+                          size = scale_size(c(.1,1), 150, nrow(plt_df))) +
+    ggplot2::geom_segment(ggplot2::aes(x = .data$x1, y = .data$y1, xend = .data$x1, yend = .data$y2, colour = .data$m),
+                          linetype = 2,
+                          size = scale_size(c(.1,1), 150, nrow(plt_df)),
+                          data = mths) +
+    ggplot2::geom_text(ggplot2::aes(x = .data$x1, y = .data$txt_y, label = .data$m, colour = .data$m),
+                       data = mths[mths$txt_inc,],
+                       size = scale_size(c(3,5), 150, nrow(plt_df))) +
+    ggplot2::scale_x_continuous(breaks = brks, labels = labs) +
+    ggplot2::theme(
+      legend.position = "none",
+      legend.background = ggplot2::element_rect(fill = bg_col),
+      legend.text = ggplot2::element_text(colour = txt_col),
+      plot.background = ggplot2::element_rect(fill = bg_col),
+      panel.background = ggplot2::element_rect(fill = bg_col),
+      panel.border = ggplot2::element_blank(),
+      panel.grid = ggplot2::element_blank(),
+      axis.line.y = ggplot2::element_blank(),
+      axis.line.x = ggplot2::element_line(colour = txt_col),
+      axis.text.y = ggplot2::element_blank(),
+      axis.text.x = ggplot2::element_text(colour = txt_col, size = 14),
+      axis.ticks = ggplot2::element_blank(),
+      axis.title = ggplot2::element_blank())
 }

@@ -7,12 +7,15 @@
 \alias{rep,number_line-method}
 \alias{[,number_line-method}
 \alias{[[,number_line-method}
+\alias{[<-,number_line,ANY,ANY,ANY-method}
 \alias{[<-,number_line-method}
+\alias{[[<-,number_line,ANY,ANY,ANY-method}
 \alias{[[<-,number_line-method}
 \alias{$,number_line-method}
 \alias{$<-,number_line-method}
 \alias{c,number_line-method}
 \alias{unique.number_line}
+\alias{seq.number_line}
 \alias{sort.number_line}
 \alias{format.number_line}
 \title{\code{number_line} object}
@@ -25,9 +28,9 @@
 
 \S4method{[[}{number_line}(x, i, j, ..., exact = TRUE)
 
-\S4method{[}{number_line}(x, i, j, ...) <- value
+\S4method{[}{number_line,ANY,ANY,ANY}(x, i, j, ...) <- value
 
-\S4method{[[}{number_line}(x, i, j, ...) <- value
+\S4method{[[}{number_line,ANY,ANY,ANY}(x, i, j, ...) <- value
 
 \S4method{$}{number_line}(x, name)
 
@@ -36,6 +39,8 @@
 \S4method{c}{number_line}(x, ...)
 
 \method{unique}{number_line}(x, ...)
+
+\method{seq}{number_line}(x, fill = TRUE, simplify = FALSE, ...)
 
 \method{sort}{number_line}(x, decreasing = FALSE, ...)
 
@@ -60,21 +65,20 @@
 
 \item{name}{slot name}
 
-\item{decreasing}{logical. Should the sort be increasing or decreasing}
+\item{decreasing}{If \code{TRUE}, sort in descending order.}
 }
 \description{
-S4 objects representing a series of finite numbers on a number line
-Used for range matching in \code{\link{record_group}} and interval grouping in \code{\link{fixed_episodes}}, \code{\link{rolling_episodes}} and \code{\link{episode_group}}
+S4 objects representing a range of numeric values
 }
 \section{Slots}{
 
 \describe{
-\item{\code{start}}{Start of the number line}
+\item{\code{start}}{First value in the range.}
 
-\item{\code{id}}{Unique \code{numeric} ID. Providing this is optional.}
+\item{\code{id}}{Unique element id. Optional.}
 
-\item{\code{gid}}{Unique \code{numeric} Group ID. Providing this is optional.}
+\item{\code{gid}}{Unique group id. Optional.}
 
-\item{\code{.Data}}{Length/with and direction of the \code{number_line} object.}
+\item{\code{.Data}}{Length, duration or width of the range.}
 }}
 

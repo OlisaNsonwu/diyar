@@ -714,7 +714,7 @@ hs_epids_c <- episodes(date=hos_admin$admin_period,
 plot_epid(epid = hs_epids_c, date = hos_admin$admin_period, case_length = 0, recurrence_length = 15)
 ```
 
-There are 7 ways `event periods` can overlap (`overlap_methods_c`/`overlap_methods_r`). These are `"exact"`, `"reverse"`, `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. These are covered in more detail in an accompanying [vignette](number_line.html#overlaps). You can specify that only `event periods` which overlap in a certain way should be linked as `episodes`. See below for a demonstration of this.
+There are 7 ways `event periods` can overlap (`case_overlap_methods`/`recurrence_overlap_methods`). These are `"exact"`, `"reverse"`, `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. These are covered in more detail in an accompanying [vignette](number_line.html#overlaps). You can specify that only `event periods` which overlap in a certain way should be linked as `episodes`. See below for a demonstration of this.
 
 *The 7 `overlap_methods` are mutually exclusive.*
 
@@ -725,7 +725,7 @@ epi_grp_func <- function(x){
   epids <- episodes(date=hos_admin$admin_period, 
                     sn=hos_admin$rd_id, 
                     case_length = index_window(hos_admin$admin_period), 
-                    overlap_methods_c = x,
+                    case_overlap_methods = x,
                     group_stats = T, 
                     display = "none")
   
@@ -799,15 +799,15 @@ m <- c("aligns_start", "exact", "inbetween", "aligns_start")
 dfe <- data.frame(x = x, m = m, stringsAsFactors = FALSE)
 dfe$eps_1 <- episodes(date = dfe$x, 
                       case_length = index_window(dfe$x), 
-                      overlap_methods_c = dfe$m)
+                      case_overlap_methods = dfe$m)
 dfe
 ```
 
 However, you can use it as an `episode-level` argument. This means that the option that'll be used is that of the index `event`. Finally, you can use it as both a `record-level` and `episode-level` argument. You do these by supplying `overlap_methods` as a named `list` - `r` for `record-level`, `e` for `record-level` or `b` for `both`. See below.  
 
 ```{r warning=FALSE}
-dfe$eps_2 <- episodes(date = dfe$x, case_length = index_window(dfe$x), overlap_methods_c = list(e = dfe$m))
-dfe$eps_3 <- episodes(date = dfe$x, case_length = index_window(dfe$x), overlap_methods_c = list(b = dfe$m))
+dfe$eps_2 <- episodes(date = dfe$x, case_length = index_window(dfe$x), case_overlap_methods = list(e = dfe$m))
+dfe$eps_3 <- episodes(date = dfe$x, case_length = index_window(dfe$x), case_overlap_methods = list(b = dfe$m))
 dfe
 ```
 

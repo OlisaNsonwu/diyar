@@ -5,22 +5,22 @@
 \alias{epid_windows}
 \alias{epid_lengths}
 \alias{index_window}
-\title{Window and lengths}
+\title{Windows and lengths}
 \usage{
 epid_windows(date, lengths, episode_unit = "days")
 
 epid_lengths(date, windows, episode_unit = "days")
 
-index_window(date, from_last = F)
+index_window(date, from_last = FALSE)
 }
 \arguments{
 \item{date}{As used in \bold{\code{\link{episodes}}}.}
 
-\item{lengths}{\code{case_length} or \code{recurrence_length} arguments as used in \bold{\code{\link{episodes}}}.}
+\item{lengths}{The duration (\code{lengths}) between a \code{date} and \code{window}.}
 
-\item{episode_unit}{Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.}
+\item{episode_unit}{Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}}
 
-\item{windows}{A range or period relative to \code{date} for a given \code{lengths}.}
+\item{windows}{The range (\code{windows}) relative to a \code{date} for a given duration (\code{length}).}
 
 \item{from_last}{As used in \bold{\code{\link{episodes}}}.}
 }
@@ -28,28 +28,35 @@ index_window(date, from_last = F)
 \code{\link{number_line}}.
 }
 \description{
-Interpret \code{windows}, \code{case_lengths} and \code{recurrence_lengths} as used in \code{\link{episodes}}.
+Covert \code{windows} to and from \code{case_lengths} and \code{recurrence_lengths}.
 }
 \details{
-\bold{\code{epid_windows}} - returns the corresponding period for a given a \code{date}, and \code{case_length} or \code{recurrence_length}.
-\bold{\code{epid_lengths}} - returns the corresponding \code{case_length} or \code{recurrence_length} for a given \code{date} and period.
+\bold{\code{epid_windows}} - returns the corresponding \code{window} for a given a \code{date}, and \code{case_length} or \code{recurrence_length}.
+
+\bold{\code{epid_lengths}} - returns the corresponding \code{case_length} or \code{recurrence_length} for a given \code{date} and \code{window}.
+
+\bold{\code{index_window}} - returns the corresponding \code{case_length} or \code{recurrence_length} for the \code{date} only.
+
+\bold{\code{index_window(date = x)}} is a convenience function for \bold{\code{epid_lengths(date = x, window = x)}}.
 }
 \examples{
+# Which `window` will a given `length` cover?
+date <- Sys.Date()
+epid_windows(date, 10)
+epid_windows(date, number_line(5, 10))
+epid_windows(date, number_line(-5, 10))
+epid_windows(date, -5)
 
-# `epid_windows`
-epid_windows(Sys.Date(), 10)
-epid_windows(Sys.Date(), number_line(5, 10))
-epid_windows(Sys.Date(), number_line(-5, 10))
-epid_windows(Sys.Date(), -5)
 
-# `epid_lengths`
-epid_lengths(number_line(01, 20), 30)
-epid_lengths(number_line(01, 20), number_line(25, 30))
-epid_lengths(number_line(01, 20), number_line(-10, 30))
-epid_lengths(number_line(01, 20), -10)
+# Which `length` is required to cover a given `window`?
+date <- number_line(Sys.Date(), Sys.Date() + 20)
+epid_lengths(date, Sys.Date() + 30)
+epid_lengths(date, number_line(Sys.Date() + 25, Sys.Date() + 30))
+epid_lengths(date, number_line(Sys.Date() - 10, Sys.Date() + 30))
+epid_lengths(date, Sys.Date() - 10)
 
+# Which `length` is required to cover the `date`?
 index_window(20)
-index_window(as.number_line(20))
 index_window(number_line(15, 20))
 
 }

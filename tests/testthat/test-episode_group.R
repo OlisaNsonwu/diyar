@@ -548,7 +548,7 @@ test_that("testing; intervals grouping for rolling intervals", {
   expect_equal(test_11b$epid_length, as.difftime(rep(30,9), units = "days" ))
 })
 
-# fixed episodes of overlaping intervals of admission seperated by 1 month
+# fixed episodes of overlapping intervals of admission separated by 1 month
 admissions$epi_len <- 1
 
 test_11c <- cbind(admissions,
@@ -780,7 +780,7 @@ df$ep6 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, c
 test_that("test wind_id and wind_nm", {
   expect_equal(df$ep1@.Data, rep(1, 5))
   expect_equal(df$ep1@case_nm, c("Case","Recurrent", rep("Duplicate_R", 3)))
-  expect_equal(df$ep1@wind_nm, c("Case", rep("Recurrence", 3), "Case"))
+  expect_equal(df$ep1@wind_nm, c("Recurrence", rep("Recurrence", 3), "Case"))
   expect_equal(df$ep1@wind_id, c(rep(1,4),4))
   expect_equal(df$ep2, df$ep4)
   expect_equal(df$ep1@case_nm, df$ep3@case_nm)
@@ -790,7 +790,7 @@ test_that("test wind_id and wind_nm", {
   expect_equal(df$ep1, df$ep5)
   expect_equal(df$ep1@.Data, df$ep6@.Data)
   expect_equal(df$ep6@case_nm, c("Case","Recurrent", rep("Duplicate_R", 2), "Recurrent"))
-  expect_equal(df$ep6@wind_nm, c("Case", rep("Recurrence", 4)))
+  expect_equal(df$ep6@wind_nm, c("Recurrence", rep("Recurrence", 4)))
 })
 
 x <- c(1,6,7,8,10)

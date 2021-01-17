@@ -124,28 +124,28 @@ test_that("test record grouping for deterministic linkage", {
 })
 
 #Test 7 - Range matching
-df_7 <- data.frame(
-  r_id = 1:15,
-  cri_1 = c(rep("P1",5), rep("P2",10)),
-  age = c(10,15,9,40,42,50,70,57,55,34,12, 35,39,20,11),
-  stringsAsFactors = TRUE
-)
-
-df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5, df_7$age+5, gid = df_7$age)
-df_7$corrupt_range@gid[3] <- 205
-
-test_7 <- df_7
-test_7$pids_a <- record_group(df_7, sn = r_id, criteria = cri_1, sub_criteria = list(s1a="age_range"), group_stats = TRUE)
-test_7$pids_b <- record_group(df_7, sn = r_id, criteria = age_range, group_stats = TRUE)
-
-test_that("test record grouping using range matching in criteria", {
-  expect_equal(test_7$pids_a@.Data, c(1,1,1,4,4,8,7,8,8,10,11,10,10,14,11))
-  expect_equal(test_7$pids_a@pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
-  expect_equal(test_7$pids_a@pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
-})
-
-test_that("test record grouping using range matching in sub_criteria", {
-  expect_equal(test_7$pids_b@.Data, c(14,14,14,10,10,8,7,8,8,10,14,10,10,14,14))
-  expect_equal(test_7$pids_b@pid_cri, c(rep(1,6),0, rep(1, 8)))
-  expect_equal(test_7$pids_b@pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
-})
+# df_7 <- data.frame(
+#   r_id = 1:15,
+#   cri_1 = c(rep("P1",5), rep("P2",10)),
+#   age = c(10,15,9,40,42,50,70,57,55,34,12, 35,39,20,11),
+#   stringsAsFactors = TRUE
+# )
+#
+# df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5, df_7$age+5, gid = df_7$age)
+# df_7$corrupt_range@gid[3] <- 205
+#
+# test_7 <- df_7
+# test_7$pids_a <- record_group(df_7, sn = r_id, criteria = cri_1, sub_criteria = list(s1a="age_range"), group_stats = TRUE)
+# test_7$pids_b <- record_group(df_7, sn = r_id, criteria = age_range, group_stats = TRUE)
+#
+# test_that("test record grouping using range matching in criteria", {
+#   expect_equal(test_7$pids_a@.Data, c(1,1,1,4,4,8,7,8,8,10,11,10,10,14,11))
+#   expect_equal(test_7$pids_a@pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
+#   expect_equal(test_7$pids_a@pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
+# })
+#
+# test_that("test record grouping using range matching in sub_criteria", {
+#   expect_equal(test_7$pids_b@.Data, c(14,14,14,10,10,8,7,8,8,10,14,10,10,14,14))
+#   expect_equal(test_7$pids_b@pid_cri, c(rep(1,6),0, rep(1, 8)))
+#   expect_equal(test_7$pids_b@pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
+# })

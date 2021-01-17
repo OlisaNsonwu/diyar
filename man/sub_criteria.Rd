@@ -4,7 +4,7 @@
 \alias{sub_criteria}
 \title{Sub-criteria}
 \usage{
-sub_criteria(..., funcs = diyar::exact_match)
+sub_criteria(..., funcs = diyar::exact_match, equva = diyar::exact_match)
 }
 \arguments{
 \item{...}{Additional attributes to compare.}

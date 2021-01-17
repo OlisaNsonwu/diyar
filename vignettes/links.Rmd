@@ -155,7 +155,7 @@ dbs_2
 ```
 
 ```{r echo=F, fig.height=4, fig.width=8.5, message=F, warning=F}
-plot_pid(pid = dbs_2$pid_d)
+#plot_pid(pid = dbs_2$pid_d)
 ```
 
 <a id="sub_cri_example"></a>
@@ -279,7 +279,7 @@ patient_list_2
 ```
 
 ```{r echo=F, fig.height=4, fig.width=8.5, message=F, warning=F}
-plot_pid(pid = patient_list_2$pids_a)
+#plot_pid(pid = patient_list_2$pids_a)
 ```
 
 ***Example 2 of group expansion***
@@ -302,7 +302,7 @@ df
 ```
 
 ```{r echo=F, fig.height=4, fig.width=8.5, message=F, warning=F}
-plot_pid(df$pids_a)
+#plot_pid(df$pids_a)
 ```
 
 ### Group shrinkage
