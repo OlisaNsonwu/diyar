@@ -610,7 +610,7 @@ sub_cri_checks <- function(sub_criteria, strata, temporal_link = NULL, index_rec
     cri.2 <- cri.2[sc_ord]
     rrr <- rle(cri.2)
     lgk <- !duplicated(cri.2, fromLast = TRUE)
-
+    skp_cri <- cri.2 < 0
     sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
       set <- curr_sub_cri[[i]]
       set_match <- sapply(1:length(set), function(j){
@@ -656,6 +656,7 @@ sub_cri_checks <- function(sub_criteria, strata, temporal_link = NULL, index_rec
           stop(err, call. = F)
         }
         lgk <- as.numeric(lgk)
+        lgk[skp_cri] <- TRUE
         out1 <- ifelse(is.na(lgk), 0, lgk)
         if(length(out1) == 1) out1 <- rep(out1, length(cri.2))
         if(length(out1) != length(cri.2)){
@@ -686,6 +687,7 @@ sub_cri_checks <- function(sub_criteria, strata, temporal_link = NULL, index_rec
             stop(err, call. = F)
           }
           lgk <- as.numeric(lgk)
+          lgk[skp_cri] <- TRUE
           out2 <- ifelse(is.na(lgk), 0, lgk)
           if(length(out2) == 1) out2 <- rep(out2, length(cri.2))
           if(length(out2) != length(cri.2)){

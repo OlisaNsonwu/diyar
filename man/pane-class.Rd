@@ -10,7 +10,6 @@
 \alias{summary.pane}
 \alias{show,pane-method}
 \alias{rep,pane-method}
-\alias{[,pane,ANY,ANY,ANY-method}
 \alias{[,pane-method}
 \alias{[[,pane-method}
 \alias{c,pane-method}
@@ -30,7 +29,7 @@ as.pane(x)
 
 \S4method{rep}{pane}(x, ...)
 
-\S4method{[}{pane,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
+\S4method{[}{pane}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{pane}(x, i, j, ..., exact = TRUE)
 

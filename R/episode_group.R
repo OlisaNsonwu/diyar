@@ -621,12 +621,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       roll_n[lgk] <- roll_n[lgk] + 1
 
       cr2 <- ifelse(
-                     (
-                       (tr_tag %in% c(-1) & (ref_rd | (rc_checks >= 1))) |
-                         (tr_tag %in% c(-2) & (ref_rd | (ep_checks >= 1)))
-                       ) &
-                     tag != 2,
-                   TRUE, FALSE)
+        (
+          (tr_tag %in% c(-1) & (ref_rd | (rc_checks >= 1))) |
+            (tr_tag %in% c(-2) & (ref_rd | (ep_checks >= 1)))
+        ) &
+          tag != 2,
+        TRUE, FALSE)
       vr2 <- cr2
       if(isTRUE(any_rcl_min_curr)){
         dst <- rle(sort(cri[cr2 & (
@@ -745,14 +745,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(isTRUE(any_rolling_epi_curr)){
         lgk2 <- lead_skip_b4_len & tag != 2 & tr_tag %in% c(-1)
         lgk2 <- check_skips(lgk = lgk2,
-                           lead_skip_b4_len = lead_skip_b4_len,
-                           cri = cri,
-                           cr = cr,
-                           vr = vr,
-                           tr_ep_int = tr_rc_int,
-                           tr_int = tr_int,
-                           int = int,
-                           case_nm = case_nm)
+                            lead_skip_b4_len = lead_skip_b4_len,
+                            cri = cri,
+                            cr = cr,
+                            vr = vr,
+                            tr_ep_int = tr_rc_int,
+                            tr_int = tr_int,
+                            int = int,
+                            case_nm = case_nm)
         lgk <- c(lgk, lgk2)
         lgk <- lgk[!duplicated(lgk)]
       }
@@ -904,14 +904,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   retrieve_pos <- match(1:length(int), stat_pos)
   # `epid` object
   epids <- new("epid",
-              .Data= e[fd],
-              dist_epid_index = dist_epid_index[fd],
-              dist_wind_index = dist_wind_index[fd],
-              sn = int@gid[fd],
-              case_nm = case_nm[retrieve_pos],
-              iteration = iteration[retrieve_pos],
-              wind_nm = wind_nm[retrieve_pos],
-              wind_id = wind_id[fd])
+               .Data= e[fd],
+               dist_epid_index = dist_epid_index[fd],
+               dist_wind_index = dist_wind_index[fd],
+               sn = int@gid[fd],
+               case_nm = case_nm[retrieve_pos],
+               iteration = iteration[retrieve_pos],
+               wind_nm = wind_nm[retrieve_pos],
+               wind_id = wind_id[fd],
+               epid_total = epid_n[fd])
 
   # `epid_dataset` slot
   if(!is.null(data_source)){
@@ -933,7 +934,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     epids@epid_dataset <- datasets
   }
 
-  epid_tot <- epid_n[fd]
   if(isTRUE(group_stats)){
     # `epid_interval` slot
     lgk <- which(epid_n != 1)
@@ -960,16 +960,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     epids@epid_interval <- number_line(l = epid_dt_a[fd],
-                                      r = epid_dt_z[fd],
-                                      gid = f_e)
-    # `epid_total` slot
-    epids@epid_total <- epid_tot
+                                       r = epid_dt_z[fd],
+                                       gid = f_e)
     # `epid_length` slot
     epids@epid_length <- epid_l[fd]
   }
 
   if(schema != "none"){
-    schema <- ifelse(length(epids[epid_tot >1]) == 0 & schema == "by_epid", "by_strata", schema)
+    schema <- ifelse(length(epids[epids@epid_total >1]) == 0 & schema == "by_epid", "by_strata", schema)
     if(schema == "by_epid"){
       p_cri <- as.numeric(epids@.Data)
       plot_sets <- p_cri[epid_n > 1]
@@ -1004,7 +1002,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       plt_cri <- strata_l[p_cri == x]
       plt_cri <- plt_cri[!duplicated(plt_cri)]
 
-      lgk <- (p_cri == x | (strata_l %in% plt_cri & epid_tot == 1))
+      lgk <- (p_cri == x | (strata_l %in% plt_cri & epids@epid_total == 1))
       schema(x = epids[lgk],
              date = int_bu[lgk],
              episode_unit = ep_units[lgk],

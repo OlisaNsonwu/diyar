@@ -10,7 +10,6 @@
 \alias{summary.epid}
 \alias{show,epid-method}
 \alias{rep,epid-method}
-\alias{[,epid,ANY,ANY,ANY-method}
 \alias{[,epid-method}
 \alias{[[,epid-method}
 \alias{c,epid-method}
@@ -30,7 +29,7 @@ as.epid(x)
 
 \S4method{rep}{epid}(x, ...)
 
-\S4method{[}{epid,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
+\S4method{[}{epid}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{epid}(x, i, j, ..., exact = TRUE)
 

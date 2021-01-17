@@ -2,7 +2,7 @@
 % Please edit documentation in R/record_group.R
 \name{links_probabilistic}
 \alias{links_probabilistic}
-\alias{fetch_thresholds}
+\alias{fetch_scores}
 \title{Probabilistic record linkage}
 \usage{
 links_probabilistic(
@@ -11,25 +11,25 @@ links_probabilistic(
   cmp_func = diyar::exact_match,
   cmp_threshold = 0.95,
   probabilistic = TRUE,
-  m_prob = 0.95,
+  m_probability = 0.95,
   weight_threshold = 1,
   ...
 )
 
-fetch_thresholds(attribute, m_prob = 0.99)
+fetch_scores(attribute, m_probability = 0.99)
 }
 \arguments{
 \item{attribute}{\code{list} of attributes to compare.}
 
 \item{blocking_attribute}{Subsets of the dataset.}
 
-\item{cmp_func}{\code{list} of functions to used as string comparators for each \code{attribute}. See \code{Details}.}
+\item{cmp_func}{\code{list} of string comparators for each \code{attribute}. See \code{Details}.}
 
-\item{cmp_threshold}{\code{list} of real numbers. These are thresholds for what's considered a match. See \code{Details}.}
+\item{cmp_threshold}{\code{list} of similarity score-thresholds for every each \code{attribute}. See \code{Details}.}
 
-\item{probabilistic}{if \code{TRUE}, matching weights are calculated using XXX and XXX method for XXX.}
+\item{probabilistic}{if \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic linkage. See \code{Details}.}
 
-\item{m_prob}{m-probability for each attribute.}
+\item{m_probability}{\code{list} m-probailities. The probability that a match from the string comparator is from the same entity.}
 
 \item{weight_threshold}{Minimum threshold for linked records. See \code{Details}.}
 
@@ -42,8 +42,37 @@ fetch_thresholds(attribute, m_prob = 0.99)
 A specific use case of \code{links} to achieve probabilistic record linkage.
 }
 \details{
-XXXXXX
+\code{links_probabilistic} is a wrapper function of \code{\link{links}} which is used for probabilistic record linkage.
+Its implementation is based on Fellegi-Sunter model for deciding if two records belong to the same entity.
+
+In summary, two probabilities (m and u) are estimated for each record pair and used to score matches and non-matches.
+The m-probability is the probability that matched attributes are from the same entity,
+while u-probability is the probability that matched attributes are not from the same entity.
+m-probabilities have to be supplied but u-probabilities are calculated for each \code{attribute} as the number of occurrences of a value divided by the number of records in the dataset.
+Record pairs whose total score are above a certain threshold (\code{weight_threshold}) are assumed to belong to the same entity.
+
+For each record pair, an agreement or match score for attribute \eqn{i} is calculated as;
+
+\deqn{\log_{2}(m_{i}/u_{i})}{log_2 (m_i / u_i)}
+
+For each record pair, a disagreement or non-match score for attribute \eqn{i} is calculated as;
+
+\deqn{\log_{2}((1-m_{i})/(1-u_{i}))}{log_2 ((1-m_i) / (1-u_i))}
+
+where \eqn{m_{i}}{m_i} and \eqn{u_{i}}{u_i} are the m and u-probabilities for attribute \eqn{i}
+
+Matches and non-matches for each \code{attribute} are determined by string comparators.
+By default, this is simply an \code{\link{exact_match}} with a binary outcome.
+Alternatively, this can also be similarity score, in which case a \code{list} of thresholds (\code{cmp_threshold}) should be provided for each comparator.
+If \code{\link{probabilistic}} is \code{FALSE}, the \code{weight_threshold} is compared against the sum of all similarity scores.
+
+\code{links_probabilistic} requires a \code{weight_threshold} in advance of the linkage process.
+This differs from the typical approach where a \code{weight_threshold} is selected after the linkage process,
+following a review of scores from every record pair.
+To help with this, the convenience function \code{fetch_scores} will show you the minimum and maximum scores attainable for a given dataset.
+
+A \code{blocking_attribute} can be used to reduce processing time by restricting comparisons to \code{strata} of the dataset.
 }
 \seealso{
-\code{\link{links}},  \code{\link{episodes}}, \code{\link{partitions}}, \code{\link{predefined_tests}} and \code{\link{sub_criteria}}
+\code{\link{links}}, \code{\link{episodes}}, \code{\link{partitions}}, \code{\link{predefined_tests}} and \code{\link{sub_criteria}}
 }

@@ -225,7 +225,8 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                window_matched = window_matched,
                sn = sn,
                case_nm = case_nm,
-               window_list = window_list)
+               window_list = window_list,
+               pane_total = pane_n)
 
   if(!is.null(data_source)){
     # Implement `data_links`
@@ -268,8 +269,6 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     panes@pane_interval <- number_line(l = pane_dt_a,
                                       r = pane_dt_z,
                                       gid = pane)
-    # `pane_total`
-    panes@pane_total <- pane_n
     # `pane_length`
     panes@pane_length <- pane_l
   }
