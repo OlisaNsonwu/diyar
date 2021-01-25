@@ -501,40 +501,57 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
   if(rec_ls >0){
     lar$mid_y_lead <- pltd$mid_y[match(lar$sn, pltd$wind_id)]
     lar <- lapply(lens, function(x){
-      y <- number_line(as.numeric(left_point(x)),
-                       as.numeric(right_point(x)),
-                       id = x@id,
-                       gid = x@gid)
-      y <- to_df(y[match(y@id, lar$sn)])
+      y <- number_line(as.numeric(start_point(x)),
+                       as.numeric(end_point(x)))
+      #y <- to_df(y[match(y@id, lar$sn)])
 
+      y <- to_df(y)
       y$id <- NULL
       y$gid <- NULL
       y$epid <- lar$epid
       y$wind_total <- lar$wind_total
       y$y <- lar$y
       y$mid_y_lead <- lar$mid_y_lead
+      y$pt_start <- lar$start
+      y$pt_end <- lar$end
+      y$ep_uni <- lar$episode_unit
       y$nl_nm <- "len"
-      lar$nl_nm <- "dts"
-      lar$wind_nm_l <- ""
+      #lar$nl_nm <- "dts"
+      #lar$wind_nm_l <- ""
       y$wind_nm_l <- ifelse(winds$wind_nm == "Case", "Case length", "Recurrence length")
+      y$bi_dir <- start_point(x) < lar$end & end_point(x) > lar$end
+      y <- y[!is.na(y$start) & !is.na(y$end),]
+      if(nrow(y) > 0){
+        if(any(y$bi_dir)){
+          v <- y[y$bi_dir,]
+          v$start <- y$pt_end
+          y$end <- y$pt_end
+          y <- rbind(y, v)
+          rm(v)
+        }
+      }else{
+        y$lab_y <- y$nl_s <- y$nl_e <- y$nl_l <- numeric()
+        y$episode <- character()
+      }
 
-      y$nl_l <- epid_lengths(number_line(lar$start,
-                                         lar$end),
+      y$bi_dir <- NULL
+      y$nl_l <- epid_lengths(number_line(y$pt_start,
+                                         y$pt_end),
                              number_line(y$start,
                                          y$end),
                              "seconds")
 
       if(is_dt == TRUE){
-        y$nl_l <- number_line(left_point(y$nl_l)/as.numeric(diyar::episode_unit[lar$episode_unit]),
-                              right_point(y$nl_l)/as.numeric(diyar::episode_unit[lar$episode_unit]))
+        y$nl_l <- number_line(start_point(y$nl_l)/as.numeric(diyar::episode_unit[y$ep_uni]),
+                              end_point(y$nl_l)/as.numeric(diyar::episode_unit[y$ep_uni]))
       }
-      y$nl_s <- left_point(y$nl_l)
-      y$nl_e <- right_point(y$nl_l)
-      y$episode_unit <- lar$episode_unit
-      lar$nl_s <- y$nl_s
-      lar$nl_e <- y$nl_e
+      y$nl_s <- start_point(y$nl_l)
+      y$nl_e <- end_point(y$nl_l)
+      y$episode_unit <- y$ep_uni
+      #lar$nl_s <- y$nl_s
+      #lar$nl_e <- y$nl_e
       y$nl_l <- NULL
-      y <- rbind(y, lar[c("end", "start", "epid", "y", "mid_y_lead", "nl_s", "nl_e", "nl_nm", "wind_nm_l", "wind_total", "episode_unit")])
+      #y <- rbind(y, lar[c("end", "start", "epid", "y", "mid_y_lead", "nl_s", "nl_e", "nl_nm", "wind_nm_l", "wind_total", "episode_unit")])
       y$lab_y <- (y$mid_y_lead + y$y)/2
       y
     })

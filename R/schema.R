@@ -260,6 +260,13 @@ schema.epid <- function(x, date, episode_unit, case_length,
   # `episode_unit`
   episode_unit[!is_dt] <- "seconds"
   # `case_length`
+  case_length <- lapply(case_length, function(x){
+    if(length(x) == 1){
+      rep(x, length(int))
+    }else{
+      x
+    }
+  })
   ep_l <- length_to_range(lengths = case_length,
                           date = int,
                           from_last = from_last,
@@ -267,10 +274,19 @@ schema.epid <- function(x, date, episode_unit, case_length,
   any_rolling <- any(episode_type == "rolling")
   if(any_rolling){
     # `recurrence_length`
+    recurrence_length <- lapply(recurrence_length, function(x){
+      if(length(x) == 1){
+        rep(x, length(int))
+      }else{
+        x
+      }
+    })
     rc_l <- length_to_range(lengths = recurrence_length,
                             date = int,
                             from_last = from_last,
                             episode_unit = episode_unit)
+  }else{
+    rc_l <- NULL
   }
 
   # Plot data
@@ -290,29 +306,47 @@ schema.epid <- function(x, date, episode_unit, case_length,
   plt_df$end <- right_point(int)
   plt_df$epid <- as.character(plt_df$epid)
 
+  lgk <- which(plt_df$epid_total != 1)
+  dts_a <- lapply(split(as.numeric(plt_df$start[lgk]), plt_df$epid[lgk]), min)
+  dts_z <- lapply(split(as.numeric(plt_df$end[lgk]), plt_df$epid[lgk]), max)
+
+  plt_df$epid_dts_a <- as.numeric(plt_df$start)
+  plt_df$epid_dts_z <- as.numeric(plt_df$end)
+  plt_df$epid_dts_a[lgk] <- as.numeric(dts_a)[match(plt_df$epid[lgk], names(dts_a))]
+  plt_df$epid_dts_z[lgk] <- as.numeric(dts_z)[match(plt_df$epid[lgk], names(dts_z))]
+
+  plt_df$di_pid <- episodes(date = number_line(plt_df$epid_dts_a, plt_df$epid_dts_z),
+                     case_length = index_window(number_line(plt_df$epid_dts_a, plt_df$epid_dts_z)),
+                     display = "none")
+  splts <- split(plt_df$epid, as.numeric(plt_df$di_pid))
+  splts <- lapply(splts, function(x){
+    length(x[!duplicated(x)]) == 1
+  })
+  plt_df$bd_shft <- as.logical(splts[match(plt_df$di_pid, names(splts))])
+  plt_df$bd_id <- 1
+  lgk <- !plt_df$bd_shft
+  plt_df$bd_id[lgk] <- 2 + (1/as.numeric(plt_df$epid[lgk]))
+  #plt_df$bd_id[!plt_df$bd_shft & plt_df$epid_total == 1] <- 3
+  plt_df$bd_id <- match(plt_df$bd_id, sort(plt_df$bd_id[!duplicated(plt_df$bd_id)]))
   # Data points without finite coordinates.
   plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
 
-  # Alternating boundaries for separate `windows`
   windows_dy <- sort(plt_df$wind_id)
   windows_dy <- rle(windows_dy)
   plt_df$wind_total <- windows_dy$length[match(plt_df$wind_id, windows_dy$values)]
 
+  # Alternating boundaries for separate `windows`
+  unq_bd_id <- plt_df$bd_id[!duplicated(plt_df$bd_id)]
+  bds <- number_line_sequence(number_line(0, 2), length.out = length(unq_bd_id))
+  #bds <- bds[plt_df$bd_id]
   # Alternating boundaries (y-axis) for each window
-  pl_winds <- plt_df$wind_id
-  pl_winds[plt_df$wind_total == 1] <- sample(max(plt_df$wind_id) + 1:2,
-                                             length(pl_winds[plt_df$wind_total == 1]),
-                                             replace = TRUE)
-  epid_winds_n <- length(pl_winds[!duplicated(pl_winds)])
 
-  wind_br_a <- rep(0, epid_winds_n)
-  wind_br_z <- rep(0.9, epid_winds_n)
-  wind_br_a[seq_len(epid_winds_n) %% 2 == 1] <- 1.1
-  wind_br_z[seq_len(epid_winds_n) %% 2 == 1] <- 2
-  winds_sn <- split(plt_df$sn, pl_winds)
+  wind_br_a <- bds@start + (bds@.Data/4)
+  wind_br_z <- right_point(bds) - (bds@.Data/4)
+  winds_sn <- split(plt_df$sn, plt_df$bd_id)
 
   # Random `y` coordinates within each window's boundary (above)
-  cord_y <- lapply(seq_len(epid_winds_n), function(i){
+  cord_y <- lapply(seq_len(length(wind_br_a)), function(i){
     if(length(winds_sn[[i]]) > 1){
       sample(seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]])),
              length(winds_sn[[i]]))
@@ -323,7 +357,7 @@ schema.epid <- function(x, date, episode_unit, case_length,
   winds_sn <- unlist(winds_sn, use.names = FALSE)
   cord_y <- unlist(cord_y, use.names = FALSE)
   plt_df$y <- cord_y[match(plt_df$sn, winds_sn)]
-  winds_cord_y <- split(plt_df$y, pl_winds)
+  winds_cord_y <- split(plt_df$y, plt_df$bd_id)
 
   # Midpoint of each window's boundaries (y-axis)
   mid_y <- lapply(winds_cord_y, function(x){
@@ -445,21 +479,33 @@ schema.epid <- function(x, date, episode_unit, case_length,
   if(nrow(case_l_ar) > 0){
     case_l_ar$start <- as.numeric(case_l_ar$start)
     case_l_ar$end <- as.numeric(case_l_ar$end)
-    case_l_ar$end[case_l_ar$end > max(plt_df$end) | is.infinite(case_l_ar$end)] <- max(plt_df$end)
-    case_l_ar$start[case_l_ar$start < min(plt_df$start) | is.infinite(case_l_ar$start)] <- min(plt_df$start)
+    case_l_ar$bck_dir <- case_l_ar$nl_e == 0
+    rev_len <- reverse_number_line(number_line(case_l_ar$start[case_l_ar$bck_dir], case_l_ar$end[case_l_ar$bck_dir]), direction = "both")
+    case_l_ar$start[case_l_ar$bck_dir] <- rev_len@start
+    case_l_ar$end[case_l_ar$bck_dir] <- right_point(rev_len)
+
+    case_l_ar$pl_x_e <- max(plt_df$end)
+    case_l_ar$pl_x_s <- min(plt_df$start)
+
+    lgk <- (case_l_ar$end > case_l_ar$pl_x_e | is.infinite(case_l_ar$end))
+    case_l_ar$end[lgk] <- ifelse(case_l_ar$nl_e[lgk] - case_l_ar$nl_s[lgk] < 0, case_l_ar$pl_x_s[lgk], case_l_ar$pl_x_e[lgk])
+    lgk <- (case_l_ar$start < case_l_ar$pl_x_s | is.infinite(case_l_ar$start))
+    case_l_ar$start[lgk] <- ifelse(case_l_ar$nl_e[lgk] - case_l_ar$nl_s[lgk] < 0, case_l_ar$pl_x_e[lgk], case_l_ar$pl_x_s[lgk])
     case_l_ar$no_ar <- as.numeric(case_l_ar$nl_s) == 0 & as.numeric(case_l_ar$nl_e) == 0
     case_l_ar$lab_y[case_l_ar$no_ar] <- case_l_ar$y[case_l_ar$no_ar]
     case_l_ar$nl_l <- paste0(case_l_ar$wind_nm_l, "\n",
                              format(number_line(case_l_ar$nl_s, case_l_ar$nl_e)),
                              " ", ifelse(is_dt, gsub("s$", "-", episode_unit), "unit-"),
                              "difference.")
+
+
   }else{
-    case_l_ar$no_ar <- logical()
+    case_l_ar$bck_dir <- case_l_ar$no_ar <- logical()
     case_l_ar$nl_l <- character()
   }
 
   plot_pts <- nrow(plt_df)
-  min_x <- min(plt_df$start)
+  min_x <- min(c(plt_df$start, plt_df$end, case_l_ar$start, case_l_ar$end))
 
   if(isTRUE(dark_mode)){
     bg_col <- "black"
@@ -478,7 +524,7 @@ schema.epid <- function(x, date, episode_unit, case_length,
     f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$mid_y_lead, linetype = .data$wind_nm_l), color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$wind_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open"))
   }
   if("length_label" %in% show_labels){
-    f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$lab_y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len",], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
+    f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$lab_y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$wind_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
   }
   if(!isFALSE(show_labels)){
     f <- f +

@@ -1676,13 +1676,13 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     # Check for required object lengths
     len_lims <- 1
     args <- list(title = title,
-                 show_labels = show_labels,
+                 #show_labels = show_labels,
                  show_skipped = show_skipped,
                  show_non_finite = show_non_finite,
                  dark_mode = dark_mode)
 
     args_lens <- list(title = c(0, len_lims),
-                      show_labels = len_lims,
+                      #show_labels = len_lims,
                       show_skipped = len_lims,
                       show_non_finite = len_lims,
                       dark_mode = len_lims)
@@ -1762,11 +1762,11 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     # Check for required object lengths
     len_lims <- 1
     args <- list(title = title,
-                 show_labels = show_labels,
+                 #show_labels = show_labels,
                  dark_mode = dark_mode)
 
     args_lens <- list(title = c(0, len_lims),
-                      show_labels = len_lims,
+                      #show_labels = len_lims,
                       dark_mode = len_lims)
 
     err <- mapply(err_match_ref_len,
@@ -1840,12 +1840,12 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     # Check for required object lengths
     len_lims <- 1
     args <- list(title = title,
-                 show_labels = show_labels,
+                 #show_labels = show_labels,
                  dark_mode = dark_mode,
                  orientation = orientation)
 
     args_lens <- list(title = c(0, len_lims),
-                      show_labels = len_lims,
+                      #show_labels = len_lims,
                       dark_mode = len_lims,
                       orientation = len_lims)
 

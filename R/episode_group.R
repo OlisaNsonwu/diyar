@@ -967,21 +967,21 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   if(schema != "none"){
-    schema <- ifelse(length(epids[epids@epid_total >1]) == 0 & schema == "by_epid", "by_strata", schema)
+    schema <- ifelse(length(epids[epids@epid_total > 1]) == 0 & schema == "by_epid", "by_strata", schema)
     if(schema == "by_epid"){
       p_cri <- as.numeric(epids@.Data)
       plot_sets <- p_cri[epid_n > 1]
-      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      plot_sets <- plot_sets[!duplicated(plot_sets) & !is.na(plot_sets)]
       title_seq <- "Episode - E."
     }else if (schema == "by_strata" & !is.null(strata)){
       p_cri <- strata_l
       plot_sets <- p_cri
-      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      plot_sets <- plot_sets[!duplicated(plot_sets) & !is.na(plot_sets)]
       title_seq <- "Strata - "
     }else if (schema == "by_ALL" | (schema == "by_strata" & is.null(strata))){
       p_cri <- "ALL"
       plot_sets <- p_cri
-      plot_sets <- plot_sets[!duplicated(plot_sets)]
+      plot_sets <- plot_sets[!duplicated(plot_sets) & !is.na(plot_sets)]
       title_seq <- ""
     }
     if(class(case_length) != "list"){
@@ -999,10 +999,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       x
     })
     plots <- lapply(plot_sets, function(x){
-      plt_cri <- strata_l[p_cri == x]
+      plt_cri <- strata_l[p_cri == x & !is.na(p_cri)]
       plt_cri <- plt_cri[!duplicated(plt_cri)]
 
-      lgk <- (p_cri == x | (strata_l %in% plt_cri & epids@epid_total == 1))
+      lgk <- ((p_cri == x & !is.na(p_cri)) | (strata_l %in% plt_cri & epids@epid_total == 1))
       schema(x = epids[lgk],
              date = int_bu[lgk],
              episode_unit = ep_units[lgk],
@@ -1020,7 +1020,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
-  cat("Episodes tracked in ", tms, "!\n", sep = "")
+  if(tolower(display) != "none") cat("Episodes tracked in ", tms, "!\n", sep = "")
 
   if(schema == "none"){
     return(epids)
