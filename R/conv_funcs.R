@@ -792,7 +792,7 @@ check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, i
   }
 }
 
-sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlaps = FALSE){
+sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlap = FALSE){
   nl <- x
   if(isTRUE(deduplicate)){
     nl <- unique(nl)
@@ -838,7 +838,7 @@ sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlaps = FALS
   #winds_cord_y <- split(plt_df$y, pl_winds)
 
   set <- seq_len(length(nl))
-  if(isTRUE(show_overlaps)){
+  if(isTRUE(show_overlap)){
 
     mths <- lapply(set, function(x){
       j <- set[set > x]

@@ -121,6 +121,10 @@ ds$f1
 plot_epid(epid = ds$f1, date= ds$date, case_length = 5)
 ```
 
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(ds$f1)
+```
+
 Alternatively, you can specify a cut-off range. For example, a `case_length` of ``r format(number_line(12, 16))`` means that; repeat `events` within `13` and `17` days after the `reference event` are considered `duplicates` of the `reference event`. Such ranges must be created with `number_line()`. See the [number line vignette](number_line.html).
 
 **Figure 1b: fixed episodes with a cut-off range**
@@ -136,6 +140,9 @@ ds$f2
 plot_epid(epid = ds$f2, date= ds$date, case_length = rng)
 ```
 
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(ds$f2)
+```
 `events` before the `13th` can be skipped by changing `skip_if_b4_lengths` to `TRUE`.
 
 **Figure 1c: fixed episodes where events before the the cut-off range are not skipped**
@@ -150,6 +157,10 @@ ds$f3
 
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = ds$f3, date= ds$date, case_length = rng)
+```
+
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(ds$f3)
 ```
 
 Finally, you can use multiple `case_lengths` by supplying these as a `list`. For example, a `case_length` of `list(5, number_line(15, 17))` means that; repeat events within `6 days`, and within `16` and `18 days` after the index event are considered duplicates.
@@ -176,6 +187,10 @@ ds$f4
 
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = ds$f4, date= ds$date, case_length = 5, from_last = T)
+```
+
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(ds$f4)
 ```
 
 <a id ="custom_sort"></a>
@@ -335,6 +350,10 @@ ds$r1
 plot_epid(epid = ds$r1, date= ds$date, case_length = 5, recurrence_length = 10)
 ```
 
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(ds$r1)
+```
+
 Similarly, for `recurrence_length`, you can use a cut-off range. For example, a `recurrence_length` of ``r format(number_line(13, 15))`` means that; repeat `events` between `14` and `16` days after the last `duplicate event` are considered a recurrence of the index `event`. 
 
 **Figure 3b: rolling episodes with a cut-off range**
@@ -350,6 +369,10 @@ ds$r2
 
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = ds$r2, date= ds$date, case_length = 5, recurrence_length = rng)
+```
+
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(ds$r2)
 ```
 
 You can skip `events` before the `14th` by changing `skip_if_b4_lengths` to `TRUE`. 
@@ -368,6 +391,10 @@ ds$r3
 
 ```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = ds$r3, date= ds$date, case_length = 5, recurrence_length = rng)
+```
+
+```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(ds$r3)
 ```
 
 As with `case_length`, you can supply multiple `recurrence_lengths` as a list.
@@ -421,6 +448,10 @@ df$r2
 plot_epid(epid = df$r2, date = df$date, case_length =14, recurrence_length = 16)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(df$r2)
+```
+
 **Figure 4b: First event in a window taken as the reference event for the next recurrence window**
 ```{r message=FALSE, warning=FALSE}
 df$r3 <- episodes(date = df$date, case_length = 14, 
@@ -434,6 +465,10 @@ df$r3
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = df$r3, date = df$date, case_length =14, recurrence_length = 16)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(df$r3)
 ```
 
 #### Case windows for both case and recurrent events
@@ -462,6 +497,10 @@ df$r4
 plot_epid(epid = df$r4, date = df$date, case_length =10, recurrence_length = 10)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(df$r4)
+```
+
 **Figure 5b: Case windows for case and recurrence events**
 ```{r message=FALSE, warning=FALSE}
 df$r5 <- episodes(date = df$date, case_length = 10, 
@@ -474,6 +513,10 @@ df$r5
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = df$r5, date = df$date, case_length =10, recurrence_length = 10)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(df$r5)
 ```
 
 *Example 2*
@@ -502,6 +545,10 @@ df2$r1
 plot_epid(epid = df2$r1, date = df2$date, case_length =6, recurrence_length = 4)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(df2$r1)
+```
+
 **Figure 5d: Case windows for case and recurrence events**
 ```{r message=FALSE, warning=FALSE}
 df2$r2 <- episodes(date = df2$date, case_length = 6, 
@@ -514,6 +561,10 @@ df2$r1
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = df2$r2, date = df2$date, case_length =6, recurrence_length = 4)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(df2$r2)
 ```
 
 Notice that in the 4 examples, all `events` have been assigned to the same `episode` but the number of `recurrent events` differs.
@@ -543,6 +594,10 @@ dbs$eps_1
 plot_epid(epid = dbs$eps_1, date = dbs$date, case_length =3)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(dbs$eps_1)
+```
+
 **Figure 6b: Maximum of two fixed episodes per strata**
 ```{r message=FALSE, warning=FALSE}
 dbs$eps_2 <- episodes(strata = dbs$pid, 
@@ -556,6 +611,10 @@ dbs$eps_2
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = dbs$eps_2, date = dbs$date, case_length = 3)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(dbs$eps_2)
 ```
 
 `rolls_max` is the maximum number of times an `event` can recur. This is when a `"rolling" episode` ends. A new one will only begin if the number of `episodes` in that `strata` is less than `episode_max`. The default option for `rolls_max` is `Inf` i.e. continue tracking `recurrent events` until there are no more `events` within the `recurrence period` of the `reference event`. See the examples below.
@@ -575,6 +634,10 @@ dbs$eps_4
 plot_epid(epid = dbs$eps_4, date = dbs$date, case_length =2, recurrence_length = 2)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(dbs$eps_4)
+```
+
 **Figure 6d: Maximum of one recurrence period per episode per strata**
 ```{r message=FALSE, warning=FALSE}
 dbs$eps_6 <- episodes(strata = dbs$pid, 
@@ -589,6 +652,10 @@ dbs$eps_6
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = dbs$eps_6, date = dbs$date, case_length =2, recurrence_length = 2)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(dbs$eps_6)
 ```
 
 Note that after tracking the last `recurrent event`, the function will also check for `duplicates` within the `case window` of the last `recurrent event`. See below.
@@ -608,6 +675,10 @@ dbs$eps_7
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = dbs$eps_7, date = dbs$date, case_length =2, recurrence_length = 2)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(dbs$eps_7)
 ```
 
 <a id="interval_grouping"></a>
@@ -690,6 +761,10 @@ hs_epids_a <- episodes(date = hos_admin$admin_period,
 plot_epid(epid = hs_epids_a, date = hos_admin$admin_period, case_length = 0)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(hs_epids_a)
+```
+
 **Figure 7b: Tracking periods of hospital stay up to 20 days after the first discharge**
 ```{r message=FALSE, warning=FALSE}
 hs_epids_b <- episodes(date=hos_admin$admin_period, 
@@ -699,6 +774,10 @@ hs_epids_b <- episodes(date=hos_admin$admin_period,
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = hs_epids_b, date = hos_admin$admin_period, case_length = 20)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(hs_epids_b)
 ```
 
 **Figure 7c: Tracking periods of continuous hospital stay i.e. re-admission within 15 days**
@@ -712,6 +791,10 @@ hs_epids_c <- episodes(date=hos_admin$admin_period,
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = hs_epids_c, date = hos_admin$admin_period, case_length = 0, recurrence_length = 15)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(hs_epids_c)
 ```
 
 There are 7 ways `event periods` can overlap (`case_overlap_methods`/`recurrence_overlap_methods`). These are `"exact"`, `"reverse"`, `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. These are covered in more detail in an accompanying [vignette](number_line.html#overlaps). You can specify that only `event periods` which overlap in a certain way should be linked as `episodes`. See below for a demonstration of this.
@@ -775,6 +858,9 @@ plot_epid(epid = eps,
                                     0))
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(epids[["exact"]])
+```
 **Figure 8b: Episodes when considering only "chain" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["chain"]]
@@ -783,12 +869,19 @@ plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn],
                                     0))
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(epids[["chain"]])
+```
 **Figure 8c: Episodes when considering "chain" or "inbetween" overlap method**
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 eps <- epids[["cb1"]]
 plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn], 
           case_length = number_line(-hos_admin$admin_period@.Data[eps@sn],
                                     0))
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(epids[["cb1"]])
 ```
 
 By default, `overlap_methods` is a `record-level` argument. This means that the option that'll be used is that of each `event` (record). See below.
@@ -839,6 +932,10 @@ eps_a
 plot_epid(epid = eps_a, date = periods, case_length = 6)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(eps_a)
+```
+
 In contrast, a negative "length" means that; only `event periods` within `n`-days BEFORE the `end_point()` of the index `event period` will be linked to the same `episode`.
 
 **Figure 9b: Fixed episodes with a case_length of -2**
@@ -854,6 +951,9 @@ eps_b
 plot_epid(epid = eps_b, date = periods, case_length = -2)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(eps_b)
+```
 To include those that overlap with the index event itself, supply the corresponding `case_length` or `recurrence_lenght`. `index_window()` is handy for doing this. You can also achieve this with the old `include_index_period` argument. See below.
 
 **Figure 9c: Fixed episodes with a case_length of -2**
@@ -870,6 +970,10 @@ eps_c
 plot_epid(epid = eps_c, date = periods, case_length = -2)
 ```
 
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(eps_c)
+```
+
 **Figure 9d: Fixed episodes with a case_length of -6**
 ```{r message=FALSE, warning=FALSE}
 eps_d <- episodes(date = periods, case_length =-6,
@@ -880,6 +984,10 @@ eps_d
 
 ```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
 plot_epid(epid = eps_d, date = periods, case_length = -6)
+```
+
+```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
+schema(eps_d)
 ```
 
 <a id= "stratified_grouping"></a>
