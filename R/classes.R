@@ -108,19 +108,7 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
-  a <- lapply(list(x, ...), function(y) as.number_line(y)@start)
-  for(i in 1:length(a)){
-    if(i == 1) ai <- a[[i]]
-    if(i > 1) ai <- c(ai, a[[i]])
-  }
-
-  zi <- unlist(lapply(list(x, ...), function(x) as.number_line(x)@.Data), use.names = F)
-  id <- gid <- 1:length(zi)
-  methods::new("number_line",
-               .Data = zi,
-               id = id,
-               gid = gid,
-               start = ai)
+  to_s4(do.call("rbind", lapply(list(x, ...), function(y) to_df(as.number_line(y)))))
 })
 
 #' @rdname number_line-class
@@ -204,7 +192,8 @@ setClass("epid",
                         epid_length = "ANY",
                         epid_total = "numeric",
                         epid_dataset = "character",
-                        iteration = "numeric"))
+                        iteration = "numeric",
+                        options = "list"))
 
 #' @rdname epid-class
 #' @examples
@@ -233,7 +222,8 @@ as.epid <- function(x){
                     epid_interval = as.number_line(rep(NA_real_, length(x))),
                     epid_total = rep(NA_real_, length(x)),
                     epid_dataset = rep(NA_character_, length(x)),
-                    iteration = rep(NA_real_, length(x)))
+                    iteration = rep(NA_real_, length(x))
+                    )
 
   if(class(y) == "number_line"){
     x@epid_interval <- y
@@ -266,15 +256,13 @@ unique.epid <- function(x, ...){
 #' @rdname epid-class
 #' @export
 summary.epid <- function(x, ...){
-  r <- rle(sort(x@.Data))
-  epid_tot <- r$lengths[match(x@.Data, r$values)]
-  summ <- paste0("Iterations:       ", fmt(max(x@iteration)), "\n",
+  summ <- paste0("Iterations:        ", fmt(max(x@iteration)), "\n",
                  "Records:\n",
-                 "  Total:          ", fmt(length(x)), "\n",
-                 "  Skipped:        ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
+                 "  Total:           ", fmt(length(x)), "\n",
+                 "    Skipped:       ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
                  "Episodes:\n",
-                 "  Total:          ", fmt(length(x[x@case_nm == "Case"])), "\n",
-                 "  With one record: ", fmt(length(x[x@case_nm == "Case" & epid_tot == 1])), "\n")
+                 "  Total:           ", fmt(length(x[x@case_nm == "Case"])), "\n",
+                 "    Single record: ", fmt(length(x[x@case_nm == "Case" & x@epid_total == 1])), "\n")
   cat(summ)
 }
 
@@ -322,7 +310,14 @@ setMethod("[", signature(x = "epid"),
                          epid_total = x@epid_total[i],
                          epid_dataset = x@epid_dataset[i],
                          epid_interval = x@epid_interval[i],
-                         iteration = x@iteration[i])
+                         iteration = x@iteration[i],
+                         options = list(date = x@options$date[i],
+                                        strata = x@options$date[i],
+                                        case_length = lapply(x@options$case_length, function(y) if(length(y) == 1) y else y[i]),
+                                        recurrence_length = lapply(x@options$recurrence_length, function(y) if(length(y) == 1) y else y[i]),
+                                        episode_type = if(length(x@options$episode_type) == 1) x@options$episode_type else x@options$episode_type[i],
+                                        episode_unit = if(length(x@options$episode_unit) == 1) x@options$episode_unit else x@options$episode_unit[i],
+                                        from_last = if(length(x@options$from_last) == 1) x@options$from_last else x@options$from_last[i]))
           })
 
 #' @aliases [[,epid-method
@@ -342,43 +337,19 @@ setMethod("[[", signature(x = "epid"),
                          epid_total = x@epid_total[i],
                          epid_dataset = x@epid_dataset[i],
                          epid_interval = x@epid_interval[i],
-                         iteration = x@iteration[i])
+                         iteration = x@iteration[i],
+                         options = list(date = x@options$date[i],
+                                        strata = x@options$date[i],
+                                        case_length = lapply(x@options$case_length, function(y) if(length(y) == 1) y else y[i]),
+                                        recurrence_length = lapply(x@options$recurrence_length, function(y) if(length(y) == 1) y else y[i]),
+                                        episode_type = if(length(x@options$episode_type) == 1) x@options$episode_type else x@options$episode_type[i],
+                                        episode_unit = if(length(x@options$episode_unit) == 1) x@options$episode_unit else x@options$episode_unit[i],
+                                        from_last = if(length(x@options$from_last) == 1) x@options$from_last else x@options$from_last[i]))
           })
 
 #' @rdname epid-class
 setMethod("c", signature(x = "epid"), function(x,...) {
-  e <- lapply(list(x, ...), function(y) y@epid_interval)
-  for(i in 1:length(e)){
-    if(i == 1) ei <- e[[i]]
-    if(i > 1) ei <- c(ei, e[[i]])
-  }
-
-  sn <- unlist(lapply(list(x, ...), function(y) y@sn))
-  wind_id <- unlist(lapply(list(x, ...), function(y) y@wind_id))
-  dist_epid_index <- unlist(lapply(list(x, ...), function(y) y@dist_epid_index))
-  dist_wind_index <- unlist(lapply(list(x, ...), function(y) y@dist_wind_index))
-  wind_nm <- unlist(lapply(list(x, ...), function(y) y@wind_nm))
-  case_nm <- unlist(lapply(list(x, ...), function(y) y@case_nm))
-  epid_length <- unlist(lapply(list(x, ...), function(y) y@epid_length))
-  epid_total <- unlist(lapply(list(x, ...), function(y) y@epid_total))
-  epid_dataset <- unlist(lapply(list(x, ...), function(y) y@epid_dataset))
-  iteration <- unlist(lapply(list(x, ...), function(y) y@iteration))
-  zi <- unlist(list(x, ...))
-
-  methods::new("epid",
-               zi,
-               case_nm = case_nm,
-               sn = sn,
-               wind_id = wind_id,
-               wind_nm = wind_nm,
-               epid_length = epid_length,
-               epid_total = epid_total,
-               epid_dataset = epid_dataset,
-               epid_interval = ei,
-               dist_epid_index = dist_epid_index,
-               dist_wind_index = dist_wind_index,
-               iteration = iteration)
-
+  to_s4(do.call("rbind", lapply(list(x, ...), to_df)))
 })
 
 
@@ -410,7 +381,8 @@ setClass("pane",
                         window_list = "list", window_matched = "numeric",
                         pane_interval = "number_line",
                         pane_length= "ANY", pane_total = "numeric",
-                        pane_dataset = "character"))
+                        pane_dataset = "character",
+                        options = "list"))
 
 #' @rdname pane-class
 #' @examples
@@ -437,7 +409,6 @@ as.pane <- function(x){
                     window_matched = rep(NA_real_, length(x)),
                     dist_pane_index = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),
-                    window_list = rep(NA_character_, length(x)),
                     pane_interval = as.number_line(rep(NA_real_, length(x))),
                     pane_total = rep(NA_real_, length(x)),
                     pane_dataset = rep(NA_character_, length(x)))
@@ -468,21 +439,19 @@ format.pane <- function(x, ...){
 #' @rdname pane-class
 #' @export
 unique.pane <- function(x, ...){
-  x <- x[!x@case_nm %in% c("Duplicate_C", "Duplicate_R")]
+  x <- x[x@case_nm == "Case"]
   return(x)
 }
 
 #' @rdname pane-class
 #' @export
 summary.pane <- function(x, ...){
-  r <- rle(sort(x@.Data))
-  pane_tot <- r$lengths[match(x@.Data, r$values)]
   summ <- paste0("Records:\n",
-                 "  Total:          ", fmt(length(x)), "\n",
-                 "  Skipped:        ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
+                 "  Total:           ", fmt(length(x)), "\n",
+                 "    Skipped:       ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
                  "Panes:\n",
-                 "  Total:          ", fmt(length(x[x@case_nm == "Index"])), "\n",
-                 "  With one record: ", fmt(length(x[x@case_nm == "Index" & pane_tot == 1])), "\n")
+                 "  Total:           ", fmt(length(x[x@case_nm == "Index"])), "\n",
+                 "    Single record: ", fmt(length(x[x@case_nm == "Index" & x@pane_total == 1])), "\n")
   cat(summ)
 }
 
@@ -502,7 +471,6 @@ setMethod("rep", signature(x = "pane"), function(x, ...) {
                window_matched = rep(x@window_matched, ...),
                dist_pane_index = rep(x@dist_pane_index, ...),
                case_nm = rep(x@case_nm, ...),
-               window_list = rep(x@window_list, ...),
                pane_interval = rep(x@pane_interval, ...),
                pane_length = rep(x@pane_length, ...),
                pane_total = rep(x@pane_total, ...),
@@ -518,14 +486,17 @@ setMethod("[", signature(x = "pane"),
           function(x, i, j, ..., drop = TRUE) {
             methods::new("pane", x@.Data[i],
                          case_nm = x@case_nm[i],
-                         window_list = x@window_list[i],
                          sn = x@sn[i],
                          window_matched = x@window_matched[i],
                          dist_pane_index = x@dist_pane_index[i],
                          pane_length = x@pane_length[i],
                          pane_total = x@pane_total[i],
                          pane_dataset = x@pane_dataset[i],
-                         pane_interval = x@pane_interval[i])
+                         pane_interval = x@pane_interval[i],
+                         window_list = x@window_list[i],
+                         options = list(date = x@options$date[i],
+                                        separate = if(length(x@options$separate) == 1) x@options$separate else x@options$separate[i],
+                                        strata = x@options$strata[i]))
           })
 
 #' @aliases [[,pane-method
@@ -536,46 +507,22 @@ setMethod("[[", signature(x = "pane"),
             methods::new("pane",
                          x@.Data[i],
                          case_nm = x@case_nm[i],
-                         window_list = x@window_list[i],
                          sn = x@sn[i],
                          window_matched = x@window_matched[i],
                          dist_pane_index = x@dist_pane_index[i],
                          pane_length = x@pane_length[i],
                          pane_total = x@pane_total[i],
                          pane_dataset = x@pane_dataset[i],
-                         pane_interval = x@pane_interval[i])
+                         pane_interval = x@pane_interval[i],
+                         window_list = x@window_list[i],
+                         options = list(date = x@options$date[i],
+                                        separate = if(length(x@options$separate) == 1) x@options$separate else x@options$separate[i],
+                                        strata = x@options$strata[i]))
           })
 
 #' @rdname pane-class
 setMethod("c", signature(x = "pane"), function(x,...) {
-  e <- lapply(list(x, ...), function(y) y@pane_interval)
-  for(i in 1:length(e)){
-    if(i == 1) ei <- e[[i]]
-    if(i > 1) ei <- c(ei, e[[i]])
-  }
-
-  sn <- unlist(lapply(list(x, ...), function(y) y@sn))
-  window_matched <- unlist(lapply(list(x, ...), function(y) y@window_matched))
-  dist_pane_index <- unlist(lapply(list(x, ...), function(y) y@dist_pane_index))
-  case_nm <- unlist(lapply(list(x, ...), function(y) y@case_nm))
-  window_list <- unlist(lapply(list(x, ...), function(y) y@window_list))
-  pane_length <- unlist(lapply(list(x, ...), function(y) y@pane_length))
-  pane_total <- unlist(lapply(list(x, ...), function(y) y@pane_total))
-  pane_dataset <- unlist(lapply(list(x, ...), function(y) y@pane_dataset))
-  zi <- unlist(list(x, ...))
-
-  methods::new("pane",
-               zi,
-               case_nm = case_nm,
-               window_list = window_list,
-               sn = sn,
-               window_matched = window_matched,
-               pane_length = pane_length,
-               pane_total = pane_total,
-               pane_dataset = pane_dataset,
-               pane_interval = ei,
-               dist_pane_index = dist_pane_index)
-
+  to_s4(do.call("rbind", lapply(list(x, ...), to_df)))
 })
 
 #' @name pid-class
@@ -657,22 +604,20 @@ unique.pid <- function(x, ...){
 #' @rdname pid-class
 #' @export
 summary.pid <- function(x, ...){
-  r <- rle(sort(x@.Data))
-  pid_tot <- r$lengths[match(x@.Data, r$values)]
   cri_dst <- table(x@pid_cri)
   cri_n <- as.numeric(names(cri_dst))
   cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
   cri_dst <- cri_dst[!is.na(cri_dst)]
   cri_n <- as.numeric(names(cri_dst))
-  cri_dst <- paste0("       ", pid_cri_l(cri_n), ":     ", fmt(cri_dst), collapse = "\n")
-  summ <- paste0("Iterations:         ", fmt(max(x@iteration)), "\n",
+  cri_dst <- paste0("       ", pid_cri_l(cri_n), ":    ", fmt(cri_dst), collapse = "\n")
+  summ <- paste0("Iterations:        ", fmt(max(x@iteration)), "\n",
                  "Records:\n",
-                 "  Total:            ", fmt(length(x)), "\n",
+                 "  Total:           ", fmt(length(x)), "\n",
                  "    Stages:\n",
                  cri_dst, "\n",
                  "Groups:\n",
-                 "   Total:           ", fmt(length(x@.Data[!duplicated(x@.Data)])), "\n",
-                 "   With one record: ", fmt(length(x@.Data[!duplicated(x@.Data) & pid_tot == 1])), "\n"
+                 "   Total:          ", fmt(length(x@.Data[!duplicated(x@.Data)])), "\n",
+                 "    Single record: ", fmt(length(x@.Data[!duplicated(x@.Data) & x@pid_total == 1])), "\n"
   )
   cat(summ)
 }
@@ -729,22 +674,7 @@ setMethod("[[", signature(x = "pid"),
 
 #' @rdname pid-class
 setMethod("c", signature(x = "pid"), function(x,...) {
-  sn <- unlist(lapply(list(x, ...), function(y) y@sn))
-  pid_cri <- unlist(lapply(list(x, ...), function(y) y@pid_cri))
-  link_id <- unlist(lapply(list(x, ...), function(y) y@link_id))
-  pid_total <- unlist(lapply(list(x, ...), function(y) y@pid_total))
-  pid_dataset <- unlist(lapply(list(x, ...), function(y) y@pid_dataset))
-  iteration <- unlist(lapply(list(x, ...), function(y) y@iteration))
-  zi <- unlist(list(x, ...))
-
-  methods::new("pid",
-               zi,
-               pid_cri = pid_cri,
-               sn = sn,
-               pid_total = pid_total,
-               pid_dataset = pid_dataset,
-               link_id = link_id,
-               iteration = iteration)
+  to_s4(do.call("rbind", lapply(list(x, ...), to_df)))
 })
 
 

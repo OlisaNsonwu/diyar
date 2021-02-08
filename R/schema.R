@@ -1,6 +1,6 @@
 #' @name schema
 #' @aliases schema
-#' @title Schema diagram for linked records.
+#' @title Schema  diagram for linked records.
 #'
 #' @description Create schema diagrams for \code{pid}, \code{epid} and \code{pane} objects.
 #'
@@ -33,12 +33,12 @@ schema <- function(x, ...) UseMethod("schema")
 #' @rdname schema
 #' @importFrom rlang .data
 #' @export
-schema.pane <- function(x, date, separate, title = NULL, show_labels = c("window_label"), dark_mode = TRUE) {
+schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE) {
   . <- NULL
 
   # Validations
   errs <- err_schema_pane_0(x = x,
-                            date = date,
+                            date = x@options$date,
                             title = title,
                             show_labels = show_labels,
                             dark_mode = dark_mode)
@@ -48,14 +48,21 @@ schema.pane <- function(x, date, separate, title = NULL, show_labels = c("window
   # `Pane` data
   panes <- x
   plt_df <- to_df(panes)
-  date <- as.number_line(date)
-  plt_df$start <- date@start
-  plt_df$end <- right_point(date)
+  plt_df$start <- as.number_line(x@options$date)@start
+  plt_df$end <- right_point(as.number_line(x@options$date))
   plt_df$epid <- as.character(panes@.Data)
   plt_df$pane_id <- panes@.Data
   plt_df$case_nm <- panes@case_nm
+
+  # Data points without finite coordinates.
+  plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
+
+  windows_dy <- sort(plt_df$pane_id)
+  windows_dy <- rle(windows_dy)
+  plt_df$wind_total <- windows_dy$length[match(plt_df$pane_id, windows_dy$values)]
+
   # Colour code for each window
-  if(isTRUE(separate)){
+  if(isTRUE(x@options$separate)){
     plt_df$pane_n <- as.character(plt_df$window_matched)
   }else{
     plt_df$pane_n <- "1"
@@ -66,7 +73,7 @@ schema.pane <- function(x, date, separate, title = NULL, show_labels = c("window
   plt_df$pane_n <- as.character(plt_df$pane_n)
 
   # `windows`
-  splits_windows <- plt_df$window_list
+  splits_windows <- x@window_list
   splits_windows <- splits_windows[!duplicated(splits_windows)]
 
   border <- do.call(rbind, lapply(splits_windows, function(x){
@@ -75,7 +82,7 @@ schema.pane <- function(x, date, separate, title = NULL, show_labels = c("window
     x
   }))
 
-  if(isFALSE(separate)){
+  if(isFALSE(x@options$separate)){
     border$pane_n <- "1"
   }
 
@@ -93,30 +100,39 @@ schema.pane <- function(x, date, separate, title = NULL, show_labels = c("window
     border$win_l <- ""
   }
 
-  # Data points without finite coordinates.
-  # These can't be plotted on the number_line
-  plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
+  lgk <- which(plt_df$pane_total != 1)
+  dts_a <- lapply(split(as.numeric(plt_df$start[lgk]), plt_df$epid[lgk]), min)
+  dts_z <- lapply(split(as.numeric(plt_df$end[lgk]), plt_df$epid[lgk]), max)
+
+  plt_df$epid_dts_a <- as.numeric(plt_df$start)
+  plt_df$epid_dts_z <- as.numeric(plt_df$end)
+  plt_df$epid_dts_a[lgk] <- as.numeric(dts_a)[match(plt_df$epid[lgk], names(dts_a))]
+  plt_df$epid_dts_z[lgk] <- as.numeric(dts_z)[match(plt_df$epid[lgk], names(dts_z))]
+
+  plt_df$di_pid <- episodes(date = number_line(plt_df$epid_dts_a, plt_df$epid_dts_z),
+                            strata = plt_df$pane_n,
+                            case_length = index_window(number_line(plt_df$epid_dts_a, plt_df$epid_dts_z)),
+                            display = "none")
+  bd_id <- split(plt_df$epid, as.numeric(plt_df$di_pid))
+  bd_id_sn <- split(plt_df$sn, as.numeric(plt_df$di_pid))
+  bd_id <- lapply(bd_id, function(x){
+    match(x, x[!duplicated(x)])
+  })
+  bd_id_sn <- unlist(bd_id_sn, use.names = FALSE)
+  bd_id <- unlist(bd_id, use.names = FALSE)
+  plt_df$bd_id <- bd_id[match(plt_df$sn, bd_id_sn)]
 
   # Alternating boundaries for separate `windows`
-  panes_n <- nrow(border)
-  windows_dy <- sort(plt_df$pane_id)
-  windows_dy <- rle(windows_dy)
-  plt_df$wind_total <- windows_dy$length[match(plt_df$pane_id, windows_dy$values)]
+  unq_bd_id <- plt_df$bd_id[!duplicated(plt_df$bd_id)]
+  bds <- number_line_sequence(number_line(0, 2), length.out = length(unq_bd_id))
+  #bds <- bds[plt_df$bd_id]
 
-  pl_winds <- plt_df$pane_id
-  pl_winds[plt_df$wind_total == 1] <- sample(max(as.numeric(plt_df$pane_id)) + 1:2,
-                                             length(pl_winds[plt_df$wind_total == 1]),
-                                             replace = TRUE)
-  epid_winds_n <- length(pl_winds[!duplicated(pl_winds)])
-
-  wind_br_a <- rep(0, epid_winds_n)
-  wind_br_z <- rep(0.9, epid_winds_n)
-  wind_br_a[seq_len(epid_winds_n) %% 2 == 1] <- 1.1
-  wind_br_z[seq_len(epid_winds_n) %% 2 == 1] <- 2
-  winds_sn <- split(plt_df$sn, pl_winds)
+  wind_br_a <- bds@start + (bds@.Data/32)
+  wind_br_z <- right_point(bds) - (bds@.Data/32)
+  winds_sn <- split(plt_df$sn, plt_df$bd_id)
 
   # Random `y` coordinates within each window's boundary (above)
-  cord_y <- lapply(seq_len(epid_winds_n), function(i){
+  cord_y <- lapply(seq_len(length(wind_br_a)), function(i){
     if(length(winds_sn[[i]]) > 1){
       sample(seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]])),
              length(winds_sn[[i]]))
@@ -188,16 +204,22 @@ schema.pane <- function(x, date, separate, title = NULL, show_labels = c("window
     bg_col <- "white"
     txt_col <- "black"
   }
+
+  plt_df$epid <- match(plt_df$epid, plt_df$epid[!duplicated(plt_df$epid)])
+  plt_df$epid <- formatC(plt_df$epid, width = nchar(max(plt_df$epid)), flag = 0, format = "fg")
+
+  border$pane_n <- match(border$pane_n, sample(border$pane_n[!duplicated(border$pane_n)], length(border$pane_n)))
+  border$pane_n <- formatC(border$pane_n, width = nchar(max(border$pane_n)), flag = 0, format = "fg")
+
   f <- ggplot2::ggplot(data = plt_df) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$end, y = .data$y, yend = .data$y, colour = .data$pane_n), size = scale_size(c(.1,1), 500, plot_pts), alpha = .7) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, color = .data$pane_n), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, color = .data$pane_n), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$start, y= .data$y, colour = .data$pane_n, xend = .data$end, yend = .data$y)) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$mid_x, y= .data$y, colour = .data$pane_n, xend = .data$x_lead, yend = .data$y_lead), alpha = .4) +
+    ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$end, y = .data$y, yend = .data$y, colour = .data$epid), size = scale_size(c(.1,1), 500, plot_pts), alpha = .7) +
+    ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, color = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
+    ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, color = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
+    ggplot2::geom_segment(ggplot2::aes(x = .data$mid_x, y= .data$y, colour = .data$epid, xend = .data$x_lead, yend = .data$y_lead), alpha = .4) +
     ggplot2::geom_rect(ggplot2::aes(xmin = .data$start, xmax = .data$end, ymin = .data$y1, ymax =y2, fill = .data$pane_n), data = border, alpha = .2) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$start, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$end, xend = .data$end, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, colour = .data$pane_n, label = win_l), data = border, nudge_y = .05, size = 5)
+    # ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$start, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
+    # ggplot2::geom_segment(ggplot2::aes(x = .data$end, xend = .data$end, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
+    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, label = win_l), color = txt_col, data = border, nudge_y = .05, size = 5)
   if(!isFALSE(show_labels)){
     f <- f +
       ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha = .7) +
@@ -224,21 +246,19 @@ schema.pane <- function(x, date, separate, title = NULL, show_labels = c("window
 #' @rdname schema
 #' @importFrom rlang .data
 #' @export
-schema.epid <- function(x, date, episode_unit, case_length,
-                       recurrence_length = case_length, episode_type,
-                       from_last, title = NULL, show_labels = c("length_arrow"),
+schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                        show_skipped = TRUE, show_non_finite = FALSE, dark_mode = TRUE){
   . <- NULL
   # `Epid` data
   epid <- x
   # Validations
   errs <- err_schema_epid_0(x = x,
-                            date = date,
-                            case_length = case_length,
-                            recurrence_length = recurrence_length,
-                            episode_unit = episode_unit,
-                            episode_type = episode_type,
-                            from_last = from_last,
+                            date = x@options$date,
+                            case_length = x@options$case_length,
+                            recurrence_length = x@options$recurrence_length,
+                            episode_unit = x@options$episode_unit,
+                            episode_type = x@options$episode_type,
+                            from_last = x@options$from_last,
                             title = title,
                             show_labels = show_labels,
                             show_skipped = show_skipped,
@@ -249,7 +269,7 @@ schema.epid <- function(x, date, episode_unit, case_length,
 
   # Standardise inputs
   # `date`
-  int <- as.number_line(date)
+  int <- x@options$date
   is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(isTRUE(is_dt)){
     int <- number_line(
@@ -258,8 +278,10 @@ schema.epid <- function(x, date, episode_unit, case_length,
     )
   }
   # `episode_unit`
+  episode_unit <- x@options$episode_unit
   episode_unit[!is_dt] <- "seconds"
   # `case_length`
+  case_length <- x@options$case_length
   case_length <- lapply(case_length, function(x){
     if(length(x) == 1){
       rep(x, length(int))
@@ -269,10 +291,11 @@ schema.epid <- function(x, date, episode_unit, case_length,
   })
   ep_l <- length_to_range(lengths = case_length,
                           date = int,
-                          from_last = from_last,
+                          from_last = x@options$from_last,
                           episode_unit = episode_unit)
-  any_rolling <- any(episode_type == "rolling")
+  any_rolling <- any(x@options$episode_type == "rolling")
   if(any_rolling){
+    recurrence_length <- x@options$recurrence_length
     # `recurrence_length`
     recurrence_length <- lapply(recurrence_length, function(x){
       if(length(x) == 1){
@@ -283,7 +306,7 @@ schema.epid <- function(x, date, episode_unit, case_length,
     })
     rc_l <- length_to_range(lengths = recurrence_length,
                             date = int,
-                            from_last = from_last,
+                            from_last = x@options$from_last,
                             episode_unit = episode_unit)
   }else{
     rc_l <- NULL
@@ -306,6 +329,13 @@ schema.epid <- function(x, date, episode_unit, case_length,
   plt_df$end <- right_point(int)
   plt_df$epid <- as.character(plt_df$epid)
 
+  # Data points without finite coordinates.
+  plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
+
+  windows_dy <- sort(plt_df$wind_id)
+  windows_dy <- rle(windows_dy)
+  plt_df$wind_total <- windows_dy$length[match(plt_df$wind_id, windows_dy$values)]
+
   lgk <- which(plt_df$epid_total != 1)
   dts_a <- lapply(split(as.numeric(plt_df$start[lgk]), plt_df$epid[lgk]), min)
   dts_z <- lapply(split(as.numeric(plt_df$end[lgk]), plt_df$epid[lgk]), max)
@@ -318,22 +348,14 @@ schema.epid <- function(x, date, episode_unit, case_length,
   plt_df$di_pid <- episodes(date = number_line(plt_df$epid_dts_a, plt_df$epid_dts_z),
                      case_length = index_window(number_line(plt_df$epid_dts_a, plt_df$epid_dts_z)),
                      display = "none")
-  splts <- split(plt_df$epid, as.numeric(plt_df$di_pid))
-  splts <- lapply(splts, function(x){
-    length(x[!duplicated(x)]) == 1
+  bd_id <- split(plt_df$epid, as.numeric(plt_df$di_pid))
+  bd_id_sn <- split(plt_df$sn, as.numeric(plt_df$di_pid))
+  bd_id <- lapply(bd_id, function(x){
+    match(x, x[!duplicated(x)])
   })
-  plt_df$bd_shft <- as.logical(splts[match(plt_df$di_pid, names(splts))])
-  plt_df$bd_id <- 1
-  lgk <- !plt_df$bd_shft
-  plt_df$bd_id[lgk] <- 2 + (1/as.numeric(plt_df$epid[lgk]))
-  #plt_df$bd_id[!plt_df$bd_shft & plt_df$epid_total == 1] <- 3
-  plt_df$bd_id <- match(plt_df$bd_id, sort(plt_df$bd_id[!duplicated(plt_df$bd_id)]))
-  # Data points without finite coordinates.
-  plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
-
-  windows_dy <- sort(plt_df$wind_id)
-  windows_dy <- rle(windows_dy)
-  plt_df$wind_total <- windows_dy$length[match(plt_df$wind_id, windows_dy$values)]
+  bd_id_sn <- unlist(bd_id_sn, use.names = FALSE)
+  bd_id <- unlist(bd_id, use.names = FALSE)
+  plt_df$bd_id <- bd_id[match(plt_df$sn, bd_id_sn)]
 
   # Alternating boundaries for separate `windows`
   unq_bd_id <- plt_df$bd_id[!duplicated(plt_df$bd_id)]
@@ -341,8 +363,8 @@ schema.epid <- function(x, date, episode_unit, case_length,
   #bds <- bds[plt_df$bd_id]
   # Alternating boundaries (y-axis) for each window
 
-  wind_br_a <- bds@start + (bds@.Data/4)
-  wind_br_z <- right_point(bds) - (bds@.Data/4)
+  wind_br_a <- bds@start + (bds@.Data/32)
+  wind_br_z <- right_point(bds) - (bds@.Data/32)
   winds_sn <- split(plt_df$sn, plt_df$bd_id)
 
   # Random `y` coordinates within each window's boundary (above)

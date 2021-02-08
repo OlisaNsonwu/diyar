@@ -1,7 +1,7 @@
 #' @name links
 #' @title Multistage deterministic record linkage
 #'
-#' @description Link records with matching criteria in ordered stages of relevance.
+#' @description Link  records with matching criteria in ordered stages of relevance.
 #' Each set of linked records are assigned a unique identifier with relevant group-level data.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
@@ -105,9 +105,7 @@ links <- function(criteria,
                   display = "none",
                   group_stats = FALSE,
                   expand = TRUE,
-                  shrink = FALSE,
-                  schema = "none",
-                  ...){
+                  shrink = FALSE){
   tm_a <- Sys.time()
 
   rut <- attr(sub_criteria, "diyar_sub_criteria")
@@ -368,37 +366,12 @@ links <- function(criteria,
     pids@pid_dataset <- datasets
   }
 
-  if(schema != "none"){
-    if(schema == "by_pid"){
-      p_cri <- pids@.Data
-      title_seq <- "Pid - P."
-    }else if (schema == "by_strata" & !is.null(strata)){
-      p_cri <- strata
-      title_seq <- "Strata - "
-    }else if (schema == "by_ALL"| (schema == "by_strata" & is.null(strata))){
-      p_cri <- "ALL"
-      title_seq <- ""
-    }
-    plot_sets <- p_cri[!duplicated(p_cri)]
-    plots <- lapply(plot_sets, function(x){
-      schema(x = pids[p_cri == x],
-             title = paste0(title_seq, x),
-             ...)
-    })
-    names(plots) <- plot_sets
-  }
-
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
   cat("Records linked in ", tms, "!\n", sep = "")
-
-  if(schema == "none"){
-    pids
-  }else{
-    list("pids" = pids, "plots" = plots)
-  }
+  return(pids)
 }
 
 #' @rdname links

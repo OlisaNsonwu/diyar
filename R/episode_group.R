@@ -1,5 +1,5 @@
 #' @name episodes
-#' @title Link events to chronological episodes.
+#' @title Link events  to chronological episodes.
 #'
 #' @description Link events that have matching attributes and are within specified durations of each other.
 #' Records in each episode are assigned a unique identifier with relevant group-level data.
@@ -120,8 +120,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                       skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
-                     display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria, schema = "none",
-                     case_length_total = 1, recurrence_length_total = case_length_total, ...) {
+                     display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
+                     case_length_total = 1, recurrence_length_total = case_length_total) {
   tm_a <- Sys.time()
 
   # Standardise `sub_criteria` inputs
@@ -151,9 +151,17 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 recurrence_from_last = recurrence_from_last,
                                 episode_type = episode_type, recurrence_length = recurrence_length,
                                 case_sub_criteria = case_sub_criteria,
-                                recurrence_sub_criteria = recurrence_sub_criteria, schema = schema,
+                                recurrence_sub_criteria = recurrence_sub_criteria,
                                 case_length_total = case_length_total,
                                 recurrence_length_total = recurrence_length_total)
+
+  options_lst = list(date = as.number_line(date),
+                     strata = strata,
+                     case_length = if(class(case_length) != "list") list(case_length) else case_length,
+                     recurrence_length = if(class(recurrence_length) != "list") list(recurrence_length) else recurrence_length,
+                     episode_type = episode_type,
+                     episode_unit = episode_unit,
+                     from_last = from_last)
 
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
   inp_n <- length(date)
@@ -365,14 +373,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   excluded <- length(tag[tag == 2])
   pri_pos <- seq_len(inp_n)
-
-  int_bu <- int
-  ep_l_bu <- ep_l
-  if(isTRUE(any_rolling_epi)){
-    rc_l_bu <- rc_l
-  }else{
-    rc_l_bu <- ep_l_bu
-  }
 
   if(display != "none") cat("\n")
   grouped_epids <- list("e" = e[0],
@@ -902,6 +902,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   f_e <- e[fd]
 
   retrieve_pos <- match(1:length(int), stat_pos)
+
+  if(class(case_length) != "list"){
+    case_length <- list(case_length)
+  }
+  if(class(recurrence_length) != "list"){
+    recurrence_length <- list(recurrence_length)
+  }
   # `epid` object
   epids <- new("epid",
                .Data= e[fd],
@@ -912,7 +919,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                iteration = iteration[retrieve_pos],
                wind_nm = wind_nm[retrieve_pos],
                wind_id = wind_id[fd],
-               epid_total = epid_n[fd])
+               epid_total = epid_n[fd],
+               options = options_lst)
 
   # `epid_dataset` slot
   if(!is.null(data_source)){
@@ -966,67 +974,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     epids@epid_length <- epid_l[fd]
   }
 
-  if(schema != "none"){
-    schema <- ifelse(length(epids[epids@epid_total > 1]) == 0 & schema == "by_epid", "by_strata", schema)
-    if(schema == "by_epid"){
-      p_cri <- as.numeric(epids@.Data)
-      plot_sets <- p_cri[epid_n > 1]
-      plot_sets <- plot_sets[!duplicated(plot_sets) & !is.na(plot_sets)]
-      title_seq <- "Episode - E."
-    }else if (schema == "by_strata" & !is.null(strata)){
-      p_cri <- strata_l
-      plot_sets <- p_cri
-      plot_sets <- plot_sets[!duplicated(plot_sets) & !is.na(plot_sets)]
-      title_seq <- "Strata - "
-    }else if (schema == "by_ALL" | (schema == "by_strata" & is.null(strata))){
-      p_cri <- "ALL"
-      plot_sets <- p_cri
-      plot_sets <- plot_sets[!duplicated(plot_sets) & !is.na(plot_sets)]
-      title_seq <- ""
-    }
-    if(class(case_length) != "list"){
-      case_length <- list(case_length)
-    }
-    case_length <- lapply(case_length, function(x){
-      if(length(x) == 1) x <- rep(x, inp_n)
-      x
-    })
-    if(class(recurrence_length) != "list"){
-      recurrence_length <- list(recurrence_length)
-    }
-    recurrence_length <- lapply(recurrence_length, function(x){
-      if(length(x) == 1) x <- rep(x, inp_n)
-      x
-    })
-    plots <- lapply(plot_sets, function(x){
-      plt_cri <- strata_l[p_cri == x & !is.na(p_cri)]
-      plt_cri <- plt_cri[!duplicated(plt_cri)]
-
-      lgk <- ((p_cri == x & !is.na(p_cri)) | (strata_l %in% plt_cri & epids@epid_total == 1))
-      schema(x = epids[lgk],
-             date = int_bu[lgk],
-             episode_unit = ep_units[lgk],
-             case_length = lapply(case_length, function(k) k[lgk]),
-             recurrence_length = lapply(recurrence_length, function(k) k[lgk]),
-             episode_type = episode_type[lgk],
-             from_last = from_last[lgk],
-             title = paste0(title_seq, x),
-             ...)
-    })
-    names(plots) <- plot_sets
-  }
-
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
   if(tolower(display) != "none") cat("Episodes tracked in ", tms, "!\n", sep = "")
-
-  if(schema == "none"){
-    return(epids)
-  }else{
-    return(list("epids" = epids, "plots" = plots))
-  }
+  return(epids)
 }
 
 #' @rdname episodes

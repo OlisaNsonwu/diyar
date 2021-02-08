@@ -5,27 +5,14 @@
 \alias{schema.pane}
 \alias{schema.epid}
 \alias{schema.pid}
-\title{Schema diagram for linked records.}
+\title{Schema  diagram for linked records.}
 \usage{
 schema(x, ...)
 
-\method{schema}{pane}(
-  x,
-  date,
-  separate,
-  title = NULL,
-  show_labels = c("window_label"),
-  dark_mode = TRUE
-)
+\method{schema}{pane}(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE)
 
 \method{schema}{epid}(
   x,
-  date,
-  episode_unit,
-  case_length,
-  recurrence_length = case_length,
-  episode_type,
-  from_last,
   title = NULL,
   show_labels = c("length_arrow"),
   show_skipped = TRUE,
@@ -44,15 +31,19 @@ schema(x, ...)
 \arguments{
 \item{x}{\code{pid}, \code{epid}, or \code{pane} object.}
 
-\item{date}{\code{date} value supplied to \code{\code{episodes}} or \code{\code{pane}}.}
-
-\item{separate}{\code{date} value supplied to \code{\code{pane}}.}
-
 \item{title}{Title of \code{ggplot} object}
 
 \item{show_labels}{Show/hide certain parts of the schema. See \code{Details}}
 
 \item{dark_mode}{Use a black/white background for each plot.}
+
+\item{show_skipped}{Show/hide \code{"Skipped"} records}
+
+\item{show_non_finite}{Show/hide records with non-finite \code{date} values}
+
+\item{orientation}{Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
+
+\item{date}{\code{date} value supplied to \code{\code{episodes}} or \code{\code{pane}}.}
 
 \item{episode_unit}{\code{episode_unit} value supplied to \code{\code{episodes}}.}
 
@@ -64,11 +55,7 @@ schema(x, ...)
 
 \item{from_last}{\code{from_last} value supplied to \code{\code{episodes}}.}
 
-\item{show_skipped}{Show/hide \code{"Skipped"} records}
-
-\item{show_non_finite}{Show/hide records with non-finite \code{date} values}
-
-\item{orientation}{Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
+\item{separate}{\code{date} value supplied to \code{\code{pane}}.}
 }
 \value{
 list of \code{ggplot} objects

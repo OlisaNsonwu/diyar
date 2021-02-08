@@ -15,9 +15,7 @@ links(
   display = "none",
   group_stats = FALSE,
   expand = TRUE,
-  shrink = FALSE,
-  schema = "none",
-  ...
+  shrink = FALSE
 )
 
 record_group(df, ..., to_s4 = TRUE)
@@ -43,19 +41,19 @@ record_group(df, ..., to_s4 = TRUE)
 
 \item{shrink}{If \code{TRUE}, forces a record group to shrink with each subsequent stage of the linkage process.}
 
-\item{schema}{Return a schema of the \code{\link[=pid-class]{pid}} object. Options are; \code{"none"} (default), \code{"by_pid"}, \code{"by_strata"} or \code{"by_ALL"}.}
+\item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
 
 \item{...}{Arguments passed to \bold{\code{links}}}
 
-\item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
-
 \item{to_s4}{Object type of the returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
+
+\item{schema}{Return a schema of the \code{\link[=pid-class]{pid}} object. Options are; \code{"none"} (default), \code{"by_pid"}, \code{"by_strata"} or \code{"by_ALL"}.}
 }
 \value{
 \code{\link[=pid-class]{pid}} or \code{list} (\code{\link[=pid-class]{pid}} and \code{ggplot}) object
 }
 \description{
-Link records with matching criteria in ordered stages of relevance.
+Link  records with matching criteria in ordered stages of relevance.
 Each set of linked records are assigned a unique identifier with relevant group-level data.
 }
 \details{

@@ -18,8 +18,7 @@ partitions(
   by = NULL,
   length.out = NULL,
   fill = TRUE,
-  schema = "none",
-  ...
+  display = "none"
 )
 }
 \arguments{
@@ -86,11 +85,11 @@ events <- c(30, 2, 11, 10, 100)
 windows <- number_line(c(1, 9, 25), c(3, 12, 35))
 
 events
-partitions(date = events, length.out = 3, separate = TRUE, schema = "by_ALL")
-partitions(date = events, by = 10, separate = TRUE, schema = "by_ALL")
-partitions(date = events, window = windows, separate = TRUE, schema = "by_ALL")
-partitions(date = events, window = windows, separate = FALSE, schema = "by_ALL")
-partitions(date = events, window = windows, separate = FALSE, schema = "by_ALL", windows_total = 4)
+partitions(date = events, length.out = 3, separate = TRUE)
+partitions(date = events, by = 10, separate = TRUE)
+partitions(date = events, window = windows, separate = TRUE)
+partitions(date = events, window = windows, separate = FALSE)
+partitions(date = events, window = windows, separate = FALSE, windows_total = 4)
 
 }
 \seealso{

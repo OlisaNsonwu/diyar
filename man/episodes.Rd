@@ -5,7 +5,7 @@
 \alias{fixed_episodes}
 \alias{rolling_episodes}
 \alias{episode_group}
-\title{Link events to chronological episodes.}
+\title{Link events  to chronological episodes.}
 \usage{
 episodes(
   date,
@@ -31,10 +31,8 @@ episodes(
   display = "none",
   case_sub_criteria = NULL,
   recurrence_sub_criteria = case_sub_criteria,
-  schema = "none",
   case_length_total = 1,
-  recurrence_length_total = case_length_total,
-  ...
+  recurrence_length_total = case_length_total
 )
 
 fixed_episodes(
@@ -126,10 +124,6 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{recurrence_sub_criteria}{Matching conditions for "recurrence" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.}
 
-\item{schema}{Return a schema of the \code{epid} object. Options are; \code{"none"} (default), \code{"by_epid"}, \code{"by_strata"} or \code{"by_ALL"}.}
-
-\item{...}{Arguments passed to \bold{\code{episodes}}}
-
 \item{to_s4}{Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 
 \item{deduplicate}{if \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
@@ -138,6 +132,8 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{include_index_period}{If \code{TRUE}, overlaps with the index event or period are linked even if they are outside the cut-off period.}
 
+\item{...}{Arguments passed to \bold{\code{episodes}}}
+
 \item{overlap_methods}{Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})}
 
 \item{overlap_method}{Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.}
@@ -145,6 +141,8 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item{x}{Deprecated. Record date or period. Please use \code{date}}
 
 \item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
+
+\item{schema}{Return a schema of the \code{epid} object. Options are; \code{"none"} (default), \code{"by_epid"}, \code{"by_strata"} or \code{"by_ALL"}.}
 }
 \value{
 

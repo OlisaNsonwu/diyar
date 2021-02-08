@@ -64,16 +64,18 @@ to_df <- function(s4){
   vrs <- methods::slotNames(s4)
 
   for(i in 1:length(vrs)){
-    if (length(methods::slot(s4, vrs[i])) !=0 & vrs[i] !=".Data"){
-      if(vrs[i] == "epid_interval"){
-        df$epid_start <- left_point(methods::slot(s4, vrs[i]))
-        if(length(right_point(methods::slot(s4, vrs[i]))) == 0) df$epid_end <- NULL else df$epid_end <- right_point(methods::slot(s4, vrs[i]))
-      }else if(vrs[i] == "pane_interval"){
-        df$pane_start <- left_point(methods::slot(s4, vrs[i]))
-        if(length(right_point(methods::slot(s4, vrs[i]))) == 0) df$pane_end <- NULL else df$pane_end <- right_point(methods::slot(s4, vrs[i]))
-      }
-      else{
-        df[[vrs[i]]] <- methods::slot(s4, vrs[i])
+    if(!vrs[i] %in% c("options", "window_list")){
+      if (length(methods::slot(s4, vrs[i])) !=0 & vrs[i] !=".Data"){
+        if(vrs[i] == "epid_interval"){
+          df$epid_start <- left_point(methods::slot(s4, vrs[i]))
+          if(length(right_point(methods::slot(s4, vrs[i]))) == 0) df$epid_end <- NULL else df$epid_end <- right_point(methods::slot(s4, vrs[i]))
+        }else if(vrs[i] == "pane_interval"){
+          df$pane_start <- left_point(methods::slot(s4, vrs[i]))
+          if(length(right_point(methods::slot(s4, vrs[i]))) == 0) df$pane_end <- NULL else df$pane_end <- right_point(methods::slot(s4, vrs[i]))
+        }
+        else{
+          df[[vrs[i]]] <- methods::slot(s4, vrs[i])
+        }
       }
     }
   }

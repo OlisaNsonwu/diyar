@@ -55,19 +55,18 @@
 #' windows <- number_line(c(1, 9, 25), c(3, 12, 35))
 #'
 #' events
-#' partitions(date = events, length.out = 3, separate = TRUE, schema = "by_ALL")
-#' partitions(date = events, by = 10, separate = TRUE, schema = "by_ALL")
-#' partitions(date = events, window = windows, separate = TRUE, schema = "by_ALL")
-#' partitions(date = events, window = windows, separate = FALSE, schema = "by_ALL")
-#' partitions(date = events, window = windows, separate = FALSE, schema = "by_ALL", windows_total = 4)
+#' partitions(date = events, length.out = 3, separate = TRUE)
+#' partitions(date = events, by = 10, separate = TRUE)
+#' partitions(date = events, window = windows, separate = TRUE)
+#' partitions(date = events, window = windows, separate = FALSE)
+#' partitions(date = events, window = windows, separate = FALSE, windows_total = 4)
 #'
 #' @aliases partitions
 #' @export
 #'
 partitions <- function(date, window = number_line(0, Inf), windows_total = 1, separate = FALSE, sn = NULL, strata = NULL,
                   data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
-                  data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE,
-                  schema = "none", ...){
+                  data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE, display = "none"){
   tm_a <- Sys.time()
 
   # Validations
@@ -83,10 +82,16 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                              group_stats = group_stats,
                              by = by,
                              length.out = length.out,
-                             fill = fill
+                             fill = fill,
+                             display = display
                              )
 
   if(errs != FALSE) stop(errs, call. = FALSE)
+
+  options_lst = list(date = as.number_line(date),
+                     strata = strata,
+                     separate = separate)
+
   dl_lst <- unlist(data_links, use.names = FALSE)
   # Standardise inputs
     # `data_links`
@@ -184,10 +189,9 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
 
   case_nm <- ifelse(window_matched == 0, "Skipped", "Duplicate_I")
   tag <- ifelse(window_matched == 0,
-                NA_real_, cri + exp(-window_matched))
+                NA_real_, cri + 1/window_matched)
   pane <- ifelse(!is.na(tag) & rep(!separate, length(int)),
-                 cri + exp(-1),
-                 tag)
+                 cri, tag)
   # Implement `windows_total`
   dst <- rle(sort(cri[!is.na(tag) & !duplicated(tag)]))
   phits <- dst$lengths[match(cri, dst$values)]
@@ -198,17 +202,24 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   ord <- order(pane, -c_sort, -as.numeric(int@start), -as.numeric(right_point(int)))
   s_pane <- pane[ord]
   s_sn <- sn[ord]
-  names(s_pane) <- s_sn
-  index_sn <- rle(s_pane)
+  # names(s_pane) <- s_sn
+  # index_sn <- rle(s_pane)
 
-  pp <- as.numeric(names(index_sn$values))
-  qq <- as.numeric(names(s_pane))
-  pane <- rep(s_sn[match(pp, qq)], index_sn$lengths)
+  r <- rle(s_pane)
+  lgk <- !duplicated(s_pane, fromLast = TRUE) | is.na(s_pane)
+  pane <- rep(s_sn[lgk], r$lengths[match(s_pane[lgk], r$values)])
   pane <- pane[match(sn, s_sn)]
-  case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != "Skipped")] <- "Index"
+  case_nm[which(sn %in% s_sn[lgk] & case_nm != "Skipped")] <- "Index"
+  pane[case_nm == "Skipped"] <- sn
+
+  # pp <- as.numeric(names(index_sn$values))
+  # qq <- as.numeric(names(s_pane))
+  # pane <- rep(s_sn[match(pp, qq)], index_sn$lengths)
+  # pane <- pane[match(sn, s_sn)]
+  # case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != "Skipped")] <- "Index"
 
   # `pane_total`
-  pane_n <- rep(index_sn$lengths, index_sn$lengths)
+  pane_n <- rep(r$lengths[match(s_pane[lgk], r$values)], r$lengths[match(s_pane[lgk], r$values)])
   pane_n <- pane_n[match(sn, s_sn)]
 
   # Distance of records from index record
@@ -226,7 +237,8 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                sn = sn,
                case_nm = case_nm,
                window_list = window_list,
-               pane_total = pane_n)
+               pane_total = pane_n,
+               options = options_lst)
 
   if(!is.null(data_source)){
     # Implement `data_links`
@@ -273,54 +285,10 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     panes@pane_length <- pane_l
   }
 
-  # schema diagrams
-  if(schema != "none"){
-    if(schema == "by_pane"){
-      p_cri <- as.numeric(panes@.Data)
-      plot_sets <- p_cri[pane_n > 1]
-      plot_sets <- plot_sets[!duplicated(plot_sets)]
-      title_seq <- "Pane - PN."
-    }else if (schema == "by_strata" & !is.null(strata)){
-      p_cri <- cri_l
-      plot_sets <- p_cri
-      plot_sets <- plot_sets[!duplicated(plot_sets)]
-      title_seq <- "Strata - "
-    }else if (schema == "by_ALL" | (schema == "by_strata" & is.null(strata))){
-      p_cri <- "ALL"
-      plot_sets <- p_cri
-      plot_sets <- plot_sets[!duplicated(plot_sets)]
-      title_seq <- ""
-    }
-
-    plots <- lapply(plot_sets, function(x){
-      plt_cri <- cri[p_cri == x]
-      plt_cri <- plt_cri[!duplicated(plt_cri)]
-      if(!is.null(by) | !is.null(length.out)){
-        splt_wns <- splits_windows[paste0(plt_cri)]
-      }else{
-        splt_wns <- splits_windows
-      }
-
-      lgk <- (p_cri == x | (cri == plt_cri & pane_n == 1))
-      schema(x = panes[lgk],
-             date = int[lgk],
-             title = paste0(title_seq, x),
-             separate = separate,
-             ...)
-    })
-    names(plots) <- plot_sets
-  }
-
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
-  cat("Records partitioned in ", tms, "!\n", sep = "")
-
-  # Output
-  if(schema == "none"){
-    panes
-  }else{
-    list("panes" = panes, "plots" = plots)
-  }
+  if(tolower(display) != "none") cat("Records partitioned in ", tms, "!\n", sep = "")
+  return(panes)
 }
