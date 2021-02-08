@@ -119,6 +119,8 @@ unique.number_line <- function(x, ...){
 }
 
 #' @rdname number_line-class
+#' @param fill XXXXX
+#' @param simplify XXXXX
 #' @export
 seq.number_line <- function(x,
                             fill = TRUE,
@@ -172,6 +174,7 @@ format.number_line <- function(x, ...){
 #' @slot epid_length The duration or length of (\code{epid_interval}).
 #' @slot epid_total The number of records in each \code{episode}.
 #' @slot iteration The iteration of the tracking process when a record was linked to its episode.
+#' @slot options A list of some option calls in \code{\link{episodes}}
 #'
 #' @description
 #' S4 objects storing the result of \code{\link{episodes}}.
@@ -255,14 +258,14 @@ unique.epid <- function(x, ...){
 
 #' @rdname epid-class
 #' @export
-summary.epid <- function(x, ...){
-  summ <- paste0("Iterations:        ", fmt(max(x@iteration)), "\n",
+summary.epid <- function(object, ...){
+  summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
                  "Records:\n",
-                 "  Total:           ", fmt(length(x)), "\n",
-                 "    Skipped:       ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
+                 "  Total:           ", fmt(length(object)), "\n",
+                 "    Skipped:       ", fmt(length(object[object@case_nm == "Skipped"])), "\n",
                  "Episodes:\n",
-                 "  Total:           ", fmt(length(x[x@case_nm == "Case"])), "\n",
-                 "    Single record: ", fmt(length(x[x@case_nm == "Case" & x@epid_total == 1])), "\n")
+                 "  Total:           ", fmt(length(object[object@case_nm == "Case"])), "\n",
+                 "    Single record: ", fmt(length(object[object@case_nm == "Case" & object@epid_total == 1])), "\n")
   cat(summ)
 }
 
@@ -368,6 +371,8 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 #' @slot pane_interval The start and end dates of each \code{pane}. A \code{\link{number_line}} object.
 #' @slot pane_length The duration or length of (\code{pane_interval}).
 #' @slot pane_total The number of records in each \code{pane}.
+#' @slot options XXXXXX.
+#' @slot window_matched XXXX.
 #'
 #' @aliases pane-class
 #' @importFrom "methods" "new"
@@ -445,13 +450,13 @@ unique.pane <- function(x, ...){
 
 #' @rdname pane-class
 #' @export
-summary.pane <- function(x, ...){
+summary.pane <- function(object, ...){
   summ <- paste0("Records:\n",
-                 "  Total:           ", fmt(length(x)), "\n",
-                 "    Skipped:       ", fmt(length(x[x@case_nm == "Skipped"])), "\n",
+                 "  Total:           ", fmt(length(object)), "\n",
+                 "    Skipped:       ", fmt(length(object[object@case_nm == "Skipped"])), "\n",
                  "Panes:\n",
-                 "  Total:           ", fmt(length(x[x@case_nm == "Index"])), "\n",
-                 "    Single record: ", fmt(length(x[x@case_nm == "Index" & x@pane_total == 1])), "\n")
+                 "  Total:           ", fmt(length(object[object@case_nm == "Index"])), "\n",
+                 "    Single record: ", fmt(length(object[object@case_nm == "Index" & object@pane_total == 1])), "\n")
   cat(summ)
 }
 
@@ -603,21 +608,21 @@ unique.pid <- function(x, ...){
 
 #' @rdname pid-class
 #' @export
-summary.pid <- function(x, ...){
-  cri_dst <- table(x@pid_cri)
+summary.pid <- function(object, ...){
+  cri_dst <- table(object@pid_cri)
   cri_n <- as.numeric(names(cri_dst))
   cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
   cri_dst <- cri_dst[!is.na(cri_dst)]
   cri_n <- as.numeric(names(cri_dst))
   cri_dst <- paste0("       ", pid_cri_l(cri_n), ":    ", fmt(cri_dst), collapse = "\n")
-  summ <- paste0("Iterations:        ", fmt(max(x@iteration)), "\n",
+  summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
                  "Records:\n",
-                 "  Total:           ", fmt(length(x)), "\n",
+                 "  Total:           ", fmt(length(object)), "\n",
                  "    Stages:\n",
                  cri_dst, "\n",
                  "Groups:\n",
-                 "   Total:          ", fmt(length(x@.Data[!duplicated(x@.Data)])), "\n",
-                 "    Single record: ", fmt(length(x@.Data[!duplicated(x@.Data) & x@pid_total == 1])), "\n"
+                 "   Total:          ", fmt(length(object@.Data[!duplicated(object@.Data)])), "\n",
+                 "    Single record: ", fmt(length(object@.Data[!duplicated(object@.Data) & object@pid_total == 1])), "\n"
   )
   cat(summ)
 }

@@ -63,6 +63,10 @@
 
 \item{name}{slot name}
 
+\item{fill}{XXXXX}
+
+\item{simplify}{XXXXX}
+
 \item{decreasing}{If \code{TRUE}, sort in descending order.}
 }
 \description{

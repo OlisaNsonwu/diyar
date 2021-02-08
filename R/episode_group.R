@@ -40,7 +40,8 @@
 #' @param ... Arguments passed to \bold{\code{episodes}}
 #' @param case_sub_criteria Matching conditions for "case" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.
 #' @param recurrence_sub_criteria Matching conditions for "recurrence" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.
-#' @param schema Return a schema of the \code{epid} object. Options are; \code{"none"} (default), \code{"by_epid"}, \code{"by_strata"} or \code{"by_ALL"}.
+#' @param case_length_total XXXXX
+#' @param recurrence_length_total XXXXX
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} or \code{list} (\code{\link[=epid-class]{epid}} and \code{ggplot}) object
@@ -516,7 +517,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       lead_epl_min <- ifelse(tr_tag == 0, tr_epl_min, lead_epl_min)
     }
     if(isFALSE(one_rcl_min) & isTRUE(any_rcl_min_curr)){
-      tr_rcl_min <- rep(recurrence_length_total[match(p, q)], r$lengths)
+      tr_rcl_min <- rep(recurrence_length_total[lgk], r$lengths[match(cri[lgk], r$values)])
       lead_rcl_min <- ifelse(tr_tag == 0, tr_rcl_min, lead_rcl_min)
     }
     if(isTRUE(any_rolling_epi_curr)){

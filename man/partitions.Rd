@@ -42,7 +42,13 @@ partitions(
 
 \item{data_source}{Unique data source identifier. Includes a list of data sources of for each record in a \code{panes}.}
 
-\item{schema}{Return a schema of the \code{pane} object. Options are; \code{"none"} (default), \code{"by_pane"}, \code{"by_strata"} or \code{"by_ALL"}.}
+\item{by}{XXXXX}
+
+\item{length.out}{XXXXX}
+
+\item{fill}{XXXXX}
+
+\item{display}{XXXXX}
 }
 \value{
 

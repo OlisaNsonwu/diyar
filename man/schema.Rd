@@ -9,7 +9,7 @@
 \usage{
 schema(x, ...)
 
-\method{schema}{pane}(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE)
+\method{schema}{pane}(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE, ...)
 
 \method{schema}{epid}(
   x,
@@ -17,7 +17,8 @@ schema(x, ...)
   show_labels = c("length_arrow"),
   show_skipped = TRUE,
   show_non_finite = FALSE,
-  dark_mode = TRUE
+  dark_mode = TRUE,
+  ...
 )
 
 \method{schema}{pid}(
@@ -25,11 +26,14 @@ schema(x, ...)
   title = NULL,
   show_labels = TRUE,
   dark_mode = TRUE,
-  orientation = "by_pid"
+  orientation = "by_pid",
+  ...
 )
 }
 \arguments{
 \item{x}{\code{pid}, \code{epid}, or \code{pane} object.}
+
+\item{...}{XXXX}
 
 \item{title}{Title of \code{ggplot} object}
 
@@ -42,20 +46,6 @@ schema(x, ...)
 \item{show_non_finite}{Show/hide records with non-finite \code{date} values}
 
 \item{orientation}{Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
-
-\item{date}{\code{date} value supplied to \code{\code{episodes}} or \code{\code{pane}}.}
-
-\item{episode_unit}{\code{episode_unit} value supplied to \code{\code{episodes}}.}
-
-\item{case_length}{\code{case_length} value supplied to \code{\code{episodes}}.}
-
-\item{recurrence_length}{\code{recurrence_length} value supplied to \code{\code{episodes}}.}
-
-\item{episode_type}{\code{episode_type} value supplied to \code{\code{episodes}}.}
-
-\item{from_last}{\code{from_last} value supplied to \code{\code{episodes}}.}
-
-\item{separate}{\code{date} value supplied to \code{\code{pane}}.}
 }
 \value{
 list of \code{ggplot} objects
@@ -65,7 +55,7 @@ Create schema diagrams for \code{pid}, \code{epid} and \code{pane} objects.
 }
 \details{
 The \code{schema} function creates a schema diagram for \code{pid}, \code{epid} and \code{pane} objects.
-These diagrams are a visual aid to describing the data linkage (\code{\code{links}}), episode tracking (\code{\code{episodes}}) or partitioning process(\code{\code{partitions}}).
+These diagrams are a visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process(\code{\link{partitions}}).
 
-When used for \code{epid} and \code{pane} objects, additional information in the form of arguments passed to the instance \code{\code{episodes}} and \code{\code{partitions}} will be required.
+When used for \code{epid} and \code{pane} objects, additional information in the form of arguments passed to the instance \code{\link{episodes}} and \code{\link{partitions}} will be required.
 }

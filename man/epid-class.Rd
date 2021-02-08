@@ -23,7 +23,7 @@ as.epid(x)
 
 \method{unique}{epid}(x, ...)
 
-\method{summary}{epid}(x, ...)
+\method{summary}{epid}(object, ...)
 
 \S4method{show}{epid}(object)
 
@@ -79,6 +79,8 @@ S4 objects storing the result of \code{\link{episodes}}.
 \item{\code{epid_total}}{The number of records in each \code{episode}.}
 
 \item{\code{iteration}}{The iteration of the tracking process when a record was linked to its episode.}
+
+\item{\code{options}}{A list of some option calls in \code{\link{episodes}}}
 }}
 
 \examples{

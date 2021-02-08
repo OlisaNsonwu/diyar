@@ -16,7 +16,6 @@
 #' @param shrink If \code{TRUE}, forces a record group to shrink with each subsequent stage of the linkage process.
 #' @param display The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
 #' @param to_s4 Object type of the returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
-#' @param schema Return a schema of the \code{\link[=pid-class]{pid}} object. Options are; \code{"none"} (default), \code{"by_pid"}, \code{"by_strata"} or \code{"by_ALL"}.
 #' @param ... Arguments passed to \bold{\code{links}}
 #'
 #' @return \code{\link[=pid-class]{pid}} or \code{list} (\code{\link[=pid-class]{pid}} and \code{ggplot}) object
@@ -406,6 +405,7 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' @description Additional matching conditions when using \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
 #' @param ... Additional attributes to compare.
 #' @param funcs User defined logical test.
+#' @param equva XXXXXX
 #' @return \code{list}
 #' @details
 #' \bold{\code{sub_criteria()}} is the mechanism for providing a \code{sub_criteria} to an instance of \bold{\code{links}} or \bold{\code{episodes}}.
@@ -568,7 +568,6 @@ range_match_legacy <- function(x, y) {
 #' @param probabilistic if \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic linkage. See \code{Details}.
 #' @param m_probability \code{list} m-probailities. The probability that a match from the string comparator is from the same entity.
 #' @param weight_threshold Minimum threshold for linked records. See \code{Details}.
-#'
 #' @param ... Arguments passed to \bold{\code{links}}
 #'
 #' @return \code{\link[=pid-class]{pid}} or \code{list} (\code{\link[=pid-class]{pid}} and \code{ggplot}) object
@@ -598,7 +597,7 @@ range_match_legacy <- function(x, y) {
 #' Matches and non-matches for each \code{attribute} are determined by string comparators.
 #' By default, this is simply an \code{\link{exact_match}} with a binary outcome.
 #' Alternatively, this can also be similarity score, in which case a \code{list} of thresholds (\code{cmp_threshold}) should be provided for each comparator.
-#' If \code{\link{probabilistic}} is \code{FALSE}, the \code{weight_threshold} is compared against the sum of all similarity scores.
+#' If \code{probabilistic} is \code{FALSE}, the \code{weight_threshold} is compared against the sum of all similarity scores.
 #'
 #' \code{links_probabilistic} requires a \code{weight_threshold} in advance of the linkage process.
 #' This differs from the typical approach where a \code{weight_threshold} is selected after the linkage process,

@@ -23,7 +23,7 @@ as.pane(x)
 
 \method{unique}{pane}(x, ...)
 
-\method{summary}{pane}(x, ...)
+\method{summary}{pane}(object, ...)
 
 \S4method{show}{pane}(object)
 
@@ -73,6 +73,10 @@ S4 objects storing the result of \code{\link{partitions}}.
 \item{\code{pane_length}}{The duration or length of (\code{pane_interval}).}
 
 \item{\code{pane_total}}{The number of records in each \code{pane}.}
+
+\item{\code{options}}{XXXXXX.}
+
+\item{\code{window_matched}}{XXXX.}
 }}
 
 \examples{

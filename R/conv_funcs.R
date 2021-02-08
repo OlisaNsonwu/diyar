@@ -748,7 +748,7 @@ sub_cri_checks <- function(sub_criteria, strata, temporal_link = NULL, index_rec
 
 pane_checks <- function(dates, windows){
   fnx <- function(x, int = dates){
-    diyar:::ovr_chks(windows[[x]], int, rep("overlap", length(int)), rep(x, length(int)))
+    ovr_chks(windows[[x]], int, rep("overlap", length(int)), rep(x, length(int)))
   }
 
   checks <- as.matrix(sapply(as.numeric(seq_len(length(windows))), fnx))
@@ -906,10 +906,10 @@ sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlaps = FALS
   }
 
   ggplot2::ggplot(data = plt_df) +
-    ggplot2::geom_point(aes(x = .data$start, y = .data$y),
+    ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y),
                         colour = txt_col,
                         size = scale_size(c(1,3), 150, nrow(plt_df))) +
-    ggplot2::geom_segment(aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y),
+    ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y),
                           arrow =  ggplot2::arrow(length = ggplot2::unit(scale_size(c(.3,.2), 150, nrow(plt_df)), "cm"), ends = "last", type = "open"),
                           data = plt_df[nl@.Data != 0,],
                           colour = txt_col,

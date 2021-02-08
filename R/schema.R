@@ -5,26 +5,20 @@
 #' @description Create schema diagrams for \code{pid}, \code{epid} and \code{pane} objects.
 #'
 #' @param x \code{pid}, \code{epid}, or \code{pane} object.
-#' @param date \code{date} value supplied to \code{\code{episodes}} or \code{\code{pane}}.
-#' @param episode_unit \code{episode_unit} value supplied to \code{\code{episodes}}.
-#' @param case_length \code{case_length} value supplied to \code{\code{episodes}}.
-#' @param recurrence_length \code{recurrence_length} value supplied to \code{\code{episodes}}.
-#' @param episode_type \code{episode_type} value supplied to \code{\code{episodes}}.
-#' @param from_last \code{from_last} value supplied to \code{\code{episodes}}.
-#' @param separate \code{date} value supplied to \code{\code{pane}}.
 #' @param title Title of \code{ggplot} object
 #' @param show_skipped Show/hide \code{"Skipped"} records
 #' @param show_non_finite Show/hide records with non-finite \code{date} values
 #' @param show_labels Show/hide certain parts of the schema. See \code{Details}
 #' @param dark_mode Use a black/white background for each plot.
 #' @param orientation Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})
+#' @param ... XXXX
 #'
 #' @return list of \code{ggplot} objects
 #' @details
 #' The \code{schema} function creates a schema diagram for \code{pid}, \code{epid} and \code{pane} objects.
-#' These diagrams are a visual aid to describing the data linkage (\code{\code{links}}), episode tracking (\code{\code{episodes}}) or partitioning process(\code{\code{partitions}}).
+#' These diagrams are a visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process(\code{\link{partitions}}).
 #'
-#' When used for \code{epid} and \code{pane} objects, additional information in the form of arguments passed to the instance \code{\code{episodes}} and \code{\code{partitions}} will be required.
+#' When used for \code{epid} and \code{pane} objects, additional information in the form of arguments passed to the instance \code{\link{episodes}} and \code{\link{partitions}} will be required.
 #'
 #'
 #' @export
@@ -33,7 +27,7 @@ schema <- function(x, ...) UseMethod("schema")
 #' @rdname schema
 #' @importFrom rlang .data
 #' @export
-schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE) {
+schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE, ...) {
   . <- NULL
 
   # Validations
@@ -216,14 +210,14 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_m
     ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, color = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
     ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, color = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
     ggplot2::geom_segment(ggplot2::aes(x = .data$mid_x, y= .data$y, colour = .data$epid, xend = .data$x_lead, yend = .data$y_lead), alpha = .4) +
-    ggplot2::geom_rect(ggplot2::aes(xmin = .data$start, xmax = .data$end, ymin = .data$y1, ymax =y2, fill = .data$pane_n), data = border, alpha = .2) +
+    ggplot2::geom_rect(ggplot2::aes(xmin = .data$start, xmax = .data$end, ymin = .data$y1, ymax = .data$y2, fill = .data$pane_n), data = border, alpha = .2) +
     # ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$start, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
     # ggplot2::geom_segment(ggplot2::aes(x = .data$end, xend = .data$end, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, label = win_l), color = txt_col, data = border, nudge_y = .05, size = 5)
+    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, label = .data$win_l), color = txt_col, data = border, nudge_y = .05, size = 5)
   if(!isFALSE(show_labels)){
     f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha = .7) +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "top", alpha = .7)
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha = .7) +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "top", alpha = .7)
   }
   if(!is.null(title)){
     f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y = 2.2, label = title), colour = txt_col, size = 5)
@@ -247,7 +241,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_m
 #' @importFrom rlang .data
 #' @export
 schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
-                       show_skipped = TRUE, show_non_finite = FALSE, dark_mode = TRUE){
+                       show_skipped = TRUE, show_non_finite = FALSE, dark_mode = TRUE, ...){
   . <- NULL
   # `Epid` data
   epid <- x
@@ -484,7 +478,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 
     breaks2 <- seq(max(breaks), int, length.out = 3)
     labels2 <- rep("", 3)
-    labels2[median(seq_len(length(labels2)))] <- "Unknown"
+    labels2[floor(mean(seq_len(length(labels2))))] <- "Unknown"
   }else{
     breaks2 <- breaks[0]
     labels2 <- labels[0]
@@ -541,7 +535,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$end, y = .data$y, yend = .data$y, colour = .data$epid), size = scale_size(c(.1,1), 500, plot_pts), alpha= .7) +
     ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
-    ggplot2::geom_segment(ggplot2::aes(x = mid_x, y = .data$y, colour = .data$epid, xend = .data$x_lead, yend = .data$y_lead), alpha = .4)
+    ggplot2::geom_segment(ggplot2::aes(x = .data$mid_x, y = .data$y, colour = .data$epid, xend = .data$x_lead, yend = .data$y_lead), alpha = .4)
   if("length_arrow" %in% show_labels){
     f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$mid_y_lead, linetype = .data$wind_nm_l), color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$wind_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open"))
   }
@@ -581,7 +575,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 #' @rdname schema
 #' @importFrom rlang .data
 #' @export
-schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE, orientation = "by_pid"){
+schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE, orientation = "by_pid", ...){
   . <- NULL
 
   # Validations
@@ -622,9 +616,9 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE, or
 
   pl_dt$pid_box <- match(pl_dt$pid_box_cri,  pl_dt$pid_box_cri[!duplicated(pl_dt$pid_box_cri)] )
 
-  atc_ljoin <- function(x, y, key, data){
-    split(data[[x]], data[[key]])
-  }
+  # atc_ljoin <- function(x, y, key, data){
+  #   split(data[[x]], data[[key]])
+  # }
 
   # Boundaries for pid_cri boxes
   pl_dt$x1 <- border$x1[match(pl_dt$pid_box, border$pid_box)]

@@ -10,6 +10,8 @@ sub_criteria(..., funcs = diyar::exact_match, equva = diyar::exact_match)
 \item{...}{Additional attributes to compare.}
 
 \item{funcs}{User defined logical test.}
+
+\item{equva}{XXXXXX}
 }
 \value{
 \code{list}

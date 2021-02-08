@@ -14,7 +14,10 @@
 #' @param custom_sort Preferred order for selecting \code{"index"} events.
 #' @param group_stats If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes' start and endpoints.
 #' @param data_links A set of \code{data_sources} required in a \code{pane}. A \code{pane} without records from these \code{data_sources} are skipped or unlinked. See \code{Details}.
-#' @param schema Return a schema of the \code{pane} object. Options are; \code{"none"} (default), \code{"by_pane"}, \code{"by_strata"} or \code{"by_ALL"}.
+#' @param by XXXXX
+#' @param length.out XXXXX
+#' @param fill XXXXX
+#' @param display XXXXX
 #' @param group_stats If \code{TRUE} (default), returns group-specific information like record counts. See \code{Value}.
 #' @return
 #'

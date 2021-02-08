@@ -64,7 +64,7 @@ where \eqn{m_{i}}{m_i} and \eqn{u_{i}}{u_i} are the m and u-probabilities for at
 Matches and non-matches for each \code{attribute} are determined by string comparators.
 By default, this is simply an \code{\link{exact_match}} with a binary outcome.
 Alternatively, this can also be similarity score, in which case a \code{list} of thresholds (\code{cmp_threshold}) should be provided for each comparator.
-If \code{\link{probabilistic}} is \code{FALSE}, the \code{weight_threshold} is compared against the sum of all similarity scores.
+If \code{probabilistic} is \code{FALSE}, the \code{weight_threshold} is compared against the sum of all similarity scores.
 
 \code{links_probabilistic} requires a \code{weight_threshold} in advance of the linkage process.
 This differs from the typical approach where a \code{weight_threshold} is selected after the linkage process,

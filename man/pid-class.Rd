@@ -23,7 +23,7 @@ as.pid(x, ...)
 
 \method{unique}{pid}(x, ...)
 
-\method{summary}{pid}(x, ...)
+\method{summary}{pid}(object, ...)
 
 \S4method{show}{pid}(object)
 

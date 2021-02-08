@@ -124,6 +124,10 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{recurrence_sub_criteria}{Matching conditions for "recurrence" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.}
 
+\item{case_length_total}{XXXXX}
+
+\item{recurrence_length_total}{XXXXX}
+
 \item{to_s4}{Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 
 \item{deduplicate}{if \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
@@ -141,8 +145,6 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item{x}{Deprecated. Record date or period. Please use \code{date}}
 
 \item{df}{\code{data.frame}. One or more datasets appended together. See \code{Details}.}
-
-\item{schema}{Return a schema of the \code{epid} object. Options are; \code{"none"} (default), \code{"by_epid"}, \code{"by_strata"} or \code{"by_ALL"}.}
 }
 \value{
 

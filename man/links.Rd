@@ -46,8 +46,6 @@ record_group(df, ..., to_s4 = TRUE)
 \item{...}{Arguments passed to \bold{\code{links}}}
 
 \item{to_s4}{Object type of the returned object. \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
-
-\item{schema}{Return a schema of the \code{\link[=pid-class]{pid}} object. Options are; \code{"none"} (default), \code{"by_pid"}, \code{"by_strata"} or \code{"by_ALL"}.}
 }
 \value{
 \code{\link[=pid-class]{pid}} or \code{list} (\code{\link[=pid-class]{pid}} and \code{ggplot}) object
