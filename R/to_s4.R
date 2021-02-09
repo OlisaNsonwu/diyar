@@ -52,13 +52,67 @@ to_df <- function(s4){
   if(missing(s4)) stop("argument 's4' is missing, with no default")
   if(!class(s4) %in% c("epid","pid","number_line", "pane")) stop("'s4' must be an `epid`, `pid`, `pane` or `number_line` object")
   if(all(class(s4)=="epid")){
-    df <- data.frame(epid = s4@.Data, stringsAsFactors = FALSE)
-  }else if(all(class(s4)=="pid")){
-    df <- data.frame(pid = s4@.Data, stringsAsFactors = FALSE)
-  }else if(all(class(s4)=="number_line")){
-    df <- data.frame(end = s4@start + s4@.Data, stringsAsFactors = FALSE)
-  }else if(all(class(s4)=="pane")){
-    df <- df <- data.frame(pane = s4@.Data, stringsAsFactors = FALSE)
+    if(length(s4) == 0){
+      return(
+        structure(list(epid = integer(0),
+                       sn = integer(0),
+                       wind_id = integer(0),
+                       wind_nm = character(0),
+                       case_nm = character(0),
+                       dist_wind_index = numeric(0),
+                       dist_epid_index = numeric(0),
+                       epid_total = integer(0),
+                       iteration = numeric(0)),
+                  row.names = integer(0),
+                  class = "data.frame")
+      )
+    }else{
+      df <- data.frame(epid = s4@.Data, stringsAsFactors = FALSE)
+    }
+
+  }else if(all(class(s4) == "pid")){
+    if(length(s4) == 0){
+      return(
+        structure(list(pid = numeric(0),
+                       sn = integer(0),
+                       pid_cri = numeric(0),
+                       link_id = numeric(0),
+                       pid_total = integer(0),
+                       iteration = numeric(0)),
+                  row.names = integer(0),
+                  class = "data.frame")
+      )
+    }else{
+      df <- data.frame(pid = s4@.Data, stringsAsFactors = FALSE)
+    }
+  }else if(all(class(s4) == "number_line")){
+    if(length(s4) == 0){
+      return(
+        structure(list(end = integer(0),
+                       start = integer(0),
+                       id = integer(0),
+                       gid = integer(0)),
+                  row.names = integer(0),
+                  class = "data.frame")
+      )
+    }else{
+      df <- data.frame(end = s4@start + s4@.Data, stringsAsFactors = FALSE)
+    }
+  }else if(all(class(s4) == "pane")){
+    if(length(s4) == 0){
+      return(
+        structure(list(pane = integer(0),
+                       sn = integer(0),
+                       case_nm = character(0),
+                       dist_pane_index = numeric(0),
+                       window_matched = numeric(0),
+                       pane_total = integer(0)),
+                  row.names = integer(0),
+                  class = "data.frame")
+      )
+    }else{
+      df <- data.frame(pane = s4@.Data, stringsAsFactors = FALSE)
+    }
   }
 
   vrs <- methods::slotNames(s4)

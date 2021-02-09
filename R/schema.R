@@ -491,6 +491,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   link_sn <- plt_df[plt_df$sn %in% plt_df$wind_id, c("sn", "mid_x", "y")]
   plt_df$x_lead <- link_sn$mid_x[match(plt_df$wind_id, link_sn$sn)]
   plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
+  plt_df$sn_lead <- link_sn$sn[match(plt_df$wind_id, link_sn$sn)]
 
   if(nrow(case_l_ar) > 0){
     case_l_ar$start <- as.numeric(case_l_ar$start)
@@ -535,7 +536,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$end, y = .data$y, yend = .data$y, colour = .data$epid), size = scale_size(c(.1,1), 500, plot_pts), alpha= .7) +
     ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$mid_x, y = .data$y, colour = .data$epid, xend = .data$x_lead, yend = .data$y_lead), alpha = .4)
+    ggplot2::geom_segment(ggplot2::aes(x = .data$x_lead, y = .data$y_lead, colour = .data$epid, xend = .data$mid_x, yend = .data$y), alpha = .4)
   if("length_arrow" %in% show_labels){
     f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$mid_y_lead, linetype = .data$wind_nm_l), color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$wind_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open"))
   }
