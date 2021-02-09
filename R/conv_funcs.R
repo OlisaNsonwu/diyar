@@ -937,3 +937,20 @@ sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlap = FALSE
       axis.ticks = ggplot2::element_blank(),
       axis.title = ggplot2::element_blank())
 }
+
+f_rbind <- function(x, y){
+  if(length(x) == length(y)){
+    rbind(x, y)
+  }else{
+    xm <- names(y)[!names(y) %in% names(x)]
+    xp <- lapply(xm, function(i) rep(NA_real_, length(x[[1]])))
+    names(xp) <- xm
+    x2 <- as.data.frame(c(as.list(x), xp))
+
+    ym <- names(x)[!names(x) %in% names(y)]
+    yp <- lapply(ym, function(i) rep(NA_real_, length(x[[1]])))
+    names(yp) <- ym
+    y2 <- as.data.frame(c(as.list(y), yp))
+    rbind(y2, x2)
+  }
+}

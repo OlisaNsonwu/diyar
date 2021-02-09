@@ -342,6 +342,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   e <- int@gid
   wind_id <- int@gid
+  wind_id_lst <- data.frame(wind_id1 = wind_id)
   epid_n <- rep(0, inp_n)
 
   if(isTRUE(any_rolling_epi)) roll_n <- rep(0, inp_n)
@@ -387,6 +388,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                         "case_nm" = case_nm[0],
                         "wind_nm" = wind_nm[0],
                         "wind_id" = wind_id[0],
+                        "wind_id_lst" = data.frame(wind_id1 = numeric()),
                         "rolls_max" = rolls_max[0],
                         "episodes_max" = episodes_max[0],
                         "iteration" = numeric(0))
@@ -410,6 +412,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                "rolls_max", "iteration",
                "episodes_max")){
       assign(i, get(i)[sort_ord])
+    }
+
+    if(length(wind_id_lst) == 1){
+      wind_id_lst <- data.frame(wind_id1 = wind_id_lst[sort_ord,])
+    }else{
+      wind_id_lst <- wind_id_lst[sort_ord,]
     }
 
     if(isTRUE(any_rolling_epi_curr)) roll_n <- roll_n[sort_ord]
@@ -520,6 +528,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
     }
 
+    tr_sn_list <- lapply(max_indx_ref, function(y){
+      lgk2 <- (ref_rd & cri_indx_ord == y)
+      rep(int@gid[lgk2], r$lengths[match(cri[lgk], r$values)])
+    })
     tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
     tr_e <- rep(e[lgk], r$lengths[match(cri[lgk], r$values)])
     #tr_wind_id <- rep(wind_id[lgk], r$lengths[match(cri[lgk], r$values)])
@@ -757,6 +769,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     # Episode and window IDs
     e[cr & tag == 0 & tr_tag %in% c(0)] <- tr_sn[cr & tag == 0 & tr_tag %in% c(0)]
     wind_id[cr & tag == 0] <- tr_sn[cr & tag == 0]
+    tr_sn_list <- lapply(tr_sn_list, function(x){
+      ifelse(cr & tag == 0, x, wind_id)
+    })
+    names(tr_sn_list) <- paste0("wind_id", 1:length(tr_sn_list))
     e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
 
     case_nm[cr & tr_tag %in% c(0)] <- ifelse(ref_rd[cr & tr_tag %in% c(0)], "Case", "Duplicate_C")
@@ -885,6 +901,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       assign(i, get(i)[tag != 2])
     }
 
+    tr_sn_list <- as.data.frame(tr_sn_list)
+    if(length(tr_sn_list) == 1){
+      tr_sn_list <- data.frame(wind_id1 = as.data.frame(tr_sn_list)[tag == 2,])
+    }else{
+      tr_sn_list <- as.data.frame(tr_sn_list)[tag == 2,]
+    }
+    grouped_epids$wind_id_lst <- f_rbind(grouped_epids$wind_id_lst, tr_sn_list)
     idx <- c(grouped_epids$int@id, int@id[tag == 2])
     gidx <- c(grouped_epids$int@gid, int@gid[tag == 2])
     grouped_epids$int <- c(grouped_epids$int, int[tag == 2])
@@ -941,6 +964,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   wind_nm <- c(grouped_epids$wind_nm, wind_nm)
   wind_id <- c(grouped_epids$wind_id, wind_id)
   iteration <- c(grouped_epids$iteration, iteration)
+
+  tr_sn_list <- as.data.frame(tr_sn_list)
+  if(length(tr_sn_list) == 1){
+    tr_sn_list <- data.frame(wind_id1 = as.data.frame(tr_sn_list)[tag == 2,])
+  }else{
+    tr_sn_list <- as.data.frame(tr_sn_list)[tag == 2,]
+  }
+  wind_id_lst <- f_rbind(grouped_epids$wind_id_lst, tr_sn_list)
 
   idx <- c(grouped_epids$int@id, int@id)
   gidx <- c(grouped_epids$int@gid, int@gid)
@@ -1022,7 +1053,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                case_nm = case_nm[retrieve_pos],
                iteration = iteration[retrieve_pos],
                wind_nm = wind_nm[retrieve_pos],
-               wind_id = wind_id[fd],
+               # wind_id = wind_id[fd],
+               wind_id = as.list(wind_id_lst[retrieve_pos,]),
                epid_total = epid_n[fd],
                options = options_lst)
 

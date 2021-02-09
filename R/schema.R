@@ -308,6 +308,21 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 
   # Plot data
   plt_df <- to_df(epid)
+  plt_df$wind_id <- epid@wind_id[[1]]
+  # plt_df <- lapply(epid@wind_id, function(x){
+  #   df <- cbind(to_df(epid), to_df(int)[c("start", "end")])
+  #   df$wind_id <- x
+  #   df
+  # })
+  # plt_df <- do.call("rbind", plt_df)
+  # row.names(plt_df) <- NULL
+  # plt_df <- plt_df[!duplicated(plt_df),]
+  # plt_df$sn_cd <- match(plt_df$sn, plt_df$sn[!duplicated(plt_df$sn)])
+  # ep_l <- lapply(ep_l, function(x) x[plt_df$sn_cd])
+  # if(any_rolling){
+  #   rc_l <- lapply(rc_l, function(x) x[plt_df$sn_cd])
+  # }
+
   # Show skipped records
   if(isFALSE(show_skipped)){
     lgk <- plt_df$case_nm != "Skipped"
@@ -395,14 +410,32 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   }
 
   # Case length arrows
-  case_l_ar <- l_ar(ep_l, plt_df, "Case", is_dt)
+  case_l_ar <- lapply(epid@wind_id, function(x){
+    sw <- which(plt_df$wind_id !=  x)
+    plt_df$wind_id[sw] <- x[sw]
+    plt_df
+    l_ar(ep_l, plt_df, "Case", is_dt)
+  })
+  case_l_ar <- unlist(case_l_ar, recursive = FALSE)
+  #case_l_ar <- do.call("rbind", unlist(case_l_ar, recursive = FALSE))
+  case_l_ar <- case_l_ar[!duplicated(case_l_ar)]
+  #case_l_ar <- l_ar(ep_l, plt_df, "Case", is_dt)
 
   if(any_rolling == T){
     # Recurrence length arrows
-    rc_l_ar <- l_ar(rc_l, plt_df, "Recurrence", is_dt)
+    #rc_l_ar <- l_ar(rc_l, plt_df, "Recurrence", is_dt)
+    rc_l_ar <- lapply(epid@wind_id, function(x){
+      sw <- which(plt_df$wind_id !=  x)
+      plt_df$wind_id[sw] <- x[sw]
+      plt_df
+      l_ar(rc_l, plt_df, "Recurrence", is_dt)
+    })
+    rc_l_ar <- unlist(rc_l_ar, recursive = FALSE)
+    #rc_l_ar <- do.call("rbind", unlist(rc_l_ar, recursive = FALSE))
+    rc_l_ar <- rc_l_ar[!duplicated(rc_l_ar)]
     case_l_ar <- c(case_l_ar, rc_l_ar)
   }
-  case_l_ar <- do.call(rbind, case_l_ar)
+  case_l_ar <- do.call("rbind", case_l_ar)
 
   any_finite <- length(plt_df$start[plt_df$finite]) > 0
   if(any_finite){
@@ -488,10 +521,18 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   # Mid-`date` to plot links
   plt_df$mid_x <- (as.numeric(plt_df$start) + as.numeric( plt_df$end))/2
   # Link between records and their index
-  link_sn <- plt_df[plt_df$sn %in% plt_df$wind_id, c("sn", "mid_x", "y")]
-  plt_df$x_lead <- link_sn$mid_x[match(plt_df$wind_id, link_sn$sn)]
-  plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
-  plt_df$sn_lead <- link_sn$sn[match(plt_df$wind_id, link_sn$sn)]
+  plt_df <- lapply(epid@wind_id, function(x){
+    sw <- which(plt_df$wind_id !=  x)
+    plt_df$wind_id[sw] <- x[sw]
+    link_sn <- plt_df[plt_df$sn %in% plt_df$wind_id, c("sn", "mid_x", "y")]
+    plt_df$x_lead <- link_sn$mid_x[match(plt_df$wind_id, link_sn$sn)]
+    plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
+    plt_df$sn_lead <- link_sn$sn[match(plt_df$wind_id, link_sn$sn)]
+    plt_df[c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite", "event_nm", "event_type")]
+  })
+
+  plt_df <- do.call("rbind", plt_df)
+  plt_df <- plt_df[!duplicated(plt_df),]
 
   if(nrow(case_l_ar) > 0){
     case_l_ar$start <- as.numeric(case_l_ar$start)
@@ -538,10 +579,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_segment(ggplot2::aes(x = .data$x_lead, y = .data$y_lead, colour = .data$epid, xend = .data$mid_x, yend = .data$y), alpha = .4)
   if("length_arrow" %in% show_labels){
-    f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$mid_y_lead, linetype = .data$wind_nm_l), color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$wind_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open"))
+    f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y, linetype = .data$wind_nm_l), color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$wind_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open"))
   }
   if("length_label" %in% show_labels){
-    f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$lab_y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$wind_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
+    f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$wind_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
   }
   if(!isFALSE(show_labels)){
     f <- f +

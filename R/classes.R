@@ -186,7 +186,7 @@ format.number_line <- function(x, ...){
 setClass("epid",
          contains = "numeric",
          representation(sn = "numeric",
-                        wind_id = "numeric",
+                        wind_id = "list",
                         wind_nm = "character",
                         case_nm = "character",
                         dist_wind_index = "ANY",
