@@ -942,7 +942,7 @@ err_episodes_checks_0 <- function(date = 1,
                                   data_links = "ANY",
                                   custom_sort = rep(1, length(date)),
                                   skip_order = 1,
-                                  recurrence_from_last = TRUE,
+                                  recurrence_from_last = "last_record",
                                   case_for_recurrence = TRUE,
                                   from_last = TRUE,
                                   group_stats = TRUE,
@@ -1018,7 +1018,7 @@ err_episodes_checks_0 <- function(date = 1,
                        data_links = c("list", "character"),
                        skip_order = c("numeric", "integer"),
                        skip_if_b4_lengths = "logical",
-                       recurrence_from_last = "logical",
+                       recurrence_from_last = "character",
                        case_for_recurrence = "logical",
                        from_last = "logical",
                        group_stats = "logical",
@@ -1282,10 +1282,10 @@ err_links_checks_0 <- function(criteria,
   }
   err <- err_criteria_1(criteria)
   if(err != FALSE) return(err)
-
   err <- err_criteria_2(criteria)
   if(err != FALSE) return(err)
-
+  err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
+  if(err != FALSE) return(err)
   return(FALSE)
 }
 
@@ -1513,7 +1513,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     err <- err_strata_level_args(window , strata, "window")
     if(err != FALSE) return(err)
     err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
-    if(err != FALSE) return(err[1])
+    if(err != FALSE) return(err)
     return(FALSE)
   }
 

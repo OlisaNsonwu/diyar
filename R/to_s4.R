@@ -28,12 +28,12 @@ to_s4 <- function(df){
   if(missing(df)) stop("argument 'df' is missing, with no default")
   if(!is.data.frame(df)) stop("'df' must be a data.frame")
 
-  if(any(names(df)=="epid")){
+  if(any(names(df) == "epid")){
     s4 <- methods::new("epid", .Data=df$epid)
-  }else if(any(names(df)=="pid")){
+  }else if(any(names(df) == "pid")){
     s4 <- methods::new("pid", .Data=df$pid)
-  }else if(any(names(df)=="gid")){
-    s4 <- methods::new("number_line", .Data= ifelse(as.numeric(df$start) > as.numeric(df$end),  -as.numeric(df$start - df$end),  as.numeric(df$end - df$start)))
+  }else if(any(names(df) == "gid")){
+    s4 <- methods::new("number_line", .Data = as.numeric(df$end) - as.numeric(df$start))
   }
 
   vrs <- subset(names(df), names(df) %in% methods::slotNames(s4))

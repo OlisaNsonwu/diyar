@@ -156,7 +156,12 @@ bridge_record_group <- function(df, args){
 
   if(length(display_arg) > 0){
     if(any(class(eval(display_arg$display)) == "logical")){
-      display_arg$display <- ifelse(all(eval(display_arg$display) == F), "none", "stats")
+      display_arg$display <- ifelse(eval(display_arg$display) == TRUE,
+                                    "stats",
+                                    ifelse(eval(display_arg$display) == FALSE,
+                                           "none",
+                                           eval(display_arg$display))
+                                    )
     }
     display_txt <- paste0("display = eval(display_arg$display)", collapse = ", ")
     args <- paste0(args, ", ", display_txt)

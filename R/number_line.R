@@ -52,8 +52,8 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   if(all(class(l) != class(r))) warning("`l` and `r` have different classes. They may need to be reconciled.", call. = FALSE)
 
   nl <- suppressWarnings(methods::new("number_line",
-                                      .Data = ifelse(as.numeric(r) == as.numeric(l) & !is.na(r), 0, as.numeric(r) - as.numeric(l)),
-                                      start=l,
+                                      .Data = as.numeric(ifelse(as.numeric(r) == as.numeric(l) & !is.na(r), 0, as.numeric(r) - as.numeric(l))),
+                                      start = l,
                                       id = id,
                                       gid = gid))
   return(nl)
@@ -74,7 +74,7 @@ as.number_line <- function(x){
   if(!is.numeric(er1) | !is.numeric(er2)) stop("`x` can't be coerced to a `number_line` object.", call. = FALSE)
   if(all(!is.number_line(x))){
     x <- methods::new("number_line",
-                      .Data = rep(0L, length(x)),
+                      .Data = rep(0, length(x)),
                       start = x,
                       id = 1:length(x),
                       gid = 1:length(x))

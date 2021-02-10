@@ -108,7 +108,9 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
-  to_s4(do.call("rbind", lapply(list(x, ...), function(y) to_df(as.number_line(y)))))
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) to_df(as.number_line(y)))))
+  x@id <- x@gid <- 1:length(x)
+  return(x)
 })
 
 #' @rdname number_line-class
@@ -217,7 +219,8 @@ as.epid <- function(x){
   y <- x
   x <- as.numeric(x)
   x[!is.finite(as.numeric(x))] <- NA
-  x <- methods::new("epid", .Data = x, sn = 1:length(x), wind_id = rep(NA_real_, length(x)),
+  x <- methods::new("epid", .Data = x, sn = 1:length(x),
+                    wind_id = list(wind_id1 = rep(NA_real_, length(x))),
                     dist_wind_index = rep(NA_real_, length(x)),
                     dist_epid_index = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),

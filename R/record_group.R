@@ -369,7 +369,7 @@ links <- function(criteria,
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
-  cat("Records linked in ", tms, "!\n", sep = "")
+  if(tolower(display) != "none") cat("Records linked in ", tms, "!\n", sep = "")
   return(pids)
 }
 

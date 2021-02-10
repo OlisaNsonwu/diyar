@@ -119,7 +119,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      episode_unit = "days", strata = NULL, sn = NULL, episodes_max = Inf, rolls_max = Inf,
                      case_overlap_methods = "overlap", recurrence_overlap_methods = case_overlap_methods,
                       skip_if_b4_lengths = FALSE, data_source = NULL,
-                     data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = TRUE,
+                     data_links = "ANY", custom_sort = NULL, skip_order = Inf, recurrence_from_last = "last_record",
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                      display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
                      case_length_total = 1, recurrence_length_total = case_length_total) {
@@ -268,7 +268,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
   # `recurrence_from_last`
   if(length(recurrence_from_last) == 1) recurrence_from_last <- rep(recurrence_from_last, inp_n)
-  any_rec_from_last <- any(recurrence_from_last == FALSE)
+  any_rec_from_last <- any(recurrence_from_last %in% c("first_record", "first_event"))
   lead_rec_from_last <- recurrence_from_last[!duplicated(recurrence_from_last)]
   one_rec_from_last <- length(lead_rec_from_last) == 1
   if(isFALSE(one_rec_from_last)){
@@ -414,12 +414,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       assign(i, get(i)[sort_ord])
     }
 
-    if(length(wind_id_lst) == 1){
-      wind_id_lst <- data.frame(wind_id1 = wind_id_lst[sort_ord,])
-    }else{
-      wind_id_lst <- wind_id_lst[sort_ord,]
-    }
-
     if(isTRUE(any_rolling_epi_curr)) roll_n <- roll_n[sort_ord]
     if(isFALSE(one_epid_type)){
       lead_epid_type <- lead_epid_type[sort_ord]
@@ -475,12 +469,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     r <- rle(cri)
     cri_tot <- r$lengths
     lgk <- !duplicated(cri, fromLast = TRUE)
+    ref_rd <- lgk
+    tr_int <- rep(int[lgk], r$lengths[match(cri[lgk], r$values)])
+    tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
+    ref_rd[lead_rec_from_last %in% c("first_event", "last_event") & tr_tag == 0 & lgk == FALSE] <- overlap(int[lead_rec_from_last %in% c("first_event", "last_event") & tr_tag == 0 & lgk == FALSE],
+                                                                                                           tr_int[lead_rec_from_last %in% c("first_event", "last_event") & tr_tag == 0 & lgk == FALSE])
+    ref_rd[is.na(ref_rd)] <- FALSE
 
-    ref_rd <- lgk | tag %in% c(-1, -2)
     cri_indx <- (cri + (0.1 * match(ref_rd, ref_rd[!duplicated(ref_rd)])))
     r2 <- rle(cri_indx)
     cri_indx_ord <- sequence(r2$length)
-
 
     if(length(cri_indx_ord[ref_rd]) > 0){
       max_indx_ref <- max(cri_indx_ord[ref_rd]):1
@@ -532,10 +530,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       lgk2 <- (ref_rd & cri_indx_ord == y)
       rep(int@gid[lgk2], r$lengths[match(cri[lgk], r$values)])
     })
-    tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
     tr_e <- rep(e[lgk], r$lengths[match(cri[lgk], r$values)])
     #tr_wind_id <- rep(wind_id[lgk], r$lengths[match(cri[lgk], r$values)])
-    tr_int <- rep(int[lgk], r$lengths[match(cri[lgk], r$values)])
     tr_skip_order <- rep(skip_order[lgk], r$lengths[match(cri[lgk], r$values)])
     tr_c_sort <- rep(c_sort[lgk], r$lengths[match(cri[lgk], r$values)])
 
@@ -668,14 +664,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         ep_phits <- rep(0, current_tot)
         ep_phits[cr] <- dst$lengths[match(cri[cr], dst$values)]
         cr[!ref_rd & cr & !(ep_phits >= as.numeric(lead_epl_min@start) & ep_phits <= as.numeric(right_point(lead_epl_min)))] <- FALSE
+        cr
+      }else{
+        cr[[i]]
       }
-      cr
     })
 
     if(length(cr) == 1){
-      cr <- (cr[[1]])[[1]]
+      cr <- cr[[1]]
     }else{
-      cr <- as.logical(Rfast::rowMaxs(sapply(unlist(cr, recursive = FALSE), function(x) as.numeric(x)), value = TRUE))
+      cr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE))
     }
 
     # Implement `case_sub_criteria`
@@ -723,7 +721,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       cr2 <- lapply(1:length(rc_checks), function(i){
         if(isTRUE(any_rcl_min_curr)){
           cr2 <- cr2[[i]]
-          ec_checks <- ec_checks[[i]]
+          ep_checks <- ep_checks[[i]]
           rc_checks <- rc_checks[[i]]
 
           dst <- rle(sort(cri[cr2 & (
@@ -734,14 +732,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           rc_phits <- rep(0, current_tot)
           rc_phits[cr2] <- dst$lengths[match(cri[cr2], dst$values)]
           cr2[!ref_rd & cr2 & !(rc_phits >= as.numeric(lead_rcl_min@start) & rc_phits <= as.numeric(right_point(lead_rcl_min)))] <- FALSE
-        }
-        cr2
+          cr2
+        }else{
+            cr2[[i]]
+          }
       })
 
       if(length(cr2) == 1){
-        cr2 <- (cr2[[1]])[[1]]
+        cr2 <- cr2[[1]]
       }else{
-        cr2 <- as.logical(Rfast::rowMaxs(sapply(unlist(cr2, recursive = FALSE), function(x) as.numeric(x)), value = TRUE))
+        cr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE))
       }
 
       r_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
@@ -804,20 +804,29 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       close_epi <- last_tag == 2
 
       roll_ref <- assign_ord
-      if(isTRUE(any_rec_from_last)) roll_ref[!lead_rec_from_last] <- -roll_ref[!lead_rec_from_last]
+      if(isTRUE(any_rec_from_last)) roll_ref[lead_rec_from_last %in% c("first_record", "first_event")] <- -roll_ref[lead_rec_from_last %in% c("first_record", "first_event")]
 
       # Reference event for recurrence window
       t_cr <- ifelse(ref_rd & roll_n >= 1, FALSE, cr)
       sort_ord <- order(cri, t_cr, tag, roll_ref, int@gid)
       t_cri <- cri[sort_ord]
       t_sn <- int@id[sort_ord]
-      r <- rle(t_cri)
       lgk <- !duplicated(t_cri, fromLast = TRUE)
-      tr_t_sn <- rep((int[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
       t_sn <- t_sn[lgk]
-      lgk <- overlap(int, tr_t_sn)
+
+      if(any(lead_rec_from_last %in% c("first_event", "last_event"))){
+        r <- rle(t_cri)
+        tr_t_int <- rep((int[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
+        tr_t_tag <- rep((tag[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
+        lgk <- rep(FALSE, length(int))
+        lgk[lead_rec_from_last %in% c("first_event", "last_event") & tr_t_tag %in% c(-1, -2)] <- overlap(int[lead_rec_from_last %in% c("first_event", "last_event") & tr_t_tag %in% c(-1, -2)],
+                                                                                                         tr_t_int[lead_rec_from_last %in% c("first_event", "last_event") & tr_t_tag %in% c(-1, -2)])
+      }else{
+        lgk <- FALSE
+      }
+
       tag[which((int@id %in% t_sn | lgk) &
-                  tag !=0 &
+                  tag != 0 &
                   !close_epi &
                   roll_n < rolls_max &
                   t_cr &
@@ -858,7 +867,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                          cri = cri,
                          cr = cr,
                          vr = vr,
-                         tr_ep_int = tr_ep_int,
+                         tr_ep_int = unlist(tr_ep_int, recursive = FALSE),
                          tr_int = tr_int,
                          int = int,
                          case_nm = case_nm)
@@ -869,7 +878,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                             cri = cri,
                             cr = cr,
                             vr = vr,
-                            tr_ep_int = tr_rc_int,
+                            tr_ep_int = unlist(tr_rc_int, recursive = FALSE),
                             tr_int = tr_int,
                             int = int,
                             case_nm = case_nm)
@@ -1054,7 +1063,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                iteration = iteration[retrieve_pos],
                wind_nm = wind_nm[retrieve_pos],
                # wind_id = wind_id[fd],
-               wind_id = as.list(wind_id_lst[retrieve_pos,]),
+               wind_id = lapply(as.list(wind_id_lst), function(y) y[retrieve_pos]),
                epid_total = epid_n[fd],
                options = options_lst)
 
@@ -1096,8 +1105,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     epid_dt_z[lgk] <- ifelse(frm_last[lgk], dts_a, dts_z)
 
     if(isTRUE(is_dt)){
-      epid_dt_a <- as.POSIXct(epid_dt_a, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
-      epid_dt_z <- as.POSIXct(epid_dt_z, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
+      epid_dt_a <- as.POSIXct(epid_dt_a, tz = "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
+      epid_dt_z <- as.POSIXct(epid_dt_z, tz = "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
       epid_l <- difftime(epid_dt_z, epid_dt_a, units = diff_unit)
     }else{
       epid_l <- epid_dt_z - epid_dt_a
@@ -1122,7 +1131,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #' @export
 fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                            to_s4 = TRUE, case_overlap_methods = "overlap", deduplicate = FALSE,
-                           display = "progress", bi_direction = FALSE,
+                           display = "none", bi_direction = FALSE,
                            recurrence_length = case_length,
                            recurrence_overlap_methods = case_overlap_methods,
                            include_index_period = TRUE, ...,
@@ -1205,7 +1214,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
 rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_length,
                              episode_unit = "days", to_s4 = TRUE, case_overlap_methods = "overlap",
                              recurrence_overlap_methods = case_overlap_methods, deduplicate = FALSE,
-                             display = "progress", bi_direction = FALSE,
+                             display = "none", bi_direction = FALSE,
                              include_index_period = TRUE, ...,
                              overlap_methods = "overlap", overlap_method = "overlap", x) {
 
@@ -1313,7 +1322,7 @@ episode_group <- function(df, ..., episode_type = "fixed"){
     stop(err, call. = FALSE)
   }
 
-  out <- bridge_episode_group(df=df, args=args, episode_type = episode_type)
+  out <- bridge_episode_group(df = df, args = args, episode_type = episode_type)
   if(out$err_cd == FALSE) stop(out$err_nm, call. = FALSE)
 
   # Warn
@@ -1362,8 +1371,8 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
   is_dt <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
   if(isTRUE(is_dt)){
     date <- number_line(
-      l = as.POSIXct(date@start, "GMT"),
-      r = as.POSIXct(right_point(date), "GMT")
+      l = as.POSIXct(date@start, tz = "GMT"),
+      r = as.POSIXct(right_point(date), tz = "GMT")
     )
   }
 
@@ -1387,15 +1396,15 @@ epid_lengths <- function(date, windows, episode_unit = "days"){
   is_dt1 <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
   if(isTRUE(is_dt1)){
     date <- number_line(
-      l = as.POSIXct(date@start, "GMT"),
-      r = as.POSIXct(right_point(date), "GMT")
+      l = as.POSIXct(date@start, tz = "GMT"),
+      r = as.POSIXct(right_point(date), tz = "GMT")
     )
   }
   is_dt2 <- ifelse(!any(class(windows@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
   if(isTRUE(is_dt2)){
     windows <- number_line(
-      l = as.POSIXct(windows@start, "GMT"),
-      r = as.POSIXct(right_point(windows), "GMT")
+      l = as.POSIXct(windows@start, tz = "GMT"),
+      r = as.POSIXct(right_point(windows), tz = "GMT")
     )
   }
 

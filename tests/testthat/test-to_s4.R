@@ -5,8 +5,11 @@ data("infections")
 fixed_episodes <- diyar::fixed_episodes
 record_group <- diyar::record_group
 
-df <- fixed_episodes(date = infections$date, case_length = 30, to_s4=F, display = "none")
-s4 <- fixed_episodes(date = infections$date, case_length = 30, to_s4=T, display = "none")
+df <- fixed_episodes(date = infections$date, case_length = 30, to_s4 = F, display = "none")
+s4 <- fixed_episodes(date = infections$date, case_length = 30, to_s4 = T, display = "none")
+
+s4@options <- list()
+s4@wind_id <- list()
 
 df_2 <- record_group(df = infections, criteria = infection, to_s4 = F, display = "none")
 s4_2 <- record_group(df = infections, criteria = infection, to_s4 = T, display = "none")
