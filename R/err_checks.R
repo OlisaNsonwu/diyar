@@ -198,7 +198,7 @@ err_sub_criteria_7 <- function(sub_cris, funcs_l = "funcs", funcs_pos = 2, cri_n
       e <- try(func(vec, vec),
                silent = TRUE)
       x <- class(e)
-      ifelse(x == "logical" & length(e) == 5, NA_character_, paste0("Issue with ",
+      ifelse(x == "logical" & length(e) %in% c(1,5), NA_character_, paste0("Issue with ",
                                                                     "`", funcs_l, "-", j, "` of ",
                                                                     "`", cri_nm, "-", i, "`: ",
                                                                     gsub("\\n", "", e),"."))
@@ -409,7 +409,12 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err <- as.numeric(lapply(ref_arg, length))
   err2 <- unlist(lapply(sub_criteria, function(x){
     lapply(x, function(x){
-      length(x[[1]]) })
+      if(class(x[[1]]) == "list"){
+        lapply(x[[1]], function(y) length(y))
+      }else{
+        length(x[[1]])
+      }
+       })
   }), use.names = FALSE)
   err <- err[!duplicated(err)]
   err2 <- err2[!duplicated(err2)]
@@ -813,7 +818,7 @@ err_episodes_checks_1 <- function(date,
 
   err <- err_episode_unit_1(episode_unit = episode_unit)
   if(err != FALSE) return(err[1])
-  err <- err_episode_type_1(episode_type = episode_type)
+  err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling", "recursive"))
   if(err != FALSE) return(err[1])
   err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
   if(err != FALSE) return(err[1])
@@ -1018,7 +1023,7 @@ err_episodes_checks_0 <- function(date = 1,
                        data_links = c("list", "character"),
                        skip_order = c("numeric", "integer"),
                        skip_if_b4_lengths = "logical",
-                       recurrence_from_last = "character",
+                       recurrence_from_last = c("character", "logical"),
                        case_for_recurrence = "logical",
                        from_last = "logical",
                        group_stats = "logical",
@@ -1113,9 +1118,11 @@ err_episodes_checks_0 <- function(date = 1,
   if(err != FALSE) return(err)
   err <- err_episode_unit_1(episode_unit = episode_unit)
   if(err != FALSE) return(err)
-  err <- err_episode_type_1(episode_type = episode_type)
+  err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling", "recursive"))
   if(err != FALSE) return(err)
   err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
+  if(err != FALSE) return(err)
+  err <- err_spec_vals(recurrence_from_last, "recurrence_from_last", c("first_record", "first_event", "last_record", "last_event", TRUE, FALSE))
   if(err != FALSE) return(err)
   err <- err_overlap_methods_1(overlap_methods = case_overlap_methods, "case_overlap_methods")
   if(err != FALSE) return(err)

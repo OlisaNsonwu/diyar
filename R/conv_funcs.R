@@ -948,9 +948,9 @@ f_rbind <- function(x, y){
     x2 <- as.data.frame(c(as.list(x), xp))
 
     ym <- names(x)[!names(x) %in% names(y)]
-    yp <- lapply(ym, function(i) rep(NA_real_, length(x[[1]])))
+    yp <- lapply(ym, function(i) rep(NA_real_, length(y[[1]])))
     names(yp) <- ym
     y2 <- as.data.frame(c(as.list(y), yp))
-    rbind(y2, x2)
+    rbind(x2, y2)
   }
 }

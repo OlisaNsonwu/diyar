@@ -11,6 +11,7 @@
 #' @param show_labels Show/hide certain parts of the schema. See \code{Details}
 #' @param dark_mode Use a black/white background for each plot.
 #' @param orientation Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})
+#' @param seed XXXX
 #' @param ... XXXX
 #'
 #' @return list of \code{ggplot} objects
@@ -27,7 +28,8 @@ schema <- function(x, ...) UseMethod("schema")
 #' @rdname schema
 #' @importFrom rlang .data
 #' @export
-schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE, ...) {
+schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
+                        dark_mode = TRUE,  seed = NULL, ...) {
   . <- NULL
 
   # Validations
@@ -38,6 +40,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_m
                             dark_mode = dark_mode)
 
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
+  if(!is.null(seed)) set.seed(seed)
 
   # `Pane` data
   panes <- x
@@ -202,7 +205,8 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_m
   plt_df$epid <- match(plt_df$epid, plt_df$epid[!duplicated(plt_df$epid)])
   plt_df$epid <- formatC(plt_df$epid, width = nchar(max(plt_df$epid)), flag = 0, format = "fg")
 
-  border$pane_n <- match(border$pane_n, sample(border$pane_n[!duplicated(border$pane_n)], length(border$pane_n)))
+  q <- border$pane_n[!duplicated(border$pane_n)]
+  border$pane_n <- match(border$pane_n, sample(q, length(q)))
   border$pane_n <- formatC(border$pane_n, width = nchar(max(border$pane_n)), flag = 0, format = "fg")
 
   f <- ggplot2::ggplot(data = plt_df) +
@@ -241,7 +245,8 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"), dark_m
 #' @importFrom rlang .data
 #' @export
 schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
-                       show_skipped = TRUE, show_non_finite = FALSE, dark_mode = TRUE, ...){
+                       show_skipped = TRUE, show_non_finite = FALSE,
+                       dark_mode = TRUE, seed = NULL, ...){
   . <- NULL
   # `Epid` data
   epid <- x
@@ -261,6 +266,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
 
+  if(!is.null(seed)) set.seed(seed)
   # Standardise inputs
   # `date`
   int <- x@options$date
@@ -287,7 +293,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                           date = int,
                           from_last = x@options$from_last,
                           episode_unit = episode_unit)
-  any_rolling <- any(x@options$episode_type == "rolling")
+  any_rolling <- any(x@options$episode_type %in% c("rolling", "recursive"))
   if(any_rolling){
     recurrence_length <- x@options$recurrence_length
     # `recurrence_length`
@@ -521,18 +527,22 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   # Mid-`date` to plot links
   plt_df$mid_x <- (as.numeric(plt_df$start) + as.numeric( plt_df$end))/2
   # Link between records and their index
-  plt_df <- lapply(epid@wind_id, function(x){
-    sw <- which(plt_df$wind_id !=  x)
-    plt_df$wind_id[sw] <- x[sw]
+  plt_df <- lapply(1:length(epid@wind_id), function(i){
+    sw <- which(plt_df$wind_id !=  epid@wind_id[[i]] & !is.na(epid@wind_id[[i]]))
+    plt_df$wind_id[sw] <- epid@wind_id[[i]][sw]
     link_sn <- plt_df[plt_df$sn %in% plt_df$wind_id, c("sn", "mid_x", "y")]
     plt_df$x_lead <- link_sn$mid_x[match(plt_df$wind_id, link_sn$sn)]
     plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
     plt_df$sn_lead <- link_sn$sn[match(plt_df$wind_id, link_sn$sn)]
-    plt_df[c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite", "event_nm", "event_type")]
+    plt_df <- plt_df[c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite", "event_nm", "event_type")]
+    if(i > 1){
+      plt_df <- plt_df[sw,]
+    }
+    plt_df
   })
 
   plt_df <- do.call("rbind", plt_df)
-  plt_df <- plt_df[!duplicated(plt_df),]
+  #plt_df <- plt_df[!duplicated(plt_df),]
 
   if(nrow(case_l_ar) > 0){
     case_l_ar$start <- as.numeric(case_l_ar$start)
@@ -617,7 +627,9 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 #' @rdname schema
 #' @importFrom rlang .data
 #' @export
-schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE, orientation = "by_pid", ...){
+schema.pid <- function(x, title = NULL, show_labels = TRUE,
+                       dark_mode = TRUE, orientation = "by_pid",
+                       seed = NULL, ...){
   . <- NULL
 
   # Validations
@@ -628,7 +640,7 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE, dark_mode = TRUE, or
                            orientation = orientation)
 
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
-
+  if(!is.null(seed)) set.seed(seed)
   # Plot data
   pids <- x
   pl_dt <- to_df(pids)

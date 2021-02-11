@@ -9,7 +9,14 @@
 \usage{
 schema(x, ...)
 
-\method{schema}{pane}(x, title = NULL, show_labels = c("window_label"), dark_mode = TRUE, ...)
+\method{schema}{pane}(
+  x,
+  title = NULL,
+  show_labels = c("window_label"),
+  dark_mode = TRUE,
+  seed = NULL,
+  ...
+)
 
 \method{schema}{epid}(
   x,
@@ -18,6 +25,7 @@ schema(x, ...)
   show_skipped = TRUE,
   show_non_finite = FALSE,
   dark_mode = TRUE,
+  seed = NULL,
   ...
 )
 
@@ -27,6 +35,7 @@ schema(x, ...)
   show_labels = TRUE,
   dark_mode = TRUE,
   orientation = "by_pid",
+  seed = NULL,
   ...
 )
 }
@@ -40,6 +49,8 @@ schema(x, ...)
 \item{show_labels}{Show/hide certain parts of the schema. See \code{Details}}
 
 \item{dark_mode}{Use a black/white background for each plot.}
+
+\item{seed}{XXXX}
 
 \item{show_skipped}{Show/hide \code{"Skipped"} records}
 

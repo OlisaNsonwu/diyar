@@ -431,8 +431,8 @@ record_group <- function(df, ..., to_s4 = TRUE){
 sub_criteria <- function(...,
                          funcs = diyar::exact_match,
                          equva = diyar::exact_match){
-  err <- err_sub_criteria_1(...)
-  if(!isFALSE(err)) stop(err, call. = FALSE)
+  # err <- err_sub_criteria_1(...)
+  # if(!isFALSE(err)) stop(err, call. = FALSE)
 
   err <- err_sub_criteria_3dot_1(...)
   if(!isFALSE(err)) stop(err, call. = FALSE)
