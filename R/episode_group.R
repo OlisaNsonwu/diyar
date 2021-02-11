@@ -637,44 +637,23 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     checks_lgk <- rep(0, length(int))
     ep_checks <- lapply(1:length(tr_ep_int), function(i){
       if(i == 1){
-        curr_check_lgk <- TRUE
+        curr_check_lgk <- tr_tag %in% c(0, -2)
       }else{
-        curr_check_lgk <- ref_wind != tr_sn_list[[i]]
+        curr_check_lgk <- ref_wind != tr_sn_list[[i]] & tr_tag %in% c(0, -2)
       }
-      curr_result_lgk <- as.matrix(mapply(ovr_chks,
-                                          lapply(tr_ep_int[[i]], function(x) x[curr_check_lgk]),
-                                          rep(list(int[curr_check_lgk]), length(tr_ep_int[[i]])),
-                                          lapply(ov_mth_a, function(x) x[curr_check_lgk]),
-                                          lapply(ords[[i]], function(x) x[curr_check_lgk])))
-      if(length(int) == 1){
-        curr_result_lgk <- t(curr_result_lgk)
-      }
-      checks_lgk[curr_check_lgk] <-  Rfast::rowMaxs(curr_result_lgk, value = TRUE)
-      checks_lgk
-    })
-
-    if(isTRUE(any_rolling_epi_curr)){
-      # Check `case_length`s
-      ords <- rep(list(lapply(1:length(tr_rc_int[[1]]), function(x) rep(x, current_tot))), length(tr_rc_int))
-      ref_wind <- tr_sn_list[[1]]
-      rc_checks <- lapply(1:length(tr_rc_int), function(i){
-        if(i == 1){
-          curr_check_lgk <- TRUE
-        }else{
-          curr_check_lgk <- ref_wind != tr_sn_list[[i]]
-        }
+      if(length(curr_check_lgk[curr_check_lgk]) > 0){
         curr_result_lgk <- as.matrix(mapply(ovr_chks,
-                                            lapply(tr_rc_int[[i]], function(x) x[curr_check_lgk]),
-                                            rep(list(int[curr_check_lgk]), length(tr_rc_int[[i]])),
-                                            lapply(ov_mth_b, function(x) x[curr_check_lgk]),
+                                            lapply(tr_ep_int[[i]], function(x) x[curr_check_lgk]),
+                                            rep(list(int[curr_check_lgk]), length(tr_ep_int[[i]])),
+                                            lapply(ov_mth_a, function(x) x[curr_check_lgk]),
                                             lapply(ords[[i]], function(x) x[curr_check_lgk])))
         if(length(int) == 1){
           curr_result_lgk <- t(curr_result_lgk)
         }
         checks_lgk[curr_check_lgk] <-  Rfast::rowMaxs(curr_result_lgk, value = TRUE)
-        checks_lgk
-      })
-    }
+      }
+      checks_lgk
+    })
 
     cr <- lapply(1:length(ep_checks), function(i){
       ifelse(tr_tag %in% c(0) &
@@ -733,6 +712,30 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       case_nm[lgk & ref_rd] <- "Case"
       wind_nm[lgk & ref_rd] <- "Case"
       roll_n[lgk] <- roll_n[lgk] + 1
+
+      # Check `case_length`s
+      ords <- rep(list(lapply(1:length(tr_rc_int[[1]]), function(x) rep(x, current_tot))), length(tr_rc_int))
+      ref_wind <- tr_sn_list[[1]]
+      rc_checks <- lapply(1:length(tr_rc_int), function(i){
+        if(i == 1){
+          curr_check_lgk <- tr_tag %in% c(-1)
+        }else{
+          curr_check_lgk <- ref_wind != tr_sn_list[[i]] & tr_tag %in% c(-1)
+        }
+        if(length(curr_check_lgk[curr_check_lgk]) > 0){
+          curr_result_lgk <- as.matrix(mapply(ovr_chks,
+                                              lapply(tr_rc_int[[i]], function(x) x[curr_check_lgk]),
+                                              rep(list(int[curr_check_lgk]), length(tr_rc_int[[i]])),
+                                              lapply(ov_mth_b, function(x) x[curr_check_lgk]),
+                                              lapply(ords[[i]], function(x) x[curr_check_lgk])))
+          if(length(int) == 1){
+            curr_result_lgk <- t(curr_result_lgk)
+          }
+          checks_lgk[curr_check_lgk] <-  Rfast::rowMaxs(curr_result_lgk, value = TRUE)
+        }
+
+        checks_lgk
+      })
 
       cr2 <- lapply(1:length(rc_checks), function(i){
         ifelse(
@@ -797,6 +800,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       vr[!vr & vr2] <- TRUE
       rm(cr2); rm(vr2)
     }
+
+    # if(isTRUE(any_rolling_epi_curr)){
+    #
+    # }
 
     # Episode and window IDs
     e[cr & tag == 0 & tr_tag %in% c(0)] <- tr_sn[cr & tag == 0 & tr_tag %in% c(0)]
