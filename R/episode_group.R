@@ -890,7 +890,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                   !close_epi &
                   roll_n < rolls_max &
                   t_cr &
-                  lead_epid_type == "rolling")] <- -1
+                  lead_epid_type %in% c("rolling", "recursive"))] <- -1
 
       if(isTRUE(any_case_for_rec)){
         # Reference event for recurrence window - `case_for_recurrence`
@@ -900,7 +900,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                     !close_epi &
                     roll_n <= rolls_max &
                     t_cr &
-                    lead_epid_type == "rolling" &
+                    lead_epid_type %in% c("rolling", "recursive") &
                     lead_case_for_rec == TRUE)] <- -2
       }
     }
