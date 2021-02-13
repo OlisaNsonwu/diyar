@@ -208,6 +208,8 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
   q <- border$pane_n[!duplicated(border$pane_n)]
   border$pane_n <- match(border$pane_n, sample(q, length(q)))
   border$pane_n <- formatC(border$pane_n, width = nchar(max(border$pane_n)), flag = 0, format = "fg")
+  border$start <- as.numeric(border$start)
+  border$end <- as.numeric(border$end)
 
   f <- ggplot2::ggplot(data = plt_df) +
     ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$end, y = .data$y, yend = .data$y, colour = .data$epid), size = scale_size(c(.1,1), 500, plot_pts), alpha = .7) +

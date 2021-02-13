@@ -550,6 +550,7 @@ err_by_1 <- function(by){
   return(FALSE)
 }
 err_by_2 <- function(by, x){
+  x <- as.number_line(x)
   lgk <- (x@.Data > 0 & by < 0) | (x@.Data < 0 & by > 0)
   if(any(lgk)){
     by[lgk] <- NA_real_
