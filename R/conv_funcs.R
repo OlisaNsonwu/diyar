@@ -589,6 +589,10 @@ length_to_range <- function(lengths, date, from_last, episode_unit){
 
   if(any(from_last == T)) {
     len <- lapply(len, function(x){
+
+      if(length(x) < length(from_last)){
+        x <- rep(x, length(date))
+      }
       x@start <- as.numeric(x@start)
       x[from_last] <- invert_number_line(x)[from_last]
       return(x)

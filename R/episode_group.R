@@ -178,14 +178,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   names(data_links) <- ifelse(names(data_links) == "", "l", names(data_links))
   # `episode_unit`
   ep_units <- tolower(episode_unit)
-  if(length(ep_units) == 1){
-    ep_units <- rep(ep_units, inp_n)
-  }
-  # `episode_unit`
+  if(length(ep_units) == 1) ep_units <- rep(ep_units, inp_n)
+  # `episode_type`
   episode_type <- tolower(episode_type)
   if(length(episode_type) == 1) episode_type <- rep(episode_type, inp_n)
   any_rolling_epi <- any(episode_type %in% c("rolling", "recursive"))
-  # `episode_unit`
+  # `episode_max`
   if(length(episodes_max) == 1) episodes_max <- rep(episodes_max, inp_n)
   # `rolls_max`
   if(length(rolls_max) == 1) rolls_max <- rep(rolls_max, inp_n)
