@@ -8,6 +8,7 @@
 \alias{format.epid}
 \alias{unique.epid}
 \alias{summary.epid}
+\alias{as.data.frame.epid}
 \alias{show,epid-method}
 \alias{rep,epid-method}
 \alias{[,epid-method}
@@ -24,6 +25,8 @@ as.epid(x)
 \method{unique}{epid}(x, ...)
 
 \method{summary}{epid}(object, ...)
+
+\method{as.data.frame}{epid}(x, ...)
 
 \S4method{show}{epid}(object)
 

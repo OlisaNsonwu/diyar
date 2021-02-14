@@ -15,6 +15,7 @@ schema(x, ...)
   show_labels = c("window_label"),
   dark_mode = TRUE,
   seed = NULL,
+  custom_label = NULL,
   ...
 )
 
@@ -26,6 +27,7 @@ schema(x, ...)
   show_non_finite = FALSE,
   dark_mode = TRUE,
   seed = NULL,
+  custom_label = NULL,
   ...
 )
 
@@ -36,6 +38,7 @@ schema(x, ...)
   dark_mode = TRUE,
   orientation = "by_pid",
   seed = NULL,
+  custom_label = NULL,
   ...
 )
 }

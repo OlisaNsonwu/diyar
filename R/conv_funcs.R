@@ -510,6 +510,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$gid <- NULL
       y$epid <- lar$epid
       y$wind_total <- lar$wind_total
+      y$epid_total <- lar$epid_total
       y$y <- lar$y
       y$mid_y_lead <- lar$mid_y_lead
       y$pt_start <- lar$start
@@ -556,7 +557,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y
     })
   }else{
-    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "episode_unit")]
+    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "epid_total", "episode_unit")]
     lar$wind_nm_l <- lar$nl_nm <- character()
     lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
     lar <- list(lar)

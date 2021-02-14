@@ -1676,7 +1676,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     err <- err[err != FALSE]
     if(length(err) > 0) return(err[1])
 
-    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "length_arrow", "length_label"))
+    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "length_arrow", "length_label", "case_overlap_methods", "recurrence_overlap_methods"))
     if(err != FALSE) return(err[1])
 
     return(FALSE)

@@ -1,7 +1,7 @@
-#' @title Change the returned outputs of \code{diyar} functions
+#' @title Change S4 objects in \code{diyar} to data frames and vice versa
 #'
-#' @description Convert the returned output of \code{\link{number_line}}, \code{\link{record_group}}, \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}}
-#' from a \code{data.frame} to \link[=number_line-class]{number_line}, \link[=pid-class]{pid} or \link[=epid-class]{epid} objects, and vice versa.
+#' @description Convert \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
+#' to a \code{data.frame} and vice versa.
 #'
 #' @aliases to_s4
 #'
@@ -9,43 +9,19 @@
 #' @examples
 #' data(infections)
 #' dates <- infections$date
-#' output <- fixed_episodes(dates, case_length=30)
+#' output <- episodes(dates, case_length=30)
 #' output
 #'
-#' # from the a pid/epid object to a data.frame
+#' # Change a pid, epid, pane or number_line object to a data.frame
 #' df_output <- to_df(output)
 #' df_output
 #'
-#' # from a data.frame to pid/epid object
+#' # Change a data.frame to a pid, epid, pane or number_line object
 #' s4_output <- to_s4(df_output)
 #' s4_output
 #'
-#' all(s4_output == output)
-#'
-#' @return to_s4 - \link[=pid-class]{pid} or \link[=epid-class]{epid} objects
-#' @export
-to_s4 <- function(df){
-  if(missing(df)) stop("argument 'df' is missing, with no default")
-  if(!is.data.frame(df)) stop("'df' must be a data.frame")
-
-  if(any(names(df) == "epid")){
-    s4 <- methods::new("epid", .Data=df$epid)
-  }else if(any(names(df) == "pid")){
-    s4 <- methods::new("pid", .Data=df$pid)
-  }else if(any(names(df) == "gid")){
-    s4 <- methods::new("number_line", .Data = as.numeric(df$end) - as.numeric(df$start))
-  }
-
-  vrs <- subset(names(df), names(df) %in% methods::slotNames(s4))
-
-  for(i in 1:length(vrs)){
-    methods::slot(s4, vrs[i]) <- df[[vrs[i]]]
-  }
-  s4
-}
-
 #' @rdname to_s4
-#' @param s4 \link[=pid-class]{pid} or \link[=epid-class]{epid} objects
+#' @param s4 \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
 #' @return to_df - \code{data.frame} object
 #' @export
 to_df <- function(s4){
@@ -67,7 +43,7 @@ to_df <- function(s4){
                   class = "data.frame")
       )
     }else{
-      df <- data.frame(epid = s4@.Data, stringsAsFactors = FALSE)
+      df <- data.frame(epid = s4@.Data, ...)
     }
 
   }else if(all(class(s4) == "pid")){
@@ -83,7 +59,7 @@ to_df <- function(s4){
                   class = "data.frame")
       )
     }else{
-      df <- data.frame(pid = s4@.Data, stringsAsFactors = FALSE)
+      df <- data.frame(pid = s4@.Data, ...)
     }
   }else if(all(class(s4) == "number_line")){
     if(length(s4) == 0){
@@ -96,7 +72,7 @@ to_df <- function(s4){
                   class = "data.frame")
       )
     }else{
-      df <- data.frame(end = s4@start + s4@.Data, stringsAsFactors = FALSE)
+      df <- data.frame(end = s4@start + s4@.Data, ...)
     }
   }else if(all(class(s4) == "pane")){
     if(length(s4) == 0){
@@ -111,7 +87,7 @@ to_df <- function(s4){
                   class = "data.frame")
       )
     }else{
-      df <- data.frame(pane = s4@.Data, stringsAsFactors = FALSE)
+      df <- data.frame(pane = s4@.Data, ...)
     }
   }
 
@@ -134,4 +110,26 @@ to_df <- function(s4){
     }
   }
   df
+}
+
+#' @return to_s4 - \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
+#' @export
+to_s4 <- function(df){
+  if(missing(df)) stop("argument 'df' is missing, with no default")
+  if(!is.data.frame(df)) stop("'df' must be a data.frame")
+
+  if(any(names(df) == "epid")){
+    s4 <- methods::new("epid", .Data=df$epid)
+  }else if(any(names(df) == "pid")){
+    s4 <- methods::new("pid", .Data=df$pid)
+  }else if(any(names(df) == "gid")){
+    s4 <- methods::new("number_line", .Data = as.numeric(df$end) - as.numeric(df$start))
+  }
+
+  vrs <- subset(names(df), names(df) %in% methods::slotNames(s4))
+
+  for(i in 1:length(vrs)){
+    methods::slot(s4, vrs[i]) <- df[[vrs[i]]]
+  }
+  s4
 }

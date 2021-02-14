@@ -29,7 +29,7 @@ schema <- function(x, ...) UseMethod("schema")
 #' @importFrom rlang .data
 #' @export
 schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
-                        dark_mode = TRUE,  seed = NULL, ...) {
+                        dark_mode = TRUE, seed = NULL, custom_label = NULL, ...) {
   . <- NULL
 
   # Validations
@@ -44,6 +44,9 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
 
   # `Pane` data
   panes <- x
+  if(!is.null(custom_label)){
+    plt_df$custom_label <- custom_label
+  }
   plt_df <- to_df(panes)
   plt_df$start <- as.number_line(x@options$date)@start
   plt_df$end <- right_point(as.number_line(x@options$date))
@@ -171,6 +174,11 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
                                 format(left_point(plt_df$event_nm)),
                                 format(plt_df$event_nm))
     }
+    # Show record `custom_label` if requested
+    if(!is.null(custom_label)){
+      plt_df$event_nm <- paste0(plt_df$custom_label, " ",
+                                    plt_df$event_nm)
+    }
     # Show record `sn` if requested
     if("sn" %in%  show_labels){
       plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
@@ -248,7 +256,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
 #' @export
 schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                        show_skipped = TRUE, show_non_finite = FALSE,
-                       dark_mode = TRUE, seed = NULL, ...){
+                       dark_mode = TRUE, seed = NULL, custom_label = NULL, ...){
   . <- NULL
   # `Epid` data
   epid <- x
@@ -316,6 +324,9 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 
   # Plot data
   plt_df <- to_df(epid)
+  if(!is.null(custom_label)){
+    plt_df$custom_label <- custom_label
+  }
   plt_df$wind_id <- epid@wind_id[[1]]
   # plt_df <- lapply(epid@wind_id, function(x){
   #   df <- cbind(to_df(epid), to_df(int)[c("start", "end")])
@@ -500,6 +511,11 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                                 format(left_point(plt_df$event_nm)),
                                 format(plt_df$event_nm))
     }
+    # Show record `custom_label` if requested
+    if(!is.null(custom_label)){
+      plt_df$event_nm <- paste0(plt_df$custom_label, " ",
+                                    plt_df$event_nm)
+    }
     # Show record `sn` if requested
     if("sn" %in%  show_labels){
       plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
@@ -536,7 +552,9 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     plt_df$x_lead <- link_sn$mid_x[match(plt_df$wind_id, link_sn$sn)]
     plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
     plt_df$sn_lead <- link_sn$sn[match(plt_df$wind_id, link_sn$sn)]
-    plt_df <- plt_df[c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite", "event_nm", "event_type")]
+    df_cols <- c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite")
+    if(!isFALSE(show_labels)) df_cols <- c(df_cols, "event_nm", "event_type")
+    plt_df <- plt_df[]
     if(i > 1){
       plt_df <- plt_df[sw,]
     }
@@ -590,13 +608,13 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_segment(ggplot2::aes(x = .data$x_lead, y = .data$y_lead, colour = .data$epid, xend = .data$mid_x, yend = .data$y), alpha = .4)
-  if("length_arrow" %in% show_labels){
-    f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y, linetype = .data$wind_nm_l), color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$wind_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open"))
-  }
-  if("length_label" %in% show_labels){
-    f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$wind_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
-  }
   if(!isFALSE(show_labels)){
+    if("length_arrow" %in% show_labels){
+      f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y, linetype = .data$wind_nm_l), color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$nl_nm == "len" & !case_l_ar$no_ar & case_l_ar$epid_total > 1,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open"))
+    }
+    if("length_label" %in% show_labels){
+      f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$epid_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
+    }
     f <- f +
       ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "bottom", alpha= .7) +
       ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,5), 500, plot_pts), vjust = "top", alpha= .7)
@@ -631,7 +649,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 #' @export
 schema.pid <- function(x, title = NULL, show_labels = TRUE,
                        dark_mode = TRUE, orientation = "by_pid",
-                       seed = NULL, ...){
+                       seed = NULL, custom_label = NULL, ...){
   . <- NULL
 
   # Validations
@@ -646,7 +664,9 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
   # Plot data
   pids <- x
   pl_dt <- to_df(pids)
-
+  if(!is.null(custom_label)){
+    pl_dt$custom_label <- custom_label
+  }
   if(orientation == "by_pid"){
     pl_dt$link_col <- paste0("P. ", pl_dt$pid)
     pl_dt$pid_box_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("CRI ", pl_dt$pid_cri)))
@@ -718,9 +738,15 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
   if(!isFALSE(show_labels)){
     pl_dt$event_nm <- ""
     pl_dt$pid_l <- ""
+    # Show record `custom_label` if requested
+    if(!is.null(custom_label)){
+      pl_dt$event_nm <- paste0(pl_dt$custom_label, " ",
+                               pl_dt$event_nm)
+    }
     # Show record `sn` is requested
     if("sn" %in% show_labels){
-      pl_dt$event_nm <- paste0("SN ", pl_dt$sn)
+      pl_dt$event_nm <- paste0("SN ", pl_dt$sn, "; ",
+                               pl_dt$event_nm)
     }
     # Show record `pid` is requested
     if("pid" %in% show_labels){

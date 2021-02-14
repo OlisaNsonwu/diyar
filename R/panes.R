@@ -263,13 +263,13 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   if(group_stats == TRUE){
     lgk <- which(pane_n != 1)
     # `pane_interval`
-    dts_a <- lapply(split(as.numeric(int@start[lgk]), pane[lgk]), min)
-    dts_z <- lapply(split(as.numeric(right_point(int[lgk])), pane[lgk]), max)
+    dts_a <- lapply(split(as.numeric(as.POSIXct(int@start[lgk]), tz = "GMT"), pane[lgk]), min)
+    dts_z <- lapply(split(as.numeric(as.POSIXct(right_point(int[lgk])), tz = "GMT"), pane[lgk]), max)
     dts_a <- as.numeric(dts_a)[match(pane[lgk], names(dts_a))]
     dts_z <- as.numeric(dts_z)[match(pane[lgk], names(dts_z))]
 
     pane_dt_a <- as.numeric(int@start)
-    pane_dt_z <- right_point(int)
+    pane_dt_z <- as.numeric(right_point(int))
 
     pane_dt_a[lgk] <- dts_a
     pane_dt_z[lgk] <- dts_z

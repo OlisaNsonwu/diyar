@@ -809,11 +809,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(length(wind_id_lst) < length(tr_sn_list)){
       wind_id_lst <- c(wind_id_lst,
-                       rep(wind_id_lst[1], (length(tr_sn_list) - 1)))
+                       rep(wind_id_lst[1], (length(tr_sn_list) - length(wind_id_lst))))
       #names(wind_id_lst) <- paste0("wind_id", 1:length(wind_id_lst))
     }else if(length(tr_sn_list) < length(wind_id_lst)){
       tr_sn_list <- c(tr_sn_list,
-                      rep(tr_sn_list[1], (length(wind_id_lst) - 1)))
+                      rep(tr_sn_list[1], (length(wind_id_lst) - length(tr_sn_list))))
       #names(wind_id_lst) <- paste0("wind_id", 1:length(wind_id_lst))
     }
 
