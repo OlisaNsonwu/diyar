@@ -22,9 +22,10 @@
 #'
 #' @rdname to_s4
 #' @param s4 \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
+#' @param ... Arguments passed to \code{data.frame}
 #' @return to_df - \code{data.frame} object
 #' @export
-to_df <- function(s4){
+to_df <- function(s4, ...){
   if(missing(s4)) stop("argument 's4' is missing, with no default")
   if(!class(s4) %in% c("epid","pid","number_line", "pane")) stop("'s4' must be an `epid`, `pid`, `pane` or `number_line` object")
   if(all(class(s4)=="epid")){

@@ -273,13 +273,6 @@ summary.epid <- function(object, ...){
 }
 
 #' @rdname epid-class
-#' @export
-as.data.frame.epid <- function(x, ...){
-  to_df(x)
-}
-
-
-#' @rdname epid-class
 #' @param object object
 setMethod("show", signature(object = "epid"), function(object){
   print(format.epid(object))

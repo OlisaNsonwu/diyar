@@ -5,12 +5,14 @@
 \alias{to_s4}
 \title{Change S4 objects in \code{diyar} to data frames and vice versa}
 \usage{
-to_df(s4)
+to_df(s4, ...)
 
 to_s4(df)
 }
 \arguments{
 \item{s4}{\link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects}
+
+\item{...}{Arguments passed to \code{data.frame}}
 
 \item{df}{\code{data.frame}}
 }
