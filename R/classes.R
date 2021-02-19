@@ -15,8 +15,8 @@
 setClass("number_line",
          contains = "numeric",
          representation(start = "ANY",
-                        id = "numeric",
-                        gid = "numeric"))
+                        id = "integer",
+                        gid = "integer"))
 
 #' @rdname number_line-class
 #' @param object object
@@ -109,7 +109,7 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) to_df(as.number_line(y)))))
-  x@id <- x@gid <- 1:length(x)
+  x@id <- x@gid <- seq_len(length(x))
   return(x)
 })
 
@@ -139,9 +139,6 @@ seq.number_line <- function(x,
 #' @param decreasing If \code{TRUE}, sort in descending order.
 #' @export
 sort.number_line <- function(x, decreasing = FALSE, ...){
-  db <- data.frame(sd = as.numeric(diyar::start_point(x)),
-                   id = x@id,
-                   nl= x)
   x <- x[order(start_point(x),
                end_point(x),
                decreasing = decreasing)]
@@ -153,10 +150,10 @@ sort.number_line <- function(x, decreasing = FALSE, ...){
 format.number_line <- function(x, ...){
   if (length(x) == 0) "number_line(0)"
   else{
-    x <- x[1:length(x@start)]
+    # x <- x[1:length(x@start)]
     s <- ifelse(x@.Data > 0 & !is.na(x@.Data) & !is.nan(x@.Data), "->", "??")
     s <- ifelse(x@.Data < 0 & !is.na(x@.Data) & !is.nan(x@.Data), "<-", s)
-    s <- ifelse(x@.Data== 0 & !is.na(x@.Data) & !is.nan(x@.Data), "==", s)
+    s <- ifelse(x@.Data == 0 & !is.na(x@.Data) & !is.nan(x@.Data), "==", s)
     paste(x@start, s, x@start + x@.Data, sep = " ")
   }
 }
@@ -186,8 +183,8 @@ format.number_line <- function(x, ...){
 #' @importFrom "utils" "head"
 #' @export
 setClass("epid",
-         contains = "numeric",
-         representation(sn = "numeric",
+         contains = "integer",
+         representation(sn = "integer",
                         wind_id = "list",
                         wind_nm = "character",
                         case_nm = "character",
@@ -195,9 +192,9 @@ setClass("epid",
                         dist_epid_index = "ANY",
                         epid_interval = "number_line",
                         epid_length = "ANY",
-                        epid_total = "numeric",
+                        epid_total = "integer",
                         epid_dataset = "character",
-                        iteration = "numeric",
+                        iteration = "integer",
                         options = "list"))
 
 #' @rdname epid-class
@@ -212,14 +209,14 @@ is.epid <- function(x) all(class(x) == "epid")
 #' @rdname epid-class
 #' @export
 as.epid <- function(x){
-  er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
+  er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
+  er2 <- suppressWarnings(try(as.integer(x) + 0, silent = TRUE))
 
-  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste0("`x` can't be coerced to an `epid` object"))
+  if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to an `epid` object"))
   y <- x
-  x <- as.numeric(x)
-  x[!is.finite(as.numeric(x))] <- NA
-  x <- methods::new("epid", .Data = x, sn = 1:length(x),
+  x <- as.integer(x)
+  x[!is.finite(as.integer(x))] <- NA
+  x <- methods::new("epid", .Data = x, sn = seq_len(length(x)),
                     wind_id = list(wind_id1 = rep(NA_real_, length(x))),
                     dist_wind_index = rep(NA_real_, length(x)),
                     dist_epid_index = rep(NA_real_, length(x)),
@@ -270,6 +267,58 @@ summary.epid <- function(object, ...){
                  "  Total:           ", fmt(length(object[object@case_nm == "Case"])), "\n",
                  "    Single record: ", fmt(length(object[object@case_nm == "Case" & object@epid_total == 1])), "\n")
   cat(summ)
+}
+
+#' @rdname epid-class
+#' @export
+as.data.frame.epid <- function(x, ...){
+  y <- data.frame(epid = x@.Data,
+             sn = x@sn,
+             wind_nm = x@wind_nm,
+             case_nm = x@case_nm,
+             dist_wind_index = x@dist_wind_index,
+             dist_epid_index = x@dist_epid_index,
+             epid_total = x@epid_total,
+             iteration = x@iteration,
+             ...)
+  y <- cbind(y, as.data.frame(x@wind_id, ...))
+  if(length(x@epid_interval) != 0){
+    y$epid_start <- x@epid_interval@epid_start
+    y$epid_end <- x@epid_interval@epid_end
+  }
+  if(length(x@epid_length) != 0){
+    y$pid_length = x@epid_length
+  }
+  if(length(x@epid_dataset) != 0){
+    y$epid_dataset = x@epid_dataset
+  }
+  return(y)
+}
+
+#' @rdname epid-class
+#' @export
+as.list.epid <- function(x, ...){
+  y <- list(epid = x@.Data,
+            sn = x@sn,
+            wind_nm = x@wind_nm,
+            case_nm = x@case_nm,
+            dist_wind_index = x@dist_wind_index,
+            dist_epid_index = x@dist_epid_index,
+            epid_total = x@epid_total,
+            iteration = x@iteration,
+            ...)
+  y <- c(y, x@wind_id)
+  if(length(x@epid_interval) != 0){
+    y$epid_start <- x@epid_interval@epid_start
+    y$epid_end <- x@epid_interval@epid_end
+  }
+  if(length(x@epid_length) != 0){
+    y$pid_length = x@epid_length
+  }
+  if(length(x@epid_dataset) != 0){
+    y$epid_dataset = x@epid_dataset
+  }
+  return(y)
 }
 
 #' @rdname epid-class
@@ -382,13 +431,13 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 #' @importFrom "utils" "head"
 #' @export
 setClass("pane",
-         contains = "numeric",
-         representation(sn = "numeric",
+         contains = "integer",
+         representation(sn = "integer",
                         case_nm = "character",
                         dist_pane_index = "ANY",
-                        window_list = "list", window_matched = "numeric",
+                        window_list = "list", window_matched = "integer",
                         pane_interval = "number_line",
-                        pane_length= "ANY", pane_total = "numeric",
+                        pane_length = "ANY", pane_total = "integer",
                         pane_dataset = "character",
                         options = "list"))
 
@@ -404,16 +453,16 @@ is.pane <- function(x) all(class(x) == "pane")
 #' @rdname pane-class
 #' @export
 as.pane <- function(x){
-  er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
+  er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
+  er2 <- suppressWarnings(try(as.integer(x) + 0, silent = TRUE))
 
-  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste0("`x` can't be coerced to an `pane` object"))
+  if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to an `pane` object"))
   y <- x
-  x <- as.numeric(x)
-  x[!is.finite(as.numeric(x))] <- NA
+  x <- as.integer(x)
+  x[!is.finite(as.integer(x))] <- NA
   x <- methods::new("pane",
                     .Data = x,
-                    sn = 1:length(x),
+                    sn = seq_len(length(x)),
                     window_matched = rep(NA_real_, length(x)),
                     dist_pane_index = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),
@@ -553,13 +602,13 @@ setMethod("c", signature(x = "pane"), function(x,...) {
 #' @importFrom "utils" "head"
 #' @export
 setClass("pid",
-         contains = "numeric",
-         representation(sn = "numeric",
-                        pid_cri= "numeric",
-                        link_id = "numeric",
+         contains = "integer",
+         representation(sn = "integer",
+                        pid_cri = "integer",
+                        link_id = "integer",
                         pid_dataset = "character",
-                        pid_total = "numeric",
-                        iteration = "numeric"))
+                        pid_total = "integer",
+                        iteration = "integer"))
 
 #' @rdname pid-class
 #' @examples
@@ -573,15 +622,15 @@ is.pid <- function(x) all(class(x) == "pid")
 #' @rdname pid-class
 #' @export
 as.pid <- function(x, ...){
-  er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
+  er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
+  er2 <- suppressWarnings(try(as.integer(x) + 0, silent = TRUE))
 
-  if(!is.numeric(er1) | !is.numeric(er2)) stop(paste0("`x` can't be coerced to a `pid` object"))
+  if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to a `pid` object"))
 
-  x[!is.finite(as.numeric(x))] <- NA
+  x[!is.finite(as.integer(x))] <- NA
   x <- methods::new("pid",
-                    .Data = as.numeric(x),
-                    sn = 1:length(x),
+                    .Data = as.integer(x),
+                    sn = seq_len(length(x)),
                     pid_cri = rep(NA_real_, length(x)),
                     link_id = rep(NA_real_, length(x)),
                     pid_total = rep(NA_real_, length(x)),
@@ -613,10 +662,10 @@ unique.pid <- function(x, ...){
 #' @export
 summary.pid <- function(object, ...){
   cri_dst <- table(object@pid_cri)
-  cri_n <- as.numeric(names(cri_dst))
+  cri_n <- as.integer(names(cri_dst))
   cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
   cri_dst <- cri_dst[!is.na(cri_dst)]
-  cri_n <- as.numeric(names(cri_dst))
+  cri_n <- as.integer(names(cri_dst))
   cri_dst <- paste0("       ", pid_cri_l(cri_n), ":    ", fmt(cri_dst), collapse = "\n")
   summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
                  "Records:\n",

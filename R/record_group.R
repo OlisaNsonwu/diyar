@@ -159,6 +159,8 @@ links <- function(criteria,
   pr_sn <- seq_len(ds_len)
   if(class(sn) == "NULL"){
     sn <- pr_sn
+  }else{
+    sn <- as.integer(sn)
   }
   # `data_links`
   dl_lst <- unlist(data_links, use.names = FALSE)
@@ -167,18 +169,19 @@ links <- function(criteria,
   # `display`
   display <- tolower(display)
   # Place holders for group-level options
-  tag <- rep(0, ds_len)
+  tag <- rep(0L, ds_len)
   iteration <- tag
   m_tag <- tag
-  pid_cri <- rep(Inf, ds_len)
-  sn_ref <- min(sn) - 1
+  mxp_cri <- length(criteria) + 1L
+  pid_cri <- rep(mxp_cri, ds_len)
+  sn_ref <- min(sn) - 1L
   pid <- rep(sn_ref, ds_len)
   link_id <- pid
   n_seq <- seq_len(ds_len)
 
   if(display != "none") cat("\n")
-  ite <- 1
-  for(i in 1:length(criteria)){
+  ite <- 1L
+  for(i in seq_len(length(criteria))){
     # Current stage
     cri <- criteria[[i]]
     # Standardise `criteria` input
@@ -199,13 +202,13 @@ links <- function(criteria,
     }
     # Encode current `criteria`
     cri <- match(cri, cri[!duplicated(cri)])
-    cri[lgk] <- -10
+    cri[lgk] <- -10L
 
-    force_check <- rep(0, ds_len)
+    force_check <- rep(0L, ds_len)
     skip <- force_check
     m_tag <- force_check
     min_pid <- sn_ref
-    min_m_tag <- 0
+    min_m_tag <- 0L
     while (min_pid == sn_ref | min_m_tag == -1) {
       sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = TRUE)
       for(vr in c("force_check","tag","cri",
@@ -243,13 +246,13 @@ links <- function(criteria,
       m_tag <- ifelse(m_tag == 1 &
                         sub_cri_match > 0 &
                         pid_cri <= tr_pid_cri,
-                      -1, m_tag)
+                      -1L, m_tag)
       # A re-check that doesn't lead to a change in link should not be checked again
       m_tag <- ifelse(m_tag == -1 &
                         sub_cri_match > 0 &
                         pid == tr_pid &
                         !is.na(tr_pid),
-                      1, m_tag)
+                      1L, m_tag)
 
       # Expand record groups
       pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))) &
@@ -276,19 +279,19 @@ links <- function(criteria,
 
       # Identify records that match others previously checked for a `sub_criteria`
       # Skip from another check
-      m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1, m_tag)
-      m_tag <- ifelse(m_tag != 1 & equals_ref_rd == 1, 1, m_tag)
+      m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1L, m_tag)
+      m_tag <- ifelse(m_tag != 1 & equals_ref_rd == 1, 1L, m_tag)
 
-      m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1, 1, m_tag)
+      m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1L, 1L, m_tag)
       pid <- ifelse(pid == sn_ref &
                       m_tag == 1 &
                       equals_ref_rd > 0,
                     sn, pid)
 
       skip <- ifelse(m_tag == -1 &
-                       !is.na(m_tag), 0,
+                       !is.na(m_tag), 0L,
                      ifelse(sub_cri_match > 0,
-                            1, skip))
+                            1L, skip))
       # Track checks for valid `criteria` entries
       lgk <- !is.na(cri)
       if(length(lgk[lgk]) != 0){
@@ -304,7 +307,7 @@ links <- function(criteria,
         progress_txt(length(m_tag[m_tag != 0]), ds_len, msg = msg)
       }
       iteration[pid != sn_ref & iteration == 0] <- ite
-      ite <- ite + 1
+      ite <- ite + 1L
     }
     if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
     if(display %in% c("progress", "stats")){
@@ -317,24 +320,24 @@ links <- function(criteria,
       cat(paste0(fmt(current_tot), " records(s): ", fmt(current_tot - removed)," linked.\n"))
     }
 
-    tag <- ifelse(pid %in% c(sn_ref, NA), 0, 1)
+    tag <- ifelse(pid %in% c(sn_ref, NA), 0L, 1L)
     lgk <- (!duplicated(pid) & !duplicated(pid, fromLast = TRUE)) | cri < 0
     link_id[lgk] <- sn_ref
     pid[lgk] <- sn_ref
-    tag <- ifelse(pid != sn_ref, 1, 0)
-    iteration[tag == 0 & iteration != 0] <- 0
-    pid_cri[tag ==1 & (shrink | (pid_cri == Inf & !shrink))] <- i
+    tag <- ifelse(pid != sn_ref, 1L, 0L)
+    iteration[tag == 0 & iteration != 0] <- 0L
+    pid_cri[tag == 1 & (shrink | (pid_cri == mxp_cri & !shrink))] <- i
   }
-  iteration[iteration == 0] <- ite - 1
+  iteration[iteration == 0] <- ite - 1L
   if(class(strata) != "NULL"){
-    pid_cri[pid == sn_ref & is.na(strata) & pid_cri == Inf] <- -1
+    pid_cri[pid == sn_ref & is.na(strata) & pid_cri == mxp_cri] <- -1L
   }
-  pid_cri[pid == sn_ref & pid_cri == Inf] <- 0
+  pid_cri[pid == sn_ref & pid_cri == mxp_cri] <- 0L
   link_id[pid == sn_ref] <- sn[pid == sn_ref]
   pid[pid == sn_ref] <- sn[pid == sn_ref]
 
   tmp_pos <- pr_sn
-  fd <- match(1:length(pid), tmp_pos)
+  fd <- match(seq_len(length(pid)), tmp_pos)
 
   pid_f <- pid[fd]
   pids <- methods::new("pid",
@@ -356,8 +359,8 @@ links <- function(criteria,
 
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
-      pids@pid_total[!req_links] <- 1
-      pids@pid_cri[!req_links] <- -1
+      pids@pid_total[!req_links] <- 1L
+      pids@pid_cri[!req_links] <- -1L
       pids@.Data[!req_links] <- pids@sn[!req_links]
       pids@link_id[!req_links] <- pids@sn[!req_links]
       datasets[!req_links] <- data_source[!req_links]
@@ -370,6 +373,7 @@ links <- function(criteria,
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
   if(tolower(display) != "none") cat("Records linked in ", tms, "!\n", sep = "")
+  rm(list = ls()[ls() != "pids"])
   return(pids)
 }
 
@@ -392,6 +396,8 @@ record_group <- function(df, ..., to_s4 = TRUE){
   warning(paste0("`record_group()` has been retired!:\n",
                  "i - Please use `links()` instead.\n",
                  "i - Your values were passed to `links()`."), call. = FALSE)
+
+  rm(list = ls()[ls() != "out"])
   if(to_s4 != T){
     return(to_df(out$err_nm))
   }else{
@@ -492,6 +498,7 @@ sub_criteria <- function(...,
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
   attr(sub_cris, "diyar_sub_criteria") <- TRUE
+  rm(list = ls()[ls() != "sub_cris"])
   sub_cris
 }
 
@@ -784,6 +791,7 @@ links_probabilistic <- function(attribute,
   # Output
   pids <- list(pids = pids,
                pid_weights = pid_weights)
+  rm(list = ls()[ls() != "pids"])
   return(pids)
 }
 
