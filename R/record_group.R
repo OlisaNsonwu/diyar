@@ -365,7 +365,8 @@ links <- function(criteria,
       pids@link_id[!req_links] <- pids@sn[!req_links]
       datasets[!req_links] <- data_source[!req_links]
     }
-    pids@pid_dataset <- datasets
+
+    pids@pid_dataset <- encode(datasets)
   }
 
   tm_z <- Sys.time()

@@ -606,7 +606,7 @@ setClass("pid",
          representation(sn = "integer",
                         pid_cri = "integer",
                         link_id = "integer",
-                        pid_dataset = "character",
+                        pid_dataset = "integer",
                         pid_total = "integer",
                         iteration = "integer"))
 
@@ -634,7 +634,7 @@ as.pid <- function(x, ...){
                     pid_cri = rep(NA_integer_, length(x)),
                     link_id = rep(NA_integer_, length(x)),
                     pid_total = rep(NA_integer_, length(x)),
-                    pid_dataset = rep(NA_character_, length(x)),
+                    pid_dataset = rep(NA_integer_, length(x)),
                     iteration = rep(NA_integer_, length(x)))
   return(x)
 }
@@ -661,24 +661,73 @@ unique.pid <- function(x, ...){
 #' @rdname pid-class
 #' @export
 summary.pid <- function(object, ...){
+  if(length(object) == 0) return(format(methods::new("pid")))
   cri_dst <- table(object@pid_cri)
   cri_n <- as.integer(names(cri_dst))
   cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
   cri_dst <- cri_dst[!is.na(cri_dst)]
   cri_n <- as.integer(names(cri_dst))
   cri_dst <- paste0("       ", pid_cri_l(cri_n), ":    ", fmt(cri_dst), collapse = "\n")
+
+  if(length(object@pid_dataset) > 0){
+    ds_dst <- table(attr(object@pid_dataset, "label")[match(object@pid_dataset[!duplicated(object@.Data)], attr(object@pid_dataset, "value"))])
+    ds_dst <- ds_dst[!is.na(ds_dst)]
+    ds_dst <- ds_dst[order(names(ds_dst))]
+    ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
+  }else{
+    ds_dst <- "    \"\":"
+  }
+
   summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
                  "Records:\n",
                  "  Total:           ", fmt(length(object)), "\n",
                  "    Stages:\n",
                  cri_dst, "\n",
                  "Groups:\n",
-                 "   Total:          ", fmt(length(object@.Data[!duplicated(object@.Data)])), "\n",
-                 "    Single record: ", fmt(length(object@.Data[!duplicated(object@.Data) & object@pid_total == 1])), "\n"
+                 "  Total:           ", fmt(length(object@.Data[!duplicated(object@.Data)])), "\n",
+                 "    Single record: ", fmt(length(object@.Data[!duplicated(object@.Data) & object@pid_total == 1])), "\n",
+                 "  Data sources:\n",
+                 ds_dst, "\n"
+
   )
   cat(summ)
 }
 
+#' @rdname pid-class
+#' @export
+as.data.frame.pid <- function(x, ...){
+  y <- data.frame(pid = x@.Data,
+                  sn = x@sn,
+                  pid_cri = x@pid_cri,
+                  link_id = x@link_id,
+                  pid_total = x@pid_total,
+                  iteration = x@iteration,
+                  ...)
+  if(length(x@pid_dataset) != 0){
+    y$pid_dataset <- attr(x@pid_dataset, "label")[match(x@pid_dataset, attr(x@pid_dataset, "value"))]
+  }else{
+    y$pid_dataset <- NA_character_
+  }
+  return(y)
+}
+
+#' @rdname pid-class
+#' @export
+as.list.pid <- function(x, ...){
+  y <- list(pid = x@.Data,
+            sn = x@sn,
+            pid_cri = x@pid_cri,
+            link_id = x@link_id,
+            pid_total = x@pid_total,
+            iteration = x@iteration,
+                  ...)
+  if(length(x@pid_dataset) != 0){
+    y$pid_dataset <- attr(x@pid_dataset, "label")[match(x@pid_dataset, attr(x@pid_dataset, "value"))]
+  }else{
+    y$pid_dataset <- rep(NA_character_, length(x@.Data))
+  }
+  return(y)
+}
 
 #' @rdname pid-class
 #' @param object object

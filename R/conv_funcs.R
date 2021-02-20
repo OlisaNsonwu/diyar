@@ -959,3 +959,12 @@ f_rbind <- function(x, y){
     rbind(x2, y2)
   }
 }
+
+encode <- function(x){
+  val_cd <- seq_len(length(x[!duplicated(x)]))
+  val_nm <- sort(x[!duplicated(x)])
+  x <- val_cd[match(x, val_nm)]
+  attr(x, "value") <- val_cd
+  attr(x, "label") <- val_nm
+  return(x)
+}
