@@ -190,7 +190,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   splits_sn <- unlist(splits_sn, use.names = FALSE)
   window_matched <- window_matched[match(seq_len(length(int)), splits_sn)]
 
-  case_nm <- ifelse(window_matched == 0, "Skipped", "Duplicate_I")
+  case_nm <- ifelse(window_matched == 0, -1L, 1L)
   tag <- ifelse(window_matched == 0,
                 NA_real_, cri + 1/window_matched)
   pane <- ifelse(!is.na(tag) & rep(!separate, length(int)),
@@ -212,25 +212,28 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   lgk <- !duplicated(s_pane, fromLast = TRUE) | is.na(s_pane)
   pane <- rep(s_sn[lgk], r$lengths[match(s_pane[lgk], r$values)])
   pane <- pane[match(sn, s_sn)]
-  case_nm[which(sn %in% s_sn[lgk] & case_nm != "Skipped")] <- "Index"
-  pane[case_nm == "Skipped"] <- sn
+  case_nm[which(sn %in% s_sn[lgk] & case_nm != -1)] <- 0L
+  pane[case_nm == -1] <- sn
 
   # pp <- as.numeric(names(index_sn$values))
   # qq <- as.numeric(names(s_pane))
   # pane <- rep(s_sn[match(pp, qq)], index_sn$lengths)
   # pane <- pane[match(sn, s_sn)]
-  # case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != "Skipped")] <- "Index"
+  # case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != -1)] <- 0
 
   # `pane_total`
   pane_n <- rep(r$lengths[match(s_pane[lgk], r$values)], r$lengths[match(s_pane[lgk], r$values)])
   pane_n <- pane_n[match(sn, s_sn)]
 
   # Distance of records from index record
-  ei <- pane[which(case_nm %in% c("Index", "Skipped"))]
-  ii <- int[which(case_nm %in% c("Index", "Skipped"))]
+  ei <- pane[which(case_nm %in% c(0, -1))]
+  ii <- int[which(case_nm %in% c(0, -1))]
   lgk <- match(pane, ei)
   dist_pane_index <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
     ((as.numeric(ii@start[lgk]) + as.numeric(right_point(ii[lgk]))) * .5)
+
+  attr(case_nm, "value") <- c(-1, 0, 1)
+  attr(case_nm, "label") <- c("Skipped", "Index", "Duplicate_I")
 
   # output - `pane` object
   panes <- new("pane",
@@ -251,12 +254,12 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
       panes@dist_pane_index[!req_links] <- 0
-      panes@case_nm[!req_links] <- "Skipped"
+      panes@case_nm[!req_links] <- -1L
       panes@.Data[!req_links] <- panes@sn[!req_links]
       # `pane_datasets`
       datasets[!req_links] <- data_source[!req_links]
     }
-    panes@pane_dataset <- datasets
+    panes@pane_dataset <- encode(datasets)
   }
 
   # `group_stats`

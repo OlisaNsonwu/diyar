@@ -968,3 +968,9 @@ encode <- function(x){
   attr(x, "label") <- val_nm
   return(x)
 }
+
+decode <- function(x){
+  return(
+    attr(x, "label")[match(x, attr(x, "value"))]
+  )
+}

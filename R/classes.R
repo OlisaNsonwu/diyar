@@ -433,12 +433,12 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 setClass("pane",
          contains = "integer",
          representation(sn = "integer",
-                        case_nm = "character",
+                        case_nm = "integer",
                         dist_pane_index = "ANY",
                         window_list = "list", window_matched = "integer",
                         pane_interval = "number_line",
                         pane_length = "ANY", pane_total = "integer",
-                        pane_dataset = "character",
+                        pane_dataset = "integer",
                         options = "list"))
 
 #' @rdname pane-class
@@ -465,10 +465,10 @@ as.pane <- function(x){
                     sn = seq_len(length(x)),
                     window_matched = rep(NA_integer_, length(x)),
                     dist_pane_index = rep(NA_real_, length(x)),
-                    case_nm = rep(NA_character_, length(x)),
+                    case_nm = rep(NA_integer_, length(x)),
                     pane_interval = as.number_line(rep(NA_integer_, length(x))),
                     pane_total = rep(NA_integer_, length(x)),
-                    pane_dataset = rep(NA_character_, length(x)))
+                    pane_dataset = rep(NA_integer_, length(x)))
 
   if(class(y) == "number_line"){
     x@pane_interval <- y
@@ -489,7 +489,7 @@ format.pane <- function(x, ...){
                   ifelse(is.na(x@pane_interval),
                          "",
                          paste0(" ", format.number_line(x@pane_interval))),
-                  " (", substr(x@case_nm, 1, 1), ")"))
+                  " (", substr(decode(x@case_nm), 1, 1), ")"))
     }
 }
 
@@ -503,13 +503,91 @@ unique.pane <- function(x, ...){
 #' @rdname pane-class
 #' @export
 summary.pane <- function(object, ...){
+  if(length(object@pane_dataset) > 0){
+    ds_dst <- table(attr(object@pane_dataset, "label")[match(object@pane_dataset[!duplicated(object@.Data)], attr(object@pid_dataset, "value"))])
+    ds_dst <- ds_dst[!is.na(ds_dst)]
+    ds_dst <- ds_dst[order(names(ds_dst))]
+    ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
+  }else{
+    ds_dst <- "    \"\":"
+  }
   summ <- paste0("Records:\n",
                  "  Total:           ", fmt(length(object)), "\n",
                  "    Skipped:       ", fmt(length(object[object@case_nm == "Skipped"])), "\n",
                  "Panes:\n",
                  "  Total:           ", fmt(length(object[object@case_nm == "Index"])), "\n",
-                 "    Single record: ", fmt(length(object[object@case_nm == "Index" & object@pane_total == 1])), "\n")
+                 "    Single record: ", fmt(length(object[object@case_nm == "Index" & object@pane_total == 1])), "\n",
+                 "  Data sources:\n",
+                 ds_dst, "\n")
   cat(summ)
+}
+
+#' @rdname pane-class
+#' @export
+as.data.frame.pane <- function(x, ...){
+  y <- data.frame(pane = x@.Data,
+                  sn = x@sn,
+                  case_nm = decode(x@case_nm),
+                  dist_pane_index = x@dist_pane_index,
+                  dist_pane_index = x@dist_pane_index,
+                  window_matched = x@window_matched,
+                  pane_total = x@pane_total,
+                  ...)
+  if(length(x@pane_interval) != 0){
+    y$pane_start <- x@pane_interval@start
+    y$pane_end <- right_point(x@pane_interval)
+  }else{
+    y$pane_start <- NA_integer_
+    y$pane_end <- NA_integer_
+  }
+  if(length(x@pane_length) != 0){
+    y$pane_length <- x@pane_length
+  }else{
+    y$pane_length <- NA_integer_
+  }
+  if(length(x@pane_dataset) != 0){
+    y$pane_dataset <- decode(x@pane_dataset)
+  }else{
+    y$pane_dataset <- NA_character_
+  }
+  window_list <- lapply(x@window_list[!duplicated(x@window_list)], function(x){
+    listr(format(number_line(round(x@start, 2), round(right_point(x), 2))), conj = ",")
+  })
+  y$window_list <- as.character(window_list[match(names(x@window_list), names(window_list))])
+  return(y)
+}
+
+#' @rdname pane-class
+#' @export
+as.list.pane <- function(x, ...){
+  y <- list(pane = x@.Data,
+            sn = x@sn,
+            case_nm = decode(x@case_nm),
+            dist_pane_index = x@dist_pane_index,
+            dist_pane_index = x@dist_pane_index,
+            window_matched = x@window_matched,
+            pane_total = x@pane_total,
+            ...)
+  if(length(x@pane_interval) != 0){
+    y$pane_start <- x@pane_interval@start
+    y$pane_end <- right_point(x@pane_interval)
+  }else{
+    y$pane_start <- rep(NA_integer_, length(x@.Data))
+    y$pane_end <- rep(NA_integer_, length(x@.Data))
+  }
+  if(length(x@pane_length) != 0){
+    y$pane_length <- x@pane_length
+  }else{
+    y$pane_length <- rep(NA_integer_, length(x@.Data))
+  }
+  if(length(x@pane_dataset) != 0){
+    y$pane_dataset <- decode(x@pane_dataset)
+  }else{
+    y$pane_dataset <- rep(NA_character_, length(x@.Data))
+  }
+  window_list <- lapply(x@window_list[!duplicated(x@window_list)], function(x) listr(format(x), conj = ","))
+  y$window_list <- as.character(window_list[match(names(x@window_list), names(window_list))])
+  return(y)
 }
 
 #' @rdname pane-class
@@ -704,7 +782,7 @@ as.data.frame.pid <- function(x, ...){
                   iteration = x@iteration,
                   ...)
   if(length(x@pid_dataset) != 0){
-    y$pid_dataset <- attr(x@pid_dataset, "label")[match(x@pid_dataset, attr(x@pid_dataset, "value"))]
+    y$pid_dataset <- decode(x@pid_dataset)
   }else{
     y$pid_dataset <- NA_character_
   }

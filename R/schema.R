@@ -47,7 +47,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
   if(!is.null(custom_label)){
     plt_df$custom_label <- custom_label
   }
-  plt_df <- to_df(panes)
+  plt_df <- as.data.frame(panes)
   plt_df$start <- as.number_line(x@options$date)@start
   plt_df$end <- right_point(as.number_line(x@options$date))
   plt_df$epid <- as.character(panes@.Data)
@@ -675,7 +675,7 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
   if(!is.null(seed)) set.seed(seed)
   # Plot data
   pids <- x
-  pl_dt <- to_df(pids)
+  pl_dt <- as.data.frame(pids)
   if(!is.null(custom_label)){
     pl_dt$custom_label <- custom_label
   }
