@@ -156,11 +156,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 case_length_total = case_length_total,
                                 recurrence_length_total = recurrence_length_total)
 
-  options_lst = list(date = as.number_line(date),
+  options_lst = list(date = date,
                      strata = strata,
                      case_length = if(class(case_length) != "list") list(case_length) else case_length,
                      recurrence_length = if(class(recurrence_length) != "list") list(recurrence_length) else recurrence_length,
-                     episode_type = episode_type,
                      episode_unit = episode_unit,
                      from_last = from_last)
 

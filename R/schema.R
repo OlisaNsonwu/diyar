@@ -266,7 +266,6 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                             case_length = x@options$case_length,
                             recurrence_length = x@options$recurrence_length,
                             episode_unit = x@options$episode_unit,
-                            episode_type = x@options$episode_type,
                             from_last = x@options$from_last,
                             title = title,
                             show_labels = show_labels,
@@ -279,7 +278,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   if(!is.null(seed)) set.seed(seed)
   # Standardise inputs
   # `date`
-  int <- x@options$date
+  int <- as.number_line(x@options$date)
   is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(isTRUE(is_dt)){
     int <- number_line(
@@ -303,7 +302,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                           date = int,
                           from_last = x@options$from_last,
                           episode_unit = episode_unit)
-  any_rolling <- any(x@options$episode_type %in% c("rolling", "recursive"))
+  any_rolling <- any(x@wind_nm == "Recurrence")
   if(any_rolling){
     recurrence_length <- x@options$recurrence_length
     # `recurrence_length`

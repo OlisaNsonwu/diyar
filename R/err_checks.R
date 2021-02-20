@@ -1584,7 +1584,6 @@ err_strata_level_args <- function(arg, strata, arg_nm){
                                 case_length,
                                 recurrence_length,
                                 episode_unit,
-                                episode_type,
                                 from_last,
                                 title,
                                 show_labels,
@@ -1600,7 +1599,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     errs <- err_episodes_checks_0(date = date, case_length = case_length,
                                   recurrence_length = recurrence_length,
                                   episode_unit = episode_unit,
-                                  episode_type = episode_type, from_last = from_last)
+                                  from_last = from_last)
 
     if(!isFALSE(errs)) return(errs)
 
