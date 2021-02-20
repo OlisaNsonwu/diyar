@@ -761,7 +761,7 @@ pane_checks <- function(dates, windows){
     checks <- t(checks)
   }
   ep_checks <- Rfast::rowMaxs(checks, value = TRUE)
-  ep_checks
+  as.integer(ep_checks)
 }
 
 check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, int, case_nm){

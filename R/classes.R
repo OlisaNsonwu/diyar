@@ -210,22 +210,22 @@ is.epid <- function(x) all(class(x) == "epid")
 #' @export
 as.epid <- function(x){
   er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.integer(x) + 0, silent = TRUE))
+  er2 <- suppressWarnings(try(as.integer(x) + 0L, silent = TRUE))
 
   if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to an `epid` object"))
   y <- x
   x <- as.integer(x)
   x[!is.finite(as.integer(x))] <- NA
   x <- methods::new("epid", .Data = x, sn = seq_len(length(x)),
-                    wind_id = list(wind_id1 = rep(NA_real_, length(x))),
+                    wind_id = list(wind_id1 = rep(NA_integer_, length(x))),
                     dist_wind_index = rep(NA_real_, length(x)),
                     dist_epid_index = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),
                     wind_nm = rep(NA_character_, length(x)),
                     epid_interval = as.number_line(rep(NA_real_, length(x))),
-                    epid_total = rep(NA_real_, length(x)),
+                    epid_total = rep(NA_integer_, length(x)),
                     epid_dataset = rep(NA_character_, length(x)),
-                    iteration = rep(NA_real_, length(x))
+                    iteration = rep(NA_integer_, length(x))
                     )
 
   if(class(y) == "number_line"){
@@ -454,7 +454,7 @@ is.pane <- function(x) all(class(x) == "pane")
 #' @export
 as.pane <- function(x){
   er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.integer(x) + 0, silent = TRUE))
+  er2 <- suppressWarnings(try(as.integer(x) + 0L, silent = TRUE))
 
   if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to an `pane` object"))
   y <- x
@@ -463,11 +463,11 @@ as.pane <- function(x){
   x <- methods::new("pane",
                     .Data = x,
                     sn = seq_len(length(x)),
-                    window_matched = rep(NA_real_, length(x)),
+                    window_matched = rep(NA_integer_, length(x)),
                     dist_pane_index = rep(NA_real_, length(x)),
                     case_nm = rep(NA_character_, length(x)),
-                    pane_interval = as.number_line(rep(NA_real_, length(x))),
-                    pane_total = rep(NA_real_, length(x)),
+                    pane_interval = as.number_line(rep(NA_integer_, length(x))),
+                    pane_total = rep(NA_integer_, length(x)),
                     pane_dataset = rep(NA_character_, length(x)))
 
   if(class(y) == "number_line"){
@@ -623,7 +623,7 @@ is.pid <- function(x) all(class(x) == "pid")
 #' @export
 as.pid <- function(x, ...){
   er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.integer(x) + 0, silent = TRUE))
+  er2 <- suppressWarnings(try(as.integer(x) + 0L, silent = TRUE))
 
   if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to a `pid` object"))
 
@@ -631,11 +631,11 @@ as.pid <- function(x, ...){
   x <- methods::new("pid",
                     .Data = as.integer(x),
                     sn = seq_len(length(x)),
-                    pid_cri = rep(NA_real_, length(x)),
-                    link_id = rep(NA_real_, length(x)),
-                    pid_total = rep(NA_real_, length(x)),
+                    pid_cri = rep(NA_integer_, length(x)),
+                    link_id = rep(NA_integer_, length(x)),
+                    pid_total = rep(NA_integer_, length(x)),
                     pid_dataset = rep(NA_character_, length(x)),
-                    iteration = rep(NA_real_, length(x)))
+                    iteration = rep(NA_integer_, length(x)))
   return(x)
 }
 

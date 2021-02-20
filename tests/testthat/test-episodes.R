@@ -18,7 +18,7 @@ data$d <- data$episode_len * diyar::episode_unit$days
 
 data$rd_id <- 1:nrow(data)
 data$date_int <- as.number_line(data$date)
-data$date_int@id <- 1
+#data$date_int@id <- 1L
 
 episodes <- function(..., to_s4 = T){
   if(to_s4 == F){
@@ -285,10 +285,10 @@ test_8a <- cbind(hospital_infections,
 e_int <- number_line(dttm(format(test_8a$date, "%d/%m/%Y 00:00:00")), dttm(format(test_8a$date, "%d/%m/%Y 00:00:00")))
 
 test_that("testing; episode grouping by the hour", {
-  expect_equal(test_8a$epid, 1:11)
+  expect_equal(test_8a$epid, 1L:11L)
   expect_equal(test_8a$case_nm, rep("Case",11))
 
-  e_int@gid <- e_int@id <- 1:11
+  e_int@gid <- e_int@id <- 1L:11L
 
   expect_equal(test_8a$epid_start, left_point(e_int))
   expect_equal(test_8a$epid_end, right_point(e_int))
@@ -306,15 +306,15 @@ r <- rep("01/04/2018 00:00:00", 11)
 e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing; episode grouping by weeks", {
-  expect_equal(test_8b$epid, rep(11,11))
+  expect_equal(test_8b$epid, rep(11L, 11))
 
-  e_int@id <- 1:11
-  e_int@gid <- rep(11,11)
+  e_int@id <- 1L:11L
+  e_int@gid <- rep(11L, 11)
 
   expect_equal(test_8b$case_nm, c(rep("Duplicate_C",10),"Case"))
   expect_equal(test_8b$epid_start, left_point(e_int))
   expect_equal(test_8b$epid_end, right_point(e_int))
-  expect_equal(test_8b$epid_total, rep(11,11))
+  expect_equal(test_8b$epid_total, rep(11L, 11))
   expect_equal(round(test_8b$epid_length,6), as.difftime(rep(-8.571429,11), units = "weeks"))
 })
 
@@ -341,8 +341,8 @@ test_that("testing episode; custom sort", {
   expect_equal(test_9a$epid, c(1,rep(2,6), rep(8,3), 11))
   expect_equal(test_9a$case_nm, c("Case","Case",rep("Duplicate_C",5),"Case", rep("Duplicate_C",2), "Case"))
 
-  e_int@id <- 1:11
-  e_int@gid <- c(1,rep(2,6), rep(8,3), 11)
+  e_int@id <- 1L:11L
+  e_int@gid <- as.integer(c(1,rep(2,6), rep(8,3), 11))
 
   expect_equal(test_9a$epid_start, left_point(e_int))
   expect_equal(test_9a$epid_end, right_point(e_int))
@@ -376,15 +376,15 @@ test_that("testing; episode grouping with custom sort and bi_direction", {
   expect_equal(test_9b$epid.1, rep(10,11))
   expect_equal(test_9b$case_nm.1, c(rep("Duplicate_C",9),"Case","Duplicate_C"))
 
-  e_int.2@id <- e_int.1@id <- 1:11
-  e_int.1@gid <- rep(10,11)
+  e_int.2@id <- e_int.1@id <- 1L:11L
+  e_int.1@gid <- as.integer(rep(10,11))
 
   expect_equal(test_9b$epid_start.1, left_point(e_int.1))
   expect_equal(test_9b$epid_end.1, right_point(e_int.1))
-  expect_equal(test_9b$epid_total.1, rep(11,11))
+  expect_equal(test_9b$epid_total.1, rep(11L, 11))
   expect_equal(test_9b$epid_length.1, as.difftime(rep(-60,11), units = "days" ))
 
-  e_int.2@gid <- c(rep(10,10), 11)
+  e_int.2@gid <- as.integer(c(rep(10,10), 11))
 
   expect_equal(test_9b$epid.2, c(rep(10,10), 11))
   expect_equal(test_9b$case_nm.2, c(rep("Duplicate_C",9),"Case","Case"))
@@ -412,8 +412,8 @@ test_that("testing; stratified grouping", {
   expect_equal(test_10a$epid, c(rep(1,3), 4:8, rep(9,3)))
   expect_equal(test_10a$case_nm, c("Case",rep("Duplicate_C",2), rep("Skipped",5), "Case", rep("Duplicate_C",2)))
 
-  e_int@id <- 1:11
-  e_int@gid <- c(rep(1,3), 4:8, rep(9,3))
+  e_int@id <- 1L:11L
+  e_int@gid <- as.integer(c(rep(1,3), 4:8, rep(9,3)))
 
   expect_equal(test_10a$epid_start, left_point(e_int))
   expect_equal(test_10a$epid_end, right_point(e_int))
@@ -453,8 +453,8 @@ test_that("testing; stratified grouping 2", {
   expect_equal(test_10b$case_nm, c("Case","Case","Duplicate_C","Recurrent",
                                    "Recurrent", "Duplicate_R", "Recurrent",
                                    "Duplicate_R","Case","Duplicate_C","Case"))
-  e_int@id <- 1:11
-  e_int@gid <- c(1,2,2,2,1,2,1,1,9,9, 11)
+  e_int@id <- 1L:11L
+  e_int@gid <- as.integer(c(1,2,2,2,1,2,1,1,9,9, 11))
 
   expect_equal(test_10b$epid_start, left_point(e_int))
   expect_equal(test_10b$epid_end, right_point(e_int))
@@ -467,7 +467,7 @@ admissions <- diyar::hospital_admissions
 admissions$epi_len <- 0
 admissions$admin_period <- number_line(admissions$admin_dt, admissions$discharge_dt)
 
-admissions <- admissions[1:9,]
+admissions <- admissions[1L:9L,]
 admissions
 
 # episodes of overlapping intervals of admission
@@ -485,8 +485,8 @@ test_that("testing; intervals grouping", {
   expect_equal(test_11a$epid, c(rep(2,7), rep(8,2)))
   expect_equal(test_11a$case_nm, c("Duplicate_C","Case", rep("Duplicate_C",5),
                                    "Case", "Duplicate_C"))
-  e_int@id <- 1:9
-  e_int@gid <- c(rep(2,7), rep(8,2))
+  e_int@id <- 1L:9L
+  e_int@gid <- as.integer(c(rep(2,7), rep(8,2)))
 
   expect_equal(test_11a$epid_start, left_point(e_int))
   expect_equal(test_11a$epid_end, right_point(e_int))
@@ -510,11 +510,11 @@ r <- rep("31/01/2019 00:00:00", 9)
 e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing; intervals grouping for rolling intervals", {
-  expect_equal(test_11b$epid, rep(2,9))
+  expect_equal(test_11b$epid, rep(2L, 9))
   expect_equal(test_11b$case_nm, c("Duplicate_C","Case",rep("Duplicate_C",5),
                                    "Recurrent", "Duplicate_R"))
-  e_int@id <- 1:9
-  e_int@gid <- rep(2,9)
+  e_int@id <- 1L:9L
+  e_int@gid <- rep(2L, 9)
 
   expect_equal(test_11b$epid_start, left_point(e_int))
   expect_equal(test_11b$epid_end, right_point(e_int))
@@ -534,10 +534,10 @@ r <- rep("31/01/2019 00:00:00", 9)
 e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing; intervals grouping with a case length", {
-  expect_equal(test_11c$epid, rep(2,9))
+  expect_equal(test_11c$epid, rep(2L, 9))
   expect_equal(test_11c$case_nm, c("Duplicate_C","Case",rep("Duplicate_C",7)))
-  e_int@id <- 1:9
-  e_int@gid <- rep(2,9)
+  e_int@id <- 1L:9L
+  e_int@gid <- rep(2L, 9)
   expect_equal(test_11b$epid_start, left_point(e_int))
   expect_equal(test_11b$epid_end, right_point(e_int))
   expect_equal(test_11c$epid_total, rep(9,9))
@@ -553,10 +553,10 @@ test_that("test that fixed_episodes() with numeric 'date' works the same as comp
 
 test_that("test some generic functions", {
   expect_equal(show(new("epid")), "epid(0)")
-  b <- rep(as.epid(5), 2)
+  b <- rep(as.epid(5L), 2)
   b@epid_interval@gid <- b@epid_interval@id <- 1:length(b)
   # temp
-  #expect_equal(c(as.epid(5), as.epid(5)), b)
+  #expect_equal(c(as.epid(5L), as.epid(5L)), b)
 })
 
 x1 <- c("01/04/2019", "04/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")

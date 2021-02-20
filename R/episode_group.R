@@ -662,7 +662,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(cr) == 1){
       vr <- cr[[1]]
     }else{
-      vr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.integer(x)), value = TRUE))
+      vr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE))
     }
 
     cr <- lapply(1:length(ep_checks), function(i){
@@ -672,7 +672,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         dst <- rle(sort(cri[cr & !duplicated(ep_checks) & ep_checks != 0]))
         ep_phits <- rep(0L, current_tot)
         ep_phits[cr] <- dst$lengths[match(cri[cr], dst$values)]
-        cr[!ref_rd & cr & !(ep_phits >= as.integer(lead_epl_min@start) & ep_phits <= as.integer(right_point(lead_epl_min)))] <- FALSE
+        cr[!ref_rd & cr & !(ep_phits >= as.numeric(lead_epl_min@start) & ep_phits <= as.numeric(right_point(lead_epl_min)))] <- FALSE
         cr
       }else{
         cr[[i]]
@@ -682,7 +682,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(cr) == 1){
       cr <- cr[[1]]
     }else{
-      cr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.integer(x)), value = TRUE))
+      cr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE))
     }
 
     # Implement `case_sub_criteria`
@@ -698,7 +698,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(c_sub_cri) == 1){
       c_sub_cri <- c_sub_cri[[1]]
     }else{
-      c_sub_cri <- as.logical(Rfast::rowMaxs(sapply(c_sub_cri, function(x) as.integer(x)), value = TRUE))
+      c_sub_cri <- as.logical(Rfast::rowMaxs(sapply(c_sub_cri, function(x) as.numeric(x)), value = TRUE))
     }
 
     cr[!c_sub_cri & cr & !ref_rd & tr_tag %in% c(0, -2)] <- FALSE
@@ -748,7 +748,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(length(cr2) == 1){
         vr2 <- cr2[[1]]
       }else{
-        vr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.integer(x)), value = TRUE))
+        vr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE))
       }
 
       cr2 <- lapply(1:length(rc_checks), function(i){
@@ -764,7 +764,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           ]))
           rc_phits <- rep(0, current_tot)
           rc_phits[cr2] <- dst$lengths[match(cri[cr2], dst$values)]
-          cr2[!ref_rd & cr2 & !(rc_phits >= as.integer(lead_rcl_min@start) & rc_phits <= as.integer(right_point(lead_rcl_min)))] <- FALSE
+          cr2[!ref_rd & cr2 & !(rc_phits >= as.numeric(lead_rcl_min@start) & rc_phits <= as.numeric(right_point(lead_rcl_min)))] <- FALSE
           cr2
         }else{
           cr2[[i]]
@@ -774,7 +774,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(length(cr2) == 1){
         cr2 <- cr2[[1]]
       }else{
-        cr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.integer(x)), value = TRUE))
+        cr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE))
       }
 
       r_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
@@ -789,7 +789,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(length(r_sub_cri) == 1){
         r_sub_cri <- r_sub_cri[[1]]
       }else{
-        r_sub_cri <- as.logical(Rfast::rowMaxs(sapply(r_sub_cri, function(x) as.integer(x)), value = TRUE))
+        r_sub_cri <- as.logical(Rfast::rowMaxs(sapply(r_sub_cri, function(x) as.numeric(x)), value = TRUE))
       }
 
       cr2[!r_sub_cri & cr2 & !ref_rd & tr_tag %in% c(-1)] <- FALSE

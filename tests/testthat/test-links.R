@@ -47,7 +47,7 @@ test_that("test that test `NAs` are treated as unique record groups", {
 test_3a <- data.frame(
   cri_1 = c("A","C","Z","V","F","G","G"),
   cri_2 = c("CC","AA","CC","VV","AA","CB","CC"),
-  r_id = c(1:7),
+  r_id = c(1L:7L),
 
   stringsAsFactors = FALSE
 )
@@ -75,7 +75,7 @@ df_4a <- data.frame(
   cri_2a = c("A","B","D","X","F","G","G"),
   cri_2b = c("B","B","D","X","F","G","I"),
   cri_2c = c("A","C","A","A","F","G","I"),
-  r_id = c(1:7),
+  r_id = c(1L:7L),
 
   stringsAsFactors = FALSE
 )
@@ -99,7 +99,7 @@ df_5a <- data.frame(
   cri_2b = c("B","B","D","X","F","G","I"),
   cri_2c = c("A","B","D","X","F","G","G"),
   cri_2d = c("T","T","Z","V","F","H","J"),
-  r_id = c(1:7),
+  r_id = c(1L:7L),
 
   stringsAsFactors = FALSE
 )
@@ -134,14 +134,14 @@ test_that("test record grouping for deterministic linkage", {
 
 #Test 7 - Range matching
 df_7 <- data.frame(
-  r_id = 1:15,
+  r_id = as.integer(1:15),
   cri_1 = c(rep("P1",5), rep("P2",10)),
-  age = c(10,15,9,40,42,50,70,57,55,34,12, 35,39,20,11),
+  age = as.integer(c(10,15,9,40,42,50,70,57,55,34,12, 35,39,20,11)),
   stringsAsFactors = TRUE
 )
 
-df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5, df_7$age+5, gid = df_7$age)
-df_7$corrupt_range@gid[3] <- 205
+df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5L, df_7$age+5L, gid = df_7$age)
+df_7$corrupt_range@gid[3] <- 205L
 
 test_7b <- test_7 <- df_7
 test_7$pids <- links(sn = df_7$r_id,

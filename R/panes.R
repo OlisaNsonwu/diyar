@@ -108,7 +108,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   int@id <- seq_len(length(int))
   # `strata`
   if(length(strata) == 1) {
-    cri <- rep(1, length(int))
+    cri <- rep(1L, length(int))
     cri_l <- rep(strata, length(int))
   }else if(is.null(strata)){
     cri <- rep(1, length(int))
@@ -125,7 +125,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     c_sort <- as.numeric(as.factor(custom_sort))
     if(length(c_sort) == 1) c_sort <- rep(c_sort, length(int))
   }else{
-    c_sort <- rep(0, length(int))
+    c_sort <- rep(0L, length(int))
   }
   # `windows_total`
   if(is.number_line(windows_total)){
@@ -143,7 +143,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   if(!is.null(by) | !is.null(length.out) | length(window) > 1){
     split_cri <- cri
   }else{
-    split_cri <- rep(1, length(int))
+    split_cri <- rep(1L, length(int))
   }
   splits <- split(int, split_cri)
   splits_sn <- split(int@id, split_cri)

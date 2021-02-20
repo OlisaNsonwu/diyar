@@ -390,19 +390,19 @@ record_group <- function(df, ..., to_s4 = TRUE){
   }
 
   out <- bridge_record_group(df = df, args = args)
-  if(out$err_cd == F) {
+  if(out$err_cd == FALSE) {
     stop(out$err_nm, call. = FALSE)
   }
   warning(paste0("`record_group()` has been retired!:\n",
                  "i - Please use `links()` instead.\n",
                  "i - Your values were passed to `links()`."), call. = FALSE)
-
-  rm(list = ls()[ls() != "out"])
-  if(to_s4 != T){
-    return(to_df(out$err_nm))
+  if(to_s4 != TRUE){
+    out <- to_df(out$err_nm)
   }else{
-    return(out$err_nm)
+    out <- out$err_nm
   }
+  rm(list = ls()[ls() != "out"])
+  return(out)
 }
 #' @name sub_criteria
 #' @aliases sub_criteria

@@ -230,8 +230,8 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
     ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, label = .data$win_l), color = txt_col, data = border, nudge_y = .05, size = 5)
   if(!isFALSE(show_labels)){
     f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,3.5), 500, plot_pts), vjust = "bottom", alpha = .7) +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,3.5), 500, plot_pts), vjust = "top", alpha = .7)
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha = .7) +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "top", alpha = .7)
   }
   if(!is.null(title)){
     f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y = 2.2, label = title), colour = txt_col, size = 5)
@@ -626,11 +626,11 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
         ggplot2::geom_segment(ggplot2::aes(x = .data$pt_end, y = .data$y, xend = .data$start, yend = .data$y), linetype = "dotted", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$epid_total > 1 & case_l_ar$start != 0 & case_l_ar$end != 0,])
     }
     if("length_label" %in% show_labels){
-      f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$epid_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,3.5), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
+      f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$epid_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
     }
     f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,3.5), 500, plot_pts), vjust = "bottom", alpha= .7) +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,3.5), 500, plot_pts), vjust = "top", alpha= .7)
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha= .7) +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "top", alpha= .7)
   }
   if(!is.null(title)){
     f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y= 2.15, label = title), colour = txt_col, size = 5)
@@ -787,8 +787,8 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
     ggplot2::geom_text(ggplot2::aes(x = (.data$x1 + .data$x2)/2, y = (.data$y1 + .data$y2)/2, label = .data$pid_box_cri), size = scale_size(c(9, 30), 125, boxes_n), color = txt_col, alpha = scale_size(c(.1, .2), 125, boxes_n, decreasing = FALSE), data = border)
   if(!isFALSE(show_labels)){
     f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$event_nm), nudge_y = scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "bottom", size = scale_size(c(2,3.5), 125, boxes_n), alpha = .7) +
-      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$pid_l), nudge_y = -scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "top", size = scale_size(c(2,3.5), 125, boxes_n), alpha = .7)
+      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$event_nm), nudge_y = scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "bottom", size = scale_size(c(2,4), 125, boxes_n), alpha = .7) +
+      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$pid_l), nudge_y = -scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "top", size = scale_size(c(2,4), 125, boxes_n), alpha = .7)
   }
 
   if(!is.null(title)){
