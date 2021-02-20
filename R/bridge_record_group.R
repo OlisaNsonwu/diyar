@@ -171,7 +171,7 @@ bridge_record_group <- function(df, args){
   args <- paste0("diyar::links(", gsub("^,", "", args), ")" )
   if(length(to_s4_arg) > 0){
     to_s4 <- ifelse(all(eval(to_s4_arg$to_s4) == F), F, T)
-    args <- ifelse(to_s4 == F, paste0("diyar::to_df(", args, ")"), args)
+    args <- ifelse(to_s4 == F, paste0("as.data.frame(", args, ")"), args)
   }
   # Eval
   pids <- eval(parse(text = args))

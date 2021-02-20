@@ -493,8 +493,8 @@ box_ring <- function(boxes_w = 3, order = 1){
 }
 
 l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
-  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != "Skipped" & pltd$wind_nm == wind_nm,]
-  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != "Skipped"
+  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != -1 & pltd$wind_nm == wind_nm,]
+  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != -1
   lar <- pltd[lgk,]
   lens <- lapply(lens, function(x) x[lgk])
   rec_ls <- nrow(lar)
@@ -519,7 +519,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$nl_nm <- "len"
       #lar$nl_nm <- "dts"
       #lar$wind_nm_l <- ""
-      y$wind_nm_l <- ifelse(winds$wind_nm == "Case", "Case length", "Recurrence length")
+      y$wind_nm_l <- ifelse(winds$wind_nm == 0, "Case length", "Recurrence length")
       y$bi_dir <- start_point(x) < lar$end & end_point(x) > lar$end
       y <- y[!is.na(y$start) & !is.na(y$end),]
       if(nrow(y) > 0){
@@ -604,7 +604,7 @@ length_to_range <- function(lengths, date, from_last, episode_unit){
     if(length(x) == 1){
       x <- rep(x, length(date))
     }
-    x <- epid_windows(date, x, episode_unit)
+    x <- epid_windows(date, x, names(diyar::episode_unit)[episode_unit])
     return(x)
   })
   return(len)
@@ -789,7 +789,7 @@ check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, i
     indx <- (ep_obds_checks &
                !cr[lgk] &
                cri[lgk] %in% skp_crxt &
-               case_nm[lgk] == "")
+               is.na(case_nm[lgk]))
     lgk <- which(lgk == TRUE)[indx == TRUE]
     return(lgk)
   }else{

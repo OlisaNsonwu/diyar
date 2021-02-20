@@ -186,14 +186,14 @@ setClass("epid",
          contains = "integer",
          representation(sn = "integer",
                         wind_id = "list",
-                        wind_nm = "character",
-                        case_nm = "character",
+                        wind_nm = "integer",
+                        case_nm = "integer",
                         dist_wind_index = "ANY",
                         dist_epid_index = "ANY",
                         epid_interval = "number_line",
                         epid_length = "ANY",
                         epid_total = "integer",
-                        epid_dataset = "character",
+                        epid_dataset = "integer",
                         iteration = "integer",
                         options = "list"))
 
@@ -220,11 +220,11 @@ as.epid <- function(x){
                     wind_id = list(wind_id1 = rep(NA_integer_, length(x))),
                     dist_wind_index = rep(NA_real_, length(x)),
                     dist_epid_index = rep(NA_real_, length(x)),
-                    case_nm = rep(NA_character_, length(x)),
-                    wind_nm = rep(NA_character_, length(x)),
+                    case_nm = rep(NA_integer_, length(x)),
+                    wind_nm = rep(NA_integer_, length(x)),
                     epid_interval = as.number_line(rep(NA_real_, length(x))),
                     epid_total = rep(NA_integer_, length(x)),
-                    epid_dataset = rep(NA_character_, length(x)),
+                    epid_dataset = rep(NA_integer_, length(x)),
                     iteration = rep(NA_integer_, length(x))
                     )
 
@@ -247,25 +247,36 @@ format.epid <- function(x, ...){
                     ifelse(is.na(x@epid_interval),
                            "",
                            paste0(" ", format.number_line(x@epid_interval))),
-                    " (", substr(x@case_nm, 1, 1), ")"))}
+                    " (", c("S", "C", "R", "D", "D")[x@case_nm + 2L], ")"))}
 }
 
 #' @rdname epid-class
 #' @export
 unique.epid <- function(x, ...){
-  return(x[x@case_nm == "Case"])
+  return(x[x@case_nm == 0])
 }
 
 #' @rdname epid-class
 #' @export
 summary.epid <- function(object, ...){
+  if(length(object@epid_dataset) > 0){
+    ds_dst <- table(attr(object@epid_dataset, "label")[match(object@epid_dataset[!duplicated(object@.Data)], attr(object@pid_dataset, "value"))])
+    ds_dst <- ds_dst[!is.na(ds_dst)]
+    ds_dst <- ds_dst[order(names(ds_dst))]
+    ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
+  }else{
+    ds_dst <- "    \"\":"
+  }
+
   summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
                  "Records:\n",
                  "  Total:           ", fmt(length(object)), "\n",
                  "    Skipped:       ", fmt(length(object[object@case_nm == "Skipped"])), "\n",
                  "Episodes:\n",
                  "  Total:           ", fmt(length(object[object@case_nm == "Case"])), "\n",
-                 "    Single record: ", fmt(length(object[object@case_nm == "Case" & object@epid_total == 1])), "\n")
+                 "    Single record: ", fmt(length(object[object@case_nm == "Case" & object@epid_total == 1])), "\n",
+                 "  Data sources:\n",
+                 ds_dst, "\n")
   cat(summ)
 }
 
@@ -273,24 +284,31 @@ summary.epid <- function(object, ...){
 #' @export
 as.data.frame.epid <- function(x, ...){
   y <- data.frame(epid = x@.Data,
-             sn = x@sn,
-             wind_nm = x@wind_nm,
-             case_nm = x@case_nm,
-             dist_wind_index = x@dist_wind_index,
-             dist_epid_index = x@dist_epid_index,
-             epid_total = x@epid_total,
-             iteration = x@iteration,
-             ...)
+                  sn = x@sn,
+                  wind_nm = decode(x@wind_nm),
+                  case_nm = decode(x@case_nm),
+                  dist_wind_index = x@dist_wind_index,
+                  dist_epid_index = x@dist_epid_index,
+                  epid_total = x@epid_total,
+                  iteration = x@iteration,
+                  ...)
   y <- cbind(y, as.data.frame(x@wind_id, ...))
   if(length(x@epid_interval) != 0){
-    y$epid_start <- x@epid_interval@epid_start
-    y$epid_end <- x@epid_interval@epid_end
+    y$epid_start <- x@epid_interval@start
+    y$epid_end <- right_point(x@epid_interval)
+  }else{
+    y$epid_start <- NA_integer_
+    y$epid_end <- NA_integer_
   }
   if(length(x@epid_length) != 0){
-    y$pid_length = x@epid_length
+    y$epid_length = x@epid_length
+  }else{
+    y$epid_length = NA_integer_
   }
   if(length(x@epid_dataset) != 0){
-    y$epid_dataset = x@epid_dataset
+    y$epid_dataset = decode(x@epid_dataset)
+  }else{
+    y$epid_dataset = NA_character_
   }
   return(y)
 }
@@ -309,14 +327,21 @@ as.list.epid <- function(x, ...){
             ...)
   y <- c(y, x@wind_id)
   if(length(x@epid_interval) != 0){
-    y$epid_start <- x@epid_interval@epid_start
-    y$epid_end <- x@epid_interval@epid_end
+    y$epid_start <- x@epid_interval@start
+    y$epid_end <- right_point(x@epid_interval@epid_end)
+  }else{
+    y$epid_start <- rep(NA_integer_, length(x))
+    y$epid_end <- rep(NA_integer_, length(x))
   }
   if(length(x@epid_length) != 0){
-    y$pid_length = x@epid_length
+    y$epid_length <- x@epid_length
+  }else{
+    y$epid_length <- rep(NA_integer_, length(x))
   }
   if(length(x@epid_dataset) != 0){
-    y$epid_dataset = x@epid_dataset
+    y$epid_dataset <- x@epid_dataset
+  }else{
+    y$epid_dataset <- rep(NA_character_, length(x))
   }
   return(y)
 }
@@ -489,14 +514,14 @@ format.pane <- function(x, ...){
                   ifelse(is.na(x@pane_interval),
                          "",
                          paste0(" ", format.number_line(x@pane_interval))),
-                  " (", substr(decode(x@case_nm), 1, 1), ")"))
+                  " (", c("S", "I", "D")[x@case_nm + 2L], ")"))
     }
 }
 
 #' @rdname pane-class
 #' @export
 unique.pane <- function(x, ...){
-  x <- x[x@case_nm == "Case"]
+  x <- x[x@case_nm == 0]
   return(x)
 }
 
@@ -572,18 +597,18 @@ as.list.pane <- function(x, ...){
     y$pane_start <- x@pane_interval@start
     y$pane_end <- right_point(x@pane_interval)
   }else{
-    y$pane_start <- rep(NA_integer_, length(x@.Data))
-    y$pane_end <- rep(NA_integer_, length(x@.Data))
+    y$pane_start <- rep(NA_integer_, length(x))
+    y$pane_end <- rep(NA_integer_, length(x))
   }
   if(length(x@pane_length) != 0){
     y$pane_length <- x@pane_length
   }else{
-    y$pane_length <- rep(NA_integer_, length(x@.Data))
+    y$pane_length <- rep(NA_integer_, length(x))
   }
   if(length(x@pane_dataset) != 0){
     y$pane_dataset <- decode(x@pane_dataset)
   }else{
-    y$pane_dataset <- rep(NA_character_, length(x@.Data))
+    y$pane_dataset <- rep(NA_character_, length(x))
   }
   window_list <- lapply(x@window_list[!duplicated(x@window_list)], function(x) listr(format(x), conj = ","))
   y$window_list <- as.character(window_list[match(names(x@window_list), names(window_list))])
@@ -802,7 +827,7 @@ as.list.pid <- function(x, ...){
   if(length(x@pid_dataset) != 0){
     y$pid_dataset <- attr(x@pid_dataset, "label")[match(x@pid_dataset, attr(x@pid_dataset, "value"))]
   }else{
-    y$pid_dataset <- rep(NA_character_, length(x@.Data))
+    y$pid_dataset <- rep(NA_character_, length(x))
   }
   return(y)
 }

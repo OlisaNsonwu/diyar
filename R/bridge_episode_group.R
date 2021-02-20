@@ -169,7 +169,7 @@ bridge_episode_group <- function(df, args, episode_type){
   args <- paste0(ifelse(episode_type == "rolling", "diyar::rolling_episodes", "diyar::fixed_episodes"), "(", args, ")" )
   if(length(to_s4_arg) > 0){
     to_s4 <- ifelse(all(eval(to_s4_arg$to_s4) == F), F, T)
-    args <- ifelse(to_s4 == F, paste0("diyar::to_df(", args, ")"), args)
+    args <- ifelse(to_s4 == F, paste0("as.data.frame(", args, ")"), args)
   }
   # Eval
   epids <- eval(parse(text=args))

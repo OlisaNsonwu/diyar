@@ -129,7 +129,7 @@ test_that("test record grouping for deterministic linkage", {
   expect_equal(test_6a$pids@.Data, c(1,1,1,1,5,6,6))
   expect_equal(test_6a$pids@pid_cri, c(2,2,2,2,0,1,1))
   expect_equal(test_6a$pids@pid_total, c(4,4,4,4,1,2,2))
-  expect_equal(test_6a$pids@pid_dataset, c(rep("DS1,DS2,DS4",4), "DS4",rep("DS1,DS3",2)) )
+  expect_equal(decode(test_6a$pids@pid_dataset), c(rep("DS1,DS2,DS4",4), "DS4",rep("DS1,DS3",2)) )
 })
 
 #Test 7 - Range matching

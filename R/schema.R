@@ -160,11 +160,10 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
     }
     # Show `case_nm` if requested
     if("case_nm" %in%  show_labels){
-      plt_df$event_type <- paste0(plt_df$event_type, "\n",
-                                  plt_df$case_nm, "\n",
-                                  ifelse(plt_df$sn %in% plt_df$pane_id & plt_df$case_nm != "Skipped",
-                                         "(reference)\n",""),
-                                  "event")
+      plt_df$event_type <- paste0(plt_df$event_type, ifelse(plt_df$event_type == "", "", "\n"),
+                                  plt_df$case_nm,
+                                  ifelse(plt_df$sn %in% plt_df$pane_id & plt_df$case_nm != -1,
+                                         "\n(reference)",""))
     }
     # Show record `date` if requested
     if("date" %in%  show_labels){
@@ -265,7 +264,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                             date = x@options$date,
                             case_length = x@options$case_length,
                             recurrence_length = x@options$recurrence_length,
-                            episode_unit = x@options$episode_unit,
+                            episode_unit = decode(x@options$episode_unit),
                             from_last = x@options$from_last,
                             title = title,
                             show_labels = show_labels,
@@ -288,7 +287,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   }
   # `episode_unit`
   episode_unit <- x@options$episode_unit
-  episode_unit[!is_dt] <- "seconds"
+  episode_unit[!is_dt] <- 1
   # `case_length`
   case_length <- x@options$case_length
   case_length <- lapply(case_length, function(x){
@@ -302,7 +301,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                           date = int,
                           from_last = x@options$from_last,
                           episode_unit = episode_unit)
-  any_rolling <- any(x@wind_nm == "Recurrence")
+  any_rolling <- any(x@wind_nm == 1)
   if(any_rolling){
     recurrence_length <- x@options$recurrence_length
     # `recurrence_length`
@@ -343,9 +342,9 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 
   # Show skipped records
   if(isFALSE(show_skipped)){
-    lgk <- plt_df$case_nm != "Skipped"
+    lgk <- plt_df$case_nm != -1
     int <- int[lgk]
-    plt_df <- plt_df[plt_df$case_nm != "Skipped",]
+    plt_df <- plt_df[plt_df$case_nm != -1,]
     ep_l <- lapply(ep_l, function(x) x[lgk])
     if(any_rolling){
       rc_l <- lapply(rc_l, function(x) x[lgk])
@@ -354,8 +353,8 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   }
   plt_df$start <- left_point(int)
   plt_df$end <- right_point(int)
-  plt_df$start_l <- left_point(x@options$date)
-  plt_df$end_l <- right_point(x@options$date)
+  plt_df$start_l <- left_point(as.number_line(x@options$date))
+  plt_df$end_l <- right_point(as.number_line(x@options$date))
   plt_df$epid <- as.character(plt_df$epid)
 
   # Data points without finite coordinates.
@@ -434,7 +433,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     sw <- which(plt_df$wind_id !=  x)
     plt_df$wind_id[sw] <- x[sw]
     plt_df
-    l_ar(ep_l, plt_df, "Case", is_dt)
+    l_ar(ep_l, plt_df, 0, is_dt)
   })
   case_l_ar <- unlist(case_l_ar, recursive = FALSE)
   #case_l_ar <- do.call("rbind", unlist(case_l_ar, recursive = FALSE))
@@ -448,7 +447,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
       sw <- which(plt_df$wind_id !=  x)
       plt_df$wind_id[sw] <- x[sw]
       plt_df
-      l_ar(rc_l, plt_df, "Recurrence", is_dt)
+      l_ar(rc_l, plt_df, 1, is_dt)
     })
     rc_l_ar <- unlist(rc_l_ar, recursive = FALSE)
     #rc_l_ar <- do.call("rbind", unlist(rc_l_ar, recursive = FALSE))
@@ -499,11 +498,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     }
     # Show `case_nm` if requested
     if("case_nm" %in%  show_labels){
-      plt_df$event_type <- paste0(plt_df$event_type, "\n",
-                                  plt_df$case_nm, "\n",
-                                  ifelse(plt_df$sn %in% plt_df$wind_id & plt_df$case_nm != "Skipped",
-                                         "(reference)\n",""),
-                                  "event")
+      plt_df$event_type <- paste0(plt_df$event_type, ifelse(plt_df$event_type == "", "", "\n"),
+                                  decode(plt_df$case_nm),
+                                  ifelse(plt_df$sn == plt_df$wind_id & plt_df$case_nm != -1,
+                                         "\n(reference)",""))
     }
     # Show `date` if requested
     if("date" %in%  show_labels){
@@ -592,7 +590,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     case_l_ar$lab_y[case_l_ar$no_ar] <- case_l_ar$y[case_l_ar$no_ar]
     case_l_ar$nl_l <- paste0(case_l_ar$wind_nm_l, "\n",
                              format(number_line(case_l_ar$nl_s, case_l_ar$nl_e)),
-                             " ", ifelse(is_dt, gsub("s$", "-", episode_unit), "unit-"),
+                             " ", ifelse(is_dt, gsub("s$", "-", names(diyar::episode_unit)[case_l_ar$episode_unit]), "unit-"),
                              "difference.")
 
 
