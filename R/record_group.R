@@ -204,111 +204,138 @@ links <- function(criteria,
     cri <- match(cri, cri[!duplicated(cri)])
     cri[lgk] <- -10L
 
-    force_check <- rep(0L, ds_len)
-    skip <- force_check
-    m_tag <- force_check
-    min_pid <- sn_ref
-    min_m_tag <- 0L
-    while (min_pid == sn_ref | min_m_tag == -1) {
-      sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = TRUE)
-      for(vr in c("force_check","tag","cri",
-                  "skip", "pid", "tag","m_tag",
-                  "pid_cri", "sn", "pr_sn",
-                  "link_id", "iteration")){
-        assign(vr, get(vr)[sort_ord])
-      }
+    curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
+    if(length(curr_sub_cri) == 0){
+      sort_ord <- order(cri, -tag, pid_cri, sn, decreasing = TRUE)
+      s_cri <- cri[sort_ord]
+      s_sn <- sn[sort_ord]
+      s_pid <- pid[sort_ord]
+      s_tag <- tag[sort_ord]
+      s_link_id <- link_id[sort_ord]
 
-      if(!is.null(strata)) {
-        strata <- strata[sort_ord]
-      }
-      # Reference records
-      r <- rle(cri)
-      lgk <- !duplicated(cri, fromLast = TRUE) | is.na(cri)
-      tr_link_id <- rep(link_id[lgk], r$lengths[match(cri[lgk], r$values)])
-      tr_pid_cri <- rep(pid_cri[lgk], r$lengths[match(cri[lgk], r$values)])
-      tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
-      tr_pid <- rep(pid[lgk], r$lengths[match(cri[lgk], r$values)])
-      tr_sn <- rep(sn[lgk], r$lengths[match(cri[lgk], r$values)])
+      lgk <- !duplicated(s_cri, fromLast = TRUE)
+      tr_pid <- (s_pid[lgk])[match(s_cri, s_cri[lgk])]
+      tr_sn <- (s_sn[lgk])[match(s_cri, s_cri[lgk])]
+      tr_tag <- (s_tag[lgk])[match(s_cri, s_cri[lgk])]
 
-      # Implement `sub_criteria`
-      curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
-      sub_cri_match <- sub_cri_checks(sub_criteria = curr_sub_cri,
-                                      strata = cri,
-                                      index_record = tr_sn == sn,
-                                      sn = pr_sn,
-                                      skip_repeats = TRUE)
-
-      equals_ref_rd <- sub_cri_match[[2]]
-      sub_cri_match <- sub_cri_match[[1]]
-
-      # Track records checked for the current `sub_criteria`
-      # Records with matching `sub_criteria` from earlier stages should trigger a re-check for possible updates to the link
-      m_tag <- ifelse(m_tag == 1 &
-                        sub_cri_match > 0 &
-                        pid_cri <= tr_pid_cri,
-                      -1L, m_tag)
-      # A re-check that doesn't lead to a change in link should not be checked again
-      m_tag <- ifelse(m_tag == -1 &
-                        sub_cri_match > 0 &
-                        pid == tr_pid &
-                        !is.na(tr_pid),
-                      1L, m_tag)
-
-      # Expand record groups
-      pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))) &
-                      ((tr_pid_cri == pid_cri & !expand) | (expand)),
-                    tr_pid, pid)
-
-      pid <- ifelse(sub_cri_match > 0 &
-                      pid == sn_ref &
-                      !tr_pid %in% c(sn_ref, NA) &
-                      ((tr_pid_cri == pid_cri & !expand) | (expand)),
-                    tr_pid, pid)
-
-      # Assign new IDs for newly matched records
-      pid <- ifelse(((pid == sn_ref &
-                        tr_pid == sn_ref &
-                        !is.na(tr_pid))) &
-                      sub_cri_match > 0,
-                    tr_sn, pid)
-      # Matching records
-      link_id <- ifelse(((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
-                           ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid)))) &
-                          ((tr_pid_cri == pid_cri & !expand) | (expand)),
-                        tr_sn, link_id)
-
-      # Identify records that match others previously checked for a `sub_criteria`
-      # Skip from another check
-      m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1L, m_tag)
-      m_tag <- ifelse(m_tag != 1 & equals_ref_rd == 1, 1L, m_tag)
-
-      m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1L, 1L, m_tag)
-      pid <- ifelse(pid == sn_ref &
-                      m_tag == 1 &
-                      equals_ref_rd > 0,
-                    sn, pid)
-
-      skip <- ifelse(m_tag == -1 &
-                       !is.na(m_tag), 0L,
-                     ifelse(sub_cri_match > 0,
-                            1L, skip))
-      # Track checks for valid `criteria` entries
-      lgk <- !is.na(cri)
-      if(length(lgk[lgk]) != 0){
-        min_pid <- min(pid[lgk])
-        min_m_tag <- min(m_tag[lgk])
-      } else{
-        min_pid <- min(pid)
-        min_m_tag <- min(m_tag)
-      }
-
-      if(tolower(display) == "progress" & length(curr_sub_cri) > 0) {
-        msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
-        progress_txt(length(m_tag[m_tag != 0]), ds_len, msg = msg)
-      }
+      lgk <- s_cri %in% s_cri[!duplicated(s_cri)] & tr_tag == 1 & s_cri > 0 & s_tag != 1 & expand
+      s_pid[lgk] <- tr_pid[lgk]
+      s_link_id[lgk] <- tr_sn[lgk]
+      lgk <- s_cri %in% s_cri[!duplicated(s_cri)] & tr_tag == 0 & s_cri > 0 & s_tag != 1
+      s_pid[lgk] <- tr_sn[lgk]
+      s_link_id[lgk] <- tr_sn[lgk]
+      pid <- s_pid[match(sn, s_sn)]
+      link_id <- s_link_id[match(sn, s_sn)]
+      tag <- ifelse(lgk %in% c(sn_ref, NA), 0L, 1L)
       iteration[pid != sn_ref & iteration == 0] <- ite
       ite <- ite + 1L
+    }else{
+      force_check <- rep(0L, ds_len)
+      skip <- force_check
+      m_tag <- force_check
+      min_pid <- sn_ref
+      min_m_tag <- 0L
+      while (min_pid == sn_ref | min_m_tag == -1) {
+        sort_ord <- order(cri, skip, -force_check, -tag, m_tag, pid_cri, sn, decreasing = TRUE)
+        for(vr in c("force_check","tag","cri",
+                    "skip", "pid", "tag","m_tag",
+                    "pid_cri", "sn", "pr_sn",
+                    "link_id", "iteration")){
+          assign(vr, get(vr)[sort_ord])
+        }
+
+        if(!is.null(strata)) {
+          strata <- strata[sort_ord]
+        }
+        # Reference records
+        r <- rle(cri)
+        lgk <- !duplicated(cri, fromLast = TRUE) | is.na(cri)
+        tr_link_id <- rep(link_id[lgk], r$lengths[match(cri[lgk], r$values)])
+        tr_pid_cri <- rep(pid_cri[lgk], r$lengths[match(cri[lgk], r$values)])
+        tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
+        tr_pid <- rep(pid[lgk], r$lengths[match(cri[lgk], r$values)])
+        tr_sn <- rep(sn[lgk], r$lengths[match(cri[lgk], r$values)])
+
+        # Implement `sub_criteria`
+        sub_cri_match <- sub_cri_checks(sub_criteria = curr_sub_cri,
+                                        strata = cri,
+                                        index_record = tr_sn == sn,
+                                        sn = pr_sn,
+                                        skip_repeats = TRUE)
+
+        equals_ref_rd <- sub_cri_match[[2]]
+        sub_cri_match <- sub_cri_match[[1]]
+
+        # Track records checked for the current `sub_criteria`
+        # Records with matching `sub_criteria` from earlier stages should trigger a re-check for possible updates to the link
+        m_tag <- ifelse(m_tag == 1 &
+                          sub_cri_match > 0 &
+                          pid_cri <= tr_pid_cri,
+                        -1L, m_tag)
+        # A re-check that doesn't lead to a change in link should not be checked again
+        m_tag <- ifelse(m_tag == -1 &
+                          sub_cri_match > 0 &
+                          pid == tr_pid &
+                          !is.na(tr_pid),
+                        1L, m_tag)
+
+        # Expand record groups
+        pid <- ifelse(((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid == sn_ref & !is.na(tr_pid))) &
+                        ((tr_pid_cri == pid_cri & !expand) | (expand)),
+                      tr_pid, pid)
+
+        pid <- ifelse(sub_cri_match > 0 &
+                        pid == sn_ref &
+                        !tr_pid %in% c(sn_ref, NA) &
+                        ((tr_pid_cri == pid_cri & !expand) | (expand)),
+                      tr_pid, pid)
+
+        # Assign new IDs for newly matched records
+        pid <- ifelse(((pid == sn_ref &
+                          tr_pid == sn_ref &
+                          !is.na(tr_pid))) &
+                        sub_cri_match > 0,
+                      tr_sn, pid)
+        # Matching records
+        link_id <- ifelse(((link_id == sn_ref & !is.na(tr_link_id) & sub_cri_match > 0) |
+                             ((m_tag == -1 & pid != sn_ref) | (sub_cri_match > 0 & pid==sn_ref & !is.na(tr_pid)))) &
+                            ((tr_pid_cri == pid_cri & !expand) | (expand)),
+                          tr_sn, link_id)
+
+        # Identify records that match others previously checked for a `sub_criteria`
+        # Skip from another check
+        m_tag <- ifelse(pid != sn_ref & m_tag != -1, 1L, m_tag)
+        m_tag <- ifelse(m_tag != 1 & equals_ref_rd == 1, 1L, m_tag)
+
+        m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1L, 1L, m_tag)
+        pid <- ifelse(pid == sn_ref &
+                        m_tag == 1 &
+                        equals_ref_rd > 0,
+                      sn, pid)
+
+        skip <- ifelse(m_tag == -1 &
+                         !is.na(m_tag), 0L,
+                       ifelse(sub_cri_match > 0,
+                              1L, skip))
+        # Track checks for valid `criteria` entries
+        lgk <- !is.na(cri)
+        if(length(lgk[lgk]) != 0){
+          min_pid <- min(pid[lgk])
+          min_m_tag <- min(m_tag[lgk])
+        } else{
+          min_pid <- min(pid)
+          min_m_tag <- min(m_tag)
+        }
+
+        if(tolower(display) == "progress" & length(curr_sub_cri) > 0) {
+          msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
+          progress_txt(length(m_tag[m_tag != 0]), ds_len, msg = msg)
+        }
+        iteration[pid != sn_ref & iteration == 0] <- ite
+        ite <- ite + 1L
+      }
     }
+
     if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
     if(display %in% c("progress", "stats")){
       cat(paste0("Checked `criteria ", i,"`.\n"))
