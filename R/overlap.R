@@ -90,7 +90,7 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
   if(err != F) stop(err, call. = F)
 
   # final check
-  p <- rep(NA, length(x))
+  p <- rep(FALSE, length(x))
   sets <- split(1:length(x), m)
 
   # Mutually inclusive methods

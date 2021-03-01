@@ -107,8 +107,9 @@ df_5a <- data.frame(
 test_5a <- df_5a
 test_5a$pids <- links(sn = df_5a$r_id,
                       criteria = list(df_5a$cri_1, df_5a$cri_2),
-                      sub_criteria = list(cr2 = sub_criteria(df_5a$cri_2a, df_5a$cri_2b),
-                                          cr2 = sub_criteria(df_5a$cri_2c, df_5a$cri_2d)))
+                      sub_criteria = list(cr2 = sub_criteria(sub_criteria(df_5a$cri_2a, df_5a$cri_2b),
+                                                             sub_criteria(df_5a$cri_2c, df_5a$cri_2d),
+                                                             operator = "and")))
 
 test_that("test record grouping with >1 set of sub-criteria per criteria", {
   expect_equal(test_5a$pids@.Data, c(1,1,3,4,5,6,6))

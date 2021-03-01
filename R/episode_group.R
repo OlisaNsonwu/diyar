@@ -126,18 +126,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   tm_a <- Sys.time()
 
   # Standardise `sub_criteria` inputs
-  rut <- attr(case_sub_criteria, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    if(rut == TRUE){
-      case_sub_criteria <- list(case_sub_criteria)
-    }
+  if(class(case_sub_criteria) == "sub_criteria"){
+    case_sub_criteria <- list(case_sub_criteria)
   }
-
-  rut <- attr(recurrence_sub_criteria, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    if(rut == TRUE){
-      recurrence_sub_criteria <- list(recurrence_sub_criteria)
-    }
+  if(class(recurrence_sub_criteria) == "sub_criteria"){
+    recurrence_sub_criteria <- list(recurrence_sub_criteria)
   }
 
   # Validations
@@ -315,8 +308,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   int@id <- seq_len(inp_n)
   int@gid <- int@id
   if(!is.null(sn)) {
-    int@gid <- sn
-    ep_l[[1]]@gid <- sn
+    int@gid <- as.integer(sn)
+    ep_l[[1]]@gid <- as.integer(sn)
   }
 
   # Order of case-assignment
@@ -690,20 +683,28 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     # Implement `case_sub_criteria`
-    c_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
-      sub_cri_checks(sub_criteria = case_sub_criteria,
-                     strata = cri,
-                     temporal_link = cr,
-                     index_record = ifelse(ref_rd & cri_indx_ord == i, TRUE, FALSE),
-                     sn = int@id,
-                     skip_repeats = FALSE)[[1]]
-    })
+    checks_lgk <- rep(FALSE, length(int))
+    if(class(case_sub_criteria[[1]]) == "sub_criteria"){
+      c_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
+        if(length(cr[cr]) > 0){
+          checks_lgk[cr] <- sub_cri_checks_b(sub_criteria = case_sub_criteria[[1]],
+                                                     strata = cri[cr],
+                                                     index_record = ifelse(ref_rd & cri_indx_ord == i, TRUE, FALSE)[cr],
+                                                     sn = int@id[cr],
+                                                     skip_repeats = FALSE)[[1]]
+        }
+        checks_lgk
+      })
 
-    if(length(c_sub_cri) == 1){
-      c_sub_cri <- c_sub_cri[[1]]
+      if(length(c_sub_cri) == 1){
+        c_sub_cri <- as.logical(c_sub_cri[[1]])
+      }else{
+        c_sub_cri <- as.logical(Rfast::rowMaxs(sapply(c_sub_cri, function(x) as.numeric(x)), value = TRUE))
+      }
     }else{
-      c_sub_cri <- as.logical(Rfast::rowMaxs(sapply(c_sub_cri, function(x) as.numeric(x)), value = TRUE))
+      c_sub_cri <- TRUE
     }
+
 
     cr[!c_sub_cri & cr & !ref_rd & tr_tag %in% c(0, -2)] <- FALSE
 
@@ -781,19 +782,25 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         cr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE))
       }
 
-      r_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
-        sub_cri_checks(sub_criteria = recurrence_sub_criteria,
-                       strata = cri,
-                       temporal_link = cr2,
-                       index_record = ifelse(ref_rd & cri_indx_ord == i, TRUE, FALSE),
-                       sn = int@id,
-                       skip_repeats = FALSE)[[1]]
-      })
+      if(class(recurrence_sub_criteria[[1]]) == "sub_criteria"){
+        r_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
+          if(length(cr2[cr2]) > 0){
+            checks_lgk[cr2] <- sub_cri_checks_b(sub_criteria = recurrence_sub_criteria[[1]],
+                                                       strata = cri[cr2],
+                                                       index_record = ifelse(ref_rd & cri_indx_ord == i, TRUE, FALSE)[cr2],
+                                                       sn = int@id[cr2],
+                                                       skip_repeats = FALSE)[[1]]
+          }
+          checks_lgk
+        })
 
-      if(length(r_sub_cri) == 1){
-        r_sub_cri <- r_sub_cri[[1]]
+        if(length(r_sub_cri) == 1){
+          r_sub_cri <- as.logical(r_sub_cri[[1]])
+        }else{
+          r_sub_cri <- as.logical(Rfast::rowMaxs(sapply(r_sub_cri, function(x) as.numeric(x)), value = TRUE))
+        }
       }else{
-        r_sub_cri <- as.logical(Rfast::rowMaxs(sapply(r_sub_cri, function(x) as.numeric(x)), value = TRUE))
+        r_sub_cri <- TRUE
       }
 
       cr2[!r_sub_cri & cr2 & !ref_rd & tr_tag %in% c(-1)] <- FALSE

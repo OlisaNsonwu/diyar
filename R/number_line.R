@@ -68,6 +68,7 @@ number_line <- function(l, r, id = NULL, gid = NULL){
 #' @export
 as.number_line <- function(x){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
+  if(class(x) == "number_line") return(x)
   er1 <- suppressWarnings(try(as.numeric(x), silent = TRUE))
   er2 <- suppressWarnings(try(as.numeric(x) + 0, silent = TRUE))
 

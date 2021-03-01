@@ -119,6 +119,8 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   # `sn`
   if(is.null(sn)) {
     sn <- seq_len(length(int))
+  }else{
+    sn <- as.integer(sn)
   }
   # `custom_sort`
   if(!is.null(custom_sort)) {

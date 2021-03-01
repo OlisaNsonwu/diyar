@@ -107,11 +107,8 @@ links <- function(criteria,
                   shrink = FALSE){
   tm_a <- Sys.time()
 
-  rut <- attr(sub_criteria, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    if(rut == T){
-      sub_criteria <- list(sub_criteria)
-    }
+  if(class(sub_criteria) == "sub_criteria"){
+    sub_criteria <- list(sub_criteria)
   }
   # Validations
   err <- err_links_checks_0(criteria,
@@ -180,8 +177,8 @@ links <- function(criteria,
   n_seq <- seq_len(ds_len)
 
   if(display != "none") cat("\n")
-  ite <- 1L
-  for(i in seq_len(length(criteria))){
+  i <- ite <- 1L
+  while(i %in% seq_len(length(criteria)) & min(tag) == 0){
     # Current stage
     cri <- criteria[[i]]
     # Standardise `criteria` input
@@ -202,7 +199,7 @@ links <- function(criteria,
     }
     # Encode current `criteria`
     cri <- match(cri, cri[!duplicated(cri)])
-    cri[lgk] <- -10L
+    cri[lgk] <- -seq_len(length(cri[lgk]))
 
     curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
     if(length(curr_sub_cri) == 0){
@@ -224,9 +221,11 @@ links <- function(criteria,
       lgk <- s_cri %in% s_cri[!duplicated(s_cri)] & tr_tag == 0 & s_cri > 0 & s_tag != 1
       s_pid[lgk] <- tr_sn[lgk]
       s_link_id[lgk] <- tr_sn[lgk]
-      pid <- s_pid[match(sn, s_sn)]
-      link_id <- s_link_id[match(sn, s_sn)]
-      tag <- ifelse(lgk %in% c(sn_ref, NA), 0L, 1L)
+      s_pid <- s_pid[match(sn, s_sn)]
+      s_link_id <- s_link_id[match(sn, s_sn)]
+      pid[tag != 1] <- s_pid[tag != 1]
+      link_id[tag != 1] <- s_link_id[tag != 1]
+      tag[!pid %in% c(sn_ref, NA)] <- 1L
       iteration[pid != sn_ref & iteration == 0] <- ite
       ite <- ite + 1L
     }else{
@@ -257,14 +256,14 @@ links <- function(criteria,
         tr_sn <- rep(sn[lgk], r$lengths[match(cri[lgk], r$values)])
 
         # Implement `sub_criteria`
-        sub_cri_match <- sub_cri_checks(sub_criteria = curr_sub_cri,
+        sub_cri_match <- sub_cri_checks_b(sub_criteria = curr_sub_cri[[1]],
                                         strata = cri,
                                         index_record = tr_sn == sn,
                                         sn = pr_sn,
                                         skip_repeats = TRUE)
 
-        equals_ref_rd <- sub_cri_match[[2]]
-        sub_cri_match <- sub_cri_match[[1]]
+        equals_ref_rd <- sub_cri_match[[2]] | tr_sn == sn
+        sub_cri_match <- sub_cri_match[[1]] | tr_sn == sn
 
         # Track records checked for the current `sub_criteria`
         # Records with matching `sub_criteria` from earlier stages should trigger a re-check for possible updates to the link
@@ -348,12 +347,13 @@ links <- function(criteria,
     }
 
     tag <- ifelse(pid %in% c(sn_ref, NA), 0L, 1L)
-    lgk <- (!duplicated(pid) & !duplicated(pid, fromLast = TRUE)) | cri < 0
+    lgk <- (!duplicated(pid) & !duplicated(pid, fromLast = TRUE))
     link_id[lgk] <- sn_ref
     pid[lgk] <- sn_ref
     tag <- ifelse(pid != sn_ref, 1L, 0L)
     iteration[tag == 0 & iteration != 0] <- 0L
     pid_cri[tag == 1 & (shrink | (pid_cri == mxp_cri & !shrink))] <- i
+    i <- i + 1L
   }
   iteration[iteration == 0] <- ite - 1L
   if(class(strata) != "NULL"){
@@ -464,12 +464,14 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' @export
 sub_criteria <- function(...,
                          funcs = diyar::exact_match,
-                         equva = diyar::exact_match){
+                         equva = diyar::exact_match,
+                         operator = "or"){
   # err <- err_sub_criteria_1(...)
   # if(!isFALSE(err)) stop(err, call. = FALSE)
 
-  err <- err_sub_criteria_3dot_1(...)
-  if(!isFALSE(err)) stop(err, call. = FALSE)
+  # move to sub_cri checks
+  # err <- err_sub_criteria_3dot_1(...)
+  # if(!isFALSE(err)) stop(err, call. = FALSE)
 
   if(class(funcs) == "NULL"){
     funcs <- list(exact_match)
@@ -482,8 +484,8 @@ sub_criteria <- function(...,
     err <- err_sub_criteria_3(funcs)
     if(!isFALSE(err)) stop(err, call. = FALSE)
 
-    err <- err_sub_criteria_4(..., funcs = funcs)
-    if(!isFALSE(err)) stop(err, call. = FALSE)
+    # err <- err_sub_criteria_4(..., funcs = funcs)
+    # if(!isFALSE(err)) stop(err, call. = FALSE)
   }
 
   if(length(funcs) == 1){
@@ -505,8 +507,8 @@ sub_criteria <- function(...,
     err <- err_sub_criteria_3(equva)
     if(!isFALSE(err)) stop(err, call. = FALSE)
 
-    err <- err_sub_criteria_4(..., funcs = equva)
-    if(!isFALSE(err)) stop(err, call. = FALSE)
+    # err <- err_sub_criteria_4(..., funcs = equva)
+    # if(!isFALSE(err)) stop(err, call. = FALSE)
   }
 
   if(length(equva) == 1){
@@ -520,16 +522,16 @@ sub_criteria <- function(...,
   x <- function(x, y, z) list(x, y, z)
   sub_cris <- mapply(x, list(...), funcs, equva, SIMPLIFY = F)
 
-  err <- err_sub_criteria_7(list(sub_cris), cri_nm = "sub_criteria")
-  if(!isFALSE(err)) stop(err, call. = FALSE)
-  err <- err_sub_criteria_7(list(sub_cris), funcs_l = "equva", funcs_pos = 3, cri_nm = "sub_criteria")
-  if(!isFALSE(err)) stop(err, call. = FALSE)
+  class(sub_cris) <- "sub_criteria"
+  attr(sub_cris, "operator") <- operator
 
-  attr(sub_cris, "diyar_sub_criteria") <- TRUE
+  # err <- err_sub_criteria_7(list(sub_cris), cri_nm = "sub_criteria")
+  # if(!isFALSE(err)) stop(err, call. = FALSE)
+  # err <- err_sub_criteria_7(list(sub_cris), funcs_l = "equva", funcs_pos = 3, cri_nm = "sub_criteria")
+  # if(!isFALSE(err)) stop(err, call. = FALSE)
   rm(list = ls()[ls() != "sub_cris"])
   sub_cris
 }
-
 
 #' @name predefined_tests
 #' @aliases predefined_tests

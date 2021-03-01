@@ -249,36 +249,26 @@ err_sub_criteria_9 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
 }
 
 err_sub_criteria_8 <- function(x, cri_nm = "sub_criteria"){
-  rut <- attr(x, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    return(FALSE)
-  }else{
-    if(class(x) != "list"){
-      x <- list(x)
-    }
-    err <- lapply(x, function(x){
-      rut <- attr(x, "diyar_sub_criteria")
-      if(class(rut) != "NULL"){
-        TRUE
-      }else{
-        FALSE
-      }
-    })
+  if(class(x) == "list"){
+    err <- lapply(x, function(x) class(x) == "sub_criteria")
     err_1 <- as.logical(err)
     names(err_1) <- 1:length(err_1)
+
+    if(!all(err_1)){
+      err_lst <- err_1[!err_1]
+      err <- paste0("Invalid input for `", cri_nm, "`:\n",
+                    "i - `", cri_nm, "` must be `sub_criteria` object or a `list` of `sub_criteria objects`.\n",
+                    paste0("X - ",
+                           ifelse(rep(length(err_lst) == 1, length(err_lst)), paste0("`", cri_nm, "`"), paste0("`", cri_nm,"[", names(err_lst), "]`")),": was not created with `",cri_nm,"()`.",
+                           collapse = "\n"))
+      return(err)
+    }else{
+      return(FALSE)
+    }
+  }else{
+    return(FALSE)
   }
 
-  if(!all(err_1)){
-    err_lst <- err_1[!err_1]
-    err <- paste0("Invalid input for `", cri_nm, "`:\n",
-                  "i - Each `", cri_nm, "` must be created by `", cri_nm, "()`.\n",
-                  paste0("X - ",
-                         ifelse(rep(length(err_lst) == 1, length(err_lst)), paste0("`", cri_nm, "`"), paste0("`", cri_nm,"[", names(err_lst), "]`")),": was not created with `",cri_nm,"()`.",
-                         collapse = "\n"))
-    err
-  }else{
-    F
-  }
 }
 
 err_data_links_1 <- function(data_source, data_links){
@@ -338,30 +328,6 @@ err_data_links_2 <- function(data_source, data_links){
   }
 }
 
-err_sub_criteria_0 <- function(sub_criteria){
-  rut <- attr(sub_criteria, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    if(rut == T){
-      sub_criteria <- list(sub_criteria)
-    }
-  }
-
-  err <- lapply(sub_criteria, function(x){
-    rut <- attr(x, "diyar_sub_criteria")
-    ifelse(!is.null(rut), NA_character_, class(x))
-  })
-  err <- unlist(err, use.names = FALSE)
-  if(length(err) > 0) names(err) <- 1:length(err)
-  err <- err[!is.na(err)]
-
-  if(length(err) > 0){
-    paste0("Each `sub_criteria` must be supplied with `sub_criteria()`:\n",
-           paste0("X - `sub_criteria ", names(err),"` was not supplied with `sub_criteria()`.", collapse = "\n"))
-  }else{
-    F
-  }
-}
-
 err_criteria_1 <- function(criteria){
   if(class(criteria) != "list") criteria <- list(criteria)
 
@@ -400,11 +366,8 @@ err_criteria_2 <- function(criteria){
 err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_nm = "sub_criteria"){
   if(class(ref_arg) != "list") ref_arg <- list(ref_arg)
 
-  rut <- attr(sub_criteria, "diyar_sub_criteria")
-  if(class(rut) != "NULL"){
-    if(rut == T){
-      sub_criteria <- list(sub_criteria)
-    }
+  if(class(sub_criteria) == "sub_criteria"){
+    sub_criteria <- list(sub_criteria)
   }
   err <- as.numeric(lapply(ref_arg, length))
   err2 <- unlist(lapply(sub_criteria, function(x){
@@ -447,7 +410,9 @@ err_sub_criteria_3dot_1 <- function(..., cri_nm = "sub_criteria"){
 err_sn_1 <- function(sn, ref_nm, ref_num){
   if(!any(class(sn) %in% c("numeric", "integer", "NULL"))){
     err <- paste0("Invalid object type for `sn`:\n",
-                  "i - Valid object type is `numeric.\n",
+                  "i - Valid object type is `integer`.\n",
+                  "i - `numeric` objects are coerced to `integer` objects.\n",
+                  "i - Duplicate values (after coercion) are not permitted.\n",
                   "X - You've supplied a `", class(sn), "` object.")
     return(err)
   }
@@ -460,16 +425,18 @@ err_sn_1 <- function(sn, ref_nm, ref_num){
       return(err)
     }
 
-    dp_check <- duplicates_check(sn)
+    dp_check <- duplicates_check(as.integer(sn))
     if(dp_check != T){
       err <- paste0("`sn` must be unique values.\n",
+                    "i - `numeric` objects are coerced to `integer` objects.\n",
+                    "i - Duplicate values (after coercion) are not permitted.\n",
                     "X - There are duplicate values in ", dp_check ,".")
       return(err)
     }
 
     fn_check <- finite_check(sn)
     if(fn_check!=T){
-      err <- paste0("`sn` must be finite numeric values:\n",
+      err <- paste0("`sn` must be finite `integer` values:\n",
                     "X - There are non-finite values in ",fn_check)
       return(err)
     }
@@ -1143,39 +1110,39 @@ err_episodes_checks_0 <- function(date = 1,
   if(class(case_sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(case_sub_criteria, cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err[1])
-    err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
+    # if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(case_sub_criteria, cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err)
-    err <- err_sub_criteria_6.0(case_sub_criteria)
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_6.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "case_sub_criteria")
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_7(case_sub_criteria)
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_7(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_6.0(case_sub_criteria)
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_6.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "case_sub_criteria")
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_7(case_sub_criteria)
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_7(case_sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    # if(err != FALSE) return(err)
   }
 
   if(class(recurrence_sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err[1])
-    err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
+    # if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err)
-    err <- err_sub_criteria_6.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_6.0(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_7(recurrence_sub_criteria)
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_7(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3)
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_6.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_6.0(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_7(recurrence_sub_criteria)
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_7(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    # if(err != FALSE) return(err)
   }
 
   err <- err_mins_1(case_length_total, "case_length_total")
@@ -1273,20 +1240,20 @@ err_links_checks_0 <- function(criteria,
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
     if(err != FALSE) return(err[1])
-    err <- err_sub_criteria_10(criteria, sub_criteria)
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_10(criteria, sub_criteria)
+    # if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(sub_criteria)
     if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
     if(err != FALSE) return(err)
-    err <- err_sub_criteria_6.0(sub_criteria)
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_6.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_7(sub_criteria)
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_7(sub_criteria, funcs_l = "equva", funcs_pos = 3)
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_6.0(sub_criteria)
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_6.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_7(sub_criteria)
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_7(sub_criteria, funcs_l = "equva", funcs_pos = 3)
+    # if(err != FALSE) return(err)
   }
   err <- err_criteria_1(criteria)
   if(err != FALSE) return(err)
