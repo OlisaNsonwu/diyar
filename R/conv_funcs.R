@@ -1150,3 +1150,17 @@ decode <- function(x){
     attr(x, "label")[match(x, attr(x, "value"))]
   )
 }
+
+extract_3dot_lengths <- function(x){
+  if(all(class(x) == "sub_criteria")){
+    unlist(lapply(x, function(sc){
+      extract_lens(sc[[1]])
+    }), use.names = FALSE)
+  }else if(all(class(x) == "list")){
+    unlist(lapply(x, function(y){
+      length(y)
+    }), use.names = FALSE)
+  }else if(is.atomic(x)){
+    length(x)
+  }
+}

@@ -466,57 +466,28 @@ sub_criteria <- function(...,
                          funcs = diyar::exact_match,
                          equva = diyar::exact_match,
                          operator = "or"){
-  # err <- err_sub_criteria_1(...)
-  # if(!isFALSE(err)) stop(err, call. = FALSE)
+  err <- err_sub_criteria_1(...)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
 
-  # move to sub_cri checks
-  # err <- err_sub_criteria_3dot_1(...)
-  # if(!isFALSE(err)) stop(err, call. = FALSE)
+  err <- err_sub_criteria_3dot_1(...)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
 
-  if(class(funcs) == "NULL"){
-    funcs <- list(exact_match)
-  }else{
-    if(class(funcs) != "list") funcs <- list(funcs)
+  err <- err_sub_criteria_funcs(..., funcs = funcs, funcs_l = "funcs")
+  if(!isFALSE(err)) stop(err, call. = FALSE)
 
-    err <- err_sub_criteria_2(funcs)
-    if(!isFALSE(err)) stop(err, call. = FALSE)
+  err <- err_sub_criteria_funcs(..., funcs = equva, funcs_l = "funcs")
+  if(!isFALSE(err)) stop(err, call. = FALSE)
 
-    err <- err_sub_criteria_3(funcs)
-    if(!isFALSE(err)) stop(err, call. = FALSE)
-
-    # err <- err_sub_criteria_4(..., funcs = funcs)
-    # if(!isFALSE(err)) stop(err, call. = FALSE)
-  }
+  if(class(funcs) != "list") funcs <- list(funcs)
+  if(class(equva) != "list") equva <- list(equva)
 
   if(length(funcs) == 1){
     funcs <- rep(list(funcs), length(list(...)))
     funcs <- unlist(funcs)
-    funcs_l <- 1
-  }else{
-    funcs_l <- length(funcs)
   }
-
-  if(class(equva) == "NULL"){
-    equva <- list(exact_match)
-  }else{
-    if(class(equva) != "list") equva <- list(equva)
-
-    err <- err_sub_criteria_2(equva)
-    if(!isFALSE(err)) stop(err, call. = FALSE)
-
-    err <- err_sub_criteria_3(equva)
-    if(!isFALSE(err)) stop(err, call. = FALSE)
-
-    # err <- err_sub_criteria_4(..., funcs = equva)
-    # if(!isFALSE(err)) stop(err, call. = FALSE)
-  }
-
   if(length(equva) == 1){
     equva <- rep(list(equva), length(list(...)))
     equva <- unlist(equva)
-    equva_l <- 1
-  }else{
-    equva_l <- length(equva)
   }
 
   x <- function(x, y, z) list(x, y, z)

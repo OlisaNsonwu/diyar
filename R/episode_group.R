@@ -1,32 +1,32 @@
 #' @name episodes
 #' @title Link events  to chronological episodes.
 #'
-#' @description Link events that have matching attributes and are within specified durations of each other.
-#' Records in each episode are assigned a unique identifier with relevant group-level data.
+#' @description Link events with matching attributes and within specified durations of each other.
+#' Records in each episode are assigned a unique identifier with relevant group-level information.
 #'
 #' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
 #' @param sn Unique numerical record identifier. Useful for creating familiar episode identifiers.
-#' @param strata Subsets of the dataset. Episodes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will skip that record.
+#' @param strata Subsets of the dataset. Episodes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will exclude that record from episode tracking.
 #' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
 #' @param case_length Cut-off point (\code{numeric}) or period (\code{\link{number_line}}), distinguishing one \code{"case"} from another.
 #' This is the case window.
 #' @param episodes_max The maximum number of episodes permitted within each \code{strata}.
-#' @param episode_type \code{"fixed"} or \code{"rolling"}.
+#' @param episode_type \code{"fixed"} or \code{"rolling"}. See \code{Details}.
 #' @param recurrence_length Cut-off point or period distinguishing a \code{"recurrent"} event from its index event.
 #' This is the recurrence window. By default, it's the same as \code{case_length}.
 #' @param episode_unit Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
 #' @param rolls_max Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source Unique data source identifier. Useful when the dataset has data from multiple sources.
-#' @param from_last Chronological order for episode tracking i.e. ascending (\code{TRUE}) or descending \code{TRUE}.
+#' @param from_last Chronological order for episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
 #' @param overlap_method Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.
 #' @param overlap_methods Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
 #' @param case_overlap_methods Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
 #' @param recurrence_overlap_methods Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
-#' @param custom_sort  Preferential order for index (\code{"case"}) events.
+#' @param custom_sort  Preferential order for selecting index (\code{"case"}) events.
 #' @param bi_direction If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
 #' @param group_stats If \code{TRUE} (default), episode-specific information like episode start and endpoints are returned.
 #' @param display The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.
-#' @param to_s4 Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' @param to_s4 If \code{TRUE}, output is an \code{\link[=epid-class]{epid}} object. If \code{FALSE}, it's a  or \code{data.frame}.
 #' @param recurrence_from_last If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
 #' If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param case_for_recurrence If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
@@ -34,14 +34,14 @@
 #' @param skip_order \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
 #' @param data_links A set of \code{data_sources} required in each episode. An \code{episode} without records from these \code{data_sources} will be skipped or unlinked. See \code{Details}.
 #' @param skip_if_b4_lengths If \code{TRUE} (default), \code{events} before the cut-off points or periods, or not captured by \code{"case_sub_criteria"} or \code{"recurrence_sub_criteria"} are skipped.
-#' @param include_index_period If \code{TRUE}, overlaps with the index event or period are linked even if they are outside the cut-off period.
-#' @param deduplicate if \code{TRUE}, \code{"duplicate"} events are excluded from the output.
+#' @param include_index_period If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
+#' @param deduplicate If \code{TRUE}, \code{"duplicate"} events are excluded from the output.
 #' @param x Deprecated. Record date or period. Please use \code{date}
 #' @param ... Arguments passed to \bold{\code{episodes}}
-#' @param case_sub_criteria Matching conditions for "case" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.
-#' @param recurrence_sub_criteria Matching conditions for "recurrence" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.
-#' @param case_length_total XXXXX
-#' @param recurrence_length_total XXXXX
+#' @param case_sub_criteria Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
+#' @param recurrence_sub_criteria Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
+#' @param case_length_total Minimum number of matched case windows required for an episode. See details
+#' @param recurrence_length_total Minimum number of matched recurrence windows required for an episode. See details
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}} or \code{list} (\code{\link[=epid-class]{epid}} and \code{ggplot}) object
@@ -50,21 +50,21 @@
 #' \code{\link{custom_sort}}, \code{\link{sub_criteria}}, \code{\link[=windows]{epid_length}}, \code{\link[=windows]{epid_window}}, \code{\link{partitions}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
 #'
 #' @details
-#' Episodes begin with an index event. Records within a specified duration of this index event are then linked as episodes.
-#' By default, this is done in ascending order of events however, this can be changed to descending (\code{from_last}) or a custom order \code{custom_sort}.
+#' Episodes begin with an index record and include all records within a specified duration of this index record.
+#' By default, this process is done in ascending order of events however, this can be changed to a descending (\code{from_last}) or custom order \code{custom_sort}.
 #' Ties are always broken by the chronological order of events.
 #'
 #' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}, while a \code{"rolling"} episode can continue to recur.
 #' A \code{"rolling"} episode will persist as long as is specified by \code{rolls_max}.
 #'
-#' \bold{\code{episodes()}} will categorise records into 5 types of events;
+#' \bold{\code{episodes()}} will categorise records into 5 type of events;
 #'
 #' \itemize{
 #' \item \code{"Case"} - Index case of the episode.
 #' \item \code{"Duplicate_C"} - Duplicate of the index case.
-#' \item \code{"Recurrent"} - Recurrent event of the index case.
+#' \item \code{"Recurrent"} - Recurrence of the index case.
 #' \item \code{"Duplicate_R"} - Duplicate of the recurrent event.
-#' \item \code{"Skipped"} - Those skipped from the episode tracking process.
+#' \item \code{"Skipped"} - Records excluded from the episode tracking process.
 #' }
 #'
 #' \code{data_links} should be a \code{list} of \code{atomic} vectors with every element named \code{"l"} (links) or \code{"g"} (groups).
@@ -74,10 +74,10 @@
 #' }
 #'
 #' \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-#' Its now exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} instead.
+#' Its now exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} for new scripts.
 #'
 #' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
-#' They exist for convenience, and to support previous code with minimal disruption.
+#' They exist for convenience, and to support previous code with minimal disruption. Please consider using \bold{\code{episodes()}} for new scripts.
 #'
 #' See \code{vignette("episodes")} for more information.
 #'
@@ -504,11 +504,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
         })
       })
-      # tr_ep_int <- c(tr_ep_int,
-      #                list(lapply(ep_l, function(x){
-      #                  rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
-      #                })))
-      # tr_ep_int <- unlist(tr_ep_int, recursive = FALSE)
     }
 
     if(isTRUE(any_rolling_epi_curr)){
@@ -525,11 +520,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
           })
         })
-        # tr_rc_int <- c(tr_rc_int,
-        #                list(lapply(rc_l, function(x){
-        #                  rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
-        #                })))
-        # tr_rc_int <- unlist(tr_rc_int, recursive = FALSE)
       }
     }
 
@@ -539,7 +529,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rep(int@gid[lgk2], r$lengths[match(cri[lgk], r$values)])
     })
     tr_e <- rep(e[lgk], r$lengths[match(cri[lgk], r$values)])
-    #tr_wind_id <- rep(wind_id[lgk], r$lengths[match(cri[lgk], r$values)])
     tr_skip_order <- rep(skip_order[lgk], r$lengths[match(cri[lgk], r$values)])
     tr_c_sort <- rep(c_sort[lgk], r$lengths[match(cri[lgk], r$values)])
 
@@ -608,8 +597,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     tr_sn <- tr_int@gid
-    #ref_rd <- (int@gid %in% tr_sn) | tag %in% c(-1, -2)
-
     if(any(names(mths_a) == "e") | any(names(mths_a) == "b")){
       # Change `overlap_method_c` to episode-level (e) or both (b) record and episode-level options
       ov_mth_a <- mapply(opt_level, names(mths_a), mths_a, tr_mths_a, SIMPLIFY = FALSE)
@@ -810,10 +797,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rm(cr2); rm(vr2)
     }
 
-    # if(isTRUE(any_rolling_epi_curr)){
-    #
-    # }
-
     # Episode and window IDs
     e[cr & tag == 0 & tr_tag %in% c(0)] <- tr_sn[cr & tag == 0 & tr_tag %in% c(0)]
     wind_id[cr & tag == 0] <- tr_sn[cr & tag == 0]
@@ -821,11 +804,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(wind_id_lst) < length(tr_sn_list)){
       wind_id_lst <- c(wind_id_lst,
                        rep(wind_id_lst[1], (length(tr_sn_list) - length(wind_id_lst))))
-      #names(wind_id_lst) <- paste0("wind_id", 1:length(wind_id_lst))
     }else if(length(tr_sn_list) < length(wind_id_lst)){
       tr_sn_list <- c(tr_sn_list,
                       rep(tr_sn_list[1], (length(wind_id_lst) - length(tr_sn_list))))
-      #names(wind_id_lst) <- paste0("wind_id", 1:length(wind_id_lst))
     }
 
     wind_id_lst <- lapply(1:length(wind_id_lst), function(i){
@@ -1125,16 +1106,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
   # `epid` object
   td1 <- lapply(wind_id_lst, function(y) y[retrieve_pos])
-  # if(length(td1) > 1){
-  #   ref_wind <- td1$wind_id1
-  #   td2 <- lapply(td1[2:length(td1)], function(x){
-  #     x[!is.na(x) & x == ref_wind] <- NA_real_
-  #     x
-  #   })
-  #   td1 <- c(td1[1], td2)
-  #   rm(td2)
-  # }
-
   epids <- new("epid",
                .Data= e[fd],
                dist_epid_index = dist_epid_index[fd],

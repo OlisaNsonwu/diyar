@@ -162,7 +162,7 @@ bridge_record_group <- function(df, args){
     sub_cri_args <- c(sub_cri_args, supp_cri)
     sub_cri_args <- paste0(nm, " = ", sub_cri_args, collapse = ", ")
     sub_cri_args <- paste0("list(", sub_cri_args, ")")
-    args <- paste0(args, ", ", sub_cri_args)
+    args <- paste0(args, ", sub_criteria = ", sub_cri_args)
     }
 
   if(length(display_arg) > 0){

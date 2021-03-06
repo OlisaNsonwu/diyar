@@ -2,41 +2,52 @@
 #
 # @description Data validations
 #
-err_sub_criteria_1 <- function(..., cri_nm = "sub_criteria"){
+err_sub_criteria_1 <- function(...){
   args <- list(...)
-  args <- unlist(args, recursive = FALSE)
   err <- lapply(args, function(x){
-    ifelse(is.atomic(x), NA_character_, class(x))
+    if(all(class(x) == "list")){
+      lapply(x, function(y){
+        if(is.atomic(y)) NA_character_ else class(y)
+      })
+    }else if(is.atomic(x) | all(class(x) == "sub_criteria")){
+      NA_character_
+    }else{
+      class(x)
+    }
   })
   err <- unlist(err, use.names = FALSE)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!is.na(err)]
 
   if(length(err) > 0){
-    paste0("Invalid object type for `", cri_nm, "`:\n",
-           "i - `", cri_nm, "` must be an `atomic` vector or a `list of `atomic` vectors.\n",
-           paste0("X - `", cri_nm, "` ", names(err),"` is a ", err,".", collapse = "\n"))
+    paste0("Invalid object type for `...` in `sub_criteria()`:\n",
+           "i - `...` must be an `atomic` vector OR,\n",
+           "i - `...` must be a `list` of `atomic`  vectors OR,\n",
+           "i - `...` must be a `sub_criteria` object.\n",
+           paste0("X - `...` ", "contains is a `", err,"` object.", collapse = "\n"))
   }else{
-    F
+    FALSE
   }
 }
 
-err_sub_criteria_2 <- function(funcs){
+err_sub_criteria_2 <- function(funcs, funcs_l){
   try_txt <- try(lapply(funcs, function(x){}), silent = T)
   if(class(try_txt) == "try-error"){
-    attr(try_txt, "condition")$message
+    paste0("Unable to evaluate `",funcs_l,"`.:\n",
+           "Issue - \"",attr(try_txt, "condition")$message, "\"")
+
   }else{
-    F
+    FALSE
   }
 }
 
-err_sub_criteria_3 <- function(funcs){
+err_sub_criteria_3 <- function(funcs, funcs_l){
   err <- sapply(funcs, is.function)
   if(length(err) > 0) names(err) <- 1:length(err)
   err <- err[!err]
   if(length(err) > 0){
-    err <- paste0("`funcs` must be a fuction or a `list` of functions:\n",
-                  "X - `funcs[c(", listr(names(err), conj = ",", lim=3), ")]` ",
+    err <- paste0("`",funcs_l,"` must be a function or a `list` of functions:\n",
+                  "X - `",funcs_l,"[c(", listr(names(err), conj = ",", lim=3), ")]` ",
                   ifelse(length(err ==1), "is not a function.", "are not functions."))
     err
   }else{
@@ -44,13 +55,15 @@ err_sub_criteria_3 <- function(funcs){
   }
 }
 
-err_sub_criteria_4 <- function(..., funcs){
+err_sub_criteria_4 <- function(..., funcs, funcs_l){
   if(!length(funcs) %in% c(0, 1, length(list(...)))){
-    return(paste0("Length of `funcs` must be 1 or the same as `...`:\n"),
-         "i - Expecting 1", ifelse(length(list(...)) > 1, paste0(" or ",length(list(...))), ""), ".\n",
-         "X - You've supplied ", length(funcs), ".")
+    lens <- length(list(...))
+    return(paste0("Number of logical test (`",funcs_l,"`) must be 1 or the same as the number of matching attributes (`...`):\n",
+         "i - Expecting 1", ifelse(lens > 1, paste0(" or ", lens), ""), ".\n",
+         "X - You've supplied ", length(funcs), " logical tests (`",funcs_l,"`)."))
+
   }else{
-    F
+    FALSE
   }
 }
 
@@ -392,18 +405,19 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   }
 }
 
-err_sub_criteria_3dot_1 <- function(..., cri_nm = "sub_criteria"){
+err_sub_criteria_3dot_1 <- function(...){
   args <- list(...)
-  err <- lapply(args, length)
+  err <- lapply(list(...), extract_3dot_lengths)
   err <- unlist(err, use.names = FALSE)
-  if(length(err) > 0) names(err) <- 1:length(err)
-  err <- err[!duplicated(err)]
+  err <- sort(err[!duplicated(err)])
 
   if(length(err) != 1 | all(err == 0)){
-    paste0("Length of each `", cri_nm, "` must be the same or equal to 1:\n",
-           paste0("X - `", cri_nm, "` ", names(err),"` is ", err,".", collapse = "\n"))
+    paste0("Different lengths for each elemtn in `...` in `sub_criteria()`:\n",
+           "i - Each element in `...` must have the same length.\n",
+           "i - This includes recursive evaluations of `list` and `sub_criteria` objects.\n",
+           paste0("X - `...` ", "contains elements of lengths ", listr(err),".", collapse = "\n"))
   }else{
-    F
+    FALSE
   }
 }
 
@@ -1808,6 +1822,22 @@ err_strata_level_args <- function(arg, strata, arg_nm){
 
     err <- err_spec_vals(orientation, "orientation", c("by_pid", "by_pid_cri"))
     if(err != FALSE) return(err[1])
+
+    return(FALSE)
+  }
+
+
+  err_sub_criteria_funcs <- function(..., funcs, funcs_l){
+    if(class(funcs) != "list") funcs <- list(funcs)
+
+    err <- err_sub_criteria_2(funcs = funcs, funcs_l = funcs_l)
+    if(!isFALSE(err)) return(err)
+
+    err <- err_sub_criteria_3(funcs = funcs, funcs_l = funcs_l)
+    if(!isFALSE(err)) return(err)
+
+    err <- err_sub_criteria_4(..., funcs = funcs, funcs_l = funcs_l)
+    if(!isFALSE(err)) return(err)
 
     return(FALSE)
   }
