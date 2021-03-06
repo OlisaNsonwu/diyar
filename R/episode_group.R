@@ -1042,10 +1042,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   wind_nm[which(case_nm == -1L & !is.na(case_nm))] <- -1L
 
-  qfx <- data.frame(i = wind_id, n = wind_nm, stringsAsFactors = FALSE)
-  qfx <- qfx[!duplicated(qfx),]
-  qfx <- qfx[qfx$n == 1L,]
-  wind_nm[wind_id %in% qfx$i] <- 1L
+  # qfx <- data.frame(i = wind_id, n = wind_nm, stringsAsFactors = FALSE)
+  # qfx <- qfx[!duplicated(qfx),]
+  # qfx <- qfx[qfx$n == 1L,]
+  # wind_nm[wind_id %in% qfx$i] <- 1L
+  qfx <- wind_id + wind_nm/10
+  qfx <- qfx[!duplicated(qfx) & wind_nm == 1L]
+  wind_nm[wind_id %in% as.integer(qfx)] <- 1L
   rm(qfx)
 
   ep_units <- ep_units[match(int@id, seq_len(inp_n))]
