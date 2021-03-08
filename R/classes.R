@@ -554,7 +554,6 @@ as.data.frame.pane <- function(x, ...){
                   sn = x@sn,
                   case_nm = decode(x@case_nm),
                   dist_pane_index = x@dist_pane_index,
-                  dist_pane_index = x@dist_pane_index,
                   window_matched = x@window_matched,
                   pane_total = x@pane_total,
                   ...)

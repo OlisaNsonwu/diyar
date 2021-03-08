@@ -605,7 +605,7 @@ epids <- episodes(date = date(c(x1, x2, x3, x4, x5)),
                   case_length = c,
                   recurrence_length = r,
                   to_s4=T,
-                  recurrence_from_last = rl,
+                  reference_event = rl,
                   case_for_recurrence = cr,
                   rolls_max = rm,
                   episode_type = "rolling")
@@ -716,8 +716,8 @@ df <- data.frame(x=c(1,6,7,8,10), rc=8, ep =4)
 df$ep1 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 1)
 df$ep2 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 1)
 
-df$ep3 <- episodes(date = df$x, case_length = list(df$ep, 0), recurrence_length = list(df$rc, 0), case_for_recurrence = T, recurrence_from_last = "first_record", episode_type = "rolling", rolls_max = 1)
-df$ep4 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, recurrence_from_last = "first_record", episode_type = "rolling", rolls_max = 1)
+df$ep3 <- episodes(date = df$x, case_length = list(df$ep, 0), recurrence_length = list(df$rc, 0), case_for_recurrence = T, reference_event = "first_record", episode_type = "rolling", rolls_max = 1)
+df$ep4 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, reference_event = "first_record", episode_type = "rolling", rolls_max = 1)
 
 df$ep5 <- episodes(date = df$x, case_length = list(df$ep, 0), recurrence_length = list(df$rc, 0), case_for_recurrence = T, episode_type = "rolling", rolls_max = 2)
 df$ep6 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 2)

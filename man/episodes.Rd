@@ -24,7 +24,7 @@ episodes(
   data_links = "ANY",
   custom_sort = NULL,
   skip_order = Inf,
-  recurrence_from_last = "last_record",
+  reference_event = "last_record",
   case_for_recurrence = FALSE,
   from_last = FALSE,
   group_stats = FALSE,
@@ -79,14 +79,14 @@ episode_group(df, ..., episode_type = "fixed")
 \item{case_length}{Cut-off point (\code{numeric}) or period (\code{\link{number_line}}), distinguishing one \code{"case"} from another.
 This is the case window.}
 
-\item{episode_type}{\code{"fixed"} or \code{"rolling"}.}
+\item{episode_type}{\code{"fixed"}, \code{"rolling"} or \code{"recursive"}. See \code{Details}.}
 
 \item{recurrence_length}{Cut-off point or period distinguishing a \code{"recurrent"} event from its index event.
 This is the recurrence window. By default, it's the same as \code{case_length}.}
 
 \item{episode_unit}{Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.}
 
-\item{strata}{Subsets of the dataset. Episodes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will skip that record.}
+\item{strata}{Subsets of the dataset. Episodes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will exclude that record from episode tracking.}
 
 \item{sn}{Unique numerical record identifier. Useful for creating familiar episode identifiers.}
 
@@ -104,37 +104,37 @@ This is the recurrence window. By default, it's the same as \code{case_length}.}
 
 \item{data_links}{A set of \code{data_sources} required in each episode. An \code{episode} without records from these \code{data_sources} will be skipped or unlinked. See \code{Details}.}
 
-\item{custom_sort}{Preferential order for index (\code{"case"}) events.}
+\item{custom_sort}{Preferential order for selecting index (\code{"case"}) events.}
 
 \item{skip_order}{\code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.}
 
-\item{recurrence_from_last}{If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
+\item{reference_event}{If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
 If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.}
 
 \item{case_for_recurrence}{If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{from_last}{Chronological order for episode tracking i.e. ascending (\code{TRUE}) or descending \code{TRUE}.}
+\item{from_last}{Chronological order for episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).}
 
 \item{group_stats}{If \code{TRUE} (default), episode-specific information like episode start and endpoints are returned.}
 
 \item{display}{The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.}
 
-\item{case_sub_criteria}{Matching conditions for "case" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.}
+\item{case_sub_criteria}{Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.}
 
-\item{recurrence_sub_criteria}{Matching conditions for "recurrence" windows in addition to temporal links. Supplied by \code{\link{sub_criteria}}.}
+\item{recurrence_sub_criteria}{Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.}
 
-\item{case_length_total}{XXXXX}
+\item{case_length_total}{Minimum number of matched case windows required for an episode. See details}
 
-\item{recurrence_length_total}{XXXXX}
+\item{recurrence_length_total}{Minimum number of matched recurrence windows required for an episode. See details}
 
-\item{to_s4}{Data type of returned object. \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
+\item{to_s4}{If \code{TRUE}, output is an \code{\link[=epid-class]{epid}} object. If \code{FALSE}, it's a  or \code{data.frame}.}
 
-\item{deduplicate}{if \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
+\item{deduplicate}{If \code{TRUE}, \code{"duplicate"} events are excluded from the output.}
 
 \item{bi_direction}{If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.}
 
-\item{include_index_period}{If \code{TRUE}, overlaps with the index event or period are linked even if they are outside the cut-off period.}
+\item{include_index_period}{If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.}
 
 \item{...}{Arguments passed to \bold{\code{episodes}}}
 
@@ -152,25 +152,26 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \code{\link[=epid-class]{epid}} or \code{list} (\code{\link[=epid-class]{epid}} and \code{ggplot}) object
 }
 \description{
-Link events that have matching attributes and are within specified durations of each other.
-Records in each episode are assigned a unique identifier with relevant group-level data.
+Link events with matching attributes and within specified durations of each other.
+Records in each episode are assigned a unique identifier with relevant group-level information.
 }
 \details{
-Episodes begin with an index event. Records within a specified duration of this index event are then linked as episodes.
-By default, this is done in ascending order of events however, this can be changed to descending (\code{from_last}) or a custom order \code{custom_sort}.
+All dated records within a specified duration of an index record are linked together as an episodes.
+By default, this process occurs in ascending order, beginning with the earliest event.
+However, this can be changed to a descending (\code{from_last}) or custom order \code{custom_sort}.
 Ties are always broken by the chronological order of events.
 
 A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}, while a \code{"rolling"} episode can continue to recur.
 A \code{"rolling"} episode will persist as long as is specified by \code{rolls_max}.
 
-\bold{\code{episodes()}} will categorise records into 5 types of events;
+\bold{\code{episodes()}} will categorise records into 5 type of events;
 
 \itemize{
 \item \code{"Case"} - Index case of the episode.
 \item \code{"Duplicate_C"} - Duplicate of the index case.
-\item \code{"Recurrent"} - Recurrent event of the index case.
+\item \code{"Recurrent"} - Recurrence of the index case.
 \item \code{"Duplicate_R"} - Duplicate of the recurrent event.
-\item \code{"Skipped"} - Those skipped from the episode tracking process.
+\item \code{"Skipped"} - Records excluded from the episode tracking process.
 }
 
 \code{data_links} should be a \code{list} of \code{atomic} vectors with every element named \code{"l"} (links) or \code{"g"} (groups).
@@ -180,10 +181,12 @@ A \code{"rolling"} episode will persist as long as is specified by \code{rolls_m
 }
 
 \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-Its now exists to support previous code with minimal disruption. Please use \bold{\code{episodes()}} instead.
+It now exists to support previous code with minimal disruption.
+Please use \bold{\code{episodes()}} for new scripts.
 
 \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
-They exist for convenience, and to support previous code with minimal disruption.
+They exist for convenience and to support previous code with minimal disruption.
+Please consider using \bold{\code{episodes()}} for new scripts.
 
 See \code{vignette("episodes")} for more information.
 }

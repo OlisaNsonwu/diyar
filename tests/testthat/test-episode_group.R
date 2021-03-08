@@ -640,21 +640,21 @@ epids2_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, t
 x <- c("01/04/2019", "04/04/2019", "12/04/2019", "14/04/2019", "16/04/2019", "19/04/2019")
 x <- date(x)
 df <- data.frame(x=x, c=5, r=10)
-epids3_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = "last_record", rolls_max = 2, episode_type = "rolling")
-epids3_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = "first_record", rolls_max = 2, episode_type = "rolling")
+epids3_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, reference_event = "last_record", rolls_max = 2, episode_type = "rolling")
+epids3_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, reference_event = "first_record", rolls_max = 2, episode_type = "rolling")
 
 x <- c(date("01/01/2007"), date("07/01/2007"), date("09/01/2007"), date("19/01/2007"))
 df <- data.frame(x=x, c=5, r=10)
-epids6_a <- episode_group(df, date = x, case_length = c, recurrence_length = r, to_s4 = T, episode_type = "rolling", recurrence_from_last = "last_record", rolls_max = 2)
-epids6_b <- episode_group(df, date = x, case_length = c, recurrence_length = r, to_s4 = T, episode_type = "rolling", recurrence_from_last = "first_record", rolls_max = 2)
+epids6_a <- episode_group(df, date = x, case_length = c, recurrence_length = r, to_s4 = T, episode_type = "rolling", reference_event = "last_record", rolls_max = 2)
+epids6_b <- episode_group(df, date = x, case_length = c, recurrence_length = r, to_s4 = T, episode_type = "rolling", reference_event = "first_record", rolls_max = 2)
 
 x <- c("01/04/2019", "07/04/2019", "12/04/2019","21/04/2019","26/04/2019","29/04/2019")
 x <- date(x)
 df <- data.frame(x=x, c=5, r=20)
 
-epids4_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = "last_record", rolls_max = 2, episode_type = "rolling")
-epids4_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = "first_record", rolls_max = 2, episode_type = "rolling")
-epids4_c <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, recurrence_from_last = "first_record", case_for_recurrence =T, rolls_max = 2, episode_type = "rolling")
+epids4_a <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, reference_event = "last_record", rolls_max = 2, episode_type = "rolling")
+epids4_b <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, reference_event = "first_record", rolls_max = 2, episode_type = "rolling")
+epids4_c <- episode_group(df, date =x, case_length = c, recurrence_length = r, to_s4=T, reference_event = "first_record", case_for_recurrence =T, rolls_max = 2, episode_type = "rolling")
 
 
 test_that("test 'case_for_recurrence' in rolling_episodes", {
@@ -766,8 +766,8 @@ df <- data.frame(x=c(1,6,7,8,10), rc=8, ep =4)
 df$ep1 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 1)
 df$ep2 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 1)
 
-df$ep3 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = T, recurrence_from_last = "first_record", episode_type = "rolling", rolls_max = 1)
-df$ep4 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = F, recurrence_from_last = "first_record", episode_type = "rolling", rolls_max = 1)
+df$ep3 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = T, reference_event = "first_record", episode_type = "rolling", rolls_max = 1)
+df$ep4 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = F, reference_event = "first_record", episode_type = "rolling", rolls_max = 1)
 
 df$ep5 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = T, episode_type = "rolling", rolls_max = 2)
 df$ep6 <- episode_group(df, date =x, case_length = ep, recurrence_length = rc, case_for_recurrence = F, episode_type = "rolling", rolls_max = 2)

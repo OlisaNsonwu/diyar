@@ -201,7 +201,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   dst <- rle(sort(cri[!is.na(tag) & !duplicated(tag)]))
   phits <- dst$lengths[match(cri, dst$values)]
   lgk <- !(phits >= as.numeric(windows_total@start) & phits <= as.numeric(right_point(windows_total))) | is.na(pane)
-  pane[lgk] <- seq_len(length(int))[lgk]
+  pane[lgk] <- -seq_len(length(int))[lgk]
 
   # Index records - `custom_sort`
   ord <- order(pane, -c_sort, -as.numeric(int@start), -as.numeric(right_point(int)))
@@ -215,7 +215,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   pane <- rep(s_sn[lgk], r$lengths[match(s_pane[lgk], r$values)])
   pane <- pane[match(sn, s_sn)]
   case_nm[which(sn %in% s_sn[lgk] & case_nm != -1)] <- 0L
-  pane[case_nm == -1] <- sn
+  pane[case_nm == -1] <- sn[case_nm == -1]
 
   # pp <- as.numeric(names(index_sn$values))
   # qq <- as.numeric(names(s_pane))

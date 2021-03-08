@@ -6,9 +6,9 @@ err_sub_criteria_1 <- function(...){
   args <- list(...)
   err <- lapply(args, function(x){
     if(all(class(x) == "list")){
-      lapply(x, function(y){
-        if(is.atomic(y)) NA_character_ else class(y)
-      })
+      # lapply(x, function(y){
+      #   if(is.atomic(y)) NA_character_ else class(y)
+      # })
     }else if(is.atomic(x) | all(class(x) == "sub_criteria")){
       NA_character_
     }else{
@@ -929,7 +929,7 @@ err_episodes_checks_0 <- function(date = 1,
                                   data_links = "ANY",
                                   custom_sort = rep(1, length(date)),
                                   skip_order = 1,
-                                  recurrence_from_last = "last_record",
+                                  reference_event = "last_record",
                                   case_for_recurrence = TRUE,
                                   from_last = TRUE,
                                   group_stats = TRUE,
@@ -956,7 +956,7 @@ err_episodes_checks_0 <- function(date = 1,
                data_links = data_links,
                skip_order = skip_order,
                skip_if_b4_lengths = skip_if_b4_lengths,
-               recurrence_from_last = recurrence_from_last,
+               reference_event = reference_event,
                case_for_recurrence = case_for_recurrence,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total)
@@ -983,7 +983,7 @@ err_episodes_checks_0 <- function(date = 1,
                skip_if_b4_lengths = skip_if_b4_lengths,
                data_links = data_links,
                skip_order = skip_order,
-               recurrence_from_last = recurrence_from_last,
+               reference_event = reference_event,
                case_for_recurrence = case_for_recurrence,
                from_last = from_last,
                group_stats = group_stats,
@@ -1005,7 +1005,7 @@ err_episodes_checks_0 <- function(date = 1,
                        data_links = c("list", "character"),
                        skip_order = c("numeric", "integer"),
                        skip_if_b4_lengths = "logical",
-                       recurrence_from_last = c("character", "logical"),
+                       reference_event = c("character", "logical"),
                        case_for_recurrence = "logical",
                        from_last = "logical",
                        group_stats = "logical",
@@ -1037,7 +1037,7 @@ err_episodes_checks_0 <- function(date = 1,
                #data_links = data_links,
                skip_order = skip_order,
                skip_if_b4_lengths = skip_if_b4_lengths,
-               recurrence_from_last = recurrence_from_last,
+               reference_event = reference_event,
                case_for_recurrence = case_for_recurrence,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total)
@@ -1057,7 +1057,7 @@ err_episodes_checks_0 <- function(date = 1,
                     #data_links = len_lims,
                     skip_order = len_lims,
                     skip_if_b4_lengths = len_lims,
-                    recurrence_from_last = len_lims,
+                    reference_event = len_lims,
                     case_for_recurrence = len_lims,
                     case_length_total = len_lims,
                     recurrence_length_total = len_lims)
@@ -1082,7 +1082,7 @@ err_episodes_checks_0 <- function(date = 1,
                data_links = data_links,
                skip_order = skip_order,
                skip_if_b4_lengths = skip_if_b4_lengths,
-               recurrence_from_last = recurrence_from_last,
+               reference_event = reference_event,
                case_for_recurrence = case_for_recurrence,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total)
@@ -1104,7 +1104,7 @@ err_episodes_checks_0 <- function(date = 1,
   if(err != FALSE) return(err)
   err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
   if(err != FALSE) return(err)
-  err <- err_spec_vals(recurrence_from_last, "recurrence_from_last", c("first_record", "first_event", "last_record", "last_event", TRUE, FALSE))
+  err <- err_spec_vals(reference_event, "reference_event", c("first_record", "first_event", "last_record", "last_event", TRUE, FALSE))
   if(err != FALSE) return(err)
   err <- err_overlap_methods_1(overlap_methods = case_overlap_methods, "case_overlap_methods")
   if(err != FALSE) return(err)

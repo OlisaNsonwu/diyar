@@ -242,9 +242,10 @@ prep_lengths <- function(length, overlap_methods, int,
   )
 }
 
-ovr_chks <- function(tr, int, mths, ord){
-  x <- overlaps(tr, int, methods = mths)
+ovr_chks <- function(date, window, mths, ord){
+  x <- overlaps(date, window, methods = mths)
   ord[x %in% c(NA, FALSE)] <-  0
+  rm(list = ls()[ls() != "ord"])
   as.numeric(ord)
 }
 
@@ -905,8 +906,8 @@ sub_cri_checks_b <- function(sub_criteria, strata,
     }
     return(out1)
   })
-  if(length(set_match) == 1){
-    set_match <- as.matrix(set_match)
+  if(length(sn) == 1){
+    set_match <- t(as.matrix(set_match))
   }
 
   operator <- attr(sub_criteria, "operator")
@@ -929,7 +930,7 @@ sub_cri_checks_b <- function(sub_criteria, strata,
 
 pane_checks <- function(dates, windows){
   fnx <- function(x, int = dates){
-    ovr_chks(windows[[x]], int, rep("overlap", length(int)), rep(x, length(int)))
+    ovr_chks(rep(windows[[x]], length(int)), int, rep("overlap", length(int)), rep(x, length(int)))
   }
 
   checks <- as.matrix(sapply(as.numeric(seq_len(length(windows))), fnx))
@@ -1154,7 +1155,7 @@ decode <- function(x){
 extract_3dot_lengths <- function(x){
   if(all(class(x) == "sub_criteria")){
     unlist(lapply(x, function(sc){
-      extract_lens(sc[[1]])
+      extract_3dot_lengths(sc[[1]])
     }), use.names = FALSE)
   }else if(all(class(x) == "list")){
     unlist(lapply(x, function(y){

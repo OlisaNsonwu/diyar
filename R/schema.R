@@ -151,22 +151,21 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
   plt_df$x_lead <- link_sn$mid_x[match(plt_df$pane_id, link_sn$sn)]
   plt_df$y_lead <- link_sn$y[match(plt_df$pane_id, link_sn$sn)]
 
-  if(!isFALSE(show_labels)){
     plt_df$event_type <- ""
     plt_df$event_nm <- ""
     # Show `pane_id` if requested
-    if("pane" %in%  show_labels){
+    if("pane" %in% show_labels & !isFALSE(show_labels)){
       plt_df$event_type <- paste0("PN.", plt_df$epid)
     }
     # Show `case_nm` if requested
-    if("case_nm" %in%  show_labels){
+    if("case_nm" %in% show_labels & !isFALSE(show_labels)){
       plt_df$event_type <- paste0(plt_df$event_type, ifelse(plt_df$event_type == "", "", "\n"),
                                   plt_df$case_nm,
                                   ifelse(plt_df$sn %in% plt_df$pane_id & plt_df$case_nm != -1,
                                          "\n(reference)",""))
     }
     # Show record `date` if requested
-    if("date" %in%  show_labels){
+    if("date" %in%  show_labels & !isFALSE(show_labels)){
       plt_df$event_nm <- number_line(plt_df$start,
                                      plt_df$end)
       plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
@@ -179,11 +178,10 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
                                     plt_df$event_nm)
     }
     # Show record `sn` if requested
-    if("sn" %in%  show_labels){
+    if("sn" %in%  show_labels & !isFALSE(show_labels)){
       plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
                                 plt_df$event_nm)
     }
-  }
 
   # Can't plot `Inf'/`-Inf`, so close infinite `window`
   r_lim <- c(border$end, plt_df$end)
@@ -464,7 +462,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 
     if(is_dt == TRUE){
       # Sensible labels for time points. Based on `episode_unit`
-      if(min(which(names(diyar::episode_unit) == episode_unit[[1]])) >= 4){
+      if(min(episode_unit[[1]]) >= 4){
         labels <- as.Date(as.POSIXct(labels, "GMT", origin = as.POSIXct("1970-01-01", "GMT")))
         plt_df$event_nm <- number_line(as.Date(as.POSIXct(plt_df$start, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))),
                                        as.Date(as.POSIXct(plt_df$end, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))))
@@ -489,11 +487,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   }
 
   # Labels to plot
-  if(!isFALSE(show_labels)){
     plt_df$event_type <- ""
     plt_df$event_nm <- ""
     # Show `epid_id` if requested
-    if("epid" %in%  show_labels){
+    if("epid" %in%  show_labels & !isFALSE(show_labels)){
       plt_df$event_type <- paste0("E.", plt_df$epid)
     }
     # Show `case_nm` if requested
@@ -504,7 +501,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                                          "\n(reference)",""))
     }
     # Show `date` if requested
-    if("date" %in%  show_labels){
+    if("date" %in%  show_labels & !isFALSE(show_labels)){
       plt_df$event_nm <- number_line(plt_df$start_l,
                                      plt_df$end_l)
       plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
@@ -517,11 +514,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                                     plt_df$event_nm)
     }
     # Show record `sn` if requested
-    if("sn" %in%  show_labels){
+    if("sn" %in%  show_labels & !isFALSE(show_labels)){
       plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
                                 plt_df$event_nm)
     }
-  }
 
   # Show non-finite dates if requested
   if(isTRUE(show_non_finite)){
@@ -745,7 +741,6 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
   }
 
   # Labels to plot
-  if(!isFALSE(show_labels)){
     pl_dt$event_nm <- ""
     pl_dt$pid_l <- ""
     # Show record `custom_label` if requested
@@ -754,15 +749,14 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
                                pl_dt$event_nm)
     }
     # Show record `sn` is requested
-    if("sn" %in% show_labels){
+    if("sn" %in% show_labels & !isFALSE(show_labels)){
       pl_dt$event_nm <- paste0("SN ", pl_dt$sn, "; ",
                                pl_dt$event_nm)
     }
     # Show record `pid` is requested
-    if("pid" %in% show_labels){
+    if("pid" %in% show_labels & !isFALSE(show_labels)){
       pl_dt$pid_l <- pl_dt$link_col
     }
-  }
 
   border$pid_box_cri <- pl_dt$pid_box_cri[match(border$pid_box, pl_dt$pid_box)]
   tx_l <- min(pl_dt$x1)
