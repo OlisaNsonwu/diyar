@@ -271,10 +271,10 @@ summary.epid <- function(object, ...){
   summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
                  "Records:\n",
                  "  Total:           ", fmt(length(object)), "\n",
-                 "    Skipped:       ", fmt(length(object[object@case_nm == "Skipped"])), "\n",
+                 "    Skipped:       ", fmt(length(object[object@case_nm == -1])), "\n",
                  "Episodes:\n",
-                 "  Total:           ", fmt(length(object[object@case_nm == "Case"])), "\n",
-                 "    Single record: ", fmt(length(object[object@case_nm == "Case" & object@epid_total == 1])), "\n",
+                 "  Total:           ", fmt(length(object[object@case_nm == 0])), "\n",
+                 "    Single record: ", fmt(length(object[object@case_nm == 0 & object@epid_total == 1])), "\n",
                  "  Data sources:\n",
                  ds_dst, "\n")
   cat(summ)
@@ -538,10 +538,10 @@ summary.pane <- function(object, ...){
   }
   summ <- paste0("Records:\n",
                  "  Total:           ", fmt(length(object)), "\n",
-                 "    Skipped:       ", fmt(length(object[object@case_nm == "Skipped"])), "\n",
+                 "    Skipped:       ", fmt(length(object[object@case_nm == -1])), "\n",
                  "Panes:\n",
-                 "  Total:           ", fmt(length(object[object@case_nm == "Index"])), "\n",
-                 "    Single record: ", fmt(length(object[object@case_nm == "Index" & object@pane_total == 1])), "\n",
+                 "  Total:           ", fmt(length(object[object@case_nm == 0])), "\n",
+                 "    Single record: ", fmt(length(object[object@case_nm == 0 & object@pane_total == 1])), "\n",
                  "  Data sources:\n",
                  ds_dst, "\n")
   cat(summ)
@@ -746,11 +746,11 @@ as.pid <- function(x, ...){
 format.pid <- function(x, ...){
   if (length(x) == 0) {
     return("pid(0)")
-    }else{
-      return(paste0("P.",
-                    formatC(x@.Data, width = nchar(max(x@.Data)), flag = 0, format = "fg"),
-                    " (", pid_cri_l(x@pid_cri), ")" ))
-      }
+  }else{
+    return(paste0("P.",
+                  formatC(x@.Data, width = nchar(max(x@.Data)), flag = 0, format = "fg"),
+                  " (", pid_cri_l(x@pid_cri), ")" ))
+  }
 }
 
 #' @rdname pid-class
@@ -822,7 +822,7 @@ as.list.pid <- function(x, ...){
             link_id = x@link_id,
             pid_total = x@pid_total,
             iteration = x@iteration,
-                  ...)
+            ...)
   if(length(x@pid_dataset) != 0){
     y$pid_dataset <- attr(x@pid_dataset, "label")[match(x@pid_dataset, attr(x@pid_dataset, "value"))]
   }else{

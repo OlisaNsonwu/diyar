@@ -154,18 +154,18 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
     plt_df$event_type <- ""
     plt_df$event_nm <- ""
     # Show `pane_id` if requested
-    if("pane" %in% show_labels & !isFALSE(show_labels)){
+    if("pane" %in% show_labels){
       plt_df$event_type <- paste0("PN.", plt_df$epid)
     }
     # Show `case_nm` if requested
-    if("case_nm" %in% show_labels & !isFALSE(show_labels)){
+    if("case_nm" %in% show_labels){
       plt_df$event_type <- paste0(plt_df$event_type, ifelse(plt_df$event_type == "", "", "\n"),
                                   plt_df$case_nm,
                                   ifelse(plt_df$sn %in% plt_df$pane_id & plt_df$case_nm != -1,
                                          "\n(reference)",""))
     }
     # Show record `date` if requested
-    if("date" %in%  show_labels & !isFALSE(show_labels)){
+    if("date" %in%  show_labels){
       plt_df$event_nm <- number_line(plt_df$start,
                                      plt_df$end)
       plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
@@ -178,7 +178,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
                                     plt_df$event_nm)
     }
     # Show record `sn` if requested
-    if("sn" %in%  show_labels & !isFALSE(show_labels)){
+    if("sn" %in%  show_labels){
       plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
                                 plt_df$event_nm)
     }
@@ -225,7 +225,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
     # ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$start, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
     # ggplot2::geom_segment(ggplot2::aes(x = .data$end, xend = .data$end, y = .data$y1, yend = .data$y2, color = .data$pane_n), data = border, alpha = .7) +
     ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, label = .data$win_l), color = txt_col, data = border, nudge_y = .05, size = 5)
-  if(!isFALSE(show_labels)){
+  if(!isFALSE(show_labels) | !is.null(custom_label)){
     f <- f +
       ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha = .7) +
       ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "top", alpha = .7)
@@ -490,7 +490,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     plt_df$event_type <- ""
     plt_df$event_nm <- ""
     # Show `epid_id` if requested
-    if("epid" %in%  show_labels & !isFALSE(show_labels)){
+    if("epid" %in%  show_labels){
       plt_df$event_type <- paste0("E.", plt_df$epid)
     }
     # Show `case_nm` if requested
@@ -501,7 +501,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                                          "\n(reference)",""))
     }
     # Show `date` if requested
-    if("date" %in%  show_labels & !isFALSE(show_labels)){
+    if("date" %in%  show_labels){
       plt_df$event_nm <- number_line(plt_df$start_l,
                                      plt_df$end_l)
       plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
@@ -514,7 +514,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
                                     plt_df$event_nm)
     }
     # Show record `sn` if requested
-    if("sn" %in%  show_labels & !isFALSE(show_labels)){
+    if("sn" %in%  show_labels){
       plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
                                 plt_df$event_nm)
     }
@@ -549,7 +549,9 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
     plt_df$sn_lead <- link_sn$sn[match(plt_df$wind_id, link_sn$sn)]
     df_cols <- c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite")
-    if(!isFALSE(show_labels)) df_cols <- c(df_cols, "event_nm", "event_type")
+    if(!isFALSE(show_labels) | !is.null(custom_label)) {
+      df_cols <- c(df_cols, "event_nm", "event_type")
+      }
     plt_df <- plt_df[df_cols]
     if(i > 1){
       plt_df <- plt_df[sw,]
@@ -612,7 +614,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
     ggplot2::geom_segment(ggplot2::aes(x = .data$x_lead, y = .data$y_lead, colour = .data$epid, xend = .data$mid_x, yend = .data$y), alpha = .4)
-  if(!isFALSE(show_labels)){
+  if(!isFALSE(show_labels) | !is.null(custom_label)){
     if("length_arrow" %in% show_labels){
       f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y), linetype = "solid", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$wind_nm_l == "Case length" & case_l_ar$epid_total > 1 & case_l_ar$nl_s != case_l_ar$nl_e,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open")) +
         ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y), linetype = "dashed", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$wind_nm_l == "Recurrence length" & case_l_ar$epid_total > 1 & case_l_ar$nl_s != case_l_ar$nl_e,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open")) +
@@ -749,12 +751,12 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
                                pl_dt$event_nm)
     }
     # Show record `sn` is requested
-    if("sn" %in% show_labels & !isFALSE(show_labels)){
+    if("sn" %in% show_labels){
       pl_dt$event_nm <- paste0("SN ", pl_dt$sn, "; ",
                                pl_dt$event_nm)
     }
     # Show record `pid` is requested
-    if("pid" %in% show_labels & !isFALSE(show_labels)){
+    if("pid" %in% show_labels){
       pl_dt$pid_l <- pl_dt$link_col
     }
 
@@ -776,7 +778,7 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
     ggplot2::geom_segment(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, xend = .data$x_lead, yend = .data$y_lead), alpha = .4 + ifelse(!dark_mode, .1, 0)) +
     ggplot2::geom_rect(ggplot2::aes(xmin = .data$x1, xmax = .data$x2, ymin = .data$y1, ymax = .data$y2,  fill = .data$pid_box_cri), data = border, alpha = .1 + ifelse(!dark_mode, .1, 0)) +
     ggplot2::geom_text(ggplot2::aes(x = (.data$x1 + .data$x2)/2, y = (.data$y1 + .data$y2)/2, label = .data$pid_box_cri), size = scale_size(c(9, 30), 125, boxes_n), color = txt_col, alpha = scale_size(c(.1, .2), 125, boxes_n, decreasing = FALSE), data = border)
-  if(!isFALSE(show_labels)){
+  if(!isFALSE(show_labels) | !is.null(custom_label)){
     f <- f +
       ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$event_nm), nudge_y = scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "bottom", size = scale_size(c(2,4), 125, boxes_n), alpha = .7) +
       ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$pid_l), nudge_y = -scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "top", size = scale_size(c(2,4), 125, boxes_n), alpha = .7)
