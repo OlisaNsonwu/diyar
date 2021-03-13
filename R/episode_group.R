@@ -265,7 +265,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     lead_case_for_rec <- rep(NA, inp_n)
   }
   # `reference_event`
-  if(class(reference_event) == "logical") reference_event <- ifelse(reference_event == TRUE, "last_record", "first_record")
+  if(class(reference_event) == "logical"){
+    reference_event[reference_event] <- "last_record"
+    reference_event[reference_event != "last_record"] <- "first_record"
+  }
   if(length(reference_event) == 1) reference_event <- rep(reference_event, inp_n)
   any_rec_from_last <- any(reference_event %in% c("first_record", "first_event"))
   lead_ref_event <- reference_event[!duplicated(reference_event)]
@@ -372,6 +375,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[!req_links] <- 0L
   }
 
+  # Flag a strata with only one event as a case
+  lgk <- !duplicated(cri, fromLast = TRUE) & !duplicated(cri, fromLast = FALSE)
+  tag[lgk] <- 2L
+  case_nm[lgk & is.na(case_nm)] <- 0L
+  wind_nm[lgk & is.na(wind_nm)] <- 0L
+  iteration[lgk] <- 0L
+
   excluded <- length(tag[tag == 2])
   pri_pos <- seq_len(inp_n)
 
@@ -391,6 +401,64 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                         "rolls_max" = rolls_max[0],
                         "episodes_max" = episodes_max[0],
                         "iteration" = integer())
+
+  # Subset out all linked records
+  if(any(tag == 2)){
+    grouped_epids$wind_id_lst <- list(wind_id1 = wind_id[tag == 2])
+    for(i in c("e", "cri","assign_ord",
+               "epid_n", "c_sort",
+               "skip_order", "case_nm",
+               "wind_nm", "wind_id",
+               "rolls_max", "iteration",
+               "episodes_max")){
+      grouped_epids[[i]] <- c(grouped_epids[[i]], get(i)[tag == 2])
+      # assign(i, get(i)[tag != 2])
+    }
+    idx <- c(grouped_epids$int@id, int@id[tag == 2])
+    gidx <- c(grouped_epids$int@gid, int@gid[tag == 2])
+    grouped_epids$int <- c(grouped_epids$int, int[tag == 2])
+    grouped_epids$int@id <- idx
+    grouped_epids$int@gid <- gidx
+    # int <- int[tag != 2]
+    # tag <- tag[tag != 2]
+    rm(idx); rm(gidx)
+  }
+
+  # if(isTRUE(any_rolling_epi_curr)) roll_n <- roll_n[tag != 2]
+  # if(isFALSE(one_epid_type)){
+  #   lead_epid_type <- lead_epid_type[tag != 2]
+  #   episode_type <- episode_type[tag != 2]
+  # }
+  # if(isFALSE(one_case_for_rec)){
+  #   lead_case_for_rec <- lead_case_for_rec[tag != 2]
+  #   case_for_recurrence <- case_for_recurrence[tag != 2]
+  # }
+  # if(isFALSE(one_rec_from_last)){
+  #   lead_ref_event <- lead_ref_event[tag != 2]
+  #   reference_event <- reference_event[tag != 2]
+  # }
+  # if(isFALSE(one_skip_b4_len)){
+  #   lead_skip_b4_len <- lead_skip_b4_len[tag != 2]
+  #   skip_if_b4_lengths <- skip_if_b4_lengths[tag != 2]
+  # }
+  # if(isFALSE(one_epl_min)){
+  #   lead_epl_min <- lead_epl_min[tag != 2]
+  #   case_length_total <- case_length_total[tag != 2]
+  # }
+  # if(isFALSE(one_rcl_min)){
+  #   lead_rcl_min <- lead_rcl_min[tag != 2]
+  #   recurrence_length_total <- recurrence_length_total[tag != 2]
+  # }
+  # ep_l <- lapply(ep_l, function(x){x[tag != 2]})
+  # mths_a <- lapply(mths_a, function(x){x[tag != 2]})
+  #
+  # if(isTRUE(any_rolling_epi_curr)){
+  #   rc_l <- lapply(rc_l, function(x){x[tag != 2]})
+  #   mths_b <- lapply(mths_b, function(x){x[tag != 2]})
+  # }
+  # grouped_epids$tag <- c(grouped_epids$tag, tag[tag == 2])
+  # tag <- tag[tag != 2]
+
   ite <- 1L
   while (min(tag) != 2) {
     if(display == "stats" & excluded > 0 & ite == 1) cat(paste0(fmt(inp_n), "  ", fmt(excluded), " excluded from episode tracking.","\n"))
@@ -403,7 +471,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     any_rcl_min_curr <- any(!(recurrence_length_total@start == 1 & recurrence_length_total@.Data == Inf))
     # Sort dataset on order of case-assignment
     sort_ord <- order(cri, tag, assign_ord, int@gid, decreasing = TRUE)
-
+    if(any(tag == 2)){
+      sort_ord <- sort_ord[tag[sort_ord] != 2]
+    }
     for(i in c("e","tag","cri","assign_ord",
                "int","epid_n", "c_sort",
                "skip_order", "case_nm",
@@ -469,11 +539,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     r <- rle(cri)
     cri_tot <- r$lengths
     lgk <- !duplicated(cri, fromLast = TRUE)
-    tr_int <- rep(int[lgk], r$lengths[match(cri[lgk], r$values)])
-    tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
+    # tr_int <- rep(int[lgk], r$lengths[match(cri[lgk], r$values)])
+    # tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
+
+    lgk_i <- which(!duplicated(cri, fromLast = TRUE))
+    rep_lgk <- match(cri, cri[lgk])
+    tr_int <- (int[lgk_i])[rep_lgk]
+    tr_tag <- (tag[lgk_i])[rep_lgk]
+
     if(isFALSE(one_rec_from_last)){
-      tr_rec_from_last <- rep(reference_event[lgk], r$lengths[match(cri[lgk], r$values)])
-      lead_ref_event <- ifelse(tr_tag == 0, tr_rec_from_last, lead_ref_event)
+      # tr_rec_from_last <- rep(reference_event[lgk], r$lengths[match(cri[lgk], r$values)])
+      # lead_ref_event <- ifelse(tr_tag == 0, tr_rec_from_last, lead_ref_event)
+      tr_rec_from_last <- (reference_event[lgk_i])[rep_lgk]
+      lgk_p <- which(tr_tag == 0)
+      lead_ref_event[lgk_p] <- tr_rec_from_last[lgk_p]
     }
     ref_rd <- lgk | tag %in% c(-1, -2)
     lgk2 <- (lead_ref_event == "first_event" | (lead_ref_event == "last_event" & lead_epid_type != 3)) &
@@ -495,32 +574,34 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # REMOVE. max_indx_ref WILL ALWAYS BE 1 OR MORE
     if(length(max_indx_ref) == 0){
-      tr_ep_int <- lapply(ep_l, function(x){
-        rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
-      })
-      tr_ep_int <- list(tr_ep_int)
+      # tr_ep_int <- lapply(ep_l, function(x){
+      #   rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
+      # })
+      # tr_ep_int <- list(tr_ep_int)
     }else{
       tr_ep_int <- lapply(max_indx_ref, function(y){
         lgk2 <- (ref_rd & cri_indx_ord == y)
         lgk2[!cri %in% cri[lgk2] & ref_rd & cri_indx_ord == 1] <- TRUE
         lapply(ep_l, function(x){
-          rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
+          # rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
+          (x[lgk2])[rep_lgk]
         })
       })
     }
 
     if(isTRUE(any_rolling_epi_curr)){
       if(length(max_indx_ref) == 0){
-        tr_rc_int <- lapply(rc_l, function(x){
-          rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
-        })
-        tr_rc_int <- list(tr_rc_int)
+      #   tr_rc_int <- lapply(rc_l, function(x){
+      #     rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
+      #   })
+      #   tr_rc_int <- list(tr_rc_int)
       }else{
         tr_rc_int <- lapply(max_indx_ref, function(y){
           lgk2 <- (ref_rd & cri_indx_ord == y)
           lgk2[!cri %in% cri[lgk2] & ref_rd & cri_indx_ord == 1] <- TRUE
           lapply(rc_l, function(x){
-            rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
+            # rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
+            (x[lgk2])[rep_lgk]
           })
         })
       }
@@ -529,47 +610,74 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     tr_sn_list <- lapply(max_indx_ref, function(y){
       lgk2 <- (ref_rd & cri_indx_ord == y)
       lgk2[!cri %in% cri[lgk2] & ref_rd & cri_indx_ord == 1] <- TRUE
-      rep(int@gid[lgk2], r$lengths[match(cri[lgk], r$values)])
+      # rep(int@gid[lgk2], r$lengths[match(cri[lgk], r$values)])
+      (int@gid[lgk2])[rep_lgk]
     })
-    tr_e <- rep(e[lgk], r$lengths[match(cri[lgk], r$values)])
-    tr_skip_order <- rep(skip_order[lgk], r$lengths[match(cri[lgk], r$values)])
-    tr_c_sort <- rep(c_sort[lgk], r$lengths[match(cri[lgk], r$values)])
-
+    # tr_e <- rep(e[lgk], r$lengths[match(cri[lgk], r$values)])
+    # tr_skip_order <- rep(skip_order[lgk], r$lengths[match(cri[lgk], r$values)])
+    # tr_c_sort <- rep(c_sort[lgk], r$lengths[match(cri[lgk], r$values)])
+    tr_e <- (e[lgk_i])[rep_lgk]
+    tr_skip_order <- (skip_order[lgk_i])[rep_lgk]
+    tr_c_sort <- (c_sort[lgk_i])[rep_lgk]
     if(any(names(mths_a) == "e") | any(names(mths_a) == "b")){
       tr_mths_a <- lapply(mths_a, function(x){
-        rep(x[lgk], r$lengths[match(cri[lgk], r$values)])})
+        # rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
+        (x[lgk_i])[rep_lgk]
+        })
     }
     if(isTRUE(any_rolling_epi_curr)){
       if(any(names(mths_b) == "e") | any(names(mths_b) == "b")){
         tr_mths_b <- lapply(mths_b, function(x){
-          rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
+          # rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
+          (x[lgk_i])[rep_lgk]
         })
       }
     }
     if(isFALSE(one_epid_type)){
-      tr_epid_type <- rep(episode_type[lgk], r$lengths[match(cri[lgk], r$values)])
-      lead_epid_type <- ifelse(tr_tag == 0, tr_epid_type, lead_epid_type)
+      # tr_epid_type <- rep(episode_type[lgk], r$lengths[match(cri[lgk], r$values)])
+      # lead_epid_type <- ifelse(tr_tag == 0, tr_epid_type, lead_epid_type)
+      tr_epid_type <- (episode_type[lgk_i])[rep_lgk]
+      lgk_p <- which(tr_tag == 0)
+      lead_epid_type[lgk_p] <- tr_epid_type[lgk_p]
     }
     if(isFALSE(one_case_for_rec)){
-      tr_case_for_rec <- rep(case_for_recurrence[lgk], r$lengths[match(cri[lgk], r$values)])
-      lead_case_for_rec <- ifelse(tr_tag == 0, tr_case_for_rec, lead_case_for_rec)
+      # tr_case_for_rec <- rep(case_for_recurrence[lgk], r$lengths[match(cri[lgk], r$values)])
+      # lead_case_for_rec <- ifelse(tr_tag == 0, tr_case_for_rec, lead_case_for_rec)
+      tr_case_for_rec <- (case_for_recurrence[lgk_i])[rep_lgk]
+      lgk_p <- which(tr_tag == 0)
+      lead_case_for_rec[lgk_p] <- tr_case_for_rec[lgk_p]
     }
     if(isFALSE(one_skip_b4_len)){
-      tr_skip_b4_len <- rep(skip_if_b4_lengths[lgk], r$lengths[match(cri[lgk], r$values)])
-      lead_skip_b4_len <- ifelse(tr_tag == 0, tr_skip_b4_len, lead_skip_b4_len)
+      # tr_skip_b4_len <- rep(skip_if_b4_lengths[lgk], r$lengths[match(cri[lgk], r$values)])
+      # lead_skip_b4_len <- ifelse(tr_tag == 0, tr_skip_b4_len, lead_skip_b4_len)
+      tr_skip_b4_len <- (skip_if_b4_lengths[lgk_i])[rep_lgk]
+      lgk_p <- which(tr_tag == 0)
+      lead_skip_b4_len[lgk_p] <- tr_skip_b4_len[lgk_p]
     }
     if(isFALSE(one_epl_min) & isTRUE(any_epl_min_curr)){
-      tr_epl_min <- rep(case_length_total[lgk], r$lengths[match(cri[lgk], r$values)])
-      lead_epl_min <- ifelse(tr_tag == 0, tr_epl_min, lead_epl_min)
+      # tr_epl_min <- rep(case_length_total[lgk], r$lengths[match(cri[lgk], r$values)])
+      # lead_epl_min <- ifelse(tr_tag == 0, tr_epl_min, lead_epl_min)
+      tr_epl_min <- (case_length_total[lgk_i])[rep_lgk]
+      lgk_p <- which(tr_tag == 0)
+      lead_epl_min[lgk_p] <- tr_epl_min[lgk_p]
     }
     if(isFALSE(one_rcl_min) & isTRUE(any_rcl_min_curr)){
-      tr_rcl_min <- rep(recurrence_length_total[lgk], r$lengths[match(cri[lgk], r$values)])
-      lead_rcl_min <- ifelse(tr_tag == 0, tr_rcl_min, lead_rcl_min)
+      # tr_rcl_min <- rep(recurrence_length_total[lgk], r$lengths[match(cri[lgk], r$values)])
+      # lead_rcl_min <- ifelse(tr_tag == 0, tr_rcl_min, lead_rcl_min)
+      tr_rcl_min <- (recurrence_length_total[lgk_i])[rep_lgk]
+      lgk_p <- which(tr_tag == 0)
+      lead_rcl_min[lgk_p] <- tr_rcl_min[lgk_p]
     }
     if(isTRUE(any_rolling_epi_curr)){
-      roll_n <- ifelse(tr_tag == 0, 0L, ifelse(tr_tag == -1, roll_n + 1L, roll_n))
+      # roll_n <- ifelse(tr_tag == -1, roll_n + 1L, roll_n)
+      lgk_p <- which(tr_tag == -1)
+      roll_n[lgk_p] <- roll_n[lgk_p] + 1L
+      # roll_n <- ifelse(tr_tag == 0, 0L, roll_n)
+      lgk_p <- which(tr_tag == 0)
+      roll_n[lgk_p] <- 0L
     }
-    epid_n <- ifelse(tr_tag == 0, epid_n + 1L, epid_n)
+    lgk_p <- which(tr_tag == 0)
+    epid_n[lgk_p] <- epid_n[lgk_p] + 1L
 
     lgk1 <- epid_n > episodes_max & tag != 2
     case_nm[lgk1] <- -1L
@@ -641,10 +749,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     })
 
     cr <- lapply(1:length(ep_checks), function(i){
-      ifelse(tr_tag %in% c(0) &
+      tr_tag %in% c(0) &
                (ref_rd  | (ep_checks[[i]] >= 1)) &
-               tag != 2,
-             TRUE, FALSE)
+               tag != 2
     })
     if(length(cr) == 1){
       vr <- cr[[1]]
@@ -676,12 +783,17 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     checks_lgk <- rep(FALSE, length(int))
     if(class(case_sub_criteria[[1]]) == "sub_criteria"){
       c_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
-        if(length(cr[cr]) > 0){
-          checks_lgk[cr] <- sub_cri_checks_b(sub_criteria = case_sub_criteria[[1]],
-                                             strata = cri[cr],
-                                             index_record = ifelse(ref_rd & cri_indx_ord == i, TRUE, FALSE)[cr],
-                                             sn = int@id[cr],
+        cri_2 <- cri + (cr/10)
+        cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
+        if(length(cr[cr & !cri_2]) > 0){
+          ref_rd <- checks_lgk
+          ref_rd <- cri_indx_ord == i
+          checks_lgk[cr & !cri_2] <- sub_cri_checks_b(sub_criteria = case_sub_criteria[[1]],
+                                             strata = cri[cr & !cri_2],
+                                             index_record = ref_rd[cr & !cri_2],
+                                             sn = int@id[cr & !cri_2],
                                              skip_repeats = FALSE)[[1]]
+          checks_lgk[cr & cri_2] <- TRUE
         }
         checks_lgk
       })
@@ -731,13 +843,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       })
 
       cr2 <- lapply(1:length(rc_checks), function(i){
-        ifelse(
-          (
-            (tr_tag %in% c(-1) & (ref_rd | (rc_checks[[i]] >= 1))) |
-              (tr_tag %in% c(-2) & (ref_rd | (ep_checks[[i]] >= 1)))
-          ) &
-            tag != 2,
-          TRUE, FALSE)
+        (
+          (tr_tag %in% c(-1) & (ref_rd | (rc_checks[[i]] >= 1))) |
+            (tr_tag %in% c(-2) & (ref_rd | (ep_checks[[i]] >= 1)))
+        ) &
+          tag != 2
       })
 
       if(length(cr2) == 1){
@@ -774,11 +884,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
       if(class(recurrence_sub_criteria[[1]]) == "sub_criteria"){
         r_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
-          if(length(cr2[cr2]) > 0){
-            checks_lgk[cr2] <- sub_cri_checks_b(sub_criteria = recurrence_sub_criteria[[1]],
-                                                strata = cri[cr2],
-                                                index_record = ifelse(ref_rd & cri_indx_ord == i, TRUE, FALSE)[cr2],
-                                                sn = int@id[cr2],
+          cri_2 <- cri + (cr2/10)
+          cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
+          if(length(cr2[cr2 & !cri_2]) > 0){
+            ref_rd <- checks_lgk
+            ref_rd <- cri_indx_ord == i
+            checks_lgk[cr2 & !cri_2] <- sub_cri_checks_b(sub_criteria = recurrence_sub_criteria[[1]],
+                                                strata = cri[cr2 & !cri_2],
+                                                index_record = ref_rd[cr2 & !cri_2],
+                                                sn = int@id[cr2 & !cri_2],
                                                 skip_repeats = FALSE)[[1]]
           }
           checks_lgk
@@ -813,12 +927,18 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     wind_id_lst <- lapply(1:length(wind_id_lst), function(i){
-      ifelse(cr & tag == 0, tr_sn_list[[i]], wind_id_lst[[i]])
+      # ifelse(cr & tag == 0, tr_sn_list[[i]], wind_id_lst[[i]])
+      x <- wind_id_lst[[i]]
+      x[cr & tag == 0] <- (tr_sn_list[[i]])[cr & tag == 0]
+      x
     })
     names(wind_id_lst) <- paste0("wind_id", 1:length(wind_id_lst))
     e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
 
-    case_nm[cr & tr_tag %in% c(0)] <- ifelse(ref_rd[cr & tr_tag %in% c(0)], 0L, 2L)
+    # case_nm[cr & tr_tag %in% c(0)] <- ifelse(ref_rd[cr & tr_tag %in% c(0)], 0L, 2L)
+    lgk_p <- which(cr & tr_tag %in% c(0))
+    case_nm[lgk_p[ref_rd[lgk_p]]] <- 0L
+    case_nm[lgk_p[!ref_rd[lgk_p]]] <- 2L
     wind_nm[cr & tr_tag %in% c(0, -2) & is.na(wind_nm)] <- 0L
     new_hits <- cr & tag != 2 & !ref_rd
     tag[cr] <- 2L
@@ -850,7 +970,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(isTRUE(any_rec_from_last)) roll_ref[lead_ref_event %in% c("first_record", "first_event")] <- -roll_ref[lead_ref_event %in% c("first_record", "first_event")]
 
       # Reference event for recurrence window
-      t_cr <- ifelse(ref_rd & roll_n >= 1, FALSE, cr)
+      # t_cr <- ifelse(ref_rd & roll_n >= 1, FALSE, cr)
+      t_cr <- cr
+      t_cr[ref_rd & roll_n >= 1] <- FALSE
       sort_ord <- order(cri, t_cr, tag, roll_ref, int@gid)
       t_cri <- cri[sort_ord]
       t_sn <- int@id[sort_ord]
@@ -1074,10 +1196,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   # Units for `dist_epid_index` and `dist_wind_index`
-  diff_unit <- ifelse(ep_units %in% c(1, 2),
-                      paste0(substr(names(diyar::episode_unit)[ep_units], 1 ,3), "s"),
-                      names(diyar::episode_unit)[ep_units])
-  diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
+  # diff_unit <- ifelse(ep_units %in% c(1, 2),
+  #                     paste0(substr(names(diyar::episode_unit)[ep_units], 1 ,3), "s"),
+  #                     names(diyar::episode_unit)[ep_units])
+  lgk_p <- which(ep_units %in% c(1, 2))
+  diff_unit <- names(diyar::episode_unit)[ep_units]
+  diff_unit[lgk_p] <- paste0(substr(names(diyar::episode_unit)[ep_units[lgk_p]], 1 ,3), "s")
+
+  # diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
+  diff_unit[diff_unit %in% c("months","year")] <- "days"
   diff_unit <- diff_unit[!duplicated(diff_unit)]
   if(length(diff_unit) > 1) diff_unit <- "days"
 
@@ -1156,11 +1283,19 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     case_nm <- case_nm[sort_ord]
     frm_last <- from_last[match(tmp_pos[fd], pri_pos)]
-    epid_dt_a <- ifelse(frm_last, right_point(int), as.numeric(int@start))
-    epid_dt_z <- ifelse(frm_last, as.numeric(int@start), right_point(int))
+    # epid_dt_a <- ifelse(frm_last, right_point(int), as.numeric(int@start))
+    # epid_dt_z <- ifelse(frm_last, as.numeric(int@start), right_point(int))
+    epid_dt_a <- as.numeric(int@start)
+    epid_dt_a[frm_last] <- as.numeric(right_point(int[frm_last]))
+    epid_dt_z <- as.numeric(right_point(int))
+    epid_dt_z[frm_last] <- as.numeric(int@start[frm_last])
 
-    epid_dt_a[lgk] <- ifelse(frm_last[lgk], dts_z, dts_a)
-    epid_dt_z[lgk] <- ifelse(frm_last[lgk], dts_a, dts_z)
+    # epid_dt_a[lgk] <- ifelse(frm_last[lgk], dts_z, dts_a)
+    epid_dt_a[lgk] <- dts_a
+    epid_dt_a[lgk[frm_last[lgk]]] <- dts_z[frm_last[lgk]]
+    # epid_dt_z[lgk] <- ifelse(frm_last[lgk], dts_a, dts_z)
+    epid_dt_z[lgk] <- dts_z
+    epid_dt_z[lgk[frm_last[lgk]]] <- dts_a[frm_last[lgk]]
 
     if(isTRUE(is_dt)){
       epid_dt_a <- as.POSIXct(epid_dt_a, tz = "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
