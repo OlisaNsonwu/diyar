@@ -413,7 +413,7 @@ ds$r4
 
 #### Index events for periods of recurrence
 
-Each `"rolling" episode` has at least two index-`events`. one for the whole `episode` and one for each period of recurrence. By default, the last `event` of the previous `window` is the index `event` for the next period of recurrence. Changing `recurrence_from_last` to `FALSE`, specifies that the first `event` in the previous window is used. See a demonstration of this below.
+Each `"rolling" episode` has at least two index-`events`. one for the whole `episode` and one for each period of recurrence. By default, the last `event` of the previous `window` is the index `event` for the next period of recurrence. Changing `reference_event` to `FALSE`, specifies that the first `event` in the previous window is used. See a demonstration of this below.
 
 *If the `case_length` is the same the `recurrence_length` and you'll create a `"fixed" episode`*. 
 
@@ -421,13 +421,13 @@ Each `"rolling" episode` has at least two index-`events`. one for the whole `epi
 df <- c("01/04/2019", "11/04/2019", "16/04/2019","21/04/2019", "07/05/2019")
 df <- data.frame(date= as.Date(df, "%d/%m/%Y"))
 
-# 15-day fixed episodes are the same as 15-day rolling episodes where `recurrence_from_last` is FALSE
+# 15-day fixed episodes are the same as 15-day rolling episodes where `reference_event` is FALSE
 df$f1 <- episodes(date = df$date, 
                   case_length = 14, 
                   display = "none")
 
 df$r1 <- episodes(date = df$date, case_length = 14, 
-                  recurrence_from_last = F,
+                  reference_event = F,
                   episode_type = "rolling",
                   display = "none")
 
@@ -456,7 +456,7 @@ schema(df$r2, show_labels = c("length_arrow", "length_label", "date"))
 ```{r message=FALSE, warning=FALSE}
 df$r3 <- episodes(date = df$date, case_length = 14, 
                   recurrence_length = 16, 
-                  recurrence_from_last = F, 
+                  reference_event = F, 
                   episode_type = "rolling",
                   display = "none")
 

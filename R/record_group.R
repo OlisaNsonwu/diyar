@@ -126,20 +126,21 @@ links <- function(criteria,
   if(class(criteria) != "list") criteria <- list(criteria)
 
   # Maximum no. of records from all criteria
-  ds_len <- as.numeric(lapply(criteria, length))
-  ds_len_b <- sub_criteria[grepl("cr[0-9]", names(sub_criteria))]
-  ds_len_b <- sapply(ds_len_b, function(x){
-    sapply(x, function(x){
-      if(class(x[[1]]) == "list"){
-        length(x[[1]][[1]])
-      }else{
-        length(x[[1]])
-      }
-       })
-  })
-  ds_len <- max(c(ds_len, unlist(ds_len_b, use.names = FALSE)))
-  rm(ds_len_b)
-
+  ds_len <- c(as.numeric(lapply(criteria, length)),
+              as.numeric(unlist(lapply(sub_criteria, extract_3dot_lengths), use.names = FALSE)))
+  # ds_len_b <- sub_criteria[grepl("cr[0-9]", names(sub_criteria))]
+  # ds_len_b <- sapply(ds_len_b, function(x){
+  #   sapply(x, function(x){
+  #     if(class(x[[1]]) == "list"){
+  #       length(x[[1]][[1]])
+  #     }else{
+  #       length(x[[1]])
+  #     }
+  #      })
+  # })
+  # ds_len <- max(c(ds_len, unlist(ds_len_b, use.names = FALSE)))
+  # rm(ds_len_b)
+  ds_len <- max(ds_len)
   err <- err_sn_1(sn = sn, ref_num = ds_len, ref_nm = "criteria")
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
@@ -167,7 +168,7 @@ links <- function(criteria,
   display <- tolower(display)
   # Place holders for group-level options
   tag <- rep(0L, ds_len)
-  tag_h <- tag
+  # tag_h <- tag
   iteration <- tag
   m_tag <- tag
   mxp_cri <- length(criteria) + 1L
@@ -177,65 +178,115 @@ links <- function(criteria,
   link_id <- pid
   n_seq <- seq_len(ds_len)
 
+  grouped_pids <- list("pid" = pid,
+                        "tag" = tag,
+                        "pid_cri" = pid_cri,
+                        "link_id" = link_id,
+                       "sn" = sn,
+                       "pr_sn" = pr_sn,
+                       "iteration" = iteration)
+
   if(display != "none") cat("\n")
   i <- ite <- 1L
-  while(i %in% seq_len(length(criteria)) & min(tag) == 0){
+  while(i %in% seq_len(length(criteria)) & min(grouped_pids$tag) == 0){
     # Current stage
     cri <- criteria[[i]]
     # Standardise `criteria` input
     if (length(cri) == 1) cri <- rep(cri, ds_len)
     # Re-order to current sort order
-    cri <- cri[match(pr_sn, n_seq)]
+    # cri <- cri[match(pr_sn, n_seq)]
     # Identify records to be skipped
-    lgk <- is.na(cri)
+    n_lgk <- is.na(cri)
     if(!is.null(strata)) {
-      lgk[!lgk] <- is.na(strata[!lgk])
-      cri[!lgk] <- paste0(strata[!lgk], " ", cri[!lgk])
+      n_lgk[!n_lgk] <- is.na(strata[!n_lgk])
+      cri[!n_lgk] <- paste0(strata[!n_lgk], " ", cri[!n_lgk])
     }
     # Prevent `pid` from expanding
     if(shrink == TRUE){
-      cri <- paste0(cri, " ", pid)
-      pid[TRUE] <- sn_ref
-      link_id[TRUE] <- sn_ref
+      # cri <- paste0(cri, " ", pid)
+      # pid[TRUE] <- sn_ref
+      # link_id[TRUE] <- sn_ref
+      cri <- paste0(cri, " ", grouped_pids$pid)
+      grouped_pids$pid[TRUE] <- sn_ref
+      grouped_pids$link_id[TRUE] <- sn_ref
     }
     # Encode current `criteria`
     cri <- match(cri, cri[!duplicated(cri)])
-    #cri[lgk] <- -seq_len(length(cri[lgk]))
+    #cri[n_lgk] <- -seq_len(length(cri[n_lgk]))
 
+    skp_lgk <- which(!n_lgk & !(!duplicated(cri, fromLast = TRUE) & !duplicated(cri, fromLast = FALSE)))
+    if(length(skp_lgk) == 0) {
+     i <- i + 1L
+     next
+    }
     curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
     if(length(curr_sub_cri) == 0){
-      skp_lgk <- which(!lgk & !(!duplicated(cri, fromLast = TRUE) & !duplicated(cri, fromLast = FALSE)))
-      sort_ord <- order(cri[skp_lgk],
-                        -tag[skp_lgk],
-                        pid_cri[skp_lgk],
-                        sn[skp_lgk], decreasing = TRUE)
-      sort_ord <- skp_lgk[sort_ord]
-      s_cri <- cri[sort_ord]
-      s_sn <- sn[sort_ord]
-      s_pid <- pid[sort_ord]
-      s_tag <- tag[sort_ord]
-      s_link_id <- link_id[sort_ord]
+      # skp_lgk <- which(!n_lgk & !(!duplicated(cri, fromLast = TRUE) & !duplicated(cri, fromLast = FALSE)))
+      # if(length(skp_lgk) == 0) {
+      #  i <- i + 1L
+      #  next
+      # }
+      cri <- cri[skp_lgk]
+      pid_cri <- grouped_pids$pid_cri[skp_lgk]
+      tag <- grouped_pids$tag[skp_lgk]
+      sn <- grouped_pids$sn[skp_lgk]
+      pr_sn <- grouped_pids$pr_sn[skp_lgk]
+      link_id <- grouped_pids$link_id[skp_lgk]
+      pid <- grouped_pids$pid[skp_lgk]
+      iteration <- grouped_pids$iteration[skp_lgk]
 
-      lgk <- which(!duplicated(s_cri, fromLast = TRUE))
-      tr_pid <- (s_pid[lgk])[match(s_cri, s_cri[lgk])]
-      tr_sn <- (s_sn[lgk])[match(s_cri, s_cri[lgk])]
-      tr_tag <- (s_tag[lgk])[match(s_cri, s_cri[lgk])]
+      sort_ord <- order(cri, -tag, pid_cri, sn, decreasing = TRUE)
+      # sort_ord <- skp_lgk[sort_ord]
+      cri <- cri[sort_ord]
+      sn <- sn[sort_ord]
+      pr_sn <- pr_sn[sort_ord]
+      pid <- pid[sort_ord]
+      tag <- tag[sort_ord]
+      link_id <- link_id[sort_ord]
 
-      lgk <- which(s_cri %in% s_cri[!duplicated(s_cri)] & tr_tag == 1 & s_cri > 0 & s_tag != 1 & expand)
-      s_pid[lgk] <- tr_pid[lgk]
-      s_link_id[lgk] <- tr_sn[lgk]
-      lgk <- which(s_cri %in% s_cri[!duplicated(s_cri)] & tr_tag == 0 & s_cri > 0 & s_tag != 1)
-      s_pid[lgk] <- tr_sn[lgk]
-      s_link_id[lgk] <- tr_sn[lgk]
-      s_pid <- s_pid[match(sn[skp_lgk], s_sn)]
-      s_link_id <- s_link_id[match(sn[skp_lgk], s_sn)]
-      pid[skp_lgk[tag[skp_lgk] != 1]] <- s_pid[tag[skp_lgk] != 1]
-      link_id[skp_lgk[tag[skp_lgk] != 1]] <- s_link_id[tag[skp_lgk] != 1]
-      tag[skp_lgk[!pid[skp_lgk] %in% c(sn_ref, NA)]] <- 1L
+      lgk <- which(!duplicated(cri, fromLast = TRUE))
+      tr_pid <- (pid[lgk])[match(cri, cri[lgk])]
+      tr_sn <- (sn[lgk])[match(cri, cri[lgk])]
+      tr_tag <- (tag[lgk])[match(cri, cri[lgk])]
+
+      lgk <- which(cri %in% cri[!duplicated(cri)] & tr_tag == 1 & cri > 0 & tag != 1 & expand)
+      pid[lgk] <- tr_pid[lgk]
+      link_id[lgk] <- tr_sn[lgk]
+      lgk <- which(cri %in% cri[!duplicated(cri)] & tr_tag == 0 & cri > 0 & tag != 1)
+      pid[lgk] <- tr_sn[lgk]
+      link_id[lgk] <- tr_sn[lgk]
+      # s_pid <- s_pid[match(sn, s_sn)]
+      # s_link_id <- s_link_id[match(sn, s_sn)]
+      pid[tag != 1] <- pid[tag != 1]
+      link_id[tag != 1] <- link_id[tag != 1]
+      tag[!pid %in% c(sn_ref, NA)] <- 1L
       iteration[pid != sn_ref & iteration == 0] <- ite
+
+      grouped_pids$pid[pr_sn] <- pid
+      grouped_pids$tag[pr_sn] <- tag
+      grouped_pids$pid_cri[pr_sn] <- pid_cri
+      grouped_pids$link_id[pr_sn] <- link_id
+      # grouped_pids$sn[pr_sn] <- sn
+      # grouped_pids$pr_sn[pr_sn] <- pr_sn
+      grouped_pids$iteration[pr_sn] <- iteration
       ite <- ite + 1L
+
     }else{
-      force_check <- rep(0L, ds_len)
+      # skp_lgk <- which(!n_lgk & !(!duplicated(cri, fromLast = TRUE) & !duplicated(cri, fromLast = FALSE)))
+      # if(length(skp_lgk) == 0) {
+      #   i <- i + 1L
+      #   next
+      # }
+      cri <- cri[skp_lgk]
+      pid_cri <- grouped_pids$pid_cri[skp_lgk]
+      tag <- grouped_pids$tag[skp_lgk]
+      sn <- grouped_pids$sn[skp_lgk]
+      pr_sn <- grouped_pids$pr_sn[skp_lgk]
+      pid <- grouped_pids$pid[skp_lgk]
+      link_id <- grouped_pids$link_id[skp_lgk]
+      iteration <- grouped_pids$iteration[skp_lgk]
+      cs_len <-length(cri)
+      force_check <- rep(0L, cs_len)
       skip <- force_check
       m_tag <- force_check
       min_pid <- sn_ref
@@ -265,7 +316,7 @@ links <- function(criteria,
         rep_lgk <- match(cri, cri[lgk])
         tr_link_id <- (link_id[lgk])[rep_lgk]
         tr_pid_cri <- (pid_cri[lgk])[rep_lgk]
-        tr_tag <- (tag[lgk])[rep_lgk]
+        # tr_tag <- (tag[lgk])[rep_lgk]
         tr_pid <- (pid[lgk])[rep_lgk]
         tr_sn <- (sn[lgk])[rep_lgk]
 
@@ -376,13 +427,12 @@ links <- function(criteria,
 
         if(tolower(display) == "progress" & length(curr_sub_cri) > 0) {
           msg <- paste0("Checking `sub_criteria` in `criteria ", i, "`")
-          progress_txt(length(m_tag[m_tag != 0]), ds_len, msg = msg)
+          progress_txt(length(m_tag[m_tag != 0]), cs_len, msg = msg)
         }
         iteration[pid != sn_ref & iteration == 0] <- ite
         ite <- ite + 1L
       }
     }
-
     if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
     if(display %in% c("progress", "stats")){
       cat(paste0("Checked `criteria ", i,"`.\n"))
@@ -395,6 +445,7 @@ links <- function(criteria,
     }
 
     #tag <- ifelse(pid %in% c(sn_ref, NA), 0L, 1L)
+    tag_h <- rep(0, length(tag))
     tag <- tag_h
     tag[which(!pid %in% c(sn_ref, NA))] <- 1L
     lgk <- (!duplicated(pid) & !duplicated(pid, fromLast = TRUE))
@@ -406,11 +457,27 @@ links <- function(criteria,
     iteration[tag == 0 & iteration != 0] <- 0L
     pid_cri[tag == 1 & (shrink | (pid_cri == mxp_cri & !shrink))] <- i
     i <- i + 1L
+
+    grouped_pids$pid[pr_sn] <- pid
+    grouped_pids$tag[pr_sn] <- tag
+    grouped_pids$pid_cri[pr_sn] <- pid_cri
+    grouped_pids$link_id[pr_sn] <- link_id
+    # grouped_pids$sn[pr_sn] <- sn
+    # grouped_pids$pr_sn[pr_sn] <- pr_sn
+    grouped_pids$iteration[pr_sn] <- iteration
   }
   iteration[iteration == 0] <- ite - 1L
   if(class(strata) != "NULL"){
     pid_cri[pid == sn_ref & is.na(strata) & pid_cri == mxp_cri] <- -1L
   }
+
+  grouped_pids$pid -> pid
+  grouped_pids$pid_cri -> pid_cri
+  grouped_pids$link_id ->  link_id
+  grouped_pids$sn -> sn
+  grouped_pids$pr_sn -> pr_sn
+  grouped_pids$iteration -> iteration
+
   pid_cri[pid == sn_ref & pid_cri == mxp_cri] <- 0L
   link_id[pid == sn_ref] <- sn[pid == sn_ref]
   pid[pid == sn_ref] <- sn[pid == sn_ref]

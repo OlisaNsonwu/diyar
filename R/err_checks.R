@@ -383,20 +383,24 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
     sub_criteria <- list(sub_criteria)
   }
   err <- as.numeric(lapply(ref_arg, length))
-  err2 <- unlist(lapply(sub_criteria, function(x){
-    lapply(x, function(x){
-      if(class(x[[1]]) == "list"){
-        lapply(x[[1]], function(y) length(y))
-      }else{
-        length(x[[1]])
-      }
-       })
-  }), use.names = FALSE)
+  # err2 <- unlist(lapply(sub_criteria, function(x){
+  #   lapply(x, function(x){
+  #     if(class(x[[1]]) == "list"){
+  #       lapply(x[[1]], function(y) length(y))
+  #     }else{
+  #       length(x[[1]])
+  #     }
+  #      })
+  # }), use.names = FALSE)
   err <- err[!duplicated(err)]
-  err2 <- err2[!duplicated(err2)]
+  # err2 <- err2[!duplicated(err2)]
+
+  err2 <- lapply(sub_criteria, extract_3dot_lengths)
+  err2 <- unlist(err2, use.names = FALSE)
+  err2 <- sort(err2[!duplicated(err2)])
 
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
-      return(paste0("Length of each `", arg_nm, "` and `",cri_nm, "` must be the same or equal to 1:\n",
+      return(paste0("Length of each `", arg_nm, "` and each attribute of every `",cri_nm, "` must be the same or equal to 1:\n",
            "i - Expecting ", listr(unique(c(1, err)), conj = " or"), ".\n",
            "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(sort(err)), ".\n",
            "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(sort(err2)), "."))
@@ -1254,8 +1258,8 @@ err_links_checks_0 <- function(criteria,
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
     if(err != FALSE) return(err[1])
-    # err <- err_sub_criteria_10(criteria, sub_criteria)
-    # if(err != FALSE) return(err)
+    err <- err_sub_criteria_10(criteria, sub_criteria)
+    if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(sub_criteria)
     if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equva", funcs_pos = 3)
