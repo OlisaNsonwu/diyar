@@ -536,8 +536,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     # Reference (index) events and options
-    r <- rle(cri)
-    cri_tot <- r$lengths
+    # r <- rle(cri)
+    # cri_tot <- r$lengths
     lgk <- !duplicated(cri, fromLast = TRUE)
     # tr_int <- rep(int[lgk], r$lengths[match(cri[lgk], r$values)])
     # tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
@@ -807,7 +807,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       c_sub_cri <- TRUE
     }
 
-
     cr[!c_sub_cri & cr & !ref_rd & tr_tag %in% c(0, -2)] <- FALSE
 
     if(isTRUE(any_rolling_epi_curr)){
@@ -950,7 +949,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       t_cri <- cri[sort_ord]
       t_sn <- int@id[sort_ord]
       t_sn <- t_sn[!duplicated(t_cri, fromLast = TRUE)]
-      r <- rle(t_cri)
+      # r <- rle(t_cri)
       case_nm[which(int@id %in% t_sn &
                       tr_tag %in% c(-1) &
                       new_hits
@@ -959,9 +958,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       sort_ord <- order(cri, -tag)
       t_cri <- cri[sort_ord]
       t_tag <- tag[sort_ord]
-      last_tag <- rle(t_cri)
+      # last_tag <- rle(t_cri)
       lgk <- !duplicated(t_cri, fromLast = TRUE)
-      last_tag <- rep(t_tag[lgk], r$lengths[match(t_cri[lgk], r$values)])
+      # last_tag <- rep(t_tag[lgk], r$lengths[match(t_cri[lgk], r$values)])
+      last_tag <- (t_tag[lgk])[match(t_cri, t_cri[lgk])]
+
       last_tag <- last_tag[match(int@id, int@id[sort_ord])]
       rm(t_tag); rm(t_cri)
       close_epi <- last_tag == 2
@@ -976,27 +977,30 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       sort_ord <- order(cri, t_cr, tag, roll_ref, int@gid)
       t_cri <- cri[sort_ord]
       t_sn <- int@id[sort_ord]
-      lgk <- !duplicated(t_cri, fromLast = TRUE)
+      lgk <- which(!duplicated(t_cri, fromLast = TRUE))
       t_sn <- t_sn[lgk]
 
+      lgk <- rep(FALSE, length(int))
       if(any(lead_ref_event %in% c("first_event", "last_event"))){
-        r <- rle(t_cri)
-        tr_t_int <- rep((int[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
-        tr_t_tag <- rep((tag[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
-        lgk <- rep(FALSE, length(int))
-        lgk2 <- lead_ref_event %in% c("first_event", "last_event") &
+        # r <- rle(t_cri)
+        # tr_t_int <- rep((int[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
+        tr_t_int <- ((int[sort_ord])[lgk])[match(t_cri, t_cri[lgk])]
+        # tr_t_tag <- rep((tag[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
+        tr_t_tag <- ((tag[sort_ord])[lgk])[match(t_cri, t_cri[lgk])]
+        lgk2 <- which(lead_ref_event %in% c("first_event", "last_event") &
           lead_epid_type != 3 &
-          tr_t_tag %in% c(-1, -2, 2)
+          tr_t_tag %in% c(-1, -2, 2))
         lgk[lgk2] <- overlap(int[lgk2], tr_t_int[lgk2])
         rm(lgk2)
-      }else{
-        lgk <- FALSE
       }
+      # else{
+      #   lgk <- FALSE
+      # }
 
       if(any(lead_epid_type == 3)){
-        if(length(lgk) == 1){
-          lgk <- rep(lgk, length(int))
-        }
+        # if(length(lgk) == 1){
+        #   lgk <- rep(lgk, length(int))
+        # }
         lgk[new_hits & !lgk & lead_epid_type == 3] <- TRUE
       }
 
