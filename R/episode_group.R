@@ -151,13 +151,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 recurrence_sub_criteria = recurrence_sub_criteria,
                                 case_length_total = case_length_total,
                                 recurrence_length_total = recurrence_length_total)
+  if(!isFALSE(errs)) stop(errs, call. = FALSE)
   inp_n <- length(date)
   # `episode_unit`
   ep_units <- tolower(episode_unit)
   ep_units <- match(ep_units, names(diyar::episode_unit))
   attr(ep_units, "value") <- sort(ep_units[!duplicated(ep_units)])
   attr(ep_units, "label") <- names(diyar::episode_unit)[attr(ep_units, "value")]
-
+  class(ep_units) <- "d_labels"
   # `strata`
   if(length(strata) == 1 | is.null(strata)) {
     cri <- rep(1L, inp_n)
@@ -173,8 +174,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      recurrence_length = if(class(recurrence_length) != "list") list(recurrence_length) else recurrence_length,
                      episode_unit = ep_units,
                      from_last = from_last)
-
-  if(!isFALSE(errs)) stop(errs, call. = FALSE)
   # Standardise inputs
   # `display`
   display <- tolower(display)
@@ -786,14 +785,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         cri_2 <- cri + (cr/10)
         cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
         if(length(cr[cr & !cri_2]) > 0){
-          ref_rd <- checks_lgk
-          ref_rd <- cri_indx_ord == i
+          # ref_rd <- checks_lgk
+          ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
           checks_lgk[cr & !cri_2] <- sub_cri_checks_b(sub_criteria = case_sub_criteria[[1]],
                                              strata = cri[cr & !cri_2],
                                              index_record = ref_rd[cr & !cri_2],
                                              sn = int@id[cr & !cri_2],
                                              skip_repeats = FALSE)[[1]]
-          checks_lgk[cr & cri_2] <- TRUE
+          # checks_lgk[cr & cri_2] <- FALSE
         }
         checks_lgk
       })
@@ -886,8 +885,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           cri_2 <- cri + (cr2/10)
           cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
           if(length(cr2[cr2 & !cri_2]) > 0){
-            ref_rd <- checks_lgk
-            ref_rd <- cri_indx_ord == i
+            # ref_rd <- checks_lgk
+            ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
             checks_lgk[cr2 & !cri_2] <- sub_cri_checks_b(sub_criteria = recurrence_sub_criteria[[1]],
                                                 strata = cri[cr2 & !cri_2],
                                                 index_record = ref_rd[cr2 & !cri_2],
@@ -1251,10 +1250,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   epids@case_nm <- case_nm[retrieve_pos]
   attr(epids@case_nm, "value") <- -1L : 3L
   attr(epids@case_nm, "label") <- c("Skipped", "Case", "Recurrent", "Duplicate_C", "Duplicate_R")
+  class(epids@case_nm) <- "d_labels"
 
   epids@wind_nm <- wind_nm[retrieve_pos]
   attr(epids@wind_nm, "value") <- -1L : 1L
   attr(epids@wind_nm, "label") <- c("Skipped", "Case", "Recurrence")
+  class(epids@wind_nm) <- "d_labels"
 
   # `epid_dataset` slot
   if(!is.null(data_source)){
@@ -1325,6 +1326,152 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   return(epids)
 }
 
+#' @rdname episodes
+#' @export
+episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = case_length,
+                               episode_unit = "days", strata = NULL, sn = NULL, episodes_max = Inf, rolls_max = Inf,
+                               case_overlap_methods = "overlap", recurrence_overlap_methods = case_overlap_methods,
+                               skip_if_b4_lengths = FALSE, data_source = NULL,
+                               data_links = "ANY", custom_sort = NULL, skip_order = Inf, reference_event = "last_record",
+                               case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
+                               display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
+                               case_length_total = 1, recurrence_length_total = case_length_total){
+  # Standardise `sub_criteria` inputs
+  if(class(case_sub_criteria) == "sub_criteria"){
+    case_sub_criteria <- list(case_sub_criteria)
+  }
+  if(class(recurrence_sub_criteria) == "sub_criteria"){
+    recurrence_sub_criteria <- list(recurrence_sub_criteria)
+  }
+
+  # Validations
+  errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
+                                display = display, episodes_max = episodes_max, from_last = from_last,
+                                episode_unit = episode_unit, case_overlap_methods = case_overlap_methods,
+                                recurrence_overlap_methods = recurrence_overlap_methods,
+                                skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
+                                data_source=data_source, data_links = data_links,
+                                skip_if_b4_lengths = skip_if_b4_lengths,
+                                rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
+                                reference_event = reference_event,
+                                episode_type = episode_type, recurrence_length = recurrence_length,
+                                case_sub_criteria = case_sub_criteria,
+                                recurrence_sub_criteria = recurrence_sub_criteria,
+                                case_length_total = case_length_total,
+                                recurrence_length_total = recurrence_length_total)
+  if(!isFALSE(errs)) stop(errs, call. = FALSE)
+
+  if(is.null(strata)) {
+    sn <- seq_len(length(date))
+  }
+
+  if(is.null(strata)) {
+    strata <- rep(1L, length(date))
+  }
+
+  if(class(date) == "number_line"){
+    s <- list(date@start, date@.Data, strata)
+  }else{
+    s <- list(date, strata)
+  }
+
+  mx_n <- max(unlist(lapply(seq_len(length(s)), function(i){
+    x <- s[[i]]
+    x <- match(x, x[!duplicated(x)])
+    floor(log10(max(x)))
+  }), use.names = FALSE))
+
+  date_strata_combi <- sapply(seq_len(length(s)), function(i){
+    x <- s[[i]]
+    x <- match(x, x[!duplicated(x)])
+    log10(max(x))
+    10^(mx_n+i) * x
+  })
+
+  date_strata_combi <- rowSums(date_strata_combi)
+  date_strata_combi_dup <- duplicated(date_strata_combi)
+
+  date_strata_combi_l <- paste0(strata," - ", format(date), "")
+
+  opt_lst <- list(
+    "date" = date,
+    "case_length" = case_length,
+    "episode_type" = episode_type,
+    "recurrence_length" = recurrence_length,
+    "episode_unit" = episode_unit,
+    "sn" = sn,
+    "episodes_max" = episodes_max,
+    "rolls_max" = rolls_max,
+    "case_overlap_methods" = case_overlap_methods,
+    "recurrence_overlap_methods" = recurrence_overlap_methods,
+    "skip_if_b4_lengths" = skip_if_b4_lengths,
+    "data_source" = data_source,
+    "data_links" = data_links,
+    "custom_sort" = custom_sort,
+    "skip_order" = skip_order,
+    "reference_event" = reference_event,
+    "case_for_recurrence" = case_for_recurrence,
+    "from_last" = from_last,
+    "group_stats" = group_stats,
+    "display" = display,
+    "case_length_total" = case_length_total,
+    "recurrence_length_total" = recurrence_length_total)
+
+  errs <- lapply(seq_len(length(opt_lst)), function(i){
+    if(is.null(opt_lst[[i]]) | names(opt_lst[i]) %in% c("date", "sn")){
+      return(NA_character_)
+    }
+    x <- err_strata_level_args(opt_lst[[i]],
+                               date_strata_combi_l,
+                               names(opt_lst[i]),
+                               "`strata` - `date` pair.")
+    if(isFALSE(x)){
+      return(NA_character_)
+    }else{
+      return(x)
+    }
+  })
+  errs <- unlist(errs, use.names = FALSE)
+  errs <- errs[!is.na(errs)]
+  if(length(errs) > 0){
+    stop(paste0(errs, collapse = "\n"), call. = FALSE)
+  }
+
+  opt_lst <- lapply(opt_lst, function(x){
+    if(is.null(x) | length(x) == 1){
+      return(x)
+    }else{
+      return(x[!date_strata_combi_dup])
+    }
+  })
+
+  epids <- episodes(sn = opt_lst$sn, date = opt_lst$date,
+                    case_length = opt_lst$case_length,
+                    strata = opt_lst$strata,
+                    display = opt_lst$display, episodes_max = opt_lst$episodes_max,
+                    from_last = opt_lst$from_last, episode_unit = opt_lst$episode_unit,
+                    case_overlap_methods = opt_lst$case_overlap_methods,
+                    recurrence_overlap_methods = opt_lst$recurrence_overlap_methods,
+                    skip_order = opt_lst$skip_order, custom_sort = opt_lst$custom_sort, group_stats = opt_lst$group_stats,
+                    data_source = opt_lst$data_source, data_links = opt_lst$data_links,
+                    skip_if_b4_lengths = opt_lst$skip_if_b4_lengths,
+                    rolls_max = opt_lst$rolls_max, case_for_recurrence = opt_lst$case_for_recurrence,
+                    reference_event = opt_lst$reference_event,
+                    episode_type = opt_lst$episode_type, recurrence_length = opt_lst$recurrence_length,
+                    case_sub_criteria = case_sub_criteria[[1]],
+                    recurrence_sub_criteria = recurrence_sub_criteria[[1]],
+                    case_length_total = opt_lst$case_length_total,
+                    recurrence_length_total = opt_lst$recurrence_length_total)
+
+  rp_lgk <- match(date_strata_combi, date_strata_combi[!date_strata_combi_dup])
+  wf_epid <- epids[rp_lgk]
+  wf_epid@sn <- sn
+  wf_epid@case_nm[wf_epid@case_nm == 0 & date_strata_combi_dup] <- 2
+  wf_epid@case_nm[wf_epid@case_nm == 1 & date_strata_combi_dup] <- 3
+  wf_epid
+  rm(list = ls()[ls() != "wf_epid"])
+  return(wf_epid)
+}
 #' @rdname episodes
 #' @export
 fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",

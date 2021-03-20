@@ -186,14 +186,14 @@ setClass("epid",
          contains = "integer",
          representation(sn = "integer",
                         wind_id = "list",
-                        wind_nm = "integer",
-                        case_nm = "integer",
+                        wind_nm = "ANY",
+                        case_nm = "ANY",
                         dist_wind_index = "ANY",
                         dist_epid_index = "ANY",
                         epid_interval = "number_line",
                         epid_length = "ANY",
                         epid_total = "integer",
-                        epid_dataset = "integer",
+                        epid_dataset = "ANY",
                         iteration = "integer",
                         options = "list"))
 
@@ -260,7 +260,7 @@ unique.epid <- function(x, ...){
 #' @export
 summary.epid <- function(object, ...){
   if(length(object@epid_dataset) > 0){
-    ds_dst <- table(attr(object@epid_dataset, "label")[match(object@epid_dataset[!duplicated(object@.Data)], attr(object@pid_dataset, "value"))])
+    ds_dst <- table(decode(object@epid_dataset[object@case_nm == 0]))
     ds_dst <- ds_dst[!is.na(ds_dst)]
     ds_dst <- ds_dst[order(names(ds_dst))]
     ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
@@ -458,12 +458,14 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 setClass("pane",
          contains = "integer",
          representation(sn = "integer",
-                        case_nm = "integer",
+                        case_nm = "ANY",
                         dist_pane_index = "ANY",
-                        window_list = "list", window_matched = "integer",
+                        window_list = "list",
+                        window_matched = "integer",
                         pane_interval = "number_line",
-                        pane_length = "ANY", pane_total = "integer",
-                        pane_dataset = "integer",
+                        pane_length = "ANY",
+                        pane_total = "integer",
+                        pane_dataset = "ANY",
                         options = "list"))
 
 #' @rdname pane-class
@@ -529,7 +531,7 @@ unique.pane <- function(x, ...){
 #' @export
 summary.pane <- function(object, ...){
   if(length(object@pane_dataset) > 0){
-    ds_dst <- table(attr(object@pane_dataset, "label")[match(object@pane_dataset[!duplicated(object@.Data)], attr(object@pid_dataset, "value"))])
+    ds_dst <- table(decode(object@pane_dataset[object@case_nm == 0]))
     ds_dst <- ds_dst[!is.na(ds_dst)]
     ds_dst <- ds_dst[order(names(ds_dst))]
     ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
@@ -708,7 +710,7 @@ setClass("pid",
          representation(sn = "integer",
                         pid_cri = "integer",
                         link_id = "integer",
-                        pid_dataset = "integer",
+                        pid_dataset = "ANY",
                         pid_total = "integer",
                         iteration = "integer"))
 
@@ -772,7 +774,7 @@ summary.pid <- function(object, ...){
   cri_dst <- paste0("       ", pid_cri_l(cri_n), ":    ", fmt(cri_dst), collapse = "\n")
 
   if(length(object@pid_dataset) > 0){
-    ds_dst <- table(attr(object@pid_dataset, "label")[match(object@pid_dataset[!duplicated(object@.Data)], attr(object@pid_dataset, "value"))])
+    ds_dst <- table(decode(object@pid_dataset[!duplicated(object@.Data)]))
     ds_dst <- ds_dst[!is.na(ds_dst)]
     ds_dst <- ds_dst[order(names(ds_dst))]
     ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
@@ -885,4 +887,41 @@ setMethod("c", signature(x = "pid"), function(x,...) {
   to_s4(do.call("rbind", lapply(list(x, ...), to_df)))
 })
 
+#' @export
+rep.d_labels <- function(x, ...){
+  y <- x
+  class(y) <- NULL
+  y <- rep(y, ...)
+  attr(y, "value") <- attr(x, "value")
+  attr(y, "label") <- attr(x, "label")
+  class(y) <- "d_labels"
+  y
+}
 
+#' @export
+# setMethod("[", signature(x = "d_labels"),
+#           function(x, i, j, ..., drop = TRUE) {
+#             y <- x[i]
+#             attr(y, "value") <- attr(x, "value")
+#             attr(y, "label") <- attr(x, "label")
+#             class(y) <- "d_labels"
+#             y
+#           })
+
+`[.d_labels` <- function(x, i, ..., drop = TRUE) {
+  class(x) <- NULL
+  y <- x[i]
+  attr(y, "value") <- attr(x, "value")
+  attr(y, "label") <- attr(x, "label")
+  class(y) <- "d_labels"
+  y
+}
+
+`[[.d_labels` <- function(x, i, ..., drop = TRUE) {
+  class(x) <- NULL
+  y <- x[i]
+  attr(y, "value") <- attr(x, "value")
+  attr(y, "label") <- attr(x, "label")
+  class(y) <- "d_labels"
+  y
+}

@@ -856,6 +856,7 @@ links_probabilistic <- function(attribute,
       pwts[curr_match] <- log2(curr_mprob/curr_uprob[curr_match])
       # disagreements
       pwts[!curr_match] <- log2((1 - curr_mprob)/(1 - curr_uprob[!curr_match]) )
+      pwts[!is.finite(pwts)] <- 0
       pwts
     })
 

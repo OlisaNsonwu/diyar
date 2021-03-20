@@ -1143,6 +1143,7 @@ encode <- function(x){
   x <- val_cd[match(x, val_nm)]
   attr(x, "value") <- val_cd
   attr(x, "label") <- val_nm
+  class(x) <- "d_labels"
   return(x)
 }
 
@@ -1158,9 +1159,7 @@ extract_3dot_lengths <- function(x){
       extract_3dot_lengths(sc[[1]])
     }), use.names = FALSE)
   }else if(all(class(x) == "list")){
-    unlist(lapply(x, function(y){
-      length(y)
-    }), use.names = FALSE)
+    unlist(lapply(x, length), use.names = FALSE)
   }else if(is.atomic(x)){
     length(x)
   }

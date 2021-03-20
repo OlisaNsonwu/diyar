@@ -1128,8 +1128,8 @@ err_episodes_checks_0 <- function(date = 1,
   if(class(case_sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(case_sub_criteria, cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err[1])
-    # err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
-    # if(err != FALSE) return(err)
+    err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
+    if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(case_sub_criteria, cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "case_sub_criteria")
@@ -1147,8 +1147,8 @@ err_episodes_checks_0 <- function(date = 1,
   if(class(recurrence_sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err[1])
-    # err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
-    # if(err != FALSE) return(err)
+    err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
+    if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err)
     err <- err_sub_criteria_5.0(recurrence_sub_criteria, funcs_l = "equva", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
@@ -1313,7 +1313,7 @@ err_invalid_opts <- function(arg_vals, arg_nm, valid_opts){
   }
 }
 
-err_strata_level_args <- function(arg, strata, arg_nm){
+err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
   one_val <- arg[!duplicated(arg)]
   one_val <- length(arg) == 1
   if(one_val != T){
@@ -1333,7 +1333,7 @@ err_strata_level_args <- function(arg, strata, arg_nm){
     opts <- opts[!is.na(opts)]
 
     if(length(opts) > 0){
-      errs <- paste0("Unique values of `", arg_nm, "` required in each `strata`:\n",
+      errs <- paste0("Unique values of `", arg_nm, "` required in each ", strata_l, ":\n",
                      paste0("X - You've supplied ", listr(paste0(opts, " for ", "\"", names(opts), "\""), lim = 2) ,"."))
       return(errs)
     }else{

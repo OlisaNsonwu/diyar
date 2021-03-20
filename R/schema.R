@@ -52,7 +52,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
   plt_df$end <- right_point(as.number_line(x@options$date))
   plt_df$epid <- as.character(panes@.Data)
   plt_df$pane_id <- panes@.Data
-  plt_df$case_nm <- panes@case_nm
+  plt_df$case_nm <- decode(panes@case_nm)
 
   # Data points without finite coordinates.
   plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
@@ -227,8 +227,8 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
     ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, label = .data$win_l), color = txt_col, data = border, nudge_y = .05, size = 5)
   if(!isFALSE(show_labels) | !is.null(custom_label)){
     f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha = .7) +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$pane_n, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "top", alpha = .7)
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$epid, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha = .7) +
+      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$epid, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "top", alpha = .7)
   }
   if(!is.null(title)){
     f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y = 2.2, label = title), colour = txt_col, size = 5)
