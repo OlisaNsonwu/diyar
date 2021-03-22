@@ -799,7 +799,7 @@ sub_cri_checks_b <- function(sub_criteria, strata,
   lgk <- !duplicated(cri.2, fromLast = TRUE)
   #skp_cri <- cri.2 < 0
 
-  set_match <- sapply(1:length(sub_criteria), function(j){
+  matches <- sapply(1:length(sub_criteria), function(j){
     a <- sub_criteria[[j]]
     x <- a[[1]]
     if(class(x) == "sub_criteria"){
@@ -907,14 +907,25 @@ sub_cri_checks_b <- function(sub_criteria, strata,
     return(out1)
   })
   if(length(sn) == 1){
-    set_match <- t(as.matrix(set_match))
+    matches <- t(as.matrix(matches))
   }
-
   operator <- attr(sub_criteria, "operator")
   if(operator == "or"){
-    set_match <- ifelse(rowSums(set_match) > 0, 1, 0)
+    # set_match <- ifelse(rowSums(matches) > 0, 1, 0)
+    if(isTRUE(skip_repeats)){
+      set_match <- rowSums(matches)
+      m2 <- rowSums(matches) == ncol(matches) | index_record
+      lgk <- which(seq_len(nrow(matches)) >= nrow(matches)/2)
+      set_match[lgk] <- m2[lgk]
+      rm(m2); rm(lgk)
+    }else{
+      set_match <- rowSums(matches)
+    }
+    set_match[set_match > 0] <- 1
   }else if (operator == "and"){
-    set_match <- ifelse(rowSums(set_match) == ncol(set_match) | index_record, 1, 0)
+    # set_match <- ifelse(rowSums(set_match) == ncol(set_match) | index_record, 1, 0)
+    set_match <- rowSums(matches) == ncol(matches) | index_record
+    set_match <- as.numeric(set_match)
   }
 
   if(isTRUE(skip_repeats)){

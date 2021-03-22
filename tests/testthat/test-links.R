@@ -154,13 +154,13 @@ test_7b$pids <- links(sn = df_7$r_id,
                       sub_criteria = list(cr1 = sub_criteria(df_7$age_range, funcs = range_match_legacy, equva = diyar::exact)))
 
 test_that("test record grouping using range matching in criteria", {
-  expect_equal(test_7$pids@.Data, c(1,1,1,4,4,8,7,8,8,10,11,10,10,14,11))
+  expect_equal(test_7$pids@.Data, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))
   expect_equal(test_7$pids@pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
   expect_equal(test_7$pids@pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
 })
 
 test_that("test record grouping using range matching in sub_criteria", {
-  expect_equal(test_7b$pids@.Data, c(14,14,14,10,10,8,7,8,8,10,14,10,10,14,14))
+  expect_equal(test_7b$pids@.Data, c(1,1,1,4,4,6,7,6,6,4,1,4,4,1,1))
   expect_equal(test_7b$pids@pid_cri, c(rep(1,6),0, rep(1, 8)))
   expect_equal(test_7b$pids@pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
 })
