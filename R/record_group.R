@@ -105,7 +105,8 @@ links <- function(criteria,
                   group_stats = FALSE,
                   expand = TRUE,
                   shrink = FALSE,
-                  recursive = TRUE){
+                  recursive = TRUE,
+                  check_duplicates = FALSE){
   tm_a <- Sys.time()
 
   if(class(sub_criteria) == "sub_criteria"){
@@ -324,9 +325,10 @@ links <- function(criteria,
                                           strata = cri,
                                           index_record = ref_rd,
                                           sn = pr_sn,
-                                          skip_repeats = TRUE)
-
-        equals_ref_rd <- sub_cri_match[[2]] | ref_rd
+                                          skip_repeats = !check_duplicates)
+        if(isFALSE(check_duplicates)){
+          equals_ref_rd <- sub_cri_match[[2]] | ref_rd
+        }
         sub_cri_match <- sub_cri_match[[1]] | ref_rd
 
         # Track records checked for the current `sub_criteria`
@@ -377,9 +379,9 @@ links <- function(criteria,
         #                 sub_cri_match > 0,
         #               tr_sn, pid)
         rep_lgk_2 <- which((((pid == sn_ref | (pid != sn_ref & tr_pid_cri == pid_cri)) &
-                             tr_pid == sn_ref &
-                             !is.na(tr_pid))) &
-                           sub_cri_match > 0)
+                               tr_pid == sn_ref &
+                               !is.na(tr_pid))) &
+                             sub_cri_match > 0)
         pid[rep_lgk_2] <- tr_sn[rep_lgk_2]
         # link_id[which(h_ri %in% which(link_id == sn_ref) & h_ri %in% rep_lgk_2)] <- tr_sn[which(h_ri %in% which(link_id == sn_ref) & h_ri %in% rep_lgk_2)]
         link_id[rep_lgk_2] <- tr_sn[rep_lgk_2]
@@ -403,8 +405,11 @@ links <- function(criteria,
 
         rep_lgk_2 <-  which(h_ri %in% which(m_tag == 0) & h_ri %in% c(rep_lgk, rep_lgk_2))
         m_tag[rep_lgk_2] <- -1L
-        m_tag[ref_rd | equals_ref_rd > 0] <- 2L
-        pid[pid == sn_ref & equals_ref_rd > 0] <- sn[pid == sn_ref & equals_ref_rd > 0]
+        m_tag[ref_rd] <- 2L
+        if(isFALSE(check_duplicates)){
+          m_tag[equals_ref_rd > 0] <- 2L
+          pid[pid == sn_ref & equals_ref_rd > 0] <- sn[pid == sn_ref & equals_ref_rd > 0]
+        }
 
         # m_tag <- ifelse(sn == tr_sn & !is.na(tr_sn) & m_tag == -1L, 1L, m_tag)
         # rep_lgk <- which(sn == tr_sn & !is.na(tr_sn) & m_tag == -1L)
