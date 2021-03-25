@@ -8,6 +8,7 @@
 \alias{format.epid}
 \alias{unique.epid}
 \alias{summary.epid}
+\alias{print.epid_summary}
 \alias{as.data.frame.epid}
 \alias{as.list.epid}
 \alias{show,epid-method}
@@ -26,6 +27,8 @@ as.epid(x)
 \method{unique}{epid}(x, ...)
 
 \method{summary}{epid}(object, ...)
+
+\method{print}{epid_summary}(x, ...)
 
 \method{as.data.frame}{epid}(x, ...)
 

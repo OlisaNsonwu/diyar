@@ -622,8 +622,8 @@ opt_level <- function(opt, mth, tr_mth){
 }
 
 sub_cri_checks <- function(sub_criteria, strata,
-                             temporal_link = NULL,
-                             index_record, sn,
+                           temporal_link = NULL,
+                           index_record, sn,
                            skip_repeats = FALSE){
   ds_len <- length(strata)
   if(is.null(temporal_link)){
@@ -782,8 +782,8 @@ sub_cri_checks <- function(sub_criteria, strata,
 }
 
 sub_cri_checks_b <- function(sub_criteria, strata,
-                           index_record, sn,
-                           skip_repeats = FALSE){
+                             index_record, sn,
+                             skip_repeats = FALSE){
   #curr_sub_cri <- sub_criteria
   cri.2 <- strata
   sc_ord <- order(cri.2, -index_record, decreasing = TRUE)
@@ -805,10 +805,10 @@ sub_cri_checks_b <- function(sub_criteria, strata,
     if(class(x) == "sub_criteria"){
       return(
         unlist(sub_cri_checks_b(sub_criteria = x,
-                         strata = strata,
-                         index_record = index_record,
-                         sn = sn,
-                         skip_repeats = skip_repeats),
+                                strata = strata,
+                                index_record = index_record,
+                                sn = sn,
+                                skip_repeats = skip_repeats),
                use.names = FALSE)
       )
     }
@@ -1174,4 +1174,17 @@ extract_3dot_lengths <- function(x){
   }else if(is.atomic(x)){
     length(x)
   }
+}
+
+dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
+  y <- rle(x)
+  if(is.null(order_by_label) & isTRUE(order_by_val)){
+    pos <- order(-y$lengths)
+  }else{
+    pos <- match(order_by_label, y$values)
+    pos <- pos[!is.na(pos)]
+  }
+  y$values <- y$values[pos]
+  y$lengths <- y$lengths[pos]
+  y
 }

@@ -259,25 +259,82 @@ unique.epid <- function(x, ...){
 #' @rdname epid-class
 #' @export
 summary.epid <- function(object, ...){
-  if(length(object@epid_dataset) > 0){
-    ds_dst <- table(decode(object@epid_dataset[object@case_nm == 0]))
-    ds_dst <- ds_dst[!is.na(ds_dst)]
-    ds_dst <- ds_dst[order(names(ds_dst))]
-    ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
-  }else{
-    ds_dst <- "    \"\":"
-  }
+  summ <- list()
+  summ$iterations <- max(object@iteration)
+  summ$total_records <- length(object)
+  summ$total_episodes <- length(object[object@case_nm == 0])
+  x <- object[order(-object@wind_nm)]
+  x <- decode(x@wind_nm[!duplicated(x@.Data)])
+  x[x == "Case"] <- "Fixed"
+  x[x == "Recurrence"] <- "Rolling"
+  summ$episode_type <- dst_tab(x = x, order_by_label = c("Fixed", "Rolling", "Skipped"))
+  x <- object[order(object@wind_id$wind_id1)]
+  x <- x[x@wind_nm == 1 & !duplicated(x@wind_id$wind_id1)]
+  x <- rle(x@.Data)
+  summ$recurrence <- dst_tab(x = paste0(x$lengths[order(x$lengths)]))
+  summ$recurrence$values <- paste0(summ$recurrence$values, " times")
+  summ$case_nm <- dst_tab(x = decode(object@case_nm[order(object@case_nm)]), order_by_label = c("Case", "Duplicate_C", "Recurrent", "Duplicate_R", "Skipped"))
+  x <- object@epid_total[object@case_nm == 0]
+  summ$epid_total <- dst_tab(x[order(x)])
+  summ$epid_total$values <- paste0(summ$epid_total$values, " records")
+  summ$epid_length <- if(is.null(object@epid_length)) list(values = numeric(), length = numeric()) else dst_tab(x = format((object@epid_length[object@case_nm == 0])[order(object@epid_length[object@case_nm == 0])]))
+  summ$data_sources_of_episodes <- if(is.null(object@epid_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@epid_dataset[object@case_nm == 0])[order(object@epid_dataset[object@case_nm == 0])]), order_by_label = sort(attr(object@epid_dataset, "label")))
+  class(summ) <- "epid_summary"
+  return(summ)
+}
 
-  summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
-                 "Records:\n",
-                 "  Total:           ", fmt(length(object)), "\n",
-                 "    Skipped:       ", fmt(length(object[object@case_nm == -1])), "\n",
-                 "Episodes:\n",
-                 "  Total:           ", fmt(length(object[object@case_nm == 0])), "\n",
-                 "    Single record: ", fmt(length(object[object@case_nm == 0 & object@epid_total == 1])), "\n",
-                 "  Data sources:\n",
-                 ds_dst, "\n")
-  cat(summ)
+#' @rdname epid-class
+#' @export
+
+print.epid_summary <- function(x, ...){
+  dsts <- c("case_nm", "data_sources_of_episodes",
+            "epid_total","epid_length","episode_type",
+            "recurrence")
+  mx_ds_len <- lapply(dsts, function(l){
+    nchar(x[[l]]$values)
+  })
+  mx_ds_len <- unlist(mx_ds_len, use.names = FALSE)
+  mx_ds_len <- max(mx_ds_len)
+  mx_ds_len <- max(if(length(mx_ds_len) == 0) 0 else mx_ds_len)
+  mx_pd_len <- ifelse(mx_ds_len > 20, 1, 20 - mx_ds_len)
+
+  ds_txts <- lapply(dsts, function(l){
+    ds_len <- nchar(x[[l]]$values)
+    pd_len <- ifelse(ds_len > 20, 1, 20 - ds_len)
+    pd_txt <- unlist(lapply(pd_len, function(j) paste0(rep(" ", j), collapse = "")), use.names = FALSE)
+    ds_txt <- ifelse(nchar(x[[l]]$values) > 20,
+           paste0(substr(x[[l]]$values, 1, 20), "~"),
+           x[[l]]$values)
+
+    if(length(ds_len) > 0){
+      ds_txt <- paste0("     \"", ds_txt, "\":", pd_txt,
+                       fmt(x[[l]]$lengths), collapse = "\n")
+    }else{
+      ds_txt <- "     N/A"
+    }
+    ds_txt
+  })
+  ds_txts <- unlist(ds_txts, use.names = FALSE)
+  names(ds_txts) <- dsts
+  mx_ds_len <- mx_ds_len + mx_pd_len
+
+  msg <- paste0("Iterations:", paste0(paste0(rep(" ", (mx_ds_len - 6) + 7), collapse = ""), fmt(x$iteration)), "\n",
+                "Total records:", paste0(paste0(rep(" ", (mx_ds_len - 9) + 7), collapse = ""), fmt(x$total_records)), "\n",
+                " by record type:", "\n",
+                paste0(ds_txts["case_nm"], "\n"),
+                "Total episodes:", paste0(paste0(rep(" ", (mx_ds_len - 10) + 7), collapse = ""), fmt(x$total_episodes)), "\n",
+                " by episode type:", "\n",
+                paste0(ds_txts["episode_type"], "\n"),
+                " by episode dataset:", "\n",
+                paste0(ds_txts["data_sources_of_episodes"], "\n"),
+                " by episodes duration:", "\n",
+                paste0(ds_txts["epid_length"], "\n"),
+                " by records per episode:", "\n",
+                paste0(ds_txts["epid_total"], "\n"),
+                " by recurrence:", "\n",
+                paste0(ds_txts["recurrence"], "\n"))
+
+  cat(msg)
 }
 
 #' @rdname epid-class

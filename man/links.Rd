@@ -16,7 +16,8 @@ links(
   group_stats = FALSE,
   expand = TRUE,
   shrink = FALSE,
-  recursive = TRUE
+  recursive = TRUE,
+  check_duplicates = FALSE
 )
 
 record_group(df, ..., to_s4 = TRUE)
