@@ -239,7 +239,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
 
   # output - `pane` object
   panes <- new("pane",
-               .Data= pane,
+               .Data = pane,
                dist_pane_index = dist_pane_index,
                window_matched = window_matched,
                sn = sn,
@@ -247,6 +247,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                window_list = window_list,
                pane_total = pane_n,
                options = options_lst)
+  class(panes@case_nm) <- "d_labels"
 
   if(!is.null(data_source)){
     # Implement `data_links`
@@ -286,9 +287,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     }else{
       pane_l <- pane_dt_z - pane_dt_a
     }
-    panes@pane_interval <- number_line(l = pane_dt_a,
-                                      r = pane_dt_z,
-                                      gid = pane)
+    panes@pane_interval <- number_line(l = pane_dt_a, r = pane_dt_z, gid = pane)
     # `pane_length`
     panes@pane_length <- pane_l
   }

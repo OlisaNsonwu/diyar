@@ -8,10 +8,12 @@
 \alias{format.pid}
 \alias{unique.pid}
 \alias{summary.pid}
+\alias{print.pid_summary}
 \alias{as.data.frame.pid}
 \alias{as.list.pid}
 \alias{show,pid-method}
 \alias{rep,pid-method}
+\alias{[,pid,ANY,ANY,ANY-method}
 \alias{[,pid-method}
 \alias{[[,pid-method}
 \alias{c,pid-method}
@@ -27,6 +29,8 @@ as.pid(x, ...)
 
 \method{summary}{pid}(object, ...)
 
+\method{print}{pid_summary}(x, ...)
+
 \method{as.data.frame}{pid}(x, ...)
 
 \method{as.list}{pid}(x, ...)
@@ -35,7 +39,7 @@ as.pid(x, ...)
 
 \S4method{rep}{pid}(x, ...)
 
-\S4method{[}{pid}(x, i, j, ..., drop = TRUE)
+\S4method{[}{pid,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{pid}(x, i, j, ..., exact = TRUE)
 

@@ -272,13 +272,17 @@ summary.epid <- function(object, ...){
   x <- x[x@wind_nm == 1 & !duplicated(x@wind_id$wind_id1)]
   x <- rle(x@.Data)
   summ$recurrence <- dst_tab(x = paste0(x$lengths[order(x$lengths)]))
-  summ$recurrence$values <- paste0(summ$recurrence$values, " times")
+  if(length(summ$recurrence$values) > 0){
+    summ$recurrence$values <- paste0(summ$recurrence$values, " times")
+  }
   summ$case_nm <- dst_tab(x = decode(object@case_nm[order(object@case_nm)]), order_by_label = c("Case", "Duplicate_C", "Recurrent", "Duplicate_R", "Skipped"))
   x <- object@epid_total[object@case_nm == 0]
   summ$epid_total <- dst_tab(x[order(x)])
-  summ$epid_total$values <- paste0(summ$epid_total$values, " records")
+  if(length(summ$epid_total$values) > 0){
+    summ$epid_total$values <- paste0(summ$epid_total$values, " records")
+  }
   summ$epid_length <- if(is.null(object@epid_length)) list(values = numeric(), length = numeric()) else dst_tab(x = format((object@epid_length[object@case_nm == 0])[order(object@epid_length[object@case_nm == 0])]))
-  summ$data_sources_of_episodes <- if(is.null(object@epid_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@epid_dataset[object@case_nm == 0])[order(object@epid_dataset[object@case_nm == 0])]), order_by_label = sort(attr(object@epid_dataset, "label")))
+  summ$data_source <- if(is.null(object@epid_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@epid_dataset[object@case_nm == 0])[order(object@epid_dataset[object@case_nm == 0])]), order_by_label = sort(attr(object@epid_dataset, "label")))
   class(summ) <- "epid_summary"
   return(summ)
 }
@@ -287,7 +291,7 @@ summary.epid <- function(object, ...){
 #' @export
 
 print.epid_summary <- function(x, ...){
-  dsts <- c("case_nm", "data_sources_of_episodes",
+  dsts <- c("case_nm", "data_source",
             "epid_total","epid_length","episode_type",
             "recurrence")
   mx_ds_len <- lapply(dsts, function(l){
@@ -326,7 +330,7 @@ print.epid_summary <- function(x, ...){
                 " by episode type:", "\n",
                 paste0(ds_txts["episode_type"], "\n"),
                 " by episode dataset:", "\n",
-                paste0(ds_txts["data_sources_of_episodes"], "\n"),
+                paste0(ds_txts["data_source"], "\n"),
                 " by episodes duration:", "\n",
                 paste0(ds_txts["epid_length"], "\n"),
                 " by records per episode:", "\n",
@@ -587,23 +591,67 @@ unique.pane <- function(x, ...){
 #' @rdname pane-class
 #' @export
 summary.pane <- function(object, ...){
-  if(length(object@pane_dataset) > 0){
-    ds_dst <- table(decode(object@pane_dataset[object@case_nm == 0]))
-    ds_dst <- ds_dst[!is.na(ds_dst)]
-    ds_dst <- ds_dst[order(names(ds_dst))]
-    ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
-  }else{
-    ds_dst <- "    \"\":"
+  summ <- list()
+  summ$total_records <- length(object)
+  summ$total_panes <- length(object[object@case_nm == 0])
+  summ$case_nm <- dst_tab(x = decode(object@case_nm[order(object@case_nm)]), order_by_label = c("Index", "Duplicate_I", "Skipped"))
+  x <- object@pane_total[object@case_nm == 0]
+  summ$pane_total <- dst_tab(x[order(x)])
+  if(length(summ$epid_total$values) > 0){
+    summ$pane_total$values <- paste0(summ$pane_total$values, " records")
   }
-  summ <- paste0("Records:\n",
-                 "  Total:           ", fmt(length(object)), "\n",
-                 "    Skipped:       ", fmt(length(object[object@case_nm == -1])), "\n",
-                 "Panes:\n",
-                 "  Total:           ", fmt(length(object[object@case_nm == 0])), "\n",
-                 "    Single record: ", fmt(length(object[object@case_nm == 0 & object@pane_total == 1])), "\n",
-                 "  Data sources:\n",
-                 ds_dst, "\n")
-  cat(summ)
+  summ$pane_length <- if(is.null(object@pane_length)) list(values = numeric(), length = numeric()) else dst_tab(x = format((object@pane_length[object@case_nm == 0])[order(object@pane_length[object@case_nm == 0])]))
+  summ$data_source <- if(is.null(object@pane_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@pane_dataset[object@case_nm == 0])[order(object@pane_dataset[object@case_nm == 0])]), order_by_label = sort(attr(object@pane_dataset, "label")))
+  class(summ) <- "pane_summary"
+  return(summ)
+}
+
+#' @rdname pane-class
+#' @export
+print.pane_summary <- function(x, ...){
+  dsts <- c("case_nm", "data_source",
+            "pane_total","pane_length")
+  mx_ds_len <- lapply(dsts, function(l){
+    nchar(x[[l]]$values)
+  })
+  mx_ds_len <- unlist(mx_ds_len, use.names = FALSE)
+  mx_ds_len <- max(mx_ds_len)
+  mx_ds_len <- max(if(length(mx_ds_len) == 0) 0 else mx_ds_len)
+  mx_pd_len <- ifelse(mx_ds_len > 20, 1, 20 - mx_ds_len)
+
+  ds_txts <- lapply(dsts, function(l){
+    ds_len <- nchar(x[[l]]$values)
+    pd_len <- ifelse(ds_len > 20, 1, 20 - ds_len)
+    pd_txt <- unlist(lapply(pd_len, function(j) paste0(rep(" ", j), collapse = "")), use.names = FALSE)
+    ds_txt <- ifelse(nchar(x[[l]]$values) > 20,
+                     paste0(substr(x[[l]]$values, 1, 20), "~"),
+                     x[[l]]$values)
+
+    if(length(ds_len) > 0){
+      ds_txt <- paste0("     \"", ds_txt, "\":", pd_txt,
+                       fmt(x[[l]]$lengths), collapse = "\n")
+    }else{
+      ds_txt <- "     N/A"
+    }
+    ds_txt
+  })
+  ds_txts <- unlist(ds_txts, use.names = FALSE)
+  names(ds_txts) <- dsts
+  mx_ds_len <- mx_ds_len + mx_pd_len
+
+  msg <- paste0("Iterations:", paste0(paste0(rep(" ", (mx_ds_len - 6) + 7), collapse = ""), "N/A"), "\n",
+                "Total records:", paste0(paste0(rep(" ", (mx_ds_len - 9) + 7), collapse = ""), fmt(x$total_records)), "\n",
+                " by record type:", "\n",
+                paste0(ds_txts["case_nm"], "\n"),
+                "Total panes:", paste0(paste0(rep(" ", (mx_ds_len - 10) + 7), collapse = ""), fmt(x$total_episodes)), "\n",
+                " by pane dataset:", "\n",
+                paste0(ds_txts["data_source"], "\n"),
+                " by pane duration:", "\n",
+                paste0(ds_txts["pane_length"], "\n"),
+                " by records per pane:", "\n",
+                paste0(ds_txts["pane_total"], "\n"))
+
+  cat(msg)
 }
 
 #' @rdname pane-class
@@ -822,36 +870,72 @@ unique.pid <- function(x, ...){
 #' @rdname pid-class
 #' @export
 summary.pid <- function(object, ...){
-  if(length(object) == 0) return(format(methods::new("pid")))
-  cri_dst <- table(object@pid_cri)
-  cri_n <- as.integer(names(cri_dst))
-  cri_dst <- c(cri_dst[cri_n > 0], cri_dst[cri_n == 0], cri_dst[cri_n == -1])
-  cri_dst <- cri_dst[!is.na(cri_dst)]
-  cri_n <- as.integer(names(cri_dst))
-  cri_dst <- paste0("       ", pid_cri_l(cri_n), ":    ", fmt(cri_dst), collapse = "\n")
-
-  if(length(object@pid_dataset) > 0){
-    ds_dst <- table(decode(object@pid_dataset[!duplicated(object@.Data)]))
-    ds_dst <- ds_dst[!is.na(ds_dst)]
-    ds_dst <- ds_dst[order(names(ds_dst))]
-    ds_dst <- paste0("    \"", names(ds_dst), "\":    ", fmt(ds_dst), collapse = "\n")
-  }else{
-    ds_dst <- "    \"\":"
+  summ <- list()
+  summ$iterations <- max(object@iteration)
+  summ$total_records <- length(object)
+  summ$total_groups <- length(object[!duplicated(object@.Data)])
+  x <- object@pid_total[!duplicated(object@.Data)]
+  summ$pid_total <- dst_tab(x[order(x)])
+  if(length(summ$epid_total$values) > 0){
+    summ$pid_total$values <- paste0(summ$pid_total$values, " records")
   }
+  x <- object@pid_cri
+  l <- x[!duplicated(x)]
+  l <- l[!l %in% -1:0]
+  l <- c(sort(l), 0, -1)
+  rm(x, l)
+  summ$pid_cri <- dst_tab(object@pid_cri[order(object@pid_cri)], order_by_label = l)
+  summ$pid_cri$values[summ$pid_cri$values == 0] <- "Skipped"
+  summ$pid_cri$values[summ$pid_cri$values == "-1"] <- "No hits"
+  summ$pid_cri$values[!summ$pid_cri$values %in% c("Skipped", "No hits")] <- paste0("Criteria ", summ$pid_cri$values[!summ$pid_cri$values %in% c("Skipped", "No hits")])
+  summ$data_source <- if(is.null(object@pid_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@pid_dataset[!duplicated(object@.Data)])[order(object@pid_dataset[!duplicated(object@.Data)])]), order_by_label = sort(attr(object@pid_dataset, "label")))
+  class(summ) <- "pid_summary"
+  return(summ)
+}
 
-  summ <- paste0("Iterations:        ", fmt(max(object@iteration)), "\n",
-                 "Records:\n",
-                 "  Total:           ", fmt(length(object)), "\n",
-                 "    Stages:\n",
-                 cri_dst, "\n",
-                 "Groups:\n",
-                 "  Total:           ", fmt(length(object@.Data[!duplicated(object@.Data)])), "\n",
-                 "    Single record: ", fmt(length(object@.Data[!duplicated(object@.Data) & object@pid_total == 1])), "\n",
-                 "  Data sources:\n",
-                 ds_dst, "\n"
+#' @rdname pid-class
+#' @export
+print.pid_summary <- function(x, ...){
+  dsts <- c("pid_cri", "data_source", "pid_total")
+  mx_ds_len <- lapply(dsts, function(l){
+    nchar(x[[l]]$values)
+  })
+  mx_ds_len <- unlist(mx_ds_len, use.names = FALSE)
+  mx_ds_len <- max(mx_ds_len)
+  mx_ds_len <- max(if(length(mx_ds_len) == 0) 0 else mx_ds_len)
+  mx_pd_len <- ifelse(mx_ds_len > 20, 1, 20 - mx_ds_len)
 
-  )
-  cat(summ)
+  ds_txts <- lapply(dsts, function(l){
+    ds_len <- nchar(x[[l]]$values)
+    pd_len <- ifelse(ds_len > 20, 1, 20 - ds_len)
+    pd_txt <- unlist(lapply(pd_len, function(j) paste0(rep(" ", j), collapse = "")), use.names = FALSE)
+    ds_txt <- ifelse(nchar(x[[l]]$values) > 20,
+                     paste0(substr(x[[l]]$values, 1, 20), "~"),
+                     x[[l]]$values)
+
+    if(length(ds_len) > 0){
+      ds_txt <- paste0("     \"", ds_txt, "\":", pd_txt,
+                       fmt(x[[l]]$lengths), collapse = "\n")
+    }else{
+      ds_txt <- "     N/A"
+    }
+    ds_txt
+  })
+  ds_txts <- unlist(ds_txts, use.names = FALSE)
+  names(ds_txts) <- dsts
+  mx_ds_len <- mx_ds_len + mx_pd_len
+
+  msg <- paste0("Iterations:", paste0(paste0(rep(" ", (mx_ds_len - 6) + 7), collapse = ""), fmt(x$iteration)), "\n",
+                "Total records:", paste0(paste0(rep(" ", (mx_ds_len - 9) + 7), collapse = ""), fmt(x$total_records)), "\n",
+                " by matching criteria:", "\n",
+                paste0(ds_txts["pid_cri"], "\n"),
+                "Total record groups:", paste0(paste0(rep(" ", (mx_ds_len - 10) + 7), collapse = ""), fmt(x$total_episodes)), "\n",
+                " by group dataset:", "\n",
+                paste0(ds_txts["data_source"], "\n"),
+                " by records per group:", "\n",
+                paste0(ds_txts["pid_total"], "\n"))
+
+  cat(msg)
 }
 
 #' @rdname pid-class

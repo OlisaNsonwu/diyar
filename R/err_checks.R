@@ -400,7 +400,7 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err2 <- sort(err2[!duplicated(err2)])
 
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
-      return(paste0("Length of each `", arg_nm, "` and each attribute of every `",cri_nm, "` must be the same or equal to 1:\n",
+      return(paste0("Length of each `", arg_nm, "` and each attribute of `", cri_nm, "` must be the same or equal to 1:\n",
            "i - Expecting ", listr(unique(c(1, err)), conj = " or"), ".\n",
            "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(sort(err)), ".\n",
            "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(sort(err2)), "."))
@@ -1842,6 +1842,84 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
 
     err <- err_sub_criteria_4(..., funcs = funcs, funcs_l = funcs_l)
     if(!isFALSE(err)) return(err)
+
+    return(FALSE)
+  }
+
+  err_links_wf_probablistic_0 <- function(attribute,
+                                          blocking_attribute,
+                                          cmp_func,
+                                          cmp_threshold,
+                                          probabilistic,
+                                          m_probability,
+                                          weight_threshold){
+    # Check for non-atomic vectors
+    args <- list(blocking_attribute = attribute,
+                 cmp_threshold = cmp_threshold,
+                 probabilistic = probabilistic,
+                 m_probability = m_probability,
+                 weight_threshold = weight_threshold)
+
+    err <- mapply(err_atomic_vectors,
+                  args,
+                  as.list(names(args)))
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != FALSE]
+    if(length(err) > 0) return(err[1])
+
+    # Check for required object types
+    args <- list(cmp_threshold = cmp_threshold,
+                 probabilistic = probabilistic,
+                 m_probability = m_probability,
+                 weight_threshold = weight_threshold,
+                 cmp_func = cmp_func)
+
+    args_classes <- list(cmp_threshold = c("list", "numeric", "integer"),
+                         probabilistic = "logical",
+                         m_probability = c("list", "numeric", "integer"),
+                         weight_threshold = c("list", "numeric", "integer", "number_line"),
+                         cmp_func = c("list", "function"))
+
+    err <- mapply(err_object_types,
+                  args,
+                  as.list(names(args)),
+                  args_classes[match(names(args), names(args_classes))])
+    err <- unlist(err, use.names = FALSE)
+    err <- err[err != FALSE]
+    if(length(err) > 0) return(err[1])
+
+    if(class(attribute) != "list"){
+      attribute <- list(attribute)
+    }
+
+    err <- unlist(lapply(attribute, is.atomic), use.names = FALSE)
+    if(length(which(!err)) > 0){
+      err <- paste0("`attribute` must be an `atomic` object or `list` of `atomic` objects:\n",
+                    paste0("X - Attribute -", which(!err), "is `", err[which(!err)], "`.", collapse = "\n"))
+      return(err)
+    }
+
+    err <- unlist(lapply(attribute, extract_3dot_lengths), use.names = FALSE)
+    if(!is.null(blocking_attribute)){
+      err <- c(err, length(blocking_attribute))
+    }
+    err <- err[!duplicated(err)]
+    if(length(err) != 1){
+      err <- paste0("`blocking_attribute` and each attribute must have the same length")
+      return(err)
+    }
+
+    err <- c("m_probability" = length(m_probability),
+             "cmp_func" = length(cmp_func),
+             "cmp_threshold" = length(cmp_threshold))
+    ref_err <- length(attribute)
+    err_lgk <- which(ref_err != err & err != 1)
+    if(any(which(ref_err != err & err != 1))){
+      err <- paste0("Lengths of `cmp_func`, `cmp_threshold` and `m_probability` must be 1 or match the number of attributes supplied:\n",
+                    "i - Expecting lengths of 1 or ", ref_err, "\n",
+                    paste0("X - Length of `", names(err[err_lgk]), "` is ", err[err_lgk], ".", collapse = "\n"))
+      return(err)
+    }
 
     return(FALSE)
   }

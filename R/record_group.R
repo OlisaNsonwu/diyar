@@ -733,7 +733,7 @@ range_match_legacy <- function(x, y) {
   overlaps(as.number_line(x@gid), y)
 }
 
-#' @name links_probabilistic
+#' @name links_wf_probabilistic
 #' @title Probabilistic record linkage
 #'
 #' @description A specific use case of \code{links} to achieve probabilistic record linkage.
@@ -752,7 +752,7 @@ range_match_legacy <- function(x, y) {
 #' @seealso \code{\link{links}}, \code{\link{episodes}}, \code{\link{partitions}}, \code{\link{predefined_tests}} and \code{\link{sub_criteria}}
 #'
 #' @details
-#' \code{links_probabilistic} is a wrapper function of \code{\link{links}} which is used for probabilistic record linkage.
+#' \code{links_wf_probabilistic} is a wrapper function of \code{\link{links}} which is used for probabilistic record linkage.
 #' Its implementation is based on Fellegi-Sunter model for deciding if two records belong to the same entity.
 #'
 #' In summary, two probabilities (m and u) are estimated for each record pair and used to score matches and non-matches.
@@ -776,16 +776,16 @@ range_match_legacy <- function(x, y) {
 #' Alternatively, this can also be similarity score, in which case a \code{list} of thresholds (\code{cmp_threshold}) should be provided for each comparator.
 #' If \code{probabilistic} is \code{FALSE}, the \code{weight_threshold} is compared against the sum of all similarity scores.
 #'
-#' \code{links_probabilistic} requires a \code{weight_threshold} in advance of the linkage process.
+#' \code{links_wf_probabilistic} requires a \code{weight_threshold} in advance of the linkage process.
 #' This differs from the typical approach where a \code{weight_threshold} is selected after the linkage process,
 #' following a review of scores from every record pair.
 #' To help with this, the convenience function \code{fetch_scores} will show you the minimum and maximum scores attainable for a given dataset.
 #'
 #' A \code{blocking_attribute} can be used to reduce processing time by restricting comparisons to \code{strata} of the dataset.
 #'
-#' @aliases links_probabilistic
+#' @aliases links_wf_probabilistic
 #' @export
-links_probabilistic <- function(attribute,
+links_wf_probabilistic <- function(attribute,
                                 blocking_attribute = NULL,
                                 cmp_func = diyar::exact_match,
                                 cmp_threshold = .95,
@@ -795,6 +795,15 @@ links_probabilistic <- function(attribute,
                                 ...
 ){
 
+  err <- err_links_wf_probablistic_0(attribute = attribute,
+                                     blocking_attribute = blocking_attribute,
+                                     cmp_func = cmp_func,
+                                     cmp_threshold = cmp_threshold,
+                                     probabilistic = probabilistic,
+                                     m_probability = m_probability,
+                                     weight_threshold = weight_threshold)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
+
   if(class(attribute) != "list"){
     attribute <- list(attribute)
   }
@@ -802,6 +811,42 @@ links_probabilistic <- function(attribute,
   if(is.null(names(attribute))){
     names(attribute) <- paste0("var_", seq_len(length(attribute)))
   }
+
+  if(isTRUE(probabilistic)){
+    # u-probabilities
+    u_probs <- lapply(attribute, function(x){
+      x_cd <- match(x, x[!duplicated(x)])
+      x_cd[is.na(x)] <- NA_real_
+      x_cd <- x_cd[order(x_cd)]
+      r <- rle(x_cd)
+      n <- r$lengths[match(x_cd, r$values)]
+      p <- n/length(x_cd)
+      p[is.na(x_cd)] <- 0
+      p
+    })
+
+    lgk <- unlist(lapply(u_probs, function(x){
+      any(x == 1)
+    }), use.names = FALSE)
+    if(any(lgk[lgk])){
+      warning(paste0("Attributes with identicial values in every record are ignored:\n",
+                     paste0("i - `", names(attribute)[lgk], "` was ignored!", collapse = "\n")), call. = FALSE)
+    }
+    attribute <- attribute[!lgk]
+
+    # m-probabilities
+    if(class(m_probability) != "list"){
+      m_probability <- list(m_probability)
+    }
+    if(length(m_probability) == 1 & length(attribute) > 1){
+      m_probability <- rep(m_probability, length(attribute))
+    }
+  }else{
+    u_probs <- lapply(attribute, function(x){
+      rep(0, length(x))
+    })
+  }
+
   # Attribute names
   attr_nm <- names(attribute)
 
@@ -828,30 +873,6 @@ links_probabilistic <- function(attribute,
   }
   if(length(cmp_func) == 1 & length(attribute) > 1){
     cmp_func <- rep(cmp_func, length(attribute))
-  }
-
-  if(isTRUE(probabilistic)){
-    # u-probabilities
-    u_probs <- lapply(attribute, function(x){
-      x_cd <- match(x, x[!duplicated(x)])
-      r <- rle(sort(x_cd))
-      n <- r$lengths[match(x_cd, r$values)]
-      p <- n/length(x_cd)
-      p[is.na(x)] <- 0
-      p
-    })
-
-    # m-probabilities
-    if(class(m_probability) != "list"){
-      m_probability <- list(m_probability)
-    }
-    if(length(m_probability) == 1 & length(attribute) > 1){
-      m_probability <- rep(m_probability, length(attribute))
-    }
-  }else{
-    u_probs <- lapply(attribute, function(x){
-      rep(0, length(x))
-    })
   }
 
   # Weight or probabilistic matching
@@ -894,9 +915,7 @@ links_probabilistic <- function(attribute,
 
       #out_1 <- sapply(matches, function(x) x)
       out_a <- cbind(out_2, sum_wt, lgk)
-      colnames(out_a) <- c(paste0("cmp.",attr_nm),
-                           "cmp.weight",
-                           "cmp.threshold")
+      colnames(out_a) <- c(paste0("cmp.", attr_nm), "cmp.weight", "cmp.threshold")
     }
 
     # If weight based, matches are assigned based on the string comparisons
@@ -989,22 +1008,42 @@ links_probabilistic <- function(attribute,
   return(pids)
 }
 
-#' @rdname links_probabilistic
+#' @rdname links_wf_probabilistic
 #' @export
 fetch_scores <- function(attribute, m_probability = .99){
   if(class(attribute) != "list"){
     attribute <- list(attribute)
   }
-
+  if(is.null(names(attribute))){
+    names(attribute) <- paste0("var_", seq_len(length(attribute)))
+  }
   u_probs <- lapply(attribute, function(x){
     x_cd <- match(x, x[!duplicated(x)])
+    x_cd[is.na(x)] <- NA_real_
+    x_cd <- x_cd[order(x_cd)]
     r <- rle(x_cd)
     n <- r$lengths[match(x_cd, r$values)]
-    n/length(x_cd)
+    p <- n/length(x_cd)
+    p[is.na(x_cd)] <- 0
+    p
   })
+
+  lgk <- unlist(lapply(u_probs, function(x){
+    any(x == 1)
+  }), use.names = FALSE)
+  if(any(lgk[lgk])){
+    warning(paste0("Attributes with identicial values in every record will be ignored:\n",
+                   paste0("i - `", names(attribute)[lgk], "` will be ignored!", collapse = "\n")), call. = FALSE)
+
+    attribute <- attribute[!lgk]
+    u_probs <- u_probs[!lgk]
+  }
 
   if(class(m_probability) != "list"){
     m_probability <- list(m_probability)
+  }
+  if(length(m_probability) != 1 & any(lgk[lgk])){
+    m_probability <- m_probability[!lgk]
   }
   if(length(m_probability) == 1 & length(attribute) > 1){
     m_probability <- rep(m_probability, length(attribute))
@@ -1012,6 +1051,8 @@ fetch_scores <- function(attribute, m_probability = .99){
 
   max_thresh <- sapply(seq_len(length(u_probs)), function(i){
     curr_uprob <- u_probs[[i]]
+    # Exclude u-probability of '0' from agreements
+    curr_uprob[curr_uprob == 0] <- 1
     curr_mprob <- m_probability[[i]]
     log2(curr_mprob/curr_uprob)
   })
@@ -1020,7 +1061,7 @@ fetch_scores <- function(attribute, m_probability = .99){
   }else{
     max_thresh <- max(rowSums(max_thresh))
   }
-  max_thresh <- sapply(seq_len(length(u_probs)), function(i){
+  min_thresh <- sapply(seq_len(length(u_probs)), function(i){
     curr_uprob <- u_probs[[i]]
     curr_mprob <- m_probability[[i]]
     log2((1 - curr_mprob)/(1 - curr_uprob))

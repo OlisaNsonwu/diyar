@@ -325,10 +325,19 @@ invalid_opts <- function(vals, opts){
   }
 }
 
+# pid_cri_l <- function(n){
+#   ifelse(n == 0,"No Hits",
+#          ifelse(n == -1, "Skipped",
+#                 paste0("CRI ", formatC(n, width = 3, flag = 0, format = "fg"))))
+# }
+
 pid_cri_l <- function(n){
-  ifelse(n == 0,"No Hits",
-         ifelse(n == -1, "Skipped",
-                paste0("CRI ", formatC(n, width = 3, flag = 0, format = "fg"))))
+  n[n == 0] <- "Skipped"
+  n[n == "-1"] <- "No hits"
+  lgk <- !n %in% c("Skipped", "No hits")
+  n[lgk] <- paste0("CRI ", formatC(n[lgk], width = 3, flag = 0, format = "fg"))
+  rm(lgk)
+  return(n)
 }
 
 combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
