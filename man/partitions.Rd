@@ -44,7 +44,7 @@ partitions(
 
 \item{by}{\code{[integer]}. Increment or decrement.}
 
-\item{length.out}{\code{[integer]}. Number of splits. For example, \code{1} for two parts and \code{2} for three parts.}
+\item{length.out}{\code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts.}
 
 \item{fill}{\code{[logical]}. Retain (TRUE) or drop (FALSE) the remainder of an uneven split.}
 

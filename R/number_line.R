@@ -3,21 +3,21 @@
 #' @description A range of \code{numeric} values.
 #'
 #' @details
-#' A \code{number_line} object represents a range of numbers on a number line.
+#' A \code{number_line} represents a range of numbers on a number line.
 #'
 #' It's made up of a \code{start} and \code{end point} which are the beginning and end of the range respectively.
-#' The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
-#' This is the \code{direction} of the \code{number_line} object.
+#' The location of the \code{start} point - \code{left} or \code{right}, determines whether it's an \code{"increasing"} or \code{"decreasing"} range.
+#' This is the \code{direction} of the \code{number_line}.
 #'
 #' @seealso
 #' \code{\link{overlaps}}, \code{\link{set_operations}}, \code{\link{episodes}} and \code{\link{links}}
 #'
-#' @param l Left point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object
-#' @param r Right point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object
-#' @param id Unique element identifier. Optional
-#' @param gid Unique group identifier. Optional
+#' @param l {[\code{numeric} based]}. Left point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object
+#' @param r {[\code{numeric} based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object
+#' @param id \code{[integer]}. Unique element identifier. Optional
+#' @param gid \code{[integer]}. Unique group identifier. Optional
 #'
-#' @return \code{number_line} object
+#' @return \code{number_line}
 #'
 #' @aliases number_line
 #' @examples
@@ -107,7 +107,7 @@ left_point <- function(x){
 }
 
 #' @rdname number_line
-#' @param value \code{numeric} based value
+#' @param value {[\code{numeric} based]}
 #' @export
 "left_point<-" <- function(x, value) {
   err <- err_object_types(x, "x", "number_line")
@@ -189,14 +189,14 @@ number_line_width <- function(x){
 }
 
 #' @rdname number_line
-#' @param x \code{number_line} object
-#' @param direction Type of \code{"number_line"} objects to be reversed.
+#' @param x \code{[number_line]}
+#' @param direction \code{[character]}. Type of \code{"number_line"} objects to be reversed.
 #' Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).
 #' @details
-#' \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line} object.
-#' A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
-#' The \code{direction} argument specifies which type of \code{number_line} objects will be reversed.
-#' \code{number_line} objects with non-finite \code{starts} or \code{end points} i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
+#' \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line}.
+#' A reversed \code{number_line} has its \code{l} and \code{r} points swapped.
+#' The \code{direction} argument specifies which type of \code{number_line} will be reversed.
+#' \code{number_line} with non-finite \code{starts} or \code{end points} i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 #' @examples
 #' # Reverse number_line objects
 #' reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
@@ -239,7 +239,7 @@ reverse_number_line <- function(x, direction = "both"){
 
 #' @rdname number_line
 #' @details
-#' \bold{\code{shift_number_line()}} - Shift a \code{number_line} object towards the positive or negative end of the number line.
+#' \bold{\code{shift_number_line()}} - Shift a \code{number_line} towards the positive or negative end of the number line.
 #' @examples
 #' c <- number_line(5, 6)
 #' # Shift number_line objects towards the positive end of the number line
@@ -269,9 +269,9 @@ shift_number_line <- function(x, by = 1){
 }
 
 #' @rdname number_line
-#' @param point \code{"start"} or \code{"end"} point
+#' @param point \code{[character]}. \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.
 #' @details
-#' \bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line} object.
+#' \bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line}.
 #' @examples
 #' # Change the duration, width or length of a number_line object
 #' d <- c(number_line(3, 6), number_line(6, 3))
@@ -359,15 +359,15 @@ invert_number_line <- function(x, point = "both"){
 
 #' @rdname number_line
 #' @details
-#' \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} objects into a new \code{number_line} object that covers the \code{start} and \code{end} points of the originals.
-#' This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the newly expanded \code{number_line} object.
-#' See \code{\link{overlaps}} for further details on overlapping \code{number_line} objects.
-#' \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}.
+#' \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} into a new \code{number_line} that covers the \code{start} and \code{end} points of the originals.
+#' This results in duplicate \code{number_line} with the \code{start} and \code{end} points of the newly expanded \code{number_line}
+#' See \code{\link{overlaps}} for further details on overlapping \code{number_line}.
+#' \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}
 #'
-#' @param method Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.
-#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}
-#' @param collapse If \code{TRUE}, collapse the compressed results yet again.
-#' @param deduplicate if \code{TRUE}, retains only one \code{number_line} object per set of overlapping \code{number_line}.
+#' @param method \code{[character]}. Method of overlap. Check every pair of \code{number_line} by the same \code{method}. Deprecated. Please use \code{methods} instead.
+#' @param methods \code{[character]}. Methods of overlap. Check different pairs of \code{number_line} by different \code{methods}
+#' @param collapse \code{[lgocial]}. If \code{TRUE}, collapse the compressed results yet again.
+#' @param deduplicate \code{[lgocial]}. If \code{TRUE}, retains only one \code{number_line} per overlapping set
 #'
 #' @examples
 #' # Collapse `number_line` objects
@@ -450,13 +450,13 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 }
 
 #' @rdname number_line
-#' @param by increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{number_line_sequence()}
-#' @param length.out number of splits. For example, \code{1} for two parts and \code{2} for three parts. Passed to \code{seq()}
-#' @param fill retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
-#' @param simplify split into \code{number_line} objects or sequence finite numbers
+#' @param by \code{[integer]}. Increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}
+#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}
+#' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split
+#' @param simplify \code{[logical]}. Split into \code{number_line} or sequence finite numbers
 #'
 #' @details
-#' \bold{\code{number_line_sequence()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
+#' \bold{\code{number_line_sequence()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
 #'
 #' @examples
 #' # Split number line objects

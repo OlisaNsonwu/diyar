@@ -15,7 +15,7 @@
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes start and end dates.
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pane-class]{pane}}. A \code{\link[=pane-class]{pane}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
 #' @param by \code{[integer]}. Increment or decrement.
-#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts and \code{2} for three parts.
+#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts.
 #' @param fill \code{[logical]}. Retain (TRUE) or drop (FALSE) the remainder of an uneven split.
 #' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default) or \code{"stats"}.
 #' @return
