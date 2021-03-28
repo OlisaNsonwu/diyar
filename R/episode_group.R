@@ -157,7 +157,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ep_units <- match(ep_units, names(diyar::episode_unit))
   attr(ep_units, "value") <- sort(ep_units[!duplicated(ep_units)])
   attr(ep_units, "label") <- names(diyar::episode_unit)[attr(ep_units, "value")]
-  class(ep_units) <- "d_labels"
+  class(ep_units) <- "d_label"
   # `strata`
   if(length(strata) == 1 | is.null(strata)) {
     cri <- rep(1L, inp_n)
@@ -1146,12 +1146,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   epids@case_nm <- case_nm[retrieve_pos]
   attr(epids@case_nm, "value") <- -1L : 3L
   attr(epids@case_nm, "label") <- c("Skipped", "Case", "Recurrent", "Duplicate_C", "Duplicate_R")
-  class(epids@case_nm) <- "d_labels"
+  class(epids@case_nm) <- "d_label"
 
   epids@wind_nm <- wind_nm[retrieve_pos]
   attr(epids@wind_nm, "value") <- -1L : 1L
   attr(epids@wind_nm, "label") <- c("Skipped", "Case", "Recurrence")
-  class(epids@wind_nm) <- "d_labels"
+  class(epids@wind_nm) <- "d_label"
 
   # `epid_dataset` slot
   if(!is.null(data_source)){

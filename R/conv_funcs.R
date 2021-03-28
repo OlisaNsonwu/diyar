@@ -833,22 +833,6 @@ f_rbind <- function(x, y){
   }
 }
 
-encode <- function(x){
-  val_cd <- seq_len(length(x[!duplicated(x)]))
-  val_nm <- sort(x[!duplicated(x)])
-  x <- val_cd[match(x, val_nm)]
-  attr(x, "value") <- val_cd
-  attr(x, "label") <- val_nm
-  class(x) <- "d_labels"
-  return(x)
-}
-
-decode <- function(x){
-  return(
-    attr(x, "label")[match(x, attr(x, "value"))]
-  )
-}
-
 extract_3dot_lengths <- function(x){
   if(all(class(x) == "sub_criteria")){
     unlist(lapply(x, function(sc){

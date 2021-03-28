@@ -243,7 +243,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                window_list = window_list,
                pane_total = pane_n,
                options = options_lst)
-  class(panes@case_nm) <- "d_labels"
+  class(panes@case_nm) <- "d_label"
 
   if(!is.null(data_source)){
     # Implement `data_links`
