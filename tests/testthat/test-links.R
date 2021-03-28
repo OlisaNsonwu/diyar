@@ -61,7 +61,7 @@ test_3b$pids <- links(sn = test_3b$r_id, criteria = list(test_3b$cri_1, test_3b$
 
 test_that("test that record grouping with >1 criteria follows an order of decreasing certaintity", {
   expect_equal(test_3a$pids@.Data, c(6,2,6,4,2,6,6))
-  expect_equal(test_3a$pids@pid_cri, c(2,2,2, 0,2,1, 1))
+  expect_equal(test_3a$pids@pid_cri, c(2,2,2,0,2,1,1))
   expect_equal(test_3a$pids@pid_total, c(4,2,4,1,2,4,4))
   expect_equal(test_3b$pids@.Data, c(1,2,1,4,2,6,1))
   expect_equal(test_3b$pids@pid_cri, c(2,2,2, 0,2,0, 2))
@@ -147,11 +147,11 @@ df_7$corrupt_range@gid[3] <- 205L
 test_7b <- test_7 <- df_7
 test_7$pids <- links(sn = df_7$r_id,
                      criteria = df_7$cri_1,
-                     sub_criteria = list(cr1 = sub_criteria(df_7$age_range, funcs = range_match_legacy, equva = diyar::exact)))
+                     sub_criteria = list(cr1 = sub_criteria(df_7$age_range, match_funcs = range_match_legacy, equal_funcs = diyar::exact)))
 
 test_7b$pids <- links(sn = df_7$r_id,
                       criteria = rep(1, nrow(df_7)),
-                      sub_criteria = list(cr1 = sub_criteria(df_7$age_range, funcs = range_match_legacy, equva = diyar::exact)))
+                      sub_criteria = list(cr1 = sub_criteria(df_7$age_range, match_funcs = range_match_legacy, equal_funcs = diyar::exact)))
 
 test_that("test record grouping using range matching in criteria", {
   expect_equal(test_7$pids@.Data, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))

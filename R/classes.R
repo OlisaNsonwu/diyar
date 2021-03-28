@@ -883,8 +883,8 @@ summary.pid <- function(object, ...){
   l <- x[!duplicated(x)]
   l <- l[!l %in% -1:0]
   l <- c(sort(l), 0, -1)
-  rm(x, l)
   summ$pid_cri <- dst_tab(object@pid_cri[order(object@pid_cri)], order_by_label = l)
+  rm(x, l)
   summ$pid_cri$values[summ$pid_cri$values == 0] <- "Skipped"
   summ$pid_cri$values[summ$pid_cri$values == "-1"] <- "No hits"
   summ$pid_cri$values[!summ$pid_cri$values %in% c("Skipped", "No hits")] <- paste0("Criteria ", summ$pid_cri$values[!summ$pid_cri$values %in% c("Skipped", "No hits")])

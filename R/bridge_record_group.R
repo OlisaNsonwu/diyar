@@ -4,7 +4,7 @@ bridge_record_group <- function(df, args){
     out <- list(
       err_cd = F,
       err_nm = paste0("`df` must be a `data.frame`:\n",
-                "You've supplied a ", class(df), "object."))
+                      "You've supplied a ", class(df), "object."))
     return(out)
   }
 
@@ -127,7 +127,7 @@ bridge_record_group <- function(df, args){
       supp_cri <- as.character()
     }else{
       cris <- ifelse(lgk == T, "1",  paste0("df$", cri_args))
-      supp_cri <- paste0("sub_criteria(df$", cri_args[lgk], ", funcs = diyar::range_match_legacy)")
+      supp_cri <- paste0("sub_criteria(df$", cri_args[lgk], ", match_funcs = diyar::range_match_legacy)")
       names(supp_cri) <- paste0("cr", (1:length(cri_args))[lgk])
     }
 
@@ -144,26 +144,26 @@ bridge_record_group <- function(df, args){
           ifelse(any(class(df[[xx]]) == "number_line"), "diyar::range_match_legacy", "diyar::exact_match")
         })
         funcs <- paste0("list(", paste0(unlist(funcs, use.names = F), collapse = ", "), ")")
-        paste0("sub_criteria(", paste0("df$", sub_cri_args[[x]], collapse = ", "), ", funcs = ", funcs, ", operator = \"or\")")
+        paste0("sub_criteria(", paste0("df$", sub_cri_args[[x]], collapse = ", "), ", match_funcs = ", funcs, ", operator = \"or\")")
       })
-     names(sub_cri_args) <- paste0("cr", gsub("[^0-9]", "", nms))
+      names(sub_cri_args) <- paste0("cr", gsub("[^0-9]", "", nms))
     }else{
       sub_cri_args <- as.character()
     }
 
     sub_cri_args <- sapply(split(sub_cri_args, names(sub_cri_args)), function(x){
-     if(length(x) == 1){
-       paste0(x, collapse = ", ")
-     }else{
-       paste0("sub_criteria(", paste0(x, collapse = ", "), ", operator = \"and\")")
-     }
+      if(length(x) == 1){
+        paste0(x, collapse = ", ")
+      }else{
+        paste0("sub_criteria(", paste0(x, collapse = ", "), ", operator = \"and\")")
+      }
     })
     nm <- c(names(sub_cri_args), names(supp_cri))
     sub_cri_args <- c(sub_cri_args, supp_cri)
     sub_cri_args <- paste0(nm, " = ", sub_cri_args, collapse = ", ")
     sub_cri_args <- paste0("list(", sub_cri_args, ")")
     args <- paste0(args, ", sub_criteria = ", sub_cri_args)
-    }
+  }
 
   if(length(display_arg) > 0){
     if(any(class(eval(display_arg$display)) == "logical")){
@@ -172,7 +172,7 @@ bridge_record_group <- function(df, args){
                                     ifelse(eval(display_arg$display) == FALSE,
                                            "none",
                                            eval(display_arg$display))
-                                    )
+      )
     }
     display_txt <- paste0("display = eval(display_arg$display)", collapse = ", ")
     args <- paste0(args, ", ", display_txt)
