@@ -9,7 +9,7 @@
 #' @param windows_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required for a pane. See \code{details}
 #' @param separate \code{[logical]}. If \code{TRUE}, events matched to different \code{windows} are not linked.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
-#' @param window \code{[integer|\link{number_line}]}. Numeric or time intervals. Supplied as \code{number_line} objects.
+#' @param window \code{[integer|\link{number_line}]}. Numeric or time intervals.
 #' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the dataset has data from multiple sources.
 #' @param custom_sort \code{[atomic]}. Preferred order for selecting \code{"index"} events.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes start and end dates.
@@ -129,6 +129,11 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     c_sort <- rep(0L, length(int))
   }
   # `windows_total`
+  if(is.number_line(windows_total)){
+    windows_total[windows_total@.Data < 0] <- reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
+  }else{
+    windows_total <- number_line(windows_total, Inf)
+  }
   windows_total[windows_total@.Data < 0] <- reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
 
   if(length(windows_total) == 1){
@@ -137,6 +142,8 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   # Strata-specific `windows`
   if(is.number_line(window)){
     window <- list(compress_number_line(as.number_line(window), deduplicate = TRUE, collapse = TRUE))
+  }else{
+    window <- as.number_line(window)
   }
   if(!is.null(by) | !is.null(length.out) | length(window) > 1){
     split_cri <- cri

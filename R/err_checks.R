@@ -1399,7 +1399,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
                  display = display )
 
     args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-                         window = c("number_line", "list"),
+                         window = c("numeric", "integer", "number_line", "list"),
                          windows_total  = c("number_line", "numeric", "integer"),
                          separate = "logical",
                          #data_source = c("character", "NULL"),

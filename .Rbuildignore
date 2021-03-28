@@ -20,3 +20,4 @@
 ^\.covrignore$
 ^R/retired_funcs\.R$
 ^tests
+^vignettes\.png$
