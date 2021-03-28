@@ -2,16 +2,16 @@
 #'
 #' @description Identify overlapping \code{number_line} objects
 #'
-#' @param x \code{number_line} object.
-#' @param y \code{number_line} object.
-#' @param method Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.
-#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.
+#' @param x \code{[\link{number_line}]}
+#' @param y \code{[\link{number_line}]}
+#' @param method \code{[charater]}. Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.
+#' @param methods \code{[charater]}. Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.
 #' @aliases overlaps
 #' @return \code{logical}; \code{character}
 #'
 #' @details
 #'
-#' \bold{8 logical test;}
+#' \bold{9 logical test;}
 #'
 #' \bold{\code{exact()}} - Identical left and right points.
 #'
@@ -29,17 +29,17 @@
 #'
 #' \bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" methods of overlap.
 #'
-#' \bold{\code{overlaps()}} - overlap by any set of the 7 methods above.
+#' \bold{\code{overlaps()}} - overlap by any set of the 8 methods above.
 #'
 #' \bold{Describe methods of overlap;}
 #'
-#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object have overlapped.
+#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object has overlapped.
 #' Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
 #'
 #' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episodes}}.
 #'
 #' @seealso
-#' \code{\link{number_line}} and \code{\link{set_operations}}
+#' \code{\link{number_line}};  \code{\link{set_operations}}
 #'
 #' @examples
 #' a <- number_line(-100, 100)

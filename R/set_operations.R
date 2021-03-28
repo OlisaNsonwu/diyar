@@ -1,15 +1,15 @@
 #' @title Set operations on number line objects
 #' @name set_operations
-#' @description Perform set operations on a pair of \code{number_line} objects.
+#' @description Perform set operations on a pair of \code{number_line}s.
 #'
-#' @param x \code{number_line} object
-#' @param y \code{number_line} object
+#' @param x \code{[\link{number_line}]}
+#' @param y \code{number_line}
 #' @aliases set_operations
 #' @return \code{number_line}; \code{list}
 #'
 #' @details
 #'
-#' \bold{\code{union_number_lines()}} - Return a \code{number_line} object with the combined range of \code{x} and \code{y}
+#' \bold{\code{union_number_lines()}} - Return a \code{number_line} with the combined range of \code{x} and \code{y}
 #'
 #' \bold{\code{intersect_number_line()}} - Returns a subset of \code{x} that overlaps with \code{y} and vice versa
 #'
@@ -29,7 +29,6 @@
 #' \code{\link{number_line}} and \code{\link{overlaps}}
 #'
 #' @examples
-#'
 #' nl_1 <- c(number_line(1, 5), number_line(1, 5), number_line(5, 9))
 #' nl_2 <- c(number_line(1, 2), number_line(2, 3), number_line(0, 6))
 #'
