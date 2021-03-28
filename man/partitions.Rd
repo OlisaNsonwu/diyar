@@ -24,7 +24,7 @@ partitions(
 \arguments{
 \item{date}{\code{[date|datetime|integer|\link{number_line}]}. Event date or period.}
 
-\item{window}{\code{[integer|\link{number_line}]}. Numeric or time intervals. Supplied as \code{number_line} objects.}
+\item{window}{\code{[integer|\link{number_line}]}. Numeric or time intervals.}
 
 \item{windows_total}{\code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required for a pane. See \code{details}}
 
