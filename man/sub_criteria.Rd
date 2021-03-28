@@ -15,7 +15,7 @@ sub_criteria(
 
 eval_sub_criteria(x, ...)
 
-\method{eval_sub_criteria}{sub_criteria}(x, strata, index_record, sn, check_duplicates)
+\method{eval_sub_criteria}{sub_criteria}(x, strata, index_record, sn, check_duplicates = TRUE)
 }
 \arguments{
 \item{...}{Any \code{atomic}. Attributes.}

@@ -4,37 +4,36 @@
 #' @description Distribute events into groups defined by time or numerical boundaries.
 #' Records in each group are assigned a unique identifier with relevant group-level data.
 #'
-#' @param sn Unique numerical record identifier. Useful for creating familiar pane identifiers.
-#' @param strata Subsets of the dataset. Panes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will skip that record.
-#' @param windows_total Minimum number of matched \code{windows} required for pane. See \code{details}
-#' @param separate If \code{TRUE}, events matched to different \code{windows} are not linked.
-#' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
-#' @param window Numeric or time intervals. Supplied as \code{number_line} objects.
-#' @param data_source Unique data source identifier. Includes a list of data sources of for each record in a \code{panes}.
-#' @param custom_sort Preferred order for selecting \code{"index"} events.
-#' @param group_stats If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes' start and endpoints.
-#' @param data_links A set of \code{data_sources} required in a \code{pane}. A \code{pane} without records from these \code{data_sources} are skipped or unlinked. See \code{Details}.
-#' @param by XXXXX
-#' @param length.out XXXXX
-#' @param fill XXXXX
-#' @param display XXXXX
-#' @param group_stats If \code{TRUE} (default), returns group-specific information like record counts. See \code{Value}.
+#' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pane-class]{pane}} identifiers.
+#' @param strata \code{[atomic]}. Subsets of the dataset. Panes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.
+#' @param windows_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required for a pane. See \code{details}
+#' @param separate \code{[logical]}. If \code{TRUE}, events matched to different \code{windows} are not linked.
+#' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
+#' @param window \code{[integer|\link{number_line}]}. Numeric or time intervals. Supplied as \code{number_line} objects.
+#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the dataset has data from multiple sources.
+#' @param custom_sort \code{[atomic]}. Preferred order for selecting \code{"index"} events.
+#' @param group_stats \code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes start and end dates.
+#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pane-class]{pane}}. A \code{\link[=pane-class]{pane}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
+#' @param by \code{[integer]}. Increment or decrement.
+#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts and \code{2} for three parts.
+#' @param fill \code{[logical]}. Retain (TRUE) or drop (FALSE) the remainder of an uneven split.
+#' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default) or \code{"stats"}.
 #' @return
 #'
-#' @return \code{\link[=pane-class]{pane}} or \code{list} (\code{\link[=pane-class]{pane}} and \code{ggplot}) object
+#' @return \code{\link[=pane-class]{pane}}
 #'
 #' @seealso
-#' \code{\link[=pane-class]{pane}}, \code{\link{number_line_sequence}}, \code{\link{episodes}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
+#' \code{\link[=pane-class]{pane}}; \code{\link{number_line_sequence}}; \code{\link{episodes}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
 #'
 #' @details
-#' Each group is referred to as a pane. A pane consists of events within a specific time or numerical intervals (\code{window}).
+#' Each assigned group is referred to as a \code{\link[=pane-class]{pane}} A \code{\link[=pane-class]{pane}} consists of events within a specific time or numerical intervals (\code{window}).
 #'
 #' Each \code{window} must cover a separate interval. Overlapping \code{windows} are merged before events are distributed into panes.
 #' Events that occur over two \code{windows} are assigned to the last one listed.
 #'
 #' Alternatively, you can create \code{windows} by splitting a period into equal parts (\code{length.out}), or into a sequence of intervals with fixed widths (\code{by}).
 #'
-#' By default, the earliest event is taken as the \code{"Index"} event of the pane.
+#' By default, the earliest event is taken as the \code{"Index"} event of the \code{\link[=pane-class]{pane}}.
 #' An alternative can be chosen with \code{custom_sort}.
 #'
 #' \bold{\code{partitions()}} will categorise records into 3 types;
@@ -44,14 +43,14 @@
 #' \item \code{"Skipped"} - Records that are not assigned to a pane.
 #' }
 #'
-#' \code{data_links} must be a \code{list} of \code{atomic} vectors, with every element named \code{"l"} (links) or \code{"g"} (groups).
-#'
+#' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
+#' Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 #' \itemize{
-#' \item if named \code{"l"}, only \code{panes} with records from every listed \code{data_source} will be retained.
-#' \item if named \code{"g"}, only \code{panes} with records from any listed \code{data_source} will be retained.
+#' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
+#' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
 #' }
 #'
-#' See \code{vignette("partitions")} for more information.
+#' See \code{vignette("episodes")} for more information.
 #'
 #' @examples
 #' events <- c(30, 2, 11, 10, 100)
@@ -102,7 +101,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     data_links <- list(l = data_links)
   }
   if(is.null(names(data_links))) names(data_links) <- rep("l", length(data_links))
-  names(data_links) <- ifelse(names(data_links)=="", "l", names(data_links))
+  names(data_links) <- ifelse(names(data_links) == "", "l", names(data_links))
   # `date`
   int <- as.number_line(date)
   int@id <- seq_len(length(int))
@@ -130,11 +129,8 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     c_sort <- rep(0L, length(int))
   }
   # `windows_total`
-  if(is.number_line(windows_total)){
-    windows_total[windows_total@.Data < 0] <- reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
-  }else{
-    windows_total <- number_line(windows_total, Inf)
-  }
+  windows_total[windows_total@.Data < 0] <- reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
+
   if(length(windows_total) == 1){
     windows_total <- rep(windows_total, length(int))
   }

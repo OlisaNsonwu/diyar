@@ -76,7 +76,7 @@ eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 #' @param sn \code{Integer} Unique index for each record set
 #' @param check_duplicates \code{Logical}. If \code{FALSE}, skips an identical record set if it has already been checked.
 #' @export
-eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_duplicates){
+eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_duplicates = TRUE){
   curr_ds_len <- length(strata)
   curr_strata <- strata
   sc_ord <- order(curr_strata, -index_record, decreasing = TRUE)

@@ -118,7 +118,7 @@ progress_bar <- function(n, d, max_width, msg){
   mx_l <- max(nchar(c(n, d)))
   d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
   n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
-  pct_l <- paste0(msg,"; ", n, " of ", d, " completed.")
+  pct_l <- paste0(msg,"; ", n, " of ", d, " record(s) completed.")
 
   status_width <- max_width - nchar(pct_l)
   bar_width <- floor(prop_complete*status_width)

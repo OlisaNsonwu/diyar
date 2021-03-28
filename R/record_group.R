@@ -8,8 +8,8 @@
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Record groups are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the entire linkage process}.
 #' @param criteria \code{[list|atomic]}. Attributes to compare. Each element of the list is a stage in the linkage process. \emph{\code{NA} values in \code{criteria} excludes records from the corresponding stage of the linkage process}. See \code{Details}.
-#' @param sub_criteria \code{[list|sub_criteria]}. Additional matching condition for each stage of the linkage process. See \code{\link{sub_criteria}}
-#' @param data_source \code{[character]}. Unique data source identifier. Adds a list of \code{\link[=pid-class]{pid}} in each record group to the \code{\link[=pid-class]{pid}}.
+#' @param sub_criteria \code{[list|\link{sub_criteria}]}. Additional matching condition for each stage of the linkage process. See \code{\link{sub_criteria}}
+#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of data sources in each record group to the \code{\link[=pid-class]{pid}}. Useful when the dataset has data from multiple sources.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), returns group-specific information like record counts for each \code{\link[=pid-class]{pid}}.
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A \code{\link[=pid-class]{pid}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
 #' @param expand \code{[logical]}. If \code{TRUE}, allows a record group to expand with subsequent stages of the linkage process. \emph{Not interchangeable with \code{shrink}}.
@@ -544,10 +544,10 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' @param blocking_attribute \code{[atomic]} Subsets of the dataset.
 #' @param attribute \code{[list]} Attributes to compare.
 #' @param cmp_func \code{[list|function]} String comparators for each \code{attribute}. See \code{Details}.
-#' @param cmp_threshold \code{[list|numeric|number_line]} Weight-thresholds for each \code{cmp_func}. See \code{Details}.
+#' @param cmp_threshold \code{[list|numeric|\link{number_line}]} Weight-thresholds for each \code{cmp_func}. See \code{Details}.
 #' @param probabilistic \code{[logical]} If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.
 #' @param m_probability \code{[list|numeric]} The probability that a match from the string comparator is from the same entity.
-#' @param score_threshold \code{[numeric|number_line]}. Score-threshold for linked records. See \code{Details}.
+#' @param score_threshold \code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.
 #' @param ... Arguments passed to \bold{\code{links}}
 #'
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
@@ -633,14 +633,14 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' prob_pids3
 #' @export
 links_wf_probabilistic <- function(attribute,
-                                blocking_attribute = NULL,
-                                cmp_func = diyar::exact_match,
-                                cmp_threshold = .95,
-                                probabilistic = TRUE,
-                                m_probability = .95,
-                                score_threshold = 1,
-                                id_1 = NULL, id_2 = NULL,
-                                ...
+                                   blocking_attribute = NULL,
+                                   cmp_func = diyar::exact_match,
+                                   cmp_threshold = .95,
+                                   probabilistic = TRUE,
+                                   m_probability = .95,
+                                   score_threshold = 1,
+                                   id_1 = NULL, id_2 = NULL,
+                                   ...
 ){
 
   err <- err_links_wf_probablistic_0(attribute = attribute,

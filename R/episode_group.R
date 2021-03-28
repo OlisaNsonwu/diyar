@@ -4,55 +4,53 @@
 #' @description Link events with matching attributes and within specified durations of each other.
 #' Records in each episode are assigned a unique identifier with relevant group-level information.
 #'
-#' @param df \code{data.frame}. One or more datasets appended together. See \code{Details}.
-#' @param sn Unique numerical record identifier. Useful for creating familiar episode identifiers.
-#' @param strata Subsets of the dataset. Episodes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will exclude that record from episode tracking.
-#' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
-#' @param case_length Cut-off point (\code{numeric}) or period (\code{\link{number_line}}), distinguishing one \code{"case"} from another.
+#' @param df \code{[data.frame]}. One or more datasets appended together. See \code{Details}.
+#' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.
+#' @param strata \code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}.
+#' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
+#' @param case_length \code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"case"} from another.
 #' This is the case window.
-#' @param episodes_max The maximum number of episodes permitted within each \code{strata}.
-#' @param episode_type \code{"fixed"}, \code{"rolling"} or \code{"recursive"}. See \code{Details}.
-#' @param recurrence_length Cut-off point or period distinguishing a \code{"recurrent"} event from its index event.
-#' This is the recurrence window. By default, it's the same as \code{case_length}.
-#' @param episode_unit Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}.
-#' @param rolls_max Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source Unique data source identifier. Useful when the dataset has data from multiple sources.
-#' @param from_last Chronological order for episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
-#' @param overlap_method Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.
-#' @param overlap_methods Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
-#' @param case_overlap_methods Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
-#' @param recurrence_overlap_methods Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
-#' @param custom_sort  Preferential order for selecting index (\code{"case"}) events.
-#' @param bi_direction If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
-#' @param group_stats If \code{TRUE} (default), episode-specific information like episode start and endpoints are returned.
-#' @param display The messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the tracking process.
-#' @param to_s4 If \code{TRUE}, output is an \code{\link[=epid-class]{epid}} object. If \code{FALSE}, it's a  or \code{data.frame}.
-#' @param reference_event If \code{TRUE} (default), the reference event for a \code{recurrence window} will be the last event from the previous window.
+#' @param episodes_max \code{[integer]}. The maximum number of episodes permitted within each \code{strata}.
+#' @param episode_type \code{[character]}. Options are \code{"fixed"} (default), \code{"rolling"} or \code{"recursive"}. See \code{Details}.
+#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event.
+#' @param episode_unit \code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
+#' @param rolls_max \code{[integer]}. Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each episode to the \code{\link[=epid-class]{epid}}. Useful when the dataset has data from multiple sources.
+#' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
+#' @param overlap_method \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.
+#' @param overlap_methods \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
+#' @param case_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
+#' @param recurrence_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
+#' @param custom_sort \code{[atomic]}. Preferential order for selecting reference events.
+#' @param bi_direction \code{[logical]}. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
+#' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
+#' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} and \code{"stats"}.
+#' #' @param to_s4 \code{[logical]}. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' @param reference_event \code{[character]}. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".
 #' If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param case_for_recurrence If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
+#' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 #' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param skip_order \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
-#' @param data_links A set of \code{data_sources} required in each episode. An \code{episode} without records from these \code{data_sources} will be skipped or unlinked. See \code{Details}.
-#' @param skip_if_b4_lengths If \code{TRUE} (default), \code{events} before the cut-off points or periods, or not captured by \code{"case_sub_criteria"} or \code{"recurrence_sub_criteria"} are skipped.
-#' @param include_index_period If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
-#' @param deduplicate If \code{TRUE}, \code{"duplicate"} events are excluded from the output.
-#' @param x Deprecated. Record date or period. Please use \code{date}
-#' @param ... Arguments passed to \bold{\code{episodes}}
-#' @param case_sub_criteria Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
-#' @param recurrence_sub_criteria Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
-#' @param case_length_total Minimum number of matched case windows required for an episode. See details
-#' @param recurrence_length_total Minimum number of matched recurrence windows required for an episode. See details
+#' @param skip_order \code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
+#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. A \code{\link[=epid-class]{epid}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
+#' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), when using lagged \code{case_length} or \code{recurrence_length}, \code{events} before the cut-off point or period are skipped.
+#' @param include_index_period \code{[logical]}. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
+#' @param deduplicate \code{[logical]}. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.
+#' @param x \code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}
+#' @param case_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
+#' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
+#' @param case_length_total \code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode. \code{See details}.
+#' @param recurrence_length_total \code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode. \code{See details}.
 #' @return
 #'
-#' @return \code{\link[=epid-class]{epid}} or \code{list} (\code{\link[=epid-class]{epid}} and \code{ggplot}) object
+#' @return \code{\link[=epid-class]{epid}}
 #'
 #' @seealso
-#' \code{\link{custom_sort}}, \code{\link{sub_criteria}}, \code{\link[=windows]{epid_length}}, \code{\link[=windows]{epid_window}}, \code{\link{partitions}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
+#' \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
 #'
 #' @details
-#' All dated records within a specified duration of an index record are linked together as an episodes.
+#' All dated records within a specified duration of an index record are linked together as an episode.
 #' By default, this process occurs in ascending order, beginning with the earliest event.
-#' However, this can be changed to a descending (\code{from_last}) or custom order \code{custom_sort}.
+#' This can be changed to a descending (\code{from_last}) or custom order \code{custom_sort}.
 #' Ties are always broken by the chronological order of events.
 #'
 #' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}, while a \code{"rolling"} episode can continue to recur.
@@ -61,31 +59,32 @@
 #' \bold{\code{episodes()}} will categorise records into 5 type of events;
 #'
 #' \itemize{
-#' \item \code{"Case"} - Index case of the episode.
-#' \item \code{"Duplicate_C"} - Duplicate of the index case.
-#' \item \code{"Recurrent"} - Recurrence of the index case.
+#' \item \code{"Case"} - Index event of the episode.
+#' \item \code{"Duplicate_C"} - Duplicate of the index event.
+#' \item \code{"Recurrent"} - Recurrence of the index event.
 #' \item \code{"Duplicate_R"} - Duplicate of the recurrent event.
 #' \item \code{"Skipped"} - Records excluded from the episode tracking process.
 #' }
 #'
-#' \code{data_links} should be a \code{list} of \code{atomic} vectors with every element named \code{"l"} (links) or \code{"g"} (groups).
+#' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
+#' Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 #' \itemize{
-#' \item if named \code{"l"}, only \code{episodes} with records from every listed \code{data_source} will be retained.
-#' \item if named \code{"g"}, only \code{episodes} with records from any listed \code{data_source} will be retained.
+#' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
+#' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
 #' }
 #'
 #' \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
-#' It now exists to support previous code with minimal disruption.
-#' Please use \bold{\code{episodes()}} for new scripts.
+#' It now only exists to support previous code with minimal input from users.
+#' Moving forward, please use \bold{\code{episodes()}}.
 #'
-#' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are wrapper functions for tracking \code{"fixed"} and \code{"rolling"} episodes respectively.
-#' They exist for convenience and to support previous code with minimal disruption.
-#' Please consider using \bold{\code{episodes()}} for new scripts.
+#' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} as it existed before \code{v0.2.0} has been retired.
+#' They are  are wrapper functions to track \code{"fixed"} and \code{"rolling"} episodes respectively.
+#' They now only exists to support previous code with minimal input from users.
+#' Moving forward, please use \bold{\code{episodes()}}.
 #'
 #' See \code{vignette("episodes")} for more information.
 #'
 #' @examples
-#' library(diyar)
 #' data(infections)
 #' data(hospital_admissions)
 #'
@@ -111,7 +110,7 @@
 #' admissions <- hospital_admissions[c("admin_period","epi_len")]
 #'
 #' # Episodes of overlapping periods of admission
-#' hospital_admissions$epids_i<- episodes(date = hospital_admissions$admin_period,
+#' hospital_admissions$epids_i <- episodes(date = hospital_admissions$admin_period,
 #'                                        case_length = 0,
 #'                                        case_overlap_methods = "inbetween")
 #'
@@ -418,45 +417,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     grouped_epids$int <- c(grouped_epids$int, int[tag == 2])
     grouped_epids$int@id <- idx
     grouped_epids$int@gid <- gidx
-    # int <- int[tag != 2]
-    # tag <- tag[tag != 2]
     rm(idx); rm(gidx)
   }
-
-  # if(isTRUE(any_rolling_epi_curr)) roll_n <- roll_n[tag != 2]
-  # if(isFALSE(one_epid_type)){
-  #   lead_epid_type <- lead_epid_type[tag != 2]
-  #   episode_type <- episode_type[tag != 2]
-  # }
-  # if(isFALSE(one_case_for_rec)){
-  #   lead_case_for_rec <- lead_case_for_rec[tag != 2]
-  #   case_for_recurrence <- case_for_recurrence[tag != 2]
-  # }
-  # if(isFALSE(one_rec_from_last)){
-  #   lead_ref_event <- lead_ref_event[tag != 2]
-  #   reference_event <- reference_event[tag != 2]
-  # }
-  # if(isFALSE(one_skip_b4_len)){
-  #   lead_skip_b4_len <- lead_skip_b4_len[tag != 2]
-  #   skip_if_b4_lengths <- skip_if_b4_lengths[tag != 2]
-  # }
-  # if(isFALSE(one_epl_min)){
-  #   lead_epl_min <- lead_epl_min[tag != 2]
-  #   case_length_total <- case_length_total[tag != 2]
-  # }
-  # if(isFALSE(one_rcl_min)){
-  #   lead_rcl_min <- lead_rcl_min[tag != 2]
-  #   recurrence_length_total <- recurrence_length_total[tag != 2]
-  # }
-  # ep_l <- lapply(ep_l, function(x){x[tag != 2]})
-  # mths_a <- lapply(mths_a, function(x){x[tag != 2]})
-  #
-  # if(isTRUE(any_rolling_epi_curr)){
-  #   rc_l <- lapply(rc_l, function(x){x[tag != 2]})
-  #   mths_b <- lapply(mths_b, function(x){x[tag != 2]})
-  # }
-  # grouped_epids$tag <- c(grouped_epids$tag, tag[tag == 2])
-  # tag <- tag[tag != 2]
 
   ite <- 1L
   while (min(tag) != 2) {
@@ -535,20 +497,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     # Reference (index) events and options
-    # r <- rle(cri)
-    # cri_tot <- r$lengths
     lgk <- !duplicated(cri, fromLast = TRUE)
-    # tr_int <- rep(int[lgk], r$lengths[match(cri[lgk], r$values)])
-    # tr_tag <- rep(tag[lgk], r$lengths[match(cri[lgk], r$values)])
-
     lgk_i <- which(!duplicated(cri, fromLast = TRUE))
     rep_lgk <- match(cri, cri[lgk])
     tr_int <- (int[lgk_i])[rep_lgk]
     tr_tag <- (tag[lgk_i])[rep_lgk]
 
     if(isFALSE(one_rec_from_last)){
-      # tr_rec_from_last <- rep(reference_event[lgk], r$lengths[match(cri[lgk], r$values)])
-      # lead_ref_event <- ifelse(tr_tag == 0, tr_rec_from_last, lead_ref_event)
       tr_rec_from_last <- (reference_event[lgk_i])[rep_lgk]
       lgk_p <- which(tr_tag == 0)
       lead_ref_event[lgk_p] <- tr_rec_from_last[lgk_p]
@@ -571,107 +526,72 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       max_indx_ref <- numeric()
     }
 
-    # REMOVE. max_indx_ref WILL ALWAYS BE 1 OR MORE
-    if(length(max_indx_ref) == 0){
-      # tr_ep_int <- lapply(ep_l, function(x){
-      #   rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
-      # })
-      # tr_ep_int <- list(tr_ep_int)
-    }else{
-      tr_ep_int <- lapply(max_indx_ref, function(y){
+    tr_ep_int <- lapply(max_indx_ref, function(y){
+      lgk2 <- (ref_rd & cri_indx_ord == y)
+      lgk2[!cri %in% cri[lgk2] & ref_rd & cri_indx_ord == 1] <- TRUE
+      lapply(ep_l, function(x){
+        (x[lgk2])[rep_lgk]
+      })
+    })
+
+    if(isTRUE(any_rolling_epi_curr)){
+      tr_rc_int <- lapply(max_indx_ref, function(y){
         lgk2 <- (ref_rd & cri_indx_ord == y)
         lgk2[!cri %in% cri[lgk2] & ref_rd & cri_indx_ord == 1] <- TRUE
-        lapply(ep_l, function(x){
-          # rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
+        lapply(rc_l, function(x){
           (x[lgk2])[rep_lgk]
         })
       })
     }
 
-    if(isTRUE(any_rolling_epi_curr)){
-      if(length(max_indx_ref) == 0){
-        #   tr_rc_int <- lapply(rc_l, function(x){
-        #     rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
-        #   })
-        #   tr_rc_int <- list(tr_rc_int)
-      }else{
-        tr_rc_int <- lapply(max_indx_ref, function(y){
-          lgk2 <- (ref_rd & cri_indx_ord == y)
-          lgk2[!cri %in% cri[lgk2] & ref_rd & cri_indx_ord == 1] <- TRUE
-          lapply(rc_l, function(x){
-            # rep(x[lgk2], r$lengths[match(cri[lgk], r$values)])
-            (x[lgk2])[rep_lgk]
-          })
-        })
-      }
-    }
-
     tr_sn_list <- lapply(max_indx_ref, function(y){
       lgk2 <- (ref_rd & cri_indx_ord == y)
       lgk2[!cri %in% cri[lgk2] & ref_rd & cri_indx_ord == 1] <- TRUE
-      # rep(int@gid[lgk2], r$lengths[match(cri[lgk], r$values)])
       (int@gid[lgk2])[rep_lgk]
     })
-    # tr_e <- rep(e[lgk], r$lengths[match(cri[lgk], r$values)])
-    # tr_skip_order <- rep(skip_order[lgk], r$lengths[match(cri[lgk], r$values)])
-    # tr_c_sort <- rep(c_sort[lgk], r$lengths[match(cri[lgk], r$values)])
     tr_e <- (e[lgk_i])[rep_lgk]
     tr_skip_order <- (skip_order[lgk_i])[rep_lgk]
     tr_c_sort <- (c_sort[lgk_i])[rep_lgk]
     if(any(names(mths_a) == "e") | any(names(mths_a) == "b")){
       tr_mths_a <- lapply(mths_a, function(x){
-        # rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
         (x[lgk_i])[rep_lgk]
       })
     }
     if(isTRUE(any_rolling_epi_curr)){
       if(any(names(mths_b) == "e") | any(names(mths_b) == "b")){
         tr_mths_b <- lapply(mths_b, function(x){
-          # rep(x[lgk], r$lengths[match(cri[lgk], r$values)])
           (x[lgk_i])[rep_lgk]
         })
       }
     }
     if(isFALSE(one_epid_type)){
-      # tr_epid_type <- rep(episode_type[lgk], r$lengths[match(cri[lgk], r$values)])
-      # lead_epid_type <- ifelse(tr_tag == 0, tr_epid_type, lead_epid_type)
       tr_epid_type <- (episode_type[lgk_i])[rep_lgk]
       lgk_p <- which(tr_tag == 0)
       lead_epid_type[lgk_p] <- tr_epid_type[lgk_p]
     }
     if(isFALSE(one_case_for_rec)){
-      # tr_case_for_rec <- rep(case_for_recurrence[lgk], r$lengths[match(cri[lgk], r$values)])
-      # lead_case_for_rec <- ifelse(tr_tag == 0, tr_case_for_rec, lead_case_for_rec)
       tr_case_for_rec <- (case_for_recurrence[lgk_i])[rep_lgk]
       lgk_p <- which(tr_tag == 0)
       lead_case_for_rec[lgk_p] <- tr_case_for_rec[lgk_p]
     }
     if(isFALSE(one_skip_b4_len)){
-      # tr_skip_b4_len <- rep(skip_if_b4_lengths[lgk], r$lengths[match(cri[lgk], r$values)])
-      # lead_skip_b4_len <- ifelse(tr_tag == 0, tr_skip_b4_len, lead_skip_b4_len)
       tr_skip_b4_len <- (skip_if_b4_lengths[lgk_i])[rep_lgk]
       lgk_p <- which(tr_tag == 0)
       lead_skip_b4_len[lgk_p] <- tr_skip_b4_len[lgk_p]
     }
     if(isFALSE(one_epl_min) & isTRUE(any_epl_min_curr)){
-      # tr_epl_min <- rep(case_length_total[lgk], r$lengths[match(cri[lgk], r$values)])
-      # lead_epl_min <- ifelse(tr_tag == 0, tr_epl_min, lead_epl_min)
       tr_epl_min <- (case_length_total[lgk_i])[rep_lgk]
       lgk_p <- which(tr_tag == 0)
       lead_epl_min[lgk_p] <- tr_epl_min[lgk_p]
     }
     if(isFALSE(one_rcl_min) & isTRUE(any_rcl_min_curr)){
-      # tr_rcl_min <- rep(recurrence_length_total[lgk], r$lengths[match(cri[lgk], r$values)])
-      # lead_rcl_min <- ifelse(tr_tag == 0, tr_rcl_min, lead_rcl_min)
       tr_rcl_min <- (recurrence_length_total[lgk_i])[rep_lgk]
       lgk_p <- which(tr_tag == 0)
       lead_rcl_min[lgk_p] <- tr_rcl_min[lgk_p]
     }
     if(isTRUE(any_rolling_epi_curr)){
-      # roll_n <- ifelse(tr_tag == -1, roll_n + 1L, roll_n)
       lgk_p <- which(tr_tag == -1)
       roll_n[lgk_p] <- roll_n[lgk_p] + 1L
-      # roll_n <- ifelse(tr_tag == 0, 0L, roll_n)
       lgk_p <- which(tr_tag == 0)
       roll_n[lgk_p] <- 0L
     }
@@ -695,11 +615,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(min(tag) == 2){
       if(display == "stats"){
-        current_tagged <- length(tag[tag == 2])
-        msg <- paste0(fmt(current_tot), " record(s): ", ifelse(current_tagged > current_skipped,
-                                                               paste0(fmt(current_tagged - current_skipped), " tracked. ", fmt(current_skipped), " skipped."),
-                                                               paste0(fmt(current_skipped), " skipped.")))
-        cat(msg, "\n", sep="")
+        msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
+                      "Tracked: ", fmt(current_tagged), " record(s)\n",
+                      "Skipped: ", fmt(current_skipped), " record(s)")
+        cat(msg, "\n\n", sep ="")
       }else if (tolower(display) == "progress") {
         progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
       }
@@ -785,14 +704,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         cri_2 <- cri + (cr/10)
         cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
         if(length(cr[cr & !cri_2]) > 0){
-          # ref_rd <- checks_lgk
           ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
           checks_lgk[cr & !cri_2] <- eval_sub_criteria(x = case_sub_criteria[[1]],
                                                        strata = cri[cr & !cri_2],
                                                        index_record = ref_rd[cr & !cri_2],
-                                                       sn = int@id[cr & !cri_2],
-                                                       skip_repeats = FALSE)[[1]]
-          # checks_lgk[cr & cri_2] <- FALSE
+                                                       sn = int@id[cr & !cri_2])[[1]]
         }
         checks_lgk
       })
@@ -885,13 +801,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           cri_2 <- cri + (cr2/10)
           cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
           if(length(cr2[cr2 & !cri_2]) > 0){
-            # ref_rd <- checks_lgk
             ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
             checks_lgk[cr2 & !cri_2] <- sub_cri_checks_b(sub_criteria = recurrence_sub_criteria[[1]],
                                                          strata = cri[cr2 & !cri_2],
                                                          index_record = ref_rd[cr2 & !cri_2],
-                                                         sn = int@id[cr2 & !cri_2],
-                                                         skip_repeats = FALSE)[[1]]
+                                                         sn = int@id[cr2 & !cri_2])[[1]]
           }
           checks_lgk
         })
@@ -925,15 +839,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     wind_id_lst <- lapply(1:length(wind_id_lst), function(i){
-      # ifelse(cr & tag == 0, tr_sn_list[[i]], wind_id_lst[[i]])
       x <- wind_id_lst[[i]]
       x[cr & tag == 0] <- (tr_sn_list[[i]])[cr & tag == 0]
       x
     })
     names(wind_id_lst) <- paste0("wind_id", 1:length(wind_id_lst))
     e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
-
-    # case_nm[cr & tr_tag %in% c(0)] <- ifelse(ref_rd[cr & tr_tag %in% c(0)], 0L, 2L)
     lgk_p <- which(cr & tr_tag %in% c(0))
     case_nm[lgk_p[ref_rd[lgk_p]]] <- 0L
     case_nm[lgk_p[!ref_rd[lgk_p]]] <- 2L
@@ -948,7 +859,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       t_cri <- cri[sort_ord]
       t_sn <- int@id[sort_ord]
       t_sn <- t_sn[!duplicated(t_cri, fromLast = TRUE)]
-      # r <- rle(t_cri)
       case_nm[which(int@id %in% t_sn &
                       tr_tag %in% c(-1) &
                       new_hits
@@ -957,9 +867,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       sort_ord <- order(cri, -tag)
       t_cri <- cri[sort_ord]
       t_tag <- tag[sort_ord]
-      # last_tag <- rle(t_cri)
       lgk <- !duplicated(t_cri, fromLast = TRUE)
-      # last_tag <- rep(t_tag[lgk], r$lengths[match(t_cri[lgk], r$values)])
       last_tag <- (t_tag[lgk])[match(t_cri, t_cri[lgk])]
 
       last_tag <- last_tag[match(int@id, int@id[sort_ord])]
@@ -970,7 +878,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(isTRUE(any_rec_from_last)) roll_ref[lead_ref_event %in% c("first_record", "first_event")] <- -roll_ref[lead_ref_event %in% c("first_record", "first_event")]
 
       # Reference event for recurrence window
-      # t_cr <- ifelse(ref_rd & roll_n >= 1, FALSE, cr)
       t_cr <- cr
       t_cr[ref_rd & roll_n >= 1] <- FALSE
       sort_ord <- order(cri, t_cr, tag, roll_ref, int@gid)
@@ -981,10 +888,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
       lgk <- rep(FALSE, length(int))
       if(any(lead_ref_event %in% c("first_event", "last_event"))){
-        # r <- rle(t_cri)
-        # tr_t_int <- rep((int[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
         tr_t_int <- ((int[sort_ord])[lgk])[match(t_cri, t_cri[lgk])]
-        # tr_t_tag <- rep((tag[sort_ord])[lgk], r$lengths[match(t_cri[lgk], r$values)])
         tr_t_tag <- ((tag[sort_ord])[lgk])[match(t_cri, t_cri[lgk])]
         lgk2 <- which(lead_ref_event %in% c("first_event", "last_event") &
                         lead_epid_type != 3 &
@@ -992,14 +896,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         lgk[lgk2] <- overlap(int[lgk2], tr_t_int[lgk2])
         rm(lgk2)
       }
-      # else{
-      #   lgk <- FALSE
-      # }
 
       if(any(lead_epid_type == 3)){
-        # if(length(lgk) == 1){
-        #   lgk <- rep(lgk, length(int))
-        # }
         lgk[new_hits & !lgk & lead_epid_type == 3] <- TRUE
       }
 
@@ -1026,10 +924,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(min(tag) == 2){
       if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
-        msg <- paste0(fmt(current_tot), " record(s): ", ifelse(current_tagged > current_skipped,
-                                                               paste0(fmt(current_tagged - current_skipped), " tracked. ", fmt(current_skipped), " skipped."),
-                                                               paste0(fmt(current_skipped), " skipped.")))
-        cat(msg, "\n", sep="")
+        msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
+                      "Tracked: ", fmt(current_tagged), " record(s)\n",
+                      "Skipped: ", fmt(current_skipped), " record(s)")
+        cat(msg, "\n\n", sep ="")
       }else if (tolower(display) == "progress") {
         progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
       }
@@ -1066,13 +964,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
       case_nm[lgk] <- -1L
       tag[lgk] <- 2L
+      current_skipped <- current_skipped + length(lgk[lgk])
     }
     iteration[tag != 0 & iteration == 0] <- ite
     current_tagged <- length(tag[tag == 2])
     if(display == "stats"){
-      msg <- paste0(fmt(current_tot), " record(s): ", fmt(current_tagged), " tracked. ",
-                    ifelse(current_skipped > 0, paste0(", ",fmt(current_skipped), " skipped."), ""))
-      cat(msg, "\n", sep="")
+      msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
+                    "Tracked: ", fmt(current_tagged - current_skipped), " record(s)\n",
+                    "Skipped: ", fmt(current_skipped), " record(s)")
+      cat(msg, "\n\n", sep ="")
     }else if (tolower(display) == "progress") {
       progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
     }
@@ -1199,14 +1099,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   # Units for `dist_epid_index` and `dist_wind_index`
-  # diff_unit <- ifelse(ep_units %in% c(1, 2),
-  #                     paste0(substr(names(diyar::episode_unit)[ep_units], 1 ,3), "s"),
-  #                     names(diyar::episode_unit)[ep_units])
   lgk_p <- which(ep_units %in% c(1, 2))
   diff_unit <- names(diyar::episode_unit)[ep_units]
   diff_unit[lgk_p] <- paste0(substr(names(diyar::episode_unit)[ep_units[lgk_p]], 1 ,3), "s")
 
-  # diff_unit <- ifelse(diff_unit %in% c("months","year"), "days", diff_unit)
   diff_unit[diff_unit %in% c("months","year")] <- "days"
   diff_unit <- diff_unit[!duplicated(diff_unit)]
   if(length(diff_unit) > 1) diff_unit <- "days"
@@ -1288,17 +1184,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     case_nm <- case_nm[sort_ord]
     frm_last <- from_last[match(tmp_pos[fd], pri_pos)]
-    # epid_dt_a <- ifelse(frm_last, right_point(int), as.numeric(int@start))
-    # epid_dt_z <- ifelse(frm_last, as.numeric(int@start), right_point(int))
     epid_dt_a <- as.numeric(int@start)
     epid_dt_a[frm_last] <- as.numeric(right_point(int[frm_last]))
     epid_dt_z <- as.numeric(right_point(int))
     epid_dt_z[frm_last] <- as.numeric(int@start[frm_last])
 
-    # epid_dt_a[lgk] <- ifelse(frm_last[lgk], dts_z, dts_a)
     epid_dt_a[lgk] <- dts_a
     epid_dt_a[lgk[frm_last[lgk]]] <- dts_z[frm_last[lgk]]
-    # epid_dt_z[lgk] <- ifelse(frm_last[lgk], dts_a, dts_z)
     epid_dt_z[lgk] <- dts_z
     epid_dt_z[lgk[frm_last[lgk]]] <- dts_a[frm_last[lgk]]
 

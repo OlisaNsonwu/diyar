@@ -25,13 +25,13 @@ record_group(df, ..., to_s4 = TRUE)
 \arguments{
 \item{criteria}{\code{[list|atomic]}. Attributes to compare. Each element of the list is a stage in the linkage process. \emph{\code{NA} values in \code{criteria} excludes records from the corresponding stage of the linkage process}. See \code{Details}.}
 
-\item{sub_criteria}{\code{[list|sub_criteria]}. Additional matching condition for each stage of the linkage process. See \code{\link{sub_criteria}}}
+\item{sub_criteria}{\code{[list|\link{sub_criteria}]}. Additional matching condition for each stage of the linkage process. See \code{\link{sub_criteria}}}
 
 \item{sn}{\code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.}
 
 \item{strata}{\code{[atomic]}. Subsets of the dataset. Record groups are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the entire linkage process}.}
 
-\item{data_source}{\code{[character]}. Unique data source identifier. Adds a list of \code{\link[=pid-class]{pid}} in each record group to the \code{\link[=pid-class]{pid}}.}
+\item{data_source}{\code{[character]}. Unique data source identifier. Adds the list of data sources in each record group to the \code{\link[=pid-class]{pid}}. Useful when the dataset has data from multiple sources.}
 
 \item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A \code{\link[=pid-class]{pid}} without records from these \code{data_sources} will be unlinked. See \code{Details}.}
 

@@ -27,13 +27,13 @@ prob_score_range(attribute, m_probability = 0.95)
 
 \item{cmp_func}{\code{[list|function]} String comparators for each \code{attribute}. See \code{Details}.}
 
-\item{cmp_threshold}{\code{[list|numeric|number_line]} Weight-thresholds for each \code{cmp_func}. See \code{Details}.}
+\item{cmp_threshold}{\code{[list|numeric|\link{number_line}]} Weight-thresholds for each \code{cmp_func}. See \code{Details}.}
 
 \item{probabilistic}{\code{[logical]} If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.}
 
 \item{m_probability}{\code{[list|numeric]} The probability that a match from the string comparator is from the same entity.}
 
-\item{score_threshold}{\code{[numeric|number_line]}. Score-threshold for linked records. See \code{Details}.}
+\item{score_threshold}{\code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.}
 
 \item{...}{Arguments passed to \bold{\code{links}}}
 }
