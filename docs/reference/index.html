@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -154,27 +154,27 @@
       <tr>
         
         <td>
-          <p><code><a href="combns.html">combns()</a></code> </p>
-        </td>
-        <td><p>Generate every permutation of n elements.</p></td>
-      </tr><tr>
-        
-        <td>
           <p><code><a href="custom_sort.html">custom_sort()</a></code> </p>
         </td>
         <td><p>Nested sorting</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="epid-class.html">as.epid()</a></code> <code><a href="epid-class.html">format(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">unique(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">show(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">rep(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">`[`(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">`[[`(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">c(<i>&lt;epid&gt;</i>)</a></code> </p>
+          <p><code><a href="diyar_label.html">encode()</a></code> <code><a href="diyar_label.html">decode()</a></code> <code><a href="diyar_label.html">rep(<i>&lt;d_label&gt;</i>)</a></code> <code><a href="diyar_label.html">`[`(<i>&lt;d_label&gt;</i>)</a></code> <code><a href="diyar_label.html">`[[`(<i>&lt;d_label&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>Labelling in <code>diyar</code></p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="epid-class.html">is.epid()</a></code> <code><a href="epid-class.html">as.epid()</a></code> <code><a href="epid-class.html">format(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">unique(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">summary(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">print(<i>&lt;epid_summary&gt;</i>)</a></code> <code><a href="epid-class.html">as.data.frame(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">as.list(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">show(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">rep(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">`[`(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">`[[`(<i>&lt;epid&gt;</i>)</a></code> <code><a href="epid-class.html">c(<i>&lt;epid&gt;</i>)</a></code> </p>
         </td>
         <td><p><code>epid</code> object</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="episodes.html">episodes()</a></code> <code><a href="episodes.html">fixed_episodes()</a></code> <code><a href="episodes.html">rolling_episodes()</a></code> <code><a href="episodes.html">episode_group()</a></code> </p>
+          <p><code><a href="episodes.html">episodes()</a></code> <code><a href="episodes.html">episodes_wf_splits()</a></code> <code><a href="episodes.html">fixed_episodes()</a></code> <code><a href="episodes.html">rolling_episodes()</a></code> <code><a href="episodes.html">episode_group()</a></code> </p>
         </td>
-        <td><p>Track episodes for case definitions and record deduplication.</p></td>
+        <td><p>Link events  to chronological episodes.</p></td>
       </tr><tr>
         
         <td>
@@ -184,13 +184,19 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="links_wf_probabilistic.html">links_wf_probabilistic()</a></code> <code><a href="links_wf_probabilistic.html">prob_score_range()</a></code> </p>
+        </td>
+        <td><p>Probabilistic record linkage</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="listr.html">listr()</a></code> </p>
         </td>
         <td><p>Written lists.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="number_line-class.html">show(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">rep(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">c(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">unique(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">sort(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">format(<i>&lt;number_line&gt;</i>)</a></code> </p>
+          <p><code><a href="number_line-class.html">show(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">rep(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">c(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">unique(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">seq(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">sort(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">format(<i>&lt;number_line&gt;</i>)</a></code> </p>
         </td>
         <td><p><code>number_line</code> object</p></td>
       </tr><tr>
@@ -208,21 +214,39 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="pane-class.html">is.pane()</a></code> <code><a href="pane-class.html">as.pane()</a></code> <code><a href="pane-class.html">format(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">unique(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">summary(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">print(<i>&lt;pane_summary&gt;</i>)</a></code> <code><a href="pane-class.html">as.data.frame(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">as.list(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">show(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">rep(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">`[`(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">`[[`(<i>&lt;pane&gt;</i>)</a></code> <code><a href="pane-class.html">c(<i>&lt;pane&gt;</i>)</a></code> </p>
+        </td>
+        <td><p><code>pane</code> object</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="partitions.html">partitions()</a></code> </p>
+        </td>
+        <td><p>Distribute events into time intervals.</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="patient_list.html">staff_records</a></code> <code><a href="patient_list.html">missing_staff_id</a></code> <code><a href="patient_list.html">infections</a></code> <code><a href="patient_list.html">infections_2</a></code> <code><a href="patient_list.html">infections_3</a></code> <code><a href="patient_list.html">infections_4</a></code> <code><a href="patient_list.html">hospital_admissions</a></code> <code><a href="patient_list.html">patient_list</a></code> <code><a href="patient_list.html">patient_list_2</a></code> <code><a href="patient_list.html">hourly_data</a></code> <code><a href="patient_list.html">Opes</a></code> <code><a href="patient_list.html">episode_unit</a></code> </p>
         </td>
         <td><p>Datasets in <code>diyar</code> package</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="pid-class.html">as.pid()</a></code> <code><a href="pid-class.html">format(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">unique(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">show(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">rep(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">`[`(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">`[[`(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">c(<i>&lt;pid&gt;</i>)</a></code> </p>
+          <p><code><a href="pid-class.html">is.pid()</a></code> <code><a href="pid-class.html">as.pid()</a></code> <code><a href="pid-class.html">format(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">unique(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">summary(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">print(<i>&lt;pid_summary&gt;</i>)</a></code> <code><a href="pid-class.html">as.data.frame(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">as.list(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">show(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">rep(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">`[`(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">`[[`(<i>&lt;pid&gt;</i>)</a></code> <code><a href="pid-class.html">c(<i>&lt;pid&gt;</i>)</a></code> </p>
         </td>
         <td><p><code>pid</code> objects</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="predefined_tests.html">exact_match()</a></code> <code><a href="predefined_tests.html">range_match()</a></code> <code><a href="predefined_tests.html">range_match_legacy()</a></code> </p>
+          <p><code><a href="predefined_tests.html">exact_match()</a></code> <code><a href="predefined_tests.html">range_match()</a></code> <code><a href="predefined_tests.html">range_match_legacy()</a></code> <code><a href="predefined_tests.html">prob_link()</a></code> </p>
         </td>
-        <td><p>User defined tests</p></td>
+        <td><p>Predefined logical tests in <b><code>diyar</code></b></p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="schema.html">schema()</a></code> </p>
+        </td>
+        <td><p>Schema  diagram for linked records.</p></td>
       </tr><tr>
         
         <td>
@@ -232,21 +256,21 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="sub_criteria.html">sub_criteria()</a></code> </p>
+          <p><code><a href="sub_criteria.html">sub_criteria()</a></code> <code><a href="sub_criteria.html">eval_sub_criteria()</a></code> </p>
         </td>
-        <td><p>Sub-criteria for <b><code>links</code></b></p></td>
+        <td><p>Sub-criteria</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="to_s4.html">to_s4()</a></code> <code><a href="to_s4.html">to_df()</a></code> </p>
+          <p><code><a href="to_s4.html">to_df()</a></code> <code><a href="to_s4.html">to_s4()</a></code> </p>
         </td>
-        <td><p>Change the returned outputs of <code>diyar</code> functions</p></td>
+        <td><p>Change S4 objects in <code>diyar</code> to data frames and vice versa</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="windows.html">epid_windows()</a></code> <code><a href="windows.html">epid_lengths()</a></code> <code><a href="windows.html">index_window()</a></code> </p>
         </td>
-        <td><p>Window and lengths</p></td>
+        <td><p>Windows and lengths</p></td>
       </tr>
     </tbody>
     </table>

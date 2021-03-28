@@ -40,7 +40,8 @@
 
 
 <meta property="og:title" content="Multistage deterministic record linkage — links" />
-<meta property="og:description" content="Link records in ordered stages with flexible matching conditions." />
+<meta property="og:description" content="Link  records with matching criteria in ordered stages of relevance.
+Each set of linked records are assigned a unique identifier with relevant group-level information." />
 
 
 
@@ -72,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -135,7 +136,8 @@
     </div>
 
     <div class="ref-description">
-    <p>Link records in ordered stages with flexible matching conditions.</p>
+    <p>Link  records with matching criteria in ordered stages of relevance.
+Each set of linked records are assigned a unique identifier with relevant group-level information.</p>
     </div>
 
     <pre class="usage"><span class='fu'>links</span>(
@@ -145,10 +147,12 @@
   <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>,
-  <span class='kw'>display</span> <span class='kw'>=</span> <span class='st'>"progress"</span>,
+  <span class='kw'>display</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
   <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>shrink</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
+  <span class='kw'>shrink</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>recursive</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>check_duplicates</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
 <span class='fu'>record_group</span>(<span class='no'>df</span>, <span class='no'>...</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
@@ -158,132 +162,114 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>criteria</th>
-      <td><p><code>list</code> of attributes to compare at each stage. Comparisons are done as an exact match i.e. (<code>==</code>). See <code>Details</code>.</p></td>
+      <td><p><code>[list|atomic]</code>. Attributes to compare. Each element of the list is a stage in the linkage process. <em><code>NA</code> values in <code>criteria</code> excludes records from the corresponding stage of the linkage process</em>. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>sub_criteria</th>
-      <td><p><code>list</code> of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests <code>function</code>. See <code><a href='sub_criteria.html'>sub_criteria</a></code></p></td>
+      <td><p><code>[list|<a href='sub_criteria.html'>sub_criteria</a>]</code>. Additional matching condition for each stage of the linkage process. See <code><a href='sub_criteria.html'>sub_criteria</a></code></p></td>
     </tr>
     <tr>
       <th>sn</th>
-      <td><p>Unique numerical record identifier. Useful for creating familiar episode identifiers.</p></td>
+      <td><p><code>[integer]</code>. Unique record identifier. Useful for creating familiar <code><a href='pid-class.html'>pid</a></code> identifiers.</p></td>
     </tr>
     <tr>
       <th>strata</th>
-      <td><p>Subsets. Record groups are tracked separately within each subset.</p></td>
+      <td><p><code>[atomic]</code>. Subsets of the dataset. Record groups are created separately for each <code>strata</code>. <em><code>NA</code> values in <code>strata</code> excludes records from the entire linkage process</em>.</p></td>
     </tr>
     <tr>
       <th>data_source</th>
-      <td><p>Unique data source identifier. Useful when the dataset contains data from multiple sources.</p></td>
+      <td><p><code>[character]</code>. Unique data source identifier. Adds the list of data sources in each record group to the <code><a href='pid-class.html'>pid</a></code>. Useful when the dataset has data from multiple sources.</p></td>
     </tr>
     <tr>
       <th>data_links</th>
-      <td><p>A set of <code>data_sources</code> required in each record group. A <code>strata</code> without records from these data sources will be skipped, and record groups without these will be unlinked. See <code>Details</code>.</p></td>
+      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='pid-class.html'>pid</a></code>. A <code><a href='pid-class.html'>pid</a></code> without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>display</th>
-      <td><p>The messages printed on screen. Options are; <code>"none"</code> (default) or, <code>"progress"</code> and <code>"stats"</code> for a progress update or a more detailed breakdown of the linkage process.</p></td>
+      <td><p><code>[character]</code>. Progress messages printed on screen. Options are; <code>"none"</code> (default) or, <code>"progress"</code> and <code>"stats"</code> for a progress update or a more detailed breakdown of the linkage process.</p></td>
     </tr>
     <tr>
       <th>group_stats</th>
-      <td><p>If <code>TRUE</code> (default), group-specific information like record counts. See <code>Value</code>.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code> (default), returns group-specific information like record counts for each <code><a href='pid-class.html'>pid</a></code>.</p></td>
     </tr>
     <tr>
       <th>expand</th>
-      <td><p>If <code>TRUE</code>, allows increases in the size of a record group at subsequent stages of the linkage process.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, allows a record group to expand with subsequent stages of the linkage process. <em>Not interchangeable with <code>shrink</code></em>.</p></td>
     </tr>
     <tr>
       <th>shrink</th>
-      <td><p>If <code>TRUE</code>, allows reductions in the size of a record group at subsequent stages of the linkage process.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, forces a record group to shrink with each subsequent stage of the linkage process. <em>Not interchangeable with <code>expand</code></em>.</p></td>
     </tr>
     <tr>
       <th>df</th>
-      <td><p><code>data.frame</code>. One or more datasets appended together. See <code>Details</code>.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to <b><code>links</code></b></p></td>
+      <td><p><code>[data.frame]</code>. One or more datasets appended together. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>to_s4</th>
-      <td><p>Data type of returned object. <code><a href='pid-class.html'>pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
+      <td><p><code>[logical]</code>. Output type - <code><a href='pid-class.html'>pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code><a href='pid-class.html'>pid</a></code> objects or <code>data.frame</code> if <code>to_s4</code> is <code>FALSE</code>)</p>
-<ul>
-<li><p><code>sn</code> - unique record identifier as provided (or generated)</p></li>
-<li><p><code>pid | .Data</code> - unique group identifier</p></li>
-<li><p><code>link_id</code> - unique record identifier of matching records</p></li>
-<li><p><code>pid_cri</code> - matching criteria</p></li>
-<li><p><code>pid_dataset</code> - data sources in each group</p></li>
-<li><p><code>pid_total</code> - number of records in each group</p></li>
-<li><p><code>iteration</code> - iteration of the process when each record was linked to its record group</p></li>
-</ul>
-
+    <p><code><a href='pid-class.html'>pid</a></code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b><code>links()</code></b> performs an ordered multistage deterministic linkage.
-The relevance or priority of each stage is determined by the order in which they have been listed.</p>
-<p><code>sub_criteria</code> specifies additional matching conditions for each stage (<code>criteria</code>) of the process.
-If <code>sub_criteria</code> is not <code>NULL</code>, only records with matching <code>criteria</code> and <code>sub_criteria</code> are linked.
-If a record has missing values for any <code>criteria</code>, that record is skipped at that stage, and another attempt is made at the next stage.
-If there are no matches for a record at every stage, that record is assigned a unique group ID.</p>
-<p>By default, records are compared for an exact match.
-However, user-defined logical tests (function) are also permitted.
-The function must be able to compare two atomic vectors and return either TRUE or FALSE.
-The function must have two arguments - x for the attribute and y for what it'll be compared against.</p>
-<p>A match at each stage is considered more relevant than a match at the next stage. Therefore, <code>criteria</code> should always be listed in order of decreasing relevance.</p>
-<p><code>data_source</code> - including this populates the <code>pid_dataset</code> slot. See <code>Value</code>.</p>
-<p><code>data_links</code> should be a <code>list</code> of <code>atomic</code> vectors with every element named <code>"l"</code> (links) or <code>"g"</code> (groups).</p><ul>
-<li><p><code>"l"</code> - Record groups with records from every listed data source will be retained.</p></li>
-<li><p><code>"g"</code> - Record groups with records from any listed data source will be retained.</p></li>
-</ul><p><code>data_links</code> is useful for skipping record groups that are not required.</p>
+    <p>Match priority decreases with each subsequent stage of linkage
+i.e. earlier stages (<code>criteria</code>) are considered superior.
+Therefore, it's important for each <code>criteria</code> to be listed in an order of decreasing relevance.</p>
+<p>Records with missing <code>criteria</code> (<code>NA</code>) are skipped at each stage of the linkage process, while
+records with missing <code>strata</code> (<code>NA</code>) are skipped from the entire linkage process.</p>
+<p>If a record is skipped, another attempt will be made to match the record at the next stage.
+If a record does not match any other record by the end of the linkage process (or it has a missing <code>strata</code>),
+it is assigned a unique <code><a href='pid-class.html'>pid</a></code>.</p>
+<p>A <code><a href='sub_criteria.html'>sub_criteria</a></code> can be used to request additional matching conditions for each stage of the linkage process.
+When used, only records with matching <code>criteria</code> and <code>sub_criteria</code> are linked.</p>
+<p>In <b><code>links</code></b>, each <code><a href='sub_criteria.html'>sub_criteria</a></code> must be linked to a <code>criteria</code>.
+This is done by naming creating a <code>list</code> of the <code><a href='sub_criteria.html'>sub_criteria</a></code>.
+Each name must correspond to a stage. See below for an example of 3 <code>sub_criteria</code> linked to
+<code>criteria</code> <code>1</code>, <code>5</code> and <code>13</code>.</p>
+<p>For example;</p>
+<p>$$list("cr1" = sub_criteria, "cr5" = sub_criteria, "cr13" = sub_criteria).$$</p>
+<p>Multiple matching criteria can be supplied as a nested <code><a href='sub_criteria.html'>sub_criteria</a></code>.
+The same <code><a href='sub_criteria.html'>sub_criteria</a></code> or nested <code><a href='sub_criteria.html'>sub_criteria</a></code> can be linked to different <code>criteria</code>.
+Any unlinked <code><a href='sub_criteria.html'>sub_criteria</a></code> will be ignored.</p>
+<p>By default, attributes in a <code><a href='sub_criteria.html'>sub_criteria</a></code> are compared for an <code><a href='predefined_tests.html'>exact_match</a></code>.
+However, user-defined logical tests (<code>function</code>) are also permitted. Such tests must meet 3 requirements:</p><ol>
+<li><p>It must be able to compare two <code>atomic</code> vectors</p></li>
+<li><p>It must have two arguments named <code>`x`</code> and <code>`y`</code>, where <code>`y`</code> is the value for one observation being compared against all other observations (<code>`x`</code>).</p></li>
+<li><p>It must return either <code>TRUE</code> or <code>FALSE</code></p></li>
+</ol>
+
+<p>Every element in <code>data_links</code> must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
+Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</code>.</p><ul>
+<li><p>If named <code>"l"</code>, only groups with records from every listed <code>data_source</code> will be retained.</p></li>
+<li><p>If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be retained.</p></li>
+</ul>
+
 <p><b><code>record_group()</code></b> as it existed before <code>v0.2.0</code> has been retired.
-Its now exists to support previous code and arguments with minimal disruption. Please use <b><code>links()</code></b> moving forward.</p>
+It now exists to support previous code and arguments with minimal input from users.
+Moving forward, please use <b><code>links()</code></b>.</p>
 <p>See <code><a href='../articles/links.html'>vignette("links")</a></code> for more information.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='episodes.html'>episodes</a></code>, <code><a href='predefined_tests.html'>predefined_tests</a></code> and <code><a href='sub_criteria.html'>sub_criteria</a></code></p></div>
+    <div class='dont-index'><p><code><a href='episodes.html'>episodes</a></code>; <code><a href='partitions.html'>partitions</a></code>; <code><a href='predefined_tests.html'>predefined_tests</a></code>; <code><a href='sub_criteria.html'>sub_criteria</a></code>; <code><a href='schema.html'>schema</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>diyar</span>)
-<span class='co'># Exact match</span>
-<span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Obinna"</span>,<span class='st'>"James"</span>,<span class='st'>"Ojay"</span>,<span class='st'>"James"</span>,<span class='st'>"Obinna"</span>))</div><div class='output co'>#&gt; 
-#&gt; Checked `criteria 1`.
-#&gt; 
-#&gt; Summary.
-#&gt; Time elapsed:     &lt; 0.01 secs
-#&gt; Records:
-#&gt;   Total:          5
-#&gt;     Stages:
-#&gt;        CRI 001:   4
-#&gt;        No Hits:   1
-#&gt; Groups:
-#&gt;    Total:         3
-#&gt;    Single-record: 3</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 001)" "P.3 (No Hits)" "P.2 (CRI 001)"
+    <pre class="examples"><div class='input'><span class='co'># Exact match</span>
+<span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"Obinna"</span>,<span class='st'>"James"</span>,<span class='st'>"Ojay"</span>,<span class='st'>"James"</span>,<span class='st'>"Obinna"</span>))</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 001)" "P.3 (No hits)" "P.2 (CRI 001)"
 #&gt; [5] "P.1 (CRI 001)"</div><div class='input'>
 <span class='co'># User-defined tests using `sub_criteria()`</span>
-<span class='co'># Matching `sex` and + 20-year age gaps</span>
+<span class='co'># Matching `sex` and a 20-year age range</span>
 <span class='no'>age</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>30</span>, <span class='fl'>28</span>, <span class='fl'>40</span>, <span class='fl'>25</span>, <span class='fl'>25</span>, <span class='fl'>29</span>, <span class='fl'>27</span>)
 <span class='no'>sex</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>, <span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>)
 <span class='no'>f1</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>x</span>, <span class='no'>y</span>) (<span class='no'>y</span> - <span class='no'>x</span>) <span class='kw'>%in%</span> <span class='fl'>0</span>:<span class='fl'>20</span>
 <span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>,
-      <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>s1</span> <span class='kw'>=</span> <span class='fu'><a href='sub_criteria.html'>sub_criteria</a></span>(<span class='no'>age</span>, <span class='kw'>funcs</span> <span class='kw'>=</span> <span class='no'>f1</span>)))</div><div class='output co'>#&gt; 
-#&gt; Checked `criteria 1`.
-#&gt; 
-#&gt; Summary.
-#&gt; Time elapsed:     &lt; 0.01 secs
-#&gt; Records:
-#&gt;   Total:          7
-#&gt;     Stages:
-#&gt;        CRI 001:   7
-#&gt; Groups:
-#&gt;    Total:         2
-#&gt;    Single-record: 2</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.4 (CRI 001)"
-#&gt; [5] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.4 (CRI 001)"</div><div class='input'>
+      <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>cr1</span> <span class='kw'>=</span> <span class='fu'><a href='sub_criteria.html'>sub_criteria</a></span>(<span class='no'>age</span>, <span class='kw'>funcs</span> <span class='kw'>=</span> <span class='no'>f1</span>)))</div><div class='output co'>#&gt; <span class='error'>Error: Invalid object type for `...` in `sub_criteria()`:</span>
+#&gt; <span class='error'>i - `...` must be an `atomic` vector OR,</span>
+#&gt; <span class='error'>i - `...` must be a `list` of `atomic`  vectors OR,</span>
+#&gt; <span class='error'>i - `...` must be a `sub_criteria` object.</span>
+#&gt; <span class='error'>X - `...` contains is a `function` object.</span></div><div class='input'>
 <span class='co'># Multistage linkage</span>
 <span class='co'># Relevance of matches: `forename` &gt; `surname`</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>staff_records</span>); <span class='no'>staff_records</span></div><div class='output co'>#&gt;   r_id forename  surname sex    dataset
@@ -294,23 +280,10 @@ Its now exists to support previous code and arguments with minimal disruption. P
 #&gt; 5    5  Derrick Anderson   M Staff list
 #&gt; 6    6  Darrack Anderson   M  Pay slips
 #&gt; 7    7 Christie    Green   F Staff list</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>staff_records</span>$<span class='no'>forename</span>, <span class='no'>staff_records</span>$<span class='no'>surname</span>),
-      <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>staff_records</span>$<span class='no'>sex</span>)</div><div class='output co'>#&gt; 
-#&gt; Checked `criteria 1`.
-#&gt; Checked `criteria 2`.
-#&gt; 
-#&gt; Summary.
-#&gt; Time elapsed:     &lt; 0.01 secs
-#&gt; Records:
-#&gt;   Total:          7
-#&gt;     Stages:
-#&gt;        CRI 002:   6
-#&gt;        No Hits:   1
-#&gt; Groups:
-#&gt;    Total:         3
-#&gt;    Single-record: 3</div><div class='output co'>#&gt; [1] "P.1 (CRI 002)" "P.2 (CRI 002)" "P.1 (CRI 002)" "P.4 (No Hits)"
+      <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>staff_records</span>$<span class='no'>sex</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 002)" "P.2 (CRI 002)" "P.1 (CRI 002)" "P.4 (No hits)"
 #&gt; [5] "P.2 (CRI 002)" "P.2 (CRI 002)" "P.1 (CRI 002)"</div><div class='input'>
 <span class='co'># Relevance of matches:</span>
-<span class='co'># `staff_id` &gt; `age` AND (`initials`, `hair_colour` OR `branch_office`)</span>
+<span class='co'># `staff_id` &gt; `age` (AND (`initials`, `hair_colour` OR `branch_office`))</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>missing_staff_id</span>); <span class='no'>missing_staff_id</span></div><div class='output co'>#&gt;   r_id staff_id age initials hair_colour     branch_office source_1 source_2
 #&gt; 1    1       NA  30     G.D.       Brown Republic of Ghana        A        3
 #&gt; 2    2       NA  30     B.G.        Teal            France        A        1
@@ -319,24 +292,19 @@ Its now exists to support previous code and arguments with minimal disruption. P
 #&gt; 5    5       NA  30     &lt;NA&gt;       Green            France        A        1
 #&gt; 6    6        2  30     G.D.  Dark brown             Ghana        A        1
 #&gt; 7    7        2  30     G.D.       Brown Republic of Ghana        B        2</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='no'>missing_staff_id</span>$<span class='no'>staff_id</span>, <span class='no'>missing_staff_id</span>$<span class='no'>age</span>),
-      <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>s2</span> <span class='kw'>=</span> <span class='fu'><a href='sub_criteria.html'>sub_criteria</a></span>(<span class='no'>missing_staff_id</span>$<span class='no'>initials</span>,
+      <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>cr2</span> <span class='kw'>=</span> <span class='fu'><a href='sub_criteria.html'>sub_criteria</a></span>(<span class='no'>missing_staff_id</span>$<span class='no'>initials</span>,
                                           <span class='no'>missing_staff_id</span>$<span class='no'>hair_colour</span>,
                                           <span class='no'>missing_staff_id</span>$<span class='no'>branch_office</span>)),
-      <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>missing_staff_id</span>$<span class='no'>source_1</span>)</div><div class='output co'>#&gt; 
-#&gt; Checked `criteria 1`.
-#&gt; Checked `criteria 2`.
-#&gt; 
-#&gt; Summary.
-#&gt; Time elapsed:     &lt; 0.01 secs
-#&gt; Records:
-#&gt;   Total:          7
-#&gt;     Stages:
-#&gt;        CRI 001:   2
-#&gt;        CRI 002:   5
-#&gt; Groups:
-#&gt;    Total:         1
-#&gt;    Single-record: 1</div><div class='output co'>#&gt; [1] "P.6 (CRI 002)" "P.6 (CRI 002)" "P.6 (CRI 002)" "P.6 (CRI 002)"
-#&gt; [5] "P.6 (CRI 002)" "P.6 (CRI 001)" "P.6 (CRI 001)"</div><div class='input'>
+      <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>missing_staff_id</span>$<span class='no'>source_1</span>)</div><div class='output co'>#&gt; [1] "P.6 (CRI 002)" "P.2 (CRI 002)" "P.2 (CRI 002)" "P.2 (CRI 002)"
+#&gt; [5] "P.2 (CRI 002)" "P.6 (CRI 001)" "P.6 (CRI 001)"</div><div class='input'>
+<span class='co'># Group expansion or shrinkage</span>
+<span class='no'>match_cri</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>,<span class='fl'>1</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>),
+                  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>2</span>,<span class='fl'>2</span>),
+                  <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>2</span>,<span class='fl'>2</span>,<span class='fl'>2</span>))
+<span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 002)" "P.1 (CRI 002)" "P.1 (CRI 001)"
+#&gt; [5] "P.1 (CRI 002)" "P.1 (CRI 002)"</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 002)" "P.3 (CRI 002)" "P.1 (CRI 001)"
+#&gt; [5] "P.5 (CRI 002)" "P.6 (CRI 002)"</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>shrink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 003)" "P.2 (CRI 003)" "P.1 (CRI 001)"
+#&gt; [5] "P.5 (CRI 003)" "P.5 (CRI 003)"</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

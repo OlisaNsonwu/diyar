@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -90,7 +90,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Number lines and overlaps</h1>
             
-            <h4 class="date">10 September 2020</h4>
+            <h4 class="date">28 March 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/number_line.Rmd"><code>vignettes/number_line.Rmd</code></a></small>
       <div class="hidden name"><code>number_line.Rmd</code></div>
@@ -99,9 +99,15 @@
 
     
     
-<p>#Introduction A <code>number_line</code> object is a range of <code>numeric</code> values on a number line.</p>
+<div id="introduction" class="section level1">
+<h1 class="hasAnchor">
+<a href="#introduction" class="anchor"></a>Introduction</h1>
+<p>A <code>number_line</code> object is a range of <code>numeric</code> values on a number line.</p>
 <p><em><code>interval</code> objects (<code>lubridate</code> package) are the inspiration for <code>number_line</code> objects. <code>number_line</code> objects are similar but support any <code>numeric</code> based object class.</em></p>
-<p>#Overview</p>
+</div>
+<div id="overview" class="section level1">
+<h1 class="hasAnchor">
+<a href="#overview" class="anchor"></a>Overview</h1>
 <p>For a given <code>number_line</code> object e.g. <code>8 &lt;- 1</code>, its main components are;</p>
 <ul>
 <li>
@@ -140,11 +146,13 @@
 <span class="fu"><a href="../reference/number_line.html">left_point</a></span>(<span class="no">nl_a</span>)
 <span class="co">#&gt; [1] 3 5</span></pre></body></html></div>
 <p><strong>Figure 1: <code>number_line</code> objects </strong> <img src="number_line_files/figure-html/unnamed-chunk-4-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-5-1.png" width="816"></p>
 <p>You can reverse the direction of a <code>number_line</code> object with <code><a href="../reference/number_line.html">reverse_number_line()</a></code>.</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Only reverse decreasing `number_line` objects</span>
 <span class="no">nl_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">reverse_number_line</a></span>(<span class="no">nl_a</span>, <span class="kw">direction</span> <span class="kw">=</span> <span class="st">"decreasing"</span>); <span class="no">nl_b</span>
 <span class="co">#&gt; [1] "3 -&gt; 4" "1 -&gt; 5"</span></pre></body></html></div>
-<p><strong>Figure 2: Direction of <code>number_line</code> objects </strong> <img src="number_line_files/figure-html/unnamed-chunk-6-1.png" width="816"></p>
+<p><strong>Figure 2: Direction of <code>number_line</code> objects </strong> <img src="number_line_files/figure-html/unnamed-chunk-7-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-8-1.png" width="816"></p>
 <div id="manipulating-number_line-objects" class="section level2">
 <h2 class="hasAnchor">
 <a href="#manipulating-number_line-objects" class="anchor"></a>Manipulating <code>number_line</code> objects</h2>
@@ -153,37 +161,37 @@
                     <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"07/04/2019"</span>, <span class="st">"%d/%M/%Y"</span>))
 
 <span class="no">nl_c</span>
-<span class="co">#&gt; [1] "2019-09-04 -&gt; 2019-09-07"</span>
+<span class="co">#&gt; [1] "2019-03-04 -&gt; 2019-03-07"</span>
 
 <span class="co"># expand the `number_line` object by 2 days from both ends </span>
 <span class="no">nl_d</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>); <span class="no">nl_d</span>
-<span class="co">#&gt; [1] "2019-09-02 -&gt; 2019-09-09"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-09"</span>
 
 <span class="co"># expand the `number_line` object by 2 days from the lower end</span>
 <span class="no">nl_e</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>, <span class="st">"start"</span>); <span class="no">nl_e</span>
-<span class="co">#&gt; [1] "2019-09-02 -&gt; 2019-09-07"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-07"</span>
 
 <span class="co"># shrink the `number_line` object by 2 days from the upper end</span>
 <span class="no">nl_f</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>, <span class="st">"end"</span>); <span class="no">nl_f</span>
-<span class="co">#&gt; [1] "2019-09-04 -&gt; 2019-09-05"</span>
+<span class="co">#&gt; [1] "2019-03-04 -&gt; 2019-03-05"</span>
 
 <span class="co"># shrink the `number_line` object by 2 days from both ends</span>
 <span class="no">nl_g</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>); <span class="no">nl_g</span>
-<span class="co">#&gt; [1] "2019-09-06 &lt;- 2019-09-05"</span>
+<span class="co">#&gt; [1] "2019-03-06 &lt;- 2019-03-05"</span>
 
 <span class="co"># reverse the direction of the `number_line`</span>
 <span class="no">nl_h</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">reverse_number_line</a></span>(<span class="no">nl_c</span>); <span class="no">nl_h</span>
-<span class="co">#&gt; [1] "2019-09-07 &lt;- 2019-09-04"</span>
+<span class="co">#&gt; [1] "2019-03-07 &lt;- 2019-03-04"</span>
 
 <span class="co"># shift the `number_line` object towards the left of the number line by 2 days </span>
 <span class="no">nl_i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">shift_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>); <span class="no">nl_g</span>
-<span class="co">#&gt; [1] "2019-09-06 &lt;- 2019-09-05"</span>
+<span class="co">#&gt; [1] "2019-03-06 &lt;- 2019-03-05"</span>
 
 <span class="co"># shift the `number_line` object towards the right of the number line by 2 days </span>
 <span class="no">nl_j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">shift_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>); <span class="no">nl_i</span>
-<span class="co">#&gt; [1] "2019-09-02 -&gt; 2019-09-05"</span></pre></body></html></div>
-<p><strong>Figure 3: Manipulated <code>number_line</code> objects </strong> <img src="number_line_files/figure-html/unnamed-chunk-8-1.png" width="816"></p>
-<p><code><a href="../reference/number_line.html">invert_number_line()</a></code> changes each point on the <code>number_line</code> from a positive to a negative value and vice versa. See below.</p>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-05"</span></pre></body></html></div>
+<p><strong>Figure 3: Manipulated <code>number_line</code> objects </strong> <img src="number_line_files/figure-html/unnamed-chunk-10-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-11-1.png" width="816"><code><a href="../reference/number_line.html">invert_number_line()</a></code> changes each point on the <code>number_line</code> from a positive to a negative value and vice versa. See below.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">inv</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">3</span>,-<span class="fl">3</span>,<span class="fl">3</span>,-<span class="fl">3</span>), <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(-<span class="fl">6</span>,<span class="fl">6</span>,<span class="fl">6</span>,-<span class="fl">6</span>)); <span class="no">inv</span>
 <span class="co">#&gt; [1] "3 &lt;- -6"  "-3 -&gt; 6"  "3 -&gt; 6"   "-3 &lt;- -6"</span>
 
@@ -203,60 +211,70 @@
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">nls</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">nl_c</span>, <span class="no">nl_d</span>, <span class="no">nl_e</span>, <span class="no">nl_f</span>, <span class="no">nl_g</span>, <span class="no">nl_h</span>, <span class="no">nl_i</span>, <span class="no">nl_j</span>)
 
 <span class="no">nls</span>
-<span class="co">#&gt; [1] "2019-09-04 -&gt; 2019-09-07" "2019-09-02 -&gt; 2019-09-09"</span>
-<span class="co">#&gt; [3] "2019-09-02 -&gt; 2019-09-07" "2019-09-04 -&gt; 2019-09-05"</span>
-<span class="co">#&gt; [5] "2019-09-06 &lt;- 2019-09-05" "2019-09-07 &lt;- 2019-09-04"</span>
-<span class="co">#&gt; [7] "2019-09-02 -&gt; 2019-09-05" "2019-09-06 -&gt; 2019-09-09"</span>
+<span class="co">#&gt; [1] "2019-03-04 -&gt; 2019-03-07" "2019-03-02 -&gt; 2019-03-09"</span>
+<span class="co">#&gt; [3] "2019-03-02 -&gt; 2019-03-07" "2019-03-04 -&gt; 2019-03-05"</span>
+<span class="co">#&gt; [5] "2019-03-06 &lt;- 2019-03-05" "2019-03-07 &lt;- 2019-03-04"</span>
+<span class="co">#&gt; [7] "2019-03-02 -&gt; 2019-03-05" "2019-03-06 -&gt; 2019-03-09"</span>
 
-<span class="fu"><a href="../reference/number_line.html">number_line_sequence</a></span>(<span class="no">nls</span>, <span class="kw">by</span><span class="kw">=</span><span class="fl">2</span>)
+<span class="fu"><a href="../reference/number_line.html">number_line_sequence</a></span>(<span class="no">nls</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="fl">2</span> * <span class="no">nls</span>@<span class="kw">.Data</span>/<span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(<span class="no">nls</span>@<span class="kw">.Data</span>))
 <span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "2019-09-04" "2019-09-06"</span>
+<span class="co">#&gt; [1] "2019-03-04 -&gt; 2019-03-06" "2019-03-06 -&gt; 2019-03-07"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "2019-09-02" "2019-09-04" "2019-09-06" "2019-09-08"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-04" "2019-03-04 -&gt; 2019-03-06"</span>
+<span class="co">#&gt; [3] "2019-03-06 -&gt; 2019-03-08" "2019-03-08 -&gt; 2019-03-09"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "2019-09-02" "2019-09-04" "2019-09-06"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-04" "2019-03-04 -&gt; 2019-03-06"</span>
+<span class="co">#&gt; [3] "2019-03-06 -&gt; 2019-03-07"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[4]]</span>
-<span class="co">#&gt; [1] "2019-09-04"</span>
+<span class="co">#&gt; [1] "2019-03-04 -&gt; 2019-03-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[5]]</span>
-<span class="co">#&gt; [1] "2019-09-06"</span>
+<span class="co">#&gt; [1] "2019-03-06 &lt;- 2019-03-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[6]]</span>
-<span class="co">#&gt; [1] "2019-09-07" "2019-09-05"</span>
+<span class="co">#&gt; [1] "2019-03-07 &lt;- 2019-03-05" "2019-03-05 &lt;- 2019-03-04"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[7]]</span>
-<span class="co">#&gt; [1] "2019-09-02" "2019-09-04"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-04" "2019-03-04 -&gt; 2019-03-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[8]]</span>
-<span class="co">#&gt; [1] "2019-09-06" "2019-09-08"</span>
+<span class="co">#&gt; [1] "2019-03-06 -&gt; 2019-03-08" "2019-03-08 -&gt; 2019-03-09"</span>
 
 <span class="fu"><a href="../reference/number_line.html">number_line_sequence</a></span>(<span class="no">nls</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">3</span>)
 <span class="co">#&gt; [[1]]</span>
-<span class="co">#&gt; [1] "2019-09-04" "2019-09-05" "2019-09-07"</span>
+<span class="co">#&gt; [1] "2019-03-04 -&gt; 2019-03-05" "2019-03-05 -&gt; 2019-03-06"</span>
+<span class="co">#&gt; [3] "2019-03-06 -&gt; 2019-03-07"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[2]]</span>
-<span class="co">#&gt; [1] "2019-09-02" "2019-09-05" "2019-09-09"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-04" "2019-03-04 -&gt; 2019-03-06"</span>
+<span class="co">#&gt; [3] "2019-03-06 -&gt; 2019-03-09"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[3]]</span>
-<span class="co">#&gt; [1] "2019-09-02" "2019-09-04" "2019-09-07"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-03" "2019-03-03 -&gt; 2019-03-05"</span>
+<span class="co">#&gt; [3] "2019-03-05 -&gt; 2019-03-07"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[4]]</span>
-<span class="co">#&gt; [1] "2019-09-04" "2019-09-04" "2019-09-05"</span>
+<span class="co">#&gt; [1] "2019-03-04 -&gt; 2019-03-04" "2019-03-04 -&gt; 2019-03-04"</span>
+<span class="co">#&gt; [3] "2019-03-04 -&gt; 2019-03-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[5]]</span>
-<span class="co">#&gt; [1] "2019-09-06" "2019-09-05" "2019-09-05"</span>
+<span class="co">#&gt; [1] "2019-03-06 &lt;- 2019-03-05" "2019-03-05 &lt;- 2019-03-05"</span>
+<span class="co">#&gt; [3] "2019-03-05 &lt;- 2019-03-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[6]]</span>
-<span class="co">#&gt; [1] "2019-09-07" "2019-09-05" "2019-09-04"</span>
+<span class="co">#&gt; [1] "2019-03-07 &lt;- 2019-03-06" "2019-03-06 &lt;- 2019-03-05"</span>
+<span class="co">#&gt; [3] "2019-03-05 &lt;- 2019-03-04"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[7]]</span>
-<span class="co">#&gt; [1] "2019-09-02" "2019-09-03" "2019-09-05"</span>
+<span class="co">#&gt; [1] "2019-03-02 -&gt; 2019-03-03" "2019-03-03 -&gt; 2019-03-04"</span>
+<span class="co">#&gt; [3] "2019-03-04 -&gt; 2019-03-05"</span>
 <span class="co">#&gt; </span>
 <span class="co">#&gt; [[8]]</span>
-<span class="co">#&gt; [1] "2019-09-06" "2019-09-07" "2019-09-09"</span></pre></body></html></div>
+<span class="co">#&gt; [1] "2019-03-06 -&gt; 2019-03-07" "2019-03-07 -&gt; 2019-03-08"</span>
+<span class="co">#&gt; [3] "2019-03-08 -&gt; 2019-03-09"</span></pre></body></html></div>
 <p><a id="overlaps"></a></p>
 </div>
 <div id="overlaps" class="section level2">
@@ -281,8 +299,8 @@
 <span class="co"># check overlap methods as defined in `diyar`</span>
 <span class="fu"><a href="../reference/overlaps.html">overlap_method</a></span>(<span class="no">exact</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>)], <span class="no">exact</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>)])
 <span class="co">#&gt; [1] "exact"   "exact"   "reverse"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-12-1.png" width="816"></p>
-<p><strong>Figure 4b: Example of <code>reverse</code> overlaps</strong></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-15-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-16-1.png" width="816"><strong>Figure 4b: Example of <code>reverse</code> overlaps</strong></p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">reverse</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">8</span>,<span class="fl">6</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">6</span>,<span class="fl">8</span>),
            <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">3</span>,<span class="fl">4</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">4</span>,<span class="fl">3</span>),
            <span class="co"># negative test - left_point() and right_point() </span>
@@ -298,7 +316,8 @@
 <span class="co"># check overlap methods as defined in `diyar`</span>
 <span class="fu"><a href="../reference/overlaps.html">overlap_method</a></span>(<span class="no">reverse</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>)], <span class="no">reverse</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>)])
 <span class="co">#&gt; [1] "reverse" "reverse" "exact"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-14-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-18-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-19-1.png" width="816"></p>
 <p><strong>Figure 4c: Example of <code>inbetween</code> overlaps</strong></p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">inbetween</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">5</span>, <span class="fl">8</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">6</span>, <span class="fl">7</span>),
                <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">11</span>, <span class="fl">10</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">9</span>, <span class="fl">12</span>),
@@ -313,7 +332,8 @@
 <span class="co"># check overlap methods as defined in `diyar`</span>
 <span class="fu"><a href="../reference/overlaps.html">overlap_method</a></span>(<span class="no">inbetween</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>)], <span class="no">inbetween</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>)])
 <span class="co">#&gt; [1] "inbetween" "inbetween" "inbetween"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-16-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-21-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-22-1.png" width="816"></p>
 <p><strong>Figure 4d: Example of <code>across</code> overlaps </strong></p>
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">across</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">16</span>, <span class="fl">19</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">18</span>, <span class="fl">21</span>),
             <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">22</span>, <span class="fl">25</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">23</span>, <span class="fl">26</span>),
@@ -328,7 +348,8 @@
 <span class="co"># check overlap methods as defined in `diyar`</span>
 <span class="fu"><a href="../reference/overlaps.html">overlap_method</a></span>(<span class="no">across</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>)], <span class="no">across</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>)])
 <span class="co">#&gt; [1] "across" "across" "across"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-18-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-24-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-25-1.png" width="816"></p>
 <p><strong>Figure 4e: Example of <code>chain</code> overlaps</strong></p>
 <div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">chain</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">32</span>, <span class="fl">34</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">34</span>, <span class="fl">36</span>),
             <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">39</span>, <span class="fl">37</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">41</span>, <span class="fl">39</span>),
@@ -345,7 +366,8 @@
 <span class="co"># check overlap methods as defined in `diyar`</span>
 <span class="fu"><a href="../reference/overlaps.html">overlap_method</a></span>(<span class="no">chain</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>)], <span class="no">chain</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>)])
 <span class="co">#&gt; [1] "chain"      "chain"      "aligns_end"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-20-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-27-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-28-1.png" width="816"></p>
 <p><strong>Figure 4f: Example of <code>aligns_start</code> overlaps</strong></p>
 <div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">aligns_start</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">45</span>, <span class="fl">46</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">45</span>, <span class="fl">47</span>),
             <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">48</span>, <span class="fl">49.5</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">48</span>, <span class="fl">48</span>),
@@ -360,7 +382,8 @@
 <span class="co"># check overlap methods as defined in `diyar`</span>
 <span class="fu"><a href="../reference/overlaps.html">overlap_method</a></span>(<span class="no">aligns_start</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>)], <span class="no">aligns_start</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>)])
 <span class="co">#&gt; [1] "aligns_start" "aligns_start" "aligns_start"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-22-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-30-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-31-1.png" width="816"></p>
 <p><strong>Figure 4g: Example of <code>aligns_end</code> overlaps</strong></p>
 <div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">aligns_end</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">54</span>, <span class="fl">55</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">53</span>, <span class="fl">55</span>),
             <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">56</span>, <span class="fl">57.5</span>), <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">57.5</span>, <span class="fl">57.5</span>),
@@ -375,7 +398,8 @@
 <span class="co"># check overlap methods as defined in `diyar`</span>
 <span class="fu"><a href="../reference/overlaps.html">overlap_method</a></span>(<span class="no">aligns_end</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">3</span>,<span class="fl">5</span>)], <span class="no">aligns_end</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">6</span>)])
 <span class="co">#&gt; [1] "aligns_end" "aligns_end" "aligns_end"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-24-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-33-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-34-1.png" width="816"></p>
 </div>
 <div id="set-operations" class="section level2">
 <h2 class="hasAnchor">
@@ -387,13 +411,15 @@
 <span class="co">#&gt; [1] "1 -&gt; 10"</span>
 <span class="co">#&gt; [1] "5 -&gt; 15"</span>
 <span class="co">#&gt; [1] "1 -&gt; 15"</span></pre></body></html></div>
-<p><strong>Figure 5a: Union</strong> <img src="number_line_files/figure-html/unnamed-chunk-26-1.png" width="816"></p>
+<p><strong>Figure 5a: Union</strong> <img src="number_line_files/figure-html/unnamed-chunk-36-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-37-1.png" width="816"></p>
 <div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/set_operations.html">intersect_number_lines</a></span>(<span class="no">a</span>, <span class="no">b</span>)
 <span class="no">a</span>; <span class="no">b</span>; <span class="no">c</span>
 <span class="co">#&gt; [1] "1 -&gt; 10"</span>
 <span class="co">#&gt; [1] "5 -&gt; 15"</span>
 <span class="co">#&gt; [1] "5 -&gt; 10"</span></pre></body></html></div>
-<p><strong>Figure 5b: Intersection</strong> <img src="number_line_files/figure-html/unnamed-chunk-28-1.png" width="816"></p>
+<p><strong>Figure 5b: Intersection</strong> <img src="number_line_files/figure-html/unnamed-chunk-39-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-40-1.png" width="816"></p>
 <div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/set_operations.html">subtract_number_lines</a></span>(<span class="no">a</span>, <span class="no">b</span>)
 <span class="no">a</span>; <span class="no">b</span>; <span class="no">c</span>
 <span class="co">#&gt; [1] "1 -&gt; 10"</span>
@@ -403,7 +429,8 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $n2</span>
 <span class="co">#&gt; [1] "10 -&gt; 15"</span></pre></body></html></div>
-<p><strong>Figure 5c: Subtraction</strong> <img src="number_line_files/figure-html/unnamed-chunk-30-1.png" width="816"></p>
+<p><strong>Figure 5c: Subtraction</strong> <img src="number_line_files/figure-html/unnamed-chunk-42-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-43-1.png" width="816"></p>
 </div>
 <div id="compressing-number_line-objects" class="section level2">
 <h2 class="hasAnchor">
@@ -419,7 +446,8 @@
 <span class="no">cmp_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">compress_number_line</a></span>(<span class="no">cnl_a</span>, <span class="kw">deduplicate</span> <span class="kw">=</span> <span class="no">T</span>); <span class="no">cmp_a</span>
 <span class="co">#&gt; [1] "5 -&gt; 8"     "9 -&gt; 12"    "13 -&gt; 15"   "1 -&gt; 2"     "2.5 == 2.5"</span>
 <span class="co">#&gt; [6] "3 -&gt; 4"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-32-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-45-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-46-1.png" width="816"></p>
 <p><strong>Figure 7. Pairs of <code>number_line</code> objects overlapping by <code>"across"</code> and <code>"chain"</code> methods compressed into one</strong></p>
 <div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">cnl_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">across</span>, <span class="no">chain</span>); <span class="no">cnl_b</span>
 <span class="co">#&gt;  [1] "16 -&gt; 19" "18 -&gt; 21" "22 -&gt; 25" "23 -&gt; 26" "27 -&gt; 30" "31 &lt;- 29"</span>
@@ -427,8 +455,8 @@
 
 <span class="no">cmp_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">compress_number_line</a></span>(<span class="no">cnl_b</span>, <span class="kw">deduplicate</span> <span class="kw">=</span> <span class="no">T</span>); <span class="no">cmp_b</span>
 <span class="co">#&gt; [1] "16 -&gt; 21" "22 -&gt; 26" "27 -&gt; 31" "32 -&gt; 36" "41 &lt;- 37" "47 &lt;- 42"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-34-1.png" width="816"></p>
-<p>Compress <code>number_line</code> objects that overlap in a particular way by using the <code>methods</code> argument.</p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-48-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-49-1.png" width="816"> Compress <code>number_line</code> objects that overlap in a particular way by using the <code>methods</code> argument.</p>
 <p><strong>Figure 8. Pairs of <code>number_line</code> objects overlapping by <code>"aligns_start"</code> and <code>"exact"</code> methods compressed into one</strong></p>
 <div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">cnl_c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">aligns_start</span>, <span class="no">aligns_end</span>); <span class="no">cnl_c</span>
 <span class="co">#&gt;  [1] "45 -&gt; 46"     "45 -&gt; 47"     "48 -&gt; 49.5"   "48 == 48"     "51 &lt;- 50"    </span>
@@ -438,7 +466,8 @@
 <span class="no">cmp_c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">compress_number_line</a></span>(<span class="no">cnl_c</span>, <span class="kw">deduplicate</span> <span class="kw">=</span> <span class="no">T</span>, <span class="kw">methods</span> <span class="kw">=</span><span class="st">"aligns_start|exact"</span>); <span class="no">cmp_c</span>
 <span class="co">#&gt; [1] "45 -&gt; 47"     "48 -&gt; 49.5"   "50 -&gt; 52"     "54 -&gt; 55"     "53 -&gt; 55"    </span>
 <span class="co">#&gt; [6] "56 -&gt; 57.5"   "57.5 == 57.5" "58 -&gt; 59"     "60 &lt;- 59"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-36-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-51-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-52-1.png" width="816"></p>
 </div>
 <div id="collapsing-number_line-objects" class="section level2">
 <h2 class="hasAnchor">
@@ -449,14 +478,16 @@
 <div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="no">nl_z</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="kw">l</span><span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>,<span class="fl">2</span>,<span class="fl">4</span>,<span class="fl">5</span>,<span class="fl">6</span>), <span class="kw">r</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">3</span>,<span class="fl">4</span>,<span class="fl">8</span>,<span class="fl">8</span>,<span class="fl">7</span>))
 <span class="no">nl_z</span>
 <span class="co">#&gt; [1] "1 -&gt; 3" "2 -&gt; 4" "4 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-38-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-54-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-55-1.png" width="816"></p>
 <p>In the figure above, there are <code>"across"</code>, <code>"chain"</code>, <code>"inbetween"</code> and <code>"aligns_end"</code> methods of overlap but we’ve chosen to only compress pairs that overlap by <code>"chain"</code> and <code>"aligns_end"</code> methods. The resulting <code>number_line</code> object from compressing <code>1 -&gt; 3 and 2 -&gt; 4</code> now overlaps with the resulting <code>number_line</code> objects from <code>4 -&gt; 8 and 5 -&gt; 8</code>.</p>
 <p><strong>Figure 9b: Compressing pairs of <code>number_line</code> objects by <code>"chain"</code> and <code>"aligns_end"</code> methods compressed into one</strong></p>
 <div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="no">cmp_z</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">compress_number_line</a></span>(<span class="no">nl_z</span>, <span class="kw">methods</span> <span class="kw">=</span> <span class="st">"across|chain"</span>)
 
 <span class="no">cmp_z</span>
 <span class="co">#&gt; [1] "1 -&gt; 4" "4 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-40-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-57-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-58-1.png" width="816"></p>
 <p>As mentioned, if each <code>number_line</code> object’s position in the set changes, the result could also change. See below.</p>
 <p><strong>Figure 9c: Rearranged the pairs of <code>number_line</code> objects before compressing by <code>"across"</code>, <code>"chain"</code>, <code>"inbetween"</code> and <code>"aligns_end"</code> methods </strong></p>
 <div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="no">nl_zb</span> <span class="kw">&lt;-</span> <span class="no">nl_z</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">2</span>:<span class="fl">5</span>,<span class="fl">1</span>)]; <span class="no">nl_zb</span>
@@ -464,15 +495,18 @@
 
 <span class="no">cmp_zb</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">compress_number_line</a></span>(<span class="no">nl_zb</span>, <span class="kw">methods</span> <span class="kw">=</span> <span class="st">"across|chain"</span>); <span class="no">cmp_zb</span>
 <span class="co">#&gt; [1] "1 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-42-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-60-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-61-1.png" width="816"></p>
 <p>In Fig. 8b, <code>1 -&gt; 3</code> came first, so only <code>number_line</code> objects that overlapped with <code>1 -&gt; 3</code> were compressed. However in Fig. 8c, because of the new positions, <code>2 -&gt; 4</code> came first, so only those that overlapped with <code>2 -&gt; 4</code> were compressed.</p>
 <p>Changing <code>collapse</code> to <code>TRUE</code> will collapse (rather than compress) the initial set (<code>nl_z</code>). This gives the same result as compressing the rearranged version (<code>nl_zb</code>).</p>
 <p><strong>Figure 9d: pairs of <code>number_line</code> objects overlapping by <code>"chain"</code> and `“aligns_end” methods collapsed into one</strong></p>
 <div class="sourceCode" id="cb22"><html><body><pre class="r"><span class="no">cmp_zba</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">compress_number_line</a></span>(<span class="no">nl_z</span>, <span class="kw">methods</span> <span class="kw">=</span> <span class="st">"across|chain"</span>, <span class="kw">collapse</span> <span class="kw">=</span> <span class="no">T</span>); <span class="no">cmp_zba</span>
 <span class="co">#&gt; [1] "1 -&gt; 8" "5 -&gt; 8" "6 -&gt; 7"</span></pre></body></html></div>
-<p><img src="number_line_files/figure-html/unnamed-chunk-44-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-63-1.png" width="816"></p>
+<p><img src="number_line_files/figure-html/unnamed-chunk-64-1.png" width="816"></p>
 
 <p><code><a href="../reference/episodes.html">episodes()</a></code> is a more advanced implementations of <code><a href="../reference/number_line.html">compress_number_line()</a></code>. It can compress (<code>"fixed_episodes"</code>) and collapse (<code>"rolling_episodes"</code>) overlapping <code>number_line</code> objects. It has additional useful features such as controlling the order in which pairs are compressed i.e. chronological order (<code>from_last</code>) or a user-defined order (<code>custom_sort</code>). See <a href="episodes.html">episode grouping</a> for more information.</p>
+</div>
 </div>
   </div>
 

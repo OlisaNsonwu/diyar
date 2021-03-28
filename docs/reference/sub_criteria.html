@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Sub-criteria for <b><code><a href='links.html'>links</a></code></b> — sub_criteria • diyar</title>
+<title>Sub-criteria — sub_criteria • diyar</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Sub-criteria for <b><code><a href='links.html'>links</a></code></b> — sub_criteria" />
-<meta property="og:description" content="Additional matching conditions for each stage in links." />
+<meta property="og:title" content="Sub-criteria — sub_criteria" />
+<meta property="og:description" content="Matching criteria for each iteration of links and episodes." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -129,122 +129,86 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Sub-criteria for <b><code><a href='links.html'>links</a></code></b></h1>
-    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/record_group.R'><code>R/record_group.R</code></a></small>
+    <h1>Sub-criteria</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/sub_criteria.R'><code>R/sub_criteria.R</code></a></small>
     <div class="hidden name"><code>sub_criteria.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Additional matching conditions for each stage in <code><a href='links.html'>links</a></code>.</p>
+    <p>Matching criteria for each iteration of <b><code><a href='links.html'>links</a></code></b> and <b><code><a href='episodes.html'>episodes</a></code></b>.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>sub_criteria</span>(<span class='no'>...</span>, <span class='kw'>funcs</span> <span class='kw'>=</span> <span class='kw pkg'>diyar</span><span class='kw ns'>::</span><span class='no'><a href='predefined_tests.html'>exact_match</a></span>)</pre>
+    <pre class="usage"><span class='fu'>sub_criteria</span>(
+  <span class='no'>...</span>,
+  <span class='kw'>match_funcs</span> <span class='kw'>=</span> <span class='kw pkg'>diyar</span><span class='kw ns'>::</span><span class='no'><a href='predefined_tests.html'>exact_match</a></span>,
+  <span class='kw'>equal_funcs</span> <span class='kw'>=</span> <span class='kw pkg'>diyar</span><span class='kw ns'>::</span><span class='no'><a href='predefined_tests.html'>exact_match</a></span>,
+  <span class='kw'>operator</span> <span class='kw'>=</span> <span class='st'>"or"</span>
+)
+
+<span class='fu'>eval_sub_criteria</span>(<span class='no'>x</span>, <span class='no'>...</span>)
+
+<span class='co'># S3 method for sub_criteria</span>
+<span class='fu'>eval_sub_criteria</span>(<span class='no'>x</span>, <span class='no'>strata</span>, <span class='no'>index_record</span>, <span class='no'>sn</span>, <span class='kw'>check_duplicates</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>Additional attributes to compare.</p></td>
+      <td><p>Any <code>atomic</code>. Attributes.</p></td>
     </tr>
     <tr>
-      <th>funcs</th>
-      <td><p>User defined logical test.</p></td>
+      <th>match_funcs</th>
+      <td><p><code>function</code>. User defined logical test for matches.</p></td>
+    </tr>
+    <tr>
+      <th>equal_funcs</th>
+      <td><p><code>function</code>. User defined logical test for identical record sets (all attributes of the same record).</p></td>
+    </tr>
+    <tr>
+      <th>strata</th>
+      <td><p><code>Integer</code>. Identifier for subsets of the dataset</p></td>
+    </tr>
+    <tr>
+      <th>index_record</th>
+      <td><p><code>Logical</code>. Represents the <code>y</code>-value in the  <code>x</code>-<code>y</code> record pair to be checked.
+See (<b><code><a href='predefined_tests.html'>predefined_tests</a></code></b>).</p></td>
+    </tr>
+    <tr>
+      <th>sn</th>
+      <td><p><code>Integer</code> Unique index for each record set</p></td>
+    </tr>
+    <tr>
+      <th>check_duplicates</th>
+      <td><p><code>Logical</code>. If <code>FALSE</code>, skips an identical record set if it has already been checked.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>function</code> or <code>list</code> of <code>functions</code></p>
+    <p><code>sub_criteria</code></p>
+<p><code>Logical</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b><code>sub_criteria()</code></b> is the mechanism for providing a <code>sub_criteria</code> to an instance of <b><code>links</code></b>.</p>
-<p>Each attribute (<code>atomic</code> vectors) is compared as an exact match or with a user-defined logical test.
-The test must be supplied as a function with at least two arguments named <code>`x`</code> and <code>`y`</code>.
-Where <code>`y`</code> is the value for one observation being compared against all other observations (<code>`x`</code>).</p>
-<p>Each attribute must have the same length.</p>
-<p><code>funcs</code> must be a <code>function</code> or <code>list</code> of <code>functions</code> to use with each attribute.</p>
-<p>Each <code>funcs</code> must evaluate to <code>TRUE</code> or <code>FALSE</code>.</p>
-<p>Each <code>sub_criteria</code> must be linked to a <code>criteria</code> in <b><code><a href='links.html'>links</a></code></b>.
-You can link multiple <code>sub_criteria</code> to one <code>criteria</code>.
-Any unlinked <code>sub_criteria</code> will be ignored.</p>
+    <p><b><code>sub_criteria()</code></b> is the mechanism for providing matching criteria to an iteration of <b><code>links</code></b> or <b><code>episodes</code></b>.
+It creates a <code>sub_criteria</code> class object which contains the attributes to be compared,
+logical tests for the comparisons (see <b><code><a href='predefined_tests.html'>predefined_tests</a></code></b> for examples) and
+another set of logical tests to determine identical records.</p>
+<p><em>*Determining identical records reduces processing time.</em></p>
+    <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
+
+    <div class='dont-index'><p><code><a href='predefined_tests.html'>predefined_tests</a></code>, <code><a href='links.html'>links</a></code> and <code><a href='episodes.html'>episodes</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/library.html'>library</a></span>(<span class='no'>diyar</span>)
+    <pre class="examples"><div class='input'><span class='co'># Sub-criteria</span>
+<span class='no'>s_cri1</span> <span class='kw'>&lt;-</span> <span class='fu'>sub_criteria</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>30</span>, <span class='fl'>28</span>, <span class='fl'>40</span>, <span class='fl'>25</span>, <span class='fl'>25</span>, <span class='fl'>29</span>, <span class='fl'>27</span>),
+                       <span class='kw'>match_funcs</span> <span class='kw'>=</span> <span class='no'>range_match</span>)
+<span class='no'>s_cri2</span> <span class='kw'>&lt;-</span> <span class='fu'>sub_criteria</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>30</span>, <span class='fl'>28</span>, <span class='fl'>40</span>, <span class='fl'>25</span>, <span class='fl'>25</span>, <span class='fl'>29</span>, <span class='fl'>27</span>),
+                       <span class='kw'>match_funcs</span> <span class='kw'>=</span> <span class='no'>exact_match</span>)
 
-<span class='fu'>sub_criteria</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>30</span>, <span class='fl'>28</span>, <span class='fl'>40</span>, <span class='fl'>25</span>, <span class='fl'>25</span>, <span class='fl'>29</span>, <span class='fl'>27</span>), <span class='kw'>funcs</span> <span class='kw'>=</span> <span class='no'>range_match</span>)</div><div class='output co'>#&gt; [[1]]
-#&gt; [[1]][[1]]
-#&gt; [1] 30 28 40 25 25 29 27
-#&gt; 
-#&gt; [[1]][[2]]
-#&gt; function(x, y, range = 10){
-#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
-#&gt;   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
-#&gt;                                                           "i - Valid object types are: `numeric` or `integer`.\n",
-#&gt;                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
-#&gt; 
-#&gt;   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
-#&gt;                                     "X - Length is ", length(range), "."), call. = F)
-#&gt; 
-#&gt;   (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
-#&gt; }
-#&gt; &lt;bytecode: 0x0000000024a94230&gt;
-#&gt; &lt;environment: namespace:diyar&gt;
-#&gt; 
-#&gt; 
-#&gt; attr(,"diyar_sub_criteria")
-#&gt; [1] TRUE</div><div class='input'>
-<span class='co'># Link each `sub_critera` a `criteria`.</span>
-<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(
-<span class='kw'>c1</span> <span class='kw'>=</span> <span class='fu'>sub_criteria</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>30</span>, <span class='fl'>28</span>, <span class='fl'>40</span>, <span class='fl'>25</span>, <span class='fl'>25</span>, <span class='fl'>29</span>, <span class='fl'>27</span>), <span class='kw'>funcs</span> <span class='kw'>=</span> <span class='no'>range_match</span>),
-<span class='kw'>c2</span> <span class='kw'>=</span> <span class='fu'>sub_criteria</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>30</span>, <span class='fl'>28</span>, <span class='fl'>40</span>, <span class='fl'>25</span>, <span class='fl'>25</span>, <span class='fl'>29</span>, <span class='fl'>27</span>), <span class='kw'>funcs</span> <span class='kw'>=</span> <span class='no'>range_match</span>))</div><div class='output co'>#&gt; $c1
-#&gt; $c1[[1]]
-#&gt; $c1[[1]][[1]]
-#&gt; [1] 30 28 40 25 25 29 27
-#&gt; 
-#&gt; $c1[[1]][[2]]
-#&gt; function(x, y, range = 10){
-#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
-#&gt;   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
-#&gt;                                                           "i - Valid object types are: `numeric` or `integer`.\n",
-#&gt;                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
-#&gt; 
-#&gt;   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
-#&gt;                                     "X - Length is ", length(range), "."), call. = F)
-#&gt; 
-#&gt;   (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
-#&gt; }
-#&gt; &lt;bytecode: 0x0000000024a94230&gt;
-#&gt; &lt;environment: namespace:diyar&gt;
-#&gt; 
-#&gt; 
-#&gt; attr(,"diyar_sub_criteria")
-#&gt; [1] TRUE
-#&gt; 
-#&gt; $c2
-#&gt; $c2[[1]]
-#&gt; $c2[[1]][[1]]
-#&gt; [1] 30 28 40 25 25 29 27
-#&gt; 
-#&gt; $c2[[1]][[2]]
-#&gt; function(x, y, range = 10){
-#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
-#&gt;   if(!class(range) %in% c("numeric","integer")) stop(paste("Invalid object type for `range`:\n",
-#&gt;                                                           "i - Valid object types are: `numeric` or `integer`.\n",
-#&gt;                                                           "X - You've supplied a `", paste0(class(range), collapse = ", "), "`` object."), call. = F)
-#&gt; 
-#&gt;   if(length(range) != 1) stop(paste("`range` must have a length of 1:\n",
-#&gt;                                     "X - Length is ", length(range), "."), call. = F)
-#&gt; 
-#&gt;   (y - x &lt;= range) &amp; (y - x &gt;= 0) &amp; !is.na(x) &amp; !is.na(y)
-#&gt; }
-#&gt; &lt;bytecode: 0x0000000024a94230&gt;
-#&gt; &lt;environment: namespace:diyar&gt;
-#&gt; 
-#&gt; 
-#&gt; attr(,"diyar_sub_criteria")
-#&gt; [1] TRUE
-#&gt; </div></pre>
+<span class='co'># Nested sub-criteria</span>
+<span class='no'>s_cri3</span> <span class='kw'>&lt;-</span> <span class='fu'>sub_criteria</span>(<span class='no'>s_cri1</span>, <span class='no'>s_cri2</span>, <span class='kw'>operator</span> <span class='kw'>=</span> <span class='st'>"or"</span>)
+<span class='no'>s_cri4</span> <span class='kw'>&lt;-</span> <span class='fu'>sub_criteria</span>(<span class='no'>s_cri1</span>, <span class='no'>s_cri3</span>, <span class='kw'>operator</span> <span class='kw'>=</span> <span class='st'>"and"</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

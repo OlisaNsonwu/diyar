@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Window and lengths — windows • diyar</title>
+<title>Windows and lengths — windows • diyar</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Window and lengths — windows" />
-<meta property="og:description" content="Interpret windows, case_lengths and recurrence_lengths as used in episodes." />
+<meta property="og:title" content="Windows and lengths — windows" />
+<meta property="og:description" content="Covert windows to and from case_lengths and recurrence_lengths." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -129,20 +129,20 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Window and lengths</h1>
+    <h1>Windows and lengths</h1>
     <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/episode_group.R'><code>R/episode_group.R</code></a></small>
     <div class="hidden name"><code>windows.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Interpret <code>windows</code>, <code>case_lengths</code> and <code>recurrence_lengths</code> as used in <code><a href='episodes.html'>episodes</a></code>.</p>
+    <p>Covert <code>windows</code> to and from <code>case_lengths</code> and <code>recurrence_lengths</code>.</p>
     </div>
 
     <pre class="usage"><span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='no'>lengths</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>)
 
 <span class='fu'>epid_lengths</span>(<span class='no'>date</span>, <span class='no'>windows</span>, <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>)
 
-<span class='fu'>index_window</span>(<span class='no'>date</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='no'>F</span>)</pre>
+<span class='fu'>index_window</span>(<span class='no'>date</span>, <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -153,15 +153,15 @@
     </tr>
     <tr>
       <th>lengths</th>
-      <td><p><code>case_length</code> or <code>recurrence_length</code> arguments as used in <b><code><a href='episodes.html'>episodes</a></code></b>.</p></td>
+      <td><p>The duration (<code>lengths</code>) between a <code>date</code> and <code>window</code>.</p></td>
     </tr>
     <tr>
       <th>episode_unit</th>
-      <td><p>Time unit of <code>lengths</code>. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See <code><a href='patient_list.html'>diyar::episode_unit</a></code>.</p></td>
+      <td><p>Time unit of <code>lengths</code>. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See <code><a href='patient_list.html'>diyar::episode_unit</a></code></p></td>
     </tr>
     <tr>
       <th>windows</th>
-      <td><p>A range or period relative to <code>date</code> for a given <code>lengths</code>.</p></td>
+      <td><p>The range (<code>windows</code>) relative to a <code>date</code> for a given duration (<code>length</code>).</p></td>
     </tr>
     <tr>
       <th>from_last</th>
@@ -174,16 +174,21 @@
     <p><code><a href='number_line.html'>number_line</a></code>.</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b><code>epid_windows</code></b> - returns the corresponding period for a given a <code>date</code>, and <code>case_length</code> or <code>recurrence_length</code>.
-<b><code>epid_lengths</code></b> - returns the corresponding <code>case_length</code> or <code>recurrence_length</code> for a given <code>date</code> and period.</p>
+    <p><b><code>epid_windows</code></b> - returns the corresponding <code>window</code> for a given a <code>date</code>, and <code>case_length</code> or <code>recurrence_length</code>.</p>
+<p><b><code>epid_lengths</code></b> - returns the corresponding <code>case_length</code> or <code>recurrence_length</code> for a given <code>date</code> and <code>window</code>.</p>
+<p><b><code>index_window</code></b> - returns the corresponding <code>case_length</code> or <code>recurrence_length</code> for the <code>date</code> only.</p>
+<p><b><code>index_window(date = x)</code></b> is a convenience function for <b><code>epid_lengths(date = x, window = x)</code></b>.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='co'># `epid_windows`</span>
-<span class='fu'>epid_windows</span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>(), <span class='fl'>10</span>)</div><div class='output co'>#&gt; [1] "2020-09-10 -&gt; 2020-09-20"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>(), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2020-09-15 -&gt; 2020-09-20"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>(), <span class='fu'><a href='number_line.html'>number_line</a></span>(-<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2020-09-05 -&gt; 2020-09-20"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>(), -<span class='fl'>5</span>)</div><div class='output co'>#&gt; [1] "2020-09-10 &lt;- 2020-09-05"</div><div class='input'>
-<span class='co'># `epid_lengths`</span>
-<span class='fu'>epid_lengths</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>01</span>, <span class='fl'>20</span>), <span class='fl'>30</span>)</div><div class='output co'>#&gt; [1] "10 == 10"</div><div class='input'><span class='fu'>epid_lengths</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>01</span>, <span class='fl'>20</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>25</span>, <span class='fl'>30</span>))</div><div class='output co'>#&gt; [1] "5 -&gt; 10"</div><div class='input'><span class='fu'>epid_lengths</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>01</span>, <span class='fl'>20</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(-<span class='fl'>10</span>, <span class='fl'>30</span>))</div><div class='output co'>#&gt; [1] "-30 -&gt; 10"</div><div class='input'><span class='fu'>epid_lengths</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>01</span>, <span class='fl'>20</span>), -<span class='fl'>10</span>)</div><div class='output co'>#&gt; [1] "-30 == -30"</div><div class='input'>
-<span class='fu'>index_window</span>(<span class='fl'>20</span>)</div><div class='output co'>#&gt; [1] "0 == 0"</div><div class='input'><span class='fu'>index_window</span>(<span class='fu'><a href='number_line.html'>as.number_line</a></span>(<span class='fl'>20</span>))</div><div class='output co'>#&gt; [1] "0 == 0"</div><div class='input'><span class='fu'>index_window</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>15</span>, <span class='fl'>20</span>))</div><div class='output co'>#&gt; [1] "-5 -&gt; 0"</div><div class='input'>
+    <pre class="examples"><div class='input'><span class='co'># Which `window` will a given `length` cover?</span>
+<span class='no'>date</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>()
+<span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt; [1] "2021-03-28 -&gt; 2021-04-07 01:00:00"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2021-04-02 01:00:00 -&gt; 2021-04-07 01:00:00"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(-<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2021-03-23 -&gt; 2021-04-07 01:00:00"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, -<span class='fl'>5</span>)</div><div class='output co'>#&gt; [1] "2021-03-28 &lt;- 2021-03-23"</div><div class='input'>
+
+<span class='co'># Which `length` is required to cover a given `window`?</span>
+<span class='no'>date</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>(), <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() + <span class='fl'>20</span>)
+<span class='fu'>epid_lengths</span>(<span class='no'>date</span>, <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() + <span class='fl'>30</span>)</div><div class='output co'>#&gt; [1] "10 == 10"</div><div class='input'><span class='fu'>epid_lengths</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() + <span class='fl'>25</span>, <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() + <span class='fl'>30</span>))</div><div class='output co'>#&gt; [1] "5 -&gt; 10"</div><div class='input'><span class='fu'>epid_lengths</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() - <span class='fl'>10</span>, <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() + <span class='fl'>30</span>))</div><div class='output co'>#&gt; [1] "-30 -&gt; 10"</div><div class='input'><span class='fu'>epid_lengths</span>(<span class='no'>date</span>, <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() - <span class='fl'>10</span>)</div><div class='output co'>#&gt; [1] "-30 == -30"</div><div class='input'>
+<span class='co'># Which `length` is required to cover the `date`?</span>
+<span class='fu'>index_window</span>(<span class='fl'>20</span>)</div><div class='output co'>#&gt; [1] "0 == 0"</div><div class='input'><span class='fu'>index_window</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>15</span>, <span class='fl'>20</span>))</div><div class='output co'>#&gt; [1] "-5 -&gt; 0"</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

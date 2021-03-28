@@ -40,8 +40,7 @@
 
 
 <meta property="og:title" content="<code>number_line</code> object — number_line-class" />
-<meta property="og:description" content="S4 objects representing a series of finite numbers on a number line
-Used for range matching in record_group and interval grouping in fixed_episodes, rolling_episodes and episode_group" />
+<meta property="og:description" content="S4 objects representing a range of numeric values" />
 
 
 
@@ -73,7 +72,7 @@ Used for range matching in record_group and interval grouping in fixed_episodes,
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -136,8 +135,7 @@ Used for range matching in record_group and interval grouping in fixed_episodes,
     </div>
 
     <div class="ref-description">
-    <p>S4 objects representing a series of finite numbers on a number line
-Used for range matching in <code><a href='links.html'>record_group</a></code> and interval grouping in <code><a href='episodes.html'>fixed_episodes</a></code>, <code><a href='episodes.html'>rolling_episodes</a></code> and <code><a href='episodes.html'>episode_group</a></code></p>
+    <p>S4 objects representing a range of numeric values</p>
     </div>
 
     <pre class="usage"># S4 method for number_line
@@ -169,6 +167,9 @@ c(x, ...)
 
 # S3 method for number_line
 unique(x, ...)
+
+# S3 method for number_line
+seq(x, fill = TRUE, simplify = FALSE, ...)
 
 # S3 method for number_line
 sort(x, decreasing = FALSE, ...)
@@ -216,8 +217,16 @@ format(x, ...)</pre>
       <td><p>slot name</p></td>
     </tr>
     <tr>
+      <th>fill</th>
+      <td><p>XXXXX</p></td>
+    </tr>
+    <tr>
+      <th>simplify</th>
+      <td><p>XXXXX</p></td>
+    </tr>
+    <tr>
       <th>decreasing</th>
-      <td><p>logical. Should the sort be increasing or decreasing</p></td>
+      <td><p>If <code>TRUE</code>, sort in descending order.</p></td>
     </tr>
     </table>
 
@@ -226,13 +235,13 @@ format(x, ...)</pre>
     
 
 <dl'>
-<dt><code>start</code></dt><dd><p>Start of the number line</p></dd>
+<dt><code>start</code></dt><dd><p>First value in the range.</p></dd>
 
-<dt><code>id</code></dt><dd><p>Unique <code>numeric</code> ID. Providing this is optional.</p></dd>
+<dt><code>id</code></dt><dd><p>Unique element id. Optional.</p></dd>
 
-<dt><code>gid</code></dt><dd><p>Unique <code>numeric</code> Group ID. Providing this is optional.</p></dd>
+<dt><code>gid</code></dt><dd><p>Unique group id. Optional.</p></dd>
 
-<dt><code>.Data</code></dt><dd><p>Length/with and direction of the <code>number_line</code> object.</p></dd>
+<dt><code>.Data</code></dt><dd><p>Length, duration or width of the range.</p></dd>
 
 </dl>
 
