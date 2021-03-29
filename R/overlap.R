@@ -2,16 +2,16 @@
 #'
 #' @description Identify overlapping \code{number_line} objects
 #'
-#' @param x \code{number_line} object.
-#' @param y \code{number_line} object.
-#' @param method Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.
-#' @param methods Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.
+#' @param x \code{[\link{number_line}]}
+#' @param y \code{[\link{number_line}]}
+#' @param method \code{[charater]}. Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.
+#' @param methods \code{[charater]}. Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.
 #' @aliases overlaps
 #' @return \code{logical}; \code{character}
 #'
 #' @details
 #'
-#' \bold{8 logical test;}
+#' \bold{9 logical test;}
 #'
 #' \bold{\code{exact()}} - Identical left and right points.
 #'
@@ -29,17 +29,17 @@
 #'
 #' \bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" methods of overlap.
 #'
-#' \bold{\code{overlaps()}} - overlap by any set of the 7 methods above.
+#' \bold{\code{overlaps()}} - overlap by any set of the 8 methods above.
 #'
 #' \bold{Describe methods of overlap;}
 #'
-#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object have overlapped.
+#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object has overlapped.
 #' Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
 #'
 #' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episodes}}.
 #'
 #' @seealso
-#' \code{\link{number_line}} and \code{\link{set_operations}}
+#' \code{\link{number_line}};  \code{\link{set_operations}}
 #'
 #' @examples
 #' a <- number_line(-100, 100)
@@ -89,40 +89,59 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
   err <- err_overlap_methods_1(overlap_methods = m, "methods")
   if(err != F) stop(err, call. = F)
 
-  # final check
-  p <- rep(NA, length(x))
-  sets <- split(1:length(x), m)
+  mths <- m
+  rd_id <- seq(1:length(mths))
+  mths <- split(rd_id, mths)
 
   # Mutually inclusive methods
-  names(sets)[grepl("none", names(sets))] <- "none"
-  names(sets)[grepl("overlap", names(sets))] <- "overlap"
+  names(mths)[grepl("none", names(mths))] <- "none"
+  names(mths)[grepl("overlap", names(mths))] <- "overlap"
 
-  um1 <- names(sets)
-  um1 <- um1[!duplicated(um1)]
-  um1 <- unlist(strsplit(um1,split="\\|"))
-  um1 <- um1[!duplicated(um1)]
+  mths_nm <- strsplit(names(mths), "\\|")
+  mths <- unlist(
+    lapply(seq_len(length(mths)), function(i){
+      x <- rep(mths[i], length(mths_nm[[i]]))
+      names(x) <- mths_nm[[i]]
+      x
+    }), recursive = FALSE)
+  mths <- lapply(split(mths, names(mths)), function(x) unlist(x, use.names = FALSE))
 
-  m_ab <- function(x){
-    ifelse(x=="aligns_start", "as", ifelse(x=="aligns_end", "ae", substr(x,1,2)))
+  lgk_2 <- rep(FALSE, length(x))
+  mth_lgk <- which(rd_id %in% mths[["overlap"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- overlap(x[mth_lgk], y[mth_lgk])
   }
-
-  none <- function(x, y) rep(F, length(x))
-  for (i in um1){
-    assign("tp", sets)
-    ab <- m_ab(i)
-    names(tp) <- ifelse(grepl(i, names(sets)), i, "")
-    tp <- tp[names(tp) != ""]
-    tp <- unlist(tp, use.names = F)
-
-    func <- get(i)
-    tp <- tp[tp %in% which(p %in% c(FALSE, NA))]
-    lgk <- func(x[tp], y[tp])
-    tp <- tp[which(lgk)]
-    p[tp] <- TRUE
+  mth_lgk <- which(rd_id %in% mths[["across"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- across(x[mth_lgk], y[mth_lgk])
   }
-  return(p)
+  mth_lgk <- which(rd_id %in% mths[["exact"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- exact(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["inbetween"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- inbetween(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["aligns_start"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- aligns_start(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["aligns_end"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- aligns_end(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["chain"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- chain(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["reverse"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- reverse(x[mth_lgk], y[mth_lgk])
+  }
+  rm(list = ls()[ls() != "lgk_2"])
+  lgk_2
 }
-
 #' @rdname overlaps
 #' @examples
 #'

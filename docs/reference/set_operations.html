@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Set operations on number line objects — set_operations" />
-<meta property="og:description" content="Perform set operations on a pair of number_line objects." />
+<meta property="og:description" content="Perform set operations on a pair of number_lines." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -135,7 +135,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Perform set operations on a pair of <code>number_line</code> objects.</p>
+    <p>Perform set operations on a pair of <code>number_line</code>s.</p>
     </div>
 
     <pre class="usage"><span class='fu'>union_number_lines</span>(<span class='no'>x</span>, <span class='no'>y</span>)
@@ -149,11 +149,11 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p><code>number_line</code> object</p></td>
+      <td><p><code>[<a href='number_line.html'>number_line</a>]</code></p></td>
     </tr>
     <tr>
       <th>y</th>
-      <td><p><code>number_line</code> object</p></td>
+      <td><p><code>number_line</code></p></td>
     </tr>
     </table>
 
@@ -162,7 +162,7 @@
     <p><code>number_line</code>; <code>list</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b><code>union_number_lines()</code></b> - Return a <code>number_line</code> object with the combined range of <code>x</code> and <code>y</code></p>
+    <p><b><code>union_number_lines()</code></b> - Return a <code>number_line</code> with the combined range of <code>x</code> and <code>y</code></p>
 <p><b><code>intersect_number_line()</code></b> - Returns a subset of <code>x</code> that overlaps with <code>y</code> and vice versa</p>
 <p><b><code>subtract_number_lines()</code></b> - Returns a subset of <code>x</code> that does not overlap with <code>y</code> and vice versa.
 Returns a list with two elements;</p><ul>
@@ -178,8 +178,7 @@ If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"in
     <div class='dont-index'><p><code><a href='number_line.html'>number_line</a></code> and <code><a href='overlaps.html'>overlaps</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'>
-<span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>9</span>))
+    <pre class="examples"><div class='input'><span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>9</span>))
 <span class='no'>nl_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>0</span>, <span class='fl'>6</span>))
 
 <span class='co'># Union</span>
@@ -195,17 +194,17 @@ If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"in
 <span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>intersect_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
 #&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
 #&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-03 -&gt; 2020-01-05"
-#&gt; [3] "NA == NA"                </div><div class='input'>
+#&gt; [3] "NA ?? NA"                </div><div class='input'>
 <span class='co'># Subtract</span>
 <span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>subtract_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
 #&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
 #&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; $n1
 #&gt; [1] "2020-01-01 -&gt; 2020-01-04" "2020-01-01 -&gt; 2020-01-03"
-#&gt; [3] "NA == NA"                
+#&gt; [3] "NA ?? NA"                
 #&gt; 
 #&gt; $n2
 #&gt; [1] "2020-01-05 -&gt; 2020-01-09" "2020-01-05 -&gt; 2020-01-09"
-#&gt; [3] "NA == NA"                
+#&gt; [3] "NA ?? NA"                
 #&gt; </div><div class='input'>
 </div></pre>
   </div>

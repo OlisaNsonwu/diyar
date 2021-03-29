@@ -118,7 +118,7 @@ progress_bar <- function(n, d, max_width, msg){
   mx_l <- max(nchar(c(n, d)))
   d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
   n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
-  pct_l <- paste0(msg,"; ", n, " of ", d, " completed.")
+  pct_l <- paste0(msg,"; ", n, " of ", d, " record(s) completed.")
 
   status_width <- max_width - nchar(pct_l)
   bar_width <- floor(prop_complete*status_width)
@@ -136,9 +136,9 @@ progress_txt <- function(n, d, msg){
   mx_l <- max(nchar(c(n, d)))
   d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
   n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
-  pct_l <- paste0(msg,"; ", n, " of ", d, " completed.")
+  pct_l <- paste0(msg,": ", n, " of ", d, " record(s) completed.")
 
-  status <-paste0(pct_l,"\r")
+  status <- paste0(pct_l,"\r")
   cat(status, "\r",sep="")
 }
 
@@ -176,16 +176,16 @@ datasets <- function(by, val, sep = ","){
 check_links <- function(cri, data_source, data_links){
   dl_lst <- unlist(data_links, use.names = F)
   func <- function(x, y, e) {
-    if(tolower(e)=="l"){
+    if(tolower(e) == "l"){
       all(y %in% x & length(x)>1)
-    }else if (tolower(e)=="g"){
+    }else if (tolower(e) == "g"){
       any(y %in% x)
     }
   }
 
   lsts <- lapply(split(data_source, cri), function(x, l=data_links){
     xlst <- rep(list(a =x[!duplicated(x)]), length(l))
-    r <- list(ds = paste0(sort(unique(x)), collapse=","))
+    r <- list(ds = paste0(sort(unique(x)), collapse = ","))
     if(!all(toupper(dl_lst) == "ANY")) r["rq"] <- any(unlist(mapply(func, xlst, l, names(l), SIMPLIFY = F)))
     return(r)
   })
@@ -242,9 +242,10 @@ prep_lengths <- function(length, overlap_methods, int,
   )
 }
 
-ovr_chks <- function(tr, int, mths, ord){
-  x <- overlaps(tr, int, methods = mths)
-  ord[is.na(x)] <-  0
+ovr_chks <- function(date, window, mths, ord){
+  x <- overlaps(date, window, methods = mths)
+  ord[x %in% c(NA, FALSE)] <-  0
+  rm(list = ls()[ls() != "ord"])
   as.numeric(ord)
 }
 
@@ -325,9 +326,12 @@ invalid_opts <- function(vals, opts){
 }
 
 pid_cri_l <- function(n){
-  ifelse(n == 0,"No Hits",
-         ifelse(n == -1, "Skipped",
-                paste0("CRI ", formatC(n, width = 3, flag = 0, format = "fg"))))
+  n[n == 0] <- "No hits"
+  n[n == "-1"] <- "Skipped"
+  lgk <- !n %in% c("Skipped", "No hits")
+  n[lgk] <- paste0("CRI ", formatC(as.integer(n[lgk]), width = 3, flag = 0, format = "fg"))
+  rm(lgk)
+  return(n)
 }
 
 combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
@@ -493,8 +497,8 @@ box_ring <- function(boxes_w = 3, order = 1){
 }
 
 l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
-  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != "Skipped" & pltd$wind_nm == wind_nm,]
-  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != "Skipped"
+  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != -1 & pltd$wind_nm == wind_nm,]
+  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != -1
   lar <- pltd[lgk,]
   lens <- lapply(lens, function(x) x[lgk])
   rec_ls <- nrow(lar)
@@ -510,6 +514,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$gid <- NULL
       y$epid <- lar$epid
       y$wind_total <- lar$wind_total
+      y$epid_total <- lar$epid_total
       y$y <- lar$y
       y$mid_y_lead <- lar$mid_y_lead
       y$pt_start <- lar$start
@@ -518,7 +523,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$nl_nm <- "len"
       #lar$nl_nm <- "dts"
       #lar$wind_nm_l <- ""
-      y$wind_nm_l <- ifelse(winds$wind_nm == "Case", "Case length", "Recurrence length")
+      y$wind_nm_l <- ifelse(winds$wind_nm == 0, "Case length", "Recurrence length")
       y$bi_dir <- start_point(x) < lar$end & end_point(x) > lar$end
       y <- y[!is.na(y$start) & !is.na(y$end),]
       if(nrow(y) > 0){
@@ -556,7 +561,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y
     })
   }else{
-    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "episode_unit")]
+    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "epid_total", "episode_unit")]
     lar$wind_nm_l <- lar$nl_nm <- character()
     lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
     lar <- list(lar)
@@ -589,6 +594,10 @@ length_to_range <- function(lengths, date, from_last, episode_unit){
 
   if(any(from_last == T)) {
     len <- lapply(len, function(x){
+
+      if(length(x) < length(from_last)){
+        x <- rep(x, length(date))
+      }
       x@start <- as.numeric(x@start)
       x[from_last] <- invert_number_line(x)[from_last]
       return(x)
@@ -599,7 +608,7 @@ length_to_range <- function(lengths, date, from_last, episode_unit){
     if(length(x) == 1){
       x <- rep(x, length(date))
     }
-    x <- epid_windows(date, x, episode_unit)
+    x <- epid_windows(date, x, names(diyar::episode_unit)[episode_unit])
     return(x)
   })
   return(len)
@@ -615,140 +624,9 @@ opt_level <- function(opt, mth, tr_mth){
   }
 }
 
-sub_cri_checks <- function(sub_criteria, strata, temporal_link = NULL, index_record, sn, skip_repeats = FALSE){
-  if(is.null(temporal_link)){
-    temporal_link <- rep(TRUE, length(strata))
-  }
-  curr_sub_cri <- sub_criteria
-  ds_len <- length(strata)
-  if(length(curr_sub_cri) > 0){
-    cri.2 <- strata + as.numeric(temporal_link)/10
-    sc_ord <- order(cri.2, -index_record, decreasing = TRUE)
-    cri.2 <- cri.2[sc_ord]
-    rrr <- rle(cri.2)
-    lgk <- !duplicated(cri.2, fromLast = TRUE)
-    skp_cri <- cri.2 < 0
-    sub_cri_match <- sapply(1:length(curr_sub_cri), function(i){
-      set <- curr_sub_cri[[i]]
-      set_match <- sapply(1:length(set), function(j){
-        a <- set[[j]]
-        x <- a[[1]]
-        if(class(x) == "list"){
-          x <- lapply(x, function(x){
-            if(length(x) == 1){
-              x <- rep(x, ds_len)
-            }
-            x <- x[sn]
-            x <- x[sc_ord]
-            x
-          })
-
-          y <- lapply(x, function(x){
-            y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
-            y
-          })
-        }else{
-          if(length(x) == 1){
-            x <- rep(x, ds_len)
-          }
-          x <- x[sn]
-          x <- x[sc_ord]
-          y <- rep(x[lgk], rrr$lengths[match(cri.2[lgk], rrr$values)])
-        }
-
-        f1 <- a[[2]]
-        lgk <- try(f1(x, y), silent = TRUE)
-        if(class(lgk) == "try-error" | class(lgk) != "logical"){
-          if(class(lgk) == "try-error"){
-            err <- attr(lgk, "condition")$message
-          }else{
-            err <- "Output is not a `logical` object"
-          }
-
-          err <- paste0("Unable to evaluate `funcs-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
-                        "i - Each `func` must have the following syntax and output.\n",
-                        "i - Syntax ~ `function(x, y, ...)`.\n",
-                        "i - Output ~ `TRUE` or `FALSE`.\n",
-                        "X - Issue with `funcs - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
-          stop(err, call. = F)
-        }
-        lgk <- as.numeric(lgk)
-        lgk[skp_cri] <- TRUE
-        out1 <- ifelse(is.na(lgk), 0, lgk)
-        if(length(out1) == 1) out1 <- rep(out1, length(cri.2))
-        if(length(out1) != length(cri.2)){
-          err <- paste0("Output length of `funcs` must be 1 or the same as `criteria`:\n",
-                        "i - Unexpected length for `funcs-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
-                        "i - Expecting a length of 1 of ", length(cri.2), ".\n",
-                        "X - Length is ", length(out1), ".")
-          stop(err, call. = F)
-        }
-        retrieve_pos <- match(1:length(cri.2), sc_ord)
-        out1 <- out1[retrieve_pos]
-
-        if(isTRUE(skip_repeats)){
-          f2 <- a[[3]]
-          lgk <- try(f2(x, y), silent = T)
-          if(class(lgk) == "try-error" | class(lgk) != "logical"){
-            if(class(lgk) == "try-error"){
-              err <- attr(lgk, "condition")$message
-            }else{
-              err <- "Output is not a `logical` object"
-            }
-
-            err <- paste0("Unable to evaluate `equva-", j, "` at `sub_criteria` \"", names(curr_sub_cri[i]),"\":\n",
-                          "i - Each `func` must have the following syntax and output.\n",
-                          "i - Syntax ~ `function(x, y, ...)`.\n",
-                          "i - Output ~ `TRUE` or `FALSE`.\n",
-                          "X - Issue with `equva - ", j, "` at \"", names(curr_sub_cri[i]),"\": ", err, ".")
-            stop(err, call. = F)
-          }
-          lgk <- as.numeric(lgk)
-          lgk[skp_cri] <- TRUE
-          out2 <- ifelse(is.na(lgk), 0, lgk)
-          if(length(out2) == 1) out2 <- rep(out2, length(cri.2))
-          if(length(out2) != length(cri.2)){
-            err <- paste0("Output length of `equva` must be 1 or the same as `criteria`:\n",
-                          "i - Unexpected length for `equva-", j, "` at \"", names(curr_sub_cri[i]),"\":\n",
-                          "i - Expecting a length of 1 of ", length(cri.2), ".\n",
-                          "X - Length is ", length(out2), ".")
-            stop(err, call. = F)
-          }
-          out2 <- out2[retrieve_pos]
-          out1 <- c(out1, out2)
-        }
-        return(out1)
-      })
-      if(length(set_match) == 1){
-        set_match <- as.matrix(set_match)
-      }
-      ifelse(rowSums(set_match) > 0, 1, 0)
-    })
-    if(length(sub_cri_match) == 1){
-      sub_cri_match <- as.matrix(sub_cri_match)
-    }
-    sub_cri_match <- ifelse(rowSums(sub_cri_match) == ncol(sub_cri_match) | index_record, 1, 0)
-
-    if(isTRUE(skip_repeats)){
-      sub_cri_match.rf <- sub_cri_match[((length(sub_cri_match)/2)+1):length(sub_cri_match)]
-      sub_cri_match <- sub_cri_match[1:(length(sub_cri_match)/2)]
-      return(list(sub_cri_match, sub_cri_match.rf))
-    }else{
-      return(list(sub_cri_match))
-    }
-  }else{
-    sub_cri_match <- rep(1, ds_len)
-    if(isTRUE(skip_repeats)){
-      return(list(sub_cri_match, sub_cri_match))
-    }else{
-      return(list(sub_cri_match))
-    }
-  }
-}
-
 pane_checks <- function(dates, windows){
   fnx <- function(x, int = dates){
-    ovr_chks(windows[[x]], int, rep("overlap", length(int)), rep(x, length(int)))
+    ovr_chks(rep(windows[[x]], length(int)), int, rep("overlap", length(int)), rep(x, length(int)))
   }
 
   checks <- as.matrix(sapply(as.numeric(seq_len(length(windows))), fnx))
@@ -756,7 +634,7 @@ pane_checks <- function(dates, windows){
     checks <- t(checks)
   }
   ep_checks <- Rfast::rowMaxs(checks, value = TRUE)
-  ep_checks
+  as.integer(ep_checks)
 }
 
 check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, int, case_nm){
@@ -784,7 +662,7 @@ check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, i
     indx <- (ep_obds_checks &
                !cr[lgk] &
                cri[lgk] %in% skp_crxt &
-               case_nm[lgk] == "")
+               is.na(case_nm[lgk]))
     lgk <- which(lgk == TRUE)[indx == TRUE]
     return(lgk)
   }else{
@@ -936,4 +814,46 @@ sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlap = FALSE
       axis.text.x = ggplot2::element_text(colour = txt_col, size = 14),
       axis.ticks = ggplot2::element_blank(),
       axis.title = ggplot2::element_blank())
+}
+
+f_rbind <- function(x, y){
+  if(length(x) == length(y)){
+    rbind(x, y)
+  }else{
+    xm <- names(y)[!names(y) %in% names(x)]
+    xp <- lapply(xm, function(i) rep(NA_real_, length(x[[1]])))
+    names(xp) <- xm
+    x2 <- as.data.frame(c(as.list(x), xp))
+
+    ym <- names(x)[!names(x) %in% names(y)]
+    yp <- lapply(ym, function(i) rep(NA_real_, length(y[[1]])))
+    names(yp) <- ym
+    y2 <- as.data.frame(c(as.list(y), yp))
+    rbind(x2, y2)
+  }
+}
+
+extract_3dot_lengths <- function(x){
+  if(all(class(x) == "sub_criteria")){
+    unlist(lapply(x, function(sc){
+      extract_3dot_lengths(sc[[1]])
+    }), use.names = FALSE)
+  }else if(all(class(x) == "list")){
+    unlist(lapply(x, length), use.names = FALSE)
+  }else if(is.atomic(x)){
+    length(x)
+  }
+}
+
+dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
+  y <- rle(x)
+  if(is.null(order_by_label) & isTRUE(order_by_val)){
+    pos <- order(-y$lengths)
+  }else{
+    pos <- match(order_by_label, y$values)
+    pos <- pos[!is.na(pos)]
+  }
+  y$values <- y$values[pos]
+  y$lengths <- y$lengths[pos]
+  y
 }

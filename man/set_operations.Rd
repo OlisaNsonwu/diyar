@@ -14,18 +14,18 @@ intersect_number_lines(x, y)
 subtract_number_lines(x, y)
 }
 \arguments{
-\item{x}{\code{number_line} object}
+\item{x}{\code{[\link{number_line}]}}
 
-\item{y}{\code{number_line} object}
+\item{y}{\code{number_line}}
 }
 \value{
 \code{number_line}; \code{list}
 }
 \description{
-Perform set operations on a pair of \code{number_line} objects.
+Perform set operations on a pair of \code{number_line}s.
 }
 \details{
-\bold{\code{union_number_lines()}} - Return a \code{number_line} object with the combined range of \code{x} and \code{y}
+\bold{\code{union_number_lines()}} - Return a \code{number_line} with the combined range of \code{x} and \code{y}
 
 \bold{\code{intersect_number_line()}} - Returns a subset of \code{x} that overlaps with \code{y} and vice versa
 
@@ -42,7 +42,6 @@ If \code{x} and \code{y} have the same length, it'll be an \code{"increasing dir
 If  \code{x} and \code{y} do not overlap, \code{NA} (\code{"NA ?? NA"}) is returned.
 }
 \examples{
-
 nl_1 <- c(number_line(1, 5), number_line(1, 5), number_line(5, 9))
 nl_2 <- c(number_line(1, 2), number_line(2, 3), number_line(0, 6))
 

@@ -70,69 +70,69 @@ number_line_sequence(
 )
 }
 \arguments{
-\item{l}{Left point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object}
+\item{l}{{[\code{numeric} based]}. Left point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object}
 
-\item{r}{Right point of the \code{number_line} object. Must be able to be coerced to a \code{numeric} object}
+\item{r}{{[\code{numeric} based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object}
 
-\item{id}{Unique element identifier. Optional}
+\item{id}{\code{[integer]}. Unique element identifier. Optional}
 
-\item{gid}{Unique group identifier. Optional}
+\item{gid}{\code{[integer]}. Unique group identifier. Optional}
 
-\item{x}{\code{number_line} object}
+\item{x}{\code{[number_line]}}
 
-\item{value}{\code{numeric} based value}
+\item{value}{{[\code{numeric} based]}}
 
-\item{direction}{Type of \code{"number_line"} objects to be reversed.
+\item{direction}{\code{[character]}. Type of \code{"number_line"} objects to be reversed.
 Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).}
 
-\item{by}{increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()} and \code{number_line_sequence()}}
+\item{by}{\code{[integer]}. Increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}}
 
-\item{point}{\code{"start"} or \code{"end"} point}
+\item{point}{\code{[character]}. \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.}
 
-\item{methods}{Methods of overlap. Check different pairs of \code{number_line} objects with the different \code{methods}}
+\item{methods}{\code{[character]}. Methods of overlap. Check different pairs of \code{number_line} by different \code{methods}}
 
-\item{collapse}{If \code{TRUE}, collapse the compressed results yet again.}
+\item{collapse}{\code{[lgocial]}. If \code{TRUE}, collapse the compressed results yet again.}
 
-\item{deduplicate}{if \code{TRUE}, retains only one \code{number_line} object per set of overlapping \code{number_line}.}
+\item{deduplicate}{\code{[lgocial]}. If \code{TRUE}, retains only one \code{number_line} per overlapping set}
 
-\item{method}{Method of overlap. Check every pair of \code{number_line} objects with the same \code{method}. Deprecated. Please use \code{methods} instead.}
+\item{method}{\code{[character]}. Method of overlap. Check every pair of \code{number_line} by the same \code{method}. Deprecated. Please use \code{methods} instead.}
 
-\item{length.out}{number of splits. For example, \code{1} for two parts and \code{2} for three parts. Passed to \code{seq()}}
+\item{length.out}{\code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}}
 
-\item{fill}{retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.}
+\item{fill}{\code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split}
 
-\item{simplify}{split into \code{number_line} objects or sequence finite numbers}
+\item{simplify}{\code{[logical]}. Split into \code{number_line} or sequence finite numbers}
 }
 \value{
-\code{number_line} object
+\code{number_line}
 }
 \description{
 A range of \code{numeric} values.
 }
 \details{
-A \code{number_line} object represents a range of numbers on a number line.
+A \code{number_line} represents a range of numbers on a number line.
 
 It's made up of a \code{start} and \code{end point} which are the beginning and end of the range respectively.
-The location of the \code{start} point - \code{left} or \code{right}, indicates whether it's an \code{"increasing"} or \code{"decreasing"} range.
-This is the \code{direction} of the \code{number_line} object.
+The location of the \code{start} point - \code{left} or \code{right}, determines whether it's an \code{"increasing"} or \code{"decreasing"} range.
+This is the \code{direction} of the \code{number_line}.
 
-\bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line} object.
-A reversed \code{number_line} object has its \code{l} and \code{r} points swapped.
-The \code{direction} argument specifies which type of \code{number_line} objects will be reversed.
-\code{number_line} objects with non-finite \code{starts} or \code{end points} i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
+\bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line}.
+A reversed \code{number_line} has its \code{l} and \code{r} points swapped.
+The \code{direction} argument specifies which type of \code{number_line} will be reversed.
+\code{number_line} with non-finite \code{starts} or \code{end points} i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 
-\bold{\code{shift_number_line()}} - Shift a \code{number_line} object towards the positive or negative end of the number line.
+\bold{\code{shift_number_line()}} - Shift a \code{number_line} towards the positive or negative end of the number line.
 
-\bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line} object.
+\bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line}.
 
 \bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points from a negative to positive value or vice versa.
 
-\bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} objects into a new \code{number_line} object that covers the \code{start} and \code{end} points of the originals.
-This results in duplicate \code{number_line} objects with the \code{start} and \code{end} points of the newly expanded \code{number_line} object.
-See \code{\link{overlaps}} for further details on overlapping \code{number_line} objects.
-\bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}.
+\bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} into a new \code{number_line} that covers the \code{start} and \code{end} points of the originals.
+This results in duplicate \code{number_line} with the \code{start} and \code{end} points of the newly expanded \code{number_line}
+See \code{\link{overlaps}} for further details on overlapping \code{number_line}.
+\bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}
 
-\bold{\code{number_line_sequence()}} - Split a \code{number_line} object into equal parts (\code{length.out}) or with a fixed recurring width (\code{by}).
+\bold{\code{number_line_sequence()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
 }
 \examples{
 date <- function(x) as.Date(x, "\%d/\%m/\%Y")

@@ -8,6 +8,9 @@
 \alias{format.pid}
 \alias{unique.pid}
 \alias{summary.pid}
+\alias{print.pid_summary}
+\alias{as.data.frame.pid}
+\alias{as.list.pid}
 \alias{show,pid-method}
 \alias{rep,pid-method}
 \alias{[,pid-method}
@@ -24,6 +27,12 @@ as.pid(x, ...)
 \method{unique}{pid}(x, ...)
 
 \method{summary}{pid}(object, ...)
+
+\method{print}{pid_summary}(x, ...)
+
+\method{as.data.frame}{pid}(x, ...)
+
+\method{as.list}{pid}(x, ...)
 
 \S4method{show}{pid}(object)
 

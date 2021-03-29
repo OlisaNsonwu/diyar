@@ -8,6 +8,9 @@
 \alias{format.pane}
 \alias{unique.pane}
 \alias{summary.pane}
+\alias{print.pane_summary}
+\alias{as.data.frame.pane}
+\alias{as.list.pane}
 \alias{show,pane-method}
 \alias{rep,pane-method}
 \alias{[,pane-method}
@@ -24,6 +27,12 @@ as.pane(x)
 \method{unique}{pane}(x, ...)
 
 \method{summary}{pane}(object, ...)
+
+\method{print}{pane_summary}(x, ...)
+
+\method{as.data.frame}{pane}(x, ...)
+
+\method{as.list}{pane}(x, ...)
 
 \S4method{show}{pane}(object)
 

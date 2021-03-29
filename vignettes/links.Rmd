@@ -79,28 +79,28 @@ dbs2 <- patient_list[c("forename","surname","sex")]; dbs2
 lgl_1 <- function(x, y) substr(x, 1, 1) == substr(y, 1, 1) 
 dbs2$pids_1 <- links(criteria =  list(dbs2$sex), 
                      sub_criteria = list(
-                       cr1 = sub_criteria(dbs2$forename, funcs = lgl_1)),
+                       cr1 = sub_criteria(dbs2$forename, match_funcs = lgl_1)),
                      display = "none")
 
 # Matching `sex`, and `forename` with character length of 5
 lgl_2 <- function(x, y) nchar(x) == nchar(y) & nchar(x) == 5
 dbs2$pids_2 <- links(criteria =  list(dbs2$sex), 
                     sub_criteria = list(
-                      cr1 = sub_criteria(dbs2$forename, funcs = lgl_2)),
+                      cr1 = sub_criteria(dbs2$forename, match_funcs = lgl_2)),
                     display = "none")
 
 # Matching `sex`, and `forename` that ends with "y"
 lgl_3 <- function(x, y) substr(x, length(x) - 1, length(x)) == "y"
 dbs2$pids_3 <- links(criteria =  list(dbs2$sex), 
                     sub_criteria = list(
-                      cr1 = sub_criteria(dbs2$forename, funcs = lgl_3)),
+                      cr1 = sub_criteria(dbs2$forename, match_funcs = lgl_3)),
                     display = "none")
 
 # Matching `sex` and at least one `forename` that ends with "y"
 lgl_4 <- function(x, y) substr(y, length(y) - 1, length(y)) == "y"
 dbs2$pids_4 <- links(criteria =  list(dbs2$sex), 
                     sub_criteria = list(
-                      cr1 = sub_criteria(dbs2$forename, funcs = lgl_4)),
+                      cr1 = sub_criteria(dbs2$forename, match_funcs = lgl_4)),
                     display = "none")
 ```
 
@@ -115,19 +115,19 @@ Opes_c$age <- as.numeric(round((Sys.Date() - as.Date(Opes_c$date_of_birth, "%d/%
 # Match individuals between ages 35 and 55 
 rng1 <- function(x, y) x %in% 35:55
 Opes_c$pids_a <- links(criteria = "place_holder",
-                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, funcs = rng1)),
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, match_funcs = rng1)),
                        display ="none")
 
 # Match individuals with a 5-year age gap between themselves
 rng2 <- function(x, y) abs(y - x) %in% 0:5
 Opes_c$pids_b <- links(criteria = "place_holder",
-                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, funcs = rng2)),
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, match_funcs = rng2)),
                        display ="none")
 
 # Match individuals with more than a 5-year age gap between each other 
 rng3 <- function(x, y) (y - x) > 5
 Opes_c$pids_c <- links(criteria = "place_holder",
-                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, funcs = rng3)),
+                       sub_criteria = list(cr1 = sub_criteria(Opes_c$age, match_funcs = rng3)),
                        display ="none")
 
 Opes_c[c("age","pids_a", "pids_b", "pids_c")]
@@ -229,8 +229,8 @@ hair_func <- function(x, y) substr(x, 1, 1) == substr(y, 1, 1) & substr(y, 1, 1)
 
 Opes$p_exp_a <- links(criteria = list(Opes$name, Opes$name),
                      sub_criteria = list(
-                       cr1 = sub_criteria(Opes$department, funcs = dept_func),
-                       cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                       cr1 = sub_criteria(Opes$department, match_funcs = dept_func),
+                       cr2 = sub_criteria(Opes$hair_colour, match_funcs = hair_func)),
                      display = "none")
 
 # 2 stage linkage
@@ -238,8 +238,8 @@ Opes$p_exp_a <- links(criteria = list(Opes$name, Opes$name),
   # stage 2 - link "Opes" whose hair colour starts with the letter "B"
 Opes$p_nexp_a <- links(criteria = list(Opes$name, Opes$name),
                      sub_criteria = list(
-                       cr1 = sub_criteria(Opes$department, funcs = dept_func),
-                       cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                       cr1 = sub_criteria(Opes$department, match_funcs = dept_func),
+                       cr2 = sub_criteria(Opes$hair_colour, match_funcs = hair_func)),
                      expand = F,
                      display = "none")
 
@@ -252,15 +252,15 @@ Note that changing `expand` to `TRUE` is not the same as reversing the relevance
 # The same as `p_exp_a` 
 Opes$p_exp_b <- links(criteria = list(Opes$name, Opes$name),
                      sub_criteria = list(
-                       cr2 = sub_criteria(Opes$department, funcs = dept_func),
-                       cr1 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                       cr2 = sub_criteria(Opes$department, match_funcs = dept_func),
+                       cr1 = sub_criteria(Opes$hair_colour, match_funcs = hair_func)),
                      display = "none")
 
 # Not the same as `p_nexp_a`
 Opes$p_nexp_b <- links(criteria = list(Opes$name, Opes$name),
                      sub_criteria = list(
-                       cr2 = sub_criteria(Opes$department, funcs = dept_func),
-                       cr1 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                       cr2 = sub_criteria(Opes$department, match_funcs = dept_func),
+                       cr1 = sub_criteria(Opes$hair_colour, match_funcs = hair_func)),
                      expand = F,
                      display = "none")
 
@@ -341,9 +341,9 @@ If there's a `sub_criteria`, you'll need to use the `shrink` argument. See the e
   # stage 3 - link "Opes" have the same day and month of birth 
 Opes$p_shk_d <- links(criteria = list(Opes$name, Opes$department, Opes$db_pt1),
                       sub_criteria = list(
-                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match),
-                        cr2 = sub_criteria("place_holder", funcs = diyar::exact_match),
-                        cr3 = sub_criteria("place_holder", funcs = diyar::exact_match)
+                        cr1 = sub_criteria("place_holder", match_funcs = diyar::exact_match),
+                        cr2 = sub_criteria("place_holder", match_funcs = diyar::exact_match),
+                        cr3 = sub_criteria("place_holder", match_funcs = diyar::exact_match)
                       ),
                       shrink = T,
                      display = "none")
@@ -358,7 +358,7 @@ Although `p_shk_c` and `p_shk_d` are identical, the `pid_cri` slot for both are 
   # stage 1 - link "Opes" that have the same name
 Opes$p_shk_e1 <- links(criteria = list(Opes$name),
                       sub_criteria = list(
-                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match)),
+                        cr1 = sub_criteria("place_holder", match_funcs = diyar::exact_match)),
                       shrink = T,
                      display = "none")
 
@@ -370,7 +370,7 @@ Opes$e1 <- ifelse(Opes$p_shk_e1@pid_cri == 0, "No Hits", as.character(Opes$p_shk
 Opes$p_shk_e2 <- links(criteria = list(Opes$department),
                       strata = Opes$e1,
                        sub_criteria = list(
-                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match)),
+                        cr1 = sub_criteria("place_holder", match_funcs = diyar::exact_match)),
                       shrink = T,
                      display = "none")
 
@@ -382,7 +382,7 @@ Opes$e2 <- ifelse(Opes$p_shk_e1@pid_cri == 0, "No Hits", as.character(Opes$p_shk
 Opes$p_shk_e3 <- links(criteria = list(Opes$db_pt1),
                       strata = Opes$e2,
                        sub_criteria = list(
-                        cr1 = sub_criteria("place_holder", funcs = diyar::exact_match)),
+                        cr1 = sub_criteria("place_holder", match_funcs = diyar::exact_match)),
                       shrink = T,
                      display = "none")
 
@@ -396,16 +396,16 @@ data(Opes); Opes
 
 Opes$p_cmp1 <- links(criteria = list("place_holder", "place_holder"),
                       sub_criteria = list(
-                        cr1 = sub_criteria(Opes$department, funcs = dept_func),
-                        cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                        cr1 = sub_criteria(Opes$department, match_funcs = dept_func),
+                        cr2 = sub_criteria(Opes$hair_colour, match_funcs = hair_func)),
                      expand = T,
                      shrink = F,
                      display = "none")
 
 Opes$p_cmp2 <- links(criteria = list("place_holder", "place_holder"),
                       sub_criteria = list(
-                        cr1 = sub_criteria(Opes$department, funcs = dept_func),
-                        cr2 = sub_criteria(Opes$hair_colour, funcs = hair_func)),
+                        cr1 = sub_criteria(Opes$department, match_funcs = dept_func),
+                        cr2 = sub_criteria(Opes$hair_colour, match_funcs = hair_func)),
                      expand = F,
                      shrink = T,
                      display = "none")

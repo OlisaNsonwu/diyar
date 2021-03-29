@@ -1330,3 +1330,74 @@ record_group_retired <- function(df, sn=NULL, criteria,
   if(to_s4) df <- diyar::to_s4(df)
   df
 }
+
+overlaps_retired <- function(x, y, methods = "overlap", method = "overlap"){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(missing(methods) & !missing(method)) {
+    m <- paste(method,sep="", collapse = "|")
+    warning("'method' is deprecated. Please use 'methods' instead.")
+  }else{
+    m <- methods
+  }
+
+  if(length(x) == 1 & length(y) != 1){
+    x <- rep(x, length(y))
+  }else if(length(y) == 1 & length(x) != 1){
+    y <- rep(y, length(x))
+  }else{
+    err <- err_match_ref_len(x, "y", c(1, length(y)), "x")
+    if(err != F) stop(err, call. = F)
+
+    err <- err_match_ref_len(y, "x", c(1, length(x)), "y")
+    if(err != F) stop(err, call. = F)
+  }
+
+  if(length(m) == 1 & length(x) != 1){
+    m <- rep(m, length(x))
+  }else{
+    err <- err_match_ref_len(m, "x", c(1, length(x)), "method")
+    if(err != F) stop(err, call. = F)
+  }
+
+  err <- err_object_types(m, "methods", "character")
+  if(err != F) stop(err, call. = F)
+  err <- err_overlap_methods_1(overlap_methods = m, "methods")
+  if(err != F) stop(err, call. = F)
+
+  # final check
+  p <- rep(FALSE, length(x))
+  sets <- split(1:length(x), m)
+
+  # Mutually inclusive methods
+  names(sets)[grepl("none", names(sets))] <- "none"
+  names(sets)[grepl("overlap", names(sets))] <- "overlap"
+
+  um1 <- names(sets)
+  um1 <- um1[!duplicated(um1)]
+  um1 <- unlist(strsplit(um1,split="\\|"))
+  um1 <- um1[!duplicated(um1)]
+
+  m_ab <- function(x){
+    ifelse(x=="aligns_start", "as", ifelse(x=="aligns_end", "ae", substr(x,1,2)))
+  }
+
+  none <- function(x, y) rep(F, length(x))
+  for (i in um1){
+    assign("tp", sets)
+    ab <- m_ab(i)
+    names(tp) <- ifelse(grepl(i, names(sets)), i, "")
+    tp <- tp[names(tp) != ""]
+    tp <- unlist(tp, use.names = F)
+
+    func <- get(i)
+    tp <- tp[tp %in% which(p %in% c(FALSE, NA))]
+    lgk <- func(x[tp], y[tp])
+    tp <- tp[which(lgk)]
+    p[tp] <- TRUE
+  }
+  rm(list = ls()[ls() != "p"])
+  return(p)
+}

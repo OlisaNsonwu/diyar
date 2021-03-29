@@ -4,37 +4,36 @@
 #' @description Distribute events into groups defined by time or numerical boundaries.
 #' Records in each group are assigned a unique identifier with relevant group-level data.
 #'
-#' @param sn Unique numerical record identifier. Useful for creating familiar pane identifiers.
-#' @param strata Subsets of the dataset. Panes are created separately for each \code{strata}. Assigning \code{NA} to \code{strata} will skip that record.
-#' @param windows_total Minimum number of matched \code{windows} required for pane. See \code{details}
-#' @param separate If \code{TRUE}, events matched to different \code{windows} are not linked.
-#' @param date Event date (\code{date}, \code{datetime} or \code{numeric}) or period (\code{\link{number_line}}).
-#' @param window Numeric or time intervals. Supplied as \code{number_line} objects.
-#' @param data_source Unique data source identifier. Includes a list of data sources of for each record in a \code{panes}.
-#' @param custom_sort Preferred order for selecting \code{"index"} events.
-#' @param group_stats If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes' start and endpoints.
-#' @param data_links A set of \code{data_sources} required in a \code{pane}. A \code{pane} without records from these \code{data_sources} are skipped or unlinked. See \code{Details}.
-#' @param by XXXXX
-#' @param length.out XXXXX
-#' @param fill XXXXX
-#' @param display XXXXX
-#' @param group_stats If \code{TRUE} (default), returns group-specific information like record counts. See \code{Value}.
+#' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pane-class]{pane}} identifiers.
+#' @param strata \code{[atomic]}. Subsets of the dataset. Panes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.
+#' @param windows_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required for a pane. See \code{details}
+#' @param separate \code{[logical]}. If \code{TRUE}, events matched to different \code{windows} are not linked.
+#' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
+#' @param window \code{[integer|\link{number_line}]}. Numeric or time intervals.
+#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the dataset has data from multiple sources.
+#' @param custom_sort \code{[atomic]}. Preferred order for selecting \code{"index"} events.
+#' @param group_stats \code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes start and end dates.
+#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pane-class]{pane}}. A \code{\link[=pane-class]{pane}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
+#' @param by \code{[integer]}. Increment or decrement.
+#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts.
+#' @param fill \code{[logical]}. Retain (TRUE) or drop (FALSE) the remainder of an uneven split.
+#' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default) or \code{"stats"}.
 #' @return
 #'
-#' @return \code{\link[=pane-class]{pane}} or \code{list} (\code{\link[=pane-class]{pane}} and \code{ggplot}) object
+#' @return \code{\link[=pane-class]{pane}}
 #'
 #' @seealso
-#' \code{\link[=pane-class]{pane}}, \code{\link{number_line_sequence}}, \code{\link{episodes}}, \code{\link{links}}, \code{\link{overlaps}} and \code{\link{number_line}}
+#' \code{\link[=pane-class]{pane}}; \code{\link{number_line_sequence}}; \code{\link{episodes}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
 #'
 #' @details
-#' Each group is referred to as a pane. A pane consists of events within a specific time or numerical intervals (\code{window}).
+#' Each assigned group is referred to as a \code{\link[=pane-class]{pane}} A \code{\link[=pane-class]{pane}} consists of events within a specific time or numerical intervals (\code{window}).
 #'
 #' Each \code{window} must cover a separate interval. Overlapping \code{windows} are merged before events are distributed into panes.
 #' Events that occur over two \code{windows} are assigned to the last one listed.
 #'
 #' Alternatively, you can create \code{windows} by splitting a period into equal parts (\code{length.out}), or into a sequence of intervals with fixed widths (\code{by}).
 #'
-#' By default, the earliest event is taken as the \code{"Index"} event of the pane.
+#' By default, the earliest event is taken as the \code{"Index"} event of the \code{\link[=pane-class]{pane}}.
 #' An alternative can be chosen with \code{custom_sort}.
 #'
 #' \bold{\code{partitions()}} will categorise records into 3 types;
@@ -44,14 +43,14 @@
 #' \item \code{"Skipped"} - Records that are not assigned to a pane.
 #' }
 #'
-#' \code{data_links} must be a \code{list} of \code{atomic} vectors, with every element named \code{"l"} (links) or \code{"g"} (groups).
-#'
+#' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
+#' Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 #' \itemize{
-#' \item if named \code{"l"}, only \code{panes} with records from every listed \code{data_source} will be retained.
-#' \item if named \code{"g"}, only \code{panes} with records from any listed \code{data_source} will be retained.
+#' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
+#' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
 #' }
 #'
-#' See \code{vignette("partitions")} for more information.
+#' See \code{vignette("episodes")} for more information.
 #'
 #' @examples
 #' events <- c(30, 2, 11, 10, 100)
@@ -102,13 +101,13 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     data_links <- list(l = data_links)
   }
   if(is.null(names(data_links))) names(data_links) <- rep("l", length(data_links))
-  names(data_links) <- ifelse(names(data_links)=="", "l", names(data_links))
+  names(data_links) <- ifelse(names(data_links) == "", "l", names(data_links))
   # `date`
   int <- as.number_line(date)
   int@id <- seq_len(length(int))
   # `strata`
   if(length(strata) == 1) {
-    cri <- rep(1, length(int))
+    cri <- rep(1L, length(int))
     cri_l <- rep(strata, length(int))
   }else if(is.null(strata)){
     cri <- rep(1, length(int))
@@ -119,13 +118,15 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   # `sn`
   if(is.null(sn)) {
     sn <- seq_len(length(int))
+  }else{
+    sn <- as.integer(sn)
   }
   # `custom_sort`
   if(!is.null(custom_sort)) {
     c_sort <- as.numeric(as.factor(custom_sort))
     if(length(c_sort) == 1) c_sort <- rep(c_sort, length(int))
   }else{
-    c_sort <- rep(0, length(int))
+    c_sort <- rep(0L, length(int))
   }
   # `windows_total`
   if(is.number_line(windows_total)){
@@ -133,17 +134,21 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   }else{
     windows_total <- number_line(windows_total, Inf)
   }
+  windows_total[windows_total@.Data < 0] <- reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
+
   if(length(windows_total) == 1){
     windows_total <- rep(windows_total, length(int))
   }
   # Strata-specific `windows`
   if(is.number_line(window)){
     window <- list(compress_number_line(as.number_line(window), deduplicate = TRUE, collapse = TRUE))
+  }else{
+    window <- as.number_line(window)
   }
   if(!is.null(by) | !is.null(length.out) | length(window) > 1){
     split_cri <- cri
   }else{
-    split_cri <- rep(1, length(int))
+    split_cri <- rep(1L, length(int))
   }
   splits <- split(int, split_cri)
   splits_sn <- split(int@id, split_cri)
@@ -190,7 +195,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   splits_sn <- unlist(splits_sn, use.names = FALSE)
   window_matched <- window_matched[match(seq_len(length(int)), splits_sn)]
 
-  case_nm <- ifelse(window_matched == 0, "Skipped", "Duplicate_I")
+  case_nm <- ifelse(window_matched == 0, -1L, 1L)
   tag <- ifelse(window_matched == 0,
                 NA_real_, cri + 1/window_matched)
   pane <- ifelse(!is.na(tag) & rep(!separate, length(int)),
@@ -199,7 +204,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   dst <- rle(sort(cri[!is.na(tag) & !duplicated(tag)]))
   phits <- dst$lengths[match(cri, dst$values)]
   lgk <- !(phits >= as.numeric(windows_total@start) & phits <= as.numeric(right_point(windows_total))) | is.na(pane)
-  pane[lgk] <- seq_len(length(int))[lgk]
+  pane[lgk] <- -seq_len(length(int))[lgk]
 
   # Index records - `custom_sort`
   ord <- order(pane, -c_sort, -as.numeric(int@start), -as.numeric(right_point(int)))
@@ -212,29 +217,32 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   lgk <- !duplicated(s_pane, fromLast = TRUE) | is.na(s_pane)
   pane <- rep(s_sn[lgk], r$lengths[match(s_pane[lgk], r$values)])
   pane <- pane[match(sn, s_sn)]
-  case_nm[which(sn %in% s_sn[lgk] & case_nm != "Skipped")] <- "Index"
-  pane[case_nm == "Skipped"] <- sn
+  case_nm[which(sn %in% s_sn[lgk] & case_nm != -1)] <- 0L
+  pane[case_nm == -1] <- sn[case_nm == -1]
 
   # pp <- as.numeric(names(index_sn$values))
   # qq <- as.numeric(names(s_pane))
   # pane <- rep(s_sn[match(pp, qq)], index_sn$lengths)
   # pane <- pane[match(sn, s_sn)]
-  # case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != "Skipped")] <- "Index"
+  # case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != -1)] <- 0
 
   # `pane_total`
   pane_n <- rep(r$lengths[match(s_pane[lgk], r$values)], r$lengths[match(s_pane[lgk], r$values)])
   pane_n <- pane_n[match(sn, s_sn)]
 
   # Distance of records from index record
-  ei <- pane[which(case_nm %in% c("Index", "Skipped"))]
-  ii <- int[which(case_nm %in% c("Index", "Skipped"))]
+  ei <- pane[which(case_nm %in% c(0, -1))]
+  ii <- int[which(case_nm %in% c(0, -1))]
   lgk <- match(pane, ei)
   dist_pane_index <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
     ((as.numeric(ii@start[lgk]) + as.numeric(right_point(ii[lgk]))) * .5)
 
+  attr(case_nm, "value") <- c(-1, 0, 1)
+  attr(case_nm, "label") <- c("Skipped", "Index", "Duplicate_I")
+
   # output - `pane` object
   panes <- new("pane",
-               .Data= pane,
+               .Data = pane,
                dist_pane_index = dist_pane_index,
                window_matched = window_matched,
                sn = sn,
@@ -242,6 +250,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                window_list = window_list,
                pane_total = pane_n,
                options = options_lst)
+  class(panes@case_nm) <- "d_label"
 
   if(!is.null(data_source)){
     # Implement `data_links`
@@ -251,25 +260,25 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
       panes@dist_pane_index[!req_links] <- 0
-      panes@case_nm[!req_links] <- "Skipped"
+      panes@case_nm[!req_links] <- -1L
       panes@.Data[!req_links] <- panes@sn[!req_links]
       # `pane_datasets`
       datasets[!req_links] <- data_source[!req_links]
     }
-    panes@pane_dataset <- datasets
+    panes@pane_dataset <- encode(datasets)
   }
 
   # `group_stats`
   if(group_stats == TRUE){
     lgk <- which(pane_n != 1)
     # `pane_interval`
-    dts_a <- lapply(split(as.numeric(int@start[lgk]), pane[lgk]), min)
-    dts_z <- lapply(split(as.numeric(right_point(int[lgk])), pane[lgk]), max)
+    dts_a <- lapply(split(as.numeric(as.POSIXct(int@start[lgk]), tz = "GMT"), pane[lgk]), min)
+    dts_z <- lapply(split(as.numeric(as.POSIXct(right_point(int[lgk])), tz = "GMT"), pane[lgk]), max)
     dts_a <- as.numeric(dts_a)[match(pane[lgk], names(dts_a))]
     dts_z <- as.numeric(dts_z)[match(pane[lgk], names(dts_z))]
 
     pane_dt_a <- as.numeric(int@start)
-    pane_dt_z <- right_point(int)
+    pane_dt_z <- as.numeric(right_point(int))
 
     pane_dt_a[lgk] <- dts_a
     pane_dt_z[lgk] <- dts_z
@@ -281,9 +290,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     }else{
       pane_l <- pane_dt_z - pane_dt_a
     }
-    panes@pane_interval <- number_line(l = pane_dt_a,
-                                      r = pane_dt_z,
-                                      gid = pane)
+    panes@pane_interval <- number_line(l = pane_dt_a, r = pane_dt_z, gid = pane)
     # `pane_length`
     panes@pane_length <- pane_l
   }

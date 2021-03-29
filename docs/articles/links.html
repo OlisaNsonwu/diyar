@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -90,7 +90,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Multistage deterministic linkage in R</h1>
             
-            <h4 class="date">10 September 2020</h4>
+            <h4 class="date">28 March 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/links.Rmd"><code>vignettes/links.Rmd</code></a></small>
       <div class="hidden name"><code>links.Rmd</code></div>
@@ -138,11 +138,9 @@
 
 <span class="co"># 1 stage &lt;- Matching surname only</span>
 <span class="no">dbs</span>$<span class="no">pids_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">surname</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="no">T</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># 2 stage - Matching surname, then matching sex</span>
 <span class="no">dbs</span>$<span class="no">pids_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">dbs</span>$<span class="no">surname</span>, <span class="no">dbs</span>$<span class="no">sex</span>), <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">dbs</span>
 <span class="co">#&gt;   forename surname sex        pids_a        pids_b</span>
@@ -188,33 +186,29 @@
 <span class="no">lgl_1</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="fu"><a href="https://rdrr.io/r/base/substr.html">substr</a></span>(<span class="no">x</span>, <span class="fl">1</span>, <span class="fl">1</span>) <span class="kw">==</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html">substr</a></span>(<span class="no">y</span>, <span class="fl">1</span>, <span class="fl">1</span>)
 <span class="no">dbs2</span>$<span class="no">pids_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">dbs2</span>$<span class="no">sex</span>),
                      <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">lgl_1</span>)),
+                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">lgl_1</span>)),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Matching `sex`, and `forename` with character length of 5</span>
 <span class="no">lgl_2</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="fu"><a href="https://rdrr.io/r/base/nchar.html">nchar</a></span>(<span class="no">x</span>) <span class="kw">==</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html">nchar</a></span>(<span class="no">y</span>) <span class="kw">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/nchar.html">nchar</a></span>(<span class="no">x</span>) <span class="kw">==</span> <span class="fl">5</span>
 <span class="no">dbs2</span>$<span class="no">pids_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">dbs2</span>$<span class="no">sex</span>),
                     <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                      <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">lgl_2</span>)),
+                      <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">lgl_2</span>)),
                     <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Matching `sex`, and `forename` that ends with "y"</span>
 <span class="no">lgl_3</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="fu"><a href="https://rdrr.io/r/base/substr.html">substr</a></span>(<span class="no">x</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">x</span>) - <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">x</span>)) <span class="kw">==</span> <span class="st">"y"</span>
 <span class="no">dbs2</span>$<span class="no">pids_3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">dbs2</span>$<span class="no">sex</span>),
                     <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                      <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">lgl_3</span>)),
+                      <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">lgl_3</span>)),
                     <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Matching `sex` and at least one `forename` that ends with "y"</span>
 <span class="no">lgl_4</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="fu"><a href="https://rdrr.io/r/base/substr.html">substr</a></span>(<span class="no">y</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">y</span>) - <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">y</span>)) <span class="kw">==</span> <span class="st">"y"</span>
 <span class="no">dbs2</span>$<span class="no">pids_4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">dbs2</span>$<span class="no">sex</span>),
                     <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                      <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">lgl_4</span>)),
-                    <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span></pre></body></html></div>
+                      <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">lgl_4</span>)),
+                    <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)</pre></body></html></div>
 <p>User-defined logical tests can be very useful for implementing complex matching conditions. For example, you can match observations if they are within a range or list of values. See the example below.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">Opes_c</span> <span class="kw">&lt;-</span> <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date_of_birth"</span>, <span class="st">"name"</span>, <span class="st">"hair_colour"</span>)]
 <span class="no">Opes_c</span> <span class="kw">&lt;-</span> <span class="no">Opes</span>[<span class="st">"date_of_birth"</span>]
@@ -224,38 +218,34 @@
 <span class="co"># Match individuals between ages 35 and 55 </span>
 <span class="no">rng1</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="no">x</span> <span class="kw">%in%</span> <span class="fl">35</span>:<span class="fl">55</span>
 <span class="no">Opes_c</span>$<span class="no">pids_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="st">"place_holder"</span>,
-                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes_c</span>$<span class="no">age</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">rng1</span>)),
+                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes_c</span>$<span class="no">age</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">rng1</span>)),
                        <span class="kw">display</span> <span class="kw">=</span><span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Match individuals with a 5-year age gap between themselves</span>
 <span class="no">rng2</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(<span class="no">y</span> - <span class="no">x</span>) <span class="kw">%in%</span> <span class="fl">0</span>:<span class="fl">5</span>
 <span class="no">Opes_c</span>$<span class="no">pids_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="st">"place_holder"</span>,
-                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes_c</span>$<span class="no">age</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">rng2</span>)),
+                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes_c</span>$<span class="no">age</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">rng2</span>)),
                        <span class="kw">display</span> <span class="kw">=</span><span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Match individuals with more than a 5-year age gap between each other </span>
 <span class="no">rng3</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) (<span class="no">y</span> - <span class="no">x</span>) <span class="kw">&gt;</span> <span class="fl">5</span>
 <span class="no">Opes_c</span>$<span class="no">pids_c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="st">"place_holder"</span>,
-                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes_c</span>$<span class="no">age</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">rng3</span>)),
+                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes_c</span>$<span class="no">age</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">rng3</span>)),
                        <span class="kw">display</span> <span class="kw">=</span><span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes_c</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"age"</span>,<span class="st">"pids_a"</span>, <span class="st">"pids_b"</span>, <span class="st">"pids_c"</span>)]
 <span class="co">#&gt;   age        pids_a        pids_b        pids_c</span>
-<span class="co">#&gt; 1  34 P.1 (No Hits) P.1 (CRI 001) P.7 (CRI 001)</span>
-<span class="co">#&gt; 2  34 P.2 (No Hits) P.1 (CRI 001) P.7 (CRI 001)</span>
-<span class="co">#&gt; 3  52 P.7 (CRI 001) P.3 (CRI 001) P.3 (No Hits)</span>
-<span class="co">#&gt; 4  36 P.7 (CRI 001) P.1 (CRI 001) P.7 (CRI 001)</span>
-<span class="co">#&gt; 5  36 P.7 (CRI 001) P.1 (CRI 001) P.7 (CRI 001)</span>
-<span class="co">#&gt; 6  56 P.6 (No Hits) P.3 (CRI 001) P.6 (No Hits)</span>
-<span class="co">#&gt; 7  56 P.7 (CRI 001) P.3 (CRI 001) P.7 (CRI 001)</span>
-<span class="co">#&gt; 8  35 P.7 (CRI 001) P.1 (CRI 001) P.7 (CRI 001)</span></pre></body></html></div>
+<span class="co">#&gt; 1  35 P.6 (CRI 001) P.1 (CRI 001) P.6 (CRI 001)</span>
+<span class="co">#&gt; 2  35 P.6 (CRI 001) P.1 (CRI 001) P.6 (CRI 001)</span>
+<span class="co">#&gt; 3  53 P.6 (CRI 001) P.3 (CRI 001) P.6 (CRI 001)</span>
+<span class="co">#&gt; 4  36 P.6 (CRI 001) P.1 (CRI 001) P.6 (CRI 001)</span>
+<span class="co">#&gt; 5  36 P.6 (CRI 001) P.1 (CRI 001) P.6 (CRI 001)</span>
+<span class="co">#&gt; 6  57 P.6 (CRI 001) P.3 (CRI 001) P.6 (CRI 001)</span>
+<span class="co">#&gt; 7  57 P.7 (No hits) P.3 (CRI 001) P.7 (No hits)</span>
+<span class="co">#&gt; 8  35 P.6 (CRI 001) P.1 (CRI 001) P.6 (CRI 001)</span></pre></body></html></div>
 <p><code><a href="../reference/links.html">links()</a></code> goes through repeated checks for matches based on the logical test specified. At each iteration, one observation (<code>y</code>) is compared with every other observation (<code>x</code>). As a result, two observations (i.e. <code>x[2]</code> and <code>x[3]</code>) can pass the same logical test compared with a third observation (i.e. <code>y</code>). But not pass the same test when compared with each other. As an example, in <code>Opes_c$pids_c</code> above, records 1, 2, 4, 5 and 8 are within a 5-year gap of each other. This has happened because there’s more than a 5-year gap between themselves and record 7.</p>
 <p>Always aim for the combination of conditions that’ll give more true positive matches. Linking records on matching surnames and then sex (<code>pid_b</code>) led to a different result. Compared to linking on sex before surnames (<code>pid_c</code> below) (See <a href="#record_expansion">group expansion</a>). In <code>pid_b</code>, a match on the individual’s surname was considered more relevant than a match on their sex. The opposite was the case for <code>pid_c</code>.</p>
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">dbs</span>$<span class="no">pids_c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span>  <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">dbs</span>$<span class="no">sex</span>, <span class="no">dbs</span>$<span class="no">surname</span>), <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">dbs</span>
 <span class="co">#&gt;   forename surname sex        pids_a        pids_b        pids_c</span>
@@ -277,17 +267,17 @@
 
 <span class="no">dbs_2</span>$<span class="no">cri_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="no">dbs_2</span>$<span class="no">surname</span>, <span class="no">dbs_2</span>$<span class="no">sex</span>,<span class="kw">sep</span><span class="kw">=</span><span class="st">"-"</span>)
 <span class="no">dbs_2</span>$<span class="no">pid_d</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">sn</span> <span class="kw">=</span> <span class="no">dbs_2</span>$<span class="no">rd_id</span>, <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">dbs_2</span>$<span class="no">forename</span>, <span class="no">dbs_2</span>$<span class="no">cri_2</span>), <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">dbs_2</span>
 <span class="co">#&gt;   rd_id forename surname sex    cri_2         pid_d</span>
 <span class="co">#&gt; 1     1    James   Green   M  Green-M P.1 (CRI 002)</span>
-<span class="co">#&gt; 2     2   ESTHER  Kulmar   F Kulmar-F P.2 (No Hits)</span>
-<span class="co">#&gt; 3     3     &lt;NA&gt;     OBI   F    OBI-F P.3 (No Hits)</span>
+<span class="co">#&gt; 2     2   ESTHER  Kulmar   F Kulmar-F P.2 (No hits)</span>
+<span class="co">#&gt; 3     3     &lt;NA&gt;     OBI   F    OBI-F P.3 (No hits)</span>
 <span class="co">#&gt; 4     4    Jamey   Green   M  Green-M P.1 (CRI 002)</span>
-<span class="co">#&gt; 5     5   Daniel  Kulmar   M Kulmar-M P.5 (No Hits)</span>
-<span class="co">#&gt; 6     6    Henry     OBI   M    OBI-M P.6 (No Hits)</span></pre></body></html></div>
+<span class="co">#&gt; 5     5   Daniel  Kulmar   M Kulmar-M P.5 (No hits)</span>
+<span class="co">#&gt; 6     6    Henry     OBI   M    OBI-M P.6 (No hits)</span></pre></body></html></div>
 <p><img src="links_files/figure-html/unnamed-chunk-8-1.png" width="816"></p>
+<p><img src="links_files/figure-html/unnamed-chunk-9-1.png" width="816"></p>
 <p><a id="sub_cri_example"></a></p>
 <p>Below are additional examples using different combinations of the same <code>criteria</code> and <code>sub_criteria</code></p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">Opes</span>); <span class="no">Opes</span>
@@ -309,7 +299,6 @@
                                                             <span class="no">Opes</span>$<span class="no">date_of_birth</span>)),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>
                      )
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_a"</span>)]
 <span class="co">#&gt;   name  department hair_colour date_of_birth        pids_a</span>
@@ -329,18 +318,17 @@
                                                             <span class="no">Opes</span>$<span class="no">hair_colour</span>),
                                          <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">date_of_birth</span>)),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_b"</span>)]
 <span class="co">#&gt;   name  department hair_colour date_of_birth        pids_b</span>
 <span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (CRI 001)</span>
 <span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.1 (CRI 001)</span>
-<span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.3 (No Hits)</span>
-<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (No Hits)</span>
-<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.5 (No Hits)</span>
-<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.6 (CRI 001)</span>
-<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.6 (CRI 001)</span>
-<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.8 (No Hits)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.1 (CRI 001)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (CRI 001)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.4 (CRI 001)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.4 (CRI 001)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.4 (CRI 001)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.1 (CRI 001)</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department OR hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
@@ -349,18 +337,17 @@
                                                             <span class="no">Opes</span>$<span class="no">hair_colour</span>),
                                          <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">db_pt1</span>, <span class="no">Opes</span>$<span class="no">db_pt2</span>, <span class="no">Opes</span>$<span class="no">db_pt3</span>)),
                             <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_c"</span>)]
 <span class="co">#&gt;   name  department hair_colour date_of_birth        pids_c</span>
 <span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (CRI 001)</span>
 <span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.1 (CRI 001)</span>
 <span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.1 (CRI 001)</span>
-<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (No Hits)</span>
-<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.5 (No Hits)</span>
-<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.6 (CRI 001)</span>
-<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.6 (CRI 001)</span>
-<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.8 (No Hits)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (CRI 001)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.4 (CRI 001)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.4 (CRI 001)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.4 (CRI 001)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.1 (CRI 001)</span>
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (dd-mm OR dd-yyyy OR mm-yyyy))</span>
@@ -369,18 +356,17 @@
                                          <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>),
                                          <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">db_pt1</span>, <span class="no">Opes</span>$<span class="no">db_pt2</span>, <span class="no">Opes</span>$<span class="no">db_pt3</span>)),
                             <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"date_of_birth"</span>,<span class="st">"pids_d"</span>)]
 <span class="co">#&gt;   name  department hair_colour date_of_birth        pids_d</span>
-<span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (No Hits)</span>
+<span class="co">#&gt; 1  Ope Procurement       Brown    23/03/1986 P.1 (CRI 001)</span>
 <span class="co">#&gt; 2  Ope    Security       Brown    23/03/1986 P.2 (CRI 001)</span>
 <span class="co">#&gt; 3  Ope    Security       Brown    23/03/1968 P.2 (CRI 001)</span>
-<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (No Hits)</span>
-<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.5 (No Hits)</span>
-<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.6 (No Hits)</span>
-<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.7 (No Hits)</span>
-<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.8 (No Hits)</span></pre></body></html></div>
+<span class="co">#&gt; 4  Ope  Publishing       Green    01/02/1985 P.4 (CRI 001)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal    02/01/1985 P.4 (CRI 001)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey    11/03/1964 P.4 (CRI 001)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White    11/03/1964 P.4 (CRI 001)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black    11/10/1985 P.1 (CRI 001)</span></pre></body></html></div>
 </div>
 <div id="multistage-linkage" class="section level2">
 <h2 class="hasAnchor">
@@ -409,27 +395,25 @@
 
 <span class="no">Opes</span>$<span class="no">p_exp_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="no">Opes</span>$<span class="no">name</span>),
                      <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
-                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
+                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
+                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># 2 stage linkage</span>
   <span class="co"># stage 1 - link "Opes" in departments that start with the letter "P" THEN </span>
   <span class="co"># stage 2 - link "Opes" whose hair colour starts with the letter "B"</span>
 <span class="no">Opes</span>$<span class="no">p_nexp_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="no">Opes</span>$<span class="no">name</span>),
                      <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
-                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
+                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
+                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
                      <span class="kw">expand</span> <span class="kw">=</span> <span class="no">F</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>, <span class="st">"p_exp_a"</span>, <span class="st">"p_nexp_a"</span>)]
 <span class="co">#&gt;   name  department hair_colour       p_exp_a      p_nexp_a</span>
 <span class="co">#&gt; 1  Ope Procurement       Brown P.1 (CRI 001) P.1 (CRI 001)</span>
-<span class="co">#&gt; 2  Ope    Security       Brown P.1 (CRI 002) P.2 (CRI 002)</span>
-<span class="co">#&gt; 3  Ope    Security       Brown P.1 (CRI 002) P.2 (CRI 002)</span>
+<span class="co">#&gt; 2  Ope    Security       Brown P.1 (CRI 002) P.2 (No hits)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown P.1 (CRI 002) P.3 (No hits)</span>
 <span class="co">#&gt; 4  Ope  Publishing       Green P.1 (CRI 001) P.1 (CRI 001)</span>
 <span class="co">#&gt; 5  Ope  Publishing        Teal P.1 (CRI 001) P.1 (CRI 001)</span>
 <span class="co">#&gt; 6  Ope  Publishing        Grey P.1 (CRI 001) P.1 (CRI 001)</span>
@@ -439,25 +423,23 @@
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="co"># The same as `p_exp_a` </span>
 <span class="no">Opes</span>$<span class="no">p_exp_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="no">Opes</span>$<span class="no">name</span>),
                      <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
-                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
+                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
+                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Not the same as `p_nexp_a`</span>
 <span class="no">Opes</span>$<span class="no">p_nexp_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="no">Opes</span>$<span class="no">name</span>),
                      <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
-                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
+                       <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
+                       <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
                      <span class="kw">expand</span> <span class="kw">=</span> <span class="no">F</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>, <span class="st">"p_exp_a"</span>, <span class="st">"p_exp_b"</span>, <span class="st">"p_nexp_a"</span>, <span class="st">"p_nexp_b"</span>)]
 <span class="co">#&gt;   name  department hair_colour       p_exp_a       p_exp_b      p_nexp_a</span>
 <span class="co">#&gt; 1  Ope Procurement       Brown P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span>
-<span class="co">#&gt; 2  Ope    Security       Brown P.1 (CRI 002) P.1 (CRI 001) P.2 (CRI 002)</span>
-<span class="co">#&gt; 3  Ope    Security       Brown P.1 (CRI 002) P.1 (CRI 001) P.2 (CRI 002)</span>
+<span class="co">#&gt; 2  Ope    Security       Brown P.1 (CRI 002) P.1 (CRI 001) P.2 (No hits)</span>
+<span class="co">#&gt; 3  Ope    Security       Brown P.1 (CRI 002) P.1 (CRI 001) P.3 (No hits)</span>
 <span class="co">#&gt; 4  Ope  Publishing       Green P.1 (CRI 001) P.1 (CRI 002) P.1 (CRI 001)</span>
 <span class="co">#&gt; 5  Ope  Publishing        Teal P.1 (CRI 001) P.1 (CRI 002) P.1 (CRI 001)</span>
 <span class="co">#&gt; 6  Ope  Publishing        Grey P.1 (CRI 001) P.1 (CRI 002) P.1 (CRI 001)</span>
@@ -467,10 +449,10 @@
 <span class="co">#&gt; 1 P.1 (CRI 001)</span>
 <span class="co">#&gt; 2 P.1 (CRI 001)</span>
 <span class="co">#&gt; 3 P.1 (CRI 001)</span>
-<span class="co">#&gt; 4 P.7 (CRI 002)</span>
-<span class="co">#&gt; 5 P.7 (CRI 002)</span>
-<span class="co">#&gt; 6 P.7 (CRI 002)</span>
-<span class="co">#&gt; 7 P.7 (CRI 002)</span>
+<span class="co">#&gt; 4 P.4 (CRI 002)</span>
+<span class="co">#&gt; 5 P.4 (CRI 002)</span>
+<span class="co">#&gt; 6 P.4 (CRI 002)</span>
+<span class="co">#&gt; 7 P.4 (CRI 002)</span>
 <span class="co">#&gt; 8 P.1 (CRI 001)</span></pre></body></html></div>
 <p><strong><em>Example 1 of group expansion</em></strong></p>
 <div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">patient_list_2</span>); <span class="no">patient_list_2</span>
@@ -487,7 +469,6 @@
                   <span class="no">patient_list_2</span>$<span class="no">surname</span>,
                   <span class="no">patient_list_2</span>$<span class="no">sex</span>),
   <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">patient_list_2</span>
 <span class="co">#&gt;   rd_id forename     surname    sex        pids_a</span>
@@ -496,7 +477,8 @@
 <span class="co">#&gt; 3     3     Tomi       Abdul   Male P.3 (CRI 001)</span>
 <span class="co">#&gt; 4     4     Tomi Abdulkareem Female P.3 (CRI 001)</span>
 <span class="co">#&gt; 5     5     &lt;NA&gt;        &lt;NA&gt;   Male P.3 (CRI 003)</span></pre></body></html></div>
-<p><img src="links_files/figure-html/unnamed-chunk-13-1.png" width="816"></p>
+<p><img src="links_files/figure-html/unnamed-chunk-14-1.png" width="816"></p>
+<p><img src="links_files/figure-html/unnamed-chunk-15-1.png" width="816"></p>
 <p><strong><em>Example 2 of group expansion</em></strong></p>
 <div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">df</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(
   <span class="kw">forename</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"John"</span>, <span class="st">"John"</span>, <span class="st">"Jon"</span>,
@@ -511,7 +493,6 @@
 )
 
 <span class="no">df</span>$<span class="no">pids_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">df</span>$<span class="no">forename</span>, <span class="no">df</span>$<span class="no">surname</span>, <span class="no">df</span>$<span class="no">age</span>), <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">df</span>
 <span class="co">#&gt;    forename     surname  age         pids_a</span>
@@ -523,10 +504,11 @@
 <span class="co">#&gt; 6      Mary         Jan    6 P.05 (CRI 001)</span>
 <span class="co">#&gt; 7    Mariam       Janet    6 P.05 (CRI 003)</span>
 <span class="co">#&gt; 8      John        Swan   12 P.01 (CRI 001)</span>
-<span class="co">#&gt; 9     Henry   Henderson   30 P.09 (No Hits)</span>
-<span class="co">#&gt; 10   Obinna      Nelson   31 P.10 (No Hits)</span>
-<span class="co">#&gt; 11     Tomi Abdulkareem 2500 P.11 (No Hits)</span></pre></body></html></div>
-<p><img src="links_files/figure-html/unnamed-chunk-15-1.png" width="816"></p>
+<span class="co">#&gt; 9     Henry   Henderson   30 P.09 (No hits)</span>
+<span class="co">#&gt; 10   Obinna      Nelson   31 P.10 (No hits)</span>
+<span class="co">#&gt; 11     Tomi Abdulkareem 2500 P.11 (No hits)</span></pre></body></html></div>
+<p><img src="links_files/figure-html/unnamed-chunk-17-1.png" width="816"></p>
+<p><img src="links_files/figure-html/unnamed-chunk-18-1.png" width="816"></p>
 </div>
 <div id="group-shrinkage" class="section level3">
 <h3 class="hasAnchor">
@@ -548,18 +530,17 @@
 <span class="no">Opes</span>$<span class="no">cri</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="no">Opes</span>$<span class="no">department</span>, <span class="no">Opes</span>$<span class="no">db_pt1</span>, <span class="kw">sep</span> <span class="kw">=</span> <span class="st">" "</span>)
 <span class="no">Opes</span>$<span class="no">p_shk_c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">cri</span>),
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"db_pt3"</span>, <span class="st">"p_shk_c"</span>)]
 <span class="co">#&gt;   name  department  db_pt3       p_shk_c</span>
-<span class="co">#&gt; 1  Ope Procurement 03/1986 P.1 (No Hits)</span>
+<span class="co">#&gt; 1  Ope Procurement 03/1986 P.1 (No hits)</span>
 <span class="co">#&gt; 2  Ope    Security 03/1986 P.2 (CRI 001)</span>
 <span class="co">#&gt; 3  Ope    Security 03/1968 P.2 (CRI 001)</span>
-<span class="co">#&gt; 4  Ope  Publishing 02/1985 P.4 (No Hits)</span>
-<span class="co">#&gt; 5  Ope  Publishing 01/1985 P.5 (No Hits)</span>
+<span class="co">#&gt; 4  Ope  Publishing 02/1985 P.4 (No hits)</span>
+<span class="co">#&gt; 5  Ope  Publishing 01/1985 P.5 (No hits)</span>
 <span class="co">#&gt; 6  Ope  Publishing 03/1964 P.6 (CRI 001)</span>
 <span class="co">#&gt; 7  Ope  Publishing 03/1964 P.6 (CRI 001)</span>
-<span class="co">#&gt; 8  Ope Procurement 10/1985 P.8 (No Hits)</span></pre></body></html></div>
+<span class="co">#&gt; 8  Ope Procurement 10/1985 P.8 (No hits)</span></pre></body></html></div>
 <p>If there’s a <code>sub_criteria</code>, you’ll need to use the <code>shrink</code> argument. See the example below. The same analysis is repeated using <code>sub_criteria</code>.</p>
 <div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="co"># 3 stage linkage</span>
   <span class="co"># stage 1 - link "Opes" that have the same name, THEN WITHIN THESE</span>
@@ -567,33 +548,31 @@
   <span class="co"># stage 3 - link "Opes" have the same day and month of birth </span>
 <span class="no">Opes</span>$<span class="no">p_shk_d</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="no">Opes</span>$<span class="no">department</span>, <span class="no">Opes</span>$<span class="no">db_pt1</span>),
                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>),
-                        <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>),
-                        <span class="kw">cr3</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)
+                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>),
+                        <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>),
+                        <span class="kw">cr3</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)
                       ),
                       <span class="kw">shrink</span> <span class="kw">=</span> <span class="no">T</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"db_pt3"</span>, <span class="st">"p_shk_c"</span>, <span class="st">"p_shk_d"</span>)]
 <span class="co">#&gt;   name  department  db_pt3       p_shk_c       p_shk_d</span>
-<span class="co">#&gt; 1  Ope Procurement 03/1986 P.1 (No Hits) P.1 (CRI 002)</span>
+<span class="co">#&gt; 1  Ope Procurement 03/1986 P.1 (No hits) P.1 (CRI 002)</span>
 <span class="co">#&gt; 2  Ope    Security 03/1986 P.2 (CRI 001) P.2 (CRI 003)</span>
 <span class="co">#&gt; 3  Ope    Security 03/1968 P.2 (CRI 001) P.2 (CRI 003)</span>
-<span class="co">#&gt; 4  Ope  Publishing 02/1985 P.4 (No Hits) P.4 (CRI 002)</span>
-<span class="co">#&gt; 5  Ope  Publishing 01/1985 P.5 (No Hits) P.5 (CRI 002)</span>
+<span class="co">#&gt; 4  Ope  Publishing 02/1985 P.4 (No hits) P.4 (CRI 002)</span>
+<span class="co">#&gt; 5  Ope  Publishing 01/1985 P.5 (No hits) P.4 (CRI 002)</span>
 <span class="co">#&gt; 6  Ope  Publishing 03/1964 P.6 (CRI 001) P.6 (CRI 003)</span>
 <span class="co">#&gt; 7  Ope  Publishing 03/1964 P.6 (CRI 001) P.6 (CRI 003)</span>
-<span class="co">#&gt; 8  Ope Procurement 10/1985 P.8 (No Hits) P.8 (CRI 002)</span></pre></body></html></div>
+<span class="co">#&gt; 8  Ope Procurement 10/1985 P.8 (No hits) P.1 (CRI 002)</span></pre></body></html></div>
 <p>Although <code>p_shk_c</code> and <code>p_shk_d</code> are identical, the <code>pid_cri</code> slot for both are different. This reflects the different ways they were created. <code>p_shk_d</code> is the equivalent of three compounding (using <code>strata</code>) instances of <code><a href="../reference/links.html">links()</a></code>. See below.</p>
 <div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="co"># 1 stage linkage</span>
   <span class="co"># stage 1 - link "Opes" that have the same name</span>
 <span class="no">Opes</span>$<span class="no">p_shk_e1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">name</span>),
                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)),
+                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)),
                       <span class="kw">shrink</span> <span class="kw">=</span> <span class="no">T</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Another attempt is made always made at the next for records with no links </span>
 <span class="no">Opes</span>$<span class="no">e1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="no">Opes</span>$<span class="no">p_shk_e1</span>@<span class="kw">pid_cri</span> <span class="kw">==</span> <span class="fl">0</span>, <span class="st">"No Hits"</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="no">Opes</span>$<span class="no">p_shk_e1</span>))
@@ -603,10 +582,9 @@
 <span class="no">Opes</span>$<span class="no">p_shk_e2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">department</span>),
                       <span class="kw">strata</span> <span class="kw">=</span> <span class="no">Opes</span>$<span class="no">e1</span>,
                        <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)),
+                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)),
                       <span class="kw">shrink</span> <span class="kw">=</span> <span class="no">T</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># Another attempt is made always made at the next for records with no links</span>
 <span class="no">Opes</span>$<span class="no">e2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="no">Opes</span>$<span class="no">p_shk_e1</span>@<span class="kw">pid_cri</span> <span class="kw">==</span> <span class="fl">0</span>, <span class="st">"No Hits"</span>, <span class="fu"><a href="https://rdrr.io/r/base/character.html">as.character</a></span>(<span class="no">Opes</span>$<span class="no">p_shk_e1</span>))
@@ -616,30 +594,29 @@
 <span class="no">Opes</span>$<span class="no">p_shk_e3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">Opes</span>$<span class="no">db_pt1</span>),
                       <span class="kw">strata</span> <span class="kw">=</span> <span class="no">Opes</span>$<span class="no">e2</span>,
                        <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)),
+                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="st">"place_holder"</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/predefined_tests.html">exact_match</a></span>)),
                       <span class="kw">shrink</span> <span class="kw">=</span> <span class="no">T</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"db_pt3"</span>, <span class="st">"p_shk_e1"</span>, <span class="st">"p_shk_e2"</span>, <span class="st">"p_shk_e3"</span>, <span class="st">"p_shk_c"</span>, <span class="st">"p_shk_d"</span>)]
 <span class="co">#&gt;   name  department  db_pt3      p_shk_e1      p_shk_e2      p_shk_e3</span>
 <span class="co">#&gt; 1  Ope Procurement 03/1986 P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span>
 <span class="co">#&gt; 2  Ope    Security 03/1986 P.1 (CRI 001) P.2 (CRI 001) P.1 (CRI 001)</span>
 <span class="co">#&gt; 3  Ope    Security 03/1968 P.1 (CRI 001) P.2 (CRI 001) P.1 (CRI 001)</span>
-<span class="co">#&gt; 4  Ope  Publishing 02/1985 P.1 (CRI 001) P.4 (CRI 001) P.4 (No Hits)</span>
-<span class="co">#&gt; 5  Ope  Publishing 01/1985 P.1 (CRI 001) P.4 (CRI 001) P.5 (No Hits)</span>
+<span class="co">#&gt; 4  Ope  Publishing 02/1985 P.1 (CRI 001) P.4 (CRI 001) P.4 (No hits)</span>
+<span class="co">#&gt; 5  Ope  Publishing 01/1985 P.1 (CRI 001) P.4 (CRI 001) P.5 (No hits)</span>
 <span class="co">#&gt; 6  Ope  Publishing 03/1964 P.1 (CRI 001) P.4 (CRI 001) P.6 (CRI 001)</span>
 <span class="co">#&gt; 7  Ope  Publishing 03/1964 P.1 (CRI 001) P.4 (CRI 001) P.6 (CRI 001)</span>
-<span class="co">#&gt; 8  Ope Procurement 10/1985 P.1 (CRI 001) P.1 (CRI 001) P.8 (No Hits)</span>
+<span class="co">#&gt; 8  Ope Procurement 10/1985 P.1 (CRI 001) P.1 (CRI 001) P.8 (No hits)</span>
 <span class="co">#&gt;         p_shk_c       p_shk_d</span>
-<span class="co">#&gt; 1 P.1 (No Hits) P.1 (CRI 002)</span>
+<span class="co">#&gt; 1 P.1 (No hits) P.1 (CRI 002)</span>
 <span class="co">#&gt; 2 P.2 (CRI 001) P.2 (CRI 003)</span>
 <span class="co">#&gt; 3 P.2 (CRI 001) P.2 (CRI 003)</span>
-<span class="co">#&gt; 4 P.4 (No Hits) P.4 (CRI 002)</span>
-<span class="co">#&gt; 5 P.5 (No Hits) P.5 (CRI 002)</span>
+<span class="co">#&gt; 4 P.4 (No hits) P.4 (CRI 002)</span>
+<span class="co">#&gt; 5 P.5 (No hits) P.4 (CRI 002)</span>
 <span class="co">#&gt; 6 P.6 (CRI 001) P.6 (CRI 003)</span>
 <span class="co">#&gt; 7 P.6 (CRI 001) P.6 (CRI 003)</span>
-<span class="co">#&gt; 8 P.8 (No Hits) P.8 (CRI 002)</span></pre></body></html></div>
+<span class="co">#&gt; 8 P.8 (No hits) P.1 (CRI 002)</span></pre></body></html></div>
 <p>Note that the <code>expand</code> functionality is not always interchangeable with that of <code>shrink</code>. See an example of the difference below.</p>
 <div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">Opes</span>); <span class="no">Opes</span>
 <span class="co">#&gt;   rd_id name  department hair_colour date_of_birth db_pt1  db_pt2  db_pt3</span>
@@ -654,21 +631,19 @@
 
 <span class="no">Opes</span>$<span class="no">p_cmp1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"place_holder"</span>, <span class="st">"place_holder"</span>),
                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
-                        <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
+                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
+                        <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
                      <span class="kw">expand</span> <span class="kw">=</span> <span class="no">T</span>,
                      <span class="kw">shrink</span> <span class="kw">=</span> <span class="no">F</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>$<span class="no">p_cmp2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"place_holder"</span>, <span class="st">"place_holder"</span>),
                       <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(
-                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
-                        <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
+                        <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">dept_func</span>),
+                        <span class="kw">cr2</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">hair_func</span>)),
                      <span class="kw">expand</span> <span class="kw">=</span> <span class="no">F</span>,
                      <span class="kw">shrink</span> <span class="kw">=</span> <span class="no">T</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="co"># `p_cmp1` is not the same as `p_cmp2`</span>
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>, <span class="st">"department"</span>, <span class="st">"hair_colour"</span>, <span class="st">"p_cmp1"</span>, <span class="st">"p_cmp2"</span>)]
@@ -676,10 +651,10 @@
 <span class="co">#&gt; 1  Ope Procurement       Brown P.1 (CRI 001) P.1 (CRI 002)</span>
 <span class="co">#&gt; 2  Ope    Security       Brown P.1 (CRI 002) P.2 (CRI 002)</span>
 <span class="co">#&gt; 3  Ope    Security       Brown P.1 (CRI 002) P.2 (CRI 002)</span>
-<span class="co">#&gt; 4  Ope  Publishing       Green P.1 (CRI 001) P.4 (CRI 001)</span>
-<span class="co">#&gt; 5  Ope  Publishing        Teal P.1 (CRI 001) P.5 (CRI 001)</span>
-<span class="co">#&gt; 6  Ope  Publishing        Grey P.1 (CRI 001) P.6 (CRI 001)</span>
-<span class="co">#&gt; 7  Ope  Publishing       White P.1 (CRI 001) P.7 (CRI 001)</span>
+<span class="co">#&gt; 4  Ope  Publishing       Green P.1 (CRI 001) P.4 (No hits)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal P.1 (CRI 001) P.5 (No hits)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey P.1 (CRI 001) P.6 (No hits)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White P.1 (CRI 001) P.7 (No hits)</span>
 <span class="co">#&gt; 8  Ope Procurement       Black P.1 (CRI 001) P.1 (CRI 002)</span></pre></body></html></div>
 <p><a id="missing_values"></a></p>
 </div>
@@ -697,15 +672,14 @@
 <span class="no">patient_list_2</span>$<span class="no">pids_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">patient_list_2</span>$<span class="no">forename</span>,
                                                <span class="no">patient_list_2</span>$<span class="no">surname</span>),
                                <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">patient_list_2</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>,<span class="st">"pids_b"</span>)]
 <span class="co">#&gt;   forename     surname        pids_b</span>
 <span class="co">#&gt; 1      Nil   Jefferson P.1 (CRI 001)</span>
 <span class="co">#&gt; 2      Nil   Jefferson P.1 (CRI 001)</span>
 <span class="co">#&gt; 3      Nil       Abdul P.1 (CRI 001)</span>
-<span class="co">#&gt; 4     Tomi Abdulkareem P.4 (No Hits)</span>
-<span class="co">#&gt; 5     &lt;NA&gt;        &lt;NA&gt; P.5 (No Hits)</span></pre></body></html></div>
+<span class="co">#&gt; 4     Tomi Abdulkareem P.4 (No hits)</span>
+<span class="co">#&gt; 5     &lt;NA&gt;        &lt;NA&gt; P.5 (No hits)</span></pre></body></html></div>
 <p>In the example above, records 1-3 are assigned to the same record group even though record 3 seems to be a different person. However, changing <code>"Nil"</code> to <code>NA</code> let <code><a href="../reference/links.html">links()</a></code> know that <code>"Nil"</code> is not a valid <code>forename</code>, and it is skipped. See below.</p>
 <div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="co"># `NA` as the proxy for missing value</span>
 <span class="no">patient_list_2</span>$<span class="no">forename</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="no">patient_list_2</span>$<span class="no">forename</span> <span class="kw">==</span> <span class="st">"Nil"</span>, <span class="fl">NA</span>, <span class="no">patient_list_2</span>$<span class="no">forename</span>)
@@ -714,15 +688,14 @@
                                <span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">patient_list_2</span>$<span class="no">forename</span>,
                                                <span class="no">patient_list_2</span>$<span class="no">surname</span>),
                                <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">patient_list_2</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forename"</span>,<span class="st">"surname"</span>, <span class="st">"pids_b"</span>, <span class="st">"pids_d"</span>)]
 <span class="co">#&gt;   forename     surname        pids_b        pids_d</span>
 <span class="co">#&gt; 1     &lt;NA&gt;   Jefferson P.1 (CRI 001) P.1 (CRI 002)</span>
 <span class="co">#&gt; 2     &lt;NA&gt;   Jefferson P.1 (CRI 001) P.1 (CRI 002)</span>
-<span class="co">#&gt; 3     &lt;NA&gt;       Abdul P.1 (CRI 001) P.3 (No Hits)</span>
-<span class="co">#&gt; 4     Tomi Abdulkareem P.4 (No Hits) P.4 (No Hits)</span>
-<span class="co">#&gt; 5     &lt;NA&gt;        &lt;NA&gt; P.5 (No Hits) P.5 (No Hits)</span></pre></body></html></div>
+<span class="co">#&gt; 3     &lt;NA&gt;       Abdul P.1 (CRI 001) P.3 (No hits)</span>
+<span class="co">#&gt; 4     Tomi Abdulkareem P.4 (No hits) P.4 (No hits)</span>
+<span class="co">#&gt; 5     &lt;NA&gt;        &lt;NA&gt; P.5 (No hits) P.5 (No hits)</span></pre></body></html></div>
 <p><a id="tips"></a></p>
 </div>
 <div id="tips" class="section level2">
@@ -737,25 +710,24 @@
 <div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="co"># Matching `sex`, and `forename` initials</span>
 <span class="no">dbs2</span>
 <span class="co">#&gt;   forename surname sex        pids_1        pids_2        pids_3        pids_4</span>
-<span class="co">#&gt; 1    James   Green   M P.1 (CRI 001) P.1 (CRI 001) P.1 (No Hits) P.4 (CRI 001)</span>
-<span class="co">#&gt; 2   ESTHER  Kulmar   F P.2 (No Hits) P.2 (No Hits) P.2 (No Hits) P.2 (No Hits)</span>
-<span class="co">#&gt; 3     &lt;NA&gt;     OBI   F P.3 (No Hits) P.3 (No Hits) P.3 (No Hits) P.3 (No Hits)</span>
+<span class="co">#&gt; 1    James   Green   M P.1 (CRI 001) P.1 (CRI 001) P.5 (CRI 001) P.4 (CRI 001)</span>
+<span class="co">#&gt; 2   ESTHER  Kulmar   F P.2 (No hits) P.2 (No hits) P.2 (No hits) P.2 (No hits)</span>
+<span class="co">#&gt; 3     &lt;NA&gt;     OBI   F P.3 (No hits) P.3 (No hits) P.3 (No hits) P.3 (No hits)</span>
 <span class="co">#&gt; 4    Jamey   Green   M P.1 (CRI 001) P.1 (CRI 001) P.5 (CRI 001) P.4 (CRI 001)</span>
-<span class="co">#&gt; 5   Daniel  Kulmar   M P.5 (No Hits) P.5 (No Hits) P.5 (CRI 001) P.4 (CRI 001)</span>
-<span class="co">#&gt; 6    Henry     OBI   M P.6 (No Hits) P.1 (CRI 001) P.5 (CRI 001) P.4 (CRI 001)</span>
+<span class="co">#&gt; 5   Daniel  Kulmar   M P.5 (No hits) P.5 (No hits) P.5 (CRI 001) P.4 (CRI 001)</span>
+<span class="co">#&gt; 6    Henry     OBI   M P.6 (No hits) P.1 (CRI 001) P.5 (CRI 001) P.4 (CRI 001)</span>
 <span class="no">dbs2</span>$<span class="no">initials</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/substr.html">substr</a></span>(<span class="no">dbs2</span>$<span class="no">forename</span>, <span class="fl">1</span>, <span class="fl">1</span>)
 <span class="no">dbs2</span>$<span class="no">pids_1b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="no">dbs2</span>$<span class="no">initials</span>,
                      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">dbs2</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"forename"</span>, <span class="st">"initials"</span>, <span class="st">"pids_1"</span>, <span class="st">"pids_1b"</span>)]
 <span class="co">#&gt;   forename initials        pids_1       pids_1b</span>
 <span class="co">#&gt; 1    James        J P.1 (CRI 001) P.1 (CRI 001)</span>
-<span class="co">#&gt; 2   ESTHER        E P.2 (No Hits) P.2 (No Hits)</span>
-<span class="co">#&gt; 3     &lt;NA&gt;     &lt;NA&gt; P.3 (No Hits) P.3 (No Hits)</span>
+<span class="co">#&gt; 2   ESTHER        E P.2 (No hits) P.2 (No hits)</span>
+<span class="co">#&gt; 3     &lt;NA&gt;     &lt;NA&gt; P.3 (No hits) P.3 (No hits)</span>
 <span class="co">#&gt; 4    Jamey        J P.1 (CRI 001) P.1 (CRI 001)</span>
-<span class="co">#&gt; 5   Daniel        D P.5 (No Hits) P.5 (No Hits)</span>
-<span class="co">#&gt; 6    Henry        H P.6 (No Hits) P.6 (No Hits)</span></pre></body></html></div>
+<span class="co">#&gt; 5   Daniel        D P.5 (No hits) P.5 (No hits)</span>
+<span class="co">#&gt; 6    Henry        H P.6 (No hits) P.6 (No hits)</span></pre></body></html></div>
 <p>Similarly, avoid using single-attribute <code>sub_criteria</code> that are paired to the same <code>criteria</code>. Instead, concatenate these together as one <code>criteria</code>. For example, the two implementations below (<code>pids_e</code> and <code>pids_f</code>) will have the same result. But <code>pids_f</code> will take less time.</p>
 <div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND ((department)  AND (hair_colour) AND (year_of_birth))</span>
@@ -765,25 +737,23 @@
                                          <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">hair_colour</span>),
                                          <span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">Opes</span>$<span class="no">month_of_birth</span>)),
                             <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>$<span class="no">cri</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="no">Opes</span>$<span class="no">month_of_birth</span>, <span class="no">Opes</span>$<span class="no">department</span>, <span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="kw">sep</span><span class="kw">=</span><span class="st">"-"</span>)
 
 <span class="co"># 1 stage linkage </span>
   <span class="co"># stage 1 - name AND department AND hair_colour AND date_of_birth</span>
 <span class="no">Opes</span>$<span class="no">pids_f</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="no">Opes</span>$<span class="no">cri</span>,  <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"name"</span>,<span class="st">"department"</span>,<span class="st">"hair_colour"</span>,<span class="st">"month_of_birth"</span>,<span class="st">"pids_e"</span>,<span class="st">"pids_f"</span>)]
 <span class="co">#&gt;   name  department hair_colour month_of_birth        pids_e        pids_f</span>
-<span class="co">#&gt; 1  Ope Procurement       Brown             03 P.1 (No Hits) P.1 (No Hits)</span>
+<span class="co">#&gt; 1  Ope Procurement       Brown             03 P.1 (CRI 001) P.1 (No hits)</span>
 <span class="co">#&gt; 2  Ope    Security       Brown             03 P.2 (CRI 001) P.2 (CRI 001)</span>
 <span class="co">#&gt; 3  Ope    Security       Brown             03 P.2 (CRI 001) P.2 (CRI 001)</span>
-<span class="co">#&gt; 4  Ope  Publishing       Green             02 P.4 (No Hits) P.4 (No Hits)</span>
-<span class="co">#&gt; 5  Ope  Publishing        Teal             01 P.5 (No Hits) P.5 (No Hits)</span>
-<span class="co">#&gt; 6  Ope  Publishing        Grey             03 P.6 (No Hits) P.6 (No Hits)</span>
-<span class="co">#&gt; 7  Ope  Publishing       White             03 P.7 (No Hits) P.7 (No Hits)</span>
-<span class="co">#&gt; 8  Ope Procurement       Black             10 P.8 (No Hits) P.8 (No Hits)</span></pre></body></html></div>
+<span class="co">#&gt; 4  Ope  Publishing       Green             02 P.4 (CRI 001) P.4 (No hits)</span>
+<span class="co">#&gt; 5  Ope  Publishing        Teal             01 P.4 (CRI 001) P.5 (No hits)</span>
+<span class="co">#&gt; 6  Ope  Publishing        Grey             03 P.4 (CRI 001) P.6 (No hits)</span>
+<span class="co">#&gt; 7  Ope  Publishing       White             03 P.4 (CRI 001) P.7 (No hits)</span>
+<span class="co">#&gt; 8  Ope Procurement       Black             10 P.1 (CRI 001) P.8 (No hits)</span></pre></body></html></div>
 <p>This time difference could become more noticeable with larger datasets.</p>
 </div>
 <div id="convenience-vs-efficiency" class="section level2">
@@ -802,7 +772,6 @@
 <span class="co">#&gt; 8 Procurement</span>
 
 <span class="no">Opes</span>$<span class="no">links_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
 
 <span class="no">Opes</span>$<span class="no">links_b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="no">Opes</span>$<span class="no">department</span>[!<span class="fu"><a href="https://rdrr.io/r/base/duplicated.html">duplicated</a></span>(<span class="no">Opes</span>$<span class="no">department</span>)])
 

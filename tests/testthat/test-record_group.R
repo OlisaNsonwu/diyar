@@ -10,7 +10,7 @@ record_group <- function(df, ...){
 # Test 1 - Consistent row position for input and output
 df <- data.frame(
   cri_1 = c("A","C","B","C","A"),
-  r_id = c(1:5)
+  r_id = as.integer(c(1:5))
 )
 
 test_1 <- df
@@ -46,7 +46,7 @@ test_that("test that test blank space or NAs criteria are treated as unique reco
 test_3a <- data.frame(
   cri_1 = c("A","C","Z","V","F","G","G"),
   cri_2 = c("CC","AA","CC","VV","AA","CB","CC"),
-  r_id = c(1:7),
+  r_id = as.integer(c(1:7)),
 
   stringsAsFactors = FALSE
 )
@@ -74,7 +74,7 @@ df_4a <- data.frame(
   cri_2a = c("A","B","D","X","F","G","G"),
   cri_2b = c("B","B","D","X","F","G","I"),
   cri_2c = c("A","C","A","A","F","G","I"),
-  r_id = c(1:7),
+  r_id = as.integer(c(1:7)),
 
   stringsAsFactors = FALSE
 )
@@ -96,7 +96,7 @@ df_5a <- data.frame(
   cri_2b = c("B","B","D","X","F","G","I"),
   cri_2c = c("A","B","D","X","F","G","G"),
   cri_2d = c("T","T","Z","V","F","H","J"),
-  r_id = c(1:7),
+  r_id = as.integer(c(1:7)),
 
   stringsAsFactors = FALSE
 )
@@ -120,7 +120,7 @@ test_that("test record grouping for deterministic linkage", {
   expect_equal(test_6a$pids@.Data, c(1,1,1,1,5,6,6))
   expect_equal(test_6a$pids@pid_cri, c(2,2,2,2,0,1,1))
   expect_equal(test_6a$pids@pid_total, c(4,4,4,4,1,2,2))
-  expect_equal(test_6a$pids@pid_dataset, c(rep("DS1,DS2,DS4",4), "DS4",rep("DS1,DS3",2)) )
+  expect_equal(decode(test_6a$pids@pid_dataset), c(rep("DS1,DS2,DS4",4), "DS4",rep("DS1,DS3",2)) )
 })
 
 #Test 7 - Range matching

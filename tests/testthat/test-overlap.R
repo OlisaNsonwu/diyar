@@ -67,7 +67,7 @@ test_that("test that error and warning messages are returned correctly", {
 test_that("test compress function", {
   expect_equal(compress_number_line(c(number_line(1, 20), number_line(5, 7))), number_line(1,20))
   expect_equal(compress_number_line(c(number_line(20, 1), number_line(5, 7))), number_line(20,1))
-  expect_equal(compress_number_line(c(number_line(2, 5), number_line(3, 3), number_line(6, 7))), number_line(c(2,6), c(5,7), id=c(1,3), gid =c(1,3)))
+  expect_equal(compress_number_line(c(number_line(2, 5), number_line(3, 3), number_line(6, 7))), number_line(c(2,6), c(5,7), id=c(1L,3L), gid =c(1L,3L)))
 
   #warnings and errors
   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), methods = 2), "Invalid object type for `methods`.\ni - Valid object types are `character`.\nX - You've supplied a `numeric` object.")

@@ -21,7 +21,7 @@ plot_epid <- function(epid, date= NULL, strata = NULL, case_length = NULL, recur
 
   # episodes
   dfp <- to_df(epid)
-
+  dfp$wind_id <- epid@wind_id[[1]]
   # corresponding event dates
   if(!is.null(date)){
     dfp$date <- date

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Change the returned outputs of <code>diyar</code> functions — to_s4 • diyar</title>
+<title>Change S4 objects in <code>diyar</code> to data frames and vice versa — to_df • diyar</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Change the returned outputs of <code>diyar</code> functions — to_s4" />
-<meta property="og:description" content="Convert the returned output of number_line, record_group, episode_group, fixed_episodes and rolling_episodes
-from a data.frame to number_line, pid or epid objects, and vice versa." />
+<meta property="og:title" content="Change S4 objects in <code>diyar</code> to data frames and vice versa — to_df" />
+<meta property="og:description" content="Convert pid, epid, pane or number_line objects
+to a data.frame and vice versa." />
 
 
 
@@ -73,7 +73,7 @@ from a data.frame to number_line, pid or epid objects, and vice versa." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -130,71 +130,66 @@ from a data.frame to number_line, pid or epid objects, and vice versa." />
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Change the returned outputs of <code>diyar</code> functions</h1>
+    <h1>Change S4 objects in <code>diyar</code> to data frames and vice versa</h1>
     <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/to_s4.R'><code>R/to_s4.R</code></a></small>
     <div class="hidden name"><code>to_s4.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Convert the returned output of <code><a href='number_line.html'>number_line</a></code>, <code><a href='links.html'>record_group</a></code>, <code><a href='episodes.html'>episode_group</a></code>, <code><a href='episodes.html'>fixed_episodes</a></code> and <code><a href='episodes.html'>rolling_episodes</a></code>
-from a <code>data.frame</code> to <a href='number_line-class.html'>number_line</a>, <a href='pid-class.html'>pid</a> or <a href='epid-class.html'>epid</a> objects, and vice versa.</p>
+    <p>Convert <a href='pid-class.html'>pid</a>, <a href='epid-class.html'>epid</a>, <a href='pane-class.html'>pane</a> or <a href='number_line-class.html'>number_line</a> objects
+to a <code>data.frame</code> and vice versa.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>to_s4</span>(<span class='no'>df</span>)
+    <pre class="usage"><span class='fu'>to_df</span>(<span class='no'>s4</span>, <span class='no'>...</span>)
 
-<span class='fu'>to_df</span>(<span class='no'>s4</span>)</pre>
+<span class='fu'>to_s4</span>(<span class='no'>df</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
-      <th>df</th>
-      <td><p><code>data.frame</code></p></td>
+      <th>s4</th>
+      <td><p><a href='pid-class.html'>pid</a>, <a href='epid-class.html'>epid</a>, <a href='pane-class.html'>pane</a> or <a href='number_line-class.html'>number_line</a> objects</p></td>
     </tr>
     <tr>
-      <th>s4</th>
-      <td><p><a href='pid-class.html'>pid</a> or <a href='epid-class.html'>epid</a> objects</p></td>
+      <th>...</th>
+      <td><p>Arguments passed to <code>data.frame</code></p></td>
+    </tr>
+    <tr>
+      <th>df</th>
+      <td><p><code>data.frame</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>to_s4 - <a href='pid-class.html'>pid</a> or <a href='epid-class.html'>epid</a> objects</p>
-<p>to_df - <code>data.frame</code> object</p>
+    <p>to_df - <code>data.frame</code> object</p>
+<p>to_s4 - <a href='pid-class.html'>pid</a>, <a href='epid-class.html'>epid</a>, <a href='pane-class.html'>pane</a> or <a href='number_line-class.html'>number_line</a> objects</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>infections</span>)
 <span class='no'>dates</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>$<span class='no'>date</span>
-<span class='no'>output</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episodes.html'>fixed_episodes</a></span>(<span class='no'>dates</span>, <span class='kw'>case_length</span><span class='kw'>=</span><span class='fl'>30</span>)</div><div class='output co'>#&gt; 
-#&gt; -------------------------------------                               Tracking episodes; 54% complete.-------------------------------------------------------------------Tracking episodes; 100% complete.
-#&gt; Summary.
-#&gt; Time elapsed:   &lt; 0.01 secs
-#&gt; Records:
-#&gt;   Total:        11
-#&gt;   Skipped:      0
-#&gt; Episodes:
-#&gt;   Total:        2
-#&gt;   Single-event: 0</div><div class='input'><span class='no'>output</span></div><div class='output co'>#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.7 (C)"
+<span class='no'>output</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episodes.html'>episodes</a></span>(<span class='no'>dates</span>, <span class='kw'>case_length</span><span class='kw'>=</span><span class='fl'>30</span>)
+<span class='no'>output</span></div><div class='output co'>#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.7 (C)"
 #&gt;  [8] "E.7 (D)" "E.7 (D)" "E.7 (D)" "E.7 (D)"</div><div class='input'>
-<span class='co'># from the a pid/epid object to a data.frame</span>
+<span class='co'># Change a pid, epid, pane or number_line object to a data.frame</span>
 <span class='no'>df_output</span> <span class='kw'>&lt;-</span> <span class='fu'>to_df</span>(<span class='no'>output</span>)
-<span class='no'>df_output</span></div><div class='output co'>#&gt;    epid sn wind_id wind_nm     case_nm dist_from_wind dist_from_epid iteration
-#&gt; 1     1  1       1    Case        Case         0 days         0 days         1
-#&gt; 2     1  2       1    Case Duplicate_C         6 days         6 days         1
-#&gt; 3     1  3       1    Case Duplicate_C        12 days        12 days         1
-#&gt; 4     1  4       1    Case Duplicate_C        18 days        18 days         1
-#&gt; 5     1  5       1    Case Duplicate_C        24 days        24 days         1
-#&gt; 6     1  6       1    Case Duplicate_C        30 days        30 days         1
-#&gt; 7     7  7       7    Case        Case         0 days         0 days         2
-#&gt; 8     7  8       7    Case Duplicate_C         6 days         6 days         2
-#&gt; 9     7  9       7    Case Duplicate_C        12 days        12 days         2
-#&gt; 10    7 10       7    Case Duplicate_C        18 days        18 days         2
-#&gt; 11    7 11       7    Case Duplicate_C        24 days        24 days         2</div><div class='input'>
-<span class='co'># from a data.frame to pid/epid object</span>
+<span class='no'>df_output</span></div><div class='output co'>#&gt;    epid sn wind_nm case_nm dist_wind_index dist_epid_index epid_total iteration
+#&gt; 1     1  1       0       0          0 days          0 days          6         1
+#&gt; 2     1  2       0       2          6 days          6 days          6         1
+#&gt; 3     1  3       0       2         12 days         12 days          6         1
+#&gt; 4     1  4       0       2         18 days         18 days          6         1
+#&gt; 5     1  5       0       2         24 days         24 days          6         1
+#&gt; 6     1  6       0       2         30 days         30 days          6         1
+#&gt; 7     7  7       0       0          0 days          0 days          5         2
+#&gt; 8     7  8       0       2          6 days          6 days          5         2
+#&gt; 9     7  9       0       2         12 days         12 days          5         2
+#&gt; 10    7 10       0       2         18 days         18 days          5         2
+#&gt; 11    7 11       0       2         24 days         24 days          5         2</div><div class='input'>
+<span class='co'># Change a data.frame to a pid, epid, pane or number_line object</span>
 <span class='no'>s4_output</span> <span class='kw'>&lt;-</span> <span class='fu'>to_s4</span>(<span class='no'>df_output</span>)
 <span class='no'>s4_output</span></div><div class='output co'>#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.7 (C)"
 #&gt;  [8] "E.7 (D)" "E.7 (D)" "E.7 (D)" "E.7 (D)"</div><div class='input'>
-<span class='fu'><a href='https://rdrr.io/r/base/all.html'>all</a></span>(<span class='no'>s4_output</span> <span class='kw'>==</span> <span class='no'>output</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

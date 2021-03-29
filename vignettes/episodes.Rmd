@@ -16,1161 +16,594 @@ knitr::opts_chunk$set(
 ```
 
 ```{r include=FALSE}
+library(diyar)
+library(cowplot)
+library(ggplot2)
 plot_epid <- diyar:::plot_epid
 date <- function(x) as.Date(x, "%d/%m/%Y")
-dttm <- function(x) as.POSIXct(x, "UTC", format="%d/%m/%Y %H:%M:%S")
+dttm <- function(x) as.POSIXct(x, "UTC", format = "%d/%m/%Y %H:%M:%S")
 ```
 
 # Introduction
-In epidemiological analyses, an exact distinction between temporal events is not always possible. Thus, static but reasonable cut-offs are used to distinguish between events. This is an important aspect of most case definitions. For example, you may want to distinguish between repeat positive infection results. Another example is to distinguish between single-pathogen infections and co-infections.
+In epidemiological analyses, an exact distinction between temporal events is not always possible. Thus, static but reasonable cut-offs are used to distinguish between events. This is an important aspect of most case definitions. For example, you may want to distinguish between repeat positive infection results.
 
-`episodes()` provide a convenient but flexible way of doing this. It links events into a temporal sequence, which can you can duplicate or use for in a sub-analysis.
-
-*`episode_group()`, `fixed_episodes()` and `rolling_episodes()` are wrapper functions of `episodes()`. They exist to support code from earlier versions of `diyar (< v0.2.0)`. Please consider using `episodes()` moving forward.*
-
-# Uses
-
-These functions can process a variety of case definitions. See examples below.
-
-+ episodes where events occur at single time points. For example, medical diagnoses or traffic incidents.
-+ episodes where events occur over a period of time e.g. hospital admission or incubation periods. See [interval grouping](#interval_grouping).
-+ episodes where the events recur.
-+ episodes with known index (reference) events. See ["user defined index events"](#custom_sort).
-+ episodes with different durations depending on the type of event. See [stratified episode tracking](#stratified_grouping).
+Scripting a case definition in `R` can be challenging, particularly when dealing with those involving duplicate and repeat events. `episodes()` and `partitions()` provide a convenient but flexible way of doing this. It links events into a temporal sequence, creating a unique group identifier with useful information about each group. These identifiers can then be used for record deduplication or further analyses.
 
 # Overview
-An episode as produced by `episodes()` is a set of events (dated records) within a specified period. Each episode begins with an index event and may contain duplicate or recurrent events. There are two types - `"fixed"` episodes that do not include periods of recurrence, and `"rolling"` episodes that do.
+The group identifiers created by `episodes()` and `partitions()` are called episodes (`epid` class) and panes (`pane` class) respectively. Additionally, `episodes()` creates three types of episodes - `"fixed"`, `"rolling"` and `"recursive"`. In `diyar`, a fixed episode is created by linking an index or reference event (dated records) to other events within a specified duration of another event. This yields `"Case"` (index) and `"Duplicate"` events. In a rolling episode, the process is repeated using an event from the existing episode as the reference event. This yields a `"Recurrent"` event and additional `"Duplicate"` events. This repetition is referred to here as a recurrence. Unless specified, the recurrence will continue indefinitely until there are no more events within the period of recurrence. A recursive episodes is similar to a rolling episode except that every event in the existing episode is used as a reference event. In contrast, a pane is created by separating events into fixed periods of time. The events in a pane have to relationship with each other, other than being in the same period or numeric interval. See figure and the example below.
+
+```{r warning=FALSE}
+# Events
+event_dt <- seq(from = as.Date("2021-01-01"), to = as.Date("2021-01-11"), by = 1)
+s_data <- data.frame(date = event_dt)
+# Attribute 1 - Source of infection
+attr_1 <- c("BSI", "UTI", "RTI", "RTI", "BSI", "BSI", "BSI", "RTI", "RTI", "BSI", "RTI")
+s_data$attr <- attr_1
+# Fixed episodes
+s_data$ep1 <- episodes(event_dt, case_length = 5, episode_type = "fixed")
+# Rolling episodes
+s_data$ep2 <- episodes(event_dt, case_length = 5, episode_type = "rolling",
+                       group_stats = TRUE, data_source = attr_1)
+# Recursive episodes
+s_data$ep3 <- episodes(event_dt, case_length = 5, episode_type = "recursive")
+# Panes
+s_data$pn1 <- partitions(event_dt, length.out = 2, separate = TRUE)
+
+# Identifiers
+s_data
+
+# Components of an identifier
+as.data.frame(s_data$ep2)
+```
+
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(s_data$ep1, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt2 <- schema(s_data$ep2, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt3 <- schema(s_data$ep3, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt4 <- schema(s_data$pn1, seed = 2, show_label = c("window_label"), dark_mode = FALSE)
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                plt3 + theme(plot.background = element_rect(color = "black")), 
+#                plt4 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("Fixed episodes", 
+#                           "Rolling episodes", 
+#                           "Recursive episodes", 
+#                           "Panes"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(-.065, -.065, -.0615, -.015))
+# ggsave(plot = f, filename = "fig1.png", width = 15, height = 9, units = "in")
+```
+
+**Figure 1: Episodes and panes** 
+
+<img src = "fig1.png" width = "1000" height="580">
 
 # Implementation
+The main considerations of a case definition are captured by different arguments in these functions.
+These considerations are implemented in a flexible and modular way, such that most considerations can be accounted for independently or in a compounding manner. The main considerations are summarised below.
 
-<a id= "episode_grouping"></a>
+**Caveats**
 
-## Episodes, windows, case lengths and recurrence periods
+## Matching criteria for an event's attribute
+Additional matching criteria (separate from the temporal links) can be implemented by the `strata`, `case_sub_criteria` and `recurrence_sub_criteria` arguments. `strata` introduces a blocking attribute which forces separate episodes and panes for different subsets of the dataset. In contrast, the `case_sub_criteria` and `recurrence_sub_criteria` arguments apply a set of matching criteria to attributes associated with the events being compared. These arguments take a `sub_criteria` object. `sub_criteria` objects and how they are used are described in greater detail in `vignette("links")`. In summary, they contain atomic vectors or a list of atomic vectors as attributes, functions as logical tests for each condition and another set of functions as logical tests for the equivalence of attributes. The evaluation of a `sub_criteria` object is recursive and so allows for nested conditions.
 
-Before we begin, let's go over some terms which will pop up now and again. 
-
-+ `event` -  a dated record i.e. single time point.
-+ `event period` - `events` with a known duration i.e. start and endpoints in time.
-+ `reference event/period` - index `event`.
-+ `"lengths"` -  temporal cut-offs for distinguishing between `events`.
-    + `case_length` - cut-off period to distinguish one `event` from another.
-    + `recurrence_length` - cut-off period to distinguish an `event` from its recurrence.
-+ `window` - all `events` within the same `case_length` **or** `recurrence_length`
-    + `case window` - all `events` within a `case_length`.
-    + `recurrence window` - all `events` within a `recurrence_length`.
-+ `episode` - all `event` within the same cut-off period i.e. every overlapping `window`.
-+ `case event` - index `event` for the entire `episode`
-+ `recurrent event` - first `event` within a `recurrence_length` or period of recurrence.
-+ `duplicate event` - repeat `event` of the `case` or `recurrent event`.
-+ `episode tracking` - the process of tracking `events` to `episodes`.
-
-In `"fixed" episodes`, each `window` forms a separate `episode`. Conversely, in `"rolling" episodes` overlapping `windows` merge into a larger one. This signifies that the `episode` is still on-going or has recurred. As a result, every `event` in both `windows` are considered part of the same `"rolling" episode`.
-
-## How to apply a case definition
-### epid objects
-Firstly, let's go through what `episodes` look like in `diyar`. They are stored as `epid` objects (`S4` object class). An `epid` object is an `episode` identifier with `slots` for additional information about each `episode`. 
-
-```{r message=FALSE, warning=FALSE, include=FALSE}
-library(diyar)
-ds <- c("01/04/2019", "06/04/2019", "10/04/2019", "11/04/2019")
-ds <- as.Date(ds, "%d/%m/%Y")
-ep <- episodes(date = ds, case_length = 6, group_stats = T, data_source = c("DS1","DS1","DS3", "DS1"), episode_type = "rolling")
-```
-
- 
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-df <- data.frame(events = ds, data_source = c("DS1","DS1","DS3", "DS1"), epid = ep)
-df
-```
-
-For an `epid` the following information will be displayed (`format.epid`);
-
-+ ``r substr(format(ep[1]),1,3) `` - `episode` identifier.
-+ ``r substr(format(ep[1]),5,28) `` - `episode` duration. *Only shown if `group_stats` is `TRUE`.*
-+ ``r paste0(unique(substr(format(ep),30,33)), collapse="/") `` - type of event i.e. `case`, `duplicate` and `recurrent events` respectively
-
-*See `?episodes` for further details.*
-
-*to_df() transforms `epid` objects to `data.frames`.*
-
-```{r echo=FALSE, message=FALSE, warning=FALSE}
-cat("to_df(`epid`)")
-to_df(df$ep)
-```
-
-### cut-offs - case and recurrence lengths 
-Your first consideration should be a cut-off point to distinguish between `episodes`. Here, this is the `case_length`. A `case_length` of `5` means that; repeat `events` within `6 days (Time difference of 5 days)` of the `reference event` are considered `duplicates` of the `reference event`. See below.
-
-```{r message=FALSE, warning=FALSE}
-library(diyar)
-
-# Events
-ds <- c("01/04/2019", "03/04/2019", "13/04/2019","16/04/2019", "18/04/2019")
-ds <- data.frame(date= as.Date(ds, "%d/%m/%Y"))
-ds$date
-```
-
-**Figure 1a: fixed episodes**
-```{r warning=FALSE}
-# 6-day (5-day difference) episodes - fixed episodes
-ds$f1 <- episodes(date = ds$date, case_length = 5, display = "none")
-ds$f1
-```
-
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$f1, date= ds$date, case_length = 5)
-```
-
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(ds$f1)
-```
-
-Alternatively, you can specify a cut-off range. For example, a `case_length` of ``r format(number_line(12, 16))`` means that; repeat `events` within `13` and `17` days after the `reference event` are considered `duplicates` of the `reference event`. Such ranges must be created with `number_line()`. See the [number line vignette](number_line.html).
-
-**Figure 1b: fixed episodes with a cut-off range**
+The figure and example below shows how the `strata` argument is used.
 
 ```{r warning=FALSE}
-rng <- number_line(12, 16); rng
-ds$f2 <- episodes(date = ds$date, case_length = rng, 
-                  display = "none")
-ds$f2
+# Attribute 2 - Location 
+attr_2 <- c("Ward 1", "Ward 1", "Ward 3", "Ward 3", "Ward 2", "Ward 2", 
+            "Ward 1", "Ward 1", "Ward 3","Ward 3", "Ward 2")
+# Matching clinical criteria
+ep1 <- episodes(event_dt, strata = attr_1, case_length = 5)
+# Matching geographical criteria
+ep2 <- episodes(event_dt, strata = attr_2, case_length = 5)
+
 ```
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$f2, date= ds$date, case_length = rng)
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep1, seed = 2, 
+#                show_label = "sn", 
+#                custom_label = attr_1, dark_mode = FALSE)
+# plt2 <- schema(ep2, seed = 2, 
+#                show_label = "sn", 
+#                custom_label = attr_2, dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("ep1", "ep2"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(0, 0))
+# ggsave(plot = f, filename = "fig2.png", width = 15, height = 4.5, units = "in")
 ```
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(ds$f2)
-```
-`events` before the `13th` can be skipped by changing `skip_if_b4_lengths` to `TRUE`.
+**Figure 2: Using `strata` to specify matching attributes**
+<img src = "fig2.png" width = "1000" height="290">
 
-**Figure 1c: fixed episodes where events before the the cut-off range are not skipped**
-
-```{r warning=FALSE}
-ds$f3 <- episodes(date = ds$date, case_length = rng, 
-                  skip_if_b4_lengths = T, display = "none")
-ds$f3
-```
-
-<a id="case_assignment"></a> 
-
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$f3, date= ds$date, case_length = rng)
-```
-
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(ds$f3)
-```
-
-Finally, you can use multiple `case_lengths` by supplying these as a `list`. For example, a `case_length` of `list(5, number_line(15, 17))` means that; repeat events within `6 days`, and within `16` and `18 days` after the index event are considered duplicates.
-
-**Figure 1d: fixed episodes with multiple `case_lengths`**
+The figure and example below shows how the `case_sub_criteria` and `recurrence_sub_criteria` argument is used.
 
 ```{r warning=FALSE}
-rngs <- list(5, number_line(15, 17))
-ds$f4 <- episodes(date = ds$date, case_length = rngs, display = "none")
-ds$f4
+# Attribute 3 - Patient sex
+attr_3 <- c(rep("Female", 9), "Male", "Female")
+
+# sub_criteria 1 - Matching source of infection or patient location
+sub_cri_1 <- sub_criteria(attr_1, attr_2, operator = "or")
+# sub_criteria 2 - Matching source of infection and patient location
+sub_cri_2 <- sub_criteria(attr_1, attr_2, operator = "and")
+# sub_criteria 3 - (Matching source of infection and patient location) or (Matching patient sex)
+sub_cri_3 <- sub_criteria(sub_cri_2, attr_3, operator = "or")
+# sub_criteria 4 - (Matching source of infection and patient location) and (Matching patient sex)
+sub_cri_4 <- sub_criteria(sub_cri_2, attr_3, operator = "and")
+
+ep3 <- episodes(event_dt, case_length = 5, case_sub_criteria = sub_cri_1)
+ep4 <- episodes(event_dt, case_length = 5, case_sub_criteria = sub_cri_2)
+ep5 <- episodes(event_dt, case_length = 5, case_sub_criteria = sub_cri_3)
+ep6 <- episodes(event_dt, case_length = 5, case_sub_criteria = sub_cri_4)
 ```
 
-*Note: `case_lengths` and `recurrence_lengths` are always calculated from the endpoint of an event. This has no practical implication when working with time points because the start and end points are the same. However, this is not the case for `event period`. See [interval grouping](#interval_grouping) for more information about this.*
-
-### Reference events
-Your next consideration should be the index (`reference`) `event`. It's common practice for this to be the earliest `event`. However, there are times when the most recent `event` will be more appropriate. For example, the most recent positive infection result before a patient dies. This can then be the index `event`. You achieve this by changing `from_last` to `TRUE`. This starts `episode tracking` at the most recent `event` and proceed backwards in time.
-
-**Figure 2: fixed episodes where episode tracking was backwards in time**
-
-```{r warning=FALSE}
-ds$f4 <- episodes(date = ds$date, case_length = 5, from_last = T, display = "none")
-ds$f4
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep1, seed = 2, 
+#                show_label = FALSE, 
+#                custom_label = paste0(attr_1, " in ", attr_3, " at ", attr_2), dark_mode = FALSE)
+# plt2 <- schema(ep2, seed = 2, 
+#                show_label = FALSE, 
+#                custom_label = paste0(attr_1, " in ", attr_3, " at ", attr_2), dark_mode = FALSE)
+# plt3 <- schema(ep3, seed = 2, 
+#                show_label = FALSE, 
+#                custom_label = paste0(attr_1, " in ", attr_3, " at ", attr_2), dark_mode = FALSE)
+# plt4 <- schema(ep4, seed = 2, 
+#                show_label = FALSE, 
+#                custom_label = paste0(attr_1, " in ", attr_3, " at ", attr_2), dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")),
+#                plt3 + theme(plot.background = element_rect(color = "black")),
+#                plt4 + theme(plot.background = element_rect(color = "black")),
+#                labels = c("ep3", "ep4", "ep5", "ep6"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(0, 0))
+# ggsave(plot = f, filename = "fig3.png", width = 15, height = 9, units = "in")
 ```
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$f4, date= ds$date, case_length = 5, from_last = T)
-```
+**Figure 3: Using `case_sub_criteria` to specify matching criteria**
+<img src = "fig3.png" width = "1000" height = "580">
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(ds$f4)
-```
-
-<a id ="custom_sort"></a>
-
-#### User-defined index events
-Sometimes the type of `event` is more relevant to determining if it's an index `event`. For example, determining the index infection among co-infections. Below is an example with a co-infection involving human immunodeficiency virus (HIV), hepatitis B virus (HBV) and *Mycobacterium tuberculosis* (MyCt).
-
-```{r warning=FALSE}
-ds2 <- data.frame(date=  as.Date(c("13/03/2020", "01/04/2020","15/08/2020",
-                                   "11/12/2020", "31/12/2020"), "%d/%m/%Y"),
-                  diag = c("HBV","HIV","MyCt","HBV", "MyCt"), 
-                  stringsAsFactors = F)
-
-
-# First, make the HIV diagnosis the index event 
-ds2$user_ord <- ifelse(ds2$diag=="HIV", 1,2)
-
-# Then track concurrent infections up to 6 months AFTER the HIV diagnosis
-ds2$ep1 <- episodes(date = ds2$date, custom_sort = ds2$user_ord, data_source = ds2$diag,
-                          case_length = 6, episode_unit = "months", display = "none")
-
-# Using `data_source` populates the `epid_dataset` slot of the `epid` object. 
-# This is useful when you're working with different datasets
-ds2$ep1_ds <- ds2$ep1@epid_dataset
-
-# Track preceding infections up to 6 months BEFORE the HIV diagnosis
-ds2$ep2 <- episodes(date = ds2$date, custom_sort = ds2$user_ord, data_source = ds2$diag,
-                          case_length = -6, episode_unit = "months", display = "none")
-
-ds2$ep2_ds <- ds2$ep2@epid_dataset
-
-ds2
-```
-
-Notice that in `ep1`, the HIV diagnosis and the HBV diagnosis before it are not linked. This also happens with the HIV and MyCt diagnoses in `ep2`. This is because `episode tracking` occurs in one direction of time (`from_last`). If required, you can track `events` in both directions for time i.e. before and after an index `event`. You can do this by supplying an applicable cut-off range e.g. ` number_line(-6, 6)` or `list(number_line(-6, 0), number_line(0, 6))`. To some extent, you can also do this with the old `bi_direction` argument.
-
-See examples of each approach below. 
+Using a `sub_criteria` incurs additional processing time therefore, it should be reserved for situations when a blocking attribute would not suffice or more complex conditions are required. The figure and example below show some examples of this.
 
 ```{r warning=FALSE}
-# Track preceding and concurrent infections up to 6 months BEFORE OR AFTER the HIV diagnosis
+# record id
+rd_id <- 1:length(attr_1)
 
-# Method 1a
-# Track diagnoses 6 months AFTER the HIV diagnosis.
-  # `bi_direction` then makes the function to also check 6 months BEFORE the HIV diagnosis
-ds2$ep3a <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = 6, 
-                           bi_direction = T, episode_unit = "months", display = "none")
+# Condition 1 - Each episode must include BSI events
+cri_funx_1 <- function(x, y){
+  splts <- split(x$attr, y$rd_id)
+  splts_lgk <- lapply(splts, function(x){
+    "RTI" %in% x
+  })
+  splts_lgk <- unlist(splts_lgk)
+  splts_lgk[match(y$rd_id, names(splts))]
+}
 
-# Method 1b
-# Track diagnoses 6 months BEFORE the HIV diagnosis
-  # bi_direction` then makes the function to also check 6 months AFTER the HIV diagnosis
-ds2$ep3b <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = -6,
-                           bi_direction = T, episode_unit = "months", 
-                           data_source = ds2$diag, display = "none")
+# Condition 2 - Each episode must include >=3 different sources of infection
+cri_funx_2 <- function(x, y){
+  splts <- split(x$attr, y$rd_id)
+  splts_lgk <- lapply(splts, function(x){
+    length(x[!duplicated(x)]) >= 3
+  })
+  splts_lgk <- unlist(splts_lgk)
+  splts_lgk[match(y$rd_id, names(splts))]
+}
 
-# Method 2a
-# Track diagnoses 6 months BEFORE or AFTER the HIV diag. 
-  # There's no need for `bi_direction`.
-rng <- number_line(-6, 6)
-ds2$ep4 <- episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rng, 
-                    episode_unit = "months", data_source = ds2$diag, display = "none")
+# Equivalence - Logical test for matching attributes
+eqv_funx <- function(x, y){
+  x$rd_id == y$rd_id
+}
 
-# Method 2b
-# Track diagnoses within 1-6 months AFTER the HIV diagnosis. 
-  #` bi_direction` then makes the function to also check within 1-6 months BEFORE the HIV diagnosis
-# Diagnoses before 2 months on either side are skipped as mentioned in the "cut-offs" section
-rng2 <- number_line(1, 6)
-ds2$ep5 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rng2, 
-                          bi_direction = T, episode_unit = "months", display = "none")
+# Sub-criteria 
+sub_cri_5 <- sub_criteria(list(attr = attr_1, rd_id= rd_id), match_funcs = cri_funx_1, 
+                          equal_funcs = eqv_funx)
 
-# Method 3a
-# Track diagnoses within 1-4 months AFTER the HIV diagnosis, AND 
-  # between 4-6 months
-  # bi_direction` then makes the function to also check 2-4, and 4-6 month BEFORE the HIV diagnosis
-rngs <- list(number_line(1, 4), number_line(4, 6)) 
-ds2$ep6 <- fixed_episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rngs, 
-                          bi_direction = T, episode_unit = "months", display = "none")
+sub_cri_6 <- sub_criteria(list(attr = attr_1, rd_id= rd_id), match_funcs = cri_funx_2,
+                          equal_funcs = eqv_funx)
 
-# Method 3b
-# Track diagnoses within 2-4 and 4-6 months BEFORE OR AFTER the HIV diagnosis
-  # There's no need for `bi_direction`.
-rngs2 <- c(rngs, lapply(rngs, invert_number_line))
-rngs2
-ds2$ep7 <- episodes(date = ds2$date, custom_sort = ds2$user_ord, case_length = rngs2, 
-                    episode_unit = "months", display = "none")
+ep7 <- episodes(event_dt, case_length = 2, episode_type = "fixed", 
+                case_sub_criteria = sub_cri_5)
 
-ds2
+ep8 <- episodes(event_dt, case_length = 2, episode_type = "fixed",
+                case_sub_criteria = sub_cri_6)
 ```
 
-Ties in preference for index `events` (`custom_sort` values) will be broken with the chronological order of those events. This will either be the earliest or most recent `event` depending on `from_last`. Alternatively, you can break such ties with extra levels of `custom_sort`. *See `?custom_sort()`*.
-
-See the example below for tracking `episodes` using 2 and 3 levels of `custom_sort`.
-
-```{r warning=FALSE, message=FALSE}
-dbf <- infections[c("date", "infection")]
-
-# 3 levels: "UTI" > "BSI" > "RTI"
-dbf$c_sort1 <- ifelse(dbf$infection == "UTI", 1, ifelse(dbf$infection == "BSI", 2, 3))
-# 2 levels: "UTI" > ("BSI" OR "RTI")
-dbf$c_sort2 <- ifelse(dbf$infection == "UTI", 1, 2)
-# 2 levels: "BSI" > ("UTI" OR "RTI")
-dbf$c_sort3 <- ifelse(dbf$infection == "BSI", 1, 2)
-
-dbf$ep_1 <- episodes(date = dbf$date, case_length = 15, data_source = dbf$infection, 
-                     custom_sort = dbf$c_sort1, display = "none")
-
-dbf$ep_2 <- episodes(date = dbf$date, case_length = 15, data_source = dbf$infection, 
-                     custom_sort = dbf$c_sort2, display = "none")
-
-dbf$ep_3 <- episodes(date = dbf$date, case_length = 15, data_source = dbf$infection,
-                     custom_sort = dbf$c_sort3, display = "none")
-
-dbf
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep7, seed = 2, 
+#                show_label = "sn", 
+#                custom_label = attr_1, dark_mode = FALSE)
+# plt2 <- schema(ep8, seed = 2, 
+#                show_label = "sn", 
+#                custom_label = attr_1, dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")),
+#                labels = c("ep7", "ep8"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(0, 0))
+# ggsave(plot = f, filename = "fig4.png", width = 15, height = 4.5, units = "in")
 ```
 
-`custom_sort()` is convenience function for nested sorting. This will help you merge `custom_sort` orders into one atomic vector. See the examples below.
+**Figure 4: Using `case_sub_criteria` to specify complex matching criteria**
+<img src = "fig4.png" width = "1000" height = "290">
 
-```{r warning=FALSE, message=FALSE}
-dbf$uti <- ifelse(dbf$infection == "UTI", 1, 2)
-dbf$bsi <- ifelse(dbf$infection == "BSI", 1, 2)
-dbf$rti <- ifelse(dbf$infection == "RTI", 1, 2)
-
-# 3 levels: "UTI" > "BSI" > "RTI"
-dbf$c_sort1b <- custom_sort(dbf$uti, dbf$bsi, dbf$rti)
-
-dbf$ep_1b <- episodes(date = dbf$date, 
-                      case_length = 15, 
-                      data_source = dbf$infection, 
-                      custom_sort = dbf$c_sort1b, 
-                      display = "none")
-
-# Same results
-dbf[c("ep_1", "ep_1b")]
-```
-
-<a id ="recurrence" ><a/> 
-
-### Recurrent events and periods of recurrence
-Some case definition may specify that `events` recur (`"rolling" episodes`). For example, relapses of the same infection after successful treatment.  It may be important to treat this as the same `episode` of the initial infection. This differs from a `"fixed" episode`, where the relapse is handled as a separate `episode`. 
-
-The `recurrence_length` argument provides the cut-off period for `recurrent events`. For example, a `recurrence_length` of `10` means that; repeat `events` within `11` days of the last `duplicate event` (of the initial index `event`) are considered a recurrence of the index `event`.
-
-*If `recurrence_length` is not supplied, it's assumed to be the same as the `case_length`.*
-
-**Figure 3a: rolling episodes**
+## Seprating events into periods of time
+This is best handled by `partitions()`. See the examples below.
 ```{r warning=FALSE}
-# 6-day (5-day difference) episodes with 11-days recurrence periods - rolling episodes
-ds$r1 <- episodes(date = ds$date, 
-                  case_length = 5, 
-                  recurrence_length = 10, 
-                  episode_type = "rolling",
-                  display = "none")
+# Group events into 2 equal parts based on the duration of the sample (strata) 
+pn2 <- partitions(event_dt, length.out = 2, separate = TRUE)
 
-ds$r1
+# Group events into 3-day sequences over the duration of the sample
+pn3 <- partitions(event_dt, by = 3, separate = TRUE)
+
+# Group events into a specified period of time 
+pn4 <- partitions(event_dt, window = number_line(event_dt[4], event_dt[7]))
+
+# Group events from separate periods into one pane
+pn5 <- partitions(event_dt, length.out = 2, separate = FALSE)
 ```
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$r1, date= ds$date, case_length = 5, recurrence_length = 10)
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(pn2, seed = 2, show_label = c("window_label", "case_nm"), dark_mode = FALSE)
+# plt2 <- schema(pn3, seed = 2, show_label = c("window_label", "case_nm"), dark_mode = FALSE)
+# plt3 <- schema(pn4, seed = 2, show_label = c("window_label", "case_nm"), dark_mode = FALSE)
+# plt4 <- schema(pn5, seed = 2, show_label = c("window_label", "case_nm"), dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")),
+#                plt3 + theme(plot.background = element_rect(color = "black")),
+#                plt4 + theme(plot.background = element_rect(color = "black")),
+#                labels = c("pn2", "pn3", "pn4", "pn5"), 
+#                label_colour = "black",
+#                label_y = c(0.07,.07,0.07,0.07))
+# 
+# ggsave(plot = f, filename = "fig5.png", width = 15, height = 9, units = "in")
 ```
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(ds$r1)
-```
+**Figure 5: Using partitions**
+<img src = "fig5.png" width = "1000" height = "580">
 
-Similarly, for `recurrence_length`, you can use a cut-off range. For example, a `recurrence_length` of ``r format(number_line(13, 15))`` means that; repeat `events` between `14` and `16` days after the last `duplicate event` are considered a recurrence of the index `event`. 
+## Selecting index events and the direction of episode tracking
 
-**Figure 3b: rolling episodes with a cut-off range**
+The `from_last` arguments specifies the direction of episode tracking, while `custom_sort` specifies a custom preference for selecting index events. The combination of both allows provides some flexibility in regards to which event is used as the index event. See the examples below.
 ```{r warning=FALSE}
-rng <- number_line(13, 15); rng
-ds$r2 <- episodes(date = ds$date, case_length = 5, 
-                  recurrence_length = rng, 
-                  episode_type = "rolling",
-                  display = "none")
-
-ds$r2
+# Preference for selecting index events
+c_sort <- c(rep(2, 5), 1, rep(2, 5))
+# Episodes are 6 days (5-day difference) after the earliest event 
+ep9 <- episodes(event_dt, case_length = 5, episodes_max = 1)
+# Episodes are 6 days (5-day difference) before the most recent event 
+ep10 <- episodes(event_dt, case_length = 5, episodes_max = 1, from_last = TRUE)
+# Episodes are 6 days (5-day difference) after the 6th event 
+ep11 <- episodes(event_dt, case_length = 5, custom_sort = c_sort, episodes_max = 1)
+# Episodes are 6 days (5-day difference) before or after the 6th event 
+ep12 <- episodes(event_dt, case_length = number_line(-5, 5), custom_sort = c_sort, episodes_max = 1)
 ```
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$r2, date= ds$date, case_length = 5, recurrence_length = rng)
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep9, seed = 2, show_label = c("length_label", "length_arrow", "case_nm"), dark_mode = FALSE)
+# plt2 <- schema(ep10, seed = 2, show_label = c("length_label", "length_arrow", "case_nm"), dark_mode = FALSE)
+# plt3 <- schema(ep11, seed = 2, show_label = c("length_label", "length_arrow", "case_nm"), dark_mode = FALSE)
+# plt4 <- schema(ep12, seed = 2, show_label = c("length_label", "length_arrow", "case_nm"), dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                plt3 + theme(plot.background = element_rect(color = "black")), 
+#                plt4 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("ep9", "ep10", "ep11", "ep12"), label_colour = "black")
+# ggsave(plot = f, filename = "fig6.png", width = 15, height = 9, units = "in")
 ```
 
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(ds$r2)
-```
-
-You can skip `events` before the `14th` by changing `skip_if_b4_lengths` to `TRUE`. 
-
-**Figure 3c: rolling episodes where events before the the cut-off range are not skipped**
-```{r warning=FALSE}
-rng <- number_line(13, 15); rng
-ds$r3 <- episodes(date = ds$date, case_length = 5, 
-                  recurrence_length = rng, 
-                  skip_if_b4_lengths = F, 
-                  episode_type = "rolling",
-                  display = "none")
-
-ds$r3
-```
-
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = ds$r3, date= ds$date, case_length = 5, recurrence_length = rng)
-```
-
-```{r echo=FALSE, fig.height=4, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(ds$r3)
-```
-
-As with `case_length`, you can supply multiple `recurrence_lengths` as a list.
-
-**Figure 3d: rolling episodes with multiple `recurrence_lengths`**
-```{r warning=FALSE}
-rngs <- list(number_line(13, 14), number_line(15,18)); rngs
-ds$r4 <- episodes(date = ds$date, case_length = 5, 
-                  recurrence_length = rngs, 
-                  skip_if_b4_lengths = F,
-                  episode_type = "rolling", 
-                  display = "none")
-
-ds$r4
-```
-
-#### Index events for periods of recurrence
-
-Each `"rolling" episode` has at least two index-`events`. one for the whole `episode` and one for each period of recurrence. By default, the last `event` of the previous `window` is the index `event` for the next period of recurrence. Changing `recurrence_from_last` to `FALSE`, specifies that the first `event` in the previous window is used. See a demonstration of this below.
-
-*If the `case_length` is the same the `recurrence_length` and you'll create a `"fixed" episode`*. 
-
-```{r message=FALSE, warning=FALSE}
-df <- c("01/04/2019", "11/04/2019", "16/04/2019","21/04/2019", "07/05/2019")
-df <- data.frame(date= as.Date(df, "%d/%m/%Y"))
-
-# 15-day fixed episodes are the same as 15-day rolling episodes where `recurrence_from_last` is FALSE
-df$f1 <- episodes(date = df$date, 
-                  case_length = 14, 
-                  display = "none")
-
-df$r1 <- episodes(date = df$date, case_length = 14, 
-                  recurrence_from_last = F,
-                  episode_type = "rolling",
-                  display = "none")
-
-df
-```
-
-**Figure 4a: Last event in a window taken as the reference event for the next recurrence window (default)**
-```{r message=FALSE, warning=FALSE}
-df$r2 <- episodes(date = df$date, case_length = 14, 
-                  recurrence_length = 16, 
-                  episode_type = "rolling",
-                  display = "none")
-
-df$r2
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = df$r2, date = df$date, case_length =14, recurrence_length = 16)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(df$r2)
-```
-
-**Figure 4b: First event in a window taken as the reference event for the next recurrence window**
-```{r message=FALSE, warning=FALSE}
-df$r3 <- episodes(date = df$date, case_length = 14, 
-                  recurrence_length = 16, 
-                  recurrence_from_last = F, 
-                  episode_type = "rolling",
-                  display = "none")
-
-df$r3
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = df$r3, date = df$date, case_length =14, recurrence_length = 16)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(df$r3)
-```
-
-#### Case windows for both case and recurrent events
-You can use the `case_for_recurrence` argument to specify that both `case` and `recurrence events` should have a `case window`. The default behaviour is that only `case events` have a `case window`. See a demonstration of this below. 
-
-*The `wind_id` slot shows the `window` of every `event`, while `wind_nm` shows what type of `window` it is.*
-
-*Example 1*
-
-```{r message=FALSE, warning=FALSE}
-df <- c("01/04/2019", "11/04/2019", "16/04/2019","21/04/2019","25/04/2019", "07/05/2019")
-df <- data.frame(date= as.Date(df, "%d/%m/%Y"))
-```
-
-**Figure 5a: Case windows for case events only (default)**
-```{r message=FALSE, warning=FALSE}
-df$r4 <- episodes(date = df$date, 
-                  case_length = 10, 
-                  episode_type = "rolling",
-                  display = "none")
-
-df$r4
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = df$r4, date = df$date, case_length =10, recurrence_length = 10)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(df$r4)
-```
-
-**Figure 5b: Case windows for case and recurrence events**
-```{r message=FALSE, warning=FALSE}
-df$r5 <- episodes(date = df$date, case_length = 10, 
-                  episode_type = "rolling",
-                  case_for_recurrence = T,
-                  display = "none")
-
-df$r5
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = df$r5, date = df$date, case_length =10, recurrence_length = 10)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(df$r5)
-```
-
-*Example 2*
-
-```{r message=FALSE, warning=FALSE}
-date <-  seq.Date(as.Date("01/04/2019", "%d/%m/%Y"), 
-                  as.Date("21/04/2019","%d/%m/%Y"), 
-                  by="3 day")
-# Example 2
-df2 <- data.frame(date = date, sn = 1:length(date))
-# dates
-df2$date
-```
-
-**Figure 5c: Case windows for case events only (default)**
-```{r message=FALSE, warning=FALSE}
-df2$r1 <- episodes(date = df2$date, case_length = 6, 
-                   recurrence_length = 4, sn=df2$sn, 
-                   episode_type = "rolling",
-                   display = "none")
-
-df2$r1
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = df2$r1, date = df2$date, case_length =6, recurrence_length = 4)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(df2$r1)
-```
-
-**Figure 5d: Case windows for case and recurrence events**
-```{r message=FALSE, warning=FALSE}
-df2$r2 <- episodes(date = df2$date, case_length = 6, 
-                   recurrence_length = 4, case_for_recurrence = T, 
-                   sn=df2$sn, episode_type = "rolling",
-                   display = "none")
-
-df2$r1
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = df2$r2, date = df2$date, case_length =6, recurrence_length = 4)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(df2$r2)
-```
-
-Notice that in the 4 examples, all `events` have been assigned to the same `episode` but the number of `recurrent events` differs.
-
-### Number of recurrence periods and episodes
-Some case definitions may only need you to track the first `n`-number of `episodes` or specify that they only recur `n`-number of times. You can incorporate these requirements into your analyses using `episodes_max` and `rolls_max` respectively. When each `strata` (see [stratified episode tracking](#stratified_grouping)) of the dataset has the maximum number of `episodes` as specified by `episodes_max`, subsequent `events` are skipped. The default option for `episodes_max` is `Inf` i.e. continue `episode tracking` until every `event` is linked to an `episode`. See the examples below.
-
-```{r warning=FALSE, message=FALSE}
-data("infections_3");
-dbs <- infections_3[c("pid","date")]; 
-# dates
-dbs$date
-```
-
-**Figure 6a: Maximum of one fixed episode per strata**
-```{r message=FALSE, warning=FALSE}
-dbs$eps_1 <- episodes(strata = dbs$pid, 
-                      date = dbs$date, 
-                      case_length = 3, 
-                      episodes_max = 1, 
-                      display = "none")
-
-dbs$eps_1
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = dbs$eps_1, date = dbs$date, case_length =3)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(dbs$eps_1)
-```
-
-**Figure 6b: Maximum of two fixed episodes per strata**
-```{r message=FALSE, warning=FALSE}
-dbs$eps_2 <- episodes(strata = dbs$pid, 
-                      date = dbs$date, 
-                      case_length = 3, 
-                      episodes_max = 2, 
-                      display = "none")
-
-dbs$eps_2
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = dbs$eps_2, date = dbs$date, case_length = 3)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(dbs$eps_2)
-```
-
-`rolls_max` is the maximum number of times an `event` can recur. This is when a `"rolling" episode` ends. A new one will only begin if the number of `episodes` in that `strata` is less than `episode_max`. The default option for `rolls_max` is `Inf` i.e. continue tracking `recurrent events` until there are no more `events` within the `recurrence period` of the `reference event`. See the examples below.
-
-**Figure 6c: Infinite recurrence periods per episode per strata (default)**
-```{r message=FALSE, warning=FALSE}
-dbs$eps_4 <- episodes(strata = dbs$pid, 
-                      date = dbs$date, 
-                      case_length = 2, 
-                      episode_type = "rolling", 
-                      display = "none")
-
-dbs$eps_4
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = dbs$eps_4, date = dbs$date, case_length =2, recurrence_length = 2)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(dbs$eps_4)
-```
-
-**Figure 6d: Maximum of one recurrence period per episode per strata**
-```{r message=FALSE, warning=FALSE}
-dbs$eps_6 <- episodes(strata = dbs$pid, 
-                      date = dbs$date, 
-                      case_length = 2, 
-                      episode_type = "rolling", 
-                      rolls_max = 1, 
-                      display = "none")
-
-dbs$eps_6
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = dbs$eps_6, date = dbs$date, case_length =2, recurrence_length = 2)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(dbs$eps_6)
-```
-
-Note that after tracking the last `recurrent event`, the function will also check for `duplicates` within the `case window` of the last `recurrent event`. See below.
-
-**Figure 6e: Maximum of one recurrence period per episode per strata when case_for_recurrence is TRUE**
-```{r message=FALSE, warning=FALSE}
-dbs$eps_7 <- episodes(strata = dbs$pid, 
-                      date = dbs$date, 
-                      case_length = 2, 
-                      episode_type = "rolling", 
-                      rolls_max = 1, 
-                      case_for_recurrence = T, 
-                      display = "none")
-
-dbs$eps_7
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = dbs$eps_7, date = dbs$date, case_length =2, recurrence_length = 2)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(dbs$eps_7)
-```
-
-<a id="interval_grouping"></a>
-
-### Interval grouping
-Some case definitions can involve `events` that occur over a defined period e.g. hospital admissions. `episodes()` can track such `event periods` into `episodes`. This type of `episode tracking` is recommended when the endpoint of an `event` is known. For instance, it's near impossible to know the exact point in time an individual diagnosed with the common cold recovers however, it's a reasonable assumption that another diagnosis 3 months after the initial one is not the same infection. For situations like this, the recommended approach is to use the methods we've covered so far. In contrast, hospital admissions typically have recorded admission and discharge times or dates, and so interval grouping is recommended for tracking such `events`. This being said, in several situations both approaches can be used interchangeably. See below. 
-
-```{r message=FALSE, warning=FALSE}
-# Dates
-dates <- seq(as.Date("01/04/2019", "%d/%M/%Y"), as.Date("20/04/2019", "%d/%M/%Y"), "4 days")
-
-# Periods 
-periods <- number_line(dates, dates + 4)
-
-dates
-periods
-
-# Track fixed episodes from events with a 5 day cut-off 
-mth1 <- episodes(date = dates, case_length = 4, display = "none")
-
-# Track fixed episodes from periods that are 5 days long 
-mth2 <- episodes(date = periods, case_length = 0, display = "none")
-
-# Same results
-mth1; mth2
-
-# Track rolling episodes from events using a 5 day cut-off 
-mth3 <- episodes(date = dates, case_length = 4, 
-                 episode_type = "rolling", display = "none")
-
-# Track rolling episode from periods that are 5 days long 
-mth4 <- episodes(date = periods, case_length = 0, 
-                 episode_type = "rolling", display = "none")
-
-# Same results
-mth3; mth4
-```
-
-As mentioned earlier, `case_length` and `recurrence_lengths` are calculated from the endpoints of `events period`. Therefore, a `case_length` of 5 is actually the period within 6 days (day difference of 5) of the endpoint. See examples of this below. 
-
-```{r message=FALSE, warning=FALSE}
-event_period <- number_line(as.Date("01/04/2019", "%d/%m/%Y"), 
-                            as.Date("10/04/2019", "%d/%m/%Y"))
-event_period
-
-# Case_length of 5 translates to;
-epid_windows(event_period, 5)
-
-# Case_length of 0 translates to;
-epid_windows(event_period, 0)
-
-# Case_length of -1 translates to;
-epid_windows(event_period, -1)
-
-# Case_length of -5 translates to;
-epid_windows(event_period, -5)
-
-# Case_length of `index_window(x)` translates to;
-epid_windows(event_period, index_window(event_period))
-```
-
-In interval grouping, `event_period` that overlap with the index `event period` are linked together as an `episode`.
-
-```{r message=FALSE, warning=FALSE}
-hos_admin <- diyar::hospital_admissions
-hos_admin$admin_period <- number_line(hos_admin$admin_dt, hos_admin$discharge_dt)
-
-# Hospital stay
-hos_admin$admin_period
-```
-
-**Figure 7a: Tracking periods of hospital stay (admission -> discharge)**
-```{r message=FALSE, warning=FALSE}
-hs_epids_a <- episodes(date = hos_admin$admin_period, 
-                       case_length = list(0, index_window(hos_admin$admin_period)), 
-                       group_stats = T, display = "none")
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = hs_epids_a, date = hos_admin$admin_period, case_length = 0)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(hs_epids_a)
-```
-
-**Figure 7b: Tracking periods of hospital stay up to 20 days after the first discharge**
-```{r message=FALSE, warning=FALSE}
-hs_epids_b <- episodes(date=hos_admin$admin_period, 
-                       list(20, index_window(hos_admin$admin_period)), 
-                       group_stats = T, display = "none")
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = hs_epids_b, date = hos_admin$admin_period, case_length = 20)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(hs_epids_b)
-```
-
-**Figure 7c: Tracking periods of continuous hospital stay i.e. re-admission within 15 days**
-```{r message=FALSE, warning=FALSE}
-hs_epids_c <- episodes(date=hos_admin$admin_period, 
-                       case_length = list(0, index_window(hos_admin$admin_period)), 
-                       recurrence_length = list(15, index_window(hos_admin$admin_period)),
-                       episode_type = "rolling",  
-                       group_stats = T, display = "none")
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = hs_epids_c, date = hos_admin$admin_period, case_length = 0, recurrence_length = 15)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(hs_epids_c)
-```
-
-There are 7 ways `event periods` can overlap (`case_overlap_methods`/`recurrence_overlap_methods`). These are `"exact"`, `"reverse"`, `"across"`, `"inbetween"`, `"chain"`, `"aligns_start"` and `"aligns_end"`. These are covered in more detail in an accompanying [vignette](number_line.html#overlaps). You can specify that only `event periods` which overlap in a certain way should be linked as `episodes`. See below for a demonstration of this.
-
-*The 7 `overlap_methods` are mutually exclusive.*
-
-*There are 2 convenience methods - `"none"` and `"overlap"`. These are mutually inclusive with the others, and so are prioritised.*
+**Figure 6: Selecting index events when tracking episodes**
+<img src = "fig6.png" width = "1000" height="580">
+
+## Recurrence
+The `episode_type` argument can be used to request for rolling or recursive episodes, which permit recurrence. `reference_event` is used to specify which of the events in the existing episode is used as the reference event for the next recurrence. `case_for_recurrence` determines if the initial occurrence of the event and subsequent recurrences are to be treated i.e. should recurrence events trigger a new an initial occurrence of their own.
 
 ```{r warning=FALSE}
-epi_grp_func <- function(x){
-  epids <- episodes(date=hos_admin$admin_period, 
-                    sn=hos_admin$rd_id, 
-                    case_length = index_window(hos_admin$admin_period), 
-                    case_overlap_methods = x,
-                    group_stats = T, 
-                    display = "none")
-  
-  # for this demonstration, limit to overlapped periods    
-  epids[epids@epid_total>1]
+# Episodes are 4 days (3-day difference) after the earliest event with
+# repeat occurrence within 4 days of the last event considered recurrences not duplicates
+ep13 <- episodes(event_dt, case_length = 3, episode_type = "rolling")
+# Episodes are 4 days (3-day difference) after the earliest event with
+# repeat occurrence within 7 days of the last event considered recurrences not duplicates
+ep14 <- episodes(event_dt, case_length = 3,  recurrence_length = 6,
+                episode_type = "rolling")
+# Episodes are 3 days (2-day difference) after the earliest event with
+# repeat occurrence within 6 days of the first event considered recurrences not duplicates
+ep15 <- episodes(event_dt, case_length = 2,  recurrence_length = 5, 
+                episode_type = "rolling", reference_event = "first_record")
+# Episodes are 2 days (1-day difference) after the earliest event with
+# repeat occurrence within 4 days of the last event considered recurrences not duplicates and
+# the possibility of each repeat occurrence spawning a new occurrence as if it was the initial case
+ep16 <- episodes(event_dt, case_length = 1,  recurrence_length = 3, 
+                episode_type = "rolling", case_for_recurrence = TRUE)
+# Episodes are 2 days (1-day difference) after the earliest event with
+# repeat occurrence within 4 days of the last event considered recurrences not duplicates and
+# can't recur more than twice
+ep17 <- episodes(event_dt, case_length = 1,  recurrence_length = 3, 
+                episode_type = "rolling", rolls_max = 2)
+# Episodes are 2 days (1-day difference) after the earliest event with
+# repeat occurrence within 4 days of the last event considered recurrences not duplicates and
+# can't recur more than once times and the selection of index events is recursive
+ep18 <- episodes(event_dt, case_length = 1,  recurrence_length = 3, 
+                episode_type = "recursive", rolls_max = 1)
+```
+
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep13, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt2 <- schema(ep14, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt3 <- schema(ep15, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt4 <- schema(ep16, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt5 <- schema(ep17, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt6 <- schema(ep18, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                plt3 + theme(plot.background = element_rect(color = "black")), 
+#                plt4 + theme(plot.background = element_rect(color = "black")), 
+#                plt5 + theme(plot.background = element_rect(color = "black")), 
+#                plt6 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("ep13", "ep14", "ep15", "ep16", "ep17", "ep18"), 
+#                label_colour = "black")
+# ggsave(plot = f, filename = "fig7.png", width = 15, height = 9, units = "in")
+```
+
+**Figure 7: Recurrence of the index event**
+<img src = "fig7.png" width = "1000" height="580">
+
+### Multiple temporal links and lags between the reference and repeat events and
+Implemented by providing a `list` ranges (`number_line()`) to the `case_length` or `recurrence_length` arguments.
+
+```{r warning=FALSE}
+# Each episodes requires at least 5 temporal links
+ep19 <- episodes(event_dt,
+                case_length = list(number_line(2, 2),
+                                   number_line(5, 7),
+                                   number_line(9, 20)),
+                episode_type = "fixed", case_length_total = 5, skip_if_b4_lengths = TRUE)
+
+# Each episodes requires at least 2 temporal links
+ep20 <- episodes(event_dt,
+                case_length = list(number_line(2, 2),
+                                   number_line(5, 7),
+                                   number_line(9, 20)),
+                episode_type = "fixed", case_length_total = 2, skip_if_b4_lengths = TRUE)
+
+```
+
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep19, seed = 2, 
+#                show_label = c("length_label", "length_arrow", "case_nm"), 
+#                dark_mode = FALSE)
+# plt2 <- schema(ep20, seed = 2, 
+#                show_label = c("length_label", "length_arrow", "case_nm"), 
+#                dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("ep19", "ep20"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(0, 0))
+# ggsave(plot = f, filename = "fig8.png", width = 15, height = 4.5, units = "in")
+```
+
+**Figure 8: Lags between index and repeat events**
+<img src = "fig8.png" width = "1000" height="290">
+
+## Interval grouping
+It's possible to tracking episodes among events with known start and end points as opposed to singular point in time. For example, hospital stays. It is worth noting that the reference point for such events is the end point. Therefore, using a `case_length` of `1` when working with an event interval or event period is interpreted as 2 days (1-day difference) after the end point of the interval. By default, other events that occur on or after the start point but before end point of the index event will not be captured. If this is required, use `index_window()` to get the range required to capture such events, and supply it to the `case_length` or `recurrence_length` arguments. See the figure and examples below.
+```{r warning=FALSE}
+# Dummy data of hospital stays
+dfr <- diyar::hospital_admissions[c("admin_dt", "discharge_dt")]
+dfr$admin_period <- number_line(dfr$admin_dt, dfr$discharge_dt)
+                                  
+# Group overlapping hospital stays
+dfr$ep_len1 <- index_window(dfr$admin_period)
+ep21 <- episodes(date = dfr$admin_period, case_length = dfr$ep_len1)
+
+# Group overlapping hospital stays and those within 21 days of the end point of an index hospital stay 
+dfr$ep_len2 <- expand_number_line(index_window(dfr$admin_period), 20, "right")
+ep22 <- episodes(date = dfr$admin_period, case_length =  dfr$ep_len2)
+
+dfr
+```
+
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep21, seed = 2, 
+#                show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt2 <- schema(ep22, seed = 2, 
+#                show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("ep21", "ep22"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(0, 0))
+# ggsave(plot = f, filename = "fig9.png", width = 15, height = 4.5, units = "in")
+```
+
+**Figure 9: Tracking episodes of overlapping intervals**
+<img src = "fig9.png" width = "1000" height="290">
+
+Currently, the `diyar` packages recognises 7 mutually exclusive and 2 mutually inclusive way intervals can overlap. Please see `vignette("number_line")` for more details about this. The episode tracking process can be made to only capture intervals that overlap by any combination of these methods. See the example below.
+
+```{r warning=FALSE}
+# Wrapper function for a fixed episode
+episodes_wf <- function(x){
+  epids <- episodes(date = dfr$admin_period, 
+                    sn = dfr$rd_id, 
+                    case_length = index_window(dfr$admin_period), 
+                    case_overlap_methods = x)
+  return(epids)
 }
 
 # Methods 
 methods <- list(
   # Identical intervals
   exact = "exact",
-  # Overlapping intervals
-  across= "across",
+  # Intervals with their start or end points within another
+  across = "across",
   # Intervals with aligned start points
   aligns_start = "aligns_start",
-  # Intervals with aligned endpoints
+  # Intervals with aligned end points
   aligns_end = "aligns_end",
-  # Chained intervals
+  # Intervals with start points that align with the end point of another, and vice versa
   chain = "chain",
   # Intervals occurring completely within others
   inbetween = "inbetween",
-  # Chained intervals and those occurring completely within others
+  # A combination of `chain` and `inbetween` methods
   cb1 = "chain|inbetween",
-  # Chained intervals, identical intervals and those occurring completely within others
+  # A combination of `exact`, `chain` and `inbetween` methods
   cb2 = "exact|chain|inbetween",
-  # Chained intervals, overlapping intervals and those with aligned endpoint
+  # A combination of `across`, `chain` and `aligns_end` methods
   cb3 = "across|chain|aligns_end"
 )
 
-epids <- lapply(methods, epi_grp_func)
-names(epids) <- names(methods)
+epids <- lapply(methods, episodes_wf)
+names(epids) <- methods
 
-# Results
-epids["chain"]
-
-epids["cb2"]
+epids$exact
 ```
 
-*Only showing `events` that have been linked as `episodes`*
-
-**Figure 8a: Episodes when considering only "exact" overlap method**
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-eps <- epids[["exact"]]
-plot_epid(epid = eps, 
-          date = hos_admin$admin_period[eps@sn], 
-          case_length = number_line(-hos_admin$admin_period@.Data[eps@sn],
-                                    0))
+```{r warning=FALSE, include=FALSE}
+# epids_schema <- lapply(epids, function(x){
+#   schema(x, seed = 2, show_label = FALSE, dark_mode = FALSE)
+# })
+# 
+# f <- plot_grid(epids_schema[[1]] + theme(plot.background = element_rect(color = "black")), 
+#           epids_schema[[2]] + theme(plot.background = element_rect(color = "black")), 
+#           epids_schema[[3]] + theme(plot.background = element_rect(color = "black")), 
+#           epids_schema[[4]] + theme(plot.background = element_rect(color = "black")),
+#           epids_schema[[5]] + theme(plot.background = element_rect(color = "black")),
+#           epids_schema[[6]] + theme(plot.background = element_rect(color = "black")),
+#           epids_schema[[7]] + theme(plot.background = element_rect(color = "black")),
+#           epids_schema[[8]] + theme(plot.background = element_rect(color = "black")),
+#           epids_schema[[9]] + theme(plot.background = element_rect(color = "black")),
+#           labels = methods, label_colour = "black", ncol = 3,
+#           label_x = c(.8,.75,.62,.65,.8,.65,.5,.32,.25))
+# ggsave(plot = f, filename = "fig10.png", width = 15, height = 9, units = "in")
 ```
 
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(epids[["exact"]])
-```
-**Figure 8b: Episodes when considering only "chain" overlap method**
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-eps <- epids[["chain"]]
-plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn], 
-          case_length = number_line(-hos_admin$admin_period@.Data[eps@sn],
-                                    0))
-```
+**Figure 10: Overlap methods**
+<img src = "fig10.png" width = "1000" height="580">
 
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(epids[["chain"]])
-```
-**Figure 8c: Episodes when considering "chain" or "inbetween" overlap method**
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-eps <- epids[["cb1"]]
-plot_epid(epid = eps, date = hos_admin$admin_period[eps@sn], 
-          case_length = number_line(-hos_admin$admin_period@.Data[eps@sn],
-                                    0))
-```
+# Limitations
+ `episodes()` is implemented as a loop. Although, the function continues to be heavily optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The difference will be negligible when analysing small datasets but it becomes noticeable with much larger datasets.
 
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(epids[["cb1"]])
-```
+In general, this issue can be mitigated by reducing the number of iterations of the loop required to complete the episode tracking process. There are three main ways of achieving this. These are summarised below. 
 
-By default, `overlap_methods` is a `record-level` argument. This means that the option that'll be used is that of each `event` (record). See below.
+## Efficient use of arguments
+Different combinations of arguments can lead to the same outcome. However, each will often require different number of iterations to complete the same process. In general, shorter and multiple `case_length` and `recurrence_length`, fewer `strata`, and the use of `custom_sort`, a `sub_criteria` and multiple index events will increase the number of iterations required to complete the process. A good understanding of each argument will be beneficial in knowing the most efficient combination of arguments to used for a case definition. For example, `ep4` was created with a `sub_criteria` and took 9 iterations to complete.
 
 ```{r warning=FALSE}
-x <- c(number_line(1, 5), number_line(1, 5), number_line(2, 3), 1)
-m <- c("aligns_start", "exact", "inbetween", "aligns_start")
-dfe <- data.frame(x = x, m = m, stringsAsFactors = FALSE)
-dfe$eps_1 <- episodes(date = dfe$x, 
-                      case_length = index_window(dfe$x), 
-                      case_overlap_methods = dfe$m)
-dfe
+summary(ep4)
 ```
-
-However, you can use it as an `episode-level` argument. This means that the option that'll be used is that of the index `event`. Finally, you can use it as both a `record-level` and `episode-level` argument. You do these by supplying `overlap_methods` as a named `list` - `r` for `record-level`, `e` for `record-level` or `b` for `both`. See below.  
+However, if the `strata` argument is used instead of a `sub_criteria`, it only takes 2 iterations and yet achieve the same outcome.
 
 ```{r warning=FALSE}
-dfe$eps_2 <- episodes(date = dfe$x, case_length = index_window(dfe$x), case_overlap_methods = list(e = dfe$m))
-dfe$eps_3 <- episodes(date = dfe$x, case_length = index_window(dfe$x), case_overlap_methods = list(b = dfe$m))
-dfe
+ep4b <- episodes(event_dt, case_length = 5, strata = paste0(attr_1, " ", attr_2))
+
+summary(ep4b)
+
+# Identical identifiers 
+ep4; ep4b
 ```
 
-#### Case and recurrence lengths in interval grouping
+Similarly, using multiple index events usually costs additional processing time, even if it takes the the same number of iterations to complete the same process. See the examples below.
 
 ```{r warning=FALSE}
-pa <- c("28/03/2019", "01/04/2019", "03/04/2019", "07/04/2019","12/04/2019")
-pz <- c("31/03/2019", "10/04/2019", "05/04/2019", "09/04/2019","13/04/2019")
-
-pa <- as.Date(pa, "%d/%m/%Y")
-pz <- as.Date(pz, "%d/%m/%Y")
-
-periods <- number_line(pa, pz)
-periods
+# Fastest
+duplicate_events <- rep(event_dt, 3)
+ep23a <- episodes(duplicate_events, case_length = 5, 
+                  episode_type = "rolling", reference_event = "last_record")
+# Faster
+ep23b <- episodes(duplicate_events, case_length = 5, 
+                  episode_type = "rolling", reference_event = "last_event")
+# Fast
+ep23c <- episodes(duplicate_events, case_length = 5, episode_type = "recursive")
 ```
 
-As seen earlier, a positive "length" means that; `event periods` within `n`-days AFTER the `end_point()` of the index `event period` will be linked to the same `episode`. See another example below.
-
-**Figure 9a: Fixed episodes with a case_length of 6**
-```{r message=FALSE, warning=FALSE}
-eps_a <- episodes(date = periods, 
-                  case_length = 6, 
-                  group_stats = T, 
-                  display = "none")
-eps_a
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep23c, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt2 <- schema(ep23b, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt3 <- schema(ep23a, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                plt3 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("Fast (ep23c)", 
+#                           "Faster (ep23b)", 
+#                           "Fastest (ep23a)"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(0.6, 0.6, 0.6),
+#                label_y = c(0.07, 0.07, 0.07),
+#                nrow = 1)
+# ggsave(plot = f, filename = "fig11.png", width = 15, height = 4.5, units = "in")
 ```
 
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_a, date = periods, case_length = 6)
-```
+**Effect of using multiple index events**
+<img src = "fig11.png" width = "1000" height="290">
 
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(eps_a)
-```
+Therefore, unless required, multiple index events should be avoided.
 
-In contrast, a negative "length" means that; only `event periods` within `n`-days BEFORE the `end_point()` of the index `event period` will be linked to the same `episode`.
+### Reduce the number of records being assessed
+Reframing the dataset in such a way that you have to deal with fewer records can also save some processing time. For example, assume a dataset of 10 events from 5 individuals on 3 separate days and a case definition to assess a potential transmission event between these individuals. Instead of analysing 10 event (records) with the person identifier as a sub criteria, change the dataset to 3 dates with a list of all individuals per date. The list can then be passed to `case_sub_criteria` or `recurrence_sub_criteria` for the necessary logical test. `episodes_wf_splits()` is an a wrapper function of `episodes()` designed to achieve this.
 
-**Figure 9b: Fixed episodes with a case_length of -2**
-```{r message=FALSE, warning=FALSE}
-eps_b <- episodes(date = periods, 
-                  case_length = -2, 
-                  group_stats = T, 
-                  display = "none")
-eps_b
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_b, date = periods, case_length = -2)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(eps_b)
-```
-To include those that overlap with the index event itself, supply the corresponding `case_length` or `recurrence_lenght`. `index_window()` is handy for doing this. You can also achieve this with the old `include_index_period` argument. See below.
-
-**Figure 9c: Fixed episodes with a case_length of -2**
-```{r message=FALSE, warning=FALSE}
-eps_c <- episodes(date = periods, 
-                   case_length = list(-2, index_window(periods)), 
-                   group_stats = T, 
-                  display = "none")
-
-eps_c
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_c, date = periods, case_length = -2)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(eps_c)
-```
-
-**Figure 9d: Fixed episodes with a case_length of -6**
-```{r message=FALSE, warning=FALSE}
-eps_d <- episodes(date = periods, case_length =-6,
-                  group_stats = T, display = "none")
-
-eps_d
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-plot_epid(epid = eps_d, date = periods, case_length = -6)
-```
-
-```{r echo=FALSE, fig.height=5, fig.width=8.5, message=FALSE, warning=FALSE}
-schema(eps_d)
-```
-
-<a id= "stratified_grouping"></a>
-
-### Stratified episode tracking
-You'll usually want to track `episodes` separately within different groups (`strata`). For example patients, pathogens, sources of infection or any combination of these. This results in `episodes` from one `strata` being different from others. 
-
-*`episodes` from different `strata` can have different `case_lengths` and/or `recurrence_lengths`.*
-
-*`links()` is useful for creating group identifiers which can then be used as a `strata`. See the [links vignette](links.html) for further details.*
-
-As an example, using the `infections` dataset, a case definition may specify the following;
-
-+ UTI and BSI diagnoses are considered different `episodes` regardless of when they occur
-+ UTI `episodes` have a cut-off of 8 days and a recurrence period of 31 days
-+ BSI `episodes` have a cut-off of 15 days and no recurrence period
-
-By adding the `infection` column to the `strata` argument, `"UTI"` and `"BSI"` diagnoses will not be linked to the same `episode`. Furthermore, the `case_length` and `recurrence_length` for each will be different as specified in the `epi` and `recur` columns respectively.
+## Stop episode tracking
+`episode_max`, `rolls_max` and `skip_order` are arguments used to stop episode tracking "prematurely" once certain conditions are met. By skipping such episodes, the total number of iterations and processing time is therefore reduced. `episodes_max` specifies the maximum number of episodes required from a `strata`. `rolls_max` specifies the number recurrences an index case is allowed. `skip_order` stops the episode grouping process when all records with the `nth` level of a `custom_sort` have been linked to an episode. `skip_order` is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two `"Rare"` events and 20 `"Common"` events and takes 11 iterations to complete.
 
 ```{r warning=FALSE}
-dbs <- diyar::infections[c("date","infection")]
-dbs <- dbs[dbs$infection%in% c("UTI","BSI"),]
-dbs$epi <- ifelse(dbs$infection=="UTI", 7, 14)
-dbs$recur <- ifelse(dbs$infection=="UTI", 30, 0)
+# Attribute 4 - Frequency of occurrence
+attr_4 <- c(rep("Common", 5), "Rare", 
+            rep("Common", 12), "Rare",
+            rep("Common", 3))
+attr_4 <- factor(attr_4, levels = c("Rare", "Common"))
 
-dbs$epids <- episodes(date = dbs$date, case_length = dbs$epi, 
-                      episode_type = "rolling",
-                      strata = dbs$infection, 
-                      recurrence_length = dbs$recur, 
-                      group_stats = TRUE, display = "none")
-
-dbs
+ep24a <- episodes(rep(event_dt, 2), case_length = 0, custom_sort = attr_4, data_source = attr_4)
+summary(ep24a)
 ```
 
-<a id="sub_strata"></a>
-
-#### Sub-strata
-`Sub-strata` is when `events` within the same `strata` have different cut-offs. The case definition below demonstrates how this can be beneficial.
-
-+ UTI and BSI diagnoses are considered different `episodes` regardless of when they occur 
-+ UTI diagnoses have a cut-off of 8 days and a recurrence period of 31 days
-+ BSI diagnoses have a cut-off of 15 days if not treated but 5 days if `treated`. In both situations, there is no recurrence period.
-+ RTI diagnoses have a cut-off of 29 days and a recurrence period of 6 days
-
-In this example, whether the infection is `treated` should be viewed as the `sub-strata` i.e. in a patient (`strata`), an `episode` is expected to last longer if it's not `treated`. 
+However, if only episodes with the `"Rare"` events are of interest, `skip_order` can be used to stop the process when all `"Rare"` events (1^st^ level of `custom_sort`) have been assigned to an episode. This takes 3 iterations to complete the process, skipping 8 iterations that would have produced episodes without `"Rare"` events.
 
 ```{r warning=FALSE}
-dbs <- diyar::infections_4
+ep24b <- episodes(rep(event_dt, 2), case_length = 0, custom_sort = attr_4, skip_order = 1, 
+                  data_source = attr_4)
 
-dbs$epids <- episodes(strata= paste(dbs$pid, dbs$organism, dbs$source), 
-                      date= dbs$date,
-                      case_length = dbs$epi, 
-                      episode_type = "rolling", 
-                      recurrence_length = dbs$recur, 
-                      display = "none")
-
-dbs
+summary(ep24b)
 ```
 
-There are a few things to note with stratified episode tracking;
-
-+ Unless required, `case_length` and `recurrence_length` should be consistent within each `strata` otherwise, you'll inadvertently create a sub-strata
-+ `Episode tracking` with and without a sub-strata are different and could lead to different results
-+ Using a `sub-strata` is not the same as adding that `sub-strata` to the `strata` argument. Adding `treated` to the `strata` argument will track `treated` infections separately from untreated infections. While this could be the desired outcome in certain situations, the case definition above only requires that `treated` infections last longer.
-
-## Cut down your processing time
-
-Some case definitions are so specific that they only cover certain kinds of `episodes`. In such situations, you can save time by skipping `events` from `episodes` that you won't need. There are 3 ways to skip such `events`. 
-
-*Skipped `events` are assigned unique episode IDs and are flagged as `"Skipped"`.*
-
-### Skip subsets of the dataset 
-You can skip an entire `strata` of the dataset by changing it to `NA`. Assuming you are not interested in tracking `"GP1"` and `"GP2"` records, you can skip these to save time.
-
-```{r warning=FALSE, message=FALSE}
-dbs <- head(hourly_data[c("datetime","category")], 10)
-dbs$subset <- ifelse(dbs$category!="GP3", NA, "group")
-
-# To skip OR
-dbs$epids_a <- episodes(strata= dbs$subset, 
-                        date = dbs$datetime, 
-                        case_length = 5, 
-                        episode_unit = "hours", 
-                        recurrence_length = 9, 
-                        episode_type = "rolling",
-                        display = "none")
-#   OR
-
-# Not to skip
-dbs$epids_b <- episodes(strata= dbs$category, 
-                        date = dbs$datetime, 
-                        case_length = 5, 
-                        episode_unit = "hours", 
-                        recurrence_length = 9, 
-                        episode_type = "rolling", 
-                        display = "none")
-dbs
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(ep24a, seed = 2, 
+#                show_label = FALSE, 
+#                custom_label = attr_4, dark_mode = FALSE)
+# plt2 <- schema(ep24b, seed = 2, 
+#                show_label = FALSE, 
+#                custom_label = attr_4, dark_mode = FALSE)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
+#                plt2 + theme(plot.background = element_rect(color = "black")), 
+#                labels = c("ep24a", "ep24b"), 
+#                label_colour = "black",
+#                label_size = 12,
+#                label_x = c(0, 0))
+# ggsave(plot = f, filename = "fig12.png", width = 15, height = 4.5, units = "in")
 ```
 
-### Skip the nth order (skip order) of custom sort
-You can skip `episodes` when there are different levels of `custom_sort`. A `skip_order` of `1` means that; after every `event` with the first level of your `custom_sort` has been linked to `episodes`, the tracking process will end.
+**Figure 12: Using `skip_order` to terminate the episode tracking process**
+<img src = "fig12.png" width = "1000" height="290">
 
-This is handy when you're tracking `episodes` from rare and common `events`, the rare `events` are the index `events` and it's a hassle to subset the dataset.
-
-```{r warning=FALSE, message=FALSE}
-dbf <- dbf[c("date", "infection")]
-dbf$c_sort <- ifelse(dbf$infection == "UTI", 1, ifelse(dbf$infection == "BSI", 2, 3))
-
-# Skip episodes that would begin with BSI/UTI records
-dbf$ep_a <- episodes(date = dbf$date, case_length = 15, 
-                     data_source = dbf$infection, 
-                     custom_sort = dbf$c_sort, 
-                     skip_order = 1, display = "none")
-dbf$ep_a_d <- dbf$ep_a@epid_dataset
-
-# Don't skip any episodes
-dbf$ep_b <- episodes(date = dbf$date, case_length = 15, 
-                    data_source = dbf$infection, 
-                    custom_sort = dbf$c_sort, 
-                    display = "none")
-dbf$ep_b_d <- dbf$ep_b@epid_dataset
-
-dbf
-```
-
-Notice that in the skipped example (`ep_a`), no `episode` begins with either a `"BSI"` or `"RTI"` record.
-
-### Skip episodes without records from certain data sources
-The third mechanism is partly a misnomer. `episodes` that do not contain records from certain `data_sources` are unlinked not skipped. A `strata` without the required combination of `data_sources` will be skipped. 
-
-```{r warning=FALSE, message=FALSE}
-dttm <- function(x) as.POSIXct(x, "UTC", nformat="%d/%m/%Y %H:%M:%S")
-dbg <- data.frame(date = seq.POSIXt(dttm("01/04/2018 00:00:00"), dttm("31/05/2018 00:00:00"),
-                                    by = "3 days"))
-dbg <- head(dbg, 11)
-dbg$recurrence <- 2
-dbg$case_len <- 6
-dbg$dataset <- paste("DS",c(1:3, rep(c(1:2),2), rep(3,4)), sep="")
-
-# Don't skip any
-dbg$ep_a <- episodes(date = dbg$date,
-                     case_length = dbg$case_len, 
-                     episode_type ="rolling", 
-                     recurrence_length = dbg$recurrence, 
-                     data_source = dbg$dataset, 
-                     display = "none")
-
-# Breakup episodes without events from the `DS3` `data_source` 
-  # The `DS3` event MUST BE linked to events from other `data_sources`  
-dbg$ep_b <- episodes(date = dbg$date, 
-                     case_length = dbg$case_len, 
-                     episode_type ="rolling", 
-                     recurrence_length = dbg$recurrence, 
-                     data_source = dbg$dataset, 
-                     data_links = "DS3", 
-                     display = "none")
-
-# Breakup episodes without events from the `DS3` `data_source` 
-  # The `DS3` event DOESN'T HAVE to be linked to events from other `data_sources`   
-dbg$ep_c <- episodes(date = dbg$date, 
-                     case_length = dbg$case_len, 
-                     episode_type ="rolling",
-                     recurrence_length = dbg$recurrence, 
-                     data_source = dbg$dataset, 
-                     data_links = list(g="DS3"), 
-                     display = "none")
-
-# Breakup episodes without events from the `DS3` `data_source` 
-  # The `DS3` event MUST BE linked to events from the `DS1` `data_source`
-dbg$ep_d <- episodes(date = dbg$date, case_length = dbg$case_len, 
-                     episode_type ="rolling", recurrence_length = dbg$recurrence, 
-                     data_source = dbg$dataset, data_links = list(l=c("DS3","DS1")), 
-                     display = "none")
-
-dbg[c("date", "dataset", "ep_a", "ep_b", "ep_c", "ep_d")]
-```
-
-<a id="tips"></a>
-
-## Tips
-
-### Tracking `episodes` in other units of time
-`episodes` can be tracked in other units of time (`episode_unit`). Acceptable options are `"seconds"`, `"minutes"`, `"hours"`, `"days"`, `"weeks"`, `"months"` or `"years"`. Below is an example of tracking `episodes` by the hour.
+# Miscellaneous tips
+## Tracking `episodes` in other units of time
+`episodes` can be tracked in other units of time (`episode_unit`). Acceptable options are `"seconds"`, `"minutes"`, `"hours"`, `"days"`, `"weeks"`, `"months"` or `"years"`. Below is an example of tracking `episodes` by the hour compare to by the day (default).
 
 ```{r warning=FALSE, message=FALSE}
 dbs <- diyar::hourly_data
@@ -1179,30 +612,14 @@ dbs <- diyar::hourly_data
 diyar::episode_unit
 
 # 1-day fixed episodes
-episodes(date = dbs$datetime, 
-         case_length = 1, 
-         episode_unit = "days", 
-         group_stats = TRUE, 
-         display = "none")
+episodes(date = dbs$datetime,  case_length = 1, episode_unit = "days", group_stats = TRUE)
 
 # 5-hr fixed episodes
-episodes(date = dbs$datetime, 
-         case_length = 5, 
-         episode_unit = "hours", 
-         group_stats = TRUE,
-         display = "none")
-
-# 5-hr rolling episodes
-episodes(date = dbs$datetime, 
-         case_length = 5, 
-         episode_unit = "hours", 
-         group_stats = TRUE, 
-         episode_type = "rolling",
-         display = "none")
+episodes(date = dbs$datetime, case_length = 5, episode_unit = "hours", group_stats = TRUE)
 ```
 
-### Use a `strata` from `links()`
-You can used `pid` objects from `links()` as a `strata`.
+### Familiar identifiers and pids objects for `strata`
+See the example below
 
 ```{r warning=FALSE, message=FALSE}
 dbs <- diyar::infections[c("date", "infection")]; dbs
@@ -1211,31 +628,26 @@ dbs <- diyar::infections[c("date", "infection")]; dbs
 dbs$rd_id <- c(640,17,58,21,130,79,45,300,40,13,31)
 
 # `strata` based on matching sources of infection
-dbs$pids <- links(sn = dbs$rd_id,  
-                  criteria = dbs$infection, 
-                  display = "none")
+dbs$pids <- links(sn = dbs$rd_id, criteria = dbs$infection)
 
 # stratified episode tracking 
-dbs$epids <- episodes(sn = dbs$rd_id, date = dbs$date, 
-                      strata = dbs$pids, case_length = 10, 
-                      display = "none")
+dbs$epids <- episodes(sn = dbs$rd_id, date = dbs$date, strata = dbs$pids, case_length = 10)
 
 dbs
 ```
 
-### Use numeric values for the date argument 
-You use `numeric` values instead of `date` or `datetime` values for the `date` argument. For instance, if you use `0-2`, it does not matter what they represent i.e. the number of days from a particular date or number of seconds from a particular time. It only matters that `0` is before `1`, which in turn is before `2`. When using the function this way, `episode_unit` is ignored.
+## Use numeric values for the date argument 
+`numeric` values can be supplied to the `date` argument. When using the function this way, `episode_unit` is ignored.
 
 ```{r warning=FALSE, message=FALSE}
-vals <- c(8.1,6,12,8.5,12,3,8,15,5,7)
-
+vals <- c(8.1, 6, 12, 8.5, 12, 3, 8, 15, 5, 7)
 vals
 
-episodes(date = vals, case_length = .5, group_stats = T, display = "none")
+episodes(date = vals, case_length = .5, group_stats = T)
 
-episodes(date = vals, case_length = 5, group_stats = T, display = "none")
+episodes(date = vals, case_length = 5, group_stats = T)
 
-episodes(date = vals, case_length = 100, group_stats = T, display = "none")
+episodes(date = vals, case_length = 100, group_stats = T)
 ```
 
 ### Infinite and missing `case_lengths` or `recurrence_lengths`
@@ -1243,21 +655,7 @@ You can incorporate missing and infinite cut-offs into your analyses. Events wit
 
 ```{r warning=FALSE, message=FALSE}
 vals <- 1:10
-episodes(date = vals, case_length = Inf, display = "none")
+episodes(date = vals, case_length = Inf)
 
-episodes(date = vals, case_length = NA_real_, display = "none")
+episodes(date = vals, case_length = NA_real_)
 ```
-
-# Conclusion
-There are a variety of ways to use `episodes()`. In general, the following steps can serve as a quick guide on what to do;
-
-1. Work out the `strata` in your dataset.
-2. Choose and specify whether you need `"fixed"` or `"rolling"` episodes.
-3. Choose and specify whether you are tracking individual events or periods of events. See [interval grouping](#interval_grouping).
-4. Choose and specify the required `case_length`, and/or `recurrence_length`. The values should be unique to each `strata` unless you require a [sub-strata](#sub_strata).
-5. Change `from_last` to `TRUE` if you want the index `event` to be the earliest or most recent `event`.
-6. If you need the index `event` to be the earliest or most recent event of a particular type of event, use `custom_sort` in combination with `from_last`. See [user-defined index events](#custom_sort)
-7. Determine if you are tracking `episodes` by the minute, hour or day e.t.c., and set `episode_unit` accordingly. Be sure to supply a `datetime` to the `date` argument if `episode_unit` is less than `"days"`.
-
-These functions should prove useful for epidemiological analyses.  However, it's can also be useful for analyses in any field where the aim is to track events into temporal groups.
-

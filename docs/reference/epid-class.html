@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="<code>epid</code> object — epid-class" />
-<meta property="og:description" content="S4 objects to store the results of episodes" />
+<meta property="og:description" content="S4 objects storing the result of episodes." />
 
 
 
@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
       </span>
     </div>
 
@@ -135,16 +135,30 @@
     </div>
 
     <div class="ref-description">
-    <p>S4 objects to store the results of <code><a href='episodes.html'>episodes</a></code></p>
+    <p>S4 objects storing the result of <code><a href='episodes.html'>episodes</a></code>.</p>
     </div>
 
-    <pre class="usage">as.epid(x)
+    <pre class="usage">is.epid(x)
+
+as.epid(x)
 
 # S3 method for epid
 format(x, ...)
 
 # S3 method for epid
 unique(x, ...)
+
+# S3 method for epid
+summary(object, ...)
+
+# S3 method for epid_summary
+print(x, ...)
+
+# S3 method for epid
+as.data.frame(x, ...)
+
+# S3 method for epid
+as.list(x, ...)
 
 # S4 method for epid
 show(object)
@@ -194,7 +208,44 @@ c(x, ...)</pre>
     </tr>
     </table>
 
+    <h2 class="hasAnchor" id="slots"><a class="anchor" href="#slots"></a>Slots</h2>
 
+    
+
+<dl'>
+<dt><code>sn</code></dt><dd><p>Unique record identifier.</p></dd>
+
+<dt><code>.Data</code></dt><dd><p>Unique <code>episode</code> identifier.</p></dd>
+
+<dt><code>wind_id</code></dt><dd><p>Unique window identifier.</p></dd>
+
+<dt><code>wind_nm</code></dt><dd><p>Type of window i.e. "Case" or "Recurrence".</p></dd>
+
+<dt><code>case_nm</code></dt><dd><p>Record type in regards to case assignment.</p></dd>
+
+<dt><code>dist_wind_index</code></dt><dd><p>Unit difference between each record and its window's reference record.</p></dd>
+
+<dt><code>dist_epid_index</code></dt><dd><p>Unit difference between each record and its episode's reference record.</p></dd>
+
+<dt><code>epid_dataset</code></dt><dd><p>Data sources in each <code>episode</code>.</p></dd>
+
+<dt><code>epid_interval</code></dt><dd><p>The start and end dates of each <code>episode</code>. A <code><a href='number_line.html'>number_line</a></code> object.</p></dd>
+
+<dt><code>epid_length</code></dt><dd><p>The duration or length of (<code>epid_interval</code>).</p></dd>
+
+<dt><code>epid_total</code></dt><dd><p>The number of records in each <code>episode</code>.</p></dd>
+
+<dt><code>iteration</code></dt><dd><p>The iteration of the tracking process when a record was linked to its episode.</p></dd>
+
+<dt><code>options</code></dt><dd><p>A list of some option calls in <code><a href='episodes.html'>episodes</a></code></p></dd>
+
+</dl>
+
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='co'># A test for `epid` objects</span>
+<span class='no'>ep</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episodes.html'>episodes</a></span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='fu'>is.epid</span>(<span class='no'>ep</span>); <span class='fu'>is.epid</span>(<span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
