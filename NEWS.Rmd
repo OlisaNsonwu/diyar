@@ -19,7 +19,20 @@ knitr::opts_chunk$set(
 + New argument - `schema` in `links()`, `episodes()` and `panes()`. Produce schema diagrams of the record linkage and episodes tracking process.
 + New argument - `case_length_total` in `episodes()`. Number of hits from multiple `case_lengths` required for a `window`/`episode`.
 + New argument - `recurrence_length_total` in `episodes()`. Number of hits from multiple `recurrence_lengths` required for a `window`/`episode`.
-+ New argument - `schema` in `links()`, `episodes()` and `panes()`. Produce schema diagrams of the record linkage and episodes tracking process.
++ New argument - `schema` in `links()`, `episodes()` and `panes()`. Produce schema diagrams of the record linkage and episodes + tracking process.
++ d_label, encode, decode
++ as.data.frame methods
++ as.list methods
++ sub_criteria generic, methods and recursive evaluation
++ episodes_wf_splits
++ links_wf_probabilistic
++ Display messages
++ Clear objects at the end of functions to address memory leakage
++ epid_total is produced by default
++ Multiple index events
++ recursive episodes
++ recurrence_from_last changed to reference event and given two new options
++ Optimised episodes and links
 
 ## Changes
 + `epid_object` - default time zone for an `epid_interval` with `POSIXct` objects is now "GMT".

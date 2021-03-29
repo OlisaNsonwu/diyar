@@ -21,8 +21,22 @@
     hits from multiple `recurrence_lengths` required for a
     `window`/`episode`.
   - New argument - `schema` in `links()`, `episodes()` and `panes()`.
-    Produce schema diagrams of the record linkage and episodes tracking
-    process.
+    Produce schema diagrams of the record linkage and episodes +
+    tracking process.
+  - d\_label, encode, decode
+  - as.data.frame methods
+  - as.list methods
+  - sub\_criteria generic, methods and recursive evaluation
+  - episodes\_wf\_splits
+  - links\_wf\_probabilistic
+  - Display messages
+  - Clear objects at the end of functions to address memory leakage
+  - epid\_total is produced by default
+  - Multiple index events
+  - recursive episodes
+  - recurrence\_from\_last changed to reference event and given two new
+    options
+  - Optimised episodes and links
 
 ## Changes
 
