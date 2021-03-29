@@ -26,7 +26,7 @@
 #' @return to_df - \code{data.frame} object
 #' @details \code{to_df} has been retired. Moving forward, please use \code{as.data.frame}.
 #' @export
-to_df <- function(s4, ...) as.data.frame(df, ...)
+to_df <- function(s4, ...) as.data.frame(s4, ...)
 
 #' @return to_s4 - \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
 #' @export

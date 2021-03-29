@@ -108,7 +108,7 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
-  x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) to_df(as.number_line(y)))))
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) as.data.frame(as.number_line(y)))))
   x@id <- x@gid <- seq_len(length(x))
   return(x)
 })
@@ -156,6 +156,17 @@ format.number_line <- function(x, ...){
     s <- ifelse(x@.Data == 0 & !is.na(x@.Data) & !is.nan(x@.Data), "==", s)
     paste(x@start, s, x@start + x@.Data, sep = " ")
   }
+}
+
+#' @rdname number_line-class
+#' @export
+as.data.frame.number_line <- function(x, ...){
+  y <- data.frame(start = x@start,
+                  end = x@start + x@.Data,
+                  id = x@id,
+                  gid = x@gid,
+                  ...)
+  return(y)
 }
 
 #' @name epid-class
@@ -490,7 +501,7 @@ setMethod("[[", signature(x = "epid"),
 
 #' @rdname epid-class
 setMethod("c", signature(x = "epid"), function(x,...) {
-  to_s4(do.call("rbind", lapply(list(x, ...), to_df)))
+  to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
 })
 
 
@@ -788,7 +799,7 @@ setMethod("[[", signature(x = "pane"),
 
 #' @rdname pane-class
 setMethod("c", signature(x = "pane"), function(x,...) {
-  to_s4(do.call("rbind", lapply(list(x, ...), to_df)))
+  to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
 })
 
 #' @name pid-class
@@ -1025,5 +1036,5 @@ setMethod("[[", signature(x = "pid"),
 
 #' @rdname pid-class
 setMethod("c", signature(x = "pid"), function(x,...) {
-  to_s4(do.call("rbind", lapply(list(x, ...), to_df)))
+  to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
 })

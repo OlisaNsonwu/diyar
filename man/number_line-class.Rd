@@ -18,6 +18,7 @@
 \alias{seq.number_line}
 \alias{sort.number_line}
 \alias{format.number_line}
+\alias{as.data.frame.number_line}
 \title{\code{number_line} object}
 \usage{
 \S4method{show}{number_line}(object)
@@ -45,6 +46,8 @@
 \method{sort}{number_line}(x, decreasing = FALSE, ...)
 
 \method{format}{number_line}(x, ...)
+
+\method{as.data.frame}{number_line}(x, ...)
 }
 \arguments{
 \item{object}{object}

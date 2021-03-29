@@ -419,13 +419,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     grouped_epids$int@gid <- gidx
     rm(idx); rm(gidx)
   }
-
+  if(display == "stats" & excluded > 0) cat(paste0("Pre-tracking\nChecked: ", fmt(inp_n), " record(s)\nSKipped: ", fmt(excluded), " record(s).","\n\n"))
   ite <- 1L
   while (min(tag) != 2) {
-    if(display == "stats" & excluded > 0 & ite == 1) cat(paste0(fmt(inp_n), "  ", fmt(excluded), " excluded from episode tracking.","\n"))
     if(display == "stats"){
-      msg <- paste0("Window ", fmt(ite) ,".")
-      cat(msg, "\n", sep="")
+      msg <- paste0("Window ", fmt(ite) ,".\n")
+      cat(msg)
     }
     any_rolling_epi_curr <- any(episode_type %in% c(2, 3))
     any_epl_min_curr <- any(!(case_length_total@start == 1 & case_length_total@.Data == Inf))
@@ -1556,7 +1555,7 @@ episode_group <- function(df, ..., episode_type = "fixed"){
   if (length(names(args)[names(args) == ""] > 0)){
     err <- paste0("Every argument must be specified:\n",
                   "i- `episode_group()` has been retired!\n",
-                  "i - Your values will be passed to `links()`.\n",
+                  "i - Your values will be passed to `episodes()`.\n",
                   "i - Please specify any argument you've used.")
     stop(err, call. = FALSE)
   }
@@ -1566,7 +1565,7 @@ episode_group <- function(df, ..., episode_type = "fixed"){
 
   # Warn
   warning(paste0("`episode_group()` has been retired!:\n",
-                 "i - Please use `episodes()`, `fixed_episodes()` or `rolling_episodes()` instead.\n",
+                 "i - Please use `episodes()` instead.\n",
                  "i - Your values were passed to `episodes()`."), call. = FALSE)
   rm(list = ls()[ls() != "out"])
   return(out$err_nm)
