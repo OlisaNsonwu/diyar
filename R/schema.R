@@ -77,7 +77,7 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
   splits_windows <- splits_windows[!duplicated(splits_windows)]
 
   border <- do.call(rbind, lapply(splits_windows, function(x){
-    x <- to_df(x)
+    x <- as.data.frame(x)
     x$pane_n <- as.character(seq_len(nrow(x)))
     x
   }))
@@ -319,13 +319,13 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   }
 
   # Plot data
-  plt_df <- to_df(epid)
+  plt_df <- as.data.frame(epid)
   if(!is.null(custom_label)){
     plt_df$custom_label <- custom_label
   }
   plt_df$wind_id <- epid@wind_id[[1]]
   # plt_df <- lapply(epid@wind_id, function(x){
-  #   df <- cbind(to_df(epid), to_df(int)[c("start", "end")])
+  #   df <- cbind(as.data.frame(epid), as.data.frame(int)[c("start", "end")])
   #   df$wind_id <- x
   #   df
   # })
@@ -428,10 +428,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
 
   # Case length arrows
   case_l_ar <- lapply(epid@wind_id, function(x){
-    sw <- which(plt_df$wind_id !=  x)
+    sw <- which(plt_df$wind_id != x & !is.na(x))
     plt_df$wind_id[sw] <- x[sw]
     plt_df
-    l_ar(ep_l, plt_df, 0, is_dt)
+    l_ar(ep_l, plt_df, "Case", is_dt)
   })
   case_l_ar <- unlist(case_l_ar, recursive = FALSE)
   #case_l_ar <- do.call("rbind", unlist(case_l_ar, recursive = FALSE))
@@ -442,10 +442,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     # Recurrence length arrows
     #rc_l_ar <- l_ar(rc_l, plt_df, "Recurrence", is_dt)
     rc_l_ar <- lapply(epid@wind_id, function(x){
-      sw <- which(plt_df$wind_id !=  x)
+      sw <- which(plt_df$wind_id != x & !is.na(x))
       plt_df$wind_id[sw] <- x[sw]
       plt_df
-      l_ar(rc_l, plt_df, 1, is_dt)
+      l_ar(rc_l, plt_df, "Recurrence", is_dt)
     })
     rc_l_ar <- unlist(rc_l_ar, recursive = FALSE)
     #rc_l_ar <- do.call("rbind", unlist(rc_l_ar, recursive = FALSE))

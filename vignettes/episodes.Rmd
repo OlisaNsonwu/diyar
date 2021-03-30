@@ -1,9 +1,9 @@
 ---
-title: "Implementing case definitions for epidemiological analysis in R"
+title: "Epidemiological case definitions in R"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Implementing case definitions for epidemiological analysis in R}
+  %\VignetteIndexEntry{Epidemiological case definitions in R}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -17,7 +17,7 @@ knitr::opts_chunk$set(
 
 ```{r include=FALSE}
 library(diyar)
-library(cowplot)
+# library(cowplot)
 library(ggplot2)
 plot_epid <- diyar:::plot_epid
 date <- function(x) as.Date(x, "%d/%m/%Y")
@@ -30,7 +30,7 @@ In epidemiological analyses, an exact distinction between temporal events is not
 Scripting a case definition in `R` can be challenging, particularly when dealing with those involving duplicate and repeat events. `episodes()` and `partitions()` provide a convenient but flexible way of doing this. It links events into a temporal sequence, creating a unique group identifier with useful information about each group. These identifiers can then be used for record deduplication or further analyses.
 
 # Overview
-The group identifiers created by `episodes()` and `partitions()` are called episodes (`epid` class) and panes (`pane` class) respectively. Additionally, `episodes()` creates three types of episodes - `"fixed"`, `"rolling"` and `"recursive"`. In `diyar`, a fixed episode is created by linking an index or reference event (dated records) to other events within a specified duration of another event. This yields `"Case"` (index) and `"Duplicate"` events. In a rolling episode, the process is repeated using an event from the existing episode as the reference event. This yields a `"Recurrent"` event and additional `"Duplicate"` events. This repetition is referred to here as a recurrence. Unless specified, the recurrence will continue indefinitely until there are no more events within the period of recurrence. A recursive episodes is similar to a rolling episode except that every event in the existing episode is used as a reference event. In contrast, a pane is created by separating events into fixed periods of time. The events in a pane have to relationship with each other, other than being in the same period or numeric interval. See figure and the example below.
+The group identifiers created by `episodes()` and `partitions()` are called episodes (`epid` class) and panes (`pane` class) respectively. Additionally, `episodes()` creates three types of episodes - `"fixed"`, `"rolling"` and `"recursive"`. In `diyar`, a fixed episode is created by linking an index or reference event (dated records) to other events within a specified period of another event. This yields `"Case"` (index) and `"Duplicate"` events. In a rolling episode, the process is repeated using an event from the existing episode as the reference event. This yields a `"Recurrent"` event and additional `"Duplicate"` events. Here, this repetition is referred to here as a recurrence. Unless specified, the recurrence will continue indefinitely until there are no more events within the period of recurrence. A recursive episode is similar to a rolling episode except that every event in the existing episode is used as a reference event. In contrast, a pane is created by separating events into fixed periods of time. The events in a pane have no relationship with each other, other than being in the same period or numeric interval. See the figure and example below.
 
 ```{r warning=FALSE}
 # Events
@@ -38,6 +38,9 @@ event_dt <- seq(from = as.Date("2021-01-01"), to = as.Date("2021-01-11"), by = 1
 s_data <- data.frame(date = event_dt)
 # Attribute 1 - Source of infection
 attr_1 <- c("BSI", "UTI", "RTI", "RTI", "BSI", "BSI", "BSI", "RTI", "RTI", "BSI", "RTI")
+# Attribute 2 - Location 
+attr_2 <- c("Ward 1", "Ward 1", "Ward 3", "Ward 3", "Ward 2", "Ward 2", 
+            "Ward 1", "Ward 1", "Ward 3","Ward 3", "Ward 2")
 s_data$attr <- attr_1
 # Fixed episodes
 s_data$ep1 <- episodes(event_dt, case_length = 5, episode_type = "fixed")
@@ -47,13 +50,17 @@ s_data$ep2 <- episodes(event_dt, case_length = 5, episode_type = "rolling",
 # Recursive episodes
 s_data$ep3 <- episodes(event_dt, case_length = 5, episode_type = "recursive")
 # Panes
-s_data$pn1 <- partitions(event_dt, length.out = 2, separate = TRUE)
+s_data$pn1 <- partitions(event_dt, length.out = 2, separate = TRUE,
+                         group_stats = TRUE, data_source = attr_2)
 
 # Identifiers
 s_data
 
-# Components of an identifier
+# Components of an episode identifier
 as.data.frame(s_data$ep2)
+
+# Components of an episode identifier
+as.data.frame(s_data$pn1)
 ```
 
 ```{r warning=FALSE, include=FALSE}
@@ -80,7 +87,7 @@ as.data.frame(s_data$ep2)
 <img src = "fig1.png" width = "1000" height="580">
 
 # Implementation
-The main considerations of a case definition are captured by different arguments in these functions.
+The main considerations in a case definition are captured by different arguments in these functions.
 These considerations are implemented in a flexible and modular way, such that most considerations can be accounted for independently or in a compounding manner. The main considerations are summarised below.
 
 **Caveats**
@@ -91,9 +98,6 @@ Additional matching criteria (separate from the temporal links) can be implement
 The figure and example below shows how the `strata` argument is used.
 
 ```{r warning=FALSE}
-# Attribute 2 - Location 
-attr_2 <- c("Ward 1", "Ward 1", "Ward 3", "Ward 3", "Ward 2", "Ward 2", 
-            "Ward 1", "Ward 1", "Ward 3","Ward 3", "Ward 2")
 # Matching clinical criteria
 ep1 <- episodes(event_dt, strata = attr_1, case_length = 5)
 # Matching geographical criteria
@@ -167,7 +171,7 @@ ep6 <- episodes(event_dt, case_length = 5, case_sub_criteria = sub_cri_4)
 # ggsave(plot = f, filename = "fig3.png", width = 15, height = 9, units = "in")
 ```
 
-**Figure 3: Using `case_sub_criteria` to specify matching criteria**
+**Figure 3: Using a `sub_criteria` to specify matching criteria**
 <img src = "fig3.png" width = "1000" height = "580">
 
 Using a `sub_criteria` incurs additional processing time therefore, it should be reserved for situations when a blocking attribute would not suffice or more complex conditions are required. The figure and example below show some examples of this.
@@ -238,10 +242,10 @@ ep8 <- episodes(event_dt, case_length = 2, episode_type = "fixed",
 ## Seprating events into periods of time
 This is best handled by `partitions()`. See the examples below.
 ```{r warning=FALSE}
-# Group events into 2 equal parts based on the duration of the sample (strata) 
+# Group events into 2 equal parts based on the strata's duration
 pn2 <- partitions(event_dt, length.out = 2, separate = TRUE)
 
-# Group events into 3-day sequences over the duration of the sample
+# Group events into 3-day sequences over the strata's duration
 pn3 <- partitions(event_dt, by = 3, separate = TRUE)
 
 # Group events into a specified period of time 
@@ -273,7 +277,7 @@ pn5 <- partitions(event_dt, length.out = 2, separate = FALSE)
 
 ## Selecting index events and the direction of episode tracking
 
-The `from_last` arguments specifies the direction of episode tracking, while `custom_sort` specifies a custom preference for selecting index events. The combination of both allows provides some flexibility in regards to which event is used as the index event. See the examples below.
+The `from_last` argument specifies the direction of episode tracking, while `custom_sort` specifies a custom preference for selecting index events. The combination of both provides some flexibility in regards to which event is used as the index event. See the examples below.
 ```{r warning=FALSE}
 # Preference for selecting index events
 c_sort <- c(rep(2, 5), 1, rep(2, 5))
@@ -305,7 +309,7 @@ ep12 <- episodes(event_dt, case_length = number_line(-5, 5), custom_sort = c_sor
 <img src = "fig6.png" width = "1000" height="580">
 
 ## Recurrence
-The `episode_type` argument can be used to request for rolling or recursive episodes, which permit recurrence. `reference_event` is used to specify which of the events in the existing episode is used as the reference event for the next recurrence. `case_for_recurrence` determines if the initial occurrence of the event and subsequent recurrences are to be treated i.e. should recurrence events trigger a new an initial occurrence of their own.
+The `episode_type` argument can be used to request for rolling or recursive episodes, which permit recurrence. `reference_event` is used to specify which of the events in the existing episode is used as the reference event for the next recurrence. `case_for_recurrence` determines if the initial occurrence of the event and subsequent recurrences are to be treated in the same way i.e. should recurrent events trigger a new initial occurrence of their own.
 
 ```{r warning=FALSE}
 # Episodes are 4 days (3-day difference) after the earliest event with
@@ -359,7 +363,7 @@ ep18 <- episodes(event_dt, case_length = 1,  recurrence_length = 3,
 <img src = "fig7.png" width = "1000" height="580">
 
 ### Multiple temporal links and lags between the reference and repeat events and
-Implemented by providing a `list` ranges (`number_line()`) to the `case_length` or `recurrence_length` arguments.
+Multiple `case_length` or `recurrence_length` can be specified by providing a `list` of ranges (`number_line()`), while the `case_length_total` and `recurrence_length_total` arguments specifies how many such temporal links are required for an episode.
 
 ```{r warning=FALSE}
 # Each episodes requires at least 5 temporal links
@@ -399,7 +403,7 @@ ep20 <- episodes(event_dt,
 <img src = "fig8.png" width = "1000" height="290">
 
 ## Interval grouping
-It's possible to tracking episodes among events with known start and end points as opposed to singular point in time. For example, hospital stays. It is worth noting that the reference point for such events is the end point. Therefore, using a `case_length` of `1` when working with an event interval or event period is interpreted as 2 days (1-day difference) after the end point of the interval. By default, other events that occur on or after the start point but before end point of the index event will not be captured. If this is required, use `index_window()` to get the range required to capture such events, and supply it to the `case_length` or `recurrence_length` arguments. See the figure and examples below.
+It's possible to track episodes among events with known start and end points instead of those occurring in single point in time. It is worth noting that the reference point for such events is the end point. Therefore, using a `case_length` of `1` when working such events is interpreted as 2 days (1-day difference) after the end point of the interval. By default, other events that occur on or after the start point but before end point of the index event will not be captured. If this is required, use `index_window()` to get the range required to capture such events, and supply it to the `case_length` or `recurrence_length` arguments. See the figure and examples below.
 ```{r warning=FALSE}
 # Dummy data of hospital stays
 dfr <- diyar::hospital_admissions[c("admin_dt", "discharge_dt")]
@@ -434,7 +438,7 @@ dfr
 **Figure 9: Tracking episodes of overlapping intervals**
 <img src = "fig9.png" width = "1000" height="290">
 
-Currently, the `diyar` packages recognises 7 mutually exclusive and 2 mutually inclusive way intervals can overlap. Please see `vignette("number_line")` for more details about this. The episode tracking process can be made to only capture intervals that overlap by any combination of these methods. See the example below.
+Currently, the `diyar` packages recognises 7 mutually exclusive and 2 mutually inclusive way intervals can overlap. Please see `vignette("number_line")` for more details about this. Using `case_overlap_methods` and `recurrence_overlap_methods`, the episode tracking process can be made to only capture intervals that overlap by any combination of these methods. See the example below.
 
 ```{r warning=FALSE}
 # Wrapper function for a fixed episode
@@ -497,17 +501,17 @@ epids$exact
 <img src = "fig10.png" width = "1000" height="580">
 
 # Limitations
- `episodes()` is implemented as a loop. Although, the function continues to be heavily optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The difference will be negligible when analysing small datasets but it becomes noticeable with much larger datasets.
+ `episodes()` is implemented as a loop. Although, the function continues to be optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The difference will be negligible when analysing small datasets but it becomes noticeable with much larger datasets.
 
 In general, this issue can be mitigated by reducing the number of iterations of the loop required to complete the episode tracking process. There are three main ways of achieving this. These are summarised below. 
 
 ## Efficient use of arguments
-Different combinations of arguments can lead to the same outcome. However, each will often require different number of iterations to complete the same process. In general, shorter and multiple `case_length` and `recurrence_length`, fewer `strata`, and the use of `custom_sort`, a `sub_criteria` and multiple index events will increase the number of iterations required to complete the process. A good understanding of each argument will be beneficial in knowing the most efficient combination of arguments to used for a case definition. For example, `ep4` was created with a `sub_criteria` and took 9 iterations to complete.
+Different combinations of arguments can lead to the same outcome however, each will often require different number of iterations to complete the same process. In general, shorter and multiple `case_length` and `recurrence_length`, fewer `strata`, and the use of `custom_sort`, a `sub_criteria` and multiple index events will increase the number of iterations required to complete the process. A good understanding of each argument will be beneficial in knowing the most efficient combination of arguments to used for a case definition. For example, `ep4` was created with a `sub_criteria` and took 9 iterations to complete.
 
 ```{r warning=FALSE}
 summary(ep4)
 ```
-However, if the `strata` argument is used instead of a `sub_criteria`, it only takes 2 iterations and yet achieve the same outcome.
+However, if the `strata` argument is used instead of a `sub_criteria`, it only takes 2 iterations and yet achieves the same outcome.
 
 ```{r warning=FALSE}
 ep4b <- episodes(event_dt, case_length = 5, strata = paste0(attr_1, " ", attr_2))
@@ -521,27 +525,27 @@ ep4; ep4b
 Similarly, using multiple index events usually costs additional processing time, even if it takes the the same number of iterations to complete the same process. See the examples below.
 
 ```{r warning=FALSE}
-# Fastest
 duplicate_events <- rep(event_dt, 3)
-ep23a <- episodes(duplicate_events, case_length = 5, 
-                  episode_type = "rolling", reference_event = "last_record")
-# Faster
-ep23b <- episodes(duplicate_events, case_length = 5, 
-                  episode_type = "rolling", reference_event = "last_event")
 # Fast
-ep23c <- episodes(duplicate_events, case_length = 5, episode_type = "recursive")
+ep23a <- episodes(duplicate_events, case_length = 5, episode_type = "recursive")
+# Faster
+ep23b <- episodes(duplicate_events, case_length = 5, episode_type = "rolling", 
+                  reference_event = "last_event")
+# Fastest
+ep23c <- episodes(duplicate_events, case_length = 5, episode_type = "rolling", 
+                  reference_event = "last_record")
 ```
 
 ```{r warning=FALSE, include=FALSE}
-# plt1 <- schema(ep23c, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# plt1 <- schema(ep23a, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
 # plt2 <- schema(ep23b, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
-# plt3 <- schema(ep23a, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
-# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")), 
-#                plt2 + theme(plot.background = element_rect(color = "black")), 
-#                plt3 + theme(plot.background = element_rect(color = "black")), 
-#                labels = c("Fast (ep23c)", 
-#                           "Faster (ep23b)", 
-#                           "Fastest (ep23a)"), 
+# plt3 <- schema(ep23c, seed = 2, show_label = c("length_label", "length_arrow"), dark_mode = FALSE)
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")),
+#                plt2 + theme(plot.background = element_rect(color = "black")),
+#                plt3 + theme(plot.background = element_rect(color = "black")),
+#                labels = c("Fast (ep23a)",
+#                           "Faster (ep23b)",
+#                           "Fastest (ep23c)"),
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(0.6, 0.6, 0.6),
@@ -556,26 +560,27 @@ ep23c <- episodes(duplicate_events, case_length = 5, episode_type = "recursive")
 Therefore, unless required, multiple index events should be avoided.
 
 ### Reduce the number of records being assessed
-Reframing the dataset in such a way that you have to deal with fewer records can also save some processing time. For example, assume a dataset of 10 events from 5 individuals on 3 separate days and a case definition to assess a potential transmission event between these individuals. Instead of analysing 10 event (records) with the person identifier as a sub criteria, change the dataset to 3 dates with a list of all individuals per date. The list can then be passed to `case_sub_criteria` or `recurrence_sub_criteria` for the necessary logical test. `episodes_wf_splits()` is an a wrapper function of `episodes()` designed to achieve this.
+Reframing the dataset in such a way that you have to deal with fewer records can also save some processing time. For example, assume a dataset of 10 events from 5 individuals on 3 separate days and a case definition to assess a potential transmission event between these individuals. Instead of analysing 10 events (records) with the person identifier as a sub-criteria, change the dataset to 3 dates (records) with a `list` of all individuals per date. The `list` can then be passed to `case_sub_criteria` or `recurrence_sub_criteria` for the necessary logical test(s). `episodes_wf_splits()` is an wrapper function of `episodes()` designed to achieve this.
 
-## Stop episode tracking
-`episode_max`, `rolls_max` and `skip_order` are arguments used to stop episode tracking "prematurely" once certain conditions are met. By skipping such episodes, the total number of iterations and processing time is therefore reduced. `episodes_max` specifies the maximum number of episodes required from a `strata`. `rolls_max` specifies the number recurrences an index case is allowed. `skip_order` stops the episode grouping process when all records with the `nth` level of a `custom_sort` have been linked to an episode. `skip_order` is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two `"Rare"` events and 20 `"Common"` events and takes 11 iterations to complete.
+### Stop episode tracking
+`episode_max`, `rolls_max` and `skip_order` are arguments used to stop the episode tracking process "prematurely" once certain conditions are met. By doing this, the total number of iterations and processing time is therefore reduced. `episodes_max` specifies the maximum number of episodes required from a `strata`. `rolls_max` specifies the number of recurrences an index case is allowed. `skip_order` stops the episode grouping process when all records with the `nth` level of a `custom_sort` have been linked to an episode. `skip_order` is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two `"Rare"` events and 20 `"Common"` events, and takes 11 iterations to complete.
 
 ```{r warning=FALSE}
-# Attribute 4 - Frequency of occurrence
+# Attribute 4 - Frequency
 attr_4 <- c(rep("Common", 5), "Rare", 
             rep("Common", 12), "Rare",
             rep("Common", 3))
 attr_4 <- factor(attr_4, levels = c("Rare", "Common"))
 
-ep24a <- episodes(rep(event_dt, 2), case_length = 0, custom_sort = attr_4, data_source = attr_4)
+duplicate_events_2 <- rep(event_dt, 2)
+ep24a <- episodes(duplicate_events_2, case_length = 0, custom_sort = attr_4, data_source = attr_4)
 summary(ep24a)
 ```
 
 However, if only episodes with the `"Rare"` events are of interest, `skip_order` can be used to stop the process when all `"Rare"` events (1^st^ level of `custom_sort`) have been assigned to an episode. This takes 3 iterations to complete the process, skipping 8 iterations that would have produced episodes without `"Rare"` events.
 
 ```{r warning=FALSE}
-ep24b <- episodes(rep(event_dt, 2), case_length = 0, custom_sort = attr_4, skip_order = 1, 
+ep24b <- episodes(duplicate_events_2, case_length = 0, custom_sort = attr_4, skip_order = 1, 
                   data_source = attr_4)
 
 summary(ep24b)
@@ -603,7 +608,7 @@ summary(ep24b)
 
 # Miscellaneous tips
 ## Tracking `episodes` in other units of time
-`episodes` can be tracked in other units of time (`episode_unit`). Acceptable options are `"seconds"`, `"minutes"`, `"hours"`, `"days"`, `"weeks"`, `"months"` or `"years"`. Below is an example of tracking `episodes` by the hour compare to by the day (default).
+`episodes` can be tracked in other units of time (`episode_unit`). Acceptable options are `"seconds"`, `"minutes"`, `"hours"`, `"days"`, `"weeks"`, `"months"` or `"years"`. Below is an example of tracking `episodes` by the hour compared tracking them by the day (default).
 
 ```{r warning=FALSE, message=FALSE}
 dbs <- diyar::hourly_data
@@ -618,14 +623,14 @@ episodes(date = dbs$datetime,  case_length = 1, episode_unit = "days", group_sta
 episodes(date = dbs$datetime, case_length = 5, episode_unit = "hours", group_stats = TRUE)
 ```
 
-### Familiar identifiers and pids objects for `strata`
+### Familiar identifiers and `pid` objects for `strata`
 See the example below
 
 ```{r warning=FALSE, message=FALSE}
 dbs <- diyar::infections[c("date", "infection")]; dbs
 
 # familiar unique record ids for easy reference - optional
-dbs$rd_id <- c(640,17,58,21,130,79,45,300,40,13,31)
+dbs$rd_id <- c(640, 17, 58, 21, 130, 79, 45, 300, 40, 13, 31)
 
 # `strata` based on matching sources of infection
 dbs$pids <- links(sn = dbs$rd_id, criteria = dbs$infection)
@@ -637,21 +642,21 @@ dbs
 ```
 
 ## Use numeric values for the date argument 
-`numeric` values can be supplied to the `date` argument. When using the function this way, `episode_unit` is ignored.
+`numeric` values can be supplied to the `date` argument. When using the function this way, the `episode_unit` argument is ignored.
 
 ```{r warning=FALSE, message=FALSE}
 vals <- c(8.1, 6, 12, 8.5, 12, 3, 8, 15, 5, 7)
 vals
 
-episodes(date = vals, case_length = .5, group_stats = T)
+episodes(date = vals, case_length = .5, group_stats = TRUE)
 
-episodes(date = vals, case_length = 5, group_stats = T)
+episodes(date = vals, case_length = 5, group_stats = TRUE)
 
-episodes(date = vals, case_length = 100, group_stats = T)
+episodes(date = vals, case_length = 100, group_stats = TRUE)
 ```
 
-### Infinite and missing `case_lengths` or `recurrence_lengths`
-You can incorporate missing and infinite cut-offs into your analyses. Events with missing cut-off will not be used as an index event however, they can be tagged as a duplicate of another index event. Index events with an infinite cut-off will be linked to every other event in its `strata`.
+### Infinite and missing `case_length` or `recurrence_length`
+You can incorporate missing and infinite cut-offs into your analyses. Events with missing a cut-off will not be used as an index event however, they can be tagged as a duplicate of another index event. Index events with an infinite cut-off will be linked to every other event in its `strata`.
 
 ```{r warning=FALSE, message=FALSE}
 vals <- 1:10

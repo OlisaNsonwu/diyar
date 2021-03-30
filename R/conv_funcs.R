@@ -497,8 +497,8 @@ box_ring <- function(boxes_w = 3, order = 1){
 }
 
 l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
-  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != -1 & pltd$wind_nm == wind_nm,]
-  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != -1
+  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != "Skipped" & pltd$wind_nm == wind_nm,]
+  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != "Skipped"
   lar <- pltd[lgk,]
   lens <- lapply(lens, function(x) x[lgk])
   rec_ls <- nrow(lar)
@@ -509,7 +509,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
                        as.numeric(end_point(x)))
       #y <- to_df(y[match(y@id, lar$sn)])
 
-      y <- to_df(y)
+      y <- as.data.frame(y)
       y$id <- NULL
       y$gid <- NULL
       y$epid <- lar$epid
@@ -523,7 +523,8 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$nl_nm <- "len"
       #lar$nl_nm <- "dts"
       #lar$wind_nm_l <- ""
-      y$wind_nm_l <- ifelse(winds$wind_nm == 0, "Case length", "Recurrence length")
+      # y$wind_nm_l <- ifelse(winds$wind_nm == 0, "Case length", "Recurrence length")
+      y$wind_nm_l <- paste0(winds$wind_nm, " length")
       y$bi_dir <- start_point(x) < lar$end & end_point(x) > lar$end
       y <- y[!is.na(y$start) & !is.na(y$end),]
       if(nrow(y) > 0){
@@ -563,7 +564,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
   }else{
     lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "epid_total", "episode_unit")]
     lar$wind_nm_l <- lar$nl_nm <- character()
-    lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
+    lar$pt_start <- lar$pt_end <- lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
     lar <- list(lar)
   }
   lar
