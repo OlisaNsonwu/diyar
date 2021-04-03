@@ -139,6 +139,8 @@ links <- function(criteria,
   if(!isFALSE(err)) stop(err, call. = FALSE)
   if(class(criteria) != "list") criteria <- list(criteria)
 
+  if(isTRUE(shrink)) expand <- !shrink
+
   # Maximum no. of records from all criteria
   ds_len <- c(as.numeric(lapply(criteria, length)),
               as.numeric(unlist(lapply(sub_criteria, extract_3dot_lengths), use.names = FALSE)))
@@ -215,7 +217,8 @@ links <- function(criteria,
     }
     # Encode current `criteria`
     cri <- match(cri, cri[!duplicated(cri)])
-    skp_lgk <- which(!n_lgk & !(!duplicated(cri, fromLast = TRUE) & !duplicated(cri, fromLast = FALSE)))
+    unq_lgk <- !duplicated(cri, fromLast = TRUE) & !duplicated(cri, fromLast = FALSE)
+    skp_lgk <- which(!n_lgk & !unq_lgk)
     if(shrink == TRUE){
       # Back up identifiers
       pids_repo$pid[skp_lgk] -> bkp_pid
@@ -234,6 +237,7 @@ links <- function(criteria,
         cat(paste0("Skipped `criteria ", i,"`.\n\n"))
       }
       i <- i + 1L
+      ite <- ite + 1L
       next
     }
     curr_sub_cri <- sub_criteria[which(names(sub_criteria) == paste0("cr", i))]
@@ -248,7 +252,11 @@ links <- function(criteria,
       pid <- pids_repo$pid[skp_lgk]
       iteration <- pids_repo$iteration[skp_lgk]
 
-      sort_ord <- order(cri, -tag, pid_cri, sn, decreasing = TRUE)
+      s_tag <- tag
+      s_tag[s_tag != 0 & !expand] <- 1
+      s_tag[!expand] <- !s_tag[!expand]
+      sort_ord <- order(cri, -s_tag, pid_cri, sn, decreasing = TRUE)
+      rm(s_tag)
       cri <- cri[sort_ord]
       sn <- sn[sort_ord]
       pr_sn <- pr_sn[sort_ord]
@@ -412,16 +420,27 @@ links <- function(criteria,
     }
 
     if(shrink){
-      lgk <- (!duplicated(pids_repo$pid[skp_lgk]) & !duplicated(pids_repo$pid[skp_lgk], fromLast = TRUE))
-      restore_lgk <- which(!cri %in% cri[!lgk])
+      ds_rid <- seq_len(ds_len)
+      reset_lgk <- which(pids_repo$pid %in% pids_repo$pid[!ds_rid %in% skp_lgk] & pids_repo$pid %in% pids_repo$pid[ds_rid %in% skp_lgk] & !ds_rid %in% skp_lgk)
+      if(length(reset_lgk) > 0){
+        pids_repo$pid[reset_lgk] <- sn_ref
+        pids_repo$link_id[reset_lgk] <- sn_ref
+        pids_repo$tag[reset_lgk] <- 0L
+        pids_repo$pid_cri[reset_lgk] <- mxp_cri
+        pids_repo$iteration[reset_lgk] <- 0L
+      }
 
+      restore_lgk <- (!duplicated(pids_repo$pid[skp_lgk]) & !duplicated(pids_repo$pid[skp_lgk], fromLast = TRUE))
+      restore_lgk <- which(!cri %in% cri[!restore_lgk])
       if(length(restore_lgk) > 0){
         pids_repo$pid[skp_lgk[restore_lgk]] <- bkp_pid[restore_lgk]
         pids_repo$link_id[skp_lgk[restore_lgk]] <- bkp_link_id[restore_lgk]
         pids_repo$tag[skp_lgk[restore_lgk]] <- bkp_tag[restore_lgk]
         pids_repo$pid_cri[skp_lgk[restore_lgk]] <- bkp_pid_cri[restore_lgk]
-        pids_repo$pid_iteration[skp_lgk[restore_lgk]] <- bkp_iteration[restore_lgk]
+        pids_repo$iteration[skp_lgk[restore_lgk]] <- bkp_iteration[restore_lgk]
       }
+
+
       rm(bkp_pid, bkp_link_id, bkp_tag, bkp_pid_cri, bkp_iteration)
     }else{
       restore_lgk <- integer()
@@ -449,9 +468,9 @@ links <- function(criteria,
   }
 
   # Skipped and unmatched records
-  iteration[iteration == 0] <- ite - 1L
+  pids_repo$iteration[pids_repo$iteration == 0] <- ite - 1L
   if(class(strata) != "NULL"){
-    pid_cri[pid == sn_ref & is.na(strata) & pid_cri == mxp_cri] <- -1L
+    pids_repo$pid_cri[pids_repo$pid == sn_ref & is.na(strata) & pids_repo$pid_cri == mxp_cri] <- -1L
   }
 
   pids_repo$pid -> pid

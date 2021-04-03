@@ -29,12 +29,20 @@ decode <- function(x, ...) UseMethod("decode")
 #' @rdname diyar_label
 #' @export
 encode.default <- function(x){
-  val_cd <- seq_len(length(x[!duplicated(x)]))
-  val_nm <- sort(x[!duplicated(x)])
+  x_cd <- match(x, x)
+  val_cd <- seq_len(length(x[!duplicated(x_cd)]))
+  val_nm <- sort(x[!duplicated(x_cd)], na.last = TRUE)
+  rm(x_cd)
   x <- val_cd[match(x, val_nm)]
   attr(x, "value") <- val_cd
   attr(x, "label") <- val_nm
   class(x) <- "d_label"
+  return(x)
+}
+
+#' @rdname diyar_label
+#' @export
+decode.default <- function(x){
   return(x)
 }
 

@@ -855,7 +855,7 @@ as.pid <- function(x, ...){
                     pid_cri = rep(NA_integer_, length(x)),
                     link_id = rep(NA_integer_, length(x)),
                     pid_total = rep(NA_integer_, length(x)),
-                    pid_dataset = rep(NA_integer_, length(x)),
+                    pid_dataset = rep(NA_character_, length(x)),
                     iteration = rep(NA_integer_, length(x)))
   return(x)
 }

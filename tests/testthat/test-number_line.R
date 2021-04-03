@@ -146,9 +146,9 @@ test_that("test series function", {
   expect_error(number_line_sequence(1, .5, simplify = TRUE), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
 })
 
-a <- c(number_line(1,3), number_line(3,3), number_line(5,3))
-test_that("Convert `number_line to data.frame and vice versa`", {
-  expect_equal(a, to_s4(to_df(a)))
-  expect_error(to_s4(), "argument 'df' is missing, with no default")
-  expect_error(to_df(), "argument 's4' is missing, with no default")
-})
+# a <- c(number_line(1,3), number_line(3,3), number_line(5,3))
+# test_that("Convert `number_line to data.frame and vice versa`", {
+#   expect_equal(a, to_s4(to_df(a)))
+#   expect_error(to_s4(), "argument 'df' is missing, with no default")
+#   expect_error(to_df(), "argument 's4' is missing, with no default")
+# })

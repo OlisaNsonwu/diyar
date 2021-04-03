@@ -723,7 +723,14 @@ c5 <- rep(number_line(-3, -2), 10)
 c4 <- rep(number_line(-3, 3), 10)
 c7 <- 1
 cs <- c(rep(3,5), rep(1,5))
-df <- data.frame(dt= dts, c1=c1, c2=c2, c3 =c3, c4 =c4, c_sort = cs, c5=c5, c7 = c7, stringsAsFactors = F)
+df <- data.frame(dt= dts, c_sort = cs, stringsAsFactors = F)
+
+df$c1 = c1
+df$c2 = c2
+df$c3 = c3
+df$c4 = c4
+df$c5 = c5
+df$c7 = c7
 
 df$ep1 <- episode_group(df, date=dt, case_length = c1)
 df$ep2 <- episode_group(df, date=dt, case_length = c1, bi_direction = T)
@@ -906,10 +913,10 @@ nl = number_line(l=c(x,y),
                  r=c(x+3, y+1))
 
 ds <- data.frame(
-  x = nl,
   c1 = 10,
   s = rep(c(2,2,1,1,1),2)
 )
+ds$x <- nl
 
 ds <- ds[order(ds$x@start),]
 

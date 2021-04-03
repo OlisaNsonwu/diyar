@@ -5,6 +5,7 @@
 \alias{encode}
 \alias{decode}
 \alias{encode.default}
+\alias{decode.default}
 \alias{decode.d_label}
 \alias{rep.d_label}
 \alias{[.d_label}
@@ -16,6 +17,8 @@ encode(x, ...)
 decode(x, ...)
 
 \method{encode}{default}(x)
+
+\method{decode}{default}(x)
 
 \method{decode}{d_label}(x)
 
