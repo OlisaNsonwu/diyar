@@ -147,7 +147,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.}
 
 \item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} and \code{"stats"}.
-#' @param to_s4 \code{[logical]}. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
+#' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 
 \item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.}
 
@@ -159,9 +159,9 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{deduplicate}{\code{[logical]}. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.}
 
-\item{bi_direction}{\code{[logical]}. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.}
+\item{bi_direction}{\code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.}
 
-\item{include_index_period}{\code{[logical]}. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.}
+\item{include_index_period}{\code{[logical]}. Deprecated. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.}
 
 \item{overlap_methods}{\code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})}
 
@@ -169,7 +169,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{x}{\code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}}
 
-\item{df}{\code{[data.frame]}. One or more datasets appended together. See \code{Details}.}
+\item{df}{\code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.}
 }
 \value{
 

@@ -43,9 +43,13 @@ record_group(df, ..., to_s4 = TRUE)
 
 \item{shrink}{\code{[logical]}. If \code{TRUE}, forces a record group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
 
-\item{df}{\code{[data.frame]}. One or more datasets appended together. See \code{Details}.}
+\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration, a match can spawn new matches. See \code{vignette("links")}.}
 
-\item{to_s4}{\code{[logical]}. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
+\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration, duplicates values of an attributes are not checked. The outcome of the logical test on on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.}
+
+\item{df}{\code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.}
+
+\item{to_s4}{\code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 }
 \value{
 \code{\link[=pid-class]{pid}}

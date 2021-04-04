@@ -4,7 +4,7 @@
 #' @description Link  records with matching criteria in ordered stages of relevance.
 #' Each set of linked records are assigned a unique identifier with relevant group-level information.
 #'
-#' @param df \code{[data.frame]}. One or more datasets appended together. See \code{Details}.
+#' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Record groups are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the entire linkage process}.
 #' @param criteria \code{[list|atomic]}. Attributes to compare. Each element of the list is a stage in the linkage process. \emph{\code{NA} values in \code{criteria} excludes records from the corresponding stage of the linkage process}. See \code{Details}.
@@ -14,8 +14,10 @@
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A \code{\link[=pid-class]{pid}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
 #' @param expand \code{[logical]}. If \code{TRUE}, allows a record group to expand with subsequent stages of the linkage process. \emph{Not interchangeable with \code{shrink}}.
 #' @param shrink \code{[logical]}. If \code{TRUE}, forces a record group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
+#' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration, a match can spawn new matches. See \code{vignette("links")}.
+#' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration, duplicates values of an attributes are not checked. The outcome of the logical test on on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.
 #' @param display \code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
-#' @param to_s4 \code{[logical]}. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #'
 #' @return \code{\link[=pid-class]{pid}}
 #'

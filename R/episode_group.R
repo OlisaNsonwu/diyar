@@ -4,7 +4,7 @@
 #' @description Link events with matching attributes and within specified durations of each other.
 #' Records in each episode are assigned a unique identifier with relevant group-level information.
 #'
-#' @param df \code{[data.frame]}. One or more datasets appended together. See \code{Details}.
+#' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
@@ -22,10 +22,10 @@
 #' @param case_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
 #' @param recurrence_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
 #' @param custom_sort \code{[atomic]}. Preferential order for selecting reference events.
-#' @param bi_direction \code{[logical]}. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
+#' @param bi_direction \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
 #' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} and \code{"stats"}.
-#' #' @param to_s4 \code{[logical]}. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' #' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param reference_event \code{[character]}. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".
 #' If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
@@ -33,7 +33,7 @@
 #' @param skip_order \code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. A \code{\link[=epid-class]{epid}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
 #' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), when using lagged \code{case_length} or \code{recurrence_length}, \code{events} before the cut-off point or period are skipped.
-#' @param include_index_period \code{[logical]}. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
+#' @param include_index_period \code{[logical]}. Deprecated. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
 #' @param deduplicate \code{[logical]}. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.
 #' @param x \code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}
 #' @param case_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
@@ -508,7 +508,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       lead_ref_event[lgk_p] <- tr_rec_from_last[lgk_p]
     }
     ref_rd <- lgk | tag %in% c(-1, -2)
-    lgk2 <- (lead_ref_event == "first_event" | (lead_ref_event == "last_event" & lead_epid_type != 3)) &
+    # lgk2 <- (lead_ref_event == "first_event" | (lead_ref_event == "last_event" & lead_epid_type != 3)) &
+    lgk2 <- (lead_ref_event %in% c("first_event", "last_event") | lead_epid_type == 3) &
       tr_tag == 0 &
       lgk == FALSE
     ref_rd[lgk2] <- overlap(int[lgk2], tr_int[lgk2])
@@ -725,11 +726,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(isTRUE(any_rolling_epi_curr)){
       lgk <- tr_tag == 0 & !cri %in% cri[vr & !ref_rd] & case_nm != -1L & !is.na(case_nm) & roll_n < rolls_max
-      tr_tag[lgk] <- -1
-      tag[lgk & ref_rd] <- -1
+      tr_tag[lgk] <- -1L
+      tag[lgk & ref_rd] <- -1L
       case_nm[lgk & ref_rd] <- 0L
       wind_nm[lgk & ref_rd] <- 0L
-      roll_n[lgk] <- roll_n[lgk] + 1
+      roll_n[lgk] <- roll_n[lgk] + 1L
 
       # Check `case_length`s
       ords <- rep(list(lapply(1:length(tr_rc_int[[1]]), function(x) rep(x, current_tot))), length(tr_rc_int))
@@ -882,13 +883,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       sort_ord <- order(cri, t_cr, tag, roll_ref, int@gid)
       t_cri <- cri[sort_ord]
       t_sn <- int@id[sort_ord]
-      lgk <- which(!duplicated(t_cri, fromLast = TRUE))
-      t_sn <- t_sn[lgk]
+      t_lgk <- which(!duplicated(t_cri, fromLast = TRUE))
+      t_sn <- t_sn[t_lgk]
 
       lgk <- rep(FALSE, length(int))
       if(any(lead_ref_event %in% c("first_event", "last_event"))){
-        tr_t_int <- ((int[sort_ord])[lgk])[match(t_cri, t_cri[lgk])]
-        tr_t_tag <- ((tag[sort_ord])[lgk])[match(t_cri, t_cri[lgk])]
+        tr_t_int <- ((int[sort_ord])[t_lgk])[match(t_cri, t_cri[t_lgk])]
+        tr_t_tag <- ((tag[sort_ord])[t_lgk])[match(t_cri, t_cri[t_lgk])]
         lgk2 <- which(lead_ref_event %in% c("first_event", "last_event") &
                         lead_epid_type != 3 &
                         tr_t_tag %in% c(-1, -2, 2))
