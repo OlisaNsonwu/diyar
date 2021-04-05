@@ -11,12 +11,11 @@ status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](
 
 ## Overview
 
-Record linkage and deduplication of individual-level data, such as
-repeated spells in hospital, or recurrent cases of infection is a common
-task in epidemiological analysis and other fields of research.
-
-The `diyar` package aims to provide a simple and flexible implementation
-of multistage deterministic record linkage and episode grouping.
+Record linkage and distinguishing between index, duplicate and recurrent
+events is a common task in epidemiological analysis and other fields of
+research, particularly as part of a case definition. Implementing these
+in `R` can be complex and challenging. The `diyar` package provides a
+convenient and flexible way of doing these in `R`.
 
 ## Installation
 
@@ -29,125 +28,129 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-## Cheat sheet
-
-<a href="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
-
 ## Usage
 
-There are two main aspects of the `diyar` package; multistage data
-linkage grouping (`links()`) and episode tracking (`episodes()`).
-`number_line` objects are used in both.
+<img src = "fig_r1.png" width = "1000" height="580">
 
-  - `number_line()` - creates a range of real numbers on a number line.
-      - They can be manipulated - `reverse_number_line`,
-        `shift_number_line`, `expand_number_line`,
-        `number_line_sequence`, `invert_number_line`,
-        `compress_number_line`, `union_number_lines`,
-        `subtract_number_lines`, `intersect_number_lines`.
-      - Logical tests for overlap - `overlaps`, `overlap`, `exact`,
-        `reverse`, `chain`, `across`, `aligns_start`, `aligns_end`,
-        `inbetween`.
+### Number line
 
-<!-- end list -->
+Use `number_line()` to create `number_line` objects - a range of numeric
+values on a number line. These can be split and manipulated in several
+ways.
 
 ``` r
 library(diyar)
-
-l <- as.Date("01/04/2019", "%d/%m/%Y"); r <- as.Date("30/04/2019", "%d/%m/%Y")
-nl <- number_line(l, r)
-nl
-#> [1] "2019-04-01 -> 2019-04-30"
-reverse_number_line(nl)
-#> [1] "2019-04-30 <- 2019-04-01"
-expand_number_line(nl, -2)
-#> [1] "2019-04-03 -> 2019-04-28"
+nl <- number_line(1, 10); nl
+#> [1] "1 -> 10"
+seq(nl, length.out = 3)
+#> [1] "1 -> 4"  "4 -> 7"  "7 -> 10"
 ```
 
-  - `episodes()` - tracks temporal episodes.
-
-<!-- end list -->
+`overlap()` and related functions tests how `number_line` objects
+overlap.
 
 ``` r
-data(infections);
-db <- infections[c("date")]
-# Dates
-db$date
-#>  [1] "2018-04-01" "2018-04-07" "2018-04-13" "2018-04-19" "2018-04-25"
-#>  [6] "2018-05-01" "2018-05-07" "2018-05-13" "2018-05-19" "2018-05-25"
-#> [11] "2018-05-31"
-
-# Fixed episodes
-episodes(date = db$date, 
-         case_length = 15, 
-         display = "none", 
-         group_stats = TRUE)
-#> Episode tracking completed in < 0.01 secs!
-#>  [1] "E.01 2018-04-01 -> 2018-04-13 (C)" "E.01 2018-04-01 -> 2018-04-13 (D)"
-#>  [3] "E.01 2018-04-01 -> 2018-04-13 (D)" "E.04 2018-04-19 -> 2018-05-01 (C)"
-#>  [5] "E.04 2018-04-19 -> 2018-05-01 (D)" "E.04 2018-04-19 -> 2018-05-01 (D)"
-#>  [7] "E.07 2018-05-07 -> 2018-05-19 (C)" "E.07 2018-05-07 -> 2018-05-19 (D)"
-#>  [9] "E.07 2018-05-07 -> 2018-05-19 (D)" "E.10 2018-05-25 -> 2018-05-31 (C)"
-#> [11] "E.10 2018-05-25 -> 2018-05-31 (D)"
-
-# Rolling episodes
-episodes(date = db$date, 
-         case_length = 15, 
-         recurrence_length = 40, 
-         display = "none",
-         episode_type = "rolling", 
-         group_stats = TRUE)
-#> Episode tracking completed in < 0.01 secs!
-#>  [1] "E.1 2018-04-01 -> 2018-05-31 (C)" "E.1 2018-04-01 -> 2018-05-31 (D)"
-#>  [3] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (R)"
-#>  [5] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (D)"
-#>  [7] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (D)"
-#>  [9] "E.1 2018-04-01 -> 2018-05-31 (D)" "E.1 2018-04-01 -> 2018-05-31 (R)"
-#> [11] "E.1 2018-04-01 -> 2018-05-31 (D)"
+overlap_method(nl, nl)
+#> [1] "exact"
+nl2 <- reverse_number_line(nl); nl2
+#> [1] "10 <- 1"
+overlap_method(nl, nl2)
+#> [1] "reverse"
 ```
 
-  - `links()` - multistage deterministic linkage with missing data.
-
-<!-- end list -->
+Set operations such as `union_number_lines()` are also possible for a
+pairs of `number_line` objects.
 
 ``` r
-# Two-stage exact matches
-data(staff_records);
+nl3 <- number_line(1, 20)
+nl4 <- number_line(3, 6)
+nl3; nl4
+#> [1] "1 -> 20"
+#> [1] "3 -> 6"
+overlap_method(nl3, nl4)
+#> [1] "inbetween"
+intersect_number_lines(nl3, nl4)
+#> [1] "3 -> 6"
+subtract_number_lines(nl3, nl4)
+#> $n1
+#> [1] "1 -> 3"
+#> 
+#> $n2
+#> [1] "6 -> 20"
+```
 
-staff_records$pids_a <- links(criteria = list(staff_records$forename, 
-                                              staff_records$surname),
-                              data_source = staff_records$sex, 
-                              display = "none")
-#> Data linkage completed in < 0.01 secs!
-staff_records
-#>   r_id forename  surname sex    dataset        pids_a
-#> 1    1    James    Green   M Staff list P.1 (CRI 002)
-#> 2    2     <NA> Anderson   M Staff list P.2 (CRI 002)
-#> 3    3    Jamey    Green   M  Pay slips P.1 (CRI 002)
-#> 4    4              <NA>   F  Pay slips P.4 (No Hits)
-#> 5    5  Derrick Anderson   M Staff list P.2 (CRI 002)
-#> 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 002)
-#> 7    7 Christie    Green   F Staff list P.1 (CRI 002)
+### Record linkage
 
-# Single-stage user-defined logical tests
-# Matching `sex` and + 20-year age gaps
-age <- c(30, 28, 40, 25, 25, 29, 27)
-sex <- c("M", "M", "M", "F", "M", "M", "F")
-f1 <- function(x, y) (y - x) %in% 0:20
-links(criteria = sex,
-      sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)),
-      display = "none")
-#> Data linkage completed in < 0.01 secs!
-#> [1] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"
-#> [5] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"
+Use `links()` to create a unique identifier for matching records using a
+multistage deterministic linkage approach to record linkage.
 
-# + 20-year age gaps only
-links(criteria = "place_holder",
-      sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)),
-      display = "none")
-#> Data linkage completed in < 0.01 secs!
-#> [1] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"
-#> [5] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"
+``` r
+attr_1 <- c(1, 1, 1, NA, NA, NA, NA, NA)
+attr_2 <- c(NA, NA, 2, 2, 2, NA, NA, NA)
+links(list(attr_1, attr_2))
+#> [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 002)"
+#> [5] "P.1 (CRI 002)" "P.6 (No hits)" "P.7 (No hits)" "P.8 (No hits)"
+```
+
+`links_wf_probabilistic()` is a wrapper function of `links()` to
+implement probabilistic record linkage.
+
+``` r
+data(missing_staff_id)
+dfr <- missing_staff_id[c("staff_id",  "initials", "hair_colour", "branch_office")]
+links_wf_probabilistic(as.list(dfr), score_threshold = -4.2)
+#> $pids
+#> [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"
+#> [5] "P.5 (No hits)" "P.6 (No hits)" "P.1 (CRI 001)"
+#> 
+#> $pid_weights
+#>      sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
+#> [1,]    1    7            0            1               1                 1
+#> [2,]    2    2           NA           NA              NA                NA
+#> [3,]    3    3           NA           NA              NA                NA
+#> [4,]    4    4           NA           NA              NA                NA
+#> [5,]    5    5           NA           NA              NA                NA
+#> [6,]    6    6           NA           NA              NA                NA
+#> [7,]    7    7            1            1               1                 1
+#>      cmp.weight cmp.threshold prb.staff_id prb.initials prb.hair_colour
+#> [1,]          3            NA    -4.321928     1.148392        1.733354
+#> [2,]         NA            NA           NA           NA              NA
+#> [3,]         NA            NA           NA           NA              NA
+#> [4,]         NA            NA           NA           NA              NA
+#> [5,]         NA            NA           NA           NA              NA
+#> [6,]         NA            NA           NA           NA              NA
+#> [7,]          4            NA     1.733354     1.148392        1.733354
+#>      prb.branch_office prb.weight prb.threshold
+#> [1,]          1.733354  0.2931724             1
+#> [2,]                NA         NA            NA
+#> [3,]                NA         NA            NA
+#> [4,]                NA         NA            NA
+#> [5,]                NA         NA            NA
+#> [6,]                NA         NA            NA
+#> [7,]          1.733354  6.3484549             1
+```
+
+### Episode tracking
+
+Use `episodes()` or `episodes_wf_splits()` for creating a unique
+identifier for related events based on a case definition.
+
+``` r
+episodes(1:5, case_length = 2)
+#> [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.4 (C)" "E.4 (D)"
+episodes(1:10, case_length = 2, episode_type = "rolling")
+#>  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"
+#>  [8] "E.1 (R)" "E.1 (D)" "E.1 (R)"
+```
+
+Use `partitions()` for creating a unique identifier for events within
+the same time or numerical interval.
+
+``` r
+partitions(1:5, by = 2, separate = TRUE)
+#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.3 (D)"
+partitions(1:5, length.out = 3, separate = TRUE)
+#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.4 (I)" "PN.4 (D)"
 ```
 
 Find out more [here\!](https://olisansonwu.github.io/diyar/index.html)

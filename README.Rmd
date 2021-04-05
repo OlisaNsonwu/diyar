@@ -16,12 +16,10 @@ knitr::opts_chunk$set(
 <!-- [![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar) -->
 
 ## Overview
-Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in epidemiological analysis and other fields of research. 
-
-The `diyar` package aims to provide a simple and flexible implementation of multistage deterministic record linkage and episode grouping.
+Record linkage and distinguishing between index, duplicate and recurrent events is a common task in epidemiological analysis and other fields of research, particularly as part of a case definition. Implementing these in `R` can be complex and challenging. The `diyar` package provides a convenient and flexible way of doing these in `R`.
 
 ## Installation
-```{r eval=FALSE}
+```{r eval = FALSE}
 # Install the latest CRAN release 
 install.packages("diyar")
 
@@ -30,75 +28,60 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-## Cheat sheet
-<a href="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"/></a>
-
 ## Usage
-There are two main aspects of the `diyar` package; multistage data linkage grouping (`links()`) and episode tracking (`episodes()`). `number_line` objects are used in both.
 
-+ `number_line()` - creates a range of real numbers on a number line. 
-    + They can be manipulated - `reverse_number_line`, `shift_number_line`, `expand_number_line`, `number_line_sequence`, `invert_number_line`, `compress_number_line`, `union_number_lines`, `subtract_number_lines`, `intersect_number_lines`.
-    +  Logical tests for overlap - `overlaps`, `overlap`, `exact`, `reverse`, `chain`, `across`, `aligns_start`, `aligns_end`, `inbetween`.
-    
-```{r number_line, message=FALSE, warning=FALSE}
+<img src = "fig_r1.png" width = "1000" height="580">
+
+### Number line
+Use `number_line()` to create `number_line` objects - a range of numeric values on a number line. These can be split and manipulated in several ways. 
+
+```{r message = FALSE, warning = FALSE}
 library(diyar)
-
-l <- as.Date("01/04/2019", "%d/%m/%Y"); r <- as.Date("30/04/2019", "%d/%m/%Y")
-nl <- number_line(l, r)
-nl
-reverse_number_line(nl)
-expand_number_line(nl, -2)
+nl <- number_line(1, 10); nl
+seq(nl, length.out = 3)
 ```
 
-+ `episodes()` - tracks temporal episodes.
+`overlap()` and related functions tests how `number_line` objects overlap.
+```{r message = FALSE, warning = FALSE}
+overlap_method(nl, nl)
+nl2 <- reverse_number_line(nl); nl2
+overlap_method(nl, nl2)
+```  
+Set operations such as `union_number_lines()` are also possible for a pairs of `number_line` objects. 
+```{r message = FALSE, warning = FALSE}
+nl3 <- number_line(1, 20)
+nl4 <- number_line(3, 6)
+nl3; nl4
+overlap_method(nl3, nl4)
+intersect_number_lines(nl3, nl4)
+subtract_number_lines(nl3, nl4)
+```  
+### Record linkage
+Use `links()` to create a unique identifier for matching records using a multistage deterministic linkage approach to record linkage.
+```{r message = FALSE, warning = FALSE}
+attr_1 <- c(1, 1, 1, NA, NA, NA, NA, NA)
+attr_2 <- c(NA, NA, 2, 2, 2, NA, NA, NA)
+links(list(attr_1, attr_2))
+```  
+`links_wf_probabilistic()` is a wrapper function of `links()` to implement probabilistic record linkage.
+```{r message = FALSE, warning = FALSE}
+data(missing_staff_id)
+dfr <- missing_staff_id[c("staff_id",  "initials", "hair_colour", "branch_office")]
+links_wf_probabilistic(as.list(dfr), score_threshold = -4.2)
+``` 
 
-```{r}
-data(infections);
-db <- infections[c("date")]
-# Dates
-db$date
+### Episode tracking
+Use `episodes()` or `episodes_wf_splits()` for creating a unique identifier for related events based on a case definition.
+```{r message = FALSE, warning = FALSE}
+episodes(1:5, case_length = 2)
+episodes(1:10, case_length = 2, episode_type = "rolling")
+``` 
 
-# Fixed episodes
-episodes(date = db$date, 
-         case_length = 15, 
-         display = "none", 
-         group_stats = TRUE)
-
-# Rolling episodes
-episodes(date = db$date, 
-         case_length = 15, 
-         recurrence_length = 40, 
-         display = "none",
-         episode_type = "rolling", 
-         group_stats = TRUE)
-```
-
-+ `links()` - multistage deterministic linkage with missing data.
-
-```{r}
-# Two-stage exact matches
-data(staff_records);
-
-staff_records$pids_a <- links(criteria = list(staff_records$forename, 
-                                              staff_records$surname),
-                              data_source = staff_records$sex, 
-                              display = "none")
-staff_records
-
-# Single-stage user-defined logical tests
-# Matching `sex` and + 20-year age gaps
-age <- c(30, 28, 40, 25, 25, 29, 27)
-sex <- c("M", "M", "M", "F", "M", "M", "F")
-f1 <- function(x, y) (y - x) %in% 0:20
-links(criteria = sex,
-      sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)),
-      display = "none")
-
-# + 20-year age gaps only
-links(criteria = "place_holder",
-      sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)),
-      display = "none")
-```
+Use `partitions()` for creating a unique identifier for events within the same time  or numerical interval.
+```{r message = FALSE, warning = FALSE}
+partitions(1:5, by = 2, separate = TRUE)
+partitions(1:5, length.out = 3, separate = TRUE)
+``` 
 
 Find out more [here!](https://olisansonwu.github.io/diyar/index.html)
 
