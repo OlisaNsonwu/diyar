@@ -30,6 +30,8 @@ decode(x, ...)
 }
 \arguments{
 \item{x}{\code{[d_label|atomic]}}
+
+\item{...}{Other arguments.}
 }
 \value{
 \code{d_label}; \code{atomic}

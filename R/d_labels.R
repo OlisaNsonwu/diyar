@@ -5,7 +5,7 @@
 #' @description Encode and decode character and numeric values.
 #'
 #' @param x \code{[d_label|atomic]}
-#'
+#' @param ... Other arguments.
 #' @return \code{d_label}; \code{atomic}
 #'
 #' @details

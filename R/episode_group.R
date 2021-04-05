@@ -410,7 +410,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                "rolls_max", "iteration",
                "episodes_max")){
       grouped_epids[[i]] <- c(grouped_epids[[i]], get(i)[tag == 2])
-      # assign(i, get(i)[tag != 2])
+      assign(i, get(i)[tag != 2])
     }
     idx <- c(grouped_epids$int@id, int@id[tag == 2])
     gidx <- c(grouped_epids$int@gid, int@gid[tag == 2])
@@ -418,10 +418,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     grouped_epids$int@id <- idx
     grouped_epids$int@gid <- gidx
     rm(idx); rm(gidx)
+    int <- int[tag != 2]
+    tag <- tag[tag != 2]
   }
   if(display == "stats" & excluded > 0) cat(paste0("Pre-tracking\nChecked: ", fmt(inp_n), " record(s)\nSKipped: ", fmt(excluded), " record(s).","\n\n"))
   ite <- 1L
-  while (min(tag) != 2) {
+  while (suppressWarnings(min(tag)) != 2 & length(tag) > 0) {
     if(display == "stats"){
       msg <- paste0("Window ", fmt(ite) ,".\n")
       cat(msg)

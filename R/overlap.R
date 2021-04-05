@@ -57,7 +57,7 @@ overlaps <- function(x, y, methods = "overlap", method = "overlap"){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
   if(err != F) stop(err, call. = F)
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
   if(missing(methods) & !missing(method)) {
     m <- paste(method,sep="", collapse = "|")
     warning("'method' is deprecated. Please use 'methods' instead.")
@@ -157,7 +157,7 @@ overlap <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((x@start >= y@start & x@start <= y@start + y@.Data) | (x@start <= y@start & x@start >= y@start + y@.Data)) |
     ((x@start + x@.Data >= y@start & x@start + x@.Data <= y@start + y@.Data) | (x@start + x@.Data <= y@start & x@start + x@.Data >= y@start + y@.Data)) |
@@ -179,7 +179,7 @@ exact <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- y@start == x@start & x@.Data == y@.Data
 
@@ -198,9 +198,11 @@ reverse <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
-  r <- x@start == y@start + y@.Data & x@start + x@.Data == y@start & abs(x@.Data) != 0
+  r <- ((x@start == y@start + y@.Data & x@start + x@.Data == y@start) |
+    (y@start == x@start + x@.Data & y@start + y@.Data == x@start)) &
+    abs(x@.Data) == abs(y@.Data)
 
   return(r)
 }
@@ -220,11 +222,17 @@ across <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
-  r <- ((start_point(x) > start_point(y) & start_point(x) < end_point(y)) & ((end_point(x) < start_point(y)) | (end_point(x) > end_point(y)))) |
-    ((start_point(y) > start_point(x) & start_point(y) < end_point(x)) & ((end_point(y) < start_point(x)) | (end_point(y) > end_point(x))))
+  sp_x <- start_point(x)
+  sp_y <- start_point(y)
+  ed_x <- end_point(x)
+  ed_y <- end_point(y)
 
+  r <- ((sp_x > sp_y & sp_x < ed_y) & ((ed_x < sp_y) | (ed_x > ed_y))) |
+    ((sp_y > sp_x & sp_y < ed_x) & ((ed_y < sp_x) | (ed_y > ed_x)))
+
+  rm(sp_x, sp_y, ed_x, ed_y)
   return(r)
 }
 
@@ -243,7 +251,7 @@ chain <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
     ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
@@ -267,9 +275,13 @@ aligns_start <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
-  r <- x@start==y@start & !diyar::exact(x, y)
+  r <- ((x@start == y@start) |
+    (x@start == y@start + y@.Data & y@.Data < 0 & x@.Data >= 0) |
+    (y@start == x@start + x@.Data & x@.Data < 0 & y@.Data >= 0) |
+    (y@start + y@.Data == x@start + x@.Data & x@.Data < 0 & y@.Data < 0)) &
+    !exact(x, y) & !reverse(x, y)
 
   return(r)
 }
@@ -289,9 +301,13 @@ aligns_end <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
-  r <- (x@start + x@.Data) == (y@start + y@.Data) & !diyar::exact(x, y)
+  r <- ((x@start + x@.Data == y@start + y@.Data) |
+          (x@start == y@start + y@.Data & x@.Data < 0 & y@.Data >= 0) |
+          (y@start == x@start + x@.Data & y@.Data < 0 & x@.Data >= 0) |
+          (y@start == x@start & x@.Data < 0 & y@.Data < 0)) &
+    !exact(x, y) & !reverse(x, y)
 
   return(r)
 }
@@ -311,7 +327,7 @@ inbetween <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(logical())
+  if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((x@start > y@start & x@start < y@start + y@.Data) & (x@start + x@.Data > y@start & x@start + x@.Data < y@start + y@.Data)) |
     ((y@start > x@start & y@start < x@start + x@.Data) & (y@start + y@.Data > x@start & y@start + y@.Data < x@start + x@.Data)) |
@@ -338,18 +354,24 @@ overlap_method <- function(x, y){
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) == 0 & length(y)== 0) return(character())
+  if(length(x) == 0 & length(y) == 0) return(character())
 
-  m <- ""
-  m <- ifelse(diyar::exact(x, y), paste(m,"exact", sep="|"), m)
-  m <- ifelse(diyar::across(x, y), paste(m,"across", sep="|"), m)
-  m <- ifelse(diyar::chain(x, y), paste(m,"chain", sep="|"), m)
-  m <- ifelse(diyar::aligns_start(x, y), paste(m,"aligns_start", sep="|"), m)
-  m <- ifelse(diyar::aligns_end(x, y), paste(m,"aligns_end", sep="|"), m)
-  m <- ifelse(diyar::inbetween(x, y), paste(m,"inbetween", sep="|"), m)
-  m <- ifelse(diyar::reverse(x, y), paste(m,"reverse", sep="|"), m)
-  m <- gsub("^\\|","",m)
-  m <- ifelse(m=="", "none", m)
+  m <- rep("none", length(x))
+  lgk <- which(across(x, y) & m == "none")
+  m[lgk] <- "across"
+  lgk <- which(inbetween(x, y) & m == "none")
+  m[lgk] <- "inbetween"
+  lgk <- which(exact(x, y) & m == "none")
+  m[lgk] <- "exact"
+  lgk <- which(reverse(x, y) & m == "none")
+  m[lgk] <- "reverse"
+  lgk <- which(aligns_start(x, y) & m == "none")
+  m[lgk] <- "aligns_start"
+  lgk <- which(aligns_end(x, y) & m == "none")
+  m[lgk] <- "aligns_end"
+  lgk <- which(chain(x, y) & m == "none")
+  m[lgk] <- "chain"
+
   m
 }
 

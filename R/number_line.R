@@ -1,4 +1,4 @@
-#' @title Number line objects
+#' @title \code{number_line}
 #'
 #' @description A range of \code{numeric} values.
 #'
@@ -39,10 +39,10 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   er3 <- suppressWarnings(try(as.numeric(r) - as.numeric(l), silent = TRUE))
 
   mxa <- max(c(length(l), length(r), length(id), length(gid)))
-  if(length(l)==1) l <- rep(l, mxa)
-  if(length(r)==1) r <- rep(r, mxa)
-  if(length(id)==1) id <- rep(id, mxa)
-  if(length(gid)==1) gid <- rep(gid, mxa)
+  if(length(l) == 1) l <- rep(l, mxa)
+  if(length(r) == 1) r <- rep(r, mxa)
+  if(length(id) == 1) id <- rep(id, mxa)
+  if(length(gid) == 1) gid <- rep(gid, mxa)
   if(is.null(id) | any(!is.finite(id)) ) id <- 1:length(l)
   if(is.null(gid) | any(!is.finite(gid)) ) gid <- 1:length(l)
   if(length(l)!= mean(c(length(r),length(id),length(gid)))) stop("Argument lengths differ or are not equal to 1", call. = FALSE)

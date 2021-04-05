@@ -2,22 +2,15 @@
 % Please edit documentation in R/schema.R
 \name{schema}
 \alias{schema}
-\alias{schema.pane}
+\alias{schema.number_line}
 \alias{schema.epid}
+\alias{schema.pane}
 \alias{schema.pid}
-\title{Schema  diagram for linked records.}
+\title{Schema diagram for linked records in \code{diyar}}
 \usage{
 schema(x, ...)
 
-\method{schema}{pane}(
-  x,
-  title = NULL,
-  show_labels = c("window_label"),
-  dark_mode = TRUE,
-  seed = NULL,
-  custom_label = NULL,
-  ...
-)
+\method{schema}{number_line}(x, show_labels = c("date", "case_overlap_methods"), ...)
 
 \method{schema}{epid}(
   x,
@@ -25,7 +18,17 @@ schema(x, ...)
   show_labels = c("length_arrow"),
   show_skipped = TRUE,
   show_non_finite = FALSE,
-  dark_mode = TRUE,
+  theme = "dark",
+  seed = NULL,
+  custom_label = NULL,
+  ...
+)
+
+\method{schema}{pane}(
+  x,
+  title = NULL,
+  show_labels = c("window_label"),
+  theme = "dark",
   seed = NULL,
   custom_label = NULL,
   ...
@@ -35,7 +38,7 @@ schema(x, ...)
   x,
   title = NULL,
   show_labels = TRUE,
-  dark_mode = TRUE,
+  theme = "dark",
   orientation = "by_pid",
   seed = NULL,
   custom_label = NULL,
@@ -43,33 +46,43 @@ schema(x, ...)
 )
 }
 \arguments{
-\item{x}{\code{pid}, \code{epid}, or \code{pane} object.}
+\item{x}{\code{[\link[=number_line-class]{number_line}|\link[=pid-class]{pid}|\link[=epid-class]{epid}|\link[=pane-class]{pane}]}}
 
-\item{...}{XXXX}
+\item{...}{Other arguments.}
 
-\item{title}{Title of \code{ggplot} object}
+\item{show_labels}{\code{[logical|character]}. Show/hide certain parts of the schema. See \code{Details}.}
 
-\item{show_labels}{Show/hide certain parts of the schema. See \code{Details}}
+\item{title}{\code{[character]}. Plot title.}
 
-\item{dark_mode}{Use a black/white background for each plot.}
+\item{show_skipped}{\code{[logical]}. Show/hide \code{"Skipped"} records.}
 
-\item{seed}{XXXX}
+\item{show_non_finite}{\code{[logical]}. Show/hide records with non-finite \code{date} values.}
 
-\item{show_skipped}{Show/hide \code{"Skipped"} records}
+\item{theme}{\code{[character]}. Options are \code{"dark"} or \code{"light"}.}
 
-\item{show_non_finite}{Show/hide records with non-finite \code{date} values}
+\item{seed}{\code{[integer]}. See \code{set.seed}. Used to get a consistent arrangement of items in the plot.}
 
-\item{orientation}{Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
+\item{orientation}{\code{[character]}. Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
 }
 \value{
-list of \code{ggplot} objects
+\code{ggplot} objects
 }
 \description{
 Create schema diagrams for \code{pid}, \code{epid} and \code{pane} objects.
 }
 \details{
-The \code{schema} function creates a schema diagram for \code{pid}, \code{epid} and \code{pane} objects.
-These diagrams are a visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process(\code{\link{partitions}}).
+The \code{schema} function creates a schema diagram for \code{\link[=number_line-class]{number_line}}, \code{\link[=pid-class]{pid}}, \code{\link[=epid-class]{epid}} and \code{\link[=pane-class]{pane}} objects.
+These diagrams are a visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process (\code{\link{partitions}}).
 
-When used for \code{epid} and \code{pane} objects, additional information in the form of arguments passed to the instance \code{\link{episodes}} and \code{\link{partitions}} will be required.
+\emph{\code{\link[=number_line-class]{number_line}} objects are plotted as \code{\link[=epid-class]{epid}} objects.}
+}
+\examples{
+schema(number_line(c(1, 2, 6, 8), c(5, 3, 8, 10)))
+
+schema(episodes(1:10, 2))
+
+schema(partitions(1:10, by = 2, separate = TRUE))
+
+schema(links(list(c(1, 1, NA, NA), c(NA, 1, 1, NA))))
+
 }

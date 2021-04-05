@@ -19,7 +19,7 @@
 \alias{invert_number_line}
 \alias{compress_number_line}
 \alias{number_line_sequence}
-\title{Number line objects}
+\title{\code{number_line}}
 \usage{
 number_line(l, r, id = NULL, gid = NULL)
 

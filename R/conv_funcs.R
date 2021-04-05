@@ -507,6 +507,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
     lar <- lapply(lens, function(x){
       y <- number_line(as.numeric(start_point(x)),
                        as.numeric(end_point(x)))
+
       #y <- to_df(y[match(y@id, lar$sn)])
 
       y <- as.data.frame(y)
@@ -519,8 +520,11 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$mid_y_lead <- lar$mid_y_lead
       y$pt_start <- lar$start
       y$pt_end <- lar$end
+      y$pt_sn <- lar$sn
       y$ep_uni <- lar$episode_unit
       y$nl_nm <- "len"
+      y$start_rl <- as.numeric(left_point(x))
+      y$end_rl <- as.numeric(right_point(x))
       #lar$nl_nm <- "dts"
       #lar$wind_nm_l <- ""
       # y$wind_nm_l <- ifelse(winds$wind_nm == 0, "Case length", "Recurrence length")
@@ -564,7 +568,8 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
   }else{
     lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "epid_total", "episode_unit")]
     lar$wind_nm_l <- lar$nl_nm <- character()
-    lar$pt_start <- lar$pt_end <- lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
+    lar$start_rl <- lar$end_rl <- lar$pt_start <- lar$pt_end <- lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
+    lar$pt_sn <- integer()
     lar <- list(lar)
   }
   lar

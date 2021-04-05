@@ -1,15 +1,15 @@
 #' @title Set operations on number line objects
 #' @name set_operations
-#' @description Perform set operations on a pair of \code{number_line}s.
+#' @description Perform set operations on a pair of \code{[\link{number_line}]}s.
 #'
 #' @param x \code{[\link{number_line}]}
-#' @param y \code{number_line}
+#' @param y \code{[\link{number_line}]}
 #' @aliases set_operations
-#' @return \code{number_line}; \code{list}
+#' @return \code{[\link{number_line}]}; \code{list}
 #'
 #' @details
 #'
-#' \bold{\code{union_number_lines()}} - Return a \code{number_line} with the combined range of \code{x} and \code{y}
+#' \bold{\code{union_number_lines()}} - Return a \code{[\link{number_line}]} with the combined range of \code{x} and \code{y}
 #'
 #' \bold{\code{intersect_number_line()}} - Returns a subset of \code{x} that overlaps with \code{y} and vice versa
 #'
@@ -20,7 +20,7 @@
 #' \item \code{n2} - subset after the overlapped range between \code{x} and \code{y}
 #' }
 #'
-#' The \code{direction} of the returned \code{number_line} will be that of the widest one (\code{x} or \code{y}).
+#' The \code{direction} of the returned \code{[\link{number_line}]} will be that of the widest one (\code{x} or \code{y}).
 #' If \code{x} and \code{y} have the same length, it'll be an \code{"increasing direction"}.
 #'
 #' If  \code{x} and \code{y} do not overlap, \code{NA} (\code{"NA ?? NA"}) is returned.

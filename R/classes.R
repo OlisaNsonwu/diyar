@@ -366,7 +366,7 @@ as.data.frame.epid <- function(x, ...){
                   iteration = x@iteration,
                   ...)
   y <- cbind(y, as.data.frame(x@wind_id, ...))
-  if(length(x@epid_interval) != 0){
+  if(length(x@epid_interval@start) != 0){
     y$epid_start <- x@epid_interval@start
     y$epid_end <- right_point(x@epid_interval)
   }else{
@@ -399,7 +399,7 @@ as.list.epid <- function(x, ...){
             iteration = x@iteration,
             ...)
   y <- c(y, x@wind_id)
-  if(length(x@epid_interval) != 0){
+  if(length(x@epid_interval@start) != 0){
     y$epid_start <- x@epid_interval@start
     y$epid_end <- right_point(x@epid_interval@epid_end)
   }else{

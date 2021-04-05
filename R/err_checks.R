@@ -1574,7 +1574,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
                                 show_labels,
                                 show_skipped,
                                 show_non_finite,
-                                dark_mode){
+                                theme){
 
     err <- err_object_types(x, "x", "epid")
     if(err != FALSE) return(err)
@@ -1593,7 +1593,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
                  show_labels = show_labels,
                  show_skipped = show_skipped,
                  show_non_finite = show_non_finite,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     err <- mapply(err_atomic_vectors,
                   args,
@@ -1607,13 +1607,13 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
                  show_labels = show_labels,
                  show_skipped = show_skipped,
                  show_non_finite = show_non_finite,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     args_classes <- list(title = c("character", "NULL"),
                          show_labels = c("character", "logical"),
                          show_skipped = "logical",
                          show_non_finite = "logical",
-                         dark_mode = "logical")
+                         theme = "character")
 
     err <- mapply(err_object_types,
                   args,
@@ -1629,13 +1629,13 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
                  #show_labels = show_labels,
                  show_skipped = show_skipped,
                  show_non_finite = show_non_finite,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     args_lens <- list(title = c(0, len_lims),
                       #show_labels = len_lims,
                       show_skipped = len_lims,
                       show_non_finite = len_lims,
-                      dark_mode = len_lims)
+                      theme = len_lims)
 
     err <- mapply(err_match_ref_len,
                   args,
@@ -1651,7 +1651,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
                  show_labels = show_labels,
                  show_skipped = show_skipped,
                  show_non_finite = show_non_finite,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     err <- mapply(err_missing_check,
                   args,
@@ -1663,6 +1663,9 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "length_arrow", "length_label", "case_overlap_methods", "recurrence_overlap_methods"))
     if(err != FALSE) return(err[1])
 
+    err <- err_spec_vals(theme, "theme", c("dark", "light"))
+    if(err != FALSE) return(err[1])
+
     return(FALSE)
   }
 
@@ -1670,7 +1673,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
                                 date,
                                 title,
                                 show_labels,
-                                dark_mode){
+                                theme){
 
     err <- err_object_types(x, "x", "pane")
     if(err != FALSE) return(err)
@@ -1683,7 +1686,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     # Check for non-atomic vectors
     args <- list(title = title,
                  show_labels = show_labels,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     err <- mapply(err_atomic_vectors,
                   args,
@@ -1695,11 +1698,11 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     # Check for required object types
     args <- list(title = title,
                  show_labels = show_labels,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     args_classes <- list(title = c("character", "NULL"),
                          show_labels = c("character", "logical"),
-                         dark_mode = "logical")
+                         theme = "character")
 
     err <- mapply(err_object_types,
                   args,
@@ -1713,11 +1716,11 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     len_lims <- 1
     args <- list(title = title,
                  #show_labels = show_labels,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     args_lens <- list(title = c(0, len_lims),
                       #show_labels = len_lims,
-                      dark_mode = len_lims)
+                      theme = len_lims)
 
     err <- mapply(err_match_ref_len,
                   args,
@@ -1731,7 +1734,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     # Check for missing values where they are not permitted
     args <- list(title = title,
                  show_labels = show_labels,
-                 dark_mode = dark_mode)
+                 theme = theme)
 
     err <- mapply(err_missing_check,
                   args,
@@ -1743,13 +1746,16 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
     if(err != FALSE) return(err[1])
 
+    err <- err_spec_vals(theme, "theme", c("dark", "light"))
+    if(err != FALSE) return(err[1])
+
     return(FALSE)
   }
 
   err_schema_pid_0 <- function(x,
                                title,
                                show_labels,
-                               dark_mode,
+                               theme,
                                orientation){
 
     err <- err_object_types(x, "x", "pid")
@@ -1758,7 +1764,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     # Check for non-atomic vectors
     args <- list(title = title,
                  show_labels = show_labels,
-                 dark_mode = dark_mode,
+                 theme = theme,
                  orientation = orientation)
 
     err <- mapply(err_atomic_vectors,
@@ -1771,12 +1777,12 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     # Check for required object types
     args <- list(title = title,
                  show_labels = show_labels,
-                 dark_mode = dark_mode,
+                 theme = theme,
                  orientation = orientation)
 
     args_classes <- list(title = c("character", "NULL"),
                          show_labels = c("character", "logical"),
-                         dark_mode = "logical",
+                         theme = "character",
                          orientation = "character")
 
     err <- mapply(err_object_types,
@@ -1791,12 +1797,12 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     len_lims <- 1
     args <- list(title = title,
                  #show_labels = show_labels,
-                 dark_mode = dark_mode,
+                 theme = theme,
                  orientation = orientation)
 
     args_lens <- list(title = c(0, len_lims),
                       #show_labels = len_lims,
-                      dark_mode = len_lims,
+                      theme = len_lims,
                       orientation = len_lims)
 
     err <- mapply(err_match_ref_len,
@@ -1811,7 +1817,7 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     # Check for missing values where they are not permitted
     args <- list(title = title,
                  show_labels = show_labels,
-                 dark_mode = dark_mode,
+                 theme = theme,
                  orientation = orientation)
 
     err <- mapply(err_missing_check,
@@ -1825,6 +1831,9 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
     if(err != FALSE) return(err[1])
 
     err <- err_spec_vals(orientation, "orientation", c("by_pid", "by_pid_cri"))
+    if(err != FALSE) return(err[1])
+
+    err <- err_spec_vals(theme, "theme", c("dark", "light"))
     if(err != FALSE) return(err[1])
 
     return(FALSE)
