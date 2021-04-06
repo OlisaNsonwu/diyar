@@ -64,6 +64,7 @@ range_match_legacy <- function(x, y) {
 #' @param probabilistic If \code{TRUE}, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See \code{\link{links_wf_probabilistic}}.
 #' @param m_probability Matching set of m-probabilities. The probability that a match from \code{cmp_func} is a true match. See \code{\link{links_wf_probabilistic}}.
 #' @param score_threshold Score threshold determining matched or linked records. See \code{\link{links_wf_probabilistic}}.
+#' @param return_weights If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.
 #' @details
 #' \bold{\code{prob_link()}} - Test that a record sets \code{x} and \code{y} are from the same entity based on calculated weights and probability scores.
 #' @examples
@@ -73,7 +74,7 @@ prob_link <- function(x, y,
                       m_probability,
                       score_threshold,
                       return_weights,
-                      probabistic,
+                      probabilistic,
                       cmp_func){
   # Number of attributes
   attr_n <- length(x)/2
@@ -102,7 +103,7 @@ prob_link <- function(x, y,
   }
 
   # If weight based, matches are assigned based on the results of the comparators
-  if(isFALSE(probabistic)){
+  if(isFALSE(probabilistic)){
     lgk <- (sum_wt >= as.numeric(score_threshold@start) & sum_wt <= as.numeric(right_point(score_threshold)))
   }else{
     lgk <- rep(NA_real_, length(sum_wt))
@@ -114,7 +115,7 @@ prob_link <- function(x, y,
   out_a <- cbind(out_2, sum_wt, lgk)
   colnames(out_a) <- c(paste0("cmp.", attr_nm), "cmp.weight", "cmp.threshold")
 
-  if(isFALSE(probabistic)){
+  if(isFALSE(probabilistic)){
     if(isTRUE(return_weights)) return(out_a) else return(lgk)
   }
 

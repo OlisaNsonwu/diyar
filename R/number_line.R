@@ -54,8 +54,8 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   nl <- suppressWarnings(methods::new("number_line",
                                       .Data = as.numeric(ifelse(as.numeric(r) == as.numeric(l) & !is.na(r), 0, as.numeric(r) - as.numeric(l))),
                                       start = l,
-                                      id = id,
-                                      gid = gid))
+                                      id = as.integer(id),
+                                      gid = as.integer(gid)))
   return(nl)
 }
 

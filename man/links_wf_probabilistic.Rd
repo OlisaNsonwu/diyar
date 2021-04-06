@@ -21,19 +21,23 @@ links_wf_probabilistic(
 prob_score_range(attribute, m_probability = 0.95)
 }
 \arguments{
-\item{attribute}{\code{[list]} Attributes to compare.}
+\item{attribute}{\code{[list]}. Attributes to compare.}
 
-\item{blocking_attribute}{\code{[atomic]} Subsets of the dataset.}
+\item{blocking_attribute}{\code{[atomic]}. Subsets of the dataset.}
 
-\item{cmp_func}{\code{[list|function]} String comparators for each \code{attribute}. See \code{Details}.}
+\item{cmp_func}{\code{[list|function]}. String comparators for each \code{attribute}. See \code{Details}.}
 
-\item{cmp_threshold}{\code{[list|numeric|\link{number_line}]} Weight-thresholds for each \code{cmp_func}. See \code{Details}.}
+\item{cmp_threshold}{\code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.}
 
-\item{probabilistic}{\code{[logical]} If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.}
+\item{probabilistic}{\code{[logical]}. If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.}
 
-\item{m_probability}{\code{[list|numeric]} The probability that a match from the string comparator is from the same entity.}
+\item{m_probability}{\code{[list|numeric]}. The probability that a match from the string comparator is from the same entity.}
 
 \item{score_threshold}{\code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.}
+
+\item{id_1}{\code{[list|numeric]}. One half of a specific pair of records to check their match weights and score-thresholds.}
+
+\item{id_2}{\code{[list|numeric]}. One half of a specific pair of records to check their match weights and score-thresholds.}
 
 \item{...}{Arguments passed to \bold{\code{links}}}
 }
@@ -86,7 +90,7 @@ A \code{blocking_attribute} can be used to reduce processing time by restricting
 # Exact matches
 dfr <- missing_staff_id[c("staff_id",  "initials",
                           "hair_colour", "branch_office")]
-score_ramge <- prob_score_range(attribute = as.list(dfr))
+score_range <- prob_score_range(attribute = as.list(dfr))
 prob_pids1 <- links_wf_probabilistic(attribute = as.list(dfr),
                                      score_threshold = score_range$minimum_score)
 prob_pids1

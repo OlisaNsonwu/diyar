@@ -358,8 +358,8 @@ print.epid_summary <- function(x, ...){
 as.data.frame.epid <- function(x, ...){
   y <- data.frame(epid = x@.Data,
                   sn = x@sn,
-                  wind_nm = decode(x@wind_nm),
-                  case_nm = decode(x@case_nm),
+                  wind_nm = as.vector(decode(x@wind_nm)),
+                  case_nm = as.vector(decode(x@case_nm)),
                   dist_wind_index = x@dist_wind_index,
                   dist_epid_index = x@dist_epid_index,
                   epid_total = x@epid_total,
@@ -379,7 +379,7 @@ as.data.frame.epid <- function(x, ...){
     y$epid_length = NA_integer_
   }
   if(length(x@epid_dataset) != 0){
-    y$epid_dataset = decode(x@epid_dataset)
+    y$epid_dataset = as.vector(decode(x@epid_dataset))
   }else{
     y$epid_dataset = NA_character_
   }
@@ -401,7 +401,7 @@ as.list.epid <- function(x, ...){
   y <- c(y, x@wind_id)
   if(length(x@epid_interval@start) != 0){
     y$epid_start <- x@epid_interval@start
-    y$epid_end <- right_point(x@epid_interval@epid_end)
+    y$epid_end <- right_point(x@epid_interval)
   }else{
     y$epid_start <- rep(NA_integer_, length(x))
     y$epid_end <- rep(NA_integer_, length(x))
@@ -671,7 +671,7 @@ print.pane_summary <- function(x, ...){
 as.data.frame.pane <- function(x, ...){
   y <- data.frame(pane = x@.Data,
                   sn = x@sn,
-                  case_nm = decode(x@case_nm),
+                  case_nm = as.vector(decode(x@case_nm)),
                   dist_pane_index = x@dist_pane_index,
                   window_matched = x@window_matched,
                   pane_total = x@pane_total,
@@ -728,8 +728,7 @@ as.list.pane <- function(x, ...){
   }else{
     y$pane_dataset <- rep(NA_character_, length(x))
   }
-  window_list <- lapply(x@window_list[!duplicated(x@window_list)], function(x) listr(format(x), conj = ","))
-  y$window_list <- as.character(window_list[match(names(x@window_list), names(window_list))])
+  y$window_list <- x@window_list
   return(y)
 }
 
@@ -961,7 +960,7 @@ as.data.frame.pid <- function(x, ...){
                   iteration = x@iteration,
                   ...)
   if(length(x@pid_dataset) != 0){
-    y$pid_dataset <- decode(x@pid_dataset)
+    y$pid_dataset <- as.vector(decode(x@pid_dataset))
   }else{
     y$pid_dataset <- NA_character_
   }
@@ -979,7 +978,7 @@ as.list.pid <- function(x, ...){
             iteration = x@iteration,
             ...)
   if(length(x@pid_dataset) != 0){
-    y$pid_dataset <- attr(x@pid_dataset, "label")[match(x@pid_dataset, attr(x@pid_dataset, "value"))]
+    y$pid_dataset <- x@pid_dataset
   }else{
     y$pid_dataset <- rep(NA_character_, length(x))
   }

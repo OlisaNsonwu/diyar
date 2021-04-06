@@ -220,12 +220,6 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   case_nm[which(sn %in% s_sn[lgk] & case_nm != -1)] <- 0L
   pane[case_nm == -1] <- sn[case_nm == -1]
 
-  # pp <- as.numeric(names(index_sn$values))
-  # qq <- as.numeric(names(s_pane))
-  # pane <- rep(s_sn[match(pp, qq)], index_sn$lengths)
-  # pane <- pane[match(sn, s_sn)]
-  # case_nm[which(sn %in% s_sn[match(pp, qq)] & case_nm != -1)] <- 0
-
   # `pane_total`
   pane_n <- rep(r$lengths[match(s_pane[lgk], r$values)], r$lengths[match(s_pane[lgk], r$values)])
   pane_n <- pane_n[match(sn, s_sn)]
@@ -237,9 +231,10 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   dist_pane_index <- ((as.numeric(int@start) + as.numeric(right_point(int))) * .5) -
     ((as.numeric(ii@start[lgk]) + as.numeric(right_point(ii[lgk]))) * .5)
 
+  class(case_nm) <- "d_label"
   attr(case_nm, "value") <- c(-1, 0, 1)
   attr(case_nm, "label") <- c("Skipped", "Index", "Duplicate_I")
-
+  attr(case_nm, "state") <- "encoded"
   # output - `pane` object
   panes <- new("pane",
                .Data = pane,
@@ -250,7 +245,6 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
                window_list = window_list,
                pane_total = pane_n,
                options = options_lst)
-  class(panes@case_nm) <- "d_label"
 
   if(!is.null(data_source)){
     # Implement `data_links`

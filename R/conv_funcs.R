@@ -852,7 +852,7 @@ extract_3dot_lengths <- function(x){
 }
 
 dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
-  y <- rle(x)
+  y <- rle(as.vector(x))
   if(is.null(order_by_label) & isTRUE(order_by_val)){
     pos <- order(-y$lengths)
   }else{

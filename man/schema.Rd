@@ -62,6 +62,8 @@ schema(x, ...)
 
 \item{seed}{\code{[integer]}. See \code{set.seed}. Used to get a consistent arrangement of items in the plot.}
 
+\item{custom_label}{\code{[character]}. Text label to show with each point or interval in plot.}
+
 \item{orientation}{\code{[character]}. Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
 }
 \value{

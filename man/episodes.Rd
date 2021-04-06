@@ -157,11 +157,15 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{recurrence_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode. \code{See details}.}
 
+\item{to_s4}{\code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
+
 \item{deduplicate}{\code{[logical]}. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.}
 
 \item{bi_direction}{\code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.}
 
 \item{include_index_period}{\code{[logical]}. Deprecated. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.}
+
+\item{...}{Arguments passed to \code{episodes}.}
 
 \item{overlap_methods}{\code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})}
 

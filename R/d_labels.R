@@ -28,62 +28,89 @@ decode <- function(x, ...) UseMethod("decode")
 
 #' @rdname diyar_label
 #' @export
-encode.default <- function(x){
+encode.default <- function(x, ...){
   x_cd <- match(x, x)
   val_cd <- seq_len(length(x[!duplicated(x_cd)]))
   val_nm <- sort(x[!duplicated(x_cd)], na.last = TRUE)
   rm(x_cd)
   x <- val_cd[match(x, val_nm)]
+  class(x) <- "d_label"
   attr(x, "value") <- val_cd
   attr(x, "label") <- val_nm
+  attr(x, "state") <- "encoded"
+  return(x)
+}
+
+#' @rdname diyar_label
+#' @export
+encode.d_label <- function(x, ...){
+  if(attr(x, "state") == "encoded") return(x)
+  y <- attr(x, "value")[match(x, attr(x, "label"))]
+  class(y) <- "d_label"
+  attr(y, "value") <- attr(x, "value")
+  attr(y, "label") <- attr(x, "label")
+  attr(y, "state") <- "encoded"
+  return(y)
+}
+
+#' @rdname diyar_label
+#' @export
+decode.default <- function(x, ...){
+  x_cd <- match(x, x)
+  val_cd <- seq_len(length(x[!duplicated(x_cd)]))
+  val_nm <- sort(x[!duplicated(x_cd)], na.last = TRUE)
+  rm(x_cd)
   class(x) <- "d_label"
+  attr(x, "value") <- val_cd
+  attr(x, "label") <- val_nm
+  attr(x, "state") <- "decoded"
   return(x)
 }
 
 #' @rdname diyar_label
 #' @export
-decode.default <- function(x){
-  return(x)
-}
-
-#' @rdname diyar_label
-#' @export
-decode.d_label <- function(x){
-  return(
-    attr(x, "label")[match(x, attr(x, "value"))]
-  )
+decode.d_label <- function(x, ...){
+  if(attr(x, "state") == "decoded") return(x)
+  y <- attr(x, "label")[match(x, attr(x, "value"))]
+  class(y) <- "d_label"
+  attr(y, "value") <- attr(x, "value")
+  attr(y, "label") <- attr(x, "label")
+  attr(y, "state") <- "decoded"
+  return(y)
 }
 
 #' @rdname diyar_label
 #' @export
 rep.d_label <- function(x, ...){
-  y <- x
-  class(y) <- NULL
-  y <- rep(y, ...)
+  y <- rep(as.vector(x), ...)
+  class(y) <- "d_label"
   attr(y, "value") <- attr(x, "value")
   attr(y, "label") <- attr(x, "label")
-  class(y) <- "d_label"
+  attr(y, "state") <- attr(x, "state")
+
   y
 }
 
 #' @rdname diyar_label
+#' @param i i
+#' @param drop drop
 #' @export
 `[.d_label` <- function(x, i, ..., drop = TRUE) {
-  class(x) <- NULL
-  y <- x[i]
+  y <- as.vector(x)[i]
+  class(y) <- "d_label"
   attr(y, "value") <- attr(x, "value")
   attr(y, "label") <- attr(x, "label")
-  class(y) <- "d_label"
+  attr(y, "state") <- attr(x, "state")
   y
 }
 
 #' @rdname diyar_label
 #' @export
 `[[.d_label` <- function(x, i, ..., drop = TRUE) {
-  class(x) <- NULL
-  y <- x[i]
+  y <- as.vector(x)[i]
+  class(y) <- "d_label"
   attr(y, "value") <- attr(x, "value")
   attr(y, "label") <- attr(x, "label")
-  class(y) <- "d_label"
+  attr(y, "state") <- attr(x, "state")
   y
 }

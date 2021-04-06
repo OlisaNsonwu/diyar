@@ -5,6 +5,7 @@
 \alias{encode}
 \alias{decode}
 \alias{encode.default}
+\alias{encode.d_label}
 \alias{decode.default}
 \alias{decode.d_label}
 \alias{rep.d_label}
@@ -16,11 +17,13 @@ encode(x, ...)
 
 decode(x, ...)
 
-\method{encode}{default}(x)
+\method{encode}{default}(x, ...)
 
-\method{decode}{default}(x)
+\method{encode}{d_label}(x, ...)
 
-\method{decode}{d_label}(x)
+\method{decode}{default}(x, ...)
+
+\method{decode}{d_label}(x, ...)
 
 \method{rep}{d_label}(x, ...)
 
@@ -32,6 +35,10 @@ decode(x, ...)
 \item{x}{\code{[d_label|atomic]}}
 
 \item{...}{Other arguments.}
+
+\item{i}{i}
+
+\item{drop}{drop}
 }
 \value{
 \code{d_label}; \code{atomic}

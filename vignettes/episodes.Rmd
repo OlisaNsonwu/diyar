@@ -101,7 +101,6 @@ The figure and example below show how the `strata` argument is used.
 ep1 <- episodes(event_dt, strata = attr_1, case_length = 5)
 # Matching geographical criteria
 ep2 <- episodes(event_dt, strata = attr_2, case_length = 5)
-
 ```
 
 ```{r warning=FALSE, include=FALSE}

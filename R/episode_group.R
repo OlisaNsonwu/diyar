@@ -40,6 +40,8 @@
 #' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
 #' @param case_length_total \code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode. \code{See details}.
 #' @param recurrence_length_total \code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode. \code{See details}.
+#' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' @param ... Arguments passed to \code{episodes}.
 #' @return
 #'
 #' @return \code{\link[=epid-class]{epid}}
@@ -155,9 +157,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   # `episode_unit`
   ep_units <- tolower(episode_unit)
   ep_units <- match(ep_units, names(diyar::episode_unit))
+  class(ep_units) <- "d_label"
   attr(ep_units, "value") <- sort(ep_units[!duplicated(ep_units)])
   attr(ep_units, "label") <- names(diyar::episode_unit)[attr(ep_units, "value")]
-  class(ep_units) <- "d_label"
+  attr(ep_units, "state") <- "encoded"
   # `strata`
   if(length(strata) == 1 | is.null(strata)) {
     cri <- rep(1L, inp_n)
@@ -225,7 +228,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ep_l <- length_to_range(lengths = case_length,
                           date = int,
                           from_last = from_last,
-                          episode_unit = ep_units)
+                          episode_unit = as.vector(ep_units))
 
   lead_epid_type <- episode_type[!duplicated(episode_type)]
   one_epid_type <- length(lead_epid_type) == 1
@@ -250,7 +253,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rc_l <- length_to_range(lengths = recurrence_length,
                             date = int,
                             from_last = from_last,
-                            episode_unit = ep_units)
+                            episode_unit = as.vector(ep_units))
   }
 
   # Place holders for episode-level inputs
@@ -804,7 +807,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
           if(length(cr2[cr2 & !cri_2]) > 0){
             ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
-            checks_lgk[cr2 & !cri_2] <- sub_cri_checks_b(sub_criteria = recurrence_sub_criteria[[1]],
+            checks_lgk[cr2 & !cri_2] <- eval_sub_criteria(x = recurrence_sub_criteria[[1]],
                                                          strata = cri[cr2 & !cri_2],
                                                          index_record = ref_rd[cr2 & !cri_2],
                                                          sn = int@id[cr2 & !cri_2])[[1]]
@@ -1146,14 +1149,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                options = options_lst)
 
   epids@case_nm <- case_nm[retrieve_pos]
+  class(epids@case_nm) <- "d_label"
   attr(epids@case_nm, "value") <- -1L : 3L
   attr(epids@case_nm, "label") <- c("Skipped", "Case", "Recurrent", "Duplicate_C", "Duplicate_R")
-  class(epids@case_nm) <- "d_label"
+  attr(epids@case_nm, "state") <- "encoded"
 
   epids@wind_nm <- wind_nm[retrieve_pos]
+  class(epids@wind_nm) <- "d_label"
   attr(epids@wind_nm, "value") <- -1L : 1L
   attr(epids@wind_nm, "label") <- c("Skipped", "Case", "Recurrence")
-  class(epids@wind_nm) <- "d_label"
+  attr(epids@wind_nm, "state") <- "encoded"
 
   # `epid_dataset` slot
   if(!is.null(data_source)){

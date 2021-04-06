@@ -30,6 +30,7 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    covr
+    covr,
+    stringdist
 VignetteBuilder: knitr
 Language: en-GB

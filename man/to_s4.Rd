@@ -7,14 +7,14 @@
 \usage{
 to_df(s4, ...)
 
-to_s4(df)
+to_s4(lst)
 }
 \arguments{
 \item{s4}{\code{[\link[=pid-class]{pid}|\link[=epid-class]{epid}|\link[=pane-class]{pane}|\link[=number_line-class]{number_line}]}}
 
 \item{...}{Arguments passed to \code{data.frame}}
 
-\item{df}{\code{[data.frame]}}
+\item{lst}{\code{[list]}}
 }
 \value{
 to_df - \code{data.frame} object
@@ -27,19 +27,4 @@ to a \code{data.frame} and vice versa.
 }
 \details{
 \code{to_df} has been retired. Moving forward, please use \code{as.data.frame}.
-}
-\examples{
-data(infections)
-dates <- infections$date
-output <- episodes(dates, case_length=30)
-output
-
-# Change a pid, epid, pane or number_line object to a data.frame
-df_output <- to_df(output)
-df_output
-
-# Change a data.frame to a pid, epid, pane or number_line object
-s4_output <- to_s4(df_output)
-s4_output
-
 }

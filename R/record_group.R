@@ -18,6 +18,7 @@
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration, duplicates values of an attributes are not checked. The outcome of the logical test on on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.
 #' @param display \code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default) or, \code{"progress"} and \code{"stats"} for a progress update or a more detailed breakdown of the linkage process.
 #' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#' @param ... Arguments passed to \code{links}.
 #'
 #' @return \code{\link[=pid-class]{pid}}
 #'
@@ -82,7 +83,7 @@
 #' sex <- c("M", "M", "M", "F", "M", "M", "F")
 #' f1 <- function(x, y) (y - x) %in% 0:20
 #' links(criteria = sex,
-#'       sub_criteria = list(cr1 = sub_criteria(age, funcs = f1)))
+#'       sub_criteria = list(cr1 = sub_criteria(age, match_funcs = f1)))
 #'
 #' # Multistage linkage
 #' # Relevance of matches: `forename` > `surname`
@@ -562,13 +563,15 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #'
 #' @description A specific use case of \code{links} for probabilistic record linkage.
 #'
-#' @param blocking_attribute \code{[atomic]} Subsets of the dataset.
-#' @param attribute \code{[list]} Attributes to compare.
-#' @param cmp_func \code{[list|function]} String comparators for each \code{attribute}. See \code{Details}.
-#' @param cmp_threshold \code{[list|numeric|\link{number_line}]} Weight-thresholds for each \code{cmp_func}. See \code{Details}.
-#' @param probabilistic \code{[logical]} If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.
-#' @param m_probability \code{[list|numeric]} The probability that a match from the string comparator is from the same entity.
+#' @param blocking_attribute \code{[atomic]}. Subsets of the dataset.
+#' @param attribute \code{[list]}. Attributes to compare.
+#' @param cmp_func \code{[list|function]}. String comparators for each \code{attribute}. See \code{Details}.
+#' @param cmp_threshold \code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.
+#' @param probabilistic \code{[logical]}. If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.
+#' @param m_probability \code{[list|numeric]}. The probability that a match from the string comparator is from the same entity.
 #' @param score_threshold \code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.
+#' @param id_1 \code{[list|numeric]}. One half of a specific pair of records to check their match weights and score-thresholds.
+#' @param id_2 \code{[list|numeric]}. One half of a specific pair of records to check their match weights and score-thresholds.
 #' @param ... Arguments passed to \bold{\code{links}}
 #'
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
@@ -625,7 +628,7 @@ record_group <- function(df, ..., to_s4 = TRUE){
 #' # Exact matches
 #' dfr <- missing_staff_id[c("staff_id",  "initials",
 #'                           "hair_colour", "branch_office")]
-#' score_ramge <- prob_score_range(attribute = as.list(dfr))
+#' score_range <- prob_score_range(attribute = as.list(dfr))
 #' prob_pids1 <- links_wf_probabilistic(attribute = as.list(dfr),
 #'                                      score_threshold = score_range$minimum_score)
 #' prob_pids1
@@ -751,7 +754,7 @@ links_wf_probabilistic <- function(attribute,
               m_probability = m_probability,
               score_threshold = score_threshold,
               return_weights = FALSE,
-              probabistic = probabilistic,
+              probabilistic = probabilistic,
               cmp_func = cmp_func)
 
   }
@@ -798,13 +801,13 @@ links_wf_probabilistic <- function(attribute,
                            score_threshold = score_threshold,
                            return_weights = TRUE,
                            cmp_func = cmp_func,
-                           probabistic = probabilistic)
+                           probabilistic = probabilistic)
   # Mask unlinked records
   pid_weights[thresh_lgk,] <- NA_real_
   pid_weights <- cbind(id_1, id_2, pid_weights)
   colnames(pid_weights)[1:2] <- c("sn_x","sn_y")
   # Output
-  pids <- list(pids = pids,
+  pids <- list(pid = pids,
                pid_weights = pid_weights)
   rm(list = ls()[ls() != "pids"])
   return(pids)

@@ -15,23 +15,27 @@ sub_criteria(
 
 eval_sub_criteria(x, ...)
 
-\method{eval_sub_criteria}{sub_criteria}(x, strata, index_record, sn, check_duplicates = TRUE)
+\method{eval_sub_criteria}{sub_criteria}(x, strata, index_record, sn, check_duplicates = TRUE, ...)
 }
 \arguments{
-\item{...}{Any \code{atomic}. Attributes.}
+\item{...}{\code{[atomic]}.. Attributes.}
 
-\item{match_funcs}{\code{function}. User defined logical test for matches.}
+\item{match_funcs}{\code{[function]}. User defined logical test for matches.}
 
-\item{equal_funcs}{\code{function}. User defined logical test for identical record sets (all attributes of the same record).}
+\item{equal_funcs}{\code{[function]}. User defined logical test for identical record sets (all attributes of the same record).}
 
-\item{strata}{\code{Integer}. Identifier for subsets of the dataset}
+\item{operator}{\code{[character]}. Options are \code{"and"} or \code{"or"}.}
 
-\item{index_record}{\code{Logical}. Represents the \code{y}-value in the  \code{x}-\code{y} record pair to be checked.
+\item{x}{\code{[sub_Criteria]}}
+
+\item{strata}{\code{[integer]}. Identifier for subsets of the dataset}
+
+\item{index_record}{\code{[logical]}. Represents the \code{y}-value in the  \code{x}-\code{y} record pair to be checked.
 See (\bold{\code{\link{predefined_tests}}}).}
 
-\item{sn}{\code{Integer} Unique index for each record set}
+\item{sn}{\code{[integer]} Unique index for each record set}
 
-\item{check_duplicates}{\code{Logical}. If \code{FALSE}, skips an identical record set if it has already been checked.}
+\item{check_duplicates}{\code{[logical]}. If \code{FALSE}, skips an identical record set if it has already been checked.}
 }
 \value{
 \code{sub_criteria}

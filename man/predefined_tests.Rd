@@ -21,7 +21,7 @@ prob_link(
   m_probability,
   score_threshold,
   return_weights,
-  probabistic,
+  probabilistic,
   cmp_func
 )
 }
@@ -38,9 +38,11 @@ prob_link(
 
 \item{score_threshold}{Score threshold determining matched or linked records. See \code{\link{links_wf_probabilistic}}.}
 
-\item{cmp_func}{Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.}
+\item{return_weights}{If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.}
 
 \item{probabilistic}{If \code{TRUE}, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See \code{\link{links_wf_probabilistic}}.}
+
+\item{cmp_func}{Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.}
 }
 \description{
 A collection of predefined logical tests used with \bold{\code{\link{sub_criteria}}} objects.

@@ -3,10 +3,10 @@
 #' @title Sub-criteria
 #'
 #' @description Matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
-#' @param ... Any \code{atomic}. Attributes.
-#' @param match_funcs \code{function}. User defined logical test for matches.
-#' @param equal_funcs \code{function}. User defined logical test for identical record sets (all attributes of the same record).
-#'
+#' @param ... \code{[atomic]}.. Attributes.
+#' @param match_funcs \code{[function]}. User defined logical test for matches.
+#' @param equal_funcs \code{[function]}. User defined logical test for identical record sets (all attributes of the same record).
+#' @param operator \code{[character]}. Options are \code{"and"} or \code{"or"}.
 #' @seealso
 #' \code{\link{predefined_tests}}, \code{\link{links}} and \code{\link{episodes}}
 #'
@@ -65,18 +65,19 @@ sub_criteria <- function(...,
 }
 
 #' @rdname sub_criteria
+#' @param x \code{[sub_Criteria]}
 #' @return \code{Logical}
 #' @export
 eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 
 #' @rdname sub_criteria
-#' @param strata \code{Integer}. Identifier for subsets of the dataset
-#' @param index_record \code{Logical}. Represents the \code{y}-value in the  \code{x}-\code{y} record pair to be checked.
+#' @param strata \code{[integer]}. Identifier for subsets of the dataset
+#' @param index_record \code{[logical]}. Represents the \code{y}-value in the  \code{x}-\code{y} record pair to be checked.
 #' See (\bold{\code{\link{predefined_tests}}}).
-#' @param sn \code{Integer} Unique index for each record set
-#' @param check_duplicates \code{Logical}. If \code{FALSE}, skips an identical record set if it has already been checked.
+#' @param sn \code{[integer]} Unique index for each record set
+#' @param check_duplicates \code{[logical]}. If \code{FALSE}, skips an identical record set if it has already been checked.
 #' @export
-eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_duplicates = TRUE){
+eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_duplicates = TRUE, ...){
   curr_ds_len <- length(strata)
   curr_strata <- strata
   sc_ord <- order(curr_strata, -index_record, decreasing = TRUE)

@@ -12,7 +12,7 @@ status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](
 ## Overview
 
 Record linkage and distinguishing between index, duplicate and recurrent
-events is a common task in epidemiological analysis and other fields of
+events are common tasks in epidemiological analyses and other fields of
 research, particularly as part of a case definition. Implementing these
 in `R` can be complex and challenging. The `diyar` package provides a
 convenient and flexible way of doing these in `R`.
@@ -30,35 +30,38 @@ devtools::install_github("OlisaNsonwu/diyar")
 
 ## Usage
 
-<img src = "fig_r1.png" width = "1000" height="580">
+<img src = "figures/fig_r1.png" width = "1000" height="580">
 
 ### Number line
 
 Use `number_line()` to create `number_line` objects - a range of numeric
-values on a number line. These can be split and manipulated in several
-ways.
+values. These can be split or manipulated in several ways.
 
 ``` r
 library(diyar)
 nl <- number_line(1, 10); nl
 #> [1] "1 -> 10"
+invert_number_line(nl)
+#> [1] "-1 <- -10"
 seq(nl, length.out = 3)
 #> [1] "1 -> 4"  "4 -> 7"  "7 -> 10"
 ```
 
-`overlap()` and related functions tests how `number_line` objects
+`overlap()` and related functions test how `number_line` objects
 overlap.
 
 ``` r
-overlap_method(nl, nl)
+overlap_method(nl, nl); reverse(nl, nl)
 #> [1] "exact"
+#> [1] FALSE
 nl2 <- reverse_number_line(nl); nl2
 #> [1] "10 <- 1"
-overlap_method(nl, nl2)
+overlap_method(nl, nl2); reverse(nl, nl2)
 #> [1] "reverse"
+#> [1] TRUE
 ```
 
-Set operations such as `union_number_lines()` are also possible for a
+Set operations such as `union_number_lines()` are also possible for
 pairs of `number_line` objects.
 
 ``` r
@@ -81,8 +84,8 @@ subtract_number_lines(nl3, nl4)
 
 ### Record linkage
 
-Use `links()` to create a unique identifier for matching records using a
-multistage deterministic linkage approach to record linkage.
+Use `links()` to create a unique identifier for matching records based
+on a multistage deterministic approach to record linkage.
 
 ``` r
 attr_1 <- c(1, 1, 1, NA, NA, NA, NA, NA)
@@ -99,7 +102,7 @@ implement probabilistic record linkage.
 data(missing_staff_id)
 dfr <- missing_staff_id[c("staff_id",  "initials", "hair_colour", "branch_office")]
 links_wf_probabilistic(as.list(dfr), score_threshold = -4.2)
-#> $pids
+#> $pid
 #> [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"
 #> [5] "P.5 (No hits)" "P.6 (No hits)" "P.1 (CRI 001)"
 #> 
@@ -132,25 +135,24 @@ links_wf_probabilistic(as.list(dfr), score_threshold = -4.2)
 
 ### Episode tracking
 
-Use `episodes()` or `episodes_wf_splits()` for creating a unique
-identifier for related events based on a case definition.
+Use `episodes()` or `episodes_wf_splits()` to create a unique identifier
+for related events based on a case definition.
 
 ``` r
-episodes(1:5, case_length = 2)
-#> [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.4 (C)" "E.4 (D)"
-episodes(1:10, case_length = 2, episode_type = "rolling")
-#>  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"
-#>  [8] "E.1 (R)" "E.1 (D)" "E.1 (R)"
+episodes(1:7, case_length = 2)
+#> [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.4 (C)" "E.4 (D)" "E.4 (D)" "E.7 (C)"
+episodes(1:7, case_length = 2, episode_type = "rolling")
+#> [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"
 ```
 
-Use `partitions()` for creating a unique identifier for events within
-the same time or numerical interval.
+Use `partitions()` to create a unique identifier for events within the
+same time or numerical interval.
 
 ``` r
-partitions(1:5, by = 2, separate = TRUE)
-#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.3 (D)"
-partitions(1:5, length.out = 3, separate = TRUE)
-#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.4 (I)" "PN.4 (D)"
+partitions(1:7, by = 2, separate = TRUE)
+#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.5 (I)" "PN.5 (D)" "PN.5 (D)"
+partitions(1:7, length.out = 3, separate = TRUE)
+#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.5 (I)" "PN.5 (D)" "PN.5 (D)"
 ```
 
 Find out more [here\!](https://olisansonwu.github.io/diyar/index.html)
