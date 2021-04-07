@@ -21,7 +21,7 @@ library(ggplot2)
 ```
 
 # Introduction
-A `number_line` object is a range of `numeric` values on a number line. `interval` objects (`lubridate` package) are the inspiration for `number_line` objects. `number_line` objects are similar but support any `numeric` based object class.
+A `number_line` object is a range of `numeric` values. `interval` objects (`lubridate` package) are the inspiration for `number_line` objects as they are similar but `number_line` supports any `numeric` based object class.
 
 # Overview
 ```{r include = FALSE}
@@ -38,7 +38,7 @@ For a given `number_line` object e.g. ``r format(exp)``, its main components are
 + `direction` - `"decreasing"` `(<-)`, `"increasing"` `(->)` or no direction `(==)`
 + `number_line_width()` - difference between the left and right points `i.e.` ``r number_line_width(exp) ``
 
-For an `"increasing"` `number_line` object, the `start_point()` is on the `left_point()`, while for a `"decreasing"` `number_line` object, the `start_point()` is on the `right_point()`.
+For an `"increasing"` `number_line`, the `start_point()` is at the `left_point()`. In contrast, the `start_point()`  of a `"decreasing"` `number_line` is at the `right_point()`.
 
 ```{r message = FALSE, warning = FALSE}
 library(diyar)
@@ -53,11 +53,10 @@ left_point(nl_a)
 ```
 
 ## Manipulating a `number_line`
-There are convenience functions to reverse, shrink, expand objects, or shift a `number_line` along the number line.
+There are convenience functions to reverse, shrink, expand, or shift a `number_line` along the number line.
 
 ```{r message = FALSE, warning = FALSE}
-nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"),
-                    as.Date("07/04/2019", "%d/%M/%Y"))
+nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"), as.Date("07/04/2019", "%d/%M/%Y"))
 nl_c
 
 # Expand the `number_line` by 2 days from both ends 
@@ -75,13 +74,13 @@ nl_g <- expand_number_line(nl_c, -2); nl_g
 # Reverse the direction of the `number_line`
 nl_h <- reverse_number_line(nl_c); nl_h
 
-# Shift the `number_line` towards the left of the number line by 2 days 
+# Shift the `number_line` towards the negative end of the number line by 2 days 
 nl_i <- shift_number_line(nl_c, -2); nl_i
 
-# Shift the `number_line` towards the right of the number line by 2 days 
+# Shift the `number_line` towards the positive end of the number line by 2 days 
 nl_j <- shift_number_line(nl_c, 2); nl_j
 
-# Change the left part of the `number_line` from to a negative value
+# Change the left part of the `number_line` to a negative value
 nl_k <- invert_number_line(nl_c, "left"); nl_k
 
 # Split a `number_line`
@@ -89,7 +88,7 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
 ```
 
 ## Overlaps
-`number_line` objects can overlap with each other.  They do so in seven ways - `exact()`, `reverse()`, `inbetween()`, `"across()`, `chain()`, `aligns_start()` and `aligns_end()`. The 7 methods are mutually exclusive. There are 2 convenience methods - `"none"` and `overlap()`., which are mutually inclusive with the other 7. See Figure 1.
+`number_line` objects can overlap with each other. `diyar` recognises seven ways this can happen. These are `exact()`, `reverse()`, `inbetween()`, `"across()`, `chain()`, `aligns_start()` and `aligns_end()`. The 7 methods are mutually exclusive. There are 2 convenience methods - `"none"` and `overlap()`, which are mutually inclusive with the other 7. See Figure 1.
 
 ```{r warning=FALSE, include=FALSE}
  # exact <- c(number_line(1, 2), number_line(1, 2),
@@ -124,11 +123,10 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
 ## Set operations
 ```{r message = FALSE, warning = FALSE}
 nl_1 <- c(number_line(1, 5), number_line(1, 5), number_line(5, 9))
-nl_2 <- c(number_line(1, 2), number_line(2, 3), number_line(0, 6))
+nl_2 <- c(number_line(1, 2), number_line(2, 7), number_line(0, 6))
 
 # Union
 nl_1; nl_2; union_number_lines(nl_1, nl_2)
-
 
 nl_3 <- number_line(as.Date(c("01/01/2020", "03/01/2020","09/01/2020"), "%d/%m/%Y"),
                     as.Date(c("09/01/2020", "09/01/2020","25/12/2020"), "%d/%m/%Y"))

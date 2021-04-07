@@ -46,7 +46,7 @@ schema(x, ...)
 )
 }
 \arguments{
-\item{x}{\code{[\link[=number_line-class]{number_line}|\link[=pid-class]{pid}|\link[=epid-class]{epid}|\link[=pane-class]{pane}]}}
+\item{x}{\code{[\link[=number_line-class]{number_line}|\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}}
 
 \item{...}{Other arguments.}
 
@@ -62,7 +62,7 @@ schema(x, ...)
 
 \item{seed}{\code{[integer]}. See \code{set.seed}. Used to get a consistent arrangement of items in the plot.}
 
-\item{custom_label}{\code{[character]}. Text label to show with each point or interval in plot.}
+\item{custom_label}{\code{[character]}. Custom label for each record of the identifier.}
 
 \item{orientation}{\code{[character]}. Show each record of a \code{pid} object within its group id (\code{"by_pid"}) or its \code{pid_cri} (\code{"by_pid_cri"})}
 }
@@ -70,16 +70,13 @@ schema(x, ...)
 \code{ggplot} objects
 }
 \description{
-Create schema diagrams for \code{pid}, \code{epid} and \code{pane} objects.
+Create schema diagrams for \code{\link[=number_line-class]{number_line}}, \code{\link[=epid-class]{epid}}, \code{\link[=pid-class]{pid}} and \code{\link[=pane-class]{pane}} objects.
 }
 \details{
-The \code{schema} function creates a schema diagram for \code{\link[=number_line-class]{number_line}}, \code{\link[=pid-class]{pid}}, \code{\link[=epid-class]{epid}} and \code{\link[=pane-class]{pane}} objects.
-These diagrams are a visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process (\code{\link{partitions}}).
-
-\emph{\code{\link[=number_line-class]{number_line}} objects are plotted as \code{\link[=epid-class]{epid}} objects.}
+A visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process (\code{\link{partitions}}).
 }
 \examples{
-schema(number_line(c(1, 2, 6, 8), c(5, 3, 8, 10)))
+schema(number_line(c(1, 2), c(2, 1)))
 
 schema(episodes(1:10, 2))
 

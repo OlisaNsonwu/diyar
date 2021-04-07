@@ -22,9 +22,9 @@ library(ggplot2)
 ```
 
 # Introduction
-Linking datasets to consolidate information is a common task in research, particularly with those involving "big data". Deterministic and probabilistic linkage are the two most common methods of record linkage. Deterministic record linkage is the simplest of both methods but its accuracy relies on good data quality. In contrast, probabilistic record linkage improves on this by using several methods to identify, validate or score matches while accounting for data quality. However, probabilistic record linkage can be complex to implement and computationally intensive. Multistage deterministic record is an approach that lies between both methods. Here, matches are identified in successive stages of different matching conditions. This makes it more robust that a simple deterministic linkage but not typically as complex or computationally intensive as probabilistic record linkage.
+Linking datasets to consolidate information is a common task in research, particularly with those involving "big data". Deterministic and probabilistic linkage are the two most common methods of record linkage. Deterministic record linkage is the simplest of both methods but its accuracy relies heavily on good data quality. In contrast, probabilistic record linkage improves on this by using several methods to identify, validate or score matches while accounting for data quality. However, probabilistic record linkage can be complex to implement and computationally intensive. Multistage deterministic record linkage is an approach that lies between both methods. Here, matches are identified in successive stages of different matching conditions. This makes it more robust than a simple deterministic linkage but not typically as complex or computationally intensive as probabilistic record linkage.
 
-`links()` provides a convenient and flexible approach to implementing multistage deterministic record linkage in `R`. It allows a user specify what constitutes a match e.g. similarity scores, text transformations or partial string matches etc. It also has mechanisms to address missing data and conflicting matches across stages of the linkage process. 
+`links()` provides a convenient and flexible approach to implementing multistage deterministic record linkage in `R`. It allows a user to specify what constitutes a match e.g. similarity scores, text transformations or partial string matches etc. It also has mechanisms to address missing data and conflicting matches across stages of the linkage process. 
 
 # Overview
 The `links()` function assigns records to unique record-groups (`pid` object) based on a set of matching criteria. These are essentially group identifiers with additional information about each group stored in the slots of the `pid` object. See an example below.
@@ -38,7 +38,7 @@ attr_3 <- c(NA, NA, NA, NA, 3, 3, 3, 3)
 stages <- list(attr_1 = attr_1, attr_2 = attr_2, attr_3 = attr_3)
 # Source of each record 
 data_sets <- c("A", "A", "A", "A", "B", "B", "B", "B")
-# Record set
+# Dataset
 dfr <- cbind(as.data.frame(stages), data_sets)
 # Linkage
 dfr$pd1 <- links(stages, data_source = data_sets)
@@ -55,12 +55,12 @@ as.data.frame(dfr$pd1)
 # Implementation
 At each stage, records are linked if their values are an `exact_match()`. By default, the priority of matches decreases with each subsequent stage i.e. matches at the 1^st^ stage are superior and will not be overwritten by matches at the 2^nd^ stage. Records with missing (`NA`) or unmatched values are skipped at each stage, and another attempt to match them is made in the next stage of the process. 
 
-At each stage, additional matching criteria can be supplied by with a `sub_criteria()`. A `sub_criteria` contains a set of attributes to be compared, corresponding logical tests for each attribute and corresponding logical tests for the equivalence of values in each attribute. Nested conditions is also possible by nesting a `sub_criteria` object. Every `sub_criteria` must be linked to a stage (`criteria`). This is done by supplying every `sub_criteria` as a named `list` . Each element's name must correspond to a stage. For example, `"cr1"` and `"cr13"` correspond to stages 1 and 13 respectively. Any unlinked `sub_criteria` will be ignored.
+At each stage, additional matching criteria can be supplied by with a `sub_criteria` object. A `sub_criteria` contains a set of attributes to be compared, corresponding logical tests for each attribute and corresponding logical tests for the equivalence of values in each attribute. Nested conditions is also possible by nesting a `sub_criteria`. Every `sub_criteria` must be linked to a stage (`criteria`). This is done by supplying every `sub_criteria` as a named `list` . Each element's name must correspond to a stage. For example, `"cr1"` and `"cr13"` correspond to stages 1 and 13 respectively. Any unlinked `sub_criteria` will be ignored.
 
 Records are assessed in iterations. If a stage has no `sub_criteria`, it will take one iteration to complete the stage. If a stage has a `sub_criteria`, multiple iterations maybe required to complete that stage.
 
 ## Match priority
-By default, a match at one stage is always superior to a match at the next stage and records. See the "Multistage matches" section for a different behaviour. Additionally, records with missing or unmatched values are skipped at each stage of the linkage. In the example below, by stage 1, records 1, 2 and 5 are either missing or unmatched values. As a result, they are skipped at stage 1 but subsequently linked together at stage 2 due to matching dates of birth. 
+By default, a match at one stage is always superior to a match at the next stage. See the "multistage matches" section for a different behaviour. Additionally, records with missing or unmatched values are skipped at each stage of the process. In the example below, by stage 1, records 1, 2 and 7 are either missing or unmatched values. As a result, they are skipped at stage 1 but subsequently linked together at stage 2 due to matching dates of birth with records 5 and 6. 
 
 ```{r warning = FALSE}
 # Attribute - Names
@@ -79,7 +79,7 @@ dfr_2
 
 In contrast, records with matched values by a particular stage remain linked for the rest to the process even if their values at subsequent stages are different. This was the case with records 3 and 4. 
 
-To maintain the described match priority, introducing a new record that permits a match at an earlier stage will result in records being transferred between groups. In the example below, a new `"Ope"` record is introduced and linked to the existing `"Ope"` record.
+To maintain the described match priority, introducing a new record that permits a match at an earlier stage will result in records being transferred between groups. In the example below, a new `"Ope"` record is introduced and linked to the existing `"Ope"` record. However, a consequence of this change is that at stage 2 (matching dates of birth), records 1 and 2 have the option of either being linked to the `"Ope"` or `"Tobi"` records. Usually, they will be linked to the `"Ope"` records because the link between `"Ope"` records is considered to have a higher priority (stage 1) than that of the `"Tobi"` records (stage 2). However, if the `"Ope"` and `"Tobi"` records were linked at the same stage (`pd2bii`), priority is given to the first group the process encounters. In the instance above, this was the `"Tobi"` records.
 
 ```{r warning = FALSE}
 attr_4c <- attr_4b <- c(attr_4, "Ope")
@@ -110,10 +110,10 @@ dfr_2c
 ```{r warning = FALSE, include = FALSE}
 # plt1 <- schema(dfr_2b$pd2bi, seed = 2,
 #                show_label = TRUE,
-#                dark_mode = FALSE)
+#                theme = "dark")
 # plt2 <- schema(dfr_2c$pd2bii, seed = 2,
 #                show_label = TRUE,
-#                dark_mode = FALSE)
+#                theme = "dark")
 # 
 # f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")),
 #                plt2 + theme(plot.background = element_rect(color = "black")),
@@ -127,8 +127,6 @@ dfr_2c
 **Figure 1: Effect of a change to the match priority**
 <img src = "fig_p1.png" width = "1000" height="290">
 
-A consequence of this change is that at stage 2 (matching dates of birth), records 1 and 2 have the option of either being linked to the `"Ope"` or `"Tobi"` records. Usually, they will be linked to the `"Ope"` records because the link between `"Ope"` records is considered to have a higher priority (stage 1) than that of the `"Tobi"` records (stage 2). However, if the `"Ope"` or `"Tobi"` records were linked at the same stage ( `pd2bii`), priority is given to the first group the process encounters. In the instance above, this was the `"Tobi"` records.
-
 ## Multistage matches
 By default, a record-group gains more records as new matches are identified in subsequent stages. This results in an acceptable but decreasing specificity with each stage. Changing `expand` to `FALSE` will restrict matches to those occurring at the same stage of the linkage process. Figure 2 and the example below shows this difference as compared to the earlier example (`dfr$pd1`) where `expand` was `TRUE`.
 
@@ -138,8 +136,8 @@ dfr
 ```
 
 ```{r warning = FALSE, include = FALSE}
-# plt1 <- schema(dfr$pd1, seed = 2, dark_mode = FALSE)
-# plt2 <- schema(dfr$pd1b, seed = 2, dark_mode = FALSE)
+# plt1 <- schema(dfr$pd1, seed = 2, theme = "dark")
+# plt2 <- schema(dfr$pd1b, seed = 2, theme = "dark")
 # f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")),
 #                plt2 + theme(plot.background = element_rect(color = "black")),
 #                labels = c("pd1", "pd1b"),
@@ -152,7 +150,7 @@ dfr
 
 <img src = "fig_p2.png" width = "1000" height="290">
  
-In contrast, when `shrink` is `TRUE`, record-groups lose records as new matches are identified in subsequent stages. This results in increasing specificity with each stage. At a given stage, if all records in a record-group have missing or non-matching values, the record-group will not change otherwise, it is split into subgroups with matching `criteria` (and `sub_criteria` where applicable). Note that the `expand` and `shrink` functionalities are not complimentary ie. the outcome when `expand` is `FALSE` is not always the same outcome when `shrink` is `TRUE`. However, when `shrink` is `TRUE`, `expand` is automatically set to `FALSE` regardless of the user's input. See an example of this difference below.
+In contrast, when `shrink` is `TRUE`, record-groups lose records as new matches are identified in subsequent stages. This results in increasing specificity with each stage. At a given stage, if all records in a record-group have missing or non-matching values, the record-group will not change otherwise, it is split into subgroups with matching `criteria` (and `sub_criteria` where applicable). Note that the `expand` and `shrink` functionalities are not complimentary i.e. the outcome when `expand` is `FALSE` is not always the same outcome when `shrink` is `TRUE`. However, when `shrink` is `TRUE`, `expand` is automatically set to `FALSE` regardless of the user's input. See an example of this difference below.
 
 ```{r warning = FALSE}
 # Attributes to be compared at each stage
@@ -169,7 +167,7 @@ dfr_3
 ```
  
 ## Sub-criteria
-The `sub_criteria` argument is used to supply additional matching conditions at each stage of the linkage process. This helps strengthen `criteria` match rules. All `sub_criteria` must be linked to a `criteria`. If there's no `criteria`, a place holder can be used in its place (see `dfr_4$pd5`). In the example below, additional conditions are used to strengthen the identical `name` values.
+The `sub_criteria` argument is used to supply additional matching conditions to a stage of the linkage process. This helps strengthen `criteria` match rules. All `sub_criteria` must be linked to a `criteria`. If there's no `criteria`, a place holder can be used in its place (see `dfr_4$pd5`). In the example below, additional matching criteria are used to strengthen a linkage on identical `name` values.
 
 ```{r warning = FALSE}
 data(Opes); Opes
@@ -213,11 +211,10 @@ dfr_4$forename
 # Logical test 1 - Similarity score of 70% or more 
 jw_func <- function(x, y){
   score <- 1 - stringdist::stringdist(x, y, "jw")
-  score[score > .7] <- 0
-  as.logical(score)
+  score > .7
 }
 
-# Logical test 2 - Matching Soundex (Y/N)
+# Logical test 2 - Matching Soundex
 soundex_func <- function(x, y){
   score <- 1 - stringdist::stringdist(x, y, "soundex")
   as.logical(score)
@@ -230,7 +227,7 @@ dfr_4$pd5 <- links(criteria = "place_holder", sub_criteria = list(cr1 = sub_cri_
 dfr_4
 ```
 
-### Probalistic record linkage
+### Probabilistic record linkage
 The complexity of a user-defined logical test can range from relatively simple to complex use cases such as that implemented in `links_wf_probabilistic()`. `links_wf_probabilistic()` is a wrapper function of `links()` using a specific `sub_criteria` to achieve probabilistic record linkage. There are a few differences between `links_wf_probabilistic()` and the typical implementation of probabilistic record linkage. These are summarised below.
 
 **Table 1: Difference between the typical approach to probabilistic record linkage and `links_wf_probabilistic()`.**
@@ -276,12 +273,12 @@ prob_pids3
 
 # Strengths and limitations
 
-`links()` is primarily designed for multistage record linkage and offers convenience in handling complex matching conditions and missing data. The more complex the scenario, the more likely its convenience outweighs the complexity of scripting these complexing issues. Simple matching conditions or one-stage linkages are possible with `links()` but will take slightly more time than base `R` alternatives (see `pd_8e`).
+`links()` is primarily designed for multistage record linkage and offers convenience in handling complex matching conditions and missing data. The more complex the scenario, the more likely its convenience outweighs the complexity of scripting these complex issues. Simple matching conditions or one-stage linkages are possible with `links()` but will take slightly more time than base `R` alternatives (see `pd_8e`).
 
-`links()` is implemented as a loop. Each `criteria` costs one iteration while a `sub_criteria` costs as many iterations as it takes to compare all record pairs. The time taken to complete one iteration can differ in different machines however, the number of iterations required to complete the linkage process is constant for the same set of linkage criteria and options. Regardless, each additional iteration costs additional processing time. There are three main ways of reducing the number of iterations required for the linkage. These are summarised below.
+`links()` is implemented as a loop. Each `criteria` costs one iteration, while a `sub_criteria` costs as many iterations as it takes to compare all record pairs. The time taken to complete one iteration can differ in different machines however, the number of iterations required to complete the linkage process is constant for the same set of linkage criteria and options. Regardless, each additional iteration costs additional processing time. There are three main ways of reducing the number of iterations required for the linkage. These are summarised below.
 
 ## Use a strata or criteria instead of a sub-criteria
-Where possible, express a `sub_criteria` as a `criteria`. A `sub_criteria` with an `exact_match()` as its logical tests and an `"and" operator` should be expressed as a `criteria`. For example, `Opes$pd4c` was created with a `sub_criteria` and it took 8 iterations to complete the process. 
+Where possible, express a `sub_criteria` as a `criteria`. A `sub_criteria` with an `exact_match()` as its logical test(s) and an `"and" operator` should be expressed as a `criteria`. For example, `Opes$pd4c` was created with a `sub_criteria` and it took 8 iterations to complete the process. 
 
 ```{r warning = FALSE}
 summary(Opes$pd4c)
@@ -370,15 +367,13 @@ max(dfr_6$pd_7c@iteration); max(dfr_6$pd_7d@iteration)
 ```
 
 ### `recurisve`
-At every iteration (not stage), matching records can either be included or excluded from subsequent checks during the same linkage stage. Excluding such records ultimately reduces the processing time of the overall process but this can lead to different outcomes depending on the nature of the attribute being compared. If the attribute is to be compared in such a way that matching records can spawn new matches, having `recurisve` as `FALSE` will miss these links. The example below demonstrates this. 
+At every iteration (not stage), matching records can either be included or excluded from subsequent checks during the same linkage stage. Excluding such records ultimately reduces the overall processing time but this can lead to different outcomes depending on the nature of the attribute being compared. If the attribute is to be compared in such a way that matching records can spawn new matches, having `recurisve` as `FALSE` will miss these links. The example below demonstrates this. 
 
 ```{r warning = FALSE}
 # Dataset 
 dfr_7 <- data.frame(attr_1 = 1:10, stringsAsFactors = FALSE)
 # Logical test - Absolute difference of less than 4
-rng_l4_func <- function(x, y){
-  abs(y - x) < 4
-}
+rng_l4_func <- function(x, y) abs(y - x) < 4
 sub_cri_9 <- sub_criteria(dfr_7$attr_1, match_funcs = rng_l4_func)
 
 dfr_7$pd_8a <- links("place_holder", sub_criteria = list("cr1" = sub_cri_9), recursive  = TRUE)
@@ -390,7 +385,7 @@ dfr_7
 # and different number of iterations
 max(dfr_7$pd_8a@iteration); max(dfr_7$pd_8b@iteration)
 ```
-In contrast, if the attributes are to be compared in such a way that matches will not spawn new matches, then having `recurisve` as `FALSE` will lead to the same outcome but with the added benefit of taking fewer iterations to complete the same process. The example below demonstrates this. `attr_10` contains 26 unique values therefore, 26 iterations are required to complete the linkage. However, if `recursive` is `TRUE` then at each iteration, 260,000 records are assessed. In contrast, when `recursive` is `FALSE` then 10,000 less records are assessed at each subsequent iteration.  
+In contrast, if the attributes are to be compared in such a way that matches will not spawn new matches, then having `recurisve` as `FALSE` will lead to the same outcome but with the added benefit of taking fewer iterations to complete the same process. The example below demonstrates this. `attr_10` contains 26 unique values therefore, 26 iterations are required to complete the linkage. However, if `recursive` is `TRUE` then at each iteration 260,000 records are assessed. In contrast, when `recursive` is `FALSE` then 10,000 less records are assessed at each subsequent iteration.  
 
 ```{r warning = FALSE}
 # dataset 
