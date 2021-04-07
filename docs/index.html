@@ -60,13 +60,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="articles/number_line.html">Number lines and overlaps</a>
+      <a href="articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -100,8 +100,7 @@
 <div id="overview" class="section level2">
 <h2 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h2>
-<p>Record linkage and deduplication of individual-level data, such as repeated spells in hospital, or recurrent cases of infection is a common task in epidemiological analysis and other fields of research.</p>
-<p>The <code>diyar</code> package aims to provide a simple and flexible implementation of multistage deterministic record linkage and episode grouping.</p>
+<p>Record linkage and distinguishing between index, duplicate and recurrent events are common tasks in epidemiological analyses and other fields of research, particularly as part of a case definition. Implementing these in <code>R</code> can be complex and challenging. The <code>diyar</code> package provides a convenient and flexible way of doing these in <code>R</code>.</p>
 </div>
 <div id="installation" class="section level2">
 <h2 class="hasAnchor">
@@ -113,115 +112,105 @@
 <span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)
 <span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org//reference/remote-reexports.html">install_github</a></span>(<span class="st">"OlisaNsonwu/diyar"</span>)</pre></div>
 </div>
-<div id="cheat-sheet" class="section level2">
-<h2 class="hasAnchor">
-<a href="#cheat-sheet" class="anchor"></a>Cheat sheet</h2>
-<p><a href="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/diyar.pdf"><img src="https://github.com/OlisaNsonwu/diyar/blob/master/cheatsheet/thumbnail.png?raw=true"></a></p>
-</div>
 <div id="usage" class="section level2">
 <h2 class="hasAnchor">
 <a href="#usage" class="anchor"></a>Usage</h2>
-<p>There are two main aspects of the <code>diyar</code> package; multistage data linkage grouping (<code><a href="reference/links.html">links()</a></code>) and episode tracking (<code><a href="reference/episodes.html">episodes()</a></code>). <code>number_line</code> objects are used in both.</p>
-<ul>
-<li>
-<code><a href="reference/number_line.html">number_line()</a></code> - creates a range of real numbers on a number line.
-<ul>
-<li>They can be manipulated - <code>reverse_number_line</code>, <code>shift_number_line</code>, <code>expand_number_line</code>, <code>number_line_sequence</code>, <code>invert_number_line</code>, <code>compress_number_line</code>, <code>union_number_lines</code>, <code>subtract_number_lines</code>, <code>intersect_number_lines</code>.</li>
-<li>Logical tests for overlap - <code>overlaps</code>, <code>overlap</code>, <code>exact</code>, <code>reverse</code>, <code>chain</code>, <code>across</code>, <code>aligns_start</code>, <code>aligns_end</code>, <code>inbetween</code>.</li>
-</ul>
-</li>
-</ul>
-<!-- end list --><div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">diyar</span>)
-
-<span class="no">l</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"01/04/2019"</span>, <span class="st">"%d/%m/%Y"</span>); <span class="no">r</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"30/04/2019"</span>, <span class="st">"%d/%m/%Y"</span>)
-<span class="no">nl</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span>(<span class="no">l</span>, <span class="no">r</span>)
-<span class="no">nl</span>
-<span class="co">#&gt; [1] "2019-04-01 -&gt; 2019-04-30"</span>
-<span class="fu"><a href="reference/number_line.html">reverse_number_line</a></span>(<span class="no">nl</span>)
-<span class="co">#&gt; [1] "2019-04-30 &lt;- 2019-04-01"</span>
-<span class="fu"><a href="reference/number_line.html">expand_number_line</a></span>(<span class="no">nl</span>, -<span class="fl">2</span>)
-<span class="co">#&gt; [1] "2019-04-03 -&gt; 2019-04-28"</span></pre></div>
-<ul>
-<li>
-<code><a href="reference/episodes.html">episodes()</a></code> - tracks temporal episodes.</li>
-</ul>
-<!-- end list --><div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">infections</span>);
-<span class="no">db</span> <span class="kw">&lt;-</span> <span class="no">infections</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>)]
-<span class="co"># Dates</span>
-<span class="no">db</span>$<span class="no">date</span>
-<span class="co">#&gt;  [1] "2018-04-01" "2018-04-07" "2018-04-13" "2018-04-19" "2018-04-25"</span>
-<span class="co">#&gt;  [6] "2018-05-01" "2018-05-07" "2018-05-13" "2018-05-19" "2018-05-25"</span>
-<span class="co">#&gt; [11] "2018-05-31"</span>
-
-<span class="co"># Fixed episodes</span>
-<span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">db</span>$<span class="no">date</span>,
-         <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">15</span>,
-         <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>,
-         <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span>
-<span class="co">#&gt;  [1] "E.01 2018-04-01 -&gt; 2018-04-13 (C)" "E.01 2018-04-01 -&gt; 2018-04-13 (D)"</span>
-<span class="co">#&gt;  [3] "E.01 2018-04-01 -&gt; 2018-04-13 (D)" "E.04 2018-04-19 -&gt; 2018-05-01 (C)"</span>
-<span class="co">#&gt;  [5] "E.04 2018-04-19 -&gt; 2018-05-01 (D)" "E.04 2018-04-19 -&gt; 2018-05-01 (D)"</span>
-<span class="co">#&gt;  [7] "E.07 2018-05-07 -&gt; 2018-05-19 (C)" "E.07 2018-05-07 -&gt; 2018-05-19 (D)"</span>
-<span class="co">#&gt;  [9] "E.07 2018-05-07 -&gt; 2018-05-19 (D)" "E.10 2018-05-25 -&gt; 2018-05-31 (C)"</span>
-<span class="co">#&gt; [11] "E.10 2018-05-25 -&gt; 2018-05-31 (D)"</span>
-
-<span class="co"># Rolling episodes</span>
-<span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">db</span>$<span class="no">date</span>,
-         <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">15</span>,
-         <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fl">40</span>,
-         <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>,
-         <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
-         <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; Episode tracking completed in &lt; 0.01 secs!</span>
-<span class="co">#&gt;  [1] "E.1 2018-04-01 -&gt; 2018-05-31 (C)" "E.1 2018-04-01 -&gt; 2018-05-31 (D)"</span>
-<span class="co">#&gt;  [3] "E.1 2018-04-01 -&gt; 2018-05-31 (D)" "E.1 2018-04-01 -&gt; 2018-05-31 (R)"</span>
-<span class="co">#&gt;  [5] "E.1 2018-04-01 -&gt; 2018-05-31 (D)" "E.1 2018-04-01 -&gt; 2018-05-31 (D)"</span>
-<span class="co">#&gt;  [7] "E.1 2018-04-01 -&gt; 2018-05-31 (D)" "E.1 2018-04-01 -&gt; 2018-05-31 (D)"</span>
-<span class="co">#&gt;  [9] "E.1 2018-04-01 -&gt; 2018-05-31 (D)" "E.1 2018-04-01 -&gt; 2018-05-31 (R)"</span>
-<span class="co">#&gt; [11] "E.1 2018-04-01 -&gt; 2018-05-31 (D)"</span></pre></div>
-<ul>
-<li>
-<code><a href="reference/links.html">links()</a></code> - multistage deterministic linkage with missing data.</li>
-</ul>
-<!-- end list --><div class="sourceCode" id="cb4"><pre class="r"><span class="co"># Two-stage exact matches</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">staff_records</span>);
-
-<span class="no">staff_records</span>$<span class="no">pids_a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">staff_records</span>$<span class="no">forename</span>,
-                                              <span class="no">staff_records</span>$<span class="no">surname</span>),
-                              <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">staff_records</span>$<span class="no">sex</span>,
-                              <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
-<span class="no">staff_records</span>
-<span class="co">#&gt;   r_id forename  surname sex    dataset        pids_a</span>
-<span class="co">#&gt; 1    1    James    Green   M Staff list P.1 (CRI 002)</span>
-<span class="co">#&gt; 2    2     &lt;NA&gt; Anderson   M Staff list P.2 (CRI 002)</span>
-<span class="co">#&gt; 3    3    Jamey    Green   M  Pay slips P.1 (CRI 002)</span>
-<span class="co">#&gt; 4    4              &lt;NA&gt;   F  Pay slips P.4 (No Hits)</span>
-<span class="co">#&gt; 5    5  Derrick Anderson   M Staff list P.2 (CRI 002)</span>
-<span class="co">#&gt; 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 002)</span>
-<span class="co">#&gt; 7    7 Christie    Green   F Staff list P.1 (CRI 002)</span>
-
-<span class="co"># Single-stage user-defined logical tests</span>
-<span class="co"># Matching `sex` and + 20-year age gaps</span>
-<span class="no">age</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">30</span>, <span class="fl">28</span>, <span class="fl">40</span>, <span class="fl">25</span>, <span class="fl">25</span>, <span class="fl">29</span>, <span class="fl">27</span>)
-<span class="no">sex</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"M"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>, <span class="st">"M"</span>, <span class="st">"M"</span>, <span class="st">"F"</span>)
-<span class="no">f1</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) (<span class="no">y</span> - <span class="no">x</span>) <span class="kw">%in%</span> <span class="fl">0</span>:<span class="fl">20</span>
-<span class="fu"><a href="reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="no">sex</span>,
-      <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">age</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">f1</span>)),
-      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
-<span class="co">#&gt; [1] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"</span>
-<span class="co">#&gt; [5] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"</span>
-
-<span class="co"># + 20-year age gaps only</span>
-<span class="fu"><a href="reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="st">"place_holder"</span>,
-      <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="kw">cr1</span> <span class="kw">=</span> <span class="fu"><a href="reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">age</span>, <span class="kw">funcs</span> <span class="kw">=</span> <span class="no">f1</span>)),
-      <span class="kw">display</span> <span class="kw">=</span> <span class="st">"none"</span>)
-<span class="co">#&gt; Data linkage completed in &lt; 0.01 secs!</span>
-<span class="co">#&gt; [1] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"</span>
-<span class="co">#&gt; [5] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"</span></pre></div>
+<p><img src="fig_r1_light.png" width="1000" height="580"></p>
+<div id="number-line" class="section level3">
+<h3 class="hasAnchor">
+<a href="#number-line" class="anchor"></a>Number line</h3>
+<p>Use <code><a href="reference/number_line.html">number_line()</a></code> to create <code>number_line</code> objects - a range of numeric values. These can be split or manipulated in several ways.</p>
+<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">diyar</span>)
+<span class="no">nl</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span>(<span class="fl">1</span>, <span class="fl">10</span>); <span class="no">nl</span>
+<span class="co">#&gt; [1] "1 -&gt; 10"</span>
+<span class="fu"><a href="reference/number_line.html">invert_number_line</a></span>(<span class="no">nl</span>)
+<span class="co">#&gt; [1] "-1 &lt;- -10"</span>
+<span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="no">nl</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">3</span>)
+<span class="co">#&gt; [1] "1 -&gt; 4"  "4 -&gt; 7"  "7 -&gt; 10"</span></pre></div>
+<p><code><a href="reference/overlaps.html">overlap()</a></code> and related functions test how <code>number_line</code> objects overlap.</p>
+<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="reference/overlaps.html">overlap_method</a></span>(<span class="no">nl</span>, <span class="no">nl</span>); <span class="fu"><a href="reference/overlaps.html">reverse</a></span>(<span class="no">nl</span>, <span class="no">nl</span>)
+<span class="co">#&gt; [1] "exact"</span>
+<span class="co">#&gt; [1] FALSE</span>
+<span class="no">nl2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">reverse_number_line</a></span>(<span class="no">nl</span>); <span class="no">nl2</span>
+<span class="co">#&gt; [1] "10 &lt;- 1"</span>
+<span class="fu"><a href="reference/overlaps.html">overlap_method</a></span>(<span class="no">nl</span>, <span class="no">nl2</span>); <span class="fu"><a href="reference/overlaps.html">reverse</a></span>(<span class="no">nl</span>, <span class="no">nl2</span>)
+<span class="co">#&gt; [1] "reverse"</span>
+<span class="co">#&gt; [1] TRUE</span></pre></div>
+<p>Set operations such as <code><a href="reference/set_operations.html">union_number_lines()</a></code> are also possible for pairs of <code>number_line</code> objects.</p>
+<div class="sourceCode" id="cb4"><pre class="r"><span class="no">nl3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span>(<span class="fl">1</span>, <span class="fl">20</span>)
+<span class="no">nl4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span>(<span class="fl">3</span>, <span class="fl">6</span>)
+<span class="no">nl3</span>; <span class="no">nl4</span>
+<span class="co">#&gt; [1] "1 -&gt; 20"</span>
+<span class="co">#&gt; [1] "3 -&gt; 6"</span>
+<span class="fu"><a href="reference/overlaps.html">overlap_method</a></span>(<span class="no">nl3</span>, <span class="no">nl4</span>)
+<span class="co">#&gt; [1] "inbetween"</span>
+<span class="fu"><a href="reference/set_operations.html">intersect_number_lines</a></span>(<span class="no">nl3</span>, <span class="no">nl4</span>)
+<span class="co">#&gt; [1] "3 -&gt; 6"</span>
+<span class="fu"><a href="reference/set_operations.html">subtract_number_lines</a></span>(<span class="no">nl3</span>, <span class="no">nl4</span>)
+<span class="co">#&gt; $n1</span>
+<span class="co">#&gt; [1] "1 -&gt; 3"</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; $n2</span>
+<span class="co">#&gt; [1] "6 -&gt; 20"</span></pre></div>
+</div>
+<div id="record-linkage" class="section level3">
+<h3 class="hasAnchor">
+<a href="#record-linkage" class="anchor"></a>Record linkage</h3>
+<p>Use <code><a href="reference/links.html">links()</a></code> to create a unique identifier for matching records based on a multistage deterministic approach to record linkage.</p>
+<div class="sourceCode" id="cb5"><pre class="r"><span class="no">attr_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>)
+<span class="no">attr_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>)
+<span class="fu"><a href="reference/links.html">links</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">attr_1</span>, <span class="no">attr_2</span>))
+<span class="co">#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 002)"</span>
+<span class="co">#&gt; [5] "P.1 (CRI 002)" "P.6 (No hits)" "P.7 (No hits)" "P.8 (No hits)"</span></pre></div>
+<p><code><a href="reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code> is a wrapper function of <code><a href="reference/links.html">links()</a></code> to implement probabilistic record linkage.</p>
+<div class="sourceCode" id="cb6"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">missing_staff_id</span>)
+<span class="no">dfr</span> <span class="kw">&lt;-</span> <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"staff_id"</span>,  <span class="st">"initials"</span>, <span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>)]
+<span class="fu"><a href="reference/links_wf_probabilistic.html">links_wf_probabilistic</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="no">dfr</span>), <span class="kw">score_threshold</span> <span class="kw">=</span> -<span class="fl">4.2</span>)
+<span class="co">#&gt; $pid</span>
+<span class="co">#&gt; [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"</span>
+<span class="co">#&gt; [5] "P.5 (No hits)" "P.6 (No hits)" "P.1 (CRI 001)"</span>
+<span class="co">#&gt; </span>
+<span class="co">#&gt; $pid_weights</span>
+<span class="co">#&gt;      sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office</span>
+<span class="co">#&gt; [1,]    1    7            0            1               1                 1</span>
+<span class="co">#&gt; [2,]    2    2           NA           NA              NA                NA</span>
+<span class="co">#&gt; [3,]    3    3           NA           NA              NA                NA</span>
+<span class="co">#&gt; [4,]    4    4           NA           NA              NA                NA</span>
+<span class="co">#&gt; [5,]    5    5           NA           NA              NA                NA</span>
+<span class="co">#&gt; [6,]    6    6           NA           NA              NA                NA</span>
+<span class="co">#&gt; [7,]    7    7            1            1               1                 1</span>
+<span class="co">#&gt;      cmp.weight cmp.threshold prb.staff_id prb.initials prb.hair_colour</span>
+<span class="co">#&gt; [1,]          3            NA    -4.321928     1.148392        1.733354</span>
+<span class="co">#&gt; [2,]         NA            NA           NA           NA              NA</span>
+<span class="co">#&gt; [3,]         NA            NA           NA           NA              NA</span>
+<span class="co">#&gt; [4,]         NA            NA           NA           NA              NA</span>
+<span class="co">#&gt; [5,]         NA            NA           NA           NA              NA</span>
+<span class="co">#&gt; [6,]         NA            NA           NA           NA              NA</span>
+<span class="co">#&gt; [7,]          4            NA     1.733354     1.148392        1.733354</span>
+<span class="co">#&gt;      prb.branch_office prb.weight prb.threshold</span>
+<span class="co">#&gt; [1,]          1.733354  0.2931724             1</span>
+<span class="co">#&gt; [2,]                NA         NA            NA</span>
+<span class="co">#&gt; [3,]                NA         NA            NA</span>
+<span class="co">#&gt; [4,]                NA         NA            NA</span>
+<span class="co">#&gt; [5,]                NA         NA            NA</span>
+<span class="co">#&gt; [6,]                NA         NA            NA</span>
+<span class="co">#&gt; [7,]          1.733354  6.3484549             1</span></pre></div>
+</div>
+<div id="episode-tracking" class="section level3">
+<h3 class="hasAnchor">
+<a href="#episode-tracking" class="anchor"></a>Episode tracking</h3>
+<p>Use <code><a href="reference/episodes.html">episodes()</a></code> or <code><a href="reference/episodes.html">episodes_wf_splits()</a></code> to create a unique identifier for related events based on a case definition.</p>
+<div class="sourceCode" id="cb7"><pre class="r"><span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="fl">1</span>:<span class="fl">7</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>)
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.4 (C)" "E.4 (D)" "E.4 (D)" "E.7 (C)"</span>
+<span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="fl">1</span>:<span class="fl">7</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>)
+<span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"</span></pre></div>
+<p>Use <code><a href="reference/partitions.html">partitions()</a></code> to create a unique identifier for events within the same time or numerical interval.</p>
+<div class="sourceCode" id="cb8"><pre class="r"><span class="fu"><a href="reference/partitions.html">partitions</a></span>(<span class="fl">1</span>:<span class="fl">7</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<span class="co">#&gt; [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.5 (I)" "PN.5 (D)" "PN.5 (D)"</span>
+<span class="fu"><a href="reference/partitions.html">partitions</a></span>(<span class="fl">1</span>:<span class="fl">7</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">3</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
+<span class="co">#&gt; [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.5 (I)" "PN.5 (D)" "PN.5 (D)"</span></pre></div>
 <p>Find out more <a href="https://olisansonwu.github.io/diyar/index.html">here!</a></p>
+</div>
 </div>
 <div id="bugs-and-issues" class="section level2">
 <h2 class="hasAnchor">

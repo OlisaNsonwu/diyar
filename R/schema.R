@@ -324,7 +324,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     plt_df$x_lead <- link_sn$mid_x[match(plt_df$wind_id, link_sn$sn)]
     plt_df$y_lead <- link_sn$y[match(plt_df$wind_id, link_sn$sn)]
     plt_df$sn_lead <- link_sn$sn[match(plt_df$wind_id, link_sn$sn)]
-    df_cols <- c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite")
+    df_cols <- c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite", "wind_nm")
     if(!isFALSE(show_labels) | !is.null(custom_label)) {
       df_cols <- c(df_cols, "event_nm", "event_type")
     }
@@ -378,10 +378,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   plt_df$overlap_method <- ""
   if(nrow(case_l_ar) > 0 & ("case_overlap_methods" %in% show_labels | "recurrence_overlap_methods" %in% show_labels)){
     rep_lgk <- match(plt_df$sn_lead, case_l_ar$pt_sn)
-    plt_df$lead_dt_a <- plt_df$start_rl[rep_lgk]
-    plt_df$lead_dt_z <- plt_df$end_rl[rep_lgk]
+    plt_df$lead_dt_a <- case_l_ar$start_rl[rep_lgk]
+    plt_df$lead_dt_z <- case_l_ar$end_rl[rep_lgk]
     if("case_overlap_methods" %in% show_labels){
-      rep_lgk <- which(plt_df$sn != plt_df$wind_id$wind_id1 & plt_df$wind_nm_l == "Case length")
+      rep_lgk <- which(plt_df$sn != plt_df$sn_lead & plt_df$wind_nm == "Case")
       if(length(rep_lgk) > 0){
         plt_df$overlap_method[rep_lgk] <- overlap_method(number_line(plt_df$start[rep_lgk],
                                                                      plt_df$end[rep_lgk]),
@@ -390,7 +390,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
       }
     }
     if("recurrence_overlap_methods" %in% show_labels){
-      rep_lgk <- which(plt_df$sn != plt_df$wind_id$wind_id1 & plt_df$wind_nm_l == "Recurrence length")
+      rep_lgk <- which(plt_df$sn != plt_df$sn_lead & plt_df$wind_nm == "Recurrence")
       if(length(rep_lgk) > 0){
         plt_df$overlap_method[rep_lgk] <- overlap_method(number_line(plt_df$start[rep_lgk],
                                                                      plt_df$end[rep_lgk]),

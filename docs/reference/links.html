@@ -96,13 +96,13 @@ Each set of linked records are assigned a unique identifier with relevant group-
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -201,12 +201,24 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <td><p><code>[logical]</code>. If <code>TRUE</code>, forces a record group to shrink with each subsequent stage of the linkage process. <em>Not interchangeable with <code>expand</code></em>.</p></td>
     </tr>
     <tr>
+      <th>recursive</th>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, within each iteration, a match can spawn new matches. See <code><a href='../articles/links.html'>vignette("links")</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>check_duplicates</th>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, within each iteration, duplicates values of an attributes are not checked. The outcome of the logical test on on the first instance of the value will be recycled for the duplicate values. See <code><a href='../articles/links.html'>vignette("links")</a></code>.</p></td>
+    </tr>
+    <tr>
       <th>df</th>
-      <td><p><code>[data.frame]</code>. One or more datasets appended together. See <code>Details</code>.</p></td>
+      <td><p><code>[data.frame]</code>. Deprecated. One or more datasets appended together. See <code>Details</code>.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Arguments passed to <code>links</code>.</p></td>
     </tr>
     <tr>
       <th>to_s4</th>
-      <td><p><code>[logical]</code>. Output type - <code><a href='pid-class.html'>pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
+      <td><p><code>[logical]</code>. Deprecated. Output type - <code><a href='pid-class.html'>pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
     </tr>
     </table>
 
@@ -265,11 +277,8 @@ Moving forward, please use <b><code>links()</code></b>.</p>
 <span class='no'>sex</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>, <span class='st'>"M"</span>, <span class='st'>"M"</span>, <span class='st'>"F"</span>)
 <span class='no'>f1</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>x</span>, <span class='no'>y</span>) (<span class='no'>y</span> - <span class='no'>x</span>) <span class='kw'>%in%</span> <span class='fl'>0</span>:<span class='fl'>20</span>
 <span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>,
-      <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>cr1</span> <span class='kw'>=</span> <span class='fu'><a href='sub_criteria.html'>sub_criteria</a></span>(<span class='no'>age</span>, <span class='kw'>funcs</span> <span class='kw'>=</span> <span class='no'>f1</span>)))</div><div class='output co'>#&gt; <span class='error'>Error: Invalid object type for `...` in `sub_criteria()`:</span>
-#&gt; <span class='error'>i - `...` must be an `atomic` vector OR,</span>
-#&gt; <span class='error'>i - `...` must be a `list` of `atomic`  vectors OR,</span>
-#&gt; <span class='error'>i - `...` must be a `sub_criteria` object.</span>
-#&gt; <span class='error'>X - `...` contains is a `function` object.</span></div><div class='input'>
+      <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>cr1</span> <span class='kw'>=</span> <span class='fu'><a href='sub_criteria.html'>sub_criteria</a></span>(<span class='no'>age</span>, <span class='kw'>match_funcs</span> <span class='kw'>=</span> <span class='no'>f1</span>)))</div><div class='output co'>#&gt; [1] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"
+#&gt; [5] "P.3 (CRI 001)" "P.3 (CRI 001)" "P.7 (CRI 001)"</div><div class='input'>
 <span class='co'># Multistage linkage</span>
 <span class='co'># Relevance of matches: `forename` &gt; `surname`</span>
 <span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>staff_records</span>); <span class='no'>staff_records</span></div><div class='output co'>#&gt;   r_id forename  surname sex    dataset
@@ -302,8 +311,8 @@ Moving forward, please use <b><code>links()</code></b>.</p>
                   <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>1</span>,<span class='fl'>2</span>,<span class='fl'>2</span>,<span class='fl'>2</span>),
                   <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>3</span>,<span class='fl'>2</span>,<span class='fl'>2</span>,<span class='fl'>2</span>))
 <span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 002)" "P.1 (CRI 002)" "P.1 (CRI 001)"
-#&gt; [5] "P.1 (CRI 002)" "P.1 (CRI 002)"</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 002)" "P.3 (CRI 002)" "P.1 (CRI 001)"
-#&gt; [5] "P.5 (CRI 002)" "P.6 (CRI 002)"</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>shrink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 003)" "P.2 (CRI 003)" "P.1 (CRI 001)"
+#&gt; [5] "P.1 (CRI 002)" "P.1 (CRI 002)"</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 002)" "P.2 (CRI 002)" "P.1 (CRI 001)"
+#&gt; [5] "P.5 (CRI 002)" "P.5 (CRI 002)"</div><div class='input'><span class='fu'>links</span>(<span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>match_cri</span>, <span class='kw'>shrink</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "P.1 (CRI 001)" "P.2 (CRI 003)" "P.2 (CRI 003)" "P.1 (CRI 001)"
 #&gt; [5] "P.5 (CRI 003)" "P.5 (CRI 003)"</div><div class='input'>
 </div></pre>
   </div>

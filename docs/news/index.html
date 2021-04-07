@@ -94,13 +94,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -149,7 +149,20 @@
 <li>New argument - <code>schema</code> in <code><a href="../reference/links.html">links()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code>panes()</code>. Produce schema diagrams of the record linkage and episodes tracking process.</li>
 <li>New argument - <code>case_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Number of hits from multiple <code>case_lengths</code> required for a <code>window</code>/<code>episode</code>.</li>
 <li>New argument - <code>recurrence_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Number of hits from multiple <code>recurrence_lengths</code> required for a <code>window</code>/<code>episode</code>.</li>
-<li>New argument - <code>schema</code> in <code><a href="../reference/links.html">links()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code>panes()</code>. Produce schema diagrams of the record linkage and episodes tracking process.</li>
+<li>New argument - <code>schema</code> in <code><a href="../reference/links.html">links()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code>panes()</code>. Produce schema diagrams of the record linkage and episodes + tracking process.</li>
+<li>d_label, encode, decode</li>
+<li>as.data.frame methods</li>
+<li>as.list methods</li>
+<li>sub_criteria generic, methods and recursive evaluation</li>
+<li>episodes_wf_splits</li>
+<li>links_wf_probabilistic</li>
+<li>Display messages</li>
+<li>Clear objects at the end of functions to address memory leakage</li>
+<li>epid_total is produced by default</li>
+<li>Multiple index events</li>
+<li>recursive episodes</li>
+<li>recurrence_from_last changed to reference event and given two new options</li>
+<li>Optimised episodes and links</li>
 </ul>
 </div>
 <div id="changes" class="section level2">

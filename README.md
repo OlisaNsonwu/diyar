@@ -30,7 +30,7 @@ devtools::install_github("OlisaNsonwu/diyar")
 
 ## Usage
 
-<img src = "figures/fig_r1_light.png" width = "1000" height="580">
+<img src = "fig_r1_light.png" width = "1000" height="580">
 
 ### Number line
 

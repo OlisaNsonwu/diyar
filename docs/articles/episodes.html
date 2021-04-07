@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Implementing case definitions for epidemiological analysis in R • diyar</title>
+<title>Epidemiological case definitions in R • diyar</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="../bootstrap-toc.css">
 <script src="../bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="../pkgdown.css" rel="stylesheet">
-<script src="../pkgdown.js"></script><meta property="og:title" content="Implementing case definitions for epidemiological analysis in R">
+<script src="../pkgdown.js"></script><meta property="og:title" content="Epidemiological case definitions in R">
 <meta property="og:description" content="diyar">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
@@ -54,13 +54,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
 <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -88,9 +88,9 @@
       </header><script src="episodes_files/accessible-code-block-0.0.1/empty-anchor.js"></script><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Implementing case definitions for epidemiological analysis in R</h1>
+      <h1 data-toc-skip>Epidemiological case definitions in R</h1>
             
-            <h4 class="date">28 March 2021</h4>
+            <h4 class="date">07 April 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/episodes.Rmd"><code>vignettes/episodes.Rmd</code></a></small>
       <div class="hidden name"><code>episodes.Rmd</code></div>
@@ -102,18 +102,21 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>In epidemiological analyses, an exact distinction between temporal events is not always possible. Thus, static but reasonable cut-offs are used to distinguish between events. This is an important aspect of most case definitions. For example, you may want to distinguish between repeat positive infection results.</p>
-<p>Scripting a case definition in <code>R</code> can be challenging, particularly when dealing with those involving duplicate and repeat events. <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/partitions.html">partitions()</a></code> provide a convenient but flexible way of doing this. It links events into a temporal sequence, creating a unique group identifier with useful information about each group. These identifiers can then be used for record deduplication or further analyses.</p>
+<p>In epidemiological analyses an exact distinction between temporal events is not always possible. Thus, static but reasonable cut-offs are used to distinguish one case of an event from another. This is an important aspect of most case definitions. For example, distinguishing repeat or recurrent infections in a patient from their first occurrence.</p>
+<p>Scripting such case definitions in <code>R</code> can be challenging. <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/partitions.html">partitions()</a></code> provide a convenient but flexible solution to this. It links events into a temporal sequence, creating a unique group identifier with useful information about each group. These identifiers can then be used for record deduplication or further analyses.</p>
 </div>
 <div id="overview" class="section level1">
 <h1 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h1>
-<p>The group identifiers created by <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/partitions.html">partitions()</a></code> are called episodes (<code>epid</code> class) and panes (<code>pane</code> class) respectively. Additionally, <code><a href="../reference/episodes.html">episodes()</a></code> creates three types of episodes - <code>"fixed"</code>, <code>"rolling"</code> and <code>"recursive"</code>. In <code>diyar</code>, a fixed episode is created by linking an index or reference event (dated records) to other events within a specified duration of another event. This yields <code>"Case"</code> (index) and <code>"Duplicate"</code> events. In a rolling episode, the process is repeated using an event from the existing episode as the reference event. This yields a <code>"Recurrent"</code> event and additional <code>"Duplicate"</code> events. This repetition is referred to here as a recurrence. Unless specified, the recurrence will continue indefinitely until there are no more events within the period of recurrence. A recursive episodes is similar to a rolling episode except that every event in the existing episode is used as a reference event. In contrast, a pane is created by separating events into fixed periods of time. The events in a pane have to relationship with each other, other than being in the same period or numeric interval. See figure and the example below.</p>
+<p>The group identifiers created by <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/partitions.html">partitions()</a></code> are called episodes (<code>epid</code> class) and panes (<code>pane</code> class) respectively. <code><a href="../reference/episodes.html">episodes()</a></code> creates three type of episodes - <code>"fixed"</code>, <code>"rolling"</code> and <code>"recursive"</code>. In <code>diyar</code>, a fixed episode is created by linking an index event to other events occuring within a specified period from of it. This results in a <code>"Case"</code> (index event) and related duplicate events (<code>"Duplicate_C"</code>). In a rolling episode, the process is repeated using another event from the existing episode as the reference event. This results in a <code>"Recurrent"</code> event and additional duplicate (<code>"Duplicate_R"</code>) events. Here, this repetition is referred to as a recurrence. Unless specified, recurrences will recur indefinitely until there are no more events within the period of recurrence. When this happens, the chain of recurrence ends and so does the episode. A recursive episode is similar to a rolling episode except that every event in the existing episode is used as a reference event. In contrast, a pane is created by separating events into set periods in time. The events in a pane have no relationship with each other, other than being in the same period or numeric interval. See the figure and example below.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co"># Events</span>
 <span class="no">event_dt</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="kw">from</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"2021-01-01"</span>), <span class="kw">to</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"2021-01-11"</span>), <span class="kw">by</span> <span class="kw">=</span> <span class="fl">1</span>)
 <span class="no">s_data</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">event_dt</span>)
 <span class="co"># Attribute 1 - Source of infection</span>
 <span class="no">attr_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"BSI"</span>, <span class="st">"UTI"</span>, <span class="st">"RTI"</span>, <span class="st">"RTI"</span>, <span class="st">"BSI"</span>, <span class="st">"BSI"</span>, <span class="st">"BSI"</span>, <span class="st">"RTI"</span>, <span class="st">"RTI"</span>, <span class="st">"BSI"</span>, <span class="st">"RTI"</span>)
+<span class="co"># Attribute 2 - Location </span>
+<span class="no">attr_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Ward 1"</span>, <span class="st">"Ward 1"</span>, <span class="st">"Ward 3"</span>, <span class="st">"Ward 3"</span>, <span class="st">"Ward 2"</span>, <span class="st">"Ward 2"</span>,
+            <span class="st">"Ward 1"</span>, <span class="st">"Ward 1"</span>, <span class="st">"Ward 3"</span>,<span class="st">"Ward 3"</span>, <span class="st">"Ward 2"</span>)
 <span class="no">s_data</span>$<span class="no">attr</span> <span class="kw">&lt;-</span> <span class="no">attr_1</span>
 <span class="co"># Fixed episodes</span>
 <span class="no">s_data</span>$<span class="no">ep1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"fixed"</span>)
@@ -138,9 +141,9 @@
 <span class="co">#&gt; 8  2021-01-08  RTI E.7 (D) E.1 2021-01-01 -&gt; 2021-01-11 (D) E.1 (D) PN.6 (D)</span>
 <span class="co">#&gt; 9  2021-01-09  RTI E.7 (D) E.1 2021-01-01 -&gt; 2021-01-11 (D) E.1 (D) PN.6 (D)</span>
 <span class="co">#&gt; 10 2021-01-10  BSI E.7 (D) E.1 2021-01-01 -&gt; 2021-01-11 (D) E.1 (D) PN.6 (D)</span>
-<span class="co">#&gt; 11 2021-01-11  RTI E.7 (D) E.1 2021-01-01 -&gt; 2021-01-11 (D) E.1 (D) PN.6 (D)</span>
-
-<span class="co"># Components of an identifier</span>
+<span class="co">#&gt; 11 2021-01-11  RTI E.7 (D) E.1 2021-01-01 -&gt; 2021-01-11 (D) E.1 (D) PN.6 (D)</span></pre></body></html></div>
+<p>Each type of identifier has <code>as.data.frame</code> and <code>as.list</code> methods for easy access to their components.</p>
+<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Components of an episode identifier</span>
 <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="no">s_data</span>$<span class="no">ep2</span>)
 <span class="co">#&gt;    epid sn    wind_nm     case_nm dist_wind_index dist_epid_index epid_total</span>
 <span class="co">#&gt; 1     1  1       Case        Case          0 days          0 days         11</span>
@@ -166,47 +169,45 @@
 <span class="co">#&gt; 9          2        6 2021-01-01 2021-01-11     10 days  BSI,RTI,UTI</span>
 <span class="co">#&gt; 10         2        6 2021-01-01 2021-01-11     10 days  BSI,RTI,UTI</span>
 <span class="co">#&gt; 11         2        6 2021-01-01 2021-01-11     10 days  BSI,RTI,UTI</span></pre></body></html></div>
+<p>Figure 1 gives a visual representation of the difference between these identifiers.</p>
 <p><strong>Figure 1: Episodes and panes</strong></p>
-<p><img src="fig1.png" width="1000" height="580"></p>
+<p><img src="fig_e1.png" width="1000" height="580"></p>
 </div>
 <div id="implementation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#implementation" class="anchor"></a>Implementation</h1>
-<p>The main considerations of a case definition are captured by different arguments in these functions. These considerations are implemented in a flexible and modular way, such that most considerations can be accounted for independently or in a compounding manner. The main considerations are summarised below.</p>
-<p><strong>Caveats</strong></p>
-<div id="matching-criteria-for-an-events-attribute" class="section level2">
+<p>The main considerations in a case definition are accounted for in a flexible and modular way, so that most considerations can addressed independently or in a compounding manner. These considerations are summarised below.</p>
+<div id="criteria-for-an-events-attribute" class="section level2">
 <h2 class="hasAnchor">
-<a href="#matching-criteria-for-an-events-attribute" class="anchor"></a>Matching criteria for an event’s attribute</h2>
-<p>Additional matching criteria (separate from the temporal links) can be implemented by the <code>strata</code>, <code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> arguments. <code>strata</code> introduces a blocking attribute which forces separate episodes and panes for different subsets of the dataset. In contrast, the <code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> arguments apply a set of matching criteria to attributes associated with the events being compared. These arguments take a <code>sub_criteria</code> object. <code>sub_criteria</code> objects and how they are used are described in greater detail in <code><a href="../articles/links.html">vignette("links")</a></code>. In summary, they contain atomic vectors or a list of atomic vectors as attributes, functions as logical tests for each condition and another set of functions as logical tests for the equivalence of attributes. The evaluation of a <code>sub_criteria</code> object is recursive and so allows for nested conditions.</p>
-<p>The figure and example below shows how the <code>strata</code> argument is used.</p>
-<div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Attribute 2 - Location </span>
-<span class="no">attr_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Ward 1"</span>, <span class="st">"Ward 1"</span>, <span class="st">"Ward 3"</span>, <span class="st">"Ward 3"</span>, <span class="st">"Ward 2"</span>, <span class="st">"Ward 2"</span>,
-            <span class="st">"Ward 1"</span>, <span class="st">"Ward 1"</span>, <span class="st">"Ward 3"</span>,<span class="st">"Ward 3"</span>, <span class="st">"Ward 2"</span>)
-<span class="co"># Matching clinical criteria</span>
+<a href="#criteria-for-an-events-attribute" class="anchor"></a>Criteria for an event’s attribute</h2>
+<p>Additional matching criteria (separate from temporal links) can be implemented by the <code>strata</code>, <code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> arguments. <code>strata</code> introduces a blocking attribute which forces separate episodes and panes for different subsets of the dataset.</p>
+<p>The figure and example below show how the <code>strata</code> argument is used.</p>
+<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Matching clinical criteria</span>
 <span class="no">ep1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">strata</span> <span class="kw">=</span> <span class="no">attr_1</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>)
 <span class="co"># Matching geographical criteria</span>
 <span class="no">ep2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">strata</span> <span class="kw">=</span> <span class="no">attr_2</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>)</pre></body></html></div>
-<p><strong>Figure 2: Using <code>strata</code> to specify matching attributes</strong> <img src="fig2.png" width="1000" height="290"></p>
-<p>The figure and example below shows how the <code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> argument is used.</p>
-<div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Attribute 3 - Patient sex</span>
+<p><strong>Figure 2: Using a <code>strata</code> to specify additional criteria for linked events</strong> <img src="fig_e2.png" width="1000" height="290"></p>
+<p>In contrast, the <code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> arguments apply a set of matching criteria to attributes associated with the events being compared. These arguments take a <code>sub_criteria</code> object. <code>sub_criteria</code> objects and how they are used are described in greater detail in <code><a href="../articles/links.html">vignette("links")</a></code>. In summary, they contain a set of atomic vectors as attributes, a set of corresponding logical tests for each condition and another set of logical tests for the equivalence of values in an attribute. The evaluation of a <code>sub_criteria</code> is recursive and so allows for nested conditions.</p>
+<p>The figure and example below show how the <code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> arguments are used.</p>
+<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># Attribute 3 - Patient sex</span>
 <span class="no">attr_3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Female"</span>, <span class="fl">9</span>), <span class="st">"Male"</span>, <span class="st">"Female"</span>)
 
-<span class="co"># sub_criteria 1 - Matching source of infection or patient location</span>
+<span class="co"># Sub-criteria 1 - Matching source of infection OR patient location</span>
 <span class="no">sub_cri_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">attr_1</span>, <span class="no">attr_2</span>, <span class="kw">operator</span> <span class="kw">=</span> <span class="st">"or"</span>)
-<span class="co"># sub_criteria 2 - Matching source of infection and patient location</span>
+<span class="co"># Sub-criteria 2 - Matching source of infection AND patient location</span>
 <span class="no">sub_cri_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">attr_1</span>, <span class="no">attr_2</span>, <span class="kw">operator</span> <span class="kw">=</span> <span class="st">"and"</span>)
-<span class="co"># sub_criteria 3 - (Matching source of infection and patient location) or (Matching patient sex)</span>
+<span class="co"># Sub-criteria 3 - (Matching source of infection AND patient location) OR (Matching patient sex)</span>
 <span class="no">sub_cri_3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">sub_cri_2</span>, <span class="no">attr_3</span>, <span class="kw">operator</span> <span class="kw">=</span> <span class="st">"or"</span>)
-<span class="co"># sub_criteria 4 - (Matching source of infection and patient location) and (Matching patient sex)</span>
+<span class="co"># Sub-criteria 4 - (Matching source of infection AND patient location) AND (Matching patient sex)</span>
 <span class="no">sub_cri_4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">sub_cri_2</span>, <span class="no">attr_3</span>, <span class="kw">operator</span> <span class="kw">=</span> <span class="st">"and"</span>)
 
 <span class="no">ep3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">case_sub_criteria</span> <span class="kw">=</span> <span class="no">sub_cri_1</span>)
 <span class="no">ep4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">case_sub_criteria</span> <span class="kw">=</span> <span class="no">sub_cri_2</span>)
 <span class="no">ep5</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">case_sub_criteria</span> <span class="kw">=</span> <span class="no">sub_cri_3</span>)
 <span class="no">ep6</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">case_sub_criteria</span> <span class="kw">=</span> <span class="no">sub_cri_4</span>)</pre></body></html></div>
-<p><strong>Figure 3: Using <code>case_sub_criteria</code> to specify matching criteria</strong> <img src="fig3.png" width="1000" height="580"></p>
-<p>Using a <code>sub_criteria</code> incurs additional processing time therefore, it should be reserved for situations when a blocking attribute would not suffice or more complex conditions are required. The figure and example below show some examples of this.</p>
-<div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="co"># record id</span>
+<p><strong>Figure 3: Using a <code>sub_criteria</code> to specify additional criteria for linked events</strong> <img src="fig_e3.png" width="1000" height="580"></p>
+<p>Using a <code>sub_criteria</code> incurs additional processing time therefore, it should be reserved for situations when a blocking attribute would not suffice or more complex matching criteria are required. The figure and example below show some examples of this.</p>
+<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="co"># record id</span>
 <span class="no">rd_id</span> <span class="kw">&lt;-</span> <span class="fl">1</span>:<span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="no">attr_1</span>)
 
 <span class="co"># Condition 1 - Each episode must include BSI events</span>
@@ -242,20 +243,20 @@
                           <span class="kw">equal_funcs</span> <span class="kw">=</span> <span class="no">eqv_funx</span>)
 
 <span class="no">ep7</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"fixed"</span>,
-                <span class="kw">case_sub_criteria</span> <span class="kw">=</span> <span class="no">sub_cri_5</span>)
+<span class="kw">case_sub_criteria</span> <span class="kw">=</span> <span class="no">sub_cri_5</span>)
 
 <span class="no">ep8</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"fixed"</span>,
                 <span class="kw">case_sub_criteria</span> <span class="kw">=</span> <span class="no">sub_cri_6</span>)</pre></body></html></div>
-<p><strong>Figure 4: Using <code>case_sub_criteria</code> to specify complex matching criteria</strong> <img src="fig4.png" width="1000" height="290"></p>
+<p><strong>Figure 4: Using <code>case_sub_criteria</code> to specify complex criteria for linked events</strong> <img src="fig_e4.png" width="1000" height="290"></p>
 </div>
-<div id="seprating-events-into-periods-of-time" class="section level2">
+<div id="separating-events-into-sections-of-time" class="section level2">
 <h2 class="hasAnchor">
-<a href="#seprating-events-into-periods-of-time" class="anchor"></a>Seprating events into periods of time</h2>
+<a href="#separating-events-into-sections-of-time" class="anchor"></a>Separating events into sections of time</h2>
 <p>This is best handled by <code><a href="../reference/partitions.html">partitions()</a></code>. See the examples below.</p>
-<div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="co"># Group events into 2 equal parts based on the duration of the sample (strata) </span>
+<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="co"># Group events into 2 equal parts over the strata's duration</span>
 <span class="no">pn2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/partitions.html">partitions</a></span>(<span class="no">event_dt</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 
-<span class="co"># Group events into 3-day sequences over the duration of the sample</span>
+<span class="co"># Group events into 3-day sequences over the strata's duration</span>
 <span class="no">pn3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/partitions.html">partitions</a></span>(<span class="no">event_dt</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="fl">3</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 
 <span class="co"># Group events into a specified period of time </span>
@@ -263,13 +264,13 @@
 
 <span class="co"># Group events from separate periods into one pane</span>
 <span class="no">pn5</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/partitions.html">partitions</a></span>(<span class="no">event_dt</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">FALSE</span>)</pre></body></html></div>
-<p><strong>Figure 5: Using partitions</strong> <img src="fig5.png" width="1000" height="580"></p>
+<p><strong>Figure 5: Using partitions</strong> <img src="fig_e5.png" width="1000" height="580"></p>
 </div>
 <div id="selecting-index-events-and-the-direction-of-episode-tracking" class="section level2">
 <h2 class="hasAnchor">
 <a href="#selecting-index-events-and-the-direction-of-episode-tracking" class="anchor"></a>Selecting index events and the direction of episode tracking</h2>
-<p>The <code>from_last</code> arguments specifies the direction of episode tracking, while <code>custom_sort</code> specifies a custom preference for selecting index events. The combination of both allows provides some flexibility in regards to which event is used as the index event. See the examples below.</p>
-<div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="co"># Preference for selecting index events</span>
+<p>The <code>from_last</code> argument specifies the direction of episode tracking, while <code>custom_sort</code> specifies a custom preference for selecting index events. The combination of both allows users to choose which event or type of events should be used as the index event. See the examples below.</p>
+<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="co"># Preference for selecting index events</span>
 <span class="no">c_sort</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">2</span>, <span class="fl">5</span>), <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">2</span>, <span class="fl">5</span>))
 <span class="co"># Episodes are 6 days (5-day difference) after the earliest event </span>
 <span class="no">ep9</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episodes_max</span> <span class="kw">=</span> <span class="fl">1</span>)
@@ -279,19 +280,18 @@
 <span class="no">ep11</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">c_sort</span>, <span class="kw">episodes_max</span> <span class="kw">=</span> <span class="fl">1</span>)
 <span class="co"># Episodes are 6 days (5-day difference) before or after the 6th event </span>
 <span class="no">ep12</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(-<span class="fl">5</span>, <span class="fl">5</span>), <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">c_sort</span>, <span class="kw">episodes_max</span> <span class="kw">=</span> <span class="fl">1</span>)</pre></body></html></div>
-<p><strong>Figure 6: Selecting index events when tracking episodes</strong> <img src="fig6.png" width="1000" height="580"></p>
+<p><strong>Figure 6: Selecting index events when tracking episodes</strong> <img src="fig_e6.png" width="1000" height="580"></p>
 </div>
 <div id="recurrence" class="section level2">
 <h2 class="hasAnchor">
 <a href="#recurrence" class="anchor"></a>Recurrence</h2>
-<p>The <code>episode_type</code> argument can be used to request for rolling or recursive episodes, which permit recurrence. <code>reference_event</code> is used to specify which of the events in the existing episode is used as the reference event for the next recurrence. <code>case_for_recurrence</code> determines if the initial occurrence of the event and subsequent recurrences are to be treated i.e. should recurrence events trigger a new an initial occurrence of their own.</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="co"># Episodes are 4 days (3-day difference) after the earliest event with</span>
+<p>The <code>episode_type</code> argument can be used to request for rolling or recursive episodes which permit recurrence. <code>reference_event</code> is used to specify which of the events in the existing episode is considered the reference event for the next recurrence. <code>case_for_recurrence</code> determines if the initial occurrence of the event and subsequent recurrences are to be treated in the same way i.e. does recurrent events trigger an initial occurrence of their own?</p>
+<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># Episodes are 4 days (3-day difference) after the earliest event with</span>
 <span class="co"># repeat occurrence within 4 days of the last event considered recurrences not duplicates</span>
 <span class="no">ep13</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">3</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>)
 <span class="co"># Episodes are 4 days (3-day difference) after the earliest event with</span>
 <span class="co"># repeat occurrence within 7 days of the last event considered recurrences not duplicates</span>
-<span class="no">ep14</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">3</span>,  <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fl">6</span>,
-                <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>)
+<span class="no">ep14</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">3</span>,  <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fl">6</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>)
 <span class="co"># Episodes are 3 days (2-day difference) after the earliest event with</span>
 <span class="co"># repeat occurrence within 6 days of the first event considered recurrences not duplicates</span>
 <span class="no">ep15</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>,  <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fl">5</span>,
@@ -311,12 +311,12 @@
 <span class="co"># can't recur more than once times and the selection of index events is recursive</span>
 <span class="no">ep18</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">1</span>,  <span class="kw">recurrence_length</span> <span class="kw">=</span> <span class="fl">3</span>,
                 <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"recursive"</span>, <span class="kw">rolls_max</span> <span class="kw">=</span> <span class="fl">1</span>)</pre></body></html></div>
-<p><strong>Figure 7: Recurrence of the index event</strong> <img src="fig7.png" width="1000" height="580"></p>
-<div id="multiple-temporal-links-and-lags-between-the-reference-and-repeat-events-and" class="section level3">
+<p><strong>Figure 7: Recurrence of the index event</strong> <img src="fig_e7.png" width="1000" height="580"></p>
+<div id="multiple-temporal-links-and-lags-between-the-reference-and-repeat-events" class="section level3">
 <h3 class="hasAnchor">
-<a href="#multiple-temporal-links-and-lags-between-the-reference-and-repeat-events-and" class="anchor"></a>Multiple temporal links and lags between the reference and repeat events and</h3>
-<p>Implemented by providing a <code>list</code> ranges (<code><a href="../reference/number_line.html">number_line()</a></code>) to the <code>case_length</code> or <code>recurrence_length</code> arguments.</p>
-<div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="co"># Each episodes requires at least 5 temporal links</span>
+<a href="#multiple-temporal-links-and-lags-between-the-reference-and-repeat-events" class="anchor"></a>Multiple temporal links and lags between the reference and repeat events</h3>
+<p>Multiple <code>case_length</code> or <code>recurrence_length</code> can be used by providing a <code>list</code> of ranges (<code><a href="../reference/number_line.html">number_line()</a></code>), while the <code>case_length_total</code> and <code>recurrence_length_total</code> arguments specifies how many such temporal links are required for an episode.</p>
+<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="co"># Each episodes requires at least 5 temporal links</span>
 <span class="no">ep19</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>,
                 <span class="kw">case_length</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">2</span>, <span class="fl">2</span>),
                                    <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">5</span>, <span class="fl">7</span>),
@@ -329,14 +329,14 @@
                                    <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">5</span>, <span class="fl">7</span>),
                                    <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">9</span>, <span class="fl">20</span>)),
                 <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"fixed"</span>, <span class="kw">case_length_total</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">skip_if_b4_lengths</span> <span class="kw">=</span> <span class="fl">TRUE</span>)</pre></body></html></div>
-<p><strong>Figure 8: Lags between index and repeat events</strong> <img src="fig8.png" width="1000" height="290"></p>
+<p><strong>Figure 8: Lags between index and repeat events</strong> <img src="fig_e8.png" width="1000" height="290"></p>
 </div>
 </div>
 <div id="interval-grouping" class="section level2">
 <h2 class="hasAnchor">
 <a href="#interval-grouping" class="anchor"></a>Interval grouping</h2>
-<p>It’s possible to tracking episodes among events with known start and end points as opposed to singular point in time. For example, hospital stays. It is worth noting that the reference point for such events is the end point. Therefore, using a <code>case_length</code> of <code>1</code> when working with an event interval or event period is interpreted as 2 days (1-day difference) after the end point of the interval. By default, other events that occur on or after the start point but before end point of the index event will not be captured. If this is required, use <code><a href="../reference/windows.html">index_window()</a></code> to get the range required to capture such events, and supply it to the <code>case_length</code> or <code>recurrence_length</code> arguments. See the figure and examples below.</p>
-<div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="co"># Dummy data of hospital stays</span>
+<p>It’s possible to track episodes among events with known start and end points, instead of those occurring at a single point in time. It is worth noting that the reference point for such events is their end point. Therefore, using a <code>case_length</code> of <code>1</code> when working with such events is interpreted as 2 days (1-day difference) after the end point of the interval. By default, other events that occur on or after the start point but before the end point of the index event will not be captured. If this is required, use <code><a href="../reference/windows.html">index_window()</a></code> to get the range required to capture such events, and supply it to the <code>case_length</code> or <code>recurrence_length</code> arguments. See the figure and examples below.</p>
+<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="co"># Dummy data of hospital stays</span>
 <span class="no">dfr</span> <span class="kw">&lt;-</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/patient_list.html">hospital_admissions</a></span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"admin_dt"</span>, <span class="st">"discharge_dt"</span>)]
 <span class="no">dfr</span>$<span class="no">admin_period</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="no">dfr</span>$<span class="no">admin_dt</span>, <span class="no">dfr</span>$<span class="no">discharge_dt</span>)
 
@@ -361,9 +361,9 @@
 <span class="co">#&gt; 9  2019-01-26   2019-01-31 2019-01-26 -&gt; 2019-01-31  -5 -&gt; 0  -5 -&gt; 20</span>
 <span class="co">#&gt; 10 2019-01-01   2019-01-10 2019-01-01 -&gt; 2019-01-10  -9 -&gt; 0  -9 -&gt; 20</span>
 <span class="co">#&gt; 11 2019-01-20   2019-01-30 2019-01-20 -&gt; 2019-01-30 -10 -&gt; 0 -10 -&gt; 20</span></pre></body></html></div>
-<p><strong>Figure 9: Tracking episodes of overlapping intervals</strong> <img src="fig9.png" width="1000" height="290"></p>
-<p>Currently, the <code>diyar</code> packages recognises 7 mutually exclusive and 2 mutually inclusive way intervals can overlap. Please see <code><a href="../articles/number_line.html">vignette("number_line")</a></code> for more details about this. The episode tracking process can be made to only capture intervals that overlap by any combination of these methods. See the example below.</p>
-<div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="co"># Wrapper function for a fixed episode</span>
+<p><strong>Figure 9: Tracking episodes of overlapping intervals</strong> <img src="fig_e9.png" width="1000" height="290"></p>
+<p>Currently, the <code>diyar</code> packages recognises 7 mutually exclusive and 2 mutually inclusive way intervals can overlap. Please see <code><a href="../articles/number_line.html">vignette("number_line")</a></code> for more details about this. Using <code>case_overlap_methods</code> and <code>recurrence_overlap_methods</code>, the episode tracking process can be made to only capture intervals that overlap by specific methods. See the example below.</p>
+<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="co"># Wrapper function for a fixed episode</span>
 <span class="no">episodes_wf</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>){
   <span class="no">epids</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">dfr</span>$<span class="no">admin_period</span>,
                     <span class="kw">sn</span> <span class="kw">=</span> <span class="no">dfr</span>$<span class="no">rd_id</span>,
@@ -400,19 +400,19 @@
 <span class="no">epids</span>$<span class="no">exact</span>
 <span class="co">#&gt;  [1] "E.1 (C)" "E.2 (C)" "E.3 (C)" "E.4 (C)" "E.5 (C)" "E.6 (C)" "E.7 (C)"</span>
 <span class="co">#&gt;  [8] "E.8 (C)" "E.9 (C)" "E.2 (D)" "E.8 (D)"</span></pre></body></html></div>
-<p><strong>Figure 10: Overlap methods</strong> <img src="fig10.png" width="1000" height="580"></p>
+<p><strong>Figure 10: Overlap methods</strong> <img src="fig_e10.png" width="1000" height="580"></p>
 </div>
 </div>
-<div id="limitations" class="section level1">
+<div id="strengths-and-limitations" class="section level1">
 <h1 class="hasAnchor">
-<a href="#limitations" class="anchor"></a>Limitations</h1>
-<p><code><a href="../reference/episodes.html">episodes()</a></code> is implemented as a loop. Although, the function continues to be heavily optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The difference will be negligible when analysing small datasets but it becomes noticeable with much larger datasets.</p>
-<p>In general, this issue can be mitigated by reducing the number of iterations of the loop required to complete the episode tracking process. There are three main ways of achieving this. These are summarised below.</p>
+<a href="#strengths-and-limitations" class="anchor"></a>Strengths and limitations</h1>
+<p><code><a href="../reference/episodes.html">episodes()</a></code> is implemented as a loop. Although, the function continues to be optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The exact time taken to complete an iteration will depend on a machine’s specifications but the number of iterations required to complete the tracking process is constant. The time difference due to an additional iteration will be negligible when analysing small datasets but can become noticeable with much larger datasets.</p>
+<p>In general, this issue can be mitigated by reducing the number of iterations required to complete the episode tracking process. There are three main ways of achieving this. These are summarised below.</p>
 <div id="efficient-use-of-arguments" class="section level2">
 <h2 class="hasAnchor">
 <a href="#efficient-use-of-arguments" class="anchor"></a>Efficient use of arguments</h2>
-<p>Different combinations of arguments can lead to the same outcome. However, each will often require different number of iterations to complete the same process. In general, shorter and multiple <code>case_length</code> and <code>recurrence_length</code>, fewer <code>strata</code>, and the use of <code>custom_sort</code>, a <code>sub_criteria</code> and multiple index events will increase the number of iterations required to complete the process. A good understanding of each argument will be beneficial in knowing the most efficient combination of arguments to used for a case definition. For example, <code>ep4</code> was created with a <code>sub_criteria</code> and took 9 iterations to complete.</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">ep4</span>)
+<p>Different combinations of arguments can lead to the same outcome however, each will often require different number of iterations to complete the same process. In general, shorter and multiple <code>case_length</code> and <code>recurrence_length</code>, fewer <code>strata</code>, and the use of <code>custom_sort</code>, a <code>sub_criteria</code> and multiple index events will increase the number of iterations required to complete the process. A good understanding of each argument will be beneficial in knowing the most efficient combination of arguments to use for a case definition. For example, <code>ep4</code> was created with a <code>sub_criteria</code> and took 9 iterations to complete.</p>
+<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">ep4</span>)
 <span class="co">#&gt; Iterations:                     9</span>
 <span class="co">#&gt; Total records:                  11</span>
 <span class="co">#&gt;  by record type:</span>
@@ -430,8 +430,8 @@
 <span class="co">#&gt;      "2 records":           2</span>
 <span class="co">#&gt;  by recurrence:</span>
 <span class="co">#&gt;      N/A</span></pre></body></html></div>
-<p>However, if the <code>strata</code> argument is used instead of a <code>sub_criteria</code>, it only takes 2 iterations and yet achieve the same outcome.</p>
-<div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">ep4b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">strata</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">attr_1</span>, <span class="st">" "</span>, <span class="no">attr_2</span>))
+<p>However, if the <code>strata</code> argument is used instead of a <code>sub_criteria</code>, it only takes 2 iterations and yet achieves the same outcome.</p>
+<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="no">ep4b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">event_dt</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">strata</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">attr_1</span>, <span class="st">" "</span>, <span class="no">attr_2</span>))
 
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">ep4b</span>)
 <span class="co">#&gt; Iterations:                     2</span>
@@ -453,40 +453,47 @@
 <span class="co">#&gt;      N/A</span>
 
 <span class="co"># Identical identifiers </span>
-<span class="no">ep4</span>; <span class="no">ep4b</span>
-<span class="co">#&gt;  [1] "E.01 (C)" "E.02 (C)" "E.03 (C)" "E.03 (D)" "E.05 (C)" "E.05 (D)"</span>
-<span class="co">#&gt;  [7] "E.07 (C)" "E.08 (C)" "E.09 (C)" "E.10 (C)" "E.11 (C)"</span>
-<span class="co">#&gt;  [1] "E.01 (C)" "E.02 (C)" "E.03 (C)" "E.03 (D)" "E.05 (C)" "E.05 (D)"</span>
-<span class="co">#&gt;  [7] "E.07 (C)" "E.08 (C)" "E.09 (C)" "E.10 (C)" "E.11 (C)"</span></pre></body></html></div>
-<p>Similarly, using multiple index events usually costs additional processing time, even if it takes the the same number of iterations to complete the same process. See the examples below.</p>
-<div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="co"># Fastest</span>
-<span class="no">duplicate_events</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="no">event_dt</span>, <span class="fl">3</span>)
-<span class="no">ep23a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>,
-                  <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>, <span class="kw">reference_event</span> <span class="kw">=</span> <span class="st">"last_record"</span>)
-<span class="co"># Faster</span>
-<span class="no">ep23b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>,
-                  <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>, <span class="kw">reference_event</span> <span class="kw">=</span> <span class="st">"last_event"</span>)
+<span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="no">ep4</span> <span class="kw">==</span> <span class="no">ep4b</span>)
+<span class="co">#&gt; [1] TRUE</span></pre></body></html></div>
+<p>Similarly, using multiple index events usually costs additional processing time, even if it takes the same number of iterations to complete the same process. See the examples below.</p>
+<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="no">duplicate_events</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="no">event_dt</span>, <span class="fl">5</span>)
 <span class="co"># Fast</span>
-<span class="no">ep23c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"recursive"</span>)</pre></body></html></div>
-<p><strong>Effect of using multiple index events</strong> <img src="fig11.png" width="1000" height="290"></p>
+<span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
+  <span class="no">ep23a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"recursive"</span>)
+)
+<span class="co">#&gt;    user  system elapsed </span>
+<span class="co">#&gt;    1.66    0.00    1.66</span>
+<span class="co"># Faster</span>
+<span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
+  <span class="no">ep23b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
+                  <span class="kw">reference_event</span> <span class="kw">=</span> <span class="st">"last_event"</span>)
+)
+<span class="co">#&gt;    user  system elapsed </span>
+<span class="co">#&gt;    0.64    0.00    0.64</span>
+<span class="co"># Fastest</span>
+<span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
+  <span class="no">ep23c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
+                  <span class="kw">reference_event</span> <span class="kw">=</span> <span class="st">"last_record"</span>)
+)
+<span class="co">#&gt;    user  system elapsed </span>
+<span class="co">#&gt;     0.2     0.0     0.2</span></pre></body></html></div>
+<p><strong>Figure 11: Effect of using multiple index events</strong> <img src="fig_e11.png" width="1000" height="290"></p>
 <p>Therefore, unless required, multiple index events should be avoided.</p>
 <div id="reduce-the-number-of-records-being-assessed" class="section level3">
 <h3 class="hasAnchor">
 <a href="#reduce-the-number-of-records-being-assessed" class="anchor"></a>Reduce the number of records being assessed</h3>
-<p>Reframing the dataset in such a way that you have to deal with fewer records can also save some processing time. For example, assume a dataset of 10 events from 5 individuals on 3 separate days and a case definition to assess a potential transmission event between these individuals. Instead of analysing 10 event (records) with the person identifier as a sub criteria, change the dataset to 3 dates with a list of all individuals per date. The list can then be passed to <code>case_sub_criteria</code> or <code>recurrence_sub_criteria</code> for the necessary logical test. <code><a href="../reference/episodes.html">episodes_wf_splits()</a></code> is an a wrapper function of <code><a href="../reference/episodes.html">episodes()</a></code> designed to achieve this.</p>
+<p>Reframing the dataset in such a way that you have to deal with fewer records can also save some processing time. For example, assume a dataset of 10 events from 5 individuals on 3 separate days, and a case definition to assess a potential transmission event between these individuals. Instead of analysing 10 events (records) with the person identifier as a sub-criteria, change the dataset to 3 dates (records) with a <code>list</code> of all individuals per date. The <code>list</code> can then be passed to <code>case_sub_criteria</code> or <code>recurrence_sub_criteria</code> for the necessary logical test(s). <code><a href="../reference/episodes.html">episodes_wf_splits()</a></code> is a wrapper function of <code><a href="../reference/episodes.html">episodes()</a></code> designed to achieve this.</p>
 </div>
-</div>
-<div id="stop-episode-tracking" class="section level2">
-<h2 class="hasAnchor">
-<a href="#stop-episode-tracking" class="anchor"></a>Stop episode tracking</h2>
-<p><code>episode_max</code>, <code>rolls_max</code> and <code>skip_order</code> are arguments used to stop episode tracking “prematurely” once certain conditions are met. By skipping such episodes, the total number of iterations and processing time is therefore reduced. <code>episodes_max</code> specifies the maximum number of episodes required from a <code>strata</code>. <code>rolls_max</code> specifies the number recurrences an index case is allowed. <code>skip_order</code> stops the episode grouping process when all records with the <code>nth</code> level of a <code>custom_sort</code> have been linked to an episode. <code>skip_order</code> is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two <code>"Rare"</code> events and 20 <code>"Common"</code> events and takes 11 iterations to complete.</p>
-<div class="sourceCode" id="cb14"><html><body><pre class="r"><span class="co"># Attribute 4 - Frequency of occurrence</span>
-<span class="no">attr_4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Common"</span>, <span class="fl">5</span>), <span class="st">"Rare"</span>,
-            <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Common"</span>, <span class="fl">12</span>), <span class="st">"Rare"</span>,
-            <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Common"</span>, <span class="fl">3</span>))
+<div id="stop-episode-tracking" class="section level3">
+<h3 class="hasAnchor">
+<a href="#stop-episode-tracking" class="anchor"></a>Stop episode tracking</h3>
+<p><code>episode_max</code>, <code>rolls_max</code> and <code>skip_order</code> are arguments used to stop the episode tracking process once certain conditions are met. By doing this, the total number of iterations and processing time is therefore reduced. <code>episodes_max</code> specifies the maximum number of episodes required from a <code>strata</code>. <code>rolls_max</code> specifies the number of recurrences an index case is allowed. <code>skip_order</code> stops the episode tracking process when all records with the <code>nth</code> level of a <code>custom_sort</code> have been linked to an episode. <code>skip_order</code> is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two <code>"Rare"</code> events and 20 <code>"Common"</code> events, and takes 11 iterations to complete.</p>
+<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="co"># Attribute 4 - Frequency</span>
+<span class="no">attr_4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Common"</span>, <span class="fl">5</span>), <span class="st">"Rare"</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Common"</span>, <span class="fl">12</span>), <span class="st">"Rare"</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="st">"Common"</span>, <span class="fl">3</span>))
 <span class="no">attr_4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/factor.html">factor</a></span>(<span class="no">attr_4</span>, <span class="kw">levels</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"Rare"</span>, <span class="st">"Common"</span>))
 
-<span class="no">ep24a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="no">event_dt</span>, <span class="fl">2</span>), <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">attr_4</span>, <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">attr_4</span>)
+<span class="no">duplicate_events_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="no">event_dt</span>, <span class="fl">2</span>)
+<span class="no">ep24a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events_2</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">attr_4</span>, <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">attr_4</span>)
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">ep24a</span>)
 <span class="co">#&gt; Iterations:                     11</span>
 <span class="co">#&gt; Total records:                  22</span>
@@ -505,8 +512,8 @@
 <span class="co">#&gt;      "2 records":           11</span>
 <span class="co">#&gt;  by recurrence:</span>
 <span class="co">#&gt;      N/A</span></pre></body></html></div>
-<p>However, if only episodes with the <code>"Rare"</code> events are of interest, <code>skip_order</code> can be used to stop the process when all <code>"Rare"</code> events (1<sup>st</sup> level of <code>custom_sort</code>) have been assigned to an episode. This takes 3 iterations to complete the process, skipping 8 iterations that would have produced episodes without <code>"Rare"</code> events.</p>
-<div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="no">ep24b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="no">event_dt</span>, <span class="fl">2</span>), <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">attr_4</span>, <span class="kw">skip_order</span> <span class="kw">=</span> <span class="fl">1</span>,
+<p>However, if a user is only interested in episodes with <code>"Rare"</code> events, <code>skip_order</code> can be used to stop the process when all <code>"Rare"</code> events (1<sup>st</sup> level of <code>custom_sort</code>) have been assigned to an episode. This takes 3 iterations to complete the process, skipping 8 iterations that would have produced episodes without <code>"Rare"</code> events.</p>
+<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">ep24b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">duplicate_events_2</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">0</span>, <span class="kw">custom_sort</span> <span class="kw">=</span> <span class="no">attr_4</span>, <span class="kw">skip_order</span> <span class="kw">=</span> <span class="fl">1</span>,
                   <span class="kw">data_source</span> <span class="kw">=</span> <span class="no">attr_4</span>)
 
 <span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">ep24b</span>)
@@ -519,7 +526,6 @@
 <span class="co">#&gt; Total episodes:                 2</span>
 <span class="co">#&gt;  by episode type:</span>
 <span class="co">#&gt;      "Fixed":               2</span>
-<span class="co">#&gt;      "Skipped":             18</span>
 <span class="co">#&gt;  by episode dataset:</span>
 <span class="co">#&gt;      "Rare,Common":         2</span>
 <span class="co">#&gt;  by episodes duration:</span>
@@ -528,7 +534,8 @@
 <span class="co">#&gt;      "2 records":           2</span>
 <span class="co">#&gt;  by recurrence:</span>
 <span class="co">#&gt;      N/A</span></pre></body></html></div>
-<p><strong>Figure 12: Using <code>skip_order</code> to terminate the episode tracking process</strong> <img src="fig12.png" width="1000" height="290"></p>
+<p><strong>Figure 12: Using <code>skip_order</code> to stop the episode tracking process</strong> <img src="fig_e12.png" width="1000" height="290"></p>
+</div>
 </div>
 </div>
 <div id="miscellaneous-tips" class="section level1">
@@ -536,9 +543,9 @@
 <a href="#miscellaneous-tips" class="anchor"></a>Miscellaneous tips</h1>
 <div id="tracking-episodes-in-other-units-of-time" class="section level2">
 <h2 class="hasAnchor">
-<a href="#tracking-episodes-in-other-units-of-time" class="anchor"></a>Tracking <code>episodes</code> in other units of time</h2>
-<p><code>episodes</code> can be tracked in other units of time (<code>episode_unit</code>). Acceptable options are <code>"seconds"</code>, <code>"minutes"</code>, <code>"hours"</code>, <code>"days"</code>, <code>"weeks"</code>, <code>"months"</code> or <code>"years"</code>. Below is an example of tracking <code>episodes</code> by the hour compare to by the day (default).</p>
-<div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="no">dbs</span> <span class="kw">&lt;-</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/patient_list.html">hourly_data</a></span>
+<a href="#tracking-episodes-in-other-units-of-time" class="anchor"></a>Tracking episodes in other units of time</h2>
+<p>Episodes can be tracked in other units of time using the <code>episode_unit</code> argument. Acceptable options are <code>"seconds"</code>, <code>"minutes"</code>, <code>"hours"</code>, <code>"days"</code>, <code>"weeks"</code>, <code>"months"</code> or <code>"years"</code>. Below is an example of episode tracking by the hour compared to tracking them by day (default).</p>
+<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">dbs</span> <span class="kw">&lt;-</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/patient_list.html">hourly_data</a></span>
 
 <span class="co"># Each unit is relative to a predefined number of seconds. </span>
 <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/patient_list.html">episode_unit</a></span>
@@ -594,12 +601,12 @@
 <span class="co">#&gt; [11] "E.10 2019-04-01 18:01:52 -&gt; 2019-04-01 22:05:12 (D)"</span>
 <span class="co">#&gt; [12] "E.10 2019-04-01 18:01:52 -&gt; 2019-04-01 22:05:12 (D)"</span>
 <span class="co">#&gt; [13] "E.13 2019-04-02 00:05:11 == 2019-04-02 00:05:11 (C)"</span></pre></body></html></div>
-<div id="familiar-identifiers-and-pids-objects-for-strata" class="section level3">
+<div id="familiar-identifiers-and-pid-objects-for-strata" class="section level3">
 <h3 class="hasAnchor">
-<a href="#familiar-identifiers-and-pids-objects-for-strata" class="anchor"></a>Familiar identifiers and pids objects for <code>strata</code>
+<a href="#familiar-identifiers-and-pid-objects-for-strata" class="anchor"></a>Familiar identifiers and <code>pid</code> objects for <code>strata</code>
 </h3>
-<p>See the example below</p>
-<div class="sourceCode" id="cb17"><html><body><pre class="r"><span class="no">dbs</span> <span class="kw">&lt;-</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/patient_list.html">infections</a></span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>, <span class="st">"infection"</span>)]; <span class="no">dbs</span>
+<p>See the example below.</p>
+<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">dbs</span> <span class="kw">&lt;-</span> <span class="kw pkg">diyar</span><span class="kw ns">::</span><span class="no"><a href="../reference/patient_list.html">infections</a></span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"date"</span>, <span class="st">"infection"</span>)]; <span class="no">dbs</span>
 <span class="co">#&gt;          date infection</span>
 <span class="co">#&gt; 1  2018-04-01       BSI</span>
 <span class="co">#&gt; 2  2018-04-07       UTI</span>
@@ -613,13 +620,12 @@
 <span class="co">#&gt; 10 2018-05-25       RTI</span>
 <span class="co">#&gt; 11 2018-05-31       BSI</span>
 
-<span class="co"># familiar unique record ids for easy reference - optional</span>
-<span class="no">dbs</span>$<span class="no">rd_id</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">640</span>,<span class="fl">17</span>,<span class="fl">58</span>,<span class="fl">21</span>,<span class="fl">130</span>,<span class="fl">79</span>,<span class="fl">45</span>,<span class="fl">300</span>,<span class="fl">40</span>,<span class="fl">13</span>,<span class="fl">31</span>)
+<span class="co"># Familiar unique record ids use for the identifiers - optional</span>
+<span class="no">dbs</span>$<span class="no">rd_id</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">640</span>, <span class="fl">17</span>, <span class="fl">58</span>, <span class="fl">21</span>, <span class="fl">130</span>, <span class="fl">79</span>, <span class="fl">45</span>, <span class="fl">300</span>, <span class="fl">40</span>, <span class="fl">13</span>, <span class="fl">31</span>)
 
 <span class="co"># `strata` based on matching sources of infection</span>
 <span class="no">dbs</span>$<span class="no">pids</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">sn</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">rd_id</span>, <span class="kw">criteria</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">infection</span>)
 
-<span class="co"># stratified episode tracking </span>
 <span class="no">dbs</span>$<span class="no">epids</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">sn</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">rd_id</span>, <span class="kw">date</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">date</span>, <span class="kw">strata</span> <span class="kw">=</span> <span class="no">dbs</span>$<span class="no">pids</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">10</span>)
 
 <span class="no">dbs</span>
@@ -640,33 +646,33 @@
 <div id="use-numeric-values-for-the-date-argument" class="section level2">
 <h2 class="hasAnchor">
 <a href="#use-numeric-values-for-the-date-argument" class="anchor"></a>Use numeric values for the date argument</h2>
-<p><code>numeric</code> values can be supplied to the <code>date</code> argument. When using the function this way, <code>episode_unit</code> is ignored.</p>
-<div class="sourceCode" id="cb18"><html><body><pre class="r"><span class="no">vals</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">8.1</span>, <span class="fl">6</span>, <span class="fl">12</span>, <span class="fl">8.5</span>, <span class="fl">12</span>, <span class="fl">3</span>, <span class="fl">8</span>, <span class="fl">15</span>, <span class="fl">5</span>, <span class="fl">7</span>)
+<p><code>numeric</code> values can be supplied to the <code>date</code> argument. In such cases, the <code>episode_unit</code> argument is ignored.</p>
+<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="no">vals</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">8.1</span>, <span class="fl">6</span>, <span class="fl">12</span>, <span class="fl">8.5</span>, <span class="fl">12</span>, <span class="fl">3</span>, <span class="fl">8</span>, <span class="fl">15</span>, <span class="fl">5</span>, <span class="fl">7</span>)
 <span class="no">vals</span>
 <span class="co">#&gt;  [1]  8.1  6.0 12.0  8.5 12.0  3.0  8.0 15.0  5.0  7.0</span>
 
-<span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">.5</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="no">T</span>)
+<span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">.5</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 <span class="co">#&gt;  [1] "E.07 8 -&gt; 8.5 (D)" "E.02 6 == 6 (C)"   "E.03 12 == 12 (C)"</span>
 <span class="co">#&gt;  [4] "E.07 8 -&gt; 8.5 (D)" "E.03 12 == 12 (D)" "E.06 3 == 3 (C)"  </span>
 <span class="co">#&gt;  [7] "E.07 8 -&gt; 8.5 (C)" "E.08 15 == 15 (C)" "E.09 5 == 5 (C)"  </span>
 <span class="co">#&gt; [10] "E.10 7 == 7 (C)"</span>
 
-<span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="no">T</span>)
+<span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 <span class="co">#&gt;  [1] "E.1 8.1 -&gt; 12 (C)" "E.6 3 -&gt; 8 (D)"    "E.1 8.1 -&gt; 12 (D)"</span>
 <span class="co">#&gt;  [4] "E.1 8.1 -&gt; 12 (D)" "E.1 8.1 -&gt; 12 (D)" "E.6 3 -&gt; 8 (C)"   </span>
 <span class="co">#&gt;  [7] "E.6 3 -&gt; 8 (D)"    "E.8 15 == 15 (C)"  "E.6 3 -&gt; 8 (D)"   </span>
 <span class="co">#&gt; [10] "E.6 3 -&gt; 8 (D)"</span>
 
-<span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">100</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="no">T</span>)
+<span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">100</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 <span class="co">#&gt;  [1] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)"</span>
 <span class="co">#&gt;  [5] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (C)" "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)"</span>
 <span class="co">#&gt;  [9] "E.6 3 -&gt; 15 (D)" "E.6 3 -&gt; 15 (D)"</span></pre></body></html></div>
-<div id="infinite-and-missing-case_lengths-or-recurrence_lengths" class="section level3">
+<div id="infinite-and-missing-case_length-or-recurrence_length" class="section level3">
 <h3 class="hasAnchor">
-<a href="#infinite-and-missing-case_lengths-or-recurrence_lengths" class="anchor"></a>Infinite and missing <code>case_lengths</code> or <code>recurrence_lengths</code>
+<a href="#infinite-and-missing-case_length-or-recurrence_length" class="anchor"></a>Infinite and missing <code>case_length</code> or <code>recurrence_length</code>
 </h3>
-<p>You can incorporate missing and infinite cut-offs into your analyses. Events with missing cut-off will not be used as an index event however, they can be tagged as a duplicate of another index event. Index events with an infinite cut-off will be linked to every other event in its <code>strata</code>.</p>
-<div class="sourceCode" id="cb19"><html><body><pre class="r"><span class="no">vals</span> <span class="kw">&lt;-</span> <span class="fl">1</span>:<span class="fl">10</span>
+<p>You can incorporate missing and infinite cut-offs into your analyses. Events with missing cut-offs will not be used as an index event however, they can be tagged as a duplicate of another index event. Index events with an infinite cut-off will be linked to every other event in its <code>strata</code>.</p>
+<div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="no">vals</span> <span class="kw">&lt;-</span> <span class="fl">1</span>:<span class="fl">10</span>
 <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="kw">date</span> <span class="kw">=</span> <span class="no">vals</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">Inf</span>)
 <span class="co">#&gt;  [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>
 <span class="co">#&gt;  [8] "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>

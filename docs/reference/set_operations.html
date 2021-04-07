@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Set operations on number line objects — set_operations" />
-<meta property="og:description" content="Perform set operations on a pair of number_lines." />
+<meta property="og:description" content="Perform set operations on a pair of [number_line]s." />
 
 
 
@@ -95,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -135,7 +135,7 @@
     </div>
 
     <div class="ref-description">
-    <p>Perform set operations on a pair of <code>number_line</code>s.</p>
+    <p>Perform set operations on a pair of <code>[<a href='number_line.html'>number_line</a>]</code>s.</p>
     </div>
 
     <pre class="usage"><span class='fu'>union_number_lines</span>(<span class='no'>x</span>, <span class='no'>y</span>)
@@ -153,16 +153,16 @@
     </tr>
     <tr>
       <th>y</th>
-      <td><p><code>number_line</code></p></td>
+      <td><p><code>[<a href='number_line.html'>number_line</a>]</code></p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code>number_line</code>; <code>list</code></p>
+    <p><code>[<a href='number_line.html'>number_line</a>]</code>; <code>list</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b><code>union_number_lines()</code></b> - Return a <code>number_line</code> with the combined range of <code>x</code> and <code>y</code></p>
+    <p><b><code>union_number_lines()</code></b> - Return a <code>[<a href='number_line.html'>number_line</a>]</code> with the combined range of <code>x</code> and <code>y</code></p>
 <p><b><code>intersect_number_line()</code></b> - Returns a subset of <code>x</code> that overlaps with <code>y</code> and vice versa</p>
 <p><b><code>subtract_number_lines()</code></b> - Returns a subset of <code>x</code> that does not overlap with <code>y</code> and vice versa.
 Returns a list with two elements;</p><ul>
@@ -170,7 +170,7 @@ Returns a list with two elements;</p><ul>
 <li><p><code>n2</code> - subset after the overlapped range between <code>x</code> and <code>y</code></p></li>
 </ul>
 
-<p>The <code>direction</code> of the returned <code>number_line</code> will be that of the widest one (<code>x</code> or <code>y</code>).
+<p>The <code>direction</code> of the returned <code>[<a href='number_line.html'>number_line</a>]</code> will be that of the widest one (<code>x</code> or <code>y</code>).
 If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"increasing direction"</code>.</p>
 <p>If  <code>x</code> and <code>y</code> do not overlap, <code>NA</code> (<code>"NA ?? NA"</code>) is returned.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>

@@ -95,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -158,31 +158,39 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>attribute</th>
-      <td><p><code>[list]</code> Attributes to compare.</p></td>
+      <td><p><code>[list]</code>. Attributes to compare.</p></td>
     </tr>
     <tr>
       <th>blocking_attribute</th>
-      <td><p><code>[atomic]</code> Subsets of the dataset.</p></td>
+      <td><p><code>[atomic]</code>. Subsets of the dataset.</p></td>
     </tr>
     <tr>
       <th>cmp_func</th>
-      <td><p><code>[list|function]</code> String comparators for each <code>attribute</code>. See <code>Details</code>.</p></td>
+      <td><p><code>[list|function]</code>. String comparators for each <code>attribute</code>. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>cmp_threshold</th>
-      <td><p><code>[list|numeric|<a href='number_line.html'>number_line</a>]</code> Weight-thresholds for each <code>cmp_func</code>. See <code>Details</code>.</p></td>
+      <td><p><code>[list|numeric|<a href='number_line.html'>number_line</a>]</code>. Weight-thresholds for each <code>cmp_func</code>. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>probabilistic</th>
-      <td><p><code>[logical]</code> If <code>TRUE</code>, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See <code>Details</code>.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>m_probability</th>
-      <td><p><code>[list|numeric]</code> The probability that a match from the string comparator is from the same entity.</p></td>
+      <td><p><code>[list|numeric]</code>. The probability that a match from the string comparator is from the same entity.</p></td>
     </tr>
     <tr>
       <th>score_threshold</th>
       <td><p><code>[numeric|<a href='number_line.html'>number_line</a>]</code>. Score-threshold for linked records. See <code>Details</code>.</p></td>
+    </tr>
+    <tr>
+      <th>id_1</th>
+      <td><p><code>[list|numeric]</code>. One half of a specific pair of records to check their match weights and score-thresholds.</p></td>
+    </tr>
+    <tr>
+      <th>id_2</th>
+      <td><p><code>[list|numeric]</code>. One half of a specific pair of records to check their match weights and score-thresholds.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -233,9 +241,39 @@ Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specif
     <pre class="examples"><div class='input'><span class='co'># Exact matches</span>
 <span class='no'>dfr</span> <span class='kw'>&lt;-</span> <span class='no'>missing_staff_id</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"staff_id"</span>,  <span class='st'>"initials"</span>,
                           <span class='st'>"hair_colour"</span>, <span class='st'>"branch_office"</span>)]
-<span class='no'>score_ramge</span> <span class='kw'>&lt;-</span> <span class='fu'>prob_score_range</span>(<span class='kw'>attribute</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span>(<span class='no'>dfr</span>))
+<span class='no'>score_range</span> <span class='kw'>&lt;-</span> <span class='fu'>prob_score_range</span>(<span class='kw'>attribute</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span>(<span class='no'>dfr</span>))
 <span class='no'>prob_pids1</span> <span class='kw'>&lt;-</span> <span class='fu'>links_wf_probabilistic</span>(<span class='kw'>attribute</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span>(<span class='no'>dfr</span>),
-                                     <span class='kw'>score_threshold</span> <span class='kw'>=</span> <span class='no'>score_range</span>$<span class='no'>minimum_score</span>)</div><div class='output co'>#&gt; <span class='error'>Error in err_links_wf_probablistic_0(attribute = attribute, blocking_attribute = blocking_attribute,     cmp_func = cmp_func, cmp_threshold = cmp_threshold, probabilistic = probabilistic,     m_probability = m_probability, score_threshold = score_threshold,     id_1 = id_1, id_2 = id_2): object 'score_range' not found</span></div><div class='input'><span class='no'>prob_pids1</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'prob_pids1' not found</span></div><div class='input'>
+                                     <span class='kw'>score_threshold</span> <span class='kw'>=</span> <span class='no'>score_range</span>$<span class='no'>minimum_score</span>)
+<span class='no'>prob_pids1</span></div><div class='output co'>#&gt; $pid
+#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)"
+#&gt; [5] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)"
+#&gt; 
+#&gt; $pid_weights
+#&gt;      sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
+#&gt; [1,]    1    1            0            1               1                 1
+#&gt; [2,]    2    1            0            0               0                 0
+#&gt; [3,]    3    1            0            0               0                 0
+#&gt; [4,]    4    1            0            0               0                 0
+#&gt; [5,]    5    1            0            0               0                 0
+#&gt; [6,]    6    1            0            1               0                 0
+#&gt; [7,]    7    1            0            1               1                 1
+#&gt;      cmp.weight cmp.threshold prb.staff_id prb.initials prb.hair_colour
+#&gt; [1,]          3            NA    -4.321928     1.148392        1.733354
+#&gt; [2,]          0            NA    -4.321928    -4.099536       -4.099536
+#&gt; [3,]          0            NA    -4.321928    -3.836501       -4.321928
+#&gt; [4,]          0            NA    -4.321928    -3.836501       -3.836501
+#&gt; [5,]          0            NA    -4.321928    -4.321928       -3.836501
+#&gt; [6,]          1            NA    -3.836501     1.148392       -4.099536
+#&gt; [7,]          3            NA    -3.836501     1.148392        1.733354
+#&gt;      prb.branch_office  prb.weight prb.threshold
+#&gt; [1,]          1.733354   0.2931724             1
+#&gt; [2,]         -3.836501 -16.3575007             1
+#&gt; [3,]         -4.321928 -16.8022856             1
+#&gt; [4,]         -4.321928 -16.3168587             1
+#&gt; [5,]         -3.836501 -16.3168587             1
+#&gt; [6,]         -4.099536 -10.8871808             1
+#&gt; [7,]          1.733354   0.7785993             1
+#&gt; </div><div class='input'>
 <span class='co'># Other logical tests e.g. string comparators</span>
 <span class='co'># For example, matching last word in `hair_colour` and `branch_office`</span>
 <span class='no'>last_word_wf</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/chartr.html'>tolower</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span>(<span class='st'>"^.* "</span>, <span class='st'>""</span>, <span class='no'>x</span>))
@@ -245,7 +283,37 @@ Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specif
                                                   <span class='kw pkg'>diyar</span><span class='kw ns'>::</span><span class='no'><a href='predefined_tests.html'>exact_match</a></span>,
                                                   <span class='no'>last_word_cmp</span>,
                                                   <span class='no'>last_word_cmp</span>),
-                                     <span class='kw'>score_threshold</span> <span class='kw'>=</span> <span class='no'>score_range</span>$<span class='no'>mid_scorce</span>)</div><div class='output co'>#&gt; <span class='error'>Error in err_links_wf_probablistic_0(attribute = attribute, blocking_attribute = blocking_attribute,     cmp_func = cmp_func, cmp_threshold = cmp_threshold, probabilistic = probabilistic,     m_probability = m_probability, score_threshold = score_threshold,     id_1 = id_1, id_2 = id_2): object 'score_range' not found</span></div><div class='input'><span class='no'>prob_pids2</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'prob_pids2' not found</span></div><div class='input'>
+                                     <span class='kw'>score_threshold</span> <span class='kw'>=</span> <span class='no'>score_range</span>$<span class='no'>mid_scorce</span>)
+<span class='no'>prob_pids2</span></div><div class='output co'>#&gt; $pid
+#&gt; [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"
+#&gt; [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.1 (CRI 001)"
+#&gt; 
+#&gt; $pid_weights
+#&gt;      sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
+#&gt; [1,]    1    7            0            1               1                 1
+#&gt; [2,]    2    2           NA           NA              NA                NA
+#&gt; [3,]    3    3           NA           NA              NA                NA
+#&gt; [4,]    4    4           NA           NA              NA                NA
+#&gt; [5,]    5    5           NA           NA              NA                NA
+#&gt; [6,]    6    7            1            1               1                 1
+#&gt; [7,]    7    7            1            1               1                 1
+#&gt;      cmp.weight cmp.threshold prb.staff_id prb.initials prb.hair_colour
+#&gt; [1,]          3            NA    -4.321928     1.148392        1.733354
+#&gt; [2,]         NA            NA           NA           NA              NA
+#&gt; [3,]         NA            NA           NA           NA              NA
+#&gt; [4,]         NA            NA           NA           NA              NA
+#&gt; [5,]         NA            NA           NA           NA              NA
+#&gt; [6,]          4            NA     1.733354     1.148392        2.733354
+#&gt; [7,]          4            NA     1.733354     1.148392        1.733354
+#&gt;      prb.branch_office prb.weight prb.threshold
+#&gt; [1,]          1.733354  0.2931724             1
+#&gt; [2,]                NA         NA            NA
+#&gt; [3,]                NA         NA            NA
+#&gt; [4,]                NA         NA            NA
+#&gt; [5,]                NA         NA            NA
+#&gt; [6,]          2.733354  8.3484549             1
+#&gt; [7,]          1.733354  6.3484549             1
+#&gt; </div><div class='input'>
 <span class='co'># Results for specific record pairs</span>
 <span class='no'>prob_pids3</span> <span class='kw'>&lt;-</span> <span class='fu'>links_wf_probabilistic</span>(<span class='kw'>attribute</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span>(<span class='no'>dfr</span>),
                                      <span class='kw'>cmp_func</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='kw pkg'>diyar</span><span class='kw ns'>::</span><span class='no'><a href='predefined_tests.html'>exact_match</a></span>,
@@ -254,7 +322,24 @@ Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specif
                                                   <span class='no'>last_word_cmp</span>),
                                      <span class='kw'>score_threshold</span> <span class='kw'>=</span> <span class='no'>score_range</span>$<span class='no'>mid_scorce</span>,
                                      <span class='kw'>id_1</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>1</span>),
-                                     <span class='kw'>id_2</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>6</span>, <span class='fl'>7</span>, <span class='fl'>4</span>))</div><div class='output co'>#&gt; <span class='error'>Error in err_links_wf_probablistic_0(attribute = attribute, blocking_attribute = blocking_attribute,     cmp_func = cmp_func, cmp_threshold = cmp_threshold, probabilistic = probabilistic,     m_probability = m_probability, score_threshold = score_threshold,     id_1 = id_1, id_2 = id_2): object 'score_range' not found</span></div><div class='input'><span class='no'>prob_pids3</span></div><div class='output co'>#&gt; <span class='error'>Error in eval(expr, envir, enclos): object 'prob_pids3' not found</span></div></pre>
+                                     <span class='kw'>id_2</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>6</span>, <span class='fl'>7</span>, <span class='fl'>4</span>))
+<span class='no'>prob_pids3</span></div><div class='output co'>#&gt; $pid
+#&gt; NULL
+#&gt; 
+#&gt; $pid_weights
+#&gt;      sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
+#&gt; [1,]    1    6            0            1               1                 1
+#&gt; [2,]    1    7            0            1               1                 1
+#&gt; [3,]    1    4            0            0               0                 0
+#&gt;      cmp.weight cmp.threshold prb.staff_id prb.initials prb.hair_colour
+#&gt; [1,]          3            NA    -4.321928     1.148392        1.733354
+#&gt; [2,]          3            NA    -4.321928     1.148392        1.733354
+#&gt; [3,]          0            NA    -4.321928    -3.514573       -3.836501
+#&gt;      prb.branch_office  prb.weight prb.threshold
+#&gt; [1,]          1.733354   0.2931724             1
+#&gt; [2,]          1.733354   0.2931724             1
+#&gt; [3,]         -3.836501 -15.5095038             0
+#&gt; </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

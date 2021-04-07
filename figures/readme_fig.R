@@ -46,4 +46,6 @@ f <- plot_grid(plt1 + theme(plot.background = element_rect(color = bd_line)),
                           "Panes", "Record-groups"),
                label_colour = bd_line,
                label_size = 12)
+
 ggsave(plot = f, filename = "fig_r1_dark.png", width = 15, height = 9, units = "in")
+ggsave(plot = f, filename = "docs/fig_r1_dark.png", width = 15, height = 9, units = "in")

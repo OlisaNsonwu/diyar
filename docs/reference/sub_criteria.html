@@ -95,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -148,39 +148,47 @@
 <span class='fu'>eval_sub_criteria</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
 <span class='co'># S3 method for sub_criteria</span>
-<span class='fu'>eval_sub_criteria</span>(<span class='no'>x</span>, <span class='no'>strata</span>, <span class='no'>index_record</span>, <span class='no'>sn</span>, <span class='kw'>check_duplicates</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+<span class='fu'>eval_sub_criteria</span>(<span class='no'>x</span>, <span class='no'>strata</span>, <span class='no'>index_record</span>, <span class='no'>sn</span>, <span class='kw'>check_duplicates</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='no'>...</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>...</th>
-      <td><p>Any <code>atomic</code>. Attributes.</p></td>
+      <td><p><code>[atomic]</code>.. Attributes.</p></td>
     </tr>
     <tr>
       <th>match_funcs</th>
-      <td><p><code>function</code>. User defined logical test for matches.</p></td>
+      <td><p><code>[function]</code>. User defined logical test for matches.</p></td>
     </tr>
     <tr>
       <th>equal_funcs</th>
-      <td><p><code>function</code>. User defined logical test for identical record sets (all attributes of the same record).</p></td>
+      <td><p><code>[function]</code>. User defined logical test for identical record sets (all attributes of the same record).</p></td>
+    </tr>
+    <tr>
+      <th>operator</th>
+      <td><p><code>[character]</code>. Options are <code>"and"</code> or <code>"or"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>x</th>
+      <td><p><code>[sub_Criteria]</code></p></td>
     </tr>
     <tr>
       <th>strata</th>
-      <td><p><code>Integer</code>. Identifier for subsets of the dataset</p></td>
+      <td><p><code>[integer]</code>. Identifier for subsets of the dataset</p></td>
     </tr>
     <tr>
       <th>index_record</th>
-      <td><p><code>Logical</code>. Represents the <code>y</code>-value in the  <code>x</code>-<code>y</code> record pair to be checked.
+      <td><p><code>[logical]</code>. Represents the <code>y</code>-value in the  <code>x</code>-<code>y</code> record pair to be checked.
 See (<b><code><a href='predefined_tests.html'>predefined_tests</a></code></b>).</p></td>
     </tr>
     <tr>
       <th>sn</th>
-      <td><p><code>Integer</code> Unique index for each record set</p></td>
+      <td><p><code>[integer]</code> Unique index for each record set</p></td>
     </tr>
     <tr>
       <th>check_duplicates</th>
-      <td><p><code>Logical</code>. If <code>FALSE</code>, skips an identical record set if it has already been checked.</p></td>
+      <td><p><code>[logical]</code>. If <code>FALSE</code>, skips an identical record set if it has already been checked.</p></td>
     </tr>
     </table>
 

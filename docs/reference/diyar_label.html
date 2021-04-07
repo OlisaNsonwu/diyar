@@ -95,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -143,10 +143,16 @@
 decode(x, ...)
 
 # S3 method for default
-encode(x)
+encode(x, ...)
 
 # S3 method for d_label
-decode(x)
+encode(x, ...)
+
+# S3 method for default
+decode(x, ...)
+
+# S3 method for d_label
+decode(x, ...)
 
 # S3 method for d_label
 rep(x, ...)
@@ -164,6 +170,18 @@ rep(x, ...)
       <th>x</th>
       <td><p><code>[d_label|atomic]</code></p></td>
     </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Other arguments.</p></td>
+    </tr>
+    <tr>
+      <th>i</th>
+      <td><p>i</p></td>
+    </tr>
+    <tr>
+      <th>drop</th>
+      <td><p>drop</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -177,14 +195,24 @@ rep(x, ...)
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>cds</span> <span class='kw'>&lt;-</span> <span class='fu'>encode</span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='no'>LETTERS</span>[<span class='fl'>1</span>:<span class='fl'>5</span>], <span class='fl'>3</span>))
 <span class='no'>cds</span></div><div class='output co'>#&gt;  [1] 1 2 3 4 5 1 2 3 4 5 1 2 3 4 5
+#&gt; attr(,"class")
+#&gt; [1] "d_label"
 #&gt; attr(,"value")
 #&gt; [1] 1 2 3 4 5
 #&gt; attr(,"label")
 #&gt; [1] "A" "B" "C" "D" "E"
-#&gt; attr(,"class")
-#&gt; [1] "d_label"</div><div class='input'>
+#&gt; attr(,"state")
+#&gt; [1] "encoded"</div><div class='input'>
 <span class='no'>nms</span> <span class='kw'>&lt;-</span> <span class='fu'>decode</span>(<span class='no'>cds</span>)
-<span class='no'>nms</span></div><div class='output co'>#&gt;  [1] "A" "B" "C" "D" "E" "A" "B" "C" "D" "E" "A" "B" "C" "D" "E"</div></pre>
+<span class='no'>nms</span></div><div class='output co'>#&gt;  [1] "A" "B" "C" "D" "E" "A" "B" "C" "D" "E" "A" "B" "C" "D" "E"
+#&gt; attr(,"class")
+#&gt; [1] "d_label"
+#&gt; attr(,"value")
+#&gt; [1] 1 2 3 4 5
+#&gt; attr(,"label")
+#&gt; [1] "A" "B" "C" "D" "E"
+#&gt; attr(,"state")
+#&gt; [1] "decoded"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

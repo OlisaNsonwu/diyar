@@ -96,13 +96,13 @@ Records in each episode are assigned a unique identifier with relevant group-lev
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -323,7 +323,7 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     <tr>
       <th>display</th>
       <td><p><code>[character]</code>. The progress messages printed on screen. Options are; <code>"none"</code> (default), <code>"progress"</code> and <code>"stats"</code>.
-#' @param to_s4 <code>[logical]</code>. Output type - <code><a href='epid-class.html'>epid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
+#' @param to_s4 <code>[logical]</code>. Deprecated. Output type - <code><a href='epid-class.html'>epid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
     </tr>
     <tr>
       <th>case_sub_criteria</th>
@@ -342,16 +342,24 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
       <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched recurrence windows required for an episode. <code>See details</code>.</p></td>
     </tr>
     <tr>
+      <th>to_s4</th>
+      <td><p><code>[logical]</code>. Deprecated. Output type - <code><a href='epid-class.html'>epid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
+    </tr>
+    <tr>
       <th>deduplicate</th>
       <td><p><code>[logical]</code>. If <code>TRUE</code>, <code>"duplicate"</code> events are excluded from the <code><a href='epid-class.html'>epid</a></code>.</p></td>
     </tr>
     <tr>
       <th>bi_direction</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code>, <code>"duplicate"</code> events before and after the index event are tracked.</p></td>
+      <td><p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, <code>"duplicate"</code> events before and after the index event are tracked.</p></td>
     </tr>
     <tr>
       <th>include_index_period</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code>, events overlapping with the index event or period are linked even if they are outside the cut-off period.</p></td>
+      <td><p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, events overlapping with the index event or period are linked even if they are outside the cut-off period.</p></td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td><p>Arguments passed to <code>episodes</code>.</p></td>
     </tr>
     <tr>
       <th>overlap_methods</th>
@@ -367,7 +375,7 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     </tr>
     <tr>
       <th>df</th>
-      <td><p><code>[data.frame]</code>. One or more datasets appended together. See <code>Details</code>.</p></td>
+      <td><p><code>[data.frame]</code>. Deprecated. One or more datasets appended together. See <code>Details</code>.</p></td>
     </tr>
     </table>
 

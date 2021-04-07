@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Number line objects — number_line • diyar</title>
+<title><code>number_line</code> — number_line • diyar</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Number line objects — number_line" />
+<meta property="og:title" content="<code>number_line</code> — number_line" />
 <meta property="og:description" content="A range of numeric values." />
 
 
@@ -95,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -129,7 +129,7 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Number line objects</h1>
+    <h1><code>number_line</code></h1>
     <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/number_line.R'><code>R/number_line.R</code></a></small>
     <div class="hidden name"><code>number_line.Rd</code></div>
     </div>
@@ -313,8 +313,8 @@ See <code><a href='overlaps.html'>overlaps</a></code> for further details on ove
 <span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "5 -&gt; 30"  "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'>
 <span class='co'># Split number line objects</span>
 <span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() - <span class='fl'>5</span>, <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>())
-<span class='no'>x</span></div><div class='output co'>#&gt; [1] "2021-03-23 -&gt; 2021-03-28"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-03-23 -&gt; 2021-03-25" "2021-03-25 -&gt; 2021-03-27"
-#&gt; [3] "2021-03-27 -&gt; 2021-03-28"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt; [1] "2021-03-23 -&gt; 2021-03-27" "2021-03-27 -&gt; 2021-03-28"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>fill</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "2021-03-23 -&gt; 2021-03-27"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-03-23 -&gt; 2021-03-25" "2021-03-25 -&gt; 2021-03-28"</div></pre>
+<span class='no'>x</span></div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-07"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-04" "2021-04-04 -&gt; 2021-04-06"
+#&gt; [3] "2021-04-06 -&gt; 2021-04-07"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-06" "2021-04-06 -&gt; 2021-04-07"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>fill</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-06"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-04" "2021-04-04 -&gt; 2021-04-07"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

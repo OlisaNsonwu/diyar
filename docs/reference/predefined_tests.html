@@ -95,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -151,7 +151,7 @@
   <span class='no'>m_probability</span>,
   <span class='no'>score_threshold</span>,
   <span class='no'>return_weights</span>,
-  <span class='no'>probabistic</span>,
+  <span class='no'>probabilistic</span>,
   <span class='no'>cmp_func</span>
 )</pre>
 
@@ -183,12 +183,16 @@
       <td><p>Score threshold determining matched or linked records. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     <tr>
-      <th>cmp_func</th>
-      <td><p>Logical tests such as string comparators. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
+      <th>return_weights</th>
+      <td><p>If <code>TRUE</code>, returns the match-weights and score-thresholds for record pairs. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     <tr>
       <th>probabilistic</th>
       <td><p>If <code>TRUE</code>, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
+    </tr>
+    <tr>
+      <th>cmp_func</th>
+      <td><p>Logical tests such as string comparators. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     </table>
 
@@ -203,13 +207,13 @@
     <pre class="examples"><div class='input'><span class='no'>`exact_match`</span></div><div class='output co'>#&gt; function(x, y) {
 #&gt;   x == y &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x000000000ee6e9a0&gt;
+#&gt; &lt;bytecode: 0x0000000020275728&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='fu'>exact_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>exact_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
 <span class='no'>`range_match`</span></div><div class='output co'>#&gt; function(x, y, range = 10){
 #&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
 #&gt;   (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000010c8cce0&gt;
+#&gt; &lt;bytecode: 0x000000002020ae98&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='fu'>range_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>16</span>, <span class='kw'>range</span> <span class='kw'>=</span> <span class='fl'>6</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>range_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>16</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>range</span> <span class='kw'>=</span> <span class='fl'>6</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
 <span class='no'>`range_match_legacy`</span></div><div class='output co'>#&gt; function(x, y) {
 #&gt;   lg &lt;- overlap(as.number_line(x@gid), x)
@@ -221,11 +225,12 @@
 #&gt;   }
 #&gt;   overlap(as.number_line(x@gid), y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000010901398&gt;
-#&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='no'>x_nl</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>10</span>, <span class='fl'>16</span>, <span class='kw'>gid</span> <span class='kw'>=</span> <span class='fl'>10</span>)</div><div class='output co'>#&gt; <span class='error'>Error in validObject(.Object): invalid class "number_line" object: invalid object for slot "gid" in class "number_line": got class "numeric", should be or extend class "integer"</span></div><div class='input'><span class='no'>y_nl1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>16</span>, <span class='fl'>10</span>)
+#&gt; &lt;bytecode: 0x000000001fcf8958&gt;
+#&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='no'>x_nl</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>10</span>, <span class='fl'>16</span>, <span class='kw'>gid</span> <span class='kw'>=</span> <span class='fl'>10</span>)
+<span class='no'>y_nl1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>16</span>, <span class='fl'>10</span>)
 <span class='no'>y_nl2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>16</span>, <span class='fl'>10</span>)
 
-<span class='fu'>range_match_legacy</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x_nl</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y_nl1</span>)</div><div class='output co'>#&gt; <span class='error'>Error in as.number_line(x@gid): object 'x_nl' not found</span></div><div class='input'><span class='fu'>range_match_legacy</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x_nl</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y_nl2</span>)</div><div class='output co'>#&gt; <span class='error'>Error in as.number_line(x@gid): object 'x_nl' not found</span></div><div class='input'>
+<span class='fu'>range_match_legacy</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x_nl</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y_nl1</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>range_match_legacy</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='no'>x_nl</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='no'>y_nl2</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 
 </div></pre>
   </div>

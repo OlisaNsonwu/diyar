@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Schema  diagram for linked records. — schema • diyar</title>
+<title>Schema diagram for linked records in <code>diyar</code> — schema • diyar</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Schema  diagram for linked records. — schema" />
-<meta property="og:description" content="Create schema diagrams for pid, epid and pane objects." />
+<meta property="og:title" content="Schema diagram for linked records in <code>diyar</code> — schema" />
+<meta property="og:description" content="Create schema diagrams for number_line, epid, pid and pane objects." />
 
 
 
@@ -95,13 +95,13 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
     </li>
     <li>
-      <a href="../articles/links.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/links.html">Record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/number_line.html">`number_line` and overlaps</a>
     </li>
   </ul>
 </li>
@@ -129,27 +129,19 @@
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Schema  diagram for linked records.</h1>
+    <h1>Schema diagram for linked records in <code>diyar</code></h1>
     <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/schema.R'><code>R/schema.R</code></a></small>
     <div class="hidden name"><code>schema.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Create schema diagrams for <code>pid</code>, <code>epid</code> and <code>pane</code> objects.</p>
+    <p>Create schema diagrams for <code><a href='number_line-class.html'>number_line</a></code>, <code><a href='epid-class.html'>epid</a></code>, <code><a href='pid-class.html'>pid</a></code> and <code><a href='pane-class.html'>pane</a></code> objects.</p>
     </div>
 
     <pre class="usage"><span class='fu'>schema</span>(<span class='no'>x</span>, <span class='no'>...</span>)
 
-<span class='co'># S3 method for pane</span>
-<span class='fu'>schema</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>show_labels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"window_label"</span>),
-  <span class='kw'>dark_mode</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>custom_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='no'>...</span>
-)
+<span class='co'># S3 method for number_line</span>
+<span class='fu'>schema</span>(<span class='no'>x</span>, <span class='kw'>show_labels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"date"</span>, <span class='st'>"case_overlap_methods"</span>), <span class='no'>...</span>)
 
 <span class='co'># S3 method for epid</span>
 <span class='fu'>schema</span>(
@@ -158,7 +150,18 @@
   <span class='kw'>show_labels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"length_arrow"</span>),
   <span class='kw'>show_skipped</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>show_non_finite</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>dark_mode</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>theme</span> <span class='kw'>=</span> <span class='st'>"dark"</span>,
+  <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>custom_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='no'>...</span>
+)
+
+<span class='co'># S3 method for pane</span>
+<span class='fu'>schema</span>(
+  <span class='no'>x</span>,
+  <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
+  <span class='kw'>show_labels</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"window_label"</span>),
+  <span class='kw'>theme</span> <span class='kw'>=</span> <span class='st'>"dark"</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>custom_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='no'>...</span>
@@ -169,7 +172,7 @@
   <span class='no'>x</span>,
   <span class='kw'>title</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>show_labels</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>dark_mode</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>theme</span> <span class='kw'>=</span> <span class='st'>"dark"</span>,
   <span class='kw'>orientation</span> <span class='kw'>=</span> <span class='st'>"by_pid"</span>,
   <span class='kw'>seed</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>custom_label</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -181,51 +184,59 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>x</th>
-      <td><p><code>pid</code>, <code>epid</code>, or <code>pane</code> object.</p></td>
+      <td><p><code>[<a href='number_line-class.html'>number_line</a>|<a href='epid-class.html'>epid</a>|<a href='pid-class.html'>pid</a>|<a href='pane-class.html'>pane</a>]</code></p></td>
     </tr>
     <tr>
       <th>...</th>
-      <td><p>XXXX</p></td>
-    </tr>
-    <tr>
-      <th>title</th>
-      <td><p>Title of <code>ggplot</code> object</p></td>
+      <td><p>Other arguments.</p></td>
     </tr>
     <tr>
       <th>show_labels</th>
-      <td><p>Show/hide certain parts of the schema. See <code>Details</code></p></td>
+      <td><p><code>[logical|character]</code>. Show/hide certain parts of the schema. See <code>Details</code>.</p></td>
     </tr>
     <tr>
-      <th>dark_mode</th>
-      <td><p>Use a black/white background for each plot.</p></td>
-    </tr>
-    <tr>
-      <th>seed</th>
-      <td><p>XXXX</p></td>
+      <th>title</th>
+      <td><p><code>[character]</code>. Plot title.</p></td>
     </tr>
     <tr>
       <th>show_skipped</th>
-      <td><p>Show/hide <code>"Skipped"</code> records</p></td>
+      <td><p><code>[logical]</code>. Show/hide <code>"Skipped"</code> records.</p></td>
     </tr>
     <tr>
       <th>show_non_finite</th>
-      <td><p>Show/hide records with non-finite <code>date</code> values</p></td>
+      <td><p><code>[logical]</code>. Show/hide records with non-finite <code>date</code> values.</p></td>
+    </tr>
+    <tr>
+      <th>theme</th>
+      <td><p><code>[character]</code>. Options are <code>"dark"</code> or <code>"light"</code>.</p></td>
+    </tr>
+    <tr>
+      <th>seed</th>
+      <td><p><code>[integer]</code>. See <code>set.seed</code>. Used to get a consistent arrangement of items in the plot.</p></td>
+    </tr>
+    <tr>
+      <th>custom_label</th>
+      <td><p><code>[character]</code>. Custom label for each record of the identifier.</p></td>
     </tr>
     <tr>
       <th>orientation</th>
-      <td><p>Show each record of a <code>pid</code> object within its group id (<code>"by_pid"</code>) or its <code>pid_cri</code> (<code>"by_pid_cri"</code>)</p></td>
+      <td><p><code>[character]</code>. Show each record of a <code>pid</code> object within its group id (<code>"by_pid"</code>) or its <code>pid_cri</code> (<code>"by_pid_cri"</code>)</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p>list of <code>ggplot</code> objects</p>
+    <p><code>ggplot</code> objects</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>The <code>schema</code> function creates a schema diagram for <code>pid</code>, <code>epid</code> and <code>pane</code> objects.
-These diagrams are a visual aid to describing the data linkage (<code><a href='links.html'>links</a></code>), episode tracking (<code><a href='episodes.html'>episodes</a></code>) or partitioning process(<code><a href='partitions.html'>partitions</a></code>).</p>
-<p>When used for <code>epid</code> and <code>pane</code> objects, additional information in the form of arguments passed to the instance <code><a href='episodes.html'>episodes</a></code> and <code><a href='partitions.html'>partitions</a></code> will be required.</p>
+    <p>A visual aid to describing the data linkage (<code><a href='links.html'>links</a></code>), episode tracking (<code><a href='episodes.html'>episodes</a></code>) or partitioning process (<code><a href='partitions.html'>partitions</a></code>).</p>
 
+    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
+    <pre class="examples"><div class='input'><span class='fu'>schema</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>1</span>)))</div><div class='output co'>#&gt; <span class='warning'>Warning: replacing previous import 'vctrs::data_frame' by 'tibble::data_frame' when loading 'dplyr'</span></div><div class='img'><img src='schema-1.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>schema</span>(<span class='fu'><a href='episodes.html'>episodes</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fl'>2</span>))</div><div class='img'><img src='schema-2.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>schema</span>(<span class='fu'><a href='partitions.html'>partitions</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>separate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: `l` and `r` have different classes. They may need to be reconciled.</span></div><div class='img'><img src='schema-3.png' alt='' width='700' height='433' /></div><div class='input'>
+<span class='fu'>schema</span>(<span class='fu'><a href='links.html'>links</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>NA</span>, <span class='fl'>NA</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>NA</span>))))</div><div class='img'><img src='schema-4.png' alt='' width='700' height='433' /></div><div class='input'>
+</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">
