@@ -5,20 +5,19 @@
 <meta charset="utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Multistage Record Linkage and Case Definition for Epidemiological Analysis • diyar</title>
+<title>Record Linkage and Epidemiological Case Definitions in R • diyar</title>
 <!-- jquery --><script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script><!-- Bootstrap --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script><!-- bootstrap-toc --><link rel="stylesheet" href="bootstrap-toc.css">
 <script src="bootstrap-toc.js"></script><!-- Font Awesome icons --><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
-<script src="pkgdown.js"></script><meta property="og:title" content="Multistage Record Linkage and Case Definition for Epidemiological Analysis">
-<meta property="og:description" content="Perform multistage deterministic linkages and apply case definitions to datasets.
-    Records are linked by different matching criteria in a specified order of certainty. 
-    The linkage process handles missing data and conflicting matches using this same order.
-    Track events (e.g. sample collection) and period (e.g. hospital admission) to episodes. 
-    This process permits several options such as episode lengths and recurrence.
-    Record linkage and episode tracking assign unique group identifiers to matched records.
-    Duplicate events or records can then be identified or sub-analyses performed within each group.  ">
+<script src="pkgdown.js"></script><meta property="og:title" content="Record Linkage and Epidemiological Case Definitions in R">
+<meta property="og:description" content="An R package for record linkage and implementing epidemiological case definitions in R.
+    Record linkage is implemented either through a multistage determinitic approach or a probablisitic approach. 
+    Matching records are assigned to unqiue groups. There are mechanisms to address misssing data and conflicting matches across linkage stages.
+    Track and assign events (e.g. sample collection) and periods (e.g. hospital admission) to unique groups based on a case definition. 
+    The tracking process permits several options such as episode lengths and recurrence.
+    Duplicate events or records can then be identified for removal or further analyses.  ">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -199,7 +198,7 @@
 <div id="episode-tracking" class="section level3">
 <h3 class="hasAnchor">
 <a href="#episode-tracking" class="anchor"></a>Episode tracking</h3>
-<p>Use <code><a href="reference/episodes.html">episodes()</a></code> or <code><a href="reference/episodes.html">episodes_wf_splits()</a></code> to create a unique identifier for related events based on a case definition.</p>
+<p>Use <code><a href="reference/episodes.html">episodes()</a></code> to create a unique identifier for related events based on a case definition.</p>
 <div class="sourceCode" id="cb7"><pre class="r"><span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="fl">1</span>:<span class="fl">7</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>)
 <span class="co">#&gt; [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.4 (C)" "E.4 (D)" "E.4 (D)" "E.7 (C)"</span>
 <span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="fl">1</span>:<span class="fl">7</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>)

@@ -66,9 +66,9 @@
 
 \item{name}{slot name}
 
-\item{fill}{XXXXX}
+\item{fill}{\code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split}
 
-\item{simplify}{XXXXX}
+\item{simplify}{\code{[logical]}. Split into \code{number_line} or sequence of finite numbers}
 
 \item{decreasing}{If \code{TRUE}, sort in descending order.}
 }

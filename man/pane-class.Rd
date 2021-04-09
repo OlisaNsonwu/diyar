@@ -71,7 +71,7 @@ S4 objects storing the result of \code{\link{partitions}}.
 
 \item{\code{case_nm}}{Record type in regards to index assignment.}
 
-\item{\code{window_list}}{A list of \code{windows} considered for each \code{pane}.}
+\item{\code{window_list}}{A list of considered \code{windows} for each \code{pane}.}
 
 \item{\code{dist_pane_index}}{The difference between each event and it's index event.}
 
@@ -83,9 +83,9 @@ S4 objects storing the result of \code{\link{partitions}}.
 
 \item{\code{pane_total}}{The number of records in each \code{pane}.}
 
-\item{\code{options}}{XXXXXX.}
+\item{\code{options}}{Some options passed to the instance of \code{\link{partitions}}.}
 
-\item{\code{window_matched}}{XXXX.}
+\item{\code{window_matched}}{A list of matched \code{windows} for each \code{pane}.}
 }}
 
 \examples{

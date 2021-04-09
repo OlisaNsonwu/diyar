@@ -17,15 +17,15 @@
 #'
 #' \bold{\code{reverse()}} - Swapped left and right points.
 #'
-#' \bold{\code{inbetween()}} - start and endpoints of one \code{number_line} object is within the start and endpoints of another.
+#' \bold{\code{inbetween()}} - start and end point of one \code{number_line} object is within the start and end point of another.
 #'
-#' \bold{\code{across()}} - start or endpoints of one \code{number_line} object is within the start and endpoints of another.
+#' \bold{\code{across()}} - start or end point of one \code{number_line} object is in between the start and end point of another.
 #'
 #' \bold{\code{chain()}} - endpoint of one \code{number_line} object is the same as the start point of another.
 #'
 #' \bold{\code{aligns_start()}} - identical start points only.
 #'
-#' \bold{\code{aligns_end()}} - identical endpoints only.
+#' \bold{\code{aligns_end()}} - identical end point only.
 #'
 #' \bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" methods of overlap.
 #'
@@ -33,10 +33,10 @@
 #'
 #' \bold{Describe methods of overlap;}
 #'
-#' \bold{\code{overlap_method()}} - Shows if and how a pair of \code{number_line} object has overlapped.
+#' \bold{\code{overlap_method()}} - Shows how a pair of \code{number_line} object has overlapped.
 #' Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
 #'
-#' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods} and \code{overlap_methods} in \code{\link{episodes}}.
+#' \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods}, and \code{case_overlap_methods} and \code{recurrence_overlap_methods} in \code{\link{episodes}}.
 #'
 #' @seealso
 #' \code{\link{number_line}};  \code{\link{set_operations}}

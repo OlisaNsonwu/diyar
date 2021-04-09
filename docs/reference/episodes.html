@@ -41,7 +41,7 @@
 
 <meta property="og:title" content="Link events  to chronological episodes. — episodes" />
 <meta property="og:description" content="Link events with matching attributes and within specified durations of each other.
-Records in each episode are assigned a unique identifier with relevant group-level information." />
+Each set of linked records are assigned a unique identifier with relevant group-level information." />
 
 
 
@@ -137,7 +137,7 @@ Records in each episode are assigned a unique identifier with relevant group-lev
 
     <div class="ref-description">
     <p>Link events with matching attributes and within specified durations of each other.
-Records in each episode are assigned a unique identifier with relevant group-level information.</p>
+Each set of linked records are assigned a unique identifier with relevant group-level information.</p>
     </div>
 
     <pre class="usage"><span class='fu'>episodes</span>(
@@ -252,7 +252,7 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>recurrence_length</th>
-      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Duration from the last <code>"duplicate"</code> event distinguishing a <code>"recurrent"</code> event from its index event.</p></td>
+      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Duration from the last <code>"duplicate"</code> event distinguishing a <code>"recurrent"</code> event from its index event. This is the recurrence window.</p></td>
     </tr>
     <tr>
       <th>episode_unit</th>
@@ -260,7 +260,7 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>strata</th>
-      <td><p><code>[atomic]</code>. Subsets of the dataset. Episodes are created separately for each <code>strata</code>. <em><code>NA</code> values in <code>strata</code> excludes records from the episode tracking process</em>.</p></td>
+      <td><p><code>[atomic]</code>. Subsets of the dataset. Episodes are created separately for each <code>strata</code>.</p></td>
     </tr>
     <tr>
       <th>sn</th>
@@ -292,11 +292,11 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>data_links</th>
-      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='epid-class.html'>epid</a></code>. A <code><a href='epid-class.html'>epid</a></code> without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p></td>
+      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='epid-class.html'>epid</a></code>. An episode without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>custom_sort</th>
-      <td><p><code>[atomic]</code>. Preferential order for selecting reference events.</p></td>
+      <td><p><code>[atomic]</code>. Preferential order for selecting index or reference events.</p></td>
     </tr>
     <tr>
       <th>skip_order</th>
@@ -304,8 +304,7 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>reference_event</th>
-      <td><p><code>[character]</code>. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".
-If <code>FALSE</code> (default), it will be the first event. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
+      <td><p><code>[character]</code>. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".</p></td>
     </tr>
     <tr>
       <th>case_for_recurrence</th>
@@ -322,24 +321,23 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     </tr>
     <tr>
       <th>display</th>
-      <td><p><code>[character]</code>. The progress messages printed on screen. Options are; <code>"none"</code> (default), <code>"progress"</code> and <code>"stats"</code>.
-#' @param to_s4 <code>[logical]</code>. Deprecated. Output type - <code><a href='epid-class.html'>epid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
+      <td><p><code>[character]</code>. The progress messages printed on screen. Options are; <code>"none"</code> (default), <code>"progress"</code> and <code>"stats"</code>.</p></td>
     </tr>
     <tr>
       <th>case_sub_criteria</th>
-      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Matching conditions for "case" windows in addition to temporal links. Supplied as a <code><a href='sub_criteria.html'>sub_criteria</a></code> object.</p></td>
+      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Matching conditions for "case" windows in addition to temporal links.</p></td>
     </tr>
     <tr>
       <th>recurrence_sub_criteria</th>
-      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a <code><a href='sub_criteria.html'>sub_criteria</a></code> object.</p></td>
+      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Matching conditions for "recurrence" windows in addition to temporal links.</p></td>
     </tr>
     <tr>
       <th>case_length_total</th>
-      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched case windows required for an episode. <code>See details</code>.</p></td>
+      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched case windows required for an episode.</p></td>
     </tr>
     <tr>
       <th>recurrence_length_total</th>
-      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched recurrence windows required for an episode. <code>See details</code>.</p></td>
+      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched recurrence windows required for an episode.</p></td>
     </tr>
     <tr>
       <th>to_s4</th>
@@ -347,7 +345,7 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     </tr>
     <tr>
       <th>deduplicate</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code>, <code>"duplicate"</code> events are excluded from the <code><a href='epid-class.html'>epid</a></code>.</p></td>
+      <td><p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, <code>"duplicate"</code> events are excluded from the <code><a href='epid-class.html'>epid</a></code>.</p></td>
     </tr>
     <tr>
       <th>bi_direction</th>
@@ -371,7 +369,7 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     </tr>
     <tr>
       <th>x</th>
-      <td><p><code>[date|datetime|integer|<a href='number_line.html'>number_line</a>]</code>. Deprecated. Record date or period. Please use <code>date</code></p></td>
+      <td><p><code>[date|datetime|integer|<a href='number_line.html'>number_line</a>]</code>. Deprecated. Record date or period. Please use <code>date</code>.</p></td>
     </tr>
     <tr>
       <th>df</th>
@@ -389,7 +387,7 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
 
     <p>All dated records within a specified duration of an index record are linked together as an episode.
 By default, this process occurs in ascending order, beginning with the earliest event.
-This can be changed to a descending (<code>from_last</code>) or custom order <code>custom_sort</code>.
+This can be changed to a descending (<code>from_last</code>) or custom order (<code>custom_sort</code>).
 Ties are always broken by the chronological order of events.</p>
 <p>A <code>"fixed"</code> episode has a fixed maximum duration determined by <code>case_length</code>, while a <code>"rolling"</code> episode can continue to recur.
 A <code>"rolling"</code> episode will persist as long as is specified by <code>rolls_max</code>.</p>
@@ -404,15 +402,17 @@ A <code>"rolling"</code> episode will persist as long as is specified by <code>r
 
 <p>Every element in <code>data_links</code> must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
 Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</code>.</p><ul>
-<li><p>If named <code>"l"</code>, only groups with records from every listed <code>data_source</code> will be retained.</p></li>
-<li><p>If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be retained.</p></li>
+<li><p>If named <code>"l"</code>, only groups with records from every listed <code>data_source</code> will be unlinked.</p></li>
+<li><p>If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be unlinked.</p></li>
 </ul>
 
-<p><b><code>episode_group()</code></b> as it existed before <code>v0.2.0</code> has been retired.
+<p><em><code>NA</code> values in <code>strata</code> excludes records from the episode tracking process</em></p>
+<p><b><code>episodes_wf_splits()</code></b> is a wrapper function of <b><code>episode_group()</code></b> which reframes the data before the episode tracking process.
+This aims to reduce the overall processing time for the tracking process. See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for further details.</p>
+<p><b><code>episode_group()</code></b> has been retired.
 It now only exists to support previous code with minimal input from users.
 Moving forward, please use <b><code>episodes()</code></b>.</p>
-<p><b><code>rolling_episodes()</code></b> and <b><code>rolling_episodes()</code></b> as it existed before <code>v0.2.0</code> has been retired.
-They are  are wrapper functions to track <code>"fixed"</code> and <code>"rolling"</code> episodes respectively.
+<p><b><code>rolling_episodes()</code></b> and <b><code>rolling_episodes()</code></b> has been retired.
 They now only exists to support previous code with minimal input from users.
 Moving forward, please use <b><code>episodes()</code></b>.</p>
 <p>See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for more information.</p>

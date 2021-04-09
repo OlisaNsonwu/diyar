@@ -20,4 +20,5 @@
 ^\.covrignore$
 ^R/retired_funcs\.R$
 ^tests
-^vignettes\.png$
+^fig_r1_dark\.png$
+^fig_r1_light\.png$

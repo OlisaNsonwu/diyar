@@ -71,11 +71,26 @@ sub_criteria <- function(...,
 eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 
 #' @rdname sub_criteria
-#' @param strata \code{[integer]}. Identifier for subsets of the dataset
-#' @param index_record \code{[logical]}. Represents the \code{y}-value in the  \code{x}-\code{y} record pair to be checked.
+#' @param strata \code{[integer]}. Subsets of the dataset
+#' @param index_record \code{[logical]}. Represents the \code{y}-value of the \code{x}-\code{y} record pair to be compared.
 #' See (\bold{\code{\link{predefined_tests}}}).
-#' @param sn \code{[integer]} Unique index for each record set
-#' @param check_duplicates \code{[logical]}. If \code{FALSE}, skips an identical record set if it has already been checked.
+#' @param sn \code{[integer]} Unique index for each record.
+#' @param check_duplicates \code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.
+#'
+#' @examples
+#' `eval_sub_criteria`
+#' # 3 values
+#' strata <- rep(1, 3)
+#' index_record <- c(TRUE, FALSE, FALSE)
+#' sn <- 1:3
+#'
+#' # Test for a match in either attribute
+#' sub_cri_1 <- sub_criteria(c(1, 1, 0), c(2, 1, 2))
+#' eval_sub_criteria(sub_cri_1, strata, index_record, sn)
+#'
+#' # Test for a match in both attributes
+#' sub_cri_2 <- sub_criteria(c(1, 1, 0), c(2, 1, 2), operator = "and")
+#' eval_sub_criteria(sub_cri_2, strata, index_record, sn)
 #' @export
 eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_duplicates = TRUE, ...){
   curr_ds_len <- length(strata)
@@ -140,13 +155,13 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
                     "i - Each function in `match_funcs` must have the following syntax and output.\n",
                     "i - Syntax ~ `function(x, y, ...)`.\n",
                     "i - Output ~ `TRUE` or `FALSE`.\n",
-                    "X - Issue with `match_funcs - ", j, "` at \"", names(x[j]),"\": ", err, ".")
+                    "X - Issue with `match_funcs`: ", err, ".")
       stop(err, call. = F)
     }
     out1 <- ifelse(is.na(lgk), 0, lgk)
     if(length(out1) != length(curr_strata)){
       err <- paste0("Output length of `match_funcs` must be 1 or the same as `criteria`:\n",
-                    "i - Unexpected length for `match_funcs-", j, "` at \"", names(x[j]),"\":\n",
+                    "i - Unexpected length for `match_funcs`:\n",
                     "i - Expecting a length of 1 of ", length(curr_strata), ".\n",
                     "X - Length is ", length(out1), ".")
       stop(err, call. = F)
@@ -166,7 +181,7 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
                       "i - Each function in `equal_funcs` must have the following syntax and output.\n",
                       "i - Syntax ~ `function(x, y, ...)`.\n",
                       "i - Output ~ `TRUE` or `FALSE`.\n",
-                      "X - Issue with `equal_funcs - ", j, "` at \"", names(x[j]),"\": ", err, ".")
+                      "X - Issue with `equal_funcs`: ", err, ".")
         stop(err, call. = F)
       }
       lgk <- as.numeric(lgk)
@@ -174,12 +189,11 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
       if(length(out2) == 1) out2 <- rep(out2, length(curr_strata))
       if(length(out2) != length(curr_strata)){
         err <- paste0("Output length of `equal_funcs` must be 1 or the same as `criteria`:\n",
-                      "i - Unexpected length for `equal_funcs-", j, "` at \"", names(x[j]),"\":\n",
+                      "i - Unexpected length for `equal_funcs`:\n",
                       "i - Expecting a length of 1 of ", length(curr_strata), ".\n",
                       "X - Length is ", length(out2), ".")
         stop(err, call. = F)
       }
-      # out2 <- out2[retrieve_pos]
       out1 <- c(out1[match(sn, curr_sn)], out2[match(sn, curr_sn)])
     }
     return(out1)
@@ -189,7 +203,6 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
   }
   operator <- attr(x, "operator")
   if(operator == "or"){
-    # set_match <- ifelse(rowSums(matches) > 0, 1, 0)
     if(isFALSE(check_duplicates)){
       set_match <- rowSums(matches)
       m2 <- rowSums(matches) == ncol(matches) | index_record
@@ -201,7 +214,6 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
     }
     set_match[set_match > 0] <- 1
   }else if (operator == "and"){
-    # set_match <- ifelse(rowSums(set_match) == ncol(set_match) | index_record, 1, 0)
     set_match <- rowSums(matches) == ncol(matches) | index_record
     set_match <- as.numeric(set_match)
   }

@@ -2,17 +2,17 @@
 #' @title Link events  to chronological episodes.
 #'
 #' @description Link events with matching attributes and within specified durations of each other.
-#' Records in each episode are assigned a unique identifier with relevant group-level information.
+#' Each set of linked records are assigned a unique identifier with relevant group-level information.
 #'
 #' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.
-#' @param strata \code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}.
+#' @param strata \code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
 #' @param case_length \code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"case"} from another.
 #' This is the case window.
 #' @param episodes_max \code{[integer]}. The maximum number of episodes permitted within each \code{strata}.
 #' @param episode_type \code{[character]}. Options are \code{"fixed"} (default), \code{"rolling"} or \code{"recursive"}. See \code{Details}.
-#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event.
+#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event. This is the recurrence window.
 #' @param episode_unit \code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
 #' @param rolls_max \code{[integer]}. Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each episode to the \code{\link[=epid-class]{epid}}. Useful when the dataset has data from multiple sources.
@@ -21,25 +21,23 @@
 #' @param overlap_methods \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
 #' @param case_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
 #' @param recurrence_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
-#' @param custom_sort \code{[atomic]}. Preferential order for selecting reference events.
+#' @param custom_sort \code{[atomic]}. Preferential order for selecting index or reference events.
 #' @param bi_direction \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
 #' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} and \code{"stats"}.
-#' #' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param reference_event \code{[character]}. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".
-#' If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 #' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param skip_order \code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
-#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. A \code{\link[=epid-class]{epid}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
+#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be unlinked. See \code{Details}.
 #' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), when using lagged \code{case_length} or \code{recurrence_length}, \code{events} before the cut-off point or period are skipped.
 #' @param include_index_period \code{[logical]}. Deprecated. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
-#' @param deduplicate \code{[logical]}. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.
-#' @param x \code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}
-#' @param case_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
-#' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.
-#' @param case_length_total \code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode. \code{See details}.
-#' @param recurrence_length_total \code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode. \code{See details}.
+#' @param deduplicate \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.
+#' @param x \code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}.
+#' @param case_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links.
+#' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links.
+#' @param case_length_total \code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode.
+#' @param recurrence_length_total \code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode.
 #' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param ... Arguments passed to \code{episodes}.
 #' @return
@@ -52,7 +50,7 @@
 #' @details
 #' All dated records within a specified duration of an index record are linked together as an episode.
 #' By default, this process occurs in ascending order, beginning with the earliest event.
-#' This can be changed to a descending (\code{from_last}) or custom order \code{custom_sort}.
+#' This can be changed to a descending (\code{from_last}) or custom order (\code{custom_sort}).
 #' Ties are always broken by the chronological order of events.
 #'
 #' A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}, while a \code{"rolling"} episode can continue to recur.
@@ -71,16 +69,20 @@
 #' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
 #' Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 #' \itemize{
-#' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
-#' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
+#' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will be unlinked.
+#' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be unlinked.
 #' }
 #'
-#' \bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
+#' \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}
+#'
+#' \bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episode_group()}} which reframes the data before the episode tracking process.
+#' This aims to reduce the overall processing time for the tracking process. See \code{vignette("episodes")} for further details.
+#'
+#' \bold{\code{episode_group()}} has been retired.
 #' It now only exists to support previous code with minimal input from users.
 #' Moving forward, please use \bold{\code{episodes()}}.
 #'
-#' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} as it existed before \code{v0.2.0} has been retired.
-#' They are  are wrapper functions to track \code{"fixed"} and \code{"rolling"} episodes respectively.
+#' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} has been retired.
 #' They now only exists to support previous code with minimal input from users.
 #' Moving forward, please use \bold{\code{episodes()}}.
 #'
@@ -1226,7 +1228,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 }
 
 #' @rdname episodes
-#' @export
 episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = case_length,
                                episode_unit = "days", strata = NULL, sn = NULL, episodes_max = Inf, rolls_max = Inf,
                                case_overlap_methods = "overlap", recurrence_overlap_methods = case_overlap_methods,
@@ -1244,21 +1245,21 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
   }
 
   # Validations
-  errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
-                                display = display, episodes_max = episodes_max, from_last = from_last,
-                                episode_unit = episode_unit, case_overlap_methods = case_overlap_methods,
-                                recurrence_overlap_methods = recurrence_overlap_methods,
-                                skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
-                                data_source=data_source, data_links = data_links,
-                                skip_if_b4_lengths = skip_if_b4_lengths,
-                                rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
-                                reference_event = reference_event,
-                                episode_type = episode_type, recurrence_length = recurrence_length,
-                                case_sub_criteria = case_sub_criteria,
-                                recurrence_sub_criteria = recurrence_sub_criteria,
-                                case_length_total = case_length_total,
-                                recurrence_length_total = recurrence_length_total)
-  if(!isFALSE(errs)) stop(errs, call. = FALSE)
+  # errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
+  #                               display = display, episodes_max = episodes_max, from_last = from_last,
+  #                               episode_unit = episode_unit, case_overlap_methods = case_overlap_methods,
+  #                               recurrence_overlap_methods = recurrence_overlap_methods,
+  #                               skip_order = skip_order, custom_sort = custom_sort, group_stats = group_stats,
+  #                               data_source=data_source, data_links = data_links,
+  #                               skip_if_b4_lengths = skip_if_b4_lengths,
+  #                               rolls_max = rolls_max, case_for_recurrence = case_for_recurrence,
+  #                               reference_event = reference_event,
+  #                               episode_type = episode_type, recurrence_length = recurrence_length,
+  #                               case_sub_criteria = case_sub_criteria,
+  #                               recurrence_sub_criteria = recurrence_sub_criteria,
+  #                               case_length_total = case_length_total,
+  #                               recurrence_length_total = recurrence_length_total)
+  # if(!isFALSE(errs)) stop(errs, call. = FALSE)
 
   if(is.null(strata)) {
     sn <- seq_len(length(date))
@@ -1268,29 +1269,10 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
     strata <- rep(1L, length(date))
   }
 
-  if(class(date) == "number_line"){
-    s <- list(date@start, date@.Data, strata)
-  }else{
-    s <- list(date, strata)
-  }
+  date_strata_cmbi <- date_strata_combi(strata = strata, date = date)
+  date_strata_cmbi_dup <- duplicated(date_strata_cmbi)
 
-  mx_n <- max(unlist(lapply(seq_len(length(s)), function(i){
-    x <- s[[i]]
-    x <- match(x, x[!duplicated(x)])
-    floor(log10(max(x)))
-  }), use.names = FALSE))
-
-  date_strata_combi <- sapply(seq_len(length(s)), function(i){
-    x <- s[[i]]
-    x <- match(x, x[!duplicated(x)])
-    log10(max(x))
-    10^(mx_n+i) * x
-  })
-
-  date_strata_combi <- rowSums(date_strata_combi)
-  date_strata_combi_dup <- duplicated(date_strata_combi)
-
-  date_strata_combi_l <- paste0(strata," - ", format(date), "")
+  date_strata_cmbi_l <- paste0(strata," - ", format(date), "")
 
   opt_lst <- list(
     "date" = date,
@@ -1321,7 +1303,7 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
       return(NA_character_)
     }
     x <- err_strata_level_args(opt_lst[[i]],
-                               date_strata_combi_l,
+                               date_strata_cmbi_l,
                                names(opt_lst[i]),
                                "`strata` - `date` pair.")
     if(isFALSE(x)){
@@ -1340,7 +1322,7 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
     if(is.null(x) | length(x) == 1){
       return(x)
     }else{
-      return(x[!date_strata_combi_dup])
+      return(x[!date_strata_cmbi_dup])
     }
   })
 
@@ -1362,11 +1344,11 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
                     case_length_total = opt_lst$case_length_total,
                     recurrence_length_total = opt_lst$recurrence_length_total)
 
-  rp_lgk <- match(date_strata_combi, date_strata_combi[!date_strata_combi_dup])
+  rp_lgk <- match(date_strata_cmbi, date_strata_cmbi[!date_strata_cmbi_dup])
   wf_epid <- epids[rp_lgk]
   wf_epid@sn <- sn
-  wf_epid@case_nm[wf_epid@case_nm == 0 & date_strata_combi_dup] <- 2
-  wf_epid@case_nm[wf_epid@case_nm == 1 & date_strata_combi_dup] <- 3
+  wf_epid@case_nm[wf_epid@case_nm == 0 & date_strata_cmbi_dup] <- 2
+  wf_epid@case_nm[wf_epid@case_nm == 1 & date_strata_cmbi_dup] <- 3
   wf_epid
   rm(list = ls()[ls() != "wf_epid"])
   return(wf_epid)

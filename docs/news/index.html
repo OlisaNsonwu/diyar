@@ -140,39 +140,42 @@
 <h2 class="hasAnchor">
 <a href="#new-features" class="anchor"></a>New features</h2>
 <ul>
-<li>New function <code>panes()</code>
-</li>
-<li>New argument - <code>wind_criteria</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Additional conditions for overlapping windows. Only relevant to <code>"rolling_episodes"</code>.</li>
-<li>New argument - <code>sub_criteria</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Additional conditions for temporal links.</li>
-<li>New argument - <code>wind_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Minimum number of records in an <code>window</code> to trigger the next recurrence window. Only applicable to <code>"rolling episodes"</code><br>
-</li>
-<li>New argument - <code>schema</code> in <code><a href="../reference/links.html">links()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code>panes()</code>. Produce schema diagrams of the record linkage and episodes tracking process.</li>
-<li>New argument - <code>case_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Number of hits from multiple <code>case_lengths</code> required for a <code>window</code>/<code>episode</code>.</li>
-<li>New argument - <code>recurrence_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Number of hits from multiple <code>recurrence_lengths</code> required for a <code>window</code>/<code>episode</code>.</li>
-<li>New argument - <code>schema</code> in <code><a href="../reference/links.html">links()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code>panes()</code>. Produce schema diagrams of the record linkage and episodes + tracking process.</li>
-<li>d_label, encode, decode</li>
-<li>as.data.frame methods</li>
-<li>as.list methods</li>
-<li>sub_criteria generic, methods and recursive evaluation</li>
-<li>episodes_wf_splits</li>
-<li>links_wf_probabilistic</li>
-<li>Display messages</li>
-<li>Clear objects at the end of functions to address memory leakage</li>
-<li>epid_total is produced by default</li>
-<li>Multiple index events</li>
-<li>recursive episodes</li>
-<li>recurrence_from_last changed to reference event and given two new options</li>
-<li>Optimised episodes and links</li>
+<li>New function - <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code>. Probabilistic record linkage.</li>
+<li>New function - <code><a href="../reference/partitions.html">partitions()</a></code>. Spilt events into sections in time.</li>
+<li>New function - <code><a href="../reference/schema.html">schema()</a></code>. Plot schema diagrams for <code>pids</code>, <code>epids</code> and <code>number_line</code> objects.</li>
+<li>New functions - <code><a href="../reference/diyar_label.html">encode()</a></code> and <code><a href="../reference/diyar_label.html">decode()</a></code>. Encoding and decoding slots values to minimise memory usage.</li>
+<li>New argument - <code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Additional matching conditions for temporal links.</li>
+<li>New argument - <code>case_length_total</code> and <code>recurrence_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Number of temporal links required for a <code>window</code>/<code>episode</code>.</li>
+<li>New argument - <code>recursive</code> in <code><a href="../reference/links.html">links()</a></code>. Control if matches can spawn new matches.</li>
+<li>New argument - <code>check_duplicates</code> in <code><a href="../reference/links.html">links()</a></code>. Control the checking of logical tests on duplicate values. If <code>FALSE</code>, results are recycled for the duplicates.</li>
+<li>New argument - <code>case_length_total</code> and <code>recurrence_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>.</li>
+<li>
+<code>as.data.frame</code> and <code>as.list</code> for the <code>pid</code>, <code>number_line</code>, <code>epid</code>, <code>pane</code> objects.</li>
+<li>A new type of episodes - “recursive” episodes.</li>
+<li>
+<code>recurrence_from_last</code> renamed to <code>reference_event</code> and given two new options.</li>
+<li>Optimised <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code>. Speed improvements.</li>
 </ul>
 </div>
 <div id="changes" class="section level2">
 <h2 class="hasAnchor">
 <a href="#changes" class="anchor"></a>Changes</h2>
 <ul>
+<li>Default time zone for an <code>epid_interval</code> or <code>pane_interval</code> with <code>POSIXct</code> objects is now “GMT”.</li>
 <li>
-<code>epid_object</code> - default time zone for an <code>epid_interval</code> with <code>POSIXct</code> objects is now “GMT”.</li>
+<code><a href="../reference/number_line.html">number_line_sequence()</a></code> - splits number_line objects. Also available as <code>seq</code> method.</li>
 <li>
-<code><a href="../reference/number_line.html">number_line_sequence()</a></code> - splits number_line objects.</li>
+<code>epid_total</code>, <code>pid_total</code> and <code>pane_total</code> slots are populated by default. No need to used <code>group_stats</code> to get these.</li>
+<li>
+<code>to_df()</code> - Removed. Use <code><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame()</a></code> instead.</li>
+<li>
+<code>to_s4()</code> - Now an internal function. It’s no longer exported.</li>
+<li>
+<code>compress_number_line()</code> - Now an internal function. It’s no longer exported. Use <code><a href="../reference/episodes.html">episodes()</a></code> instead.</li>
+<li>
+<code><a href="../reference/sub_criteria.html">sub_criteria()</a></code> - produces a <code>sub_criteria</code> object. Nested “AND” and “OR” conditions are now possible.</li>
+<li>
+<code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code> are retired and no longer supported.</li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">
@@ -287,7 +290,7 @@
 <li>
 <code><a href="../reference/links.html">record_group()</a></code> - <code>strata</code> argument. Perform record grouping separately within subsets of a dataset.</li>
 <li>
-<code><a href="../reference/overlaps.html">overlap()</a></code>, <code><a href="../reference/number_line.html">compress_number_line()</a></code>, <code>fixed_sepisodes()</code>, <code><a href="../reference/episodes.html">rolling_episodes()</a></code> and <code><a href="../reference/episodes.html">episode_group()</a></code> - <code>overlap_methods</code> and <code>methods</code> arguments replaces <code>overlap_method</code> and <code>method</code> respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing <code>number_line</code> objects. <code>overlap_method</code> and <code>method</code> only permits 1 method per per dataset.</li>
+<code><a href="../reference/overlaps.html">overlap()</a></code>, <code>compress_number_line()</code>, <code>fixed_sepisodes()</code>, <code><a href="../reference/episodes.html">rolling_episodes()</a></code> and <code><a href="../reference/episodes.html">episode_group()</a></code> - <code>overlap_methods</code> and <code>methods</code> arguments replaces <code>overlap_method</code> and <code>method</code> respectively. Use different sets of methods within the same dataset when grouping episodes or collapsing <code>number_line</code> objects. <code>overlap_method</code> and <code>method</code> only permits 1 method per per dataset.</li>
 <li>
 <code>epid</code> objects - <code>win_nm</code> slot. Shows the type of window each event belongs to i.e. case or recurrence window</li>
 <li>
@@ -332,7 +335,7 @@
 <code><a href="../reference/number_line.html">expand_number_line()</a></code> - new options for <code>point</code>; <code>"left"</code> and <code>"right"</code>
 </li>
 <li>
-<code><a href="../reference/number_line.html">compress_number_line()</a></code> - compressed <code>number_line</code> object inherits the direction of the widest <code>number_line</code> among overlapping group of <code>number_line</code> objects</li>
+<code>compress_number_line()</code> - compressed <code>number_line</code> object inherits the direction of the widest <code>number_line</code> among overlapping group of <code>number_line</code> objects</li>
 <li>
 <code>overlap_methods</code> - have been changed such that each pair of <code>number_line</code> objects can only overlap in one way. E.g.
 <ul>
@@ -347,10 +350,10 @@
 <li>
 <code><a href="../reference/number_line.html">number_line_sequence()</a></code> - now works across multiple <code>number_line</code> objects.</li>
 <li>
-<code><a href="../reference/to_s4.html">to_df()</a></code> - can now change <code>number_line</code> objects to data.frames.
+<code>to_df()</code> - can now change <code>number_line</code> objects to data.frames.
 <ul>
 <li>
-<code><a href="../reference/to_s4.html">to_s4()</a></code> can do the reverse.</li>
+<code>to_s4()</code> can do the reverse.</li>
 </ul>
 </li>
 <li>
@@ -403,7 +406,7 @@
 <li>
 <code><a href="../reference/episodes.html">episode_group()</a></code>, <code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code> - <code>date</code> argument now supports numeric values</li>
 <li>
-<code><a href="../reference/number_line.html">compress_number_line()</a></code> - the output (<code>gid</code> slot) is now a group identifier just like in <code>epid</code> objects (<code>epid_interval</code>)</li>
+<code>compress_number_line()</code> - the output (<code>gid</code> slot) is now a group identifier just like in <code>epid</code> objects (<code>epid_interval</code>)</li>
 </ul>
 </div>
 </div>
@@ -420,9 +423,9 @@
 <li>
 <code>epid</code> S4 object class for results of <code><a href="../reference/episodes.html">episode_group()</a></code>, <code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code>. This will replace the current default (<code>data.frame</code>) in the next release</li>
 <li>
-<code><a href="../reference/to_s4.html">to_s4()</a></code> and <code>to_s4</code> argument in <code><a href="../reference/links.html">record_group()</a></code>, <code><a href="../reference/episodes.html">episode_group()</a></code>, <code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code>. Changes their output from a <code>data.frame</code> (current default) to <code>epid</code> or <code>pid</code> objects</li>
+<code>to_s4()</code> and <code>to_s4</code> argument in <code><a href="../reference/links.html">record_group()</a></code>, <code><a href="../reference/episodes.html">episode_group()</a></code>, <code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code>. Changes their output from a <code>data.frame</code> (current default) to <code>epid</code> or <code>pid</code> objects</li>
 <li>
-<code><a href="../reference/to_s4.html">to_df()</a></code> changes <code>epid</code> or <code>pid</code> objects to a <code>data.frame</code>
+<code>to_df()</code> changes <code>epid</code> or <code>pid</code> objects to a <code>data.frame</code>
 </li>
 <li>
 <code>deduplicate</code> argument from <code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code> added to <code><a href="../reference/episodes.html">episode_group()</a></code>

@@ -9,24 +9,19 @@
 #'
 #' @details
 #'
-#' \bold{\code{union_number_lines()}} - Return a \code{[\link{number_line}]} with the combined range of \code{x} and \code{y}
+#' \bold{\code{union_number_lines()}} - Combined the range of \code{x} and that of \code{y}
 #'
-#' \bold{\code{intersect_number_line()}} - Returns a subset of \code{x} that overlaps with \code{y} and vice versa
+#' \bold{\code{intersect_number_line()}} - Subset of \code{x} that overlaps with \code{y} and vice versa
 #'
-#' \bold{\code{subtract_number_lines()}} - Returns a subset of \code{x} that does not overlap with \code{y} and vice versa.
-#' Returns a list with two elements;
-#' \itemize{
-#' \item \code{n1} - subset before the overlapped range between \code{x} and \code{y}.
-#' \item \code{n2} - subset after the overlapped range between \code{x} and \code{y}
-#' }
+#' \bold{\code{subtract_number_lines()}} - Subset of \code{x} that does not overlap with \code{y} and vice versa.
 #'
 #' The \code{direction} of the returned \code{[\link{number_line}]} will be that of the widest one (\code{x} or \code{y}).
-#' If \code{x} and \code{y} have the same length, it'll be an \code{"increasing direction"}.
+#' If \code{x} and \code{y} have the same length, it'll be an \code{"increasing"} direction.
 #'
-#' If  \code{x} and \code{y} do not overlap, \code{NA} (\code{"NA ?? NA"}) is returned.
+#' If \code{x} and \code{y} do not overlap, \code{NA} (\code{"NA ?? NA"}) is returned.
 #'
 #' @seealso
-#' \code{\link{number_line}} and \code{\link{overlaps}}
+#' \code{\link{number_line}};  \code{\link{overlaps}}
 #'
 #' @examples
 #' nl_1 <- c(number_line(1, 5), number_line(1, 5), number_line(5, 9))

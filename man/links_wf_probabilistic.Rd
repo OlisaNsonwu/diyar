@@ -31,13 +31,13 @@ prob_score_range(attribute, m_probability = 0.95)
 
 \item{probabilistic}{\code{[logical]}. If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.}
 
-\item{m_probability}{\code{[list|numeric]}. The probability that a match from the string comparator is from the same entity.}
+\item{m_probability}{\code{[list|numeric]}. The probability that a match from the string comparator is actually from the same entity.}
 
 \item{score_threshold}{\code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.}
 
-\item{id_1}{\code{[list|numeric]}. One half of a specific pair of records to check their match weights and score-thresholds.}
+\item{id_1}{\code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.}
 
-\item{id_2}{\code{[list|numeric]}. One half of a specific pair of records to check their match weights and score-thresholds.}
+\item{id_2}{\code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.}
 
 \item{...}{Arguments passed to \bold{\code{links}}}
 }
@@ -51,21 +51,21 @@ A specific use case of \code{links} for probabilistic record linkage.
 \code{links_wf_probabilistic} is a wrapper function of \code{\link{links}} for probabilistic record linkage.
 Its implementation is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 
-In summary, each record pairs are created and categorised as matches and non-matches (\code{cmp_func}).
+In summary, record pairs are created and categorised as matches and non-matches (\code{cmp_func}).
 Two probabilities (\code{m} and \code{u}) are then estimated for each record pair to score matches and non-matches.
-The \code{m}-probability is the probability that matched records are from the same entity,
-while \code{u}-probability is the probability that matched records are not from the same entity.
+The \code{m}-probability is the probability that matched records are actually from the same entity i.e a true match,
+while \code{u}-probability is the probability that matched records are not from the same entity i.e. a false match.
 \code{m}-probabilities must be supplied but \code{u}-probabilities are calculated for each value of an \code{attribute}.
 This is calculated as the frequency of each value in the dataset.
 Record pairs whose total score are above a certain threshold (\code{score_threshold}) are assumed to belong to the same entity.
 
-Agreement and disagreement scores are calculated as described by Asher et al. (2020).
+Agreement (match) and disagreement (non-match) scores are calculated as described by Asher et al. (2020).
 
-For each record pair, an agreement or match score for attribute \eqn{i} is calculated as;
+For each record pair, an agreement for attribute \eqn{i} is calculated as;
 
 \deqn{\log_{2}(m_{i}/u_{i})}{log_2 (m_i / u_i)}
 
-For each record pair, a disagreement or non-match score for attribute \eqn{i} is calculated as;
+For each record pair, a disagreement score for attribute \eqn{i} is calculated as;
 
 \deqn{\log_{2}((1-m_{i})/(1-u_{i}))}{log_2 ((1-m_i) / (1-u_i))}
 
@@ -76,18 +76,18 @@ Missing data (\code{NA}) are categorised as non-matches and assigned a \code{u}-
 By default, matches and non-matches for each \code{attribute} are determined as an \code{\link{exact_match}} with a binary outcome.
 String comparators can also be used with thresholds (\code{cmp_threshold}) for each similarity score.
 If \code{probabilistic} is \code{FALSE},
-the sum of all similarity scores is used as the final score instead of deriving one from the \code{m} and \code{u}-probabilities.
+the sum of all similarity scores is used as the \code{score_threshold} instead of deriving one from the \code{m} and \code{u}-probabilities.
 
 \code{links_wf_probabilistic} requires a \code{score_threshold} in advance of the linkage process.
 This differs from the typical approach where a \code{score_threshold} is selected after the linkage process,
 following a review of all calculated scores.
 To help with this, \code{prob_score_range} will return the range of scores attainable for a given set of attributes.
-Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs using, aiding the review of potential scores.
+Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs, aiding the review of potential scores.
 
-A \code{blocking_attribute} can be used to reduce processing time by restricting comparisons to \code{strata} of the dataset.
+A \code{blocking_attribute} can be used to reduce processing time by restricting comparisons to subsets of the dataset.
 }
 \examples{
-# Exact matches
+# Using exact matches
 dfr <- missing_staff_id[c("staff_id",  "initials",
                           "hair_colour", "branch_office")]
 score_range <- prob_score_range(attribute = as.list(dfr))
@@ -95,7 +95,7 @@ prob_pids1 <- links_wf_probabilistic(attribute = as.list(dfr),
                                      score_threshold = score_range$minimum_score)
 prob_pids1
 
-# Other logical tests e.g. string comparators
+# Using other logical tests e.g. string comparators
 # For example, matching last word in `hair_colour` and `branch_office`
 last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
 last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)

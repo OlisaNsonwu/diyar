@@ -17,7 +17,6 @@
 \alias{shift_number_line}
 \alias{expand_number_line}
 \alias{invert_number_line}
-\alias{compress_number_line}
 \alias{number_line_sequence}
 \title{\code{number_line}}
 \usage{
@@ -53,14 +52,6 @@ expand_number_line(x, by = 1, point = "both")
 
 invert_number_line(x, point = "both")
 
-compress_number_line(
-  x,
-  methods = "overlap",
-  collapse = FALSE,
-  deduplicate = TRUE,
-  method = "overlap"
-)
-
 number_line_sequence(
   x,
   by = NULL,
@@ -70,13 +61,13 @@ number_line_sequence(
 )
 }
 \arguments{
-\item{l}{{[\code{numeric} based]}. Left point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object}
+\item{l}{\code{[numeric based]}. Left point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object.}
 
-\item{r}{{[\code{numeric} based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object}
+\item{r}{\code{[numeric based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object.}
 
-\item{id}{\code{[integer]}. Unique element identifier. Optional}
+\item{id}{\code{[integer]}. Unique element identifier. Optional.}
 
-\item{gid}{\code{[integer]}. Unique group identifier. Optional}
+\item{gid}{\code{[integer]}. Unique group identifier. Optional.}
 
 \item{x}{\code{[number_line]}}
 
@@ -89,19 +80,11 @@ Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default)
 
 \item{point}{\code{[character]}. \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.}
 
-\item{methods}{\code{[character]}. Methods of overlap. Check different pairs of \code{number_line} by different \code{methods}}
-
-\item{collapse}{\code{[lgocial]}. If \code{TRUE}, collapse the compressed results yet again.}
-
-\item{deduplicate}{\code{[lgocial]}. If \code{TRUE}, retains only one \code{number_line} per overlapping set}
-
-\item{method}{\code{[character]}. Method of overlap. Check every pair of \code{number_line} by the same \code{method}. Deprecated. Please use \code{methods} instead.}
-
 \item{length.out}{\code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}}
 
 \item{fill}{\code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split}
 
-\item{simplify}{\code{[logical]}. Split into \code{number_line} or sequence finite numbers}
+\item{simplify}{\code{[logical]}. Split into \code{number_line} or sequence of finite numbers}
 }
 \value{
 \code{number_line}
@@ -111,26 +94,21 @@ A range of \code{numeric} values.
 }
 \details{
 A \code{number_line} represents a range of numbers on a number line.
-
-It's made up of a \code{start} and \code{end point} which are the beginning and end of the range respectively.
-The location of the \code{start} point - \code{left} or \code{right}, determines whether it's an \code{"increasing"} or \code{"decreasing"} range.
+It is made up of a \code{start} and \code{end} point which are the lower and upper ends of the range respectively.
+The location of the \code{start} point - \code{left} or \code{right},
+determines whether it is an \code{"increasing"} or \code{"decreasing"} range.
 This is the \code{direction} of the \code{number_line}.
 
 \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line}.
-A reversed \code{number_line} has its \code{l} and \code{r} points swapped.
+A reversed \code{number_line} has its \code{left} and \code{right} points swapped.
 The \code{direction} argument specifies which type of \code{number_line} will be reversed.
-\code{number_line} with non-finite \code{starts} or \code{end points} i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
+\code{number_line} with non-finite \code{start} or \code{end} points (i.e. \code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 
 \bold{\code{shift_number_line()}} - Shift a \code{number_line} towards the positive or negative end of the number line.
 
-\bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line}.
+\bold{\code{expand_number_line()}} - Increase or decrease the width of a \code{number_line}.
 
-\bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points from a negative to positive value or vice versa.
-
-\bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} into a new \code{number_line} that covers the \code{start} and \code{end} points of the originals.
-This results in duplicate \code{number_line} with the \code{start} and \code{end} points of the newly expanded \code{number_line}
-See \code{\link{overlaps}} for further details on overlapping \code{number_line}.
-\bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}
+\bold{\code{invert_number_line()}} - Change the \code{left} or \code{right} points from a negative to positive value or vice versa.
 
 \bold{\code{number_line_sequence()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
 }
@@ -180,13 +158,6 @@ invert_number_line(e)
 invert_number_line(e, "start")
 invert_number_line(e, "end")
 
-# Collapse `number_line` objects
-x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-compress_number_line(x, deduplicate = FALSE)
-compress_number_line(x)
-compress_number_line(x, collapse=TRUE)
-compress_number_line(x, collapse=TRUE, methods = "inbetween")
-
 # Split number line objects
 x <- number_line(Sys.Date() - 5, Sys.Date())
 x
@@ -196,5 +167,5 @@ number_line_sequence(x, by = 4, fill = FALSE)
 number_line_sequence(x, length.out = 2)
 }
 \seealso{
-\code{\link{overlaps}}, \code{\link{set_operations}}, \code{\link{episodes}} and \code{\link{links}}
+\code{\link{overlaps}}; \code{\link{set_operations}}; \code{\link{episodes}}; \code{\link{links}}
 }

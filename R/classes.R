@@ -121,8 +121,8 @@ unique.number_line <- function(x, ...){
 }
 
 #' @rdname number_line-class
-#' @param fill XXXXX
-#' @param simplify XXXXX
+#' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split
+#' @param simplify \code{[logical]}. Split into \code{number_line} or sequence of finite numbers
 #' @export
 seq.number_line <- function(x,
                             fill = TRUE,
@@ -150,11 +150,14 @@ sort.number_line <- function(x, decreasing = FALSE, ...){
 format.number_line <- function(x, ...){
   if (length(x) == 0) "number_line(0)"
   else{
-    # x <- x[1:length(x@start)]
-    s <- ifelse(x@.Data > 0 & !is.na(x@.Data) & !is.nan(x@.Data), "->", "??")
-    s <- ifelse(x@.Data < 0 & !is.na(x@.Data) & !is.nan(x@.Data), "<-", s)
-    s <- ifelse(x@.Data == 0 & !is.na(x@.Data) & !is.nan(x@.Data), "==", s)
-    paste(x@start, s, x@start + x@.Data, sep = " ")
+    s <- rep("??", length(x))
+    s[x@.Data > 0 & !is.na(x@.Data) & !is.nan(x@.Data)] <- "->"
+    s[x@.Data < 0 & !is.na(x@.Data) & !is.nan(x@.Data)] <- "<-"
+    s[x@.Data == 0 & !is.na(x@.Data) & !is.nan(x@.Data)] <- "=="
+
+    paste(x@start, " ",
+          s, " ",
+          x@start + x@.Data)
   }
 }
 
@@ -184,7 +187,7 @@ as.data.frame.number_line <- function(x, ...){
 #' @slot epid_length The duration or length of (\code{epid_interval}).
 #' @slot epid_total The number of records in each \code{episode}.
 #' @slot iteration The iteration of the tracking process when a record was linked to its episode.
-#' @slot options A list of some option calls in \code{\link{episodes}}
+#' @slot options Some options passed to the instance of \code{\link{episodes}}.
 #'
 #' @description
 #' S4 objects storing the result of \code{\link{episodes}}.
@@ -253,12 +256,14 @@ format.epid <- function(x, ...){
   if (length(x) == 0) {
     return("epid(0)")
   }else {
+      int_l <- rep("", length(x))
+      int_l[!is.na(x@epid_interval)] <- paste0(" ",
+                                               format.number_line(x@epid_interval[!is.na(x@epid_interval)]))
       return(paste0("E.",
                     formatC(x@.Data, width = nchar(max(x@.Data)), flag = 0, format = "fg"),
-                    ifelse(is.na(x@epid_interval),
-                           "",
-                           paste0(" ", format.number_line(x@epid_interval))),
-                    " (", c("S", "C", "R", "D", "D")[x@case_nm + 2L], ")"))}
+                    int_l,
+                    " (", c("S", "C", "R", "D", "D")[x@case_nm + 2L], ")"))
+    }
 }
 
 #' @rdname epid-class
@@ -515,14 +520,14 @@ setMethod("c", signature(x = "epid"), function(x,...) {
 #' @slot sn Unique record identifier.
 #' @slot .Data Unique \code{pane} identifier.
 #' @slot case_nm Record type in regards to index assignment.
-#' @slot window_list A list of \code{windows} considered for each \code{pane}.
+#' @slot window_list A list of considered \code{windows} for each \code{pane}.
 #' @slot dist_pane_index The difference between each event and it's index event.
 #' @slot pane_dataset Data sources in each \code{pane}.
 #' @slot pane_interval The start and end dates of each \code{pane}. A \code{\link{number_line}} object.
 #' @slot pane_length The duration or length of (\code{pane_interval}).
 #' @slot pane_total The number of records in each \code{pane}.
-#' @slot options XXXXXX.
-#' @slot window_matched XXXX.
+#' @slot options Some options passed to the instance of \code{\link{partitions}}.
+#' @slot window_matched A list of matched \code{windows} for each \code{pane}.
 #'
 #' @aliases pane-class
 #' @importFrom "methods" "new"

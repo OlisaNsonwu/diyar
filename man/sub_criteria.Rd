@@ -28,14 +28,14 @@ eval_sub_criteria(x, ...)
 
 \item{x}{\code{[sub_Criteria]}}
 
-\item{strata}{\code{[integer]}. Identifier for subsets of the dataset}
+\item{strata}{\code{[integer]}. Subsets of the dataset}
 
-\item{index_record}{\code{[logical]}. Represents the \code{y}-value in the  \code{x}-\code{y} record pair to be checked.
+\item{index_record}{\code{[logical]}. Represents the \code{y}-value of the \code{x}-\code{y} record pair to be compared.
 See (\bold{\code{\link{predefined_tests}}}).}
 
-\item{sn}{\code{[integer]} Unique index for each record set}
+\item{sn}{\code{[integer]} Unique index for each record.}
 
-\item{check_duplicates}{\code{[logical]}. If \code{FALSE}, skips an identical record set if it has already been checked.}
+\item{check_duplicates}{\code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.}
 }
 \value{
 \code{sub_criteria}
@@ -64,6 +64,19 @@ s_cri2 <- sub_criteria(c(30, 28, 40, 25, 25, 29, 27),
 s_cri3 <- sub_criteria(s_cri1, s_cri2, operator = "or")
 s_cri4 <- sub_criteria(s_cri1, s_cri3, operator = "and")
 
+`eval_sub_criteria`
+# 3 values
+strata <- rep(1, 3)
+index_record <- c(TRUE, FALSE, FALSE)
+sn <- 1:3
+
+# Test for a match in either attribute
+sub_cri_1 <- sub_criteria(c(1, 1, 0), c(2, 1, 2))
+eval_sub_criteria(sub_cri_1, strata, index_record, sn)
+
+# Test for a match in both attributes
+sub_cri_2 <- sub_criteria(c(1, 1, 0), c(2, 1, 2), operator = "and")
+eval_sub_criteria(sub_cri_2, strata, index_record, sn)
 }
 \seealso{
 \code{\link{predefined_tests}}, \code{\link{links}} and \code{\link{episodes}}

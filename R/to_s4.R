@@ -1,20 +1,20 @@
-#' @title Change S4 objects in \code{diyar} to data frames and vice versa
-#'
-#' @description Convert \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
-#' to a \code{data.frame} and vice versa.
-#'
-#' @aliases to_s4
-#'
-#' @param lst \code{[list]}
-#'
-#' @rdname to_s4
-#' @param s4 \code{[\link[=pid-class]{pid}|\link[=epid-class]{epid}|\link[=pane-class]{pane}|\link[=number_line-class]{number_line}]}
-#' @param ... Arguments passed to \code{data.frame}
-#' @return to_df - \code{data.frame} object
-#' @details \code{to_df} has been retired. Moving forward, please use \code{as.data.frame}.
+# @title Change S4 objects in \code{diyar} to data frames and vice versa
+#
+# @description Convert \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
+# to a \code{data.frame} and vice versa.
+#
+# @aliases to_s4
+#
+# @param lst \code{[list]}
+#
+# @rdname to_s4
+# @param s4 \code{[\link[=pid-class]{pid}|\link[=epid-class]{epid}|\link[=pane-class]{pane}|\link[=number_line-class]{number_line}]}
+# @param ... Arguments passed to \code{data.frame}
+# @return to_df - \code{data.frame} object
+# @details \code{to_df} has been retired. Moving forward, please use \code{as.data.frame}.
 to_df <- function(s4, ...) as.data.frame(s4, ...)
 
-#' @return to_s4 - \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
+# @return to_s4 - \link[=pid-class]{pid}, \link[=epid-class]{epid}, \link[=pane-class]{pane} or \link[=number_line-class]{number_line} objects
  to_s4 <- function(lst){
    lst <- as.list(lst)
 

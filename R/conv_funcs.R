@@ -507,9 +507,6 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
     lar <- lapply(lens, function(x){
       y <- number_line(as.numeric(start_point(x)),
                        as.numeric(end_point(x)))
-
-      #y <- to_df(y[match(y@id, lar$sn)])
-
       y <- as.data.frame(y)
       y$id <- NULL
       y$gid <- NULL
@@ -525,9 +522,6 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$nl_nm <- "len"
       y$start_rl <- as.numeric(left_point(x))
       y$end_rl <- as.numeric(right_point(x))
-      #lar$nl_nm <- "dts"
-      #lar$wind_nm_l <- ""
-      # y$wind_nm_l <- ifelse(winds$wind_nm == 0, "Case length", "Recurrence length")
       y$wind_nm_l <- paste0(winds$wind_nm, " length")
       y$bi_dir <- start_point(x) < lar$end & end_point(x) > lar$end
       y <- y[!is.na(y$start) & !is.na(y$end),]
@@ -558,10 +552,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$nl_s <- start_point(y$nl_l)
       y$nl_e <- end_point(y$nl_l)
       y$episode_unit <- y$ep_uni
-      #lar$nl_s <- y$nl_s
-      #lar$nl_e <- y$nl_e
       y$nl_l <- NULL
-      #y <- rbind(y, lar[c("end", "start", "epid", "y", "mid_y_lead", "nl_s", "nl_e", "nl_nm", "wind_nm_l", "wind_total", "episode_unit")])
       y$lab_y <- (y$mid_y_lead + y$y)/2
       y
     })
@@ -676,152 +667,6 @@ check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, i
   }
 }
 
-sch_nl <- function(x, dark_mode = TRUE, deduplicate = TRUE, show_overlap = FALSE){
-  nl <- x
-  if(isTRUE(deduplicate)){
-    nl <- unique(nl)
-  }
-  labs <- seq(min(c(left_point(nl), right_point(nl))), max(c(left_point(nl), right_point(nl))), length.out = 8)
-  brks <- as.numeric(labs)
-  labs <- round(labs)
-  nl <- number_line(l = as.numeric(left_point(nl)),
-                    r = as.numeric(right_point(nl)))
-  nl <- sort(nl)
-  grps <- compress_number_line(nl, collapse = TRUE, deduplicate = FALSE)
-  plt_df <- to_df(nl)
-  plt_df$sn <- seq_len(nrow(plt_df))
-  plt_df$wind_id <- grps@gid
-
-  # Alternating boundaries (y-axis) for each window
-  winds <- plt_df$wind_id
-  winds <- winds[!duplicated(winds)]
-  nl_winds_n <- length(winds)
-  wind_br_a <- rep(0, nl_winds_n)
-  wind_br_z <- rep(0.9, nl_winds_n)
-  wind_br_a[seq_len(nl_winds_n) %% 2 == 1] <- 1.1
-  wind_br_z[seq_len(nl_winds_n) %% 2 == 1] <- 2
-  winds_sn <- split(plt_df$sn, plt_df$wind_id)
-
-  # Random `y` coordinates within each window's boundary (above)
-  cord_y <- lapply(seq_len(nl_winds_n), function(i){
-    if(length(winds_sn[[i]]) > 1){
-      sample(seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]])),
-             length(winds_sn[[i]]))
-    }else{
-      wind_br_a[i]
-    }
-  })
-
-  # Evenly distributed `y` coordinates within each window's boundary (above)
-  cord_y <- lapply(seq_len(nl_winds_n), function(i){
-    seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]]))
-  })
-  winds_sn <- unlist(winds_sn, use.names = FALSE)
-  cord_y <- unlist(cord_y, use.names = FALSE)
-  plt_df$y <- cord_y[match(plt_df$sn, winds_sn)]
-  #winds_cord_y <- split(plt_df$y, pl_winds)
-
-  set <- seq_len(length(nl))
-  if(isTRUE(show_overlap)){
-
-    mths <- lapply(set, function(x){
-      j <- set[set > x]
-      i <- rep(x, length(j))
-      nl.i <- nl[i]
-      nl.j <- nl[j]
-      m <- overlap_method(nl[i], nl[j])
-      x1 <- rep(NA, length(j)); x2 <- x1
-
-      x1[m == "aligns_start"] <- left_point(nl.i[m == "aligns_start",])
-
-      x1[m == "aligns_end"] <- right_point(nl.i[m == "aligns_end",])
-
-      lgk <- m %in% c("exact", "reverse", "inbetween")
-      x1[lgk] <- (start_point(nl.i[lgk,]) + end_point(nl.i[lgk,]))/2
-
-      lgk <- m == "chain" & nl.i@.Data > 0 & nl.j@.Data > 0 & end_point(nl.i) == start_point(nl.j)
-      x1[lgk] <- end_point(nl.i[lgk,])
-
-      lgk <- m == "chain" & nl.i@.Data > 0 & nl.j@.Data > 0 & start_point(nl.i) == end_point(nl.j)
-      x1[lgk] <- start_point(nl.i[lgk,])
-
-      lgk <- m == "chain" & nl.i@.Data < 0 & nl.j@.Data < 0 & end_point(nl.i) == start_point(nl.j)
-      x1[lgk] <- end_point(nl.i[lgk,])
-
-      lgk <- m == "chain" & nl.i@.Data < 0 & nl.j@.Data < 0 & start_point(nl.i) == end_point(nl.j)
-      x1[lgk] <- start_point(nl.i[lgk,])
-
-      mth <- data.frame(x1 = x1,
-                        y1 = plt_df$y[i],
-                        y2 = plt_df$y[j],
-                        m = m,
-                        g = plt_df$wind_id[i],
-                        id1 = plt_df$sn[i],
-                        id2 = plt_df$sn[j])
-      mth <- mth[mth$m != "none" & !is.na(mth$x1),]
-      mth
-    })
-
-    mths <- do.call("rbind", mths)
-    mths <- mths[!duplicated(mths),]
-
-    sn_ord <- order(mths$g)
-    win_r <- mths$g[sn_ord]
-    r <- rle(win_r)
-    r <- sequence(r$length)
-    mths$rd_rnk <- r[match(sn_ord, seq_len(length(sn_ord)))]
-    mths$txt_y <- mths$y2 - ((mths$y2 - mths$y1)/ 2^mths$rd_rnk)
-    mths$txt_inc <- !duplicated(data.frame(mths$x1,
-                                           mths$m))
-  }else{
-    mths <- structure(list(x1 = numeric(0), y1 = numeric(0), y2 = numeric(0),
-                           m = character(0), g = integer(0), id1 = integer(0), id2 = integer(0),
-                           rd_rnk = integer(0), txt_y = numeric(0), txt_inc = logical(0)),
-                      row.names = character(0),
-                      class = "data.frame")
-  }
-
-  if(isTRUE(dark_mode)){
-    bg_col <- "black"
-    txt_col <- "white"
-  }else{
-    bg_col <- "white"
-    txt_col <- "black"
-  }
-
-  ggplot2::ggplot(data = plt_df) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y),
-                        colour = txt_col,
-                        size = scale_size(c(1,3), 150, nrow(plt_df))) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y),
-                          arrow =  ggplot2::arrow(length = ggplot2::unit(scale_size(c(.3,.2), 150, nrow(plt_df)), "cm"), ends = "last", type = "open"),
-                          data = plt_df[nl@.Data != 0,],
-                          colour = txt_col,
-                          size = scale_size(c(.1,1), 150, nrow(plt_df))) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$x1, y = .data$y1, xend = .data$x1, yend = .data$y2, colour = .data$m),
-                          linetype = 2,
-                          size = scale_size(c(.1,1), 150, nrow(plt_df)),
-                          data = mths) +
-    ggplot2::geom_text(ggplot2::aes(x = .data$x1, y = .data$txt_y, label = .data$m, colour = .data$m),
-                       data = mths[mths$txt_inc,],
-                       size = scale_size(c(3,5), 150, nrow(plt_df))) +
-    ggplot2::scale_x_continuous(breaks = brks, labels = labs) +
-    ggplot2::theme(
-      legend.position = "none",
-      legend.background = ggplot2::element_rect(fill = bg_col),
-      legend.text = ggplot2::element_text(colour = txt_col),
-      plot.background = ggplot2::element_rect(fill = bg_col),
-      panel.background = ggplot2::element_rect(fill = bg_col),
-      panel.border = ggplot2::element_blank(),
-      panel.grid = ggplot2::element_blank(),
-      axis.line.y = ggplot2::element_blank(),
-      axis.line.x = ggplot2::element_line(colour = txt_col),
-      axis.text.y = ggplot2::element_blank(),
-      axis.text.x = ggplot2::element_text(colour = txt_col, size = 14),
-      axis.ticks = ggplot2::element_blank(),
-      axis.title = ggplot2::element_blank())
-}
-
 f_rbind <- function(x, y){
   if(length(x) == length(y)){
     rbind(x, y)
@@ -862,4 +707,28 @@ dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
   y$values <- y$values[pos]
   y$lengths <- y$lengths[pos]
   y
+}
+
+date_strata_combi <- function(date, strata){
+  if(class(date) == "number_line"){
+    s <- list(date@start, date@.Data, strata)
+  }else{
+    s <- list(date, strata)
+  }
+
+  mx_n <- max(unlist(lapply(seq_len(length(s)), function(i){
+    x <- s[[i]]
+    x <- match(x, x[!duplicated(x)])
+    floor(log10(max(x)))
+  }), use.names = FALSE))
+
+  date_strata_combi <- sapply(seq_len(length(s)), function(i){
+    x <- s[[i]]
+    x <- match(x, x[!duplicated(x)])
+    log10(max(x))
+    10^(mx_n+i) * x
+  })
+
+  date_strata_combi <- rowSums(date_strata_combi)
+  return(date_strata_combi)
 }

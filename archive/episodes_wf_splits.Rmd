@@ -1,0 +1,78 @@
+---
+title: "episodes_wf_splits"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Reduce the number of records being assessed
+Reframing the dataset in such a way that you have to deal with fewer records can also save processing time. For example, assume a dataset of 10 events from 5 individuals on 3 separate days, and a case definition to assess a potential transmission event between these individuals. Instead of analysing 10 events (records) with the person identifier as a sub-criteria, change the dataset to 3 dates (records) with a `list` of all individuals per date. The `list` can then be passed to `case_sub_criteria` or `recurrence_sub_criteria` for the necessary logical test(s). `episodes_wf_splits()` is a wrapper function of `episodes()` designed to achieve this. It is particularly useful when a `sub_criteria` is used. Below is an example of the used case described above.
+
+```{r warning = FALSE}
+# One event every day of the year
+event_dt2 <- seq(from = as.Date("2020-01-01"), to = as.Date("2020-01-31"), by = 1)
+# The same event reported by 100 individuals on the same day
+dup_events_b <- rep(event_dt2, 2)
+# Attribute 1 - 36,600 unique individuals
+attr_4 <- seq_len(length(dup_events_b))
+attr_4 <- rep(1, length(dup_events_b))
+# Fast approach
+  # Logical test - 2 or more different individuals within a `case_length`
+  match_funx_a <- function(x, y){
+    splts <- split(x$person, y$sn)
+    sn_sets <- as.numeric(names(splts))
+    splts <- lapply(splts, function(x) length(x[!duplicated(x)]) > 1)
+    splts <- unlist(splts, use.names = FALSE)
+    lgk <- splts[match(y$sn, sn_sets)]
+    lgk
+  }
+  # Equivalence of records. Still required
+  equal_funx <- function(x, y) FALSE
+  # Create the `sub_criteria`
+  sub_cri_7a <- sub_criteria(list(person = attr_4,
+                               sn = 1:length(attr_4)), 
+                          match_funcs = match_funx_a, 
+                          equal_funcs = equal_funx)
+system.time(
+  ep24a <- episodes(dup_events_b, case_length = 1, 
+                    case_sub_criteria = sub_cri_7a)  
+)
+
+# Faster approach
+  date_strata_cmbi <- date_strata_combi(strata = rep(1, length(dup_events_b)), 
+                                        date = dup_events_b)
+  # Reframed attribute 1 - List of unqiue 100 patients per day 366 days
+  attr_4b <- split(attr_4, date_strata_cmbi)
+  attr_4b <- list(persons = attr_4b, 
+                  sn = 1:length(attr_4b))
+
+  # Reframed logical test - 2 or more different individuals within a `case_length`
+  match_funx_b <- function(x, y){
+    splts <- split(x$persons, y$sn)
+    sn_sets <- as.numeric(names(splts))
+    splts <- lapply(splts, function(x) {
+      x <- unlist(x, use.names = FALSE)
+      length(x[!duplicated(x)]) > 1
+    })
+    splts <- unlist(splts, use.names = FALSE)
+    lgk <- splts[match(y$sn, sn_sets)]
+    lgk
+  }
+  # Create the `sub_criteria`
+  sub_cri_7b <- sub_criteria(attr_4b, 
+                            match_funcs = match_funx_b, 
+                            equal_funcs = equal_funx)
+# Faster
+system.time(
+  ep24b <- episodes_wf_splits(dup_events_b, case_length = 1,
+                              case_sub_criteria = sub_cri_7b)  
+)
+
+# Same outcomes - identical identifiers
+all(ep24a == ep24b)
+
+# and same number of iterations
+max(ep24a@iteration); max(ep24b@iteration)
+```

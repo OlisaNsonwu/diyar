@@ -170,14 +170,6 @@
 
 <span class='fu'>invert_number_line</span>(<span class='no'>x</span>, <span class='kw'>point</span> <span class='kw'>=</span> <span class='st'>"both"</span>)
 
-<span class='fu'>compress_number_line</span>(
-  <span class='no'>x</span>,
-  <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
-  <span class='kw'>collapse</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>
-)
-
 <span class='fu'>number_line_sequence</span>(
   <span class='no'>x</span>,
   <span class='kw'>by</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -191,19 +183,19 @@
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>l</th>
-      <td><p>[<code>numeric</code> based]. Left point of the <code>number_line</code>. Must be able to be coerced to a <code>numeric</code> object</p></td>
+      <td><p><code>[numeric based]</code>. Left point of the <code>number_line</code>. Must be able to be coerced to a <code>numeric</code> object.</p></td>
     </tr>
     <tr>
       <th>r</th>
-      <td><p>[<code>numeric</code> based]. Right point of the <code>number_line</code>. Must be able to be coerced to a <code>numeric</code> object</p></td>
+      <td><p><code>[numeric based]</code>. Right point of the <code>number_line</code>. Must be able to be coerced to a <code>numeric</code> object.</p></td>
     </tr>
     <tr>
       <th>id</th>
-      <td><p><code>[integer]</code>. Unique element identifier. Optional</p></td>
+      <td><p><code>[integer]</code>. Unique element identifier. Optional.</p></td>
     </tr>
     <tr>
       <th>gid</th>
-      <td><p><code>[integer]</code>. Unique group identifier. Optional</p></td>
+      <td><p><code>[integer]</code>. Unique group identifier. Optional.</p></td>
     </tr>
     <tr>
       <th>x</th>
@@ -227,22 +219,6 @@ Options are; <code>"increasing"</code>, <code>"decreasing"</code> or <code>"both
       <td><p><code>[character]</code>. <code>"start"</code>, <code>"end"</code>, <code>"left"</code> or <code>"right"</code> point.</p></td>
     </tr>
     <tr>
-      <th>methods</th>
-      <td><p><code>[character]</code>. Methods of overlap. Check different pairs of <code>number_line</code> by different <code>methods</code></p></td>
-    </tr>
-    <tr>
-      <th>collapse</th>
-      <td><p><code>[lgocial]</code>. If <code>TRUE</code>, collapse the compressed results yet again.</p></td>
-    </tr>
-    <tr>
-      <th>deduplicate</th>
-      <td><p><code>[lgocial]</code>. If <code>TRUE</code>, retains only one <code>number_line</code> per overlapping set</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p><code>[character]</code>. Method of overlap. Check every pair of <code>number_line</code> by the same <code>method</code>. Deprecated. Please use <code>methods</code> instead.</p></td>
-    </tr>
-    <tr>
       <th>length.out</th>
       <td><p><code>[integer]</code>. Number of splits. For example, <code>1</code> for two parts or <code>2</code> for three parts. Passed to <code><a href='https://rdrr.io/r/base/seq.html'>seq()</a></code></p></td>
     </tr>
@@ -252,7 +228,7 @@ Options are; <code>"increasing"</code>, <code>"decreasing"</code> or <code>"both
     </tr>
     <tr>
       <th>simplify</th>
-      <td><p><code>[logical]</code>. Split into <code>number_line</code> or sequence finite numbers</p></td>
+      <td><p><code>[logical]</code>. Split into <code>number_line</code> or sequence of finite numbers</p></td>
     </tr>
     </table>
 
@@ -261,60 +237,54 @@ Options are; <code>"increasing"</code>, <code>"decreasing"</code> or <code>"both
     <p><code>number_line</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>A <code>number_line</code> represents a range of numbers on a number line.</p>
-<p>It's made up of a <code>start</code> and <code>end point</code> which are the beginning and end of the range respectively.
-The location of the <code>start</code> point - <code>left</code> or <code>right</code>, determines whether it's an <code>"increasing"</code> or <code>"decreasing"</code> range.
+    <p>A <code>number_line</code> represents a range of numbers on a number line.
+It is made up of a <code>start</code> and <code>end</code> point which are the lower and upper ends of the range respectively.
+The location of the <code>start</code> point - <code>left</code> or <code>right</code>,
+determines whether it is an <code>"increasing"</code> or <code>"decreasing"</code> range.
 This is the <code>direction</code> of the <code>number_line</code>.</p>
 <p><b><code>reverse_number_line()</code></b> - reverses the direction of a <code>number_line</code>.
-A reversed <code>number_line</code> has its <code>l</code> and <code>r</code> points swapped.
+A reversed <code>number_line</code> has its <code>left</code> and <code>right</code> points swapped.
 The <code>direction</code> argument specifies which type of <code>number_line</code> will be reversed.
-<code>number_line</code> with non-finite <code>starts</code> or <code>end points</code> i.e. (<code>NA</code>, <code>NaN</code> and <code>Inf</code>) can't be reversed.</p>
+<code>number_line</code> with non-finite <code>start</code> or <code>end</code> points (i.e. <code>NA</code>, <code>NaN</code> and <code>Inf</code>) can't be reversed.</p>
 <p><b><code>shift_number_line()</code></b> - Shift a <code>number_line</code> towards the positive or negative end of the number line.</p>
-<p><b><code>expand_number_line()</code></b> - Increase or decrease the width or length of a <code>number_line</code>.</p>
-<p><b><code>invert_number_line()</code></b> - Invert the <code>left</code> and/or <code>right</code> points from a negative to positive value or vice versa.</p>
-<p><b><code>compress_number_line()</code></b> - <code>"compress"</code> or <code>"collapse"</code> overlapping <code>number_line</code> into a new <code>number_line</code> that covers the <code>start</code> and <code>end</code> points of the originals.
-This results in duplicate <code>number_line</code> with the <code>start</code> and <code>end</code> points of the newly expanded <code>number_line</code>
-See <code><a href='overlaps.html'>overlaps</a></code> for further details on overlapping <code>number_line</code>.
-<b><code>compress_number_line</code></b> can be an alternative for simple implementations of <code><a href='links.html'>links</a></code> or <code><a href='episodes.html'>episodes</a></code></p>
+<p><b><code>expand_number_line()</code></b> - Increase or decrease the width of a <code>number_line</code>.</p>
+<p><b><code>invert_number_line()</code></b> - Change the <code>left</code> or <code>right</code> points from a negative to positive value or vice versa.</p>
 <p><b><code>number_line_sequence()</code></b> - Split a <code>number_line</code> into equal parts (<code>length.out</code>) or by a fixed recurring width (<code>by</code>).</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='overlaps.html'>overlaps</a></code>, <code><a href='set_operations.html'>set_operations</a></code>, <code><a href='episodes.html'>episodes</a></code> and <code><a href='links.html'>links</a></code></p></div>
+    <div class='dont-index'><p><code><a href='overlaps.html'>overlaps</a></code>; <code><a href='set_operations.html'>set_operations</a></code>; <code><a href='episodes.html'>episodes</a></code>; <code><a href='links.html'>links</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>date</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='no'>x</span>, <span class='st'>"%d/%m/%Y"</span>)
 <span class='no'>dttm</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/as.POSIXlt.html'>as.POSIXct</a></span>(<span class='no'>x</span>, <span class='st'>"UTC"</span>, <span class='kw'>format</span> <span class='kw'>=</span> <span class='st'>"%d/%m/%Y %H:%M:%S"</span>)
 
-<span class='fu'>number_line</span>(-<span class='fl'>100</span>, <span class='fl'>100</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 100"</div><div class='input'>
+<span class='fu'>number_line</span>(-<span class='fl'>100</span>, <span class='fl'>100</span>)</div><div class='output co'>#&gt; [1] "-100   -&gt;   100"</div><div class='input'>
 <span class='co'># Also compatible with other numeric based object classes</span>
-<span class='fu'>number_line</span>(<span class='fu'>dttm</span>(<span class='st'>"15/05/2019 13:15:07"</span>), <span class='fu'>dttm</span>(<span class='st'>"15/05/2019 15:17:10"</span>))</div><div class='output co'>#&gt; [1] "2019-05-15 13:15:07 -&gt; 2019-05-15 15:17:10"</div><div class='input'>
+<span class='fu'>number_line</span>(<span class='fu'>dttm</span>(<span class='st'>"15/05/2019 13:15:07"</span>), <span class='fu'>dttm</span>(<span class='st'>"15/05/2019 15:17:10"</span>))</div><div class='output co'>#&gt; [1] "2019-05-15 13:15:07   -&gt;   2019-05-15 15:17:10"</div><div class='input'>
 <span class='co'># Coerce applicable object classes to `number_line` objects</span>
-<span class='fu'>as.number_line</span>(<span class='fl'>5.1</span>); <span class='fu'>as.number_line</span>(<span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"21/10/2019"</span>))</div><div class='output co'>#&gt; [1] "5.1 == 5.1"</div><div class='output co'>#&gt; [1] "2019-10-21 == 2019-10-21"</div><div class='input'>
+<span class='fu'>as.number_line</span>(<span class='fl'>5.1</span>); <span class='fu'>as.number_line</span>(<span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"21/10/2019"</span>))</div><div class='output co'>#&gt; [1] "5.1   ==   5.1"</div><div class='output co'>#&gt; [1] "2019-10-21   ==   2019-10-21"</div><div class='input'>
 <span class='co'># A test for number_line objects</span>
 <span class='no'>a</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"01/01/2019"</span>))
 <span class='fu'>is.number_line</span>(<span class='no'>a</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 <span class='co'># Structure of a number_line object</span>
 <span class='fu'>left_point</span>(<span class='no'>a</span>); <span class='fu'>right_point</span>(<span class='no'>a</span>); <span class='fu'>start_point</span>(<span class='no'>a</span>); <span class='fu'>end_point</span>(<span class='no'>a</span>)</div><div class='output co'>#&gt; [1] "2019-04-25"</div><div class='output co'>#&gt; [1] "2019-01-01"</div><div class='output co'>#&gt; [1] "2019-01-01"</div><div class='output co'>#&gt; [1] "2019-04-25"</div><div class='input'>
 <span class='co'># Reverse number_line objects</span>
-<span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"01/01/2019"</span>)))</div><div class='output co'>#&gt; [1] "2019-01-01 -&gt; 2019-04-25"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>, -<span class='fl'>100</span>), <span class='st'>"increasing"</span>)</div><div class='output co'>#&gt; [1] "200 &lt;- -100"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>, -<span class='fl'>100</span>), <span class='st'>"decreasing"</span>)</div><div class='output co'>#&gt; [1] "-100 -&gt; 200"</div><div class='input'>
+<span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"25/04/2019"</span>), <span class='fu'><a href='https://rdrr.io/r/base/date.html'>date</a></span>(<span class='st'>"01/01/2019"</span>)))</div><div class='output co'>#&gt; [1] "2019-01-01   -&gt;   2019-04-25"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>, -<span class='fl'>100</span>), <span class='st'>"increasing"</span>)</div><div class='output co'>#&gt; [1] "200   &lt;-   -100"</div><div class='input'><span class='fu'>reverse_number_line</span>(<span class='fu'>number_line</span>(<span class='fl'>200</span>, -<span class='fl'>100</span>), <span class='st'>"decreasing"</span>)</div><div class='output co'>#&gt; [1] "-100   -&gt;   200"</div><div class='input'>
 <span class='no'>c</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fl'>5</span>, <span class='fl'>6</span>)
 <span class='co'># Shift number_line objects towards the positive end of the number line</span>
-<span class='fu'>shift_number_line</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>c</span>, <span class='no'>c</span>), <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "7 -&gt; 8" "8 -&gt; 9"</div><div class='input'><span class='co'># Shift number_line objects towards the negative end of the number line</span>
-<span class='fu'>shift_number_line</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>c</span>, <span class='no'>c</span>), <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>, -<span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "3 -&gt; 4" "2 -&gt; 3"</div><div class='input'>
+<span class='fu'>shift_number_line</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>c</span>, <span class='no'>c</span>), <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "7   -&gt;   8" "8   -&gt;   9"</div><div class='input'><span class='co'># Shift number_line objects towards the negative end of the number line</span>
+<span class='fu'>shift_number_line</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='no'>c</span>, <span class='no'>c</span>), <span class='kw'>by</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(-<span class='fl'>2</span>, -<span class='fl'>3</span>))</div><div class='output co'>#&gt; [1] "3   -&gt;   4" "2   -&gt;   3"</div><div class='input'>
 <span class='co'># Change the duration, width or length of a number_line object</span>
 <span class='no'>d</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>, <span class='fl'>6</span>), <span class='fu'>number_line</span>(<span class='fl'>6</span>, <span class='fl'>3</span>))
 
-<span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 8" "8 &lt;- 1"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, -<span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "5 &lt;- 4" "4 -&gt; 5"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>,-<span class='fl'>1</span>))</div><div class='output co'>#&gt; [1] "1 -&gt; 8" "5 &lt;- 4"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 6" "6 &lt;- 5"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3 -&gt; 8" "8 &lt;- 3"</div><div class='input'>
+<span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "1   -&gt;   8" "8   &lt;-   1"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, -<span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "5   &lt;-   4" "4   -&gt;   5"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>,-<span class='fl'>1</span>))</div><div class='output co'>#&gt; [1] "1   -&gt;   8" "5   &lt;-   4"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "1   -&gt;   6" "6   &lt;-   5"</div><div class='input'><span class='fu'>expand_number_line</span>(<span class='no'>d</span>, <span class='fl'>2</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3   -&gt;   8" "8   &lt;-   3"</div><div class='input'>
 <span class='co'># Invert `number_line` objects</span>
 <span class='no'>e</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>3</span>, <span class='fl'>6</span>), <span class='fu'>number_line</span>(-<span class='fl'>3</span>, -<span class='fl'>6</span>), <span class='fu'>number_line</span>(-<span class='fl'>3</span>, <span class='fl'>6</span>))
-<span class='no'>e</span></div><div class='output co'>#&gt; [1] "3 -&gt; 6"   "-3 &lt;- -6" "-3 -&gt; 6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>)</div><div class='output co'>#&gt; [1] "-3 &lt;- -6" "3 -&gt; 6"   "3 &lt;- -6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "-3 -&gt; 6" "-3 -&gt; 6" "3 -&gt; 6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3 &lt;- -6"  "3 &lt;- -6"  "-3 &lt;- -6"</div><div class='input'>
-<span class='co'># Collapse `number_line` objects</span>
-<span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>10</span>), <span class='fu'>number_line</span>(<span class='fl'>10</span>,<span class='fl'>20</span>), <span class='fu'>number_line</span>(<span class='fl'>5</span>,<span class='fl'>30</span>),  <span class='fu'>number_line</span>(<span class='fl'>30</span>,<span class='fl'>40</span>))
-<span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "5 -&gt; 30"  "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 40"</div><div class='input'><span class='fu'>compress_number_line</span>(<span class='no'>x</span>, <span class='kw'>collapse</span><span class='kw'>=</span><span class='fl'>TRUE</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div><div class='output co'>#&gt; [1] "5 -&gt; 30"  "30 -&gt; 40"</div><div class='input'>
+<span class='no'>e</span></div><div class='output co'>#&gt; [1] "3   -&gt;   6"   "-3   &lt;-   -6" "-3   -&gt;   6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>)</div><div class='output co'>#&gt; [1] "-3   &lt;-   -6" "3   -&gt;   6"   "3   &lt;-   -6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>, <span class='st'>"start"</span>)</div><div class='output co'>#&gt; [1] "-3   -&gt;   6" "-3   -&gt;   6" "3   -&gt;   6" </div><div class='input'><span class='fu'>invert_number_line</span>(<span class='no'>e</span>, <span class='st'>"end"</span>)</div><div class='output co'>#&gt; [1] "3   &lt;-   -6"  "3   &lt;-   -6"  "-3   &lt;-   -6"</div><div class='input'>
 <span class='co'># Split number line objects</span>
 <span class='no'>x</span> <span class='kw'>&lt;-</span> <span class='fu'>number_line</span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() - <span class='fl'>5</span>, <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>())
-<span class='no'>x</span></div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-07"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-04" "2021-04-04 -&gt; 2021-04-06"
-#&gt; [3] "2021-04-06 -&gt; 2021-04-07"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-06" "2021-04-06 -&gt; 2021-04-07"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>fill</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-06"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-04-02 -&gt; 2021-04-04" "2021-04-04 -&gt; 2021-04-07"</div></pre>
+<span class='no'>x</span></div><div class='output co'>#&gt; [1] "2021-04-04   -&gt;   2021-04-09"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-04-04   -&gt;   2021-04-06" "2021-04-06   -&gt;   2021-04-08"
+#&gt; [3] "2021-04-08   -&gt;   2021-04-09"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>)</div><div class='output co'>#&gt; [1] "2021-04-04   -&gt;   2021-04-08" "2021-04-08   -&gt;   2021-04-09"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>4</span>, <span class='kw'>fill</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</div><div class='output co'>#&gt; [1] "2021-04-04   -&gt;   2021-04-08"</div><div class='input'><span class='fu'>number_line_sequence</span>(<span class='no'>x</span>, <span class='kw'>length.out</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] "2021-04-04   -&gt;   2021-04-06" "2021-04-06   -&gt;   2021-04-09"</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

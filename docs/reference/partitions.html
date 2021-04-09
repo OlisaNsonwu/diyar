@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Distribute events into time intervals. — partitions • diyar</title>
+<title>Distribute events specified intervals. — partitions • diyar</title>
 
 
 <!-- jquery -->
@@ -39,9 +39,9 @@
 
 
 
-<meta property="og:title" content="Distribute events into time intervals. — partitions" />
-<meta property="og:description" content="Distribute events into groups defined by time or numerical boundaries.
-Records in each group are assigned a unique identifier with relevant group-level data." />
+<meta property="og:title" content="Distribute events specified intervals. — partitions" />
+<meta property="og:description" content="Distribute events into groups defined by time or numerical intervals.
+Each set of linked records are assigned a unique identifier with relevant group-level data." />
 
 
 
@@ -130,14 +130,14 @@ Records in each group are assigned a unique identifier with relevant group-level
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Distribute events into time intervals.</h1>
+    <h1>Distribute events specified intervals.</h1>
     <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/panes.R'><code>R/panes.R</code></a></small>
     <div class="hidden name"><code>partitions.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Distribute events into groups defined by time or numerical boundaries.
-Records in each group are assigned a unique identifier with relevant group-level data.</p>
+    <p>Distribute events into groups defined by time or numerical intervals.
+Each set of linked records are assigned a unique identifier with relevant group-level data.</p>
     </div>
 
     <pre class="usage"><span class='fu'>partitions</span>(
@@ -182,7 +182,7 @@ Records in each group are assigned a unique identifier with relevant group-level
     </tr>
     <tr>
       <th>strata</th>
-      <td><p><code>[atomic]</code>. Subsets of the dataset. Panes are created separately for each <code>strata</code>. <em><code>NA</code> values in <code>strata</code> excludes records from the partitioning tracking process</em>.</p></td>
+      <td><p><code>[atomic]</code>. Subsets of the dataset. Panes are created separately for each <code>strata</code>.</p></td>
     </tr>
     <tr>
       <th>data_links</th>
@@ -194,7 +194,7 @@ Records in each group are assigned a unique identifier with relevant group-level
     </tr>
     <tr>
       <th>group_stats</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code> (default), the returned <code>pane</code> object will include pane-specific information like panes start and end dates.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code> (default), the returned <code>pane</code> object will include group specific information like panes start and end dates.</p></td>
     </tr>
     <tr>
       <th>data_source</th>
@@ -202,15 +202,15 @@ Records in each group are assigned a unique identifier with relevant group-level
     </tr>
     <tr>
       <th>by</th>
-      <td><p><code>[integer]</code>. Increment or decrement.</p></td>
+      <td><p><code>[integer]</code>. Width of splits.</p></td>
     </tr>
     <tr>
       <th>length.out</th>
-      <td><p><code>[integer]</code>. Number of splits. For example, <code>1</code> for two parts or <code>2</code> for three parts.</p></td>
+      <td><p><code>[integer]</code>. Number of splits.</p></td>
     </tr>
     <tr>
       <th>fill</th>
-      <td><p><code>[logical]</code>. Retain (TRUE) or drop (FALSE) the remainder of an uneven split.</p></td>
+      <td><p><code>[logical]</code>. Retain (<code>TRUE</code>) or drop (<code>FALSE</code>) the remainder of an uneven split.</p></td>
     </tr>
     <tr>
       <th>display</th>
@@ -244,6 +244,7 @@ Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</cod
 <li><p>If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be retained.</p></li>
 </ul>
 
+<p><em><code>NA</code> values in <code>strata</code> excludes records from the partitioning tracking process</em>.</p>
 <p>See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for more information.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

@@ -4,18 +4,18 @@
 #'
 #' @details
 #' A \code{number_line} represents a range of numbers on a number line.
-#'
-#' It's made up of a \code{start} and \code{end point} which are the beginning and end of the range respectively.
-#' The location of the \code{start} point - \code{left} or \code{right}, determines whether it's an \code{"increasing"} or \code{"decreasing"} range.
+#' It is made up of a \code{start} and \code{end} point which are the lower and upper ends of the range respectively.
+#' The location of the \code{start} point - \code{left} or \code{right},
+#' determines whether it is an \code{"increasing"} or \code{"decreasing"} range.
 #' This is the \code{direction} of the \code{number_line}.
 #'
 #' @seealso
-#' \code{\link{overlaps}}, \code{\link{set_operations}}, \code{\link{episodes}} and \code{\link{links}}
+#' \code{\link{overlaps}}; \code{\link{set_operations}}; \code{\link{episodes}}; \code{\link{links}}
 #'
-#' @param l {[\code{numeric} based]}. Left point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object
-#' @param r {[\code{numeric} based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object
-#' @param id \code{[integer]}. Unique element identifier. Optional
-#' @param gid \code{[integer]}. Unique group identifier. Optional
+#' @param l \code{[numeric based]}. Left point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object.
+#' @param r \code{[numeric based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object.
+#' @param id \code{[integer]}. Unique element identifier. Optional.
+#' @param gid \code{[integer]}. Unique group identifier. Optional.
 #'
 #' @return \code{number_line}
 #'
@@ -194,9 +194,9 @@ number_line_width <- function(x){
 #' Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).
 #' @details
 #' \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line}.
-#' A reversed \code{number_line} has its \code{l} and \code{r} points swapped.
+#' A reversed \code{number_line} has its \code{left} and \code{right} points swapped.
 #' The \code{direction} argument specifies which type of \code{number_line} will be reversed.
-#' \code{number_line} with non-finite \code{starts} or \code{end points} i.e. (\code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
+#' \code{number_line} with non-finite \code{start} or \code{end} points (i.e. \code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 #' @examples
 #' # Reverse number_line objects
 #' reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
@@ -271,7 +271,7 @@ shift_number_line <- function(x, by = 1){
 #' @rdname number_line
 #' @param point \code{[character]}. \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.
 #' @details
-#' \bold{\code{expand_number_line()}} - Increase or decrease the width or length of a \code{number_line}.
+#' \bold{\code{expand_number_line()}} - Increase or decrease the width of a \code{number_line}.
 #' @examples
 #' # Change the duration, width or length of a number_line object
 #' d <- c(number_line(3, 6), number_line(6, 3))
@@ -323,7 +323,7 @@ expand_number_line <- function(x, by = 1, point = "both"){
 
 #' @rdname number_line
 #' @details
-#' \bold{\code{invert_number_line()}} - Invert the \code{left} and/or \code{right} points from a negative to positive value or vice versa.
+#' \bold{\code{invert_number_line()}} - Change the \code{left} or \code{right} points from a negative to positive value or vice versa.
 #' @examples
 #' # Invert `number_line` objects
 #' e <- c(number_line(3, 6), number_line(-3, -6), number_line(-3, 6))
@@ -357,28 +357,24 @@ invert_number_line <- function(x, point = "both"){
   return(x)
 }
 
-#' @rdname number_line
-#' @details
-#' \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} into a new \code{number_line} that covers the \code{start} and \code{end} points of the originals.
-#' This results in duplicate \code{number_line} with the \code{start} and \code{end} points of the newly expanded \code{number_line}
-#' See \code{\link{overlaps}} for further details on overlapping \code{number_line}.
-#' \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}
-#'
-#' @param method \code{[character]}. Method of overlap. Check every pair of \code{number_line} by the same \code{method}. Deprecated. Please use \code{methods} instead.
-#' @param methods \code{[character]}. Methods of overlap. Check different pairs of \code{number_line} by different \code{methods}
-#' @param collapse \code{[lgocial]}. If \code{TRUE}, collapse the compressed results yet again.
-#' @param deduplicate \code{[lgocial]}. If \code{TRUE}, retains only one \code{number_line} per overlapping set
-#'
-#' @examples
-#' # Collapse `number_line` objects
-#' x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
-#' compress_number_line(x, deduplicate = FALSE)
-#' compress_number_line(x)
-#' compress_number_line(x, collapse=TRUE)
-#' compress_number_line(x, collapse=TRUE, methods = "inbetween")
-#'
-#' @export
-
+# @details
+# \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} into a new \code{number_line} that covers the \code{start} and \code{end} points of the originals.
+# This results in duplicate \code{number_line} with the \code{start} and \code{end} points of the newly expanded \code{number_line}
+# See \code{\link{overlaps}} for further details on overlapping \code{number_line}.
+# \bold{\code{compress_number_line}} can be an alternative for simple implementations of \code{\link{links}} or \code{\link{episodes}}
+#
+# @param method \code{[character]}. Method of overlap. Check every pair of \code{number_line} by the same \code{method}. Deprecated. Please use \code{methods} instead.
+# @param methods \code{[character]}. Methods of overlap. Check different pairs of \code{number_line} by different \code{methods}
+# @param collapse \code{[lgocial]}. If \code{TRUE}, collapse the compressed results yet again.
+# @param deduplicate \code{[lgocial]}. If \code{TRUE}, retains only one \code{number_line} per overlapping set
+#
+# @examples
+# # Collapse `number_line` objects
+# x <- c(number_line(10,10), number_line(10,20), number_line(5,30),  number_line(30,40))
+# compress_number_line(x, deduplicate = FALSE)
+# compress_number_line(x)
+# compress_number_line(x, collapse=TRUE)
+# compress_number_line(x, collapse=TRUE, methods = "inbetween")
 compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
                                  deduplicate = TRUE,  method = "overlap"){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
@@ -453,7 +449,7 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 #' @param by \code{[integer]}. Increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}
 #' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}
 #' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split
-#' @param simplify \code{[logical]}. Split into \code{number_line} or sequence finite numbers
+#' @param simplify \code{[logical]}. Split into \code{number_line} or sequence of finite numbers
 #'
 #' @details
 #' \bold{\code{number_line_sequence()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
@@ -489,7 +485,7 @@ number_line_sequence <- function(x,
   change_dir <- FALSE
   if(!is.null(by)){
     if(length(fill) == 1) fill <- rep(fill, length(x))
-    seq.dyr <- function(..., to = 1, fill = TRUE){
+    seq.dyr <- function(..., to = 1L, fill = TRUE){
       x <- seq(..., to = to)
       if(isTRUE(fill) & to != x[length(x)]) x <- c(x, to)
       x

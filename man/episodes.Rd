@@ -110,11 +110,11 @@ This is the case window.}
 
 \item{episode_type}{\code{[character]}. Options are \code{"fixed"} (default), \code{"rolling"} or \code{"recursive"}. See \code{Details}.}
 
-\item{recurrence_length}{\code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event.}
+\item{recurrence_length}{\code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event. This is the recurrence window.}
 
 \item{episode_unit}{\code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.}
 
-\item{strata}{\code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}.}
+\item{strata}{\code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}.}
 
 \item{sn}{\code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.}
 
@@ -130,14 +130,13 @@ This is the case window.}
 
 \item{data_source}{\code{[character]}. Unique data source identifier. Adds the list of datasets in each episode to the \code{\link[=epid-class]{epid}}. Useful when the dataset has data from multiple sources.}
 
-\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. A \code{\link[=epid-class]{epid}} without records from these \code{data_sources} will be unlinked. See \code{Details}.}
+\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be unlinked. See \code{Details}.}
 
-\item{custom_sort}{\code{[atomic]}. Preferential order for selecting reference events.}
+\item{custom_sort}{\code{[atomic]}. Preferential order for selecting index or reference events.}
 
 \item{skip_order}{\code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.}
 
-\item{reference_event}{\code{[character]}. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".
-If \code{FALSE} (default), it will be the first event. Only used if \code{episode_type} is \code{"rolling"}.}
+\item{reference_event}{\code{[character]}. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".}
 
 \item{case_for_recurrence}{\code{[logical]}. If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
@@ -146,20 +145,19 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.}
 
-\item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} and \code{"stats"}.
-#' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
+\item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} and \code{"stats"}.}
 
-\item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.}
+\item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links.}
 
-\item{recurrence_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links. Supplied as a \code{\link{sub_criteria}} object.}
+\item{recurrence_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links.}
 
-\item{case_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode. \code{See details}.}
+\item{case_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode.}
 
-\item{recurrence_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode. \code{See details}.}
+\item{recurrence_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode.}
 
 \item{to_s4}{\code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 
-\item{deduplicate}{\code{[logical]}. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.}
+\item{deduplicate}{\code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.}
 
 \item{bi_direction}{\code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.}
 
@@ -171,7 +169,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{overlap_method}{\code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.}
 
-\item{x}{\code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}}
+\item{x}{\code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}.}
 
 \item{df}{\code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.}
 }
@@ -182,12 +180,12 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 }
 \description{
 Link events with matching attributes and within specified durations of each other.
-Records in each episode are assigned a unique identifier with relevant group-level information.
+Each set of linked records are assigned a unique identifier with relevant group-level information.
 }
 \details{
 All dated records within a specified duration of an index record are linked together as an episode.
 By default, this process occurs in ascending order, beginning with the earliest event.
-This can be changed to a descending (\code{from_last}) or custom order \code{custom_sort}.
+This can be changed to a descending (\code{from_last}) or custom order (\code{custom_sort}).
 Ties are always broken by the chronological order of events.
 
 A \code{"fixed"} episode has a fixed maximum duration determined by \code{case_length}, while a \code{"rolling"} episode can continue to recur.
@@ -206,16 +204,20 @@ A \code{"rolling"} episode will persist as long as is specified by \code{rolls_m
 Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
 Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 \itemize{
-\item If named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
-\item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
+\item If named \code{"l"}, only groups with records from every listed \code{data_source} will be unlinked.
+\item If named \code{"g"}, only groups with records from any listed \code{data_source} will be unlinked.
 }
 
-\bold{\code{episode_group()}} as it existed before \code{v0.2.0} has been retired.
+\emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}
+
+\bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episode_group()}} which reframes the data before the episode tracking process.
+This aims to reduce the overall processing time for the tracking process. See \code{vignette("episodes")} for further details.
+
+\bold{\code{episode_group()}} has been retired.
 It now only exists to support previous code with minimal input from users.
 Moving forward, please use \bold{\code{episodes()}}.
 
-\bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} as it existed before \code{v0.2.0} has been retired.
-They are  are wrapper functions to track \code{"fixed"} and \code{"rolling"} episodes respectively.
+\bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} has been retired.
 They now only exists to support previous code with minimal input from users.
 Moving forward, please use \bold{\code{episodes()}}.
 

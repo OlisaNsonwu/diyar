@@ -1,22 +1,22 @@
 #' @name partitions
-#' @title Distribute events into time intervals.
+#' @title Distribute events specified intervals.
 #'
-#' @description Distribute events into groups defined by time or numerical boundaries.
-#' Records in each group are assigned a unique identifier with relevant group-level data.
+#' @description Distribute events into groups defined by time or numerical intervals.
+#' Each set of linked records are assigned a unique identifier with relevant group-level data.
 #'
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pane-class]{pane}} identifiers.
-#' @param strata \code{[atomic]}. Subsets of the dataset. Panes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.
+#' @param strata \code{[atomic]}. Subsets of the dataset. Panes are created separately for each \code{strata}.
 #' @param windows_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required for a pane. See \code{details}
 #' @param separate \code{[logical]}. If \code{TRUE}, events matched to different \code{windows} are not linked.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
 #' @param window \code{[integer|\link{number_line}]}. Numeric or time intervals.
 #' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the dataset has data from multiple sources.
 #' @param custom_sort \code{[atomic]}. Preferred order for selecting \code{"index"} events.
-#' @param group_stats \code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes start and end dates.
+#' @param group_stats \code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include group specific information like panes start and end dates.
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pane-class]{pane}}. A \code{\link[=pane-class]{pane}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
-#' @param by \code{[integer]}. Increment or decrement.
-#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts.
-#' @param fill \code{[logical]}. Retain (TRUE) or drop (FALSE) the remainder of an uneven split.
+#' @param by \code{[integer]}. Width of splits.
+#' @param length.out \code{[integer]}. Number of splits.
+#' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
 #' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default) or \code{"stats"}.
 #' @return
 #'
@@ -49,6 +49,8 @@
 #' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
 #' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
 #' }
+#'
+#' \emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.
 #'
 #' See \code{vignette("episodes")} for more information.
 #'
@@ -160,7 +162,9 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     splits_func <- function(x, n, f) {
       n <- n[!duplicated(n)]
       f <- f[!duplicated(f)]
-      number_line_sequence(number_line(min(x@start), max(x@start + x@.Data)), by = n, fill = f)
+      number_line_sequence(number_line(min(x@start),
+                                       max(x@start + x@.Data)),
+                           by = n, fill = f)
     }
     splits_windows <- mapply(splits_func, splits, split_bys, split_fills, SIMPLIFY = FALSE)
   }else if(is.null(by) & !is.null(length.out)){
@@ -171,7 +175,9 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
     splits_func <- function(x, n, f) {
       n <- n[!duplicated(n)]
       f <- f[!duplicated(f)]
-      number_line_sequence(number_line(min(x@start), max(x@start + x@.Data)), length.out = n, fill = f)
+      number_line_sequence(number_line(min(x@start),
+                                       max(x@start + x@.Data)),
+                           length.out = n, fill = f)
     }
     splits_windows <- mapply(splits_func, splits, split_lnts, split_fills, SIMPLIFY = FALSE)
   }else{

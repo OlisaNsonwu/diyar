@@ -2,7 +2,7 @@
 % Please edit documentation in R/panes.R
 \name{partitions}
 \alias{partitions}
-\title{Distribute events into time intervals.}
+\title{Distribute events specified intervals.}
 \usage{
 partitions(
   date,
@@ -32,21 +32,21 @@ partitions(
 
 \item{sn}{\code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pane-class]{pane}} identifiers.}
 
-\item{strata}{\code{[atomic]}. Subsets of the dataset. Panes are created separately for each \code{strata}. \emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.}
+\item{strata}{\code{[atomic]}. Subsets of the dataset. Panes are created separately for each \code{strata}.}
 
 \item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pane-class]{pane}}. A \code{\link[=pane-class]{pane}} without records from these \code{data_sources} will be unlinked. See \code{Details}.}
 
 \item{custom_sort}{\code{[atomic]}. Preferred order for selecting \code{"index"} events.}
 
-\item{group_stats}{\code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include pane-specific information like panes start and end dates.}
+\item{group_stats}{\code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include group specific information like panes start and end dates.}
 
 \item{data_source}{\code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the dataset has data from multiple sources.}
 
-\item{by}{\code{[integer]}. Increment or decrement.}
+\item{by}{\code{[integer]}. Width of splits.}
 
-\item{length.out}{\code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts.}
+\item{length.out}{\code{[integer]}. Number of splits.}
 
-\item{fill}{\code{[logical]}. Retain (TRUE) or drop (FALSE) the remainder of an uneven split.}
+\item{fill}{\code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.}
 
 \item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default) or \code{"stats"}.}
 }
@@ -56,8 +56,8 @@ partitions(
 \code{\link[=pane-class]{pane}}
 }
 \description{
-Distribute events into groups defined by time or numerical boundaries.
-Records in each group are assigned a unique identifier with relevant group-level data.
+Distribute events into groups defined by time or numerical intervals.
+Each set of linked records are assigned a unique identifier with relevant group-level data.
 }
 \details{
 Each assigned group is referred to as a \code{\link[=pane-class]{pane}} A \code{\link[=pane-class]{pane}} consists of events within a specific time or numerical intervals (\code{window}).
@@ -83,6 +83,8 @@ Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 \item If named \code{"l"}, only groups with records from every listed \code{data_source} will be retained.
 \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
 }
+
+\emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.
 
 See \code{vignette("episodes")} for more information.
 }

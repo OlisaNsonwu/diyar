@@ -135,8 +135,8 @@ links_wf_probabilistic(as.list(dfr), score_threshold = -4.2)
 
 ### Episode tracking
 
-Use `episodes()` or `episodes_wf_splits()` to create a unique identifier
-for related events based on a case definition.
+Use `episodes()` to create a unique identifier for related events based
+on a case definition.
 
 ``` r
 episodes(1:7, case_length = 2)

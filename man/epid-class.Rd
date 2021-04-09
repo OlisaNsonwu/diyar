@@ -89,7 +89,7 @@ S4 objects storing the result of \code{\link{episodes}}.
 
 \item{\code{iteration}}{The iteration of the tracking process when a record was linked to its episode.}
 
-\item{\code{options}}{A list of some option calls in \code{\link{episodes}}}
+\item{\code{options}}{Some options passed to the instance of \code{\link{episodes}}.}
 }}
 
 \examples{

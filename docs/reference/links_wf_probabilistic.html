@@ -178,7 +178,7 @@
     </tr>
     <tr>
       <th>m_probability</th>
-      <td><p><code>[list|numeric]</code>. The probability that a match from the string comparator is from the same entity.</p></td>
+      <td><p><code>[list|numeric]</code>. The probability that a match from the string comparator is actually from the same entity.</p></td>
     </tr>
     <tr>
       <th>score_threshold</th>
@@ -186,11 +186,11 @@
     </tr>
     <tr>
       <th>id_1</th>
-      <td><p><code>[list|numeric]</code>. One half of a specific pair of records to check their match weights and score-thresholds.</p></td>
+      <td><p><code>[list|numeric]</code>. One half of a specific pair of records to check for match weights and score-thresholds.</p></td>
     </tr>
     <tr>
       <th>id_2</th>
-      <td><p><code>[list|numeric]</code>. One half of a specific pair of records to check their match weights and score-thresholds.</p></td>
+      <td><p><code>[list|numeric]</code>. One half of a specific pair of records to check for match weights and score-thresholds.</p></td>
     </tr>
     <tr>
       <th>...</th>
@@ -205,30 +205,30 @@
 
     <p><code>links_wf_probabilistic</code> is a wrapper function of <code><a href='links.html'>links</a></code> for probabilistic record linkage.
 Its implementation is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.</p>
-<p>In summary, each record pairs are created and categorised as matches and non-matches (<code>cmp_func</code>).
+<p>In summary, record pairs are created and categorised as matches and non-matches (<code>cmp_func</code>).
 Two probabilities (<code>m</code> and <code>u</code>) are then estimated for each record pair to score matches and non-matches.
-The <code>m</code>-probability is the probability that matched records are from the same entity,
-while <code>u</code>-probability is the probability that matched records are not from the same entity.
+The <code>m</code>-probability is the probability that matched records are actually from the same entity i.e a true match,
+while <code>u</code>-probability is the probability that matched records are not from the same entity i.e. a false match.
 <code>m</code>-probabilities must be supplied but <code>u</code>-probabilities are calculated for each value of an <code>attribute</code>.
 This is calculated as the frequency of each value in the dataset.
 Record pairs whose total score are above a certain threshold (<code>score_threshold</code>) are assumed to belong to the same entity.</p>
-<p>Agreement and disagreement scores are calculated as described by Asher et al. (2020).</p>
-<p>For each record pair, an agreement or match score for attribute \(i\) is calculated as;</p>
+<p>Agreement (match) and disagreement (non-match) scores are calculated as described by Asher et al. (2020).</p>
+<p>For each record pair, an agreement for attribute \(i\) is calculated as;</p>
 <p>$$\log_{2}(m_{i}/u_{i})$$</p>
-<p>For each record pair, a disagreement or non-match score for attribute \(i\) is calculated as;</p>
+<p>For each record pair, a disagreement score for attribute \(i\) is calculated as;</p>
 <p>$$\log_{2}((1-m_{i})/(1-u_{i}))$$</p>
 <p>where \(m_{i}\) and \(u_{i}\) are the <code>m</code> and <code>u</code>-probabilities for each value of attribute \(i\).</p>
 <p>Missing data (<code>NA</code>) are categorised as non-matches and assigned a <code>u</code>-probability of <code>0</code>.</p>
 <p>By default, matches and non-matches for each <code>attribute</code> are determined as an <code><a href='predefined_tests.html'>exact_match</a></code> with a binary outcome.
 String comparators can also be used with thresholds (<code>cmp_threshold</code>) for each similarity score.
 If <code>probabilistic</code> is <code>FALSE</code>,
-the sum of all similarity scores is used as the final score instead of deriving one from the <code>m</code> and <code>u</code>-probabilities.</p>
+the sum of all similarity scores is used as the <code>score_threshold</code> instead of deriving one from the <code>m</code> and <code>u</code>-probabilities.</p>
 <p><code>links_wf_probabilistic</code> requires a <code>score_threshold</code> in advance of the linkage process.
 This differs from the typical approach where a <code>score_threshold</code> is selected after the linkage process,
 following a review of all calculated scores.
 To help with this, <code>prob_score_range</code> will return the range of scores attainable for a given set of attributes.
-Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specific records pairs using, aiding the review of potential scores.</p>
-<p>A <code>blocking_attribute</code> can be used to reduce processing time by restricting comparisons to <code>strata</code> of the dataset.</p>
+Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specific records pairs, aiding the review of potential scores.</p>
+<p>A <code>blocking_attribute</code> can be used to reduce processing time by restricting comparisons to subsets of the dataset.</p>
     <h2 class="hasAnchor" id="references"><a class="anchor" href="#references"></a>References</h2>
 
     <p>Fellegi, I. P., &amp; Sunter, A. B. (1969). A Theory for Record Linkage. <em>Journal of the Statistical Association</em>, 64(328), 1183–1210. https://doi.org/10.1080/01621459.1969.10501049</p>
@@ -238,7 +238,7 @@ Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specif
     <div class='dont-index'><p><code><a href='links.html'>links</a></code>; <code><a href='episodes.html'>episodes</a></code>; <code><a href='partitions.html'>partitions</a></code>; <code><a href='predefined_tests.html'>predefined_tests</a></code>; <code><a href='sub_criteria.html'>sub_criteria</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='co'># Exact matches</span>
+    <pre class="examples"><div class='input'><span class='co'># Using exact matches</span>
 <span class='no'>dfr</span> <span class='kw'>&lt;-</span> <span class='no'>missing_staff_id</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"staff_id"</span>,  <span class='st'>"initials"</span>,
                           <span class='st'>"hair_colour"</span>, <span class='st'>"branch_office"</span>)]
 <span class='no'>score_range</span> <span class='kw'>&lt;-</span> <span class='fu'>prob_score_range</span>(<span class='kw'>attribute</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span>(<span class='no'>dfr</span>))
@@ -274,7 +274,7 @@ Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specif
 #&gt; [6,]         -4.099536 -10.8871808             1
 #&gt; [7,]          1.733354   0.7785993             1
 #&gt; </div><div class='input'>
-<span class='co'># Other logical tests e.g. string comparators</span>
+<span class='co'># Using other logical tests e.g. string comparators</span>
 <span class='co'># For example, matching last word in `hair_colour` and `branch_office`</span>
 <span class='no'>last_word_wf</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>x</span>) <span class='fu'><a href='https://rdrr.io/r/base/chartr.html'>tolower</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/grep.html'>gsub</a></span>(<span class='st'>"^.* "</span>, <span class='st'>""</span>, <span class='no'>x</span>))
 <span class='no'>last_word_cmp</span> <span class='kw'>&lt;-</span> <span class='kw'>function</span>(<span class='no'>x</span>, <span class='no'>y</span>) <span class='fu'>last_word_wf</span>(<span class='no'>x</span>) <span class='kw'>==</span> <span class='fu'>last_word_wf</span>(<span class='no'>y</span>)

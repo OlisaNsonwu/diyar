@@ -162,27 +162,22 @@
     <p><code>[<a href='number_line.html'>number_line</a>]</code>; <code>list</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><b><code>union_number_lines()</code></b> - Return a <code>[<a href='number_line.html'>number_line</a>]</code> with the combined range of <code>x</code> and <code>y</code></p>
-<p><b><code>intersect_number_line()</code></b> - Returns a subset of <code>x</code> that overlaps with <code>y</code> and vice versa</p>
-<p><b><code>subtract_number_lines()</code></b> - Returns a subset of <code>x</code> that does not overlap with <code>y</code> and vice versa.
-Returns a list with two elements;</p><ul>
-<li><p><code>n1</code> - subset before the overlapped range between <code>x</code> and <code>y</code>.</p></li>
-<li><p><code>n2</code> - subset after the overlapped range between <code>x</code> and <code>y</code></p></li>
-</ul>
-
+    <p><b><code>union_number_lines()</code></b> - Combined the range of <code>x</code> and that of <code>y</code></p>
+<p><b><code>intersect_number_line()</code></b> - Subset of <code>x</code> that overlaps with <code>y</code> and vice versa</p>
+<p><b><code>subtract_number_lines()</code></b> - Subset of <code>x</code> that does not overlap with <code>y</code> and vice versa.</p>
 <p>The <code>direction</code> of the returned <code>[<a href='number_line.html'>number_line</a>]</code> will be that of the widest one (<code>x</code> or <code>y</code>).
-If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"increasing direction"</code>.</p>
-<p>If  <code>x</code> and <code>y</code> do not overlap, <code>NA</code> (<code>"NA ?? NA"</code>) is returned.</p>
+If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"increasing"</code> direction.</p>
+<p>If <code>x</code> and <code>y</code> do not overlap, <code>NA</code> (<code>"NA ?? NA"</code>) is returned.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='number_line.html'>number_line</a></code> and <code><a href='overlaps.html'>overlaps</a></code></p></div>
+    <div class='dont-index'><p><code><a href='number_line.html'>number_line</a></code>;  <code><a href='overlaps.html'>overlaps</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='no'>nl_1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>5</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>9</span>))
 <span class='no'>nl_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>), <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>0</span>, <span class='fl'>6</span>))
 
 <span class='co'># Union</span>
-<span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>union_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "1 -&gt; 5" "1 -&gt; 5" "5 -&gt; 9"</div><div class='output co'>#&gt; [1] "1 -&gt; 2" "2 -&gt; 3" "0 -&gt; 6"</div><div class='output co'>#&gt; [1] "1 -&gt; 5" "1 -&gt; 5" "0 -&gt; 9"</div><div class='input'>
+<span class='no'>nl_1</span>; <span class='no'>nl_2</span>; <span class='fu'>union_number_lines</span>(<span class='no'>nl_1</span>, <span class='no'>nl_2</span>)</div><div class='output co'>#&gt; [1] "1   -&gt;   5" "1   -&gt;   5" "5   -&gt;   9"</div><div class='output co'>#&gt; [1] "1   -&gt;   2" "2   -&gt;   3" "0   -&gt;   6"</div><div class='output co'>#&gt; [1] "1   -&gt;   5" "1   -&gt;   5" "0   -&gt;   9"</div><div class='input'>
 
 <span class='no'>nl_3</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"01/01/2020"</span>, <span class='st'>"03/01/2020"</span>,<span class='st'>"09/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>),
                     <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"09/01/2020"</span>, <span class='st'>"09/01/2020"</span>,<span class='st'>"25/12/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
@@ -191,20 +186,20 @@ If <code>x</code> and <code>y</code> have the same length, it'll be an <code>"in
                     <span class='fu'><a href='https://rdrr.io/r/base/as.Date.html'>as.Date</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"05/01/2020"</span>,<span class='st'>"05/01/2020"</span>,<span class='st'>"03/01/2020"</span>), <span class='st'>"%d/%m/%Y"</span>))
 
 <span class='co'># Intersect</span>
-<span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>intersect_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
-#&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
-#&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-03 -&gt; 2020-01-05"
-#&gt; [3] "NA ?? NA"                </div><div class='input'>
+<span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>intersect_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01   -&gt;   2020-01-09" "2020-01-03   -&gt;   2020-01-09"
+#&gt; [3] "2020-01-09   -&gt;   2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04   -&gt;   2020-01-05" "2020-01-01   -&gt;   2020-01-05"
+#&gt; [3] "2020-01-01   -&gt;   2020-01-03"</div><div class='output co'>#&gt; [1] "2020-01-04   -&gt;   2020-01-05" "2020-01-03   -&gt;   2020-01-05"
+#&gt; [3] "NA   ??   NA"                </div><div class='input'>
 <span class='co'># Subtract</span>
-<span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>subtract_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01 -&gt; 2020-01-09" "2020-01-03 -&gt; 2020-01-09"
-#&gt; [3] "2020-01-09 -&gt; 2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04 -&gt; 2020-01-05" "2020-01-01 -&gt; 2020-01-05"
-#&gt; [3] "2020-01-01 -&gt; 2020-01-03"</div><div class='output co'>#&gt; $n1
-#&gt; [1] "2020-01-01 -&gt; 2020-01-04" "2020-01-01 -&gt; 2020-01-03"
-#&gt; [3] "NA ?? NA"                
+<span class='no'>nl_3</span>; <span class='no'>nl_4</span>; <span class='fu'>subtract_number_lines</span>(<span class='no'>nl_3</span>, <span class='no'>nl_4</span>)</div><div class='output co'>#&gt; [1] "2020-01-01   -&gt;   2020-01-09" "2020-01-03   -&gt;   2020-01-09"
+#&gt; [3] "2020-01-09   -&gt;   2020-12-25"</div><div class='output co'>#&gt; [1] "2020-01-04   -&gt;   2020-01-05" "2020-01-01   -&gt;   2020-01-05"
+#&gt; [3] "2020-01-01   -&gt;   2020-01-03"</div><div class='output co'>#&gt; $n1
+#&gt; [1] "2020-01-01   -&gt;   2020-01-04" "2020-01-01   -&gt;   2020-01-03"
+#&gt; [3] "NA   ??   NA"                
 #&gt; 
 #&gt; $n2
-#&gt; [1] "2020-01-05 -&gt; 2020-01-09" "2020-01-05 -&gt; 2020-01-09"
-#&gt; [3] "NA ?? NA"                
+#&gt; [1] "2020-01-05   -&gt;   2020-01-09" "2020-01-05   -&gt;   2020-01-09"
+#&gt; [3] "NA   ??   NA"                
 #&gt; </div><div class='input'>
 </div></pre>
   </div>

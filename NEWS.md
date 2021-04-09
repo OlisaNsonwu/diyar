@@ -3,46 +3,48 @@
 
 ## New features
 
-  - New function `panes()`
-  - New argument - `wind_criteria` in `episodes()`. Additional
-    conditions for overlapping windows. Only relevant to
-    `"rolling_episodes"`.
-  - New argument - `sub_criteria` in `episodes()`. Additional conditions
-    for temporal links.
-  - New argument - `wind_total` in `episodes()`. Minimum number of
-    records in an `window` to trigger the next recurrence window. Only
-    applicable to `"rolling episodes"`  
-  - New argument - `schema` in `links()`, `episodes()` and `panes()`.
-    Produce schema diagrams of the record linkage and episodes tracking
-    process.
-  - New argument - `case_length_total` in `episodes()`. Number of hits
-    from multiple `case_lengths` required for a `window`/`episode`.
-  - New argument - `recurrence_length_total` in `episodes()`. Number of
-    hits from multiple `recurrence_lengths` required for a
+  - New function - `links_wf_probabilistic()`. Probabilistic record
+    linkage.
+  - New function - `partitions()`. Spilt events into sections in time.
+  - New function - `schema()`. Plot schema diagrams for `pids`, `epids`
+    and `number_line` objects.
+  - New functions - `encode()` and `decode()`. Encoding and decoding
+    slots values to minimise memory usage.
+  - New argument - `case_sub_criteria` and `recurrence_sub_criteria` in
+    `episodes()`. Additional matching conditions for temporal links.
+  - New argument - `case_length_total` and `recurrence_length_total` in
+    `episodes()`. Number of temporal links required for a
     `window`/`episode`.
-  - New argument - `schema` in `links()`, `episodes()` and `panes()`.
-    Produce schema diagrams of the record linkage and episodes +
-    tracking process.
-  - d\_label, encode, decode
-  - as.data.frame methods
-  - as.list methods
-  - sub\_criteria generic, methods and recursive evaluation
-  - episodes\_wf\_splits
-  - links\_wf\_probabilistic
-  - Display messages
-  - Clear objects at the end of functions to address memory leakage
-  - epid\_total is produced by default
-  - Multiple index events
-  - recursive episodes
-  - recurrence\_from\_last changed to reference event and given two new
-    options
-  - Optimised episodes and links
+  - New argument - `recursive` in `links()`. Control if matches can
+    spawn new matches.
+  - New argument - `check_duplicates` in `links()`. Control the checking
+    of logical tests on duplicate values. If `FALSE`, results are
+    recycled for the duplicates.
+  - New argument - `case_length_total` and `recurrence_length_total` in
+    `episodes()`.
+  - `as.data.frame` and `as.list` for the `pid`, `number_line`, `epid`,
+    `pane` objects.
+  - A new type of episodes - “recursive” episodes.
+  - `recurrence_from_last` renamed to `reference_event` and given two
+    new options.
+  - Optimised `episodes()` and `links()`. Speed improvements.
 
 ## Changes
 
-  - `epid_object` - default time zone for an `epid_interval` with
+  - Default time zone for an `epid_interval` or `pane_interval` with
     `POSIXct` objects is now “GMT”.
-  - `number_line_sequence()` - splits number\_line objects.
+  - `number_line_sequence()` - splits number\_line objects. Also
+    available as `seq` method.
+  - `epid_total`, `pid_total` and `pane_total` slots are populated by
+    default. No need to used `group_stats` to get these.
+  - `to_df()` - Removed. Use `as.data.frame()` instead.
+  - `to_s4()` - Now an internal function. It’s no longer exported.
+  - `compress_number_line()` - Now an internal function. It’s no longer
+    exported. Use `episodes()` instead.
+  - `sub_criteria()` - produces a `sub_criteria` object. Nested “AND”
+    and “OR” conditions are now possible.
+  - `fixed_episodes()` and `rolling_episodes()` are retired and no
+    longer supported.
 
 ## Bug fixes
 
