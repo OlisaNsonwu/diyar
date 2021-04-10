@@ -166,14 +166,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   # `strata`
   if(length(strata) == 1 | is.null(strata)) {
     cri <- rep(1L, inp_n)
-    strata <- encode(cri)
   }else{
     cri <- match(strata, strata[!duplicated(strata)])
-    strata <- encode(strata)
   }
 
   options_lst = list(date = date,
-                     strata = if(class(strata) == "NULL") NULL else strata,
+                     strata = if(class(strata) == "NULL") NULL else encode(strata),
                      case_length = if(class(case_length) != "list") list(case_length) else case_length,
                      recurrence_length = if(class(recurrence_length) != "list") list(recurrence_length) else recurrence_length,
                      episode_unit = ep_units,
@@ -359,10 +357,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   # User-specified records to skip
-  lgk <- is.na(strata)
-  tag[lgk] <- 2L
-  case_nm[lgk] <- -1L
-  iteration[lgk] <- 0L
+  if(!is.null(strata)){
+    lgk <- is.na(strata)
+    tag[lgk] <- 2L
+    case_nm[lgk] <- -1L
+    iteration[lgk] <- 0L
+  }
 
   # Skip events with non-finite `dates`
   lgk <- is.na(int@start) | is.na(int@.Data)
@@ -426,11 +426,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     int <- int[tag != 2]
     tag <- tag[tag != 2]
   }
-  if(display == "stats" & excluded > 0) cat(paste0("Pre-tracking\nChecked: ", fmt(inp_n), " record(s)\nSKipped: ", fmt(excluded), " record(s).","\n\n"))
+  if(display == "stats" & excluded > 0) cat(paste0("Pre-tracking\nChecked: ", fmt(inp_n), " record(s)\nSkipped: ", fmt(excluded), " record(s).","\n\n"))
   ite <- 1L
   while (suppressWarnings(min(tag)) != 2 & length(tag) > 0) {
     if(display == "stats"){
-      msg <- paste0("Window ", fmt(ite) ,".\n")
+      msg <- paste0("Iteration ", fmt(ite) ,".\n")
       cat(msg)
     }
     any_rolling_epi_curr <- any(episode_type %in% c(2, 3))
@@ -515,7 +515,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       lead_ref_event[lgk_p] <- tr_rec_from_last[lgk_p]
     }
     ref_rd <- lgk | tag %in% c(-1, -2)
-    # lgk2 <- (lead_ref_event == "first_event" | (lead_ref_event == "last_event" & lead_epid_type != 3)) &
     lgk2 <- (lead_ref_event %in% c("first_event", "last_event") | lead_epid_type == 3) &
       tr_tag == 0 &
       lgk == FALSE
@@ -620,14 +619,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[lgk2 & iteration == 0] <- ite
     rm(cri_skp); rm(lgk2); rm(lgk1)
 
-    if(min(tag) == 2){
+    if(min(tag) == 2 | length(tag) < 2){
       if(display == "stats"){
+        current_tagged <- length(tag[tag == 2])
+        current_skipped <- length(tag[tag == 0]) + current_skipped
         msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
                       "Tracked: ", fmt(current_tagged), " record(s)\n",
                       "Skipped: ", fmt(current_skipped), " record(s)")
         cat(msg, "\n\n", sep ="")
       }else if (tolower(display) == "progress") {
-        progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
+        progress_bar(inp_n, inp_n, 100, msg = "Tracking episodes")
       }
       break
     }
@@ -928,15 +929,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
     }
 
-    if(min(tag) == 2){
+    if(min(tag) == 2 | length(tag) < 2){
       if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
+        current_skipped <- length(tag[tag == 0]) + current_skipped
         msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
                       "Tracked: ", fmt(current_tagged), " record(s)\n",
                       "Skipped: ", fmt(current_skipped), " record(s)")
         cat(msg, "\n\n", sep ="")
       }else if (tolower(display) == "progress") {
-        progress_bar((length(tag[tag == 2]) + length(grouped_epids$tag)), inp_n, 100, msg = "Tracking episodes")
+        progress_bar(inp_n, inp_n, 100, msg = "Tracking episodes")
       }
       iteration[iteration == 0] <- ite
       break
@@ -1045,9 +1047,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
     grouped_epids$tag <- c(grouped_epids$tag, tag[tag == 2])
     tag <- tag[tag != 2]
-    ite <- ite + 1L
 
-    if(length(tag) == 0){
+    ite <- ite + 1L
+    if(min(tag) == 2 | length(tag) < 2){
+      if(display == "stats"){
+        msg <- paste0("Skipped: ", fmt(length(tag[tag == 0])), " record(s)")
+        cat(msg, "\n\n", sep ="")
+      }else if (tolower(display) == "progress") {
+        progress_bar(inp_n, inp_n, 100, msg = "Tracking episodes")
+      }
       break
     }
   }

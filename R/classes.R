@@ -291,14 +291,16 @@ summary.epid <- function(object, ...){
   summ$recurrence <- dst_tab(x = paste0(x$lengths[order(x$lengths)]))
   if(length(summ$recurrence$values) > 0){
     summ$recurrence$values <- paste0(summ$recurrence$values, " times")
+    summ$recurrence$values[summ$recurrence$values == "1 times"] <- "1 time"
   }
   summ$case_nm <- dst_tab(x = decode(object@case_nm[order(object@case_nm)]), order_by_label = c("Case", "Duplicate_C", "Recurrent", "Duplicate_R", "Skipped"))
   x <- object@epid_total[object@case_nm == 0]
   summ$epid_total <- dst_tab(x[order(x)])
   if(length(summ$epid_total$values) > 0){
     summ$epid_total$values <- paste0(summ$epid_total$values, " records")
+    summ$epid_total$values[summ$epid_total$values == "1 records"] <- "1 record"
   }
-  summ$epid_length <- if(is.null(object@epid_length)) list(values = numeric(), length = numeric()) else dst_tab(x = format((object@epid_length[object@case_nm == 0])[order(object@epid_length[object@case_nm == 0])]))
+  summ$epid_length <- if(is.null(object@epid_length)) list(values = numeric(), length = numeric()) else dst_tab(x = format((object@epid_length[object@case_nm == 0])[order(object@epid_length[object@case_nm == 0])], trim = TRUE))
   summ$data_source <- if(is.null(object@epid_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@epid_dataset[object@case_nm == 0])[order(object@epid_dataset[object@case_nm == 0])]), order_by_label = sort(attr(object@epid_dataset, "label")))
   class(summ) <- "epid_summary"
   return(summ)
@@ -312,7 +314,8 @@ print.epid_summary <- function(x, ...){
             "epid_total","epid_length","episode_type",
             "recurrence")
   mx_ds_len <- lapply(dsts, function(l){
-    nchar(x[[l]]$values)
+    val <- x[[l]]$values
+    nchar(if(length(val) > 5) val[1:5] else val)
   })
   mx_ds_len <- unlist(mx_ds_len, use.names = FALSE)
   mx_ds_len <- max(mx_ds_len)
@@ -320,20 +323,24 @@ print.epid_summary <- function(x, ...){
   mx_pd_len <- ifelse(mx_ds_len > 20, 1, 20 - mx_ds_len)
 
   ds_txts <- lapply(dsts, function(l){
-    ds_len <- nchar(x[[l]]$values)
+    val <- x[[l]]$values
+    xlen <- fmt(x[[l]]$lengths)
+    if(length(val) > 5) val <- c(val[1:5], "..truncated..")
+    if(length(xlen) > 5) xlen <- c(xlen[1:5], "..truncated..")
+    ds_len <- nchar(val)
     pd_len <- ifelse(ds_len > 20, 1, 20 - ds_len)
     pd_txt <- unlist(lapply(pd_len, function(j) paste0(rep(" ", j), collapse = "")), use.names = FALSE)
-    ds_txt <- ifelse(nchar(x[[l]]$values) > 20,
-           paste0(substr(x[[l]]$values, 1, 20), "~"),
-           x[[l]]$values)
+    ds_txt <- ifelse(nchar(val) > 20,
+           paste0(substr(val, 1, 20), "~"),
+           val)
 
     if(length(ds_len) > 0){
-      ds_txt <- paste0("     \"", ds_txt, "\":", pd_txt,
-                       fmt(x[[l]]$lengths), collapse = "\n")
+      ds_txt <- paste0("     ", ds_txt, ":", pd_txt,
+                       xlen, collapse = "\n")
     }else{
       ds_txt <- "     N/A"
     }
-    ds_txt
+    ds_txt <- gsub("..truncated..:", "..truncated..", ds_txt)
   })
   ds_txts <- unlist(ds_txts, use.names = FALSE)
   names(ds_txts) <- dsts
@@ -614,8 +621,9 @@ summary.pane <- function(object, ...){
   summ$case_nm <- dst_tab(x = decode(object@case_nm[order(object@case_nm)]), order_by_label = c("Index", "Duplicate_I", "Skipped"))
   x <- object@pane_total[object@case_nm == 0]
   summ$pane_total <- dst_tab(x[order(x)])
-  if(length(summ$epid_total$values) > 0){
+  if(length(summ$pane_total$values) > 0){
     summ$pane_total$values <- paste0(summ$pane_total$values, " records")
+    summ$pane_total$values[summ$pane_total$values == "1 records"] <- "1 record"
   }
   summ$pane_length <- if(is.null(object@pane_length)) list(values = numeric(), length = numeric()) else dst_tab(x = format((object@pane_length[object@case_nm == 0])[order(object@pane_length[object@case_nm == 0])]))
   summ$data_source <- if(is.null(object@pane_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@pane_dataset[object@case_nm == 0])[order(object@pane_dataset[object@case_nm == 0])]), order_by_label = sort(attr(object@pane_dataset, "label")))
@@ -629,7 +637,8 @@ print.pane_summary <- function(x, ...){
   dsts <- c("case_nm", "data_source",
             "pane_total","pane_length")
   mx_ds_len <- lapply(dsts, function(l){
-    nchar(x[[l]]$values)
+    val <- x[[l]]$values
+    nchar(if(length(val) > 5) val[1:5] else val)
   })
   mx_ds_len <- unlist(mx_ds_len, use.names = FALSE)
   mx_ds_len <- max(mx_ds_len)
@@ -637,19 +646,24 @@ print.pane_summary <- function(x, ...){
   mx_pd_len <- ifelse(mx_ds_len > 20, 1, 20 - mx_ds_len)
 
   ds_txts <- lapply(dsts, function(l){
-    ds_len <- nchar(x[[l]]$values)
+    val <- x[[l]]$values
+    xlen <- fmt(x[[l]]$lengths)
+    if(length(val) > 5) val <- c(val[1:5], "..truncated..")
+    if(length(xlen) > 5) xlen <- c(xlen[1:5], "..truncated..")
+    ds_len <- nchar(val)
     pd_len <- ifelse(ds_len > 20, 1, 20 - ds_len)
     pd_txt <- unlist(lapply(pd_len, function(j) paste0(rep(" ", j), collapse = "")), use.names = FALSE)
-    ds_txt <- ifelse(nchar(x[[l]]$values) > 20,
-                     paste0(substr(x[[l]]$values, 1, 20), "~"),
-                     x[[l]]$values)
+    ds_txt <- ifelse(nchar(val) > 20,
+                     paste0(substr(val, 1, 20), "~"),
+                     val)
 
     if(length(ds_len) > 0){
-      ds_txt <- paste0("     \"", ds_txt, "\":", pd_txt,
-                       fmt(x[[l]]$lengths), collapse = "\n")
+      ds_txt <- paste0("     ", ds_txt, ":", pd_txt,
+                       xlen, collapse = "\n")
     }else{
       ds_txt <- "     N/A"
     }
+    ds_txt <- gsub("..truncated..:", "..truncated..", ds_txt)
     ds_txt
   })
   ds_txts <- unlist(ds_txts, use.names = FALSE)
@@ -892,8 +906,9 @@ summary.pid <- function(object, ...){
   summ$total_groups <- length(object[!duplicated(object@.Data)])
   x <- object@pid_total[!duplicated(object@.Data)]
   summ$pid_total <- dst_tab(x[order(x)])
-  if(length(summ$epid_total$values) > 0){
+  if(length(summ$pid_total$values) > 0){
     summ$pid_total$values <- paste0(summ$pid_total$values, " records")
+    summ$pid_total$values[summ$pid_total$values == "1 records"] <- "1 record"
   }
   x <- object@pid_cri
   l <- x[!duplicated(x)]
@@ -914,7 +929,7 @@ summary.pid <- function(object, ...){
 print.pid_summary <- function(x, ...){
   dsts <- c("pid_cri", "data_source", "pid_total")
   mx_ds_len <- lapply(dsts, function(l){
-    nchar(x[[l]]$values)
+    nchar(if(length(val) > 5 & l != "pid_cri") val[1:5] else val)
   })
   mx_ds_len <- unlist(mx_ds_len, use.names = FALSE)
   mx_ds_len <- max(mx_ds_len)
@@ -922,16 +937,20 @@ print.pid_summary <- function(x, ...){
   mx_pd_len <- ifelse(mx_ds_len > 20, 1, 20 - mx_ds_len)
 
   ds_txts <- lapply(dsts, function(l){
-    ds_len <- nchar(x[[l]]$values)
+    val <- x[[l]]$values
+    xlen <- fmt(x[[l]]$lengths)
+    if(length(val) > 5 & l != "pid_cri") val <- c(val[1:5], "..truncated..")
+    if(length(xlen) > 5 & l != "pid_cri") xlen <- c(xlen[1:5], "..truncated..")
+    ds_len <- nchar(val)
     pd_len <- ifelse(ds_len > 20, 1, 20 - ds_len)
     pd_txt <- unlist(lapply(pd_len, function(j) paste0(rep(" ", j), collapse = "")), use.names = FALSE)
-    ds_txt <- ifelse(nchar(x[[l]]$values) > 20,
-                     paste0(substr(x[[l]]$values, 1, 20), "~"),
-                     x[[l]]$values)
+    ds_txt <- ifelse(nchar(val) > 20,
+                     paste0(substr(val, 1, 20), "~"),
+                     val)
 
     if(length(ds_len) > 0){
-      ds_txt <- paste0("     \"", ds_txt, "\":", pd_txt,
-                       fmt(x[[l]]$lengths), collapse = "\n")
+      ds_txt <- paste0("     ", ds_txt, ":", pd_txt,
+                       xlen, collapse = "\n")
     }else{
       ds_txt <- "     N/A"
     }

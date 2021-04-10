@@ -14,7 +14,7 @@ knitr::opts_chunk$set(
 ## New features
 + New function - `links_wf_probabilistic()`. Probabilistic record linkage.
 + New function - `partitions()`. Spilt events into sections in time.
-+ New function - `schema()`. Plot schema diagrams for `pids`, `epids` and `number_line` objects.
++ New function - `schema()`. Plot schema diagrams for `pid`, `epid`, `pane` and `number_line` objects.
 + New functions - `encode()` and `decode()`. Encoding and decoding slots values to minimise memory usage.
 + New argument - `case_sub_criteria` and `recurrence_sub_criteria` in `episodes()`. Additional matching conditions for temporal links.
 + New argument - `case_length_total` and `recurrence_length_total` in `episodes()`. Number of temporal links required for a `window`/`episode`.

@@ -498,9 +498,9 @@ epids$exact
 <img src = "fig_e10.png" width = "1000" height="580">
 
 # Strengths and limitations
- `episodes()` is implemented as a loop. Although, the function continues to be optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The exact time taken to complete an iteration will depend on a machine's specifications but the number of iterations required to complete the tracking process is constant. The time difference due to an additional iteration will be negligible when analysing small datasets but can become noticeable with much larger datasets.
+ `episodes()` is implemented as a loop. Although, the function continues to be optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The exact time taken to complete an iteration will depend on a machine's specifications but the number of iterations required to complete the tracking process is constant. This additional processing is often negligible when analysing small datasets but becomes more noticeable with much larger datasets and more complex `case_sub_criteria` or `recurrence_sub_criteria`.
 
-In general, this issue can be mitigated by reducing the number of iterations required to complete the episode tracking process. There are two ways of achieving this. These are summarised below. 
+In general, this issue can be mitigated by taking measures to either reducing the number of iterations required to complete the episode tracking process or reducing the number of records being assessed. Examples are described below. 
 
 ## Efficient use of arguments
 Different combinations of arguments can lead to the same outcome however, each will often require different number of iterations to complete the same process. In general, shorter and multiple `case_length` and `recurrence_length`, fewer `strata`, and the use of `custom_sort`, a `sub_criteria` and multiple index events will increase the number of iterations required to complete the process. A good understanding of each argument will be beneficial in knowing the most efficient combination of arguments to use for a case definition. For example, `ep4` was created with a `sub_criteria` and took 9 iterations to complete.
@@ -562,6 +562,29 @@ system.time(
 
 Therefore, unless required, multiple index events should be avoided.
 
+### Reduce the number of records being assessed
+To further reduce the processing time, exact duplicates such as same day events can be excluded prior to the tracking process. These duplicate events can be linked back to the group identifier if they were indexed before exclusion. See the example below.
+
+```{r warning=FALSE}
+# Duplicate events
+dup_events2 <- rep(event_dt, 10000)
+# Fast
+system.time(
+  ep24a <- episodes(dup_events2, case_length = 5, episode_type = "fixed")  
+)
+# Faster
+system.time(
+  {ep24b <- episodes(event_dt, case_length = 5, episode_type = "fixed")
+  ep24b <- ep24b[match(dup_events2, event_dt)]}
+)
+
+# Same outcomes - identical identifiers
+all(ep24a == ep24b)
+
+# and same number of iterations
+max(ep24a@iteration); max(ep24b@iteration)
+```
+
 ### Stop episode tracking
 `episode_max`, `rolls_max` and `skip_order` are arguments used to stop the episode tracking process once certain conditions are met. By doing this, the total number of iterations and processing time is therefore reduced. `episodes_max` specifies the maximum number of episodes required from a `strata`. `rolls_max` specifies the number of recurrences an index case is allowed. `skip_order` stops the episode tracking process when all records with the `nth` level of a `custom_sort` have been linked to an episode. `skip_order` is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two `"Rare"` events and 20 `"Common"` events, and takes 11 iterations to complete.
 
@@ -570,18 +593,18 @@ Therefore, unless required, multiple index events should be avoided.
 attr_4 <- c(rep("Common", 5), "Rare", rep("Common", 12), "Rare", rep("Common", 3))
 attr_4 <- factor(attr_4, levels = c("Rare", "Common"))
 
-dup_events_2 <- rep(event_dt, 2)
-ep24a <- episodes(dup_events_2, case_length = 0, custom_sort = attr_4, data_source = attr_4)
-summary(ep24a)
+dup_events_3 <- rep(event_dt, 2)
+ep25a <- episodes(dup_events_3, case_length = 0, custom_sort = attr_4, data_source = attr_4)
+summary(ep25a)
 ```
 
 However, if a user is only interested in episodes with `"Rare"` events, `skip_order` can be used to stop the process when all `"Rare"` events (1^st^ level of `custom_sort`) have been assigned to an episode. This takes 3 iterations to complete the process, skipping 8 iterations that would have produced episodes without `"Rare"` events.
 
 ```{r warning=FALSE}
-ep24b <- episodes(dup_events_2, case_length = 0, custom_sort = attr_4, skip_order = 1, 
+ep25b <- episodes(dup_events_3, case_length = 0, custom_sort = attr_4, skip_order = 1, 
                   data_source = attr_4)
 
-summary(ep24b)
+summary(ep25b)
 ```
 
 ```{r warning=FALSE, include=FALSE}
@@ -605,7 +628,7 @@ summary(ep24b)
 <img src = "fig_e12.png" width = "1000" height="290">
 
 # Miscellaneous tips
-## Tracking episodes in other units of time
+## Track episodes in other units of time
 Episodes can be tracked in other units of time using the `episode_unit` argument. Acceptable options are `"seconds"`, `"minutes"`, `"hours"`, `"days"`, `"weeks"`, `"months"` or `"years"`. Below is an example of episode tracking by the hour compared to tracking them by day (default).
 
 ```{r warning=FALSE, message=FALSE}
