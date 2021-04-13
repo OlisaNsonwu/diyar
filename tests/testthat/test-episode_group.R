@@ -37,7 +37,7 @@ rolling_episodes <- function(...){
   if(class(x) == "epid") x@options <- list()
   x
 }
-
+decode <- function(x) as.vector(diyar::decode(x))
 # episode grouping with episode_group()
 test_1 <- cbind(head(data,10),
                 episode_group(head(data,10), strata = pid, date = date, case_length = episode_len, group_stats = T, to_s4 = F))

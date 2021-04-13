@@ -122,7 +122,7 @@ links <- function(criteria,
                   group_stats = FALSE,
                   expand = TRUE,
                   shrink = FALSE,
-                  recursive = TRUE,
+                  recursive = FALSE,
                   check_duplicates = FALSE){
   tm_a <- Sys.time()
 
@@ -130,16 +130,10 @@ links <- function(criteria,
     sub_criteria <- list(sub_criteria)
   }
   # Validations
-  err <- err_links_checks_0(criteria,
-                            sub_criteria,
-                            sn,
-                            strata,
-                            data_source,
-                            data_links,
-                            display,
-                            group_stats,
-                            expand,
-                            shrink)
+  err <- err_links_checks_0(criteria, sub_criteria,
+                            sn, strata, data_source, data_links,
+                            display,group_stats, expand, shrink,
+                            recursive, check_duplicates)
 
   if(!isFALSE(err)) stop(err, call. = FALSE)
   if(class(criteria) != "list") criteria <- list(criteria)

@@ -290,29 +290,29 @@ Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specif
 #&gt; 
 #&gt; $pid_weights
 #&gt;      sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
-#&gt; [1,]    1    7            0            1               1                 1
+#&gt; [1,]    1    1            0            1               1                 1
 #&gt; [2,]    2    2           NA           NA              NA                NA
 #&gt; [3,]    3    3           NA           NA              NA                NA
 #&gt; [4,]    4    4           NA           NA              NA                NA
 #&gt; [5,]    5    5           NA           NA              NA                NA
-#&gt; [6,]    6    7            1            1               1                 1
-#&gt; [7,]    7    7            1            1               1                 1
+#&gt; [6,]    6    1            0            1               1                 1
+#&gt; [7,]    7    1            0            1               1                 1
 #&gt;      cmp.weight cmp.threshold prb.staff_id prb.initials prb.hair_colour
 #&gt; [1,]          3            NA    -4.321928     1.148392        1.733354
 #&gt; [2,]         NA            NA           NA           NA              NA
 #&gt; [3,]         NA            NA           NA           NA              NA
 #&gt; [4,]         NA            NA           NA           NA              NA
 #&gt; [5,]         NA            NA           NA           NA              NA
-#&gt; [6,]          4            NA     1.733354     1.148392        2.733354
-#&gt; [7,]          4            NA     1.733354     1.148392        1.733354
+#&gt; [6,]          3            NA    -3.836501     1.148392        2.733354
+#&gt; [7,]          3            NA    -3.836501     1.148392        1.733354
 #&gt;      prb.branch_office prb.weight prb.threshold
 #&gt; [1,]          1.733354  0.2931724             1
 #&gt; [2,]                NA         NA            NA
 #&gt; [3,]                NA         NA            NA
 #&gt; [4,]                NA         NA            NA
 #&gt; [5,]                NA         NA            NA
-#&gt; [6,]          2.733354  8.3484549             1
-#&gt; [7,]          1.733354  6.3484549             1
+#&gt; [6,]          2.733354  2.7785993             1
+#&gt; [7,]          1.733354  0.7785993             1
 #&gt; </div><div class='input'>
 <span class='co'># Results for specific record pairs</span>
 <span class='no'>prob_pids3</span> <span class='kw'>&lt;-</span> <span class='fu'>links_wf_probabilistic</span>(<span class='kw'>attribute</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>as.list</a></span>(<span class='no'>dfr</span>),

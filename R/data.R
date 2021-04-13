@@ -91,3 +91,11 @@
 #' @examples
 #' data(episode_unit)
 "episode_unit"
+
+#' @details Permutations of \code{\link{number_line}} overlap methods
+#' @usage data(overlap_methods)
+#' @format list
+#' @rdname patient_list
+#' @examples
+#' data(overlap_methods)
+"overlap_methods"

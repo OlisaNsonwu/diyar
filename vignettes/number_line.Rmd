@@ -21,7 +21,7 @@ library(ggplot2)
 ```
 
 # Introduction
-A `number_line` object is a range of `numeric` values. `interval` objects (`lubridate` package) are the inspiration for `number_line` objects as they are similar but `number_line` supports any `numeric` based object class.
+A `number_line` object is a range of `numeric` values. `number_line` objects as based off `interval` objects from the `lubridate` package but supports any object that can be successfully coerced to a `numeric` object.
 
 # Overview
 ```{r include = FALSE}
@@ -38,7 +38,7 @@ For a given `number_line` object e.g. ``r format(exp)``, its main components are
 + `direction` - `"decreasing"` `(<-)`, `"increasing"` `(->)` or no direction `(==)`
 + `number_line_width()` - difference between the left and right points `i.e.` ``r number_line_width(exp) ``
 
-For an `"increasing"` `number_line`, the `start_point()` is at the `left_point()`. In contrast, the `start_point()`  of a `"decreasing"` `number_line` is at the `right_point()`.
+For an `"increasing"` `number_line`, its `start_point()` is at the `left_point()`. In contrast, the `start_point()` of a `"decreasing"` `number_line` is at the `right_point()`.
 
 ```{r message = FALSE, warning = FALSE}
 library(diyar)
@@ -55,7 +55,7 @@ left_point(nl_a)
 # Implementation
 
 ## Manipulating a `number_line`
-There are convenience functions to reverse, shrink, expand, or shift a `number_line` along the number line.
+There are convenience functions to reverse, shrink, expand or shift a `number_line` along the number line.
 
 ```{r message = FALSE, warning = FALSE}
 nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"), as.Date("07/04/2019", "%d/%M/%Y"))
@@ -90,7 +90,7 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
 ```
 
 ## Overlaps
-`number_line` objects can overlap with each other. `diyar` recognises seven ways this can happen. These are `exact()`, `reverse()`, `inbetween()`, `"across()`, `chain()`, `aligns_start()` and `aligns_end()`. The 7 methods are mutually exclusive. There are 2 convenience methods - `"none"` and `overlap()`, which are mutually inclusive with the other 7. See Figure 1.
+`number_line` objects can overlap with each other. `diyar` recognises seven ways this can happen. These are `exact()`, `reverse()`, `inbetween()`, `across()`, `chain()`, `aligns_start()` and `aligns_end()`. The 7 methods are mutually exclusive. There are 2 convenience methods - `"none"` and `overlap()`, which are mutually inclusive with the other 7. See Figure 1.
 
 ```{r warning=FALSE, include=FALSE}
  # exact <- c(number_line(1, 2), number_line(1, 2),

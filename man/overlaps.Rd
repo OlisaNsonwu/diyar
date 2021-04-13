@@ -13,9 +13,10 @@
 \alias{overlap_method}
 \alias{include_overlap_method}
 \alias{exclude_overlap_method}
+\alias{overlap_method_codes}
 \title{Overlapping number line objects}
 \usage{
-overlaps(x, y, methods = "overlap", method = "overlap")
+overlaps(x, y, methods = 8)
 
 overlap(x, y)
 
@@ -38,15 +39,16 @@ overlap_method(x, y)
 include_overlap_method(methods)
 
 exclude_overlap_method(methods)
+
+overlap_method_codes(methods)
 }
 \arguments{
 \item{x}{\code{[\link{number_line}]}}
 
 \item{y}{\code{[\link{number_line}]}}
 
-\item{methods}{\code{[charater]}. Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.}
-
-\item{method}{\code{[charater]}. Deprecated. Please use \code{methods} instead. Method of overlap. Check every pair of \code{number_line} objects by the same \code{method}.}
+\item{methods}{\code{[charater|integer]}. Methods of overlap. Check different pairs of \code{number_line} objects by different \code{methods}. Options are \code{"exact"}, \code{"reverse"}, \code{"inbetween"}, \code{"across"}, \code{"chain"}, \code{"aligns_start"} and \code{"aligns_end"}.
+Combinations are also supported see \code{diyar::overlap_methods$options}.}
 }
 \value{
 \code{logical}; \code{character}
@@ -73,7 +75,7 @@ Identify overlapping \code{number_line} objects
 
 \bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" methods of overlap.
 
-\bold{\code{overlaps()}} - overlap by any set of the 8 methods above.
+\bold{\code{overlaps()}} - overlap by a specified combination of the methods.
 
 \bold{Describe methods of overlap;}
 
@@ -81,6 +83,8 @@ Identify overlapping \code{number_line} objects
 Does not show \code{"overlap"} since \bold{\code{overlap()}} is always \code{TRUE} when any other method is \code{TRUE}.
 
 \bold{\code{include_overlap_method()}} and \bold{\code{exclude_overlap_method()}} - Conveniently create the required values for \code{methods}, and \code{case_overlap_methods} and \code{recurrence_overlap_methods} in \code{\link{episodes}}.
+
+\bold{\code{overlap_method_codes()}} - Numeric codes for the supported combination of overlap methods.
 }
 \examples{
 a <- number_line(-100, 100)
@@ -128,6 +132,9 @@ include_overlap_method(c("across", "chain"))
 
 exclude_overlap_method("across")
 exclude_overlap_method(c("across", "chain"))
+
+overlap_method_codes("across")
+overlap_method_codes("across|chain|exact")
 }
 \seealso{
 \code{\link{number_line}};  \code{\link{set_operations}}

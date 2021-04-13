@@ -150,7 +150,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
+  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>recurrence_overlap_methods</span> <span class='kw'>=</span> <span class='no'>case_overlap_methods</span>,
   <span class='kw'>skip_if_b4_lengths</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -178,7 +178,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
+  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>recurrence_overlap_methods</span> <span class='kw'>=</span> <span class='no'>case_overlap_methods</span>,
   <span class='kw'>skip_if_b4_lengths</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
@@ -201,7 +201,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
   <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>,
   <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
+  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>display</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
   <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
@@ -209,8 +209,8 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>recurrence_overlap_methods</span> <span class='kw'>=</span> <span class='no'>case_overlap_methods</span>,
   <span class='kw'>include_index_period</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>,
-  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
-  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
+  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
+  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='no'>x</span>
 )
 
@@ -220,15 +220,15 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='no'>case_length</span>,
   <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>,
   <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
+  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='kw'>recurrence_overlap_methods</span> <span class='kw'>=</span> <span class='no'>case_overlap_methods</span>,
   <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>display</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
   <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>include_index_period</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='no'>...</span>,
-  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
-  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>,
+  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
+  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fl'>8</span>,
   <span class='no'>x</span>
 )
 
@@ -276,11 +276,11 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>case_overlap_methods</th>
-      <td><p><code>[character]</code>. Methods of overlap considered when tracking duplicates of <code>"case"</code> events. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
+      <td><p><code>[character|integer]</code>. Methods of overlap considered when tracking duplicates of <code>"case"</code> events. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
     </tr>
     <tr>
       <th>recurrence_overlap_methods</th>
-      <td><p><code>[character]</code>. Methods of overlap considered when tracking duplicates of <code>"recurrent"</code> events. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
+      <td><p><code>[character|integer]</code>. Methods of overlap considered when tracking duplicates of <code>"recurrent"</code> events. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
     </tr>
     <tr>
       <th>skip_if_b4_lengths</th>
@@ -412,8 +412,8 @@ This aims to reduce the overall processing time for the tracking process. See <c
 <p><b><code>episode_group()</code></b> has been retired.
 It now only exists to support previous code with minimal input from users.
 Moving forward, please use <b><code>episodes()</code></b>.</p>
-<p><b><code>rolling_episodes()</code></b> and <b><code>rolling_episodes()</code></b> has been retired.
-They now only exists to support previous code with minimal input from users.
+<p><b><code>rolling_episodes()</code></b> and <b><code>rolling_episodes()</code></b> are convenience functions
+to support previous code with minimal input from users.
 Moving forward, please use <b><code>episodes()</code></b>.</p>
 <p>See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for more information.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>

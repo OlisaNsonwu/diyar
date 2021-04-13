@@ -138,7 +138,7 @@
     <p>Identify overlapping <code>number_line</code> objects</p>
     </div>
 
-    <pre class="usage"><span class='fu'>overlaps</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>, <span class='kw'>method</span> <span class='kw'>=</span> <span class='st'>"overlap"</span>)
+    <pre class="usage"><span class='fu'>overlaps</span>(<span class='no'>x</span>, <span class='no'>y</span>, <span class='kw'>methods</span> <span class='kw'>=</span> <span class='fl'>8</span>)
 
 <span class='fu'>overlap</span>(<span class='no'>x</span>, <span class='no'>y</span>)
 
@@ -160,7 +160,9 @@
 
 <span class='fu'>include_overlap_method</span>(<span class='no'>methods</span>)
 
-<span class='fu'>exclude_overlap_method</span>(<span class='no'>methods</span>)</pre>
+<span class='fu'>exclude_overlap_method</span>(<span class='no'>methods</span>)
+
+<span class='fu'>overlap_method_codes</span>(<span class='no'>methods</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -175,11 +177,8 @@
     </tr>
     <tr>
       <th>methods</th>
-      <td><p><code>[charater]</code>. Methods of overlap. Check different pairs of <code>number_line</code> objects by different <code>methods</code>. Options are <code>"exact"</code>, <code>"reverse"</code>, <code>"inbetween"</code>, <code>"across"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>.</p></td>
-    </tr>
-    <tr>
-      <th>method</th>
-      <td><p><code>[charater]</code>. Deprecated. Please use <code>methods</code> instead. Method of overlap. Check every pair of <code>number_line</code> objects by the same <code>method</code>.</p></td>
+      <td><p><code>[charater|integer]</code>. Methods of overlap. Check different pairs of <code>number_line</code> objects by different <code>methods</code>. Options are <code>"exact"</code>, <code>"reverse"</code>, <code>"inbetween"</code>, <code>"across"</code>, <code>"chain"</code>, <code>"aligns_start"</code> and <code>"aligns_end"</code>.
+Combinations are also supported see <code>diyar::overlap_methods$options</code>.</p></td>
     </tr>
     </table>
 
@@ -197,11 +196,12 @@
 <p><b><code>aligns_start()</code></b> - identical start points only.</p>
 <p><b><code>aligns_end()</code></b> - identical end point only.</p>
 <p><b><code>overlap()</code></b> - any kind of overlap. A convenient <code>method</code> for "ANY" and "ALL" methods of overlap.</p>
-<p><b><code>overlaps()</code></b> - overlap by any set of the 8 methods above.</p>
+<p><b><code>overlaps()</code></b> - overlap by a specified combination of the methods.</p>
 <p><b>Describe methods of overlap;</b></p>
 <p><b><code>overlap_method()</code></b> - Shows how a pair of <code>number_line</code> object has overlapped.
 Does not show <code>"overlap"</code> since <b><code>overlap()</code></b> is always <code>TRUE</code> when any other method is <code>TRUE</code>.</p>
 <p><b><code>include_overlap_method()</code></b> and <b><code>exclude_overlap_method()</code></b> - Conveniently create the required values for <code>methods</code>, and <code>case_overlap_methods</code> and <code>recurrence_overlap_methods</code> in <code><a href='episodes.html'>episodes</a></code>.</p>
+<p><b><code>overlap_method_codes()</code></b> - Numeric codes for the supported combination of overlap methods.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='number_line.html'>number_line</a></code>;  <code><a href='set_operations.html'>set_operations</a></code></p></div>
@@ -225,8 +225,9 @@ Does not show <code>"overlap"</code> since <b><code>overlap()</code></b> is alwa
 <span class='fu'>aligns_end</span>(<span class='no'>d</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>aligns_end</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
 <span class='fu'>inbetween</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'><span class='fu'>inbetween</span>(<span class='no'>b</span>, <span class='no'>a</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'>
 <span class='fu'>overlap_method</span>(<span class='no'>a</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] "chain"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>d</span>, <span class='no'>c</span>)</div><div class='output co'>#&gt; [1] "aligns_start"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>a</span>, <span class='no'>g</span>)</div><div class='output co'>#&gt; [1] "aligns_end"</div><div class='input'><span class='fu'>overlap_method</span>(<span class='no'>b</span>, <span class='no'>e</span>)</div><div class='output co'>#&gt; [1] "none"</div><div class='input'>
-<span class='fu'>include_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "across"</div><div class='input'><span class='fu'>include_overlap_method</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] "across|chain"</div><div class='input'>
-<span class='fu'>exclude_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] "exact|chain|aligns_start|aligns_end|inbetween|reverse"</div><div class='input'><span class='fu'>exclude_overlap_method</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] "exact|aligns_start|aligns_end|inbetween|reverse"</div></pre>
+<span class='fu'>include_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] 1</div><div class='input'><span class='fu'>include_overlap_method</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] 12</div><div class='input'>
+<span class='fu'>exclude_overlap_method</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] 440</div><div class='input'><span class='fu'>exclude_overlap_method</span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"across"</span>, <span class='st'>"chain"</span>))</div><div class='output co'>#&gt; [1] 338</div><div class='input'>
+<span class='fu'>overlap_method_codes</span>(<span class='st'>"across"</span>)</div><div class='output co'>#&gt; [1] 1</div><div class='input'><span class='fu'>overlap_method_codes</span>(<span class='st'>"across|chain|exact"</span>)</div><div class='output co'>#&gt; [1] 59</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

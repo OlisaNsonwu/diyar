@@ -14,6 +14,7 @@
 \alias{hourly_data}
 \alias{Opes}
 \alias{episode_unit}
+\alias{overlap_methods}
 \title{Datasets in \code{diyar} package}
 \format{
 data.frame
@@ -37,6 +38,8 @@ An object of class \code{data.frame} with 5 rows and 4 columns.
 data.frame
 
 data.frame
+
+list
 
 list
 }
@@ -64,6 +67,8 @@ data(hourly_data)
 data(Opes)
 
 data(episode_unit)
+
+data(overlap_methods)
 }
 \description{
 Datasets in \code{diyar} package
@@ -84,6 +89,8 @@ Hourly data
 Opes - List of individuals with the same name
 
 Duration in seconds for each 'episode_unit'
+
+Permutations of \code{\link{number_line}} overlap methods
 }
 \examples{
 data(staff_records)
@@ -98,5 +105,6 @@ data(patient_list_2)
 data(hourly_data)
 data(Opes)
 data(episode_unit)
+data(overlap_methods)
 }
 \keyword{datasets}

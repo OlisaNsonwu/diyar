@@ -24,12 +24,12 @@ dttm <- function(x) as.POSIXct(x, "UTC", format = "%d/%m/%Y %H:%M:%S")
 ```
 
 # Introduction
-In epidemiological analyses an exact distinction between temporal events is not always possible. Thus, static but reasonable cut-offs are used to distinguish one case of an event from another. This is an important aspect of most case definitions. For example, distinguishing repeat or recurrent infections in a patient from their first occurrence.
+In epidemiological analyses an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-offs are used to distinguish one case of an event from another. This is an important aspect of most case definitions. For example, distinguishing repeat or recurrent infections in a patient from first occurrence of the infection.
 
 Scripting such case definitions in `R` can be challenging. `episodes()` and `partitions()` provide a convenient but flexible solution to this. It links events into a temporal sequence, creating a unique group identifier with useful information about each group. These identifiers can then be used for record deduplication or further analyses.
 
 # Overview
-The group identifiers created by `episodes()` and `partitions()` are called episodes (`epid` class) and panes (`pane` class) respectively. `episodes()` creates three type of episodes - `"fixed"`, `"rolling"` and `"recursive"`. In `diyar`, a fixed episode is created by linking an index event to other events occuring within a specified period from of it. This results in a `"Case"` (index event) and related duplicate events (`"Duplicate_C"`). In a rolling episode, the process is repeated using another event from the existing episode as the reference event. This results in a `"Recurrent"` event and additional duplicate (`"Duplicate_R"`) events. Here, this repetition is referred to as a recurrence. Unless specified, recurrences will recur indefinitely until there are no more events within the period of recurrence. When this happens, the chain of recurrence ends and so does the episode. A recursive episode is similar to a rolling episode except that every event in the existing episode is used as a reference event. In contrast, a pane is created by separating events into set periods in time. The events in a pane have no relationship with each other, other than being in the same period or numeric interval. See the figure and example below.
+The group identifiers created by `episodes()` and `partitions()` are called episodes (`epid` class) and panes (`pane` class) respectively. `episodes()` creates three type of episodes - `"fixed"`, `"rolling"` and `"recursive"`. In `diyar`, a fixed episode is created by linking an index event to other events occurring within a specified period from of it. This results in a `"Case"` (index event) and related duplicate events (`"Duplicate_C"`). In a rolling episode, the process is repeated using another event from the existing episode as the reference event. This results in a `"Recurrent"` event and additional duplicate (`"Duplicate_R"`) events. Here, this repetition is referred to as a recurrence. Unless specified, recurrences will continue indefinitely until there are no more events within the period of recurrence. When this happens, the chain of recurrence ends and so does the episode. A recursive episode is similar to a rolling episode except that every event in the existing episode is used as a reference event. On the other hand, a pane is created by separating events into set periods in time. The events in a pane have no relationship with each other, other than occurring in the same period or numeric interval. See the figure and example below.
 
 ```{r warning=FALSE}
 # Events
@@ -87,9 +87,9 @@ Figure 1 gives a visual representation of the difference between these identifie
 <img src = "fig_e1.png" width = "1000" height="580">
 
 # Implementation
-The main considerations in a case definition are accounted for in a flexible and modular way, so that most considerations can addressed independently or in a compounding manner. These considerations are summarised below.
+The main considerations in a case definition are accounted for in these functions using a flexible and modular approach. Therefore, most considerations can be addressed independently or in a compounding manner. These considerations are summarised below.
 
-## Criteria for an event's attribute
+## Matching criteria based on an event's attribute
 Additional matching criteria (separate from temporal links) can be implemented by the `strata`, `case_sub_criteria` and `recurrence_sub_criteria` arguments. `strata` introduces a blocking attribute which forces separate episodes and panes for different subsets of the dataset.
 
 The figure and example below show how the `strata` argument is used.
@@ -121,7 +121,7 @@ ep2 <- episodes(event_dt, strata = attr_2, case_length = 5)
 **Figure 2: Using a `strata` to specify additional criteria for linked events**
 <img src = "fig_e2.png" width = "1000" height="290">
 
-In contrast, the `case_sub_criteria` and `recurrence_sub_criteria` arguments apply a set of matching criteria to attributes associated with the events being compared. These arguments take a `sub_criteria` object. `sub_criteria` objects and how they are used are described in greater detail in `vignette("links")`. In summary, they contain a set of atomic vectors as attributes, a set of corresponding logical tests for each condition and another set of logical tests for the equivalence of values in an attribute. The evaluation of a `sub_criteria` is recursive and so allows for nested conditions.
+In contrast, the `case_sub_criteria` and `recurrence_sub_criteria` arguments apply a set of matching criteria for attributes associated with the events being compared. These arguments take a `sub_criteria` object. `sub_criteria` objects and how they are used are described in greater detail in `vignette("links")`. In summary, they contain a set of atomic vectors as attributes, a set of corresponding logical tests for each attribute and another set of logical tests for the equivalence of values in each attribute. The evaluation of a `sub_criteria` is recursive and so allows for nested conditions.
 
 The figure and example below show how the `case_sub_criteria` and `recurrence_sub_criteria` arguments are used.
 
@@ -246,7 +246,7 @@ pn2 <- partitions(event_dt, length.out = 2, separate = TRUE)
 # Group events into 3-day sequences over the strata's duration
 pn3 <- partitions(event_dt, by = 3, separate = TRUE)
 
-# Group events into a specified period of time 
+# Group events that occured in a specified period of time 
 pn4 <- partitions(event_dt, window = number_line(event_dt[4], event_dt[7]))
 
 # Group events from separate periods into one pane
@@ -435,7 +435,7 @@ dfr
 **Figure 9: Tracking episodes of overlapping intervals**
 <img src = "fig_e9.png" width = "1000" height="290">
 
-Currently, the `diyar` packages recognises 7 mutually exclusive and 2 mutually inclusive way intervals can overlap. Please see `vignette("number_line")` for more details about this. Using `case_overlap_methods` and `recurrence_overlap_methods`, the episode tracking process can be made to only capture intervals that overlap by specific methods. See the example below.
+Currently, the `diyar` packages recognises 7 mutually exclusive and 2 mutually inclusive ways a pair of intervals can overlap. Please see `vignette("number_line")` for more details about this. Using `case_overlap_methods` and `recurrence_overlap_methods`, the episode tracking process can be made to only capture intervals that overlap by specific methods. See the example below.
 
 ```{r warning=FALSE}
 # Wrapper function for a fixed episode
@@ -496,6 +496,8 @@ epids$exact
 
 **Figure 10: Overlap methods**
 <img src = "fig_e10.png" width = "1000" height="580">
+
+See `overlap_methods$options` for a list of supported options.
 
 # Strengths and limitations
  `episodes()` is implemented as a loop. Although, the function continues to be optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The exact time taken to complete an iteration will depend on a machine's specifications but the number of iterations required to complete the tracking process is constant. This additional processing is often negligible when analysing small datasets but becomes more noticeable with much larger datasets and more complex `case_sub_criteria` or `recurrence_sub_criteria`.
@@ -560,13 +562,13 @@ system.time(
 **Figure 11: Effect of using multiple index events**
 <img src = "fig_e11.png" width = "1000" height="290">
 
-Therefore, unless required, multiple index events should be avoided.
+The three methods have resulted in the same outcome therefore the "fastest" approach is recommended. Unless required, multiple index events should be avoided. A scenario where this would be required would be if a `sub_criteria` is being assessed, and multiple index events can have different attributes.
 
 ### Reduce the number of records being assessed
-To further reduce the processing time, exact duplicates such as same day events can be excluded prior to the tracking process. These duplicate events can be linked back to the group identifier if they were indexed before exclusion. See the example below.
+To further reduce processing time, exact duplicates such as same day events can be excluded prior to the tracking process. These duplicate events can be linked back to the group identifier if they were indexed before exclusion. See the example below.
 
 ```{r warning=FALSE}
-# Duplicate events
+# 10,000 duplicate events from the same `strata` e.g. patient or location
 dup_events2 <- rep(event_dt, 10000)
 # Fast
 system.time(
@@ -574,8 +576,10 @@ system.time(
 )
 # Faster
 system.time(
-  {ep24b <- episodes(event_dt, case_length = 5, episode_type = "fixed")
-  ep24b <- ep24b[match(dup_events2, event_dt)]}
+  {
+    ep24b <- episodes(event_dt, case_length = 5, episode_type = "fixed")
+    ep24b <- ep24b[match(dup_events2, event_dt)]
+    }
 )
 
 # Same outcomes - identical identifiers
@@ -585,7 +589,7 @@ all(ep24a == ep24b)
 max(ep24a@iteration); max(ep24b@iteration)
 ```
 
-### Stop episode tracking
+### Stop early
 `episode_max`, `rolls_max` and `skip_order` are arguments used to stop the episode tracking process once certain conditions are met. By doing this, the total number of iterations and processing time is therefore reduced. `episodes_max` specifies the maximum number of episodes required from a `strata`. `rolls_max` specifies the number of recurrences an index case is allowed. `skip_order` stops the episode tracking process when all records with the `nth` level of a `custom_sort` have been linked to an episode. `skip_order` is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two `"Rare"` events and 20 `"Common"` events, and takes 11 iterations to complete.
 
 ```{r warning=FALSE}

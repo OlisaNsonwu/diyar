@@ -151,7 +151,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>shrink</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>recursive</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
+  <span class='kw'>recursive</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>check_duplicates</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
 )
 
@@ -306,7 +306,7 @@ Moving forward, please use <b><code>links()</code></b>.</p>
       <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='kw'>cr2</span> <span class='kw'>=</span> <span class='fu'><a href='sub_criteria.html'>sub_criteria</a></span>(<span class='no'>missing_staff_id</span>$<span class='no'>initials</span>,
                                           <span class='no'>missing_staff_id</span>$<span class='no'>hair_colour</span>,
                                           <span class='no'>missing_staff_id</span>$<span class='no'>branch_office</span>)),
-      <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>missing_staff_id</span>$<span class='no'>source_1</span>)</div><div class='output co'>#&gt; [1] "P.6 (CRI 002)" "P.2 (CRI 002)" "P.2 (CRI 002)" "P.2 (CRI 002)"
+      <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>missing_staff_id</span>$<span class='no'>source_1</span>)</div><div class='output co'>#&gt; [1] "P.6 (CRI 002)" "P.2 (CRI 002)" "P.3 (CRI 002)" "P.3 (CRI 002)"
 #&gt; [5] "P.2 (CRI 002)" "P.6 (CRI 001)" "P.6 (CRI 001)"</div><div class='input'>
 <span class='co'># Group expansion</span>
 <span class='no'>match_cri</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>,<span class='fl'>1</span>,<span class='fl'>NA</span>,<span class='fl'>NA</span>),

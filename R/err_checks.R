@@ -59,8 +59,8 @@ err_sub_criteria_4 <- function(..., funcs, funcs_l){
   if(!length(funcs) %in% c(0, 1, length(list(...)))){
     lens <- length(list(...))
     return(paste0("Number of logical test (`",funcs_l,"`) must be 1 or the same as the number of matching attributes (`...`):\n",
-         "i - Expecting 1", ifelse(lens > 1, paste0(" or ", lens), ""), ".\n",
-         "X - You've supplied ", length(funcs), " logical tests (`",funcs_l,"`)."))
+                  "i - Expecting 1", ifelse(lens > 1, paste0(" or ", lens), ""), ".\n",
+                  "X - You've supplied ", length(funcs), " logical tests (`",funcs_l,"`)."))
 
   }else{
     FALSE
@@ -145,51 +145,22 @@ err_sub_criteria_6.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
 }
 
 err_sub_criteria_5.0 <- function(sub_cris, funcs_l = "match_funcs", funcs_pos = 2, cri_nm = "sub_criteria"){
-  err <- lapply(seq_len(length(sub_cris)), function(i){
-    l1 <- sub_cris[[i]]
-    y <- lapply(seq_len(length(l1)), function(j){
-      l2 <- l1[[j]]
-      func <- l2[[funcs_pos]]
-      ifelse(all(c("x", "y") %in% methods::formalArgs(func)), NA_character_, F)
-    })
-    y <- unlist(y)
-    names(y) <- paste0("`", funcs_l,"` ", seq_len(length(y)), " of ", toupper(names(sub_cris)[i]))
-    y
-  })
-
-
-  err <- unlist(err, use.names = FALSE)
-  err <- err[!is.na(err)]
-  if(length(err) > 0){
-    err <- paste0("Invalid arguments for `", funcs_l, "` in `", cri_nm, "`:\n",
-                  "i - Each `", funcs_l, "` must have at least two arguments named `x` and `y`.\n",
-                  paste0("X - ", names(err),": Missing `args` `x` or `y`.", collapse = "\n"))
-    err
-  }else{
-    F
+  f1 <- function(l1){
+    sb_attr <- l1[[1]]
+    func <- l1[[funcs_pos]]
+    if(class(sb_attr) == "sub_criteria"){
+      f1(sb_attr[[1]])
+    }else{
+      all(c("x", "y") %in% methods::formalArgs(func))
+    }
   }
-}
 
-err_sub_criteria_5.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
-  err <- lapply(seq_len(length(sub_cris)), function(i){
-    l1 <- sub_cris[[i]]
-    y <- lapply(seq_len(length(l1)), function(j){
-      l2 <- l1[[j]]
-      func <- l2[[2]]
-      ifelse(all(c("x") %in% methods::formalArgs(func)), NA_character_, F)
-    })
-    y <- unlist(y)
-    names(y) <- paste0("`funcs` ", seq_len(length(y)), " of ", toupper(names(sub_cris)[i]))
-    y
-  })
-
-
+  err <- lapply(sub_cris, f1)
   err <- unlist(err, use.names = FALSE)
-  err <- err[!is.na(err)]
-  if(length(err) > 0){
-    err <- paste0("Invalid arguments for `funcs` in `", cri_nm, "`:\n",
-                  "i - Each `funcs` must have at least one argument named `x`.\n",
-                  paste0("X - ", names(err),": Missing `args` `x`", collapse = "\n"))
+
+  if(length(err[!err]) > 0){
+    err <- paste0("Invalid arguments for `", funcs_l, "`:\n",
+                  "i - Each `", funcs_l, "` must have at least two arguments named `x` and `y`.\n")
     err
   }else{
     F
@@ -212,9 +183,9 @@ err_sub_criteria_7 <- function(sub_cris, funcs_l = "match_funcs", funcs_pos = 2,
                silent = TRUE)
       x <- class(e)
       ifelse(x == "logical" & length(e) %in% c(1,5), NA_character_, paste0("Issue with ",
-                                                                    "`", funcs_l, "-", j, "` of ",
-                                                                    "`", cri_nm, "-", i, "`: ",
-                                                                    gsub("\\n", "", e),"."))
+                                                                           "`", funcs_l, "-", j, "` of ",
+                                                                           "`", cri_nm, "-", i, "`: ",
+                                                                           gsub("\\n", "", e),"."))
     })
     y
   })
@@ -241,7 +212,7 @@ err_sub_criteria_9 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
       vec <- l2[[1]]
       e <- func(vec)
       x <- class(e)
-    ifelse(x == "logical" & length(e) == 1, NA_character_, x)
+      ifelse(x == "logical" & length(e) == 1, NA_character_, x)
     })
     y <- unlist(y)
     names(y) <- paste0("`funcs` ", seq_len(length(y)), " of ", toupper(names(sub_cris)[i]))
@@ -262,26 +233,10 @@ err_sub_criteria_9 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
 }
 
 err_sub_criteria_8 <- function(x, cri_nm = "sub_criteria"){
-  if(class(x) == "list"){
-    err <- lapply(x, function(x) class(x) == "sub_criteria")
-    err_1 <- as.logical(err)
-    names(err_1) <- 1:length(err_1)
-
-    if(!all(err_1)){
-      err_lst <- err_1[!err_1]
-      err <- paste0("Invalid input for `", cri_nm, "`:\n",
-                    "i - `", cri_nm, "` must be `sub_criteria` object or a `list` of `sub_criteria objects`.\n",
-                    paste0("X - ",
-                           ifelse(rep(length(err_lst) == 1, length(err_lst)), paste0("`", cri_nm, "`"), paste0("`", cri_nm,"[", names(err_lst), "]`")),": was not created with `",cri_nm,"()`.",
-                           collapse = "\n"))
-      return(err)
-    }else{
-      return(FALSE)
-    }
-  }else{
+  err <- err_object_types(x, cri_nm, c("sub_criteria", "list"))
+  if(!isFALSE(err)) return(err)else{
     return(FALSE)
   }
-
 }
 
 err_data_links_1 <- function(data_source, data_links){
@@ -400,10 +355,10 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err2 <- sort(err2[!duplicated(err2)])
 
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
-      return(paste0("Length of each `", arg_nm, "` and each attribute of `", cri_nm, "` must be the same or equal to 1:\n",
-           "i - Expecting ", listr(unique(c(1, err)), conj = " or"), ".\n",
-           "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(sort(err)), ".\n",
-           "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(sort(err2)), "."))
+    return(paste0("Length of each `", arg_nm, "` and each attribute of `", cri_nm, "` must be the same or equal to 1:\n",
+                  "i - Expecting ", listr(unique(c(1, err)), conj = " or"), ".\n",
+                  "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(sort(err)), ".\n",
+                  "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of attribute(s) in `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(sort(err2)), "."))
   }else{
     F
   }
@@ -416,8 +371,8 @@ err_sub_criteria_3dot_1 <- function(...){
   err <- sort(err[!duplicated(err)])
 
   if(length(err) != 1 | all(err == 0)){
-    paste0("Different lengths for each element in `...` in `sub_criteria()`:\n",
-           "i - Each element in `...` must have the same length.\n",
+    paste0("Different lengths for each attribute (`...`) in `sub_criteria()`:\n",
+           "i - Each at in attribute (`...`) must have the same length.\n",
            "i - This includes recursive evaluations of `list` and `sub_criteria` objects.\n",
            paste0("X - `...` ", "contains elements of lengths ", listr(err),".", collapse = "\n"))
   }else{
@@ -505,9 +460,9 @@ err_episode_type_1 <- function(episode_type){
     opts <- paste0("\"", names(opts),"\"", " at ", opts)
     if(length(opts) >3){
       errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
-      } else{
-        errs <- listr(opts)
-      }
+    } else{
+      errs <- listr(opts)
+    }
     errs <-  paste0("Invalid values for `episode_type`:\n",
                     "i - Vaild values are \"fixed\" or \"rolling\".\n",
                     "X - You've supplied ", errs, ".")
@@ -525,8 +480,8 @@ err_by_1 <- function(by){
 
     if(err != FALSE){
       err <-  paste0("Invalid values for `by`:\n",
-                      "i - `by' must be greater than 0.\n",
-                      "X - `by' is less than 1 at ", err, ".")
+                     "i - `by' must be greater than 0.\n",
+                     "X - `by' is less than 1 at ", err, ".")
       return(err)
     }
 
@@ -581,10 +536,12 @@ err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
 
   if(length(err) > 0){
     err <- paste0("Invalid option for `", overlap_methods_nm, "`\n",
+                  "i - Valid options are integers; 1-", length(overlap_methods$options),".\n",
                   "i - Valid options are \"overlap\", \"exact\", \"reverse\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\n",
-                  "i - Syntax 1 ~ \"aligns_end|exact...\".\n",
-                  "i - Syntax 2 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\n",
-                  "i - Syntax 3 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\n",
+                  "i - Syntax 1 ~ 100.\n",
+                  "i - Syntax 2 ~ \"aligns_end|exact...\".\n",
+                  "i - Syntax 3 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\n",
+                  "i - Syntax 4 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\n",
                   paste0("X - `", overlap_methods_nm, " ", names(err),   "`: You've supplied ", err, ".", collapse = "\n"))
     return(err)
   }else{
@@ -675,17 +632,17 @@ err_object_types <- function(arg, arg_nm, obj_types){
 }
 
 err_episodes_checks_1 <- function(date,
-                             case_length,
-                             recurrence_length,
-                             episode_type,
-                             episode_unit,
-                             case_overlap_methods,
-                             recurrence_overlap_methods,
-                             deduplicate,
-                             display,
-                             bi_direction,
-                             include_index_period,
-                             to_s4){
+                                  case_length,
+                                  recurrence_length,
+                                  episode_type,
+                                  episode_unit,
+                                  case_overlap_methods,
+                                  recurrence_overlap_methods,
+                                  deduplicate,
+                                  display,
+                                  bi_direction,
+                                  include_index_period,
+                                  to_s4){
   # Check for non-atomic vectors
   args <- list(date = date,
                case_length = case_length,
@@ -725,13 +682,13 @@ err_episodes_checks_1 <- function(date,
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
-                       case_overlap_methods = c("list", "character"),
-                       recurrence_overlap_methods = c("list", "character"),
+                       case_overlap_methods = c("list", "numeric", "integer", "character"),
+                       recurrence_overlap_methods = c("list", "numeric", "integer", "character"),
                        episode_unit = "character",
                        deduplicate = "logical",
                        display = "character",
                        bi_direction = "logical",
-                      # from_last = "logical",
+                       # from_last = "logical",
                        include_index_period = "logical",
                        case_length = c("list", "integer", "numeric", "number_line"),
                        recurrence_length = c("list", "integer", "numeric", "number_line"),
@@ -789,7 +746,7 @@ err_episodes_checks_1 <- function(date,
                deduplicate = deduplicate,
                display = display,
                bi_direction = bi_direction,
-              # from_last = from_last,
+               # from_last = from_last,
                include_index_period = include_index_period,
                to_s4 = to_s4)
 
@@ -847,10 +804,10 @@ err_split_nl_1 <- function(x,
                simplify = simplify)
 
   args_classes <- list(x = c("number_line"),
-               by = c("integer", "numeric", "NULL"),
-               length.out = c("integer", "numeric", "NULL"),
-               fill = "logical",
-               simplify = "logical")
+                       by = c("integer", "numeric", "NULL"),
+                       length.out = c("integer", "numeric", "NULL"),
+                       fill = "logical",
+                       simplify = "logical")
 
   err <- mapply(err_object_types,
                 args,
@@ -911,7 +868,7 @@ err_split_nl_1 <- function(x,
 
   fn_check <- finite_check(by)
   if(fn_check!=T) return(paste0("`by` must have finite values:\n",
-                              paste0("X - There are non-finite values in `by",fn_check, "`.")))
+                                paste0("X - There are non-finite values in `by",fn_check, "`.")))
 
   return(FALSE)
 }
@@ -942,6 +899,13 @@ err_episodes_checks_0 <- function(date = 1,
                                   case_length_total = 1,
                                   recurrence_length_total = 1){
 
+  # Standardise `sub_criteria` inputs
+  # if(class(case_sub_criteria) == "sub_criteria"){
+  #   case_sub_criteria <- list(case_sub_criteria)
+  # }
+  # if(class(recurrence_sub_criteria) == "sub_criteria"){
+  #   recurrence_sub_criteria <- list(recurrence_sub_criteria)
+  # }
 
   # Check for non-atomic vectors
   args <- list(date = date,
@@ -992,13 +956,15 @@ err_episodes_checks_0 <- function(date = 1,
                from_last = from_last,
                group_stats = group_stats,
                case_length_total = case_length_total,
-               recurrence_length_total = recurrence_length_total)
+               recurrence_length_total = recurrence_length_total,
+               case_sub_criteria = case_sub_criteria,
+               recurrence_sub_criteria = recurrence_sub_criteria)
 
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
-                       case_overlap_methods = c("list", "character"),
-                       recurrence_overlap_methods = c("list", "character"),
+                       case_overlap_methods = c("list", "numeric", "integer", "character"),
+                       recurrence_overlap_methods = c("list", "numeric", "integer", "character"),
                        episode_unit = "character",
                        display = "character",
                        case_length = c("list", "integer", "numeric", "number_line"),
@@ -1014,7 +980,9 @@ err_episodes_checks_0 <- function(date = 1,
                        from_last = "logical",
                        group_stats = "logical",
                        case_length_total = c("numeric", "integer", "number_line"),
-                       recurrence_length_total = c("numeric", "integer", "number_line"))
+                       recurrence_length_total = c("numeric", "integer", "number_line"),
+                       case_sub_criteria = c("sub_criteria", "NULL"),
+                       recurrence_sub_criteria = c("sub_criteria", "NULL"))
 
   err <- mapply(err_object_types,
                 args,
@@ -1130,10 +1098,10 @@ err_episodes_checks_0 <- function(date = 1,
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err)
-    err <- err_sub_criteria_5.0(case_sub_criteria, cri_nm = "case_sub_criteria")
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "case_sub_criteria")
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_5.0(case_sub_criteria, cri_nm = "case_sub_criteria")
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "case_sub_criteria")
+    # if(err != FALSE) return(err)
     # err <- err_sub_criteria_6.0(case_sub_criteria)
     # if(err != FALSE) return(err)
     # err <- err_sub_criteria_6.0(case_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "case_sub_criteria")
@@ -1149,10 +1117,10 @@ err_episodes_checks_0 <- function(date = 1,
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err)
-    err <- err_sub_criteria_5.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_5.0(recurrence_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_5.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_5.0(recurrence_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
+    # if(err != FALSE) return(err)
     # err <- err_sub_criteria_6.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
     # if(err != FALSE) return(err)
     # err <- err_sub_criteria_6.0(recurrence_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
@@ -1171,16 +1139,17 @@ err_episodes_checks_0 <- function(date = 1,
 }
 
 err_links_checks_0 <- function(criteria,
-                                 sub_criteria,
-                                 sn,
-                                 strata,
-                                 data_source,
-                                 data_links,
-                                 display,
-                                 group_stats,
-                                 expand,
-                                 shrink){
-
+                               sub_criteria,
+                               sn,
+                               strata,
+                               data_source,
+                               data_links,
+                               display,
+                               group_stats,
+                               expand,
+                               shrink,
+                               recursive,
+                               check_duplicates){
 
   # Check for non-atomic vectors
   args <- list(strata = strata,
@@ -1190,7 +1159,9 @@ err_links_checks_0 <- function(criteria,
                group_stats = group_stats,
                expand = expand,
                shrink = shrink,
-               criteria = criteria)
+               criteria = criteria,
+               recursive = recursive,
+               check_duplicates = check_duplicates)
 
   err <- mapply(err_atomic_vectors,
                 args,
@@ -1201,11 +1172,13 @@ err_links_checks_0 <- function(criteria,
 
   # Check for required object types
   args <- list(#strata = strata,
-               data_source = data_source,
-               display = display,
-               group_stats = group_stats,
-               expand = expand,
-               shrink = shrink)
+    data_source = data_source,
+    display = display,
+    group_stats = group_stats,
+    expand = expand,
+    shrink = shrink,
+    recursive = recursive,
+    check_duplicates = check_duplicates)
 
 
   args_classes <- list(display = "character",
@@ -1213,7 +1186,9 @@ err_links_checks_0 <- function(criteria,
                        data_links = c("list", "character"),
                        shrink = "logical",
                        expand = "logical",
-                       group_stats = "logical")
+                       group_stats = "logical",
+                       recursive = "logical",
+                       check_duplicates = "logical")
 
   err <- mapply(err_object_types,
                 args,
@@ -1230,13 +1205,17 @@ err_links_checks_0 <- function(criteria,
                display = display,
                group_stats = group_stats,
                expand = expand,
-               shrink = shrink)
+               shrink = shrink,
+               recursive = recursive,
+               check_duplicates = check_duplicates)
 
   args_lens <- list(data_source = c(0, len_lims),
                     display = 1,
                     group_stats = 1,
                     expand = 1,
-                    shrink = 1)
+                    shrink = 1,
+                    recursive = 1,
+                    check_duplicates = 1)
 
   err <- mapply(err_match_ref_len,
                 args,
@@ -1260,10 +1239,10 @@ err_links_checks_0 <- function(criteria,
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
     if(err != FALSE) return(err)
-    err <- err_sub_criteria_5.0(sub_criteria)
-    if(err != FALSE) return(err)
-    err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
-    if(err != FALSE) return(err)
+    # err <- err_sub_criteria_5.0(sub_criteria)
+    # if(err != FALSE) return(err)
+    # err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
+    # if(err != FALSE) return(err)
     # err <- err_sub_criteria_6.0(sub_criteria)
     # if(err != FALSE) return(err)
     # err <- err_sub_criteria_6.0(sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
@@ -1344,633 +1323,633 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
   }
 }
 
-  err_partitions_checks_0 <- function(date,
-                                 window,
-                                 windows_total ,
-                                 separate,
-                                 sn,
-                                 strata,
-                                 data_source,
-                                 data_links,
-                                 custom_sort,
-                                 group_stats,
-                                 by,
-                                 length.out,
-                                 fill,
-                                 display){
+err_partitions_checks_0 <- function(date,
+                                    window,
+                                    windows_total ,
+                                    separate,
+                                    sn,
+                                    strata,
+                                    data_source,
+                                    data_links,
+                                    custom_sort,
+                                    group_stats,
+                                    by,
+                                    length.out,
+                                    fill,
+                                    display){
 
 
-    # Check for non-atomic vectors
-    args <- list(date = date,
-                 window = window,
-                 windows_total  = windows_total ,
-                 separate = separate,
-                 strata = strata,
-                 custom_sort = custom_sort,
-                 data_source = data_source,
-                 data_links = data_links,
-                 by = by,
-                 length.out = length.out,
-                 fill = fill,
-                 group_stats = group_stats,
-                 display = display)
+  # Check for non-atomic vectors
+  args <- list(date = date,
+               window = window,
+               windows_total  = windows_total ,
+               separate = separate,
+               strata = strata,
+               custom_sort = custom_sort,
+               data_source = data_source,
+               data_links = data_links,
+               by = by,
+               length.out = length.out,
+               fill = fill,
+               group_stats = group_stats,
+               display = display)
 
-    err <- mapply(err_atomic_vectors,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
 
-    # Check for required object types
-    args <- list(date = date,
-                 window = window,
-                 windows_total  = windows_total ,
-                 separate = separate,
-                 #strata = strata,
-                 #custom_sort = custom_sort,
-                 #data_source = data_source,
-                 data_links = data_links,
-                 group_stats = group_stats,
-                 by = by,
-                 length.out = length.out,
-                 fill = fill,
-                 group_stats = group_stats,
-                 display = display )
+  # Check for required object types
+  args <- list(date = date,
+               window = window,
+               windows_total  = windows_total ,
+               separate = separate,
+               #strata = strata,
+               #custom_sort = custom_sort,
+               #data_source = data_source,
+               data_links = data_links,
+               group_stats = group_stats,
+               by = by,
+               length.out = length.out,
+               fill = fill,
+               group_stats = group_stats,
+               display = display )
 
-    args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-                         window = c("numeric", "integer", "number_line", "list"),
-                         windows_total  = c("number_line", "numeric", "integer"),
-                         separate = "logical",
-                         #data_source = c("character", "NULL"),
-                         data_links = c("list", "character"),
-                         group_stats = "logical",
-                         by = c("numeric", "integer", "NULL"),
-                         length.out = c("numeric", "integer", "NULL"),
-                         fill = "logical",
-                         group_stats = "logical",
-                         display = "character")
+  args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
+                       window = c("numeric", "integer", "number_line", "list"),
+                       windows_total  = c("number_line", "numeric", "integer"),
+                       separate = "logical",
+                       #data_source = c("character", "NULL"),
+                       data_links = c("list", "character"),
+                       group_stats = "logical",
+                       by = c("numeric", "integer", "NULL"),
+                       length.out = c("numeric", "integer", "NULL"),
+                       fill = "logical",
+                       group_stats = "logical",
+                       display = "character")
 
-    err <- mapply(err_object_types,
-                  args,
-                  as.list(names(args)),
-                  args_classes[match(names(args), names(args_classes))])
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
 
-    # Check for required object lengths
-    len_lims <- c(1, length(date))
-    args <- list(separate = separate,
-                 strata = strata,
-                 custom_sort = custom_sort,
-                 data_source = data_source,
-                 by = by,
-                 length.out = length.out,
-                 fill = fill,
-                 group_stats = group_stats,
-                 display = display)
+  # Check for required object lengths
+  len_lims <- c(1, length(date))
+  args <- list(separate = separate,
+               strata = strata,
+               custom_sort = custom_sort,
+               data_source = data_source,
+               by = by,
+               length.out = length.out,
+               fill = fill,
+               group_stats = group_stats,
+               display = display)
 
-    args_lens <- list(separate = 1,
-                      strata = c(0, len_lims),
-                      custom_sort = c(0, len_lims),
-                      data_source = c(0, len_lims),
-                      by = c(0, len_lims),
-                      length.out = c(0, len_lims),
-                      fill = c(0, len_lims),
-                      group_stats = 1,
-                      display = 1)
+  args_lens <- list(separate = 1,
+                    strata = c(0, len_lims),
+                    custom_sort = c(0, len_lims),
+                    data_source = c(0, len_lims),
+                    by = c(0, len_lims),
+                    length.out = c(0, len_lims),
+                    fill = c(0, len_lims),
+                    group_stats = 1,
+                    display = 1)
 
-    err <- mapply(err_match_ref_len,
-                  args,
-                  rep(as.list("date"), length(args_lens)),
-                  args_lens[match(names(args), names(args_lens))],
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("date"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
 
-    # Check for missing values where they are not permitted
-    args <- list(window = window,
-                 windows_total  = windows_total ,
-                 separate = separate,
-                 strata = strata,
-                 custom_sort = custom_sort,
-                 data_source = data_source,
-                 data_links = data_links,
-                 by = by,
-                 length.out = length.out,
-                 fill = fill,
-                 group_stats = group_stats,
-                 display = display)
+  # Check for missing values where they are not permitted
+  args <- list(window = window,
+               windows_total  = windows_total ,
+               separate = separate,
+               strata = strata,
+               custom_sort = custom_sort,
+               data_source = data_source,
+               data_links = data_links,
+               by = by,
+               length.out = length.out,
+               fill = fill,
+               group_stats = group_stats,
+               display = display)
 
-    err <- mapply(err_missing_check,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
+  err <- mapply(err_missing_check,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
 
-    err <- err_data_links_1(data_source = data_source, data_links = data_links)
-    if(err != FALSE) return(err)
-    err <- err_data_links_2(data_source = data_source, data_links = data_links)
-    if(err != FALSE) return(err)
-    err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
-    if(err != FALSE) return(err)
-    err <- err_strata_level_args(separate, strata, "separate")
-    if(err != FALSE) return(err)
+  err <- err_data_links_1(data_source = data_source, data_links = data_links)
+  if(err != FALSE) return(err)
+  err <- err_data_links_2(data_source = data_source, data_links = data_links)
+  if(err != FALSE) return(err)
+  err <- err_sn_1(sn = sn, ref_num = length(date), ref_nm = "date")
+  if(err != FALSE) return(err)
+  err <- err_strata_level_args(separate, strata, "separate")
+  if(err != FALSE) return(err)
 
-    if(!is.null(by)){
-      err <- err_by_2(by, date)
-      if(err != FALSE) return(err[1])
-
-      err <- err_strata_level_args(by, strata, "by")
-      if(err != FALSE) return(err)
-    }
-
-    if(!is.null(length.out)){
-      err <- err_lnt_out_1(length.out)
-      if(err != FALSE) return(err[1])
-
-      err <- err_strata_level_args(length.out, strata, "length.out")
-      if(err != FALSE) return(err)
-    }
-
-    err <- err_strata_level_args(fill, strata, "fill")
-    if(err != FALSE) return(err)
-    err <- err_strata_level_args(windows_total , strata, "windows_total")
-    if(err != FALSE) return(err)
-    if(is.number_line(window)){
-      window <- list(window)
-    }
-    err <- err_strata_level_args(window , strata, "window")
-    if(err != FALSE) return(err)
-    err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
-    if(err != FALSE) return(err)
-    return(FALSE)
-  }
-
-  err_spec_vals <- function(x, var, vals){
-    if(any(!tolower(x) %in% tolower(vals))){
-      opts <- x
-      sn <- 1:length(opts)
-
-      opts <- split(sn , opts)
-      opts <- opts[!tolower(names(opts)) %in% tolower(vals)]
-
-      opts <- unlist(lapply(opts, function(x){
-        missing_check(ifelse(sn %in% x, NA, T), 2)
-      }), use.names = T)
-
-      opts <- paste0("\"", names(opts),"\"", " at ", opts)
-      if(length(opts) >3){
-        errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
-      }  else{
-        errs <- listr(opts)
-      }
-      errs <-  paste0("Invalid values for `",var, "`:\n",
-                      "i - Vaild values are ", listr(paste0("\"", vals, "\""), conj = " or"), ".\n",
-                      "X - You've supplied ", errs, ".")
-
-      return(errs)
-    }else{
-      return(FALSE)
-    }
-  }
-
-  err_mins_1 <- function(x, arg){
-    lgk <- start_point(as.number_line(x)) < 1
-    if(any(lgk)){
-      opts <- x
-      sn <- 1:length(opts)
-      opts <- split(sn[lgk] , format(opts[lgk]))
-      opts <- head(opts, 5)
-      opts <- unlist(lapply(opts, function(x){
-        missing_check(ifelse(sn %in% x, NA, T), 2)
-      }), use.names = T)
-
-      opts <- paste0("\"", names(opts),"\"", " at ", opts)
-      if(length(opts) >3){
-        errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
-      }  else{
-        errs <- listr(opts)
-      }
-      errs <-  paste0("Invalid values for `", arg, "`:\n",
-                      "i - Vaild values are ", "integers > 0", ".\n",
-                      "X - You've supplied ", errs, ".")
-      return(errs)
-    }else{
-      F
-    }
-  }
-
-  err_schema_epid_0 <- function(x,
-                                date,
-                                case_length,
-                                recurrence_length,
-                                episode_unit,
-                                from_last,
-                                title,
-                                show_labels,
-                                show_skipped,
-                                show_non_finite,
-                                theme){
-
-    err <- err_object_types(x, "x", "epid")
-    if(err != FALSE) return(err)
-    err <- err_match_ref_len(date, "x", length(x), "date")
-    if(err != FALSE) return(err)
-
-    errs <- err_episodes_checks_0(date = date, case_length = case_length,
-                                  recurrence_length = recurrence_length,
-                                  episode_unit = episode_unit,
-                                  from_last = from_last)
-
-    if(!isFALSE(errs)) return(errs)
-
-    # Check for non-atomic vectors
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 show_skipped = show_skipped,
-                 show_non_finite = show_non_finite,
-                 theme = theme)
-
-    err <- mapply(err_atomic_vectors,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for required object types
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 show_skipped = show_skipped,
-                 show_non_finite = show_non_finite,
-                 theme = theme)
-
-    args_classes <- list(title = c("character", "NULL"),
-                         show_labels = c("character", "logical"),
-                         show_skipped = "logical",
-                         show_non_finite = "logical",
-                         theme = "character")
-
-    err <- mapply(err_object_types,
-                  args,
-                  as.list(names(args)),
-                  args_classes[match(names(args), names(args_classes))])
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for required object lengths
-    len_lims <- 1
-    args <- list(title = title,
-                 #show_labels = show_labels,
-                 show_skipped = show_skipped,
-                 show_non_finite = show_non_finite,
-                 theme = theme)
-
-    args_lens <- list(title = c(0, len_lims),
-                      #show_labels = len_lims,
-                      show_skipped = len_lims,
-                      show_non_finite = len_lims,
-                      theme = len_lims)
-
-    err <- mapply(err_match_ref_len,
-                  args,
-                  rep(as.list("x"), length(args_lens)),
-                  args_lens[match(names(args), names(args_lens))],
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for missing values where they are not permitted
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 show_skipped = show_skipped,
-                 show_non_finite = show_non_finite,
-                 theme = theme)
-
-    err <- mapply(err_missing_check,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "length_arrow", "length_label", "case_overlap_methods", "recurrence_overlap_methods"))
+  if(!is.null(by)){
+    err <- err_by_2(by, date)
     if(err != FALSE) return(err[1])
 
-    err <- err_spec_vals(theme, "theme", c("dark", "light"))
-    if(err != FALSE) return(err[1])
-
-    return(FALSE)
-  }
-
-  err_schema_pane_0 <- function(x,
-                                date,
-                                title,
-                                show_labels,
-                                theme){
-
-    err <- err_object_types(x, "x", "pane")
+    err <- err_strata_level_args(by, strata, "by")
     if(err != FALSE) return(err)
-    err <- err_match_ref_len(date, "x", length(x), "date")
+  }
+
+  if(!is.null(length.out)){
+    err <- err_lnt_out_1(length.out)
+    if(err != FALSE) return(err[1])
+
+    err <- err_strata_level_args(length.out, strata, "length.out")
     if(err != FALSE) return(err)
-
-    errs <- err_episodes_checks_0(date = date)
-    if(!isFALSE(errs)) return(errs)
-
-    # Check for non-atomic vectors
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 theme = theme)
-
-    err <- mapply(err_atomic_vectors,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for required object types
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 theme = theme)
-
-    args_classes <- list(title = c("character", "NULL"),
-                         show_labels = c("character", "logical"),
-                         theme = "character")
-
-    err <- mapply(err_object_types,
-                  args,
-                  as.list(names(args)),
-                  args_classes[match(names(args), names(args_classes))])
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for required object lengths
-    len_lims <- 1
-    args <- list(title = title,
-                 #show_labels = show_labels,
-                 theme = theme)
-
-    args_lens <- list(title = c(0, len_lims),
-                      #show_labels = len_lims,
-                      theme = len_lims)
-
-    err <- mapply(err_match_ref_len,
-                  args,
-                  rep(as.list("x"), length(args_lens)),
-                  args_lens[match(names(args), names(args_lens))],
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for missing values where they are not permitted
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 theme = theme)
-
-    err <- mapply(err_missing_check,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
-    if(err != FALSE) return(err[1])
-
-    err <- err_spec_vals(theme, "theme", c("dark", "light"))
-    if(err != FALSE) return(err[1])
-
-    return(FALSE)
   }
 
-  err_schema_pid_0 <- function(x,
-                               title,
-                               show_labels,
-                               theme,
-                               orientation){
+  err <- err_strata_level_args(fill, strata, "fill")
+  if(err != FALSE) return(err)
+  err <- err_strata_level_args(windows_total , strata, "windows_total")
+  if(err != FALSE) return(err)
+  if(is.number_line(window)){
+    window <- list(window)
+  }
+  err <- err_strata_level_args(window , strata, "window")
+  if(err != FALSE) return(err)
+  err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
+  if(err != FALSE) return(err)
+  return(FALSE)
+}
 
-    err <- err_object_types(x, "x", "pid")
-    if(err != FALSE) return(err)
+err_spec_vals <- function(x, var, vals){
+  if(any(!tolower(x) %in% tolower(vals))){
+    opts <- x
+    sn <- 1:length(opts)
 
-    # Check for non-atomic vectors
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 theme = theme,
-                 orientation = orientation)
+    opts <- split(sn , opts)
+    opts <- opts[!tolower(names(opts)) %in% tolower(vals)]
 
-    err <- mapply(err_atomic_vectors,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
+    opts <- unlist(lapply(opts, function(x){
+      missing_check(ifelse(sn %in% x, NA, T), 2)
+    }), use.names = T)
 
-    # Check for required object types
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 theme = theme,
-                 orientation = orientation)
+    opts <- paste0("\"", names(opts),"\"", " at ", opts)
+    if(length(opts) >3){
+      errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
+    }  else{
+      errs <- listr(opts)
+    }
+    errs <-  paste0("Invalid values for `",var, "`:\n",
+                    "i - Vaild values are ", listr(paste0("\"", vals, "\""), conj = " or"), ".\n",
+                    "X - You've supplied ", errs, ".")
 
-    args_classes <- list(title = c("character", "NULL"),
-                         show_labels = c("character", "logical"),
-                         theme = "character",
-                         orientation = "character")
-
-    err <- mapply(err_object_types,
-                  args,
-                  as.list(names(args)),
-                  args_classes[match(names(args), names(args_classes))])
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for required object lengths
-    len_lims <- 1
-    args <- list(title = title,
-                 #show_labels = show_labels,
-                 theme = theme,
-                 orientation = orientation)
-
-    args_lens <- list(title = c(0, len_lims),
-                      #show_labels = len_lims,
-                      theme = len_lims,
-                      orientation = len_lims)
-
-    err <- mapply(err_match_ref_len,
-                  args,
-                  rep(as.list("x"), length(args_lens)),
-                  args_lens[match(names(args), names(args_lens))],
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for missing values where they are not permitted
-    args <- list(title = title,
-                 show_labels = show_labels,
-                 theme = theme,
-                 orientation = orientation)
-
-    err <- mapply(err_missing_check,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
-    if(err != FALSE) return(err[1])
-
-    err <- err_spec_vals(orientation, "orientation", c("by_pid", "by_pid_cri"))
-    if(err != FALSE) return(err[1])
-
-    err <- err_spec_vals(theme, "theme", c("dark", "light"))
-    if(err != FALSE) return(err[1])
-
+    return(errs)
+  }else{
     return(FALSE)
   }
+}
+
+err_mins_1 <- function(x, arg){
+  lgk <- start_point(as.number_line(x)) < 1
+  if(any(lgk)){
+    opts <- x
+    sn <- 1:length(opts)
+    opts <- split(sn[lgk] , format(opts[lgk]))
+    opts <- head(opts, 5)
+    opts <- unlist(lapply(opts, function(x){
+      missing_check(ifelse(sn %in% x, NA, T), 2)
+    }), use.names = T)
+
+    opts <- paste0("\"", names(opts),"\"", " at ", opts)
+    if(length(opts) >3){
+      errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
+    }  else{
+      errs <- listr(opts)
+    }
+    errs <-  paste0("Invalid values for `", arg, "`:\n",
+                    "i - Vaild values are ", "integers > 0", ".\n",
+                    "X - You've supplied ", errs, ".")
+    return(errs)
+  }else{
+    F
+  }
+}
+
+err_schema_epid_0 <- function(x,
+                              date,
+                              case_length,
+                              recurrence_length,
+                              episode_unit,
+                              from_last,
+                              title,
+                              show_labels,
+                              show_skipped,
+                              show_non_finite,
+                              theme){
+
+  err <- err_object_types(x, "x", "epid")
+  if(err != FALSE) return(err)
+  err <- err_match_ref_len(date, "x", length(x), "date")
+  if(err != FALSE) return(err)
+
+  errs <- err_episodes_checks_0(date = date, case_length = case_length,
+                                recurrence_length = recurrence_length,
+                                episode_unit = episode_unit,
+                                from_last = from_last)
+
+  if(!isFALSE(errs)) return(errs)
+
+  # Check for non-atomic vectors
+  args <- list(title = title,
+               show_labels = show_labels,
+               show_skipped = show_skipped,
+               show_non_finite = show_non_finite,
+               theme = theme)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object types
+  args <- list(title = title,
+               show_labels = show_labels,
+               show_skipped = show_skipped,
+               show_non_finite = show_non_finite,
+               theme = theme)
+
+  args_classes <- list(title = c("character", "NULL"),
+                       show_labels = c("character", "logical"),
+                       show_skipped = "logical",
+                       show_non_finite = "logical",
+                       theme = "character")
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object lengths
+  len_lims <- 1
+  args <- list(title = title,
+               #show_labels = show_labels,
+               show_skipped = show_skipped,
+               show_non_finite = show_non_finite,
+               theme = theme)
+
+  args_lens <- list(title = c(0, len_lims),
+                    #show_labels = len_lims,
+                    show_skipped = len_lims,
+                    show_non_finite = len_lims,
+                    theme = len_lims)
+
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("x"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for missing values where they are not permitted
+  args <- list(title = title,
+               show_labels = show_labels,
+               show_skipped = show_skipped,
+               show_non_finite = show_non_finite,
+               theme = theme)
+
+  err <- mapply(err_missing_check,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "length_arrow", "length_label", "case_overlap_methods", "recurrence_overlap_methods"))
+  if(err != FALSE) return(err[1])
+
+  err <- err_spec_vals(theme, "theme", c("dark", "light"))
+  if(err != FALSE) return(err[1])
+
+  return(FALSE)
+}
+
+err_schema_pane_0 <- function(x,
+                              date,
+                              title,
+                              show_labels,
+                              theme){
+
+  err <- err_object_types(x, "x", "pane")
+  if(err != FALSE) return(err)
+  err <- err_match_ref_len(date, "x", length(x), "date")
+  if(err != FALSE) return(err)
+
+  errs <- err_episodes_checks_0(date = date)
+  if(!isFALSE(errs)) return(errs)
+
+  # Check for non-atomic vectors
+  args <- list(title = title,
+               show_labels = show_labels,
+               theme = theme)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object types
+  args <- list(title = title,
+               show_labels = show_labels,
+               theme = theme)
+
+  args_classes <- list(title = c("character", "NULL"),
+                       show_labels = c("character", "logical"),
+                       theme = "character")
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object lengths
+  len_lims <- 1
+  args <- list(title = title,
+               #show_labels = show_labels,
+               theme = theme)
+
+  args_lens <- list(title = c(0, len_lims),
+                    #show_labels = len_lims,
+                    theme = len_lims)
+
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("x"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for missing values where they are not permitted
+  args <- list(title = title,
+               show_labels = show_labels,
+               theme = theme)
+
+  err <- mapply(err_missing_check,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
+  if(err != FALSE) return(err[1])
+
+  err <- err_spec_vals(theme, "theme", c("dark", "light"))
+  if(err != FALSE) return(err[1])
+
+  return(FALSE)
+}
+
+err_schema_pid_0 <- function(x,
+                             title,
+                             show_labels,
+                             theme,
+                             orientation){
+
+  err <- err_object_types(x, "x", "pid")
+  if(err != FALSE) return(err)
+
+  # Check for non-atomic vectors
+  args <- list(title = title,
+               show_labels = show_labels,
+               theme = theme,
+               orientation = orientation)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object types
+  args <- list(title = title,
+               show_labels = show_labels,
+               theme = theme,
+               orientation = orientation)
+
+  args_classes <- list(title = c("character", "NULL"),
+                       show_labels = c("character", "logical"),
+                       theme = "character",
+                       orientation = "character")
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object lengths
+  len_lims <- 1
+  args <- list(title = title,
+               #show_labels = show_labels,
+               theme = theme,
+               orientation = orientation)
+
+  args_lens <- list(title = c(0, len_lims),
+                    #show_labels = len_lims,
+                    theme = len_lims,
+                    orientation = len_lims)
+
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("x"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for missing values where they are not permitted
+  args <- list(title = title,
+               show_labels = show_labels,
+               theme = theme,
+               orientation = orientation)
+
+  err <- mapply(err_missing_check,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
+  if(err != FALSE) return(err[1])
+
+  err <- err_spec_vals(orientation, "orientation", c("by_pid", "by_pid_cri"))
+  if(err != FALSE) return(err[1])
+
+  err <- err_spec_vals(theme, "theme", c("dark", "light"))
+  if(err != FALSE) return(err[1])
+
+  return(FALSE)
+}
 
 
-  err_sub_criteria_funcs <- function(..., funcs, funcs_l){
-    if(class(funcs) != "list") funcs <- list(funcs)
+err_sub_criteria_funcs <- function(..., funcs, funcs_l){
+  if(class(funcs) != "list") funcs <- list(funcs)
 
-    err <- err_sub_criteria_2(funcs = funcs, funcs_l = funcs_l)
-    if(!isFALSE(err)) return(err)
+  err <- err_sub_criteria_2(funcs = funcs, funcs_l = funcs_l)
+  if(!isFALSE(err)) return(err)
 
-    err <- err_sub_criteria_3(funcs = funcs, funcs_l = funcs_l)
-    if(!isFALSE(err)) return(err)
+  err <- err_sub_criteria_3(funcs = funcs, funcs_l = funcs_l)
+  if(!isFALSE(err)) return(err)
 
-    err <- err_sub_criteria_4(..., funcs = funcs, funcs_l = funcs_l)
-    if(!isFALSE(err)) return(err)
+  err <- err_sub_criteria_4(..., funcs = funcs, funcs_l = funcs_l)
+  if(!isFALSE(err)) return(err)
 
-    return(FALSE)
+  return(FALSE)
+}
+
+err_links_wf_probablistic_0 <- function(attribute,
+                                        blocking_attribute,
+                                        cmp_func,
+                                        cmp_threshold,
+                                        probabilistic,
+                                        m_probability,
+                                        score_threshold,
+                                        id_1, id_2){
+  # Check for non-atomic vectors
+  args <- list(blocking_attribute = attribute,
+               cmp_threshold = cmp_threshold,
+               probabilistic = probabilistic,
+               m_probability = m_probability,
+               score_threshold = score_threshold,
+               id_1 = id_1, id_2 = id_2)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object types
+  args <- list(cmp_threshold = cmp_threshold,
+               probabilistic = probabilistic,
+               m_probability = m_probability,
+               score_threshold = score_threshold,
+               cmp_func = cmp_func,
+               id_1 = id_1, id_2 = id_2)
+
+  args_classes <- list(cmp_threshold = c("list", "numeric", "integer"),
+                       probabilistic = "logical",
+                       m_probability = c("list", "numeric", "integer"),
+                       score_threshold = c("list", "numeric", "integer", "number_line"),
+                       cmp_func = c("list", "function"),
+                       id_1 = c("NULL", "numeric", "integer"),
+                       id_2 = c("NULL", "numeric", "integer"))
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  if(class(attribute) != "list"){
+    attribute <- list(attribute)
   }
 
-  err_links_wf_probablistic_0 <- function(attribute,
-                                          blocking_attribute,
-                                          cmp_func,
-                                          cmp_threshold,
-                                          probabilistic,
-                                          m_probability,
-                                          score_threshold,
-                                          id_1, id_2){
-    # Check for non-atomic vectors
-    args <- list(blocking_attribute = attribute,
-                 cmp_threshold = cmp_threshold,
-                 probabilistic = probabilistic,
-                 m_probability = m_probability,
-                 score_threshold = score_threshold,
-                 id_1 = id_1, id_2 = id_2)
-
-    err <- mapply(err_atomic_vectors,
-                  args,
-                  as.list(names(args)))
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    # Check for required object types
-    args <- list(cmp_threshold = cmp_threshold,
-                 probabilistic = probabilistic,
-                 m_probability = m_probability,
-                 score_threshold = score_threshold,
-                 cmp_func = cmp_func,
-                 id_1 = id_1, id_2 = id_2)
-
-    args_classes <- list(cmp_threshold = c("list", "numeric", "integer"),
-                         probabilistic = "logical",
-                         m_probability = c("list", "numeric", "integer"),
-                         score_threshold = c("list", "numeric", "integer", "number_line"),
-                         cmp_func = c("list", "function"),
-                         id_1 = c("NULL", "numeric", "integer"),
-                         id_2 = c("NULL", "numeric", "integer"))
-
-    err <- mapply(err_object_types,
-                  args,
-                  as.list(names(args)),
-                  args_classes[match(names(args), names(args_classes))])
-    err <- unlist(err, use.names = FALSE)
-    err <- err[err != FALSE]
-    if(length(err) > 0) return(err[1])
-
-    if(class(attribute) != "list"){
-      attribute <- list(attribute)
-    }
-
-    err <- unlist(lapply(attribute, is.atomic), use.names = FALSE)
-    if(length(which(!err)) > 0){
-      err <- paste0("`attribute` must be an `atomic` object or `list` of `atomic` objects:\n",
-                    paste0("X - Attribute -", which(!err), "is `", err[which(!err)], "`.", collapse = "\n"))
-      return(err)
-    }
-
-    lens <- unlist(lapply(attribute, extract_3dot_lengths), use.names = FALSE)
-    if(!is.null(blocking_attribute)){
-      lens <- c(lens, length(blocking_attribute))
-    }
-    lens <- lens[!duplicated(lens)]
-    if(length(lens) != 1){
-      err <- paste0("Lengths of `blocking_attribute` and each attribute must be the same or equal to 1")
-      return(err)
-    }
-
-    lens_2 <- unlist(lapply(list(id_1, id_2), extract_3dot_lengths), use.names = FALSE)
-    lens_2 <- lens_2[!duplicated(lens_2)]
-    if(length(lens_2) != 1){
-      err <- paste0("Lengths of `id_1` and `id_2` must be the same or equal to 1")
-      return(err)
-    }
-
-    lens <- seq_len(lens)
-    id_1 <- id_1[!duplicated(id_1)]
-    id_2 <- id_2[!duplicated(id_2)]
-    err_1 <- which(!as.integer(id_1) %in% lens)
-    err_2 <- which(!as.integer(id_2) %in% lens)
-    if(length(err_1) + length(err_2) != 0){
-      err <- paste0("`id_1` and `id_2` must be an index of the record set:\n",
-                    paste0("X - Index ", listr(c(id_1[err_1], id_2[err_2]), lim =5), " do not exist"))
-      return(err)
-    }
-
-    err <- c("m_probability" = length(m_probability),
-             "cmp_func" = length(cmp_func),
-             "cmp_threshold" = length(cmp_threshold))
-    ref_err <- length(attribute)
-    err_lgk <- which(ref_err != err & err != 1)
-    if(any(which(ref_err != err & err != 1))){
-      err <- paste0("Lengths of `cmp_func`, `cmp_threshold` and `m_probability` must be 1 or match the number of attributes supplied:\n",
-                    "i - Expecting lengths of 1 or ", ref_err, "\n",
-                    paste0("X - Length of `", names(err[err_lgk]), "` is ", err[err_lgk], ".", collapse = "\n"))
-      return(err)
-    }
-
-    return(FALSE)
+  err <- unlist(lapply(attribute, is.atomic), use.names = FALSE)
+  if(length(which(!err)) > 0){
+    err <- paste0("`attribute` must be an `atomic` object or `list` of `atomic` objects:\n",
+                  paste0("X - Attribute -", which(!err), "is `", err[which(!err)], "`.", collapse = "\n"))
+    return(err)
   }
 
-  err_sub_criteria_0 <- function(...,
-                                 match_funcs = match_funcs,
-                                 equal_funcs = equal_funcs,
-                                 operator = operator){
-    err <- err_sub_criteria_1(...)
-    if(!isFALSE(err)) return(err)
-
-    err <- err_sub_criteria_3dot_1(...)
-    if(!isFALSE(err)) return(err)
-
-    err <- err_sub_criteria_funcs(..., funcs = match_funcs, funcs_l = "match_funcs")
-    if(!isFALSE(err)) return(err)
-
-    err <- err_sub_criteria_funcs(..., funcs = equal_funcs, funcs_l = "match_funcs")
-    if(!isFALSE(err)) return(err)
-
-    return(FALSE)
+  lens <- unlist(lapply(attribute, extract_3dot_lengths), use.names = FALSE)
+  if(!is.null(blocking_attribute)){
+    lens <- c(lens, length(blocking_attribute))
   }
+  lens <- lens[!duplicated(lens)]
+  if(length(lens) != 1){
+    err <- paste0("Lengths of `blocking_attribute` and each attribute must be the same or equal to 1")
+    return(err)
+  }
+
+  lens_2 <- unlist(lapply(list(id_1, id_2), extract_3dot_lengths), use.names = FALSE)
+  lens_2 <- lens_2[!duplicated(lens_2)]
+  if(length(lens_2) != 1){
+    err <- paste0("Lengths of `id_1` and `id_2` must be the same or equal to 1")
+    return(err)
+  }
+
+  lens <- seq_len(lens)
+  id_1 <- id_1[!duplicated(id_1)]
+  id_2 <- id_2[!duplicated(id_2)]
+  err_1 <- which(!as.integer(id_1) %in% lens)
+  err_2 <- which(!as.integer(id_2) %in% lens)
+  if(length(err_1) + length(err_2) != 0){
+    err <- paste0("`id_1` and `id_2` must be an index of the record set:\n",
+                  paste0("X - Index ", listr(c(id_1[err_1], id_2[err_2]), lim =5), " do not exist"))
+    return(err)
+  }
+
+  err <- c("m_probability" = length(m_probability),
+           "cmp_func" = length(cmp_func),
+           "cmp_threshold" = length(cmp_threshold))
+  ref_err <- length(attribute)
+  err_lgk <- which(ref_err != err & err != 1)
+  if(any(which(ref_err != err & err != 1))){
+    err <- paste0("Lengths of `cmp_func`, `cmp_threshold` and `m_probability` must be 1 or match the number of attributes supplied:\n",
+                  "i - Expecting lengths of 1 or ", ref_err, "\n",
+                  paste0("X - Length of `", names(err[err_lgk]), "` is ", err[err_lgk], ".", collapse = "\n"))
+    return(err)
+  }
+
+  return(FALSE)
+}
+
+err_sub_criteria_0 <- function(...,
+                               match_funcs = match_funcs,
+                               equal_funcs = equal_funcs,
+                               operator = operator){
+  err <- err_sub_criteria_1(...)
+  if(!isFALSE(err)) return(err)
+
+  err <- err_sub_criteria_3dot_1(...)
+  if(!isFALSE(err)) return(err)
+
+  err <- err_sub_criteria_funcs(..., funcs = match_funcs, funcs_l = "match_funcs")
+  if(!isFALSE(err)) return(err)
+
+  err <- err_sub_criteria_funcs(..., funcs = equal_funcs, funcs_l = "match_funcs")
+  if(!isFALSE(err)) return(err)
+
+  return(FALSE)
+}

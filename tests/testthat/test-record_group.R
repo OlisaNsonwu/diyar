@@ -6,7 +6,7 @@ library(diyar)
 record_group <- function(df, ...){
   diyar::record_group(df, display = "none", ...)
 }
-
+decode <- function(x) as.vector(diyar::decode(x))
 # Test 1 - Consistent row position for input and output
 df <- data.frame(
   cri_1 = c("A","C","B","C","A"),

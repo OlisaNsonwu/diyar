@@ -162,3 +162,25 @@ arch_fixed_episodes <- function(x, strata = NULL, case_length, episodes_max = In
   return(x)
 }
 
+mths <- c("across", "inbetween", "chain", "reverse", "aligns_start", "aligns_end", "exact", "overlap", "none")
+mths <- sort(mths)
+mths_lst <- lapply(seq_len(length(mths)), function(i){
+  combn(length(mths), i, simplify = FALSE)
+})
+mths_lst <- unlist(mths_lst, recursive = FALSE, use.names = FALSE)
+mths_lst <- lapply(mths_lst, function(x){
+  paste0(mths[x], collapse ="|")
+})
+mths_lst <- unlist(mths_lst, recursive = TRUE, use.names = FALSE)
+mths_lst_cd <- lapply(mths, function(x){
+  if(!x %in% c("overlap", "none")){
+    which(grepl(x, mths_lst) & !grepl("overlap|none", mths_lst))
+  }else if (x == "overlap"){
+    which(grepl(x, mths_lst) & !grepl("none", mths_lst))
+  }else if (x == "none"){
+    which(grepl(x, mths_lst))
+  }
+})
+names(mths_lst_cd) <- mths
+overlap_methods <- list(options = mths_lst, methods = mths_lst_cd)
+save(list = "overlap_methods", file = "data/overlap_methods.RData")

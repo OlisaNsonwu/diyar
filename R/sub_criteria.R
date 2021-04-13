@@ -60,6 +60,13 @@ sub_criteria <- function(...,
 
   class(sub_cris) <- "sub_criteria"
   attr(sub_cris, "operator") <- operator
+
+  err <- err_sub_criteria_5.0(sub_cris, funcs_l = "match_funcs", funcs_pos = 2)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
+
+  err <- err_sub_criteria_5.0(sub_cris, funcs_l = "equal_funcs", funcs_pos = 3)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
+
   rm(list = ls()[ls() != "sub_cris"])
   sub_cris
 }

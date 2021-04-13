@@ -6,8 +6,8 @@
   - New function - `links_wf_probabilistic()`. Probabilistic record
     linkage.
   - New function - `partitions()`. Spilt events into sections in time.
-  - New function - `schema()`. Plot schema diagrams for `pids`, `epids`
-    and `number_line` objects.
+  - New function - `schema()`. Plot schema diagrams for `pid`, `epid`,
+    `pane` and `number_line` objects.
   - New functions - `encode()` and `decode()`. Encoding and decoding
     slots values to minimise memory usage.
   - New argument - `case_sub_criteria` and `recurrence_sub_criteria` in
@@ -43,8 +43,6 @@
     exported. Use `episodes()` instead.
   - `sub_criteria()` - produces a `sub_criteria` object. Nested “AND”
     and “OR” conditions are now possible.
-  - `fixed_episodes()` and `rolling_episodes()` are retired and no
-    longer supported.
 
 ## Bug fixes
 

@@ -249,7 +249,7 @@ ovr_chks <- function(date, window, mths, ord){
   as.numeric(ord)
 }
 
-overlaps_err <- function(opts){
+overlaps_err_retired <- function(opts){
   opts <- tolower(opts)
   sn <- 1:length(opts)
   opts <- split(sn , opts)
@@ -291,6 +291,25 @@ overlaps_err <- function(opts){
   if(length(opts) > 0){
     opts <- paste0("\"", names(opts),"\"", " at ", opts)
     if(opts_len >3) errs <- paste0(paste0(opts, collapse = ", "), " ...") else errs <- listr(opts)
+    return(errs)
+  }else{
+    return(character())
+  }
+}
+
+overlaps_err <- function(opts){
+  if(class(opts) == "character"){
+    opts <- tolower(opts)
+    opts_cd <- overlap_method_codes(opts)
+  }else if(class(opts) == "numeric"){
+    opts_cd <- match(opts, seq_len(length(diyar::overlap_methods$options)))
+  }
+
+  opts <- opts[is.na(opts_cd)]
+  opts <- opts[!duplicated(opts)]
+  if(length(opts) > 0){
+    opts <- paste0("\"", opts,"\"")
+    if(length(opts) >3) errs <- paste0(paste0(opts, collapse = ", "), " ...") else errs <- listr(opts)
     return(errs)
   }else{
     return(character())
@@ -615,7 +634,11 @@ opt_level <- function(opt, mth, tr_mth){
   if(opt == "e") {
     tr_mth
   }else if(opt == "b"){
-    ifelse(mth != tr_mth, paste0(mth, "|", tr_mth), mth)
+    lgk <- mth != tr_mth
+    mth[lgk] <- overlap_method_codes(paste0((diyar::overlap_methods$options[mth[lgk]]),
+                                            "|",
+                                            (diyar::overlap_methods$options[tr_mth[lgk]])))
+    mth
   }else{
     mth
   }
@@ -623,7 +646,7 @@ opt_level <- function(opt, mth, tr_mth){
 
 pane_checks <- function(dates, windows){
   fnx <- function(x, int = dates){
-    ovr_chks(rep(windows[[x]], length(int)), int, rep("overlap", length(int)), rep(x, length(int)))
+    ovr_chks(rep(windows[[x]], length(int)), int, rep(8, length(int)), rep(x, length(int)))
   }
 
   checks <- as.matrix(sapply(as.numeric(seq_len(length(windows))), fnx))

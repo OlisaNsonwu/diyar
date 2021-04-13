@@ -18,7 +18,7 @@ episodes(
   sn = NULL,
   episodes_max = Inf,
   rolls_max = Inf,
-  case_overlap_methods = "overlap",
+  case_overlap_methods = 8,
   recurrence_overlap_methods = case_overlap_methods,
   skip_if_b4_lengths = FALSE,
   data_source = NULL,
@@ -46,7 +46,7 @@ episodes_wf_splits(
   sn = NULL,
   episodes_max = Inf,
   rolls_max = Inf,
-  case_overlap_methods = "overlap",
+  case_overlap_methods = 8,
   recurrence_overlap_methods = case_overlap_methods,
   skip_if_b4_lengths = FALSE,
   data_source = NULL,
@@ -69,7 +69,7 @@ fixed_episodes(
   case_length = Inf,
   episode_unit = "days",
   to_s4 = TRUE,
-  case_overlap_methods = "overlap",
+  case_overlap_methods = 8,
   deduplicate = FALSE,
   display = "none",
   bi_direction = FALSE,
@@ -77,8 +77,8 @@ fixed_episodes(
   recurrence_overlap_methods = case_overlap_methods,
   include_index_period = TRUE,
   ...,
-  overlap_methods = "overlap",
-  overlap_method = "overlap",
+  overlap_methods = 8,
+  overlap_method = 8,
   x
 )
 
@@ -88,15 +88,15 @@ rolling_episodes(
   recurrence_length = case_length,
   episode_unit = "days",
   to_s4 = TRUE,
-  case_overlap_methods = "overlap",
+  case_overlap_methods = 8,
   recurrence_overlap_methods = case_overlap_methods,
   deduplicate = FALSE,
   display = "none",
   bi_direction = FALSE,
   include_index_period = TRUE,
   ...,
-  overlap_methods = "overlap",
-  overlap_method = "overlap",
+  overlap_methods = 8,
+  overlap_method = 8,
   x
 )
 
@@ -122,9 +122,9 @@ This is the case window.}
 
 \item{rolls_max}{\code{[integer]}. Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{case_overlap_methods}{\code{[character]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})}
+\item{case_overlap_methods}{\code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})}
 
-\item{recurrence_overlap_methods}{\code{[character]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})}
+\item{recurrence_overlap_methods}{\code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})}
 
 \item{skip_if_b4_lengths}{\code{[logical]}. If \code{TRUE} (default), when using lagged \code{case_length} or \code{recurrence_length}, \code{events} before the cut-off point or period are skipped.}
 
@@ -217,8 +217,8 @@ This aims to reduce the overall processing time for the tracking process. See \c
 It now only exists to support previous code with minimal input from users.
 Moving forward, please use \bold{\code{episodes()}}.
 
-\bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} has been retired.
-They now only exists to support previous code with minimal input from users.
+\bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are convenience functions
+to support previous code with minimal input from users.
 Moving forward, please use \bold{\code{episodes()}}.
 
 See \code{vignette("episodes")} for more information.

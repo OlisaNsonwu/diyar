@@ -155,7 +155,7 @@ format.number_line <- function(x, ...){
     s[x@.Data < 0 & !is.na(x@.Data) & !is.nan(x@.Data)] <- "<-"
     s[x@.Data == 0 & !is.na(x@.Data) & !is.nan(x@.Data)] <- "=="
 
-    paste(x@start, " ",
+    paste0(x@start, " ",
           s, " ",
           x@start + x@.Data)
   }
@@ -929,6 +929,7 @@ summary.pid <- function(object, ...){
 print.pid_summary <- function(x, ...){
   dsts <- c("pid_cri", "data_source", "pid_total")
   mx_ds_len <- lapply(dsts, function(l){
+    val <- x[[l]]$values
     nchar(if(length(val) > 5 & l != "pid_cri") val[1:5] else val)
   })
   mx_ds_len <- unlist(mx_ds_len, use.names = FALSE)

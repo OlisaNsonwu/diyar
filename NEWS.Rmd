@@ -34,7 +34,7 @@ knitr::opts_chunk$set(
 + `to_s4()` - Now an internal function. It's no longer exported.
 + `compress_number_line()` - Now an internal function. It's no longer exported. Use `episodes()` instead.
 + `sub_criteria()` - produces a `sub_criteria` object. Nested "AND" and "OR" conditions are now possible.
-+ `fixed_episodes()` and `rolling_episodes()` are retired and no longer supported.
++ `case_overlap_methods`, `recurrence_overlap_methods` and `overlap_methods` now take `integer` codes for different combinations. See `overlap_methods$options` for the full list. `character` inputs are still supported.
 
 ## Bug fixes
 + `"Single-record"` was wrong in `links` summary output. Resolved.

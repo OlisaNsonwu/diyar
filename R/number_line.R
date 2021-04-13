@@ -220,19 +220,19 @@ reverse_number_line <- function(x, direction = "both"){
   fnt <- is.finite(as.numeric(x@start)) & is.finite(as.numeric(x@.Data))
 
   x[direction=="increasing" & x@.Data>0 & fnt == T] <- number_line(l= x@start[direction=="increasing" & x@.Data>0 & fnt == T] + x@.Data[direction=="increasing" & x@.Data>0 & fnt == T],
-                                                               r= x@start[direction=="increasing" & x@.Data>0 & fnt == T],
-                                                               id=x@id[direction=="increasing" & x@.Data>0 & fnt == T],
-                                                               gid=x@gid[direction=="increasing" & x@.Data>0 & fnt == T])
+                                                                   r= x@start[direction=="increasing" & x@.Data>0 & fnt == T],
+                                                                   id=x@id[direction=="increasing" & x@.Data>0 & fnt == T],
+                                                                   gid=x@gid[direction=="increasing" & x@.Data>0 & fnt == T])
 
   x[direction=="decreasing" & x@.Data<0 & fnt == T] <- number_line(l= x@start[direction=="decreasing" & x@.Data<0 & fnt == T] + x@.Data[direction=="decreasing" & x@.Data<0 & fnt == T],
-                                                               r= x@start[direction=="decreasing" & x@.Data<0 & fnt == T],
-                                                               id= x@id[direction=="decreasing" & x@.Data<0 & fnt == T],
-                                                               gid= x@gid[direction=="decreasing" & x@.Data<0 & fnt == T])
+                                                                   r= x@start[direction=="decreasing" & x@.Data<0 & fnt == T],
+                                                                   id= x@id[direction=="decreasing" & x@.Data<0 & fnt == T],
+                                                                   gid= x@gid[direction=="decreasing" & x@.Data<0 & fnt == T])
 
   x[direction == "both" & x@.Data !=0 & fnt == T] <- number_line(l= x@start[direction == "both" & x@.Data !=0 & fnt == T] + x@.Data[direction == "both" & x@.Data !=0 & fnt == T],
-                                             r= x@start[direction == "both" & x@.Data !=0 & fnt == T],
-                                             id= x@id[direction == "both" & x@.Data !=0 & fnt == T],
-                                             gid= x@gid[direction == "both" & x@.Data !=0 & fnt == T])
+                                                                 r= x@start[direction == "both" & x@.Data !=0 & fnt == T],
+                                                                 id= x@id[direction == "both" & x@.Data !=0 & fnt == T],
+                                                                 gid= x@gid[direction == "both" & x@.Data !=0 & fnt == T])
 
   return(x)
 }
@@ -375,8 +375,8 @@ invert_number_line <- function(x, point = "both"){
 # compress_number_line(x)
 # compress_number_line(x, collapse=TRUE)
 # compress_number_line(x, collapse=TRUE, methods = "inbetween")
-compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
-                                 deduplicate = TRUE,  method = "overlap"){
+compress_number_line <- function(x, methods = 8, collapse = FALSE,
+                                 deduplicate = TRUE,  method = 8){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
   err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
   if(err != FALSE) stop(err, call. = FALSE)
@@ -390,7 +390,7 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 
   err <- err_match_ref_len(m, "", 1, "methods")
   if(err != FALSE) stop(err, call. = FALSE)
-  err <- err_object_types(m, "methods", "character")
+  err <- err_object_types(m, "methods", c("character", "numeric", "integer"))
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_overlap_methods_1(overlap_methods = m, "methods")
   if(err != FALSE) stop(err, call. = FALSE)
@@ -465,20 +465,20 @@ compress_number_line <- function(x, methods = "overlap", collapse = FALSE,
 #' @export
 #'
 number_line_sequence <- function(x,
-                              by = NULL,
-                              length.out = 1,
-                              fill = TRUE,
-                              simplify = FALSE){
+                                 by = NULL,
+                                 length.out = 1,
+                                 fill = TRUE,
+                                 simplify = FALSE){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
   err <- err_object_types(x, "x", "number_line")
   if(err != FALSE) stop(err, call. = FALSE)
   if(length(x) == 0) return(x)
 
   errs <- err_split_nl_1(x = x,
-                        by = by,
-                        length.out = length.out,
-                        fill = fill,
-                        simplify = simplify)
+                         by = by,
+                         length.out = length.out,
+                         fill = fill,
+                         simplify = simplify)
 
   if(errs != FALSE) stop(errs, call. = FALSE)
   # change_dir <- x@.Data < 0

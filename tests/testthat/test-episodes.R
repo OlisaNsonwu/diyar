@@ -49,7 +49,7 @@ rolling_episodes <- function(..., to_s4 = T){
     return(x)
   }
 }
-
+decode <- function(x) as.vector(diyar::decode(x))
 # episode grouping with episode_group()
 T1 <- rbind(head(data,10), head(data,10))
 test_1 <- cbind(T1,

@@ -10,10 +10,10 @@ df <- data.frame(
   )
 
 links <- function(..., group_stats = T){
-  diyar::links(..., group_stats = group_stats, display = "none")
+  diyar::links(..., group_stats = group_stats, display = "none", recursive = TRUE)
 }
 sub_criteria <- diyar::sub_criteria
-
+decode <- function(x) as.vector(diyar::decode(x))
 test_1 <- df
 test_1$pids <- links(criteria = df$cri_1)
 

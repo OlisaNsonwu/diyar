@@ -1401,3 +1401,95 @@ overlaps_retired <- function(x, y, methods = "overlap", method = "overlap"){
   rm(list = ls()[ls() != "p"])
   return(p)
 }
+
+overlaps_v2_retired <- function(x, y, methods = "overlap", method = "overlap"){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0) return(logical())
+  if(missing(methods) & !missing(method)) {
+    m <- paste(method,sep="", collapse = "|")
+    warning("'method' is deprecated. Please use 'methods' instead.")
+  }else{
+    m <- methods
+  }
+
+  if(length(x) == 1 & length(y) != 1){
+    x <- rep(x, length(y))
+  }else if(length(y) == 1 & length(x) != 1){
+    y <- rep(y, length(x))
+  }else{
+    err <- err_match_ref_len(x, "y", c(1, length(y)), "x")
+    if(err != F) stop(err, call. = F)
+
+    err <- err_match_ref_len(y, "x", c(1, length(x)), "y")
+    if(err != F) stop(err, call. = F)
+  }
+
+  if(length(m) == 1 & length(x) != 1){
+    m <- rep(m, length(x))
+  }else{
+    err <- err_match_ref_len(m, "x", c(1, length(x)), "method")
+    if(err != F) stop(err, call. = F)
+  }
+
+  err <- err_object_types(m, "methods", "character")
+  if(err != F) stop(err, call. = F)
+  err <- err_overlap_methods_1(overlap_methods = m, "methods")
+  if(err != F) stop(err, call. = F)
+
+  mths <- m
+  rd_id <- seq(1:length(mths))
+  mths <- split(rd_id, mths)
+
+  # Mutually inclusive methods
+  names(mths)[grepl("none", names(mths))] <- "none"
+  names(mths)[grepl("overlap", names(mths))] <- "overlap"
+
+  mths_nm <- strsplit(names(mths), "\\|")
+  mths <- unlist(
+    lapply(seq_len(length(mths)), function(i){
+      x <- rep(mths[i], length(mths_nm[[i]]))
+      names(x) <- mths_nm[[i]]
+      x
+    }), recursive = FALSE)
+  mths <- lapply(split(mths, names(mths)), function(x) unlist(x, use.names = FALSE))
+
+  lgk_2 <- rep(FALSE, length(x))
+  mth_lgk <- which(rd_id %in% mths[["overlap"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- overlap(x[mth_lgk], y[mth_lgk])
+  }
+  rm(list = ls()[ls() != "lgk_2"])
+  return(lgk_2)
+  mth_lgk <- which(rd_id %in% mths[["across"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- across(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["exact"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- exact(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["inbetween"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- inbetween(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["aligns_start"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- aligns_start(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["aligns_end"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- aligns_end(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["chain"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- chain(x[mth_lgk], y[mth_lgk])
+  }
+  mth_lgk <- which(rd_id %in% mths[["reverse"]] & lgk_2 %in% c(FALSE, NA))
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- reverse(x[mth_lgk], y[mth_lgk])
+  }
+  rm(list = ls()[ls() != "lgk_2"])
+  lgk_2
+}

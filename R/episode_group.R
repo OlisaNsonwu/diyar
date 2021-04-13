@@ -19,8 +19,8 @@
 #' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
 #' @param overlap_method \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.
 #' @param overlap_methods \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
-#' @param case_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
-#' @param recurrence_overlap_methods \code{[character]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
+#' @param case_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
+#' @param recurrence_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
 #' @param custom_sort \code{[atomic]}. Preferential order for selecting index or reference events.
 #' @param bi_direction \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
@@ -82,8 +82,8 @@
 #' It now only exists to support previous code with minimal input from users.
 #' Moving forward, please use \bold{\code{episodes()}}.
 #'
-#' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} has been retired.
-#' They now only exists to support previous code with minimal input from users.
+#' \bold{\code{rolling_episodes()}} and \bold{\code{rolling_episodes()}} are convenience functions
+#' to support previous code with minimal input from users.
 #' Moving forward, please use \bold{\code{episodes()}}.
 #'
 #' See \code{vignette("episodes")} for more information.
@@ -123,21 +123,13 @@
 #'
 episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = case_length,
                      episode_unit = "days", strata = NULL, sn = NULL, episodes_max = Inf, rolls_max = Inf,
-                     case_overlap_methods = "overlap", recurrence_overlap_methods = case_overlap_methods,
+                     case_overlap_methods = 8, recurrence_overlap_methods = case_overlap_methods,
                      skip_if_b4_lengths = FALSE, data_source = NULL,
                      data_links = "ANY", custom_sort = NULL, skip_order = Inf, reference_event = "last_record",
                      case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                      display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
                      case_length_total = 1, recurrence_length_total = case_length_total) {
   tm_a <- Sys.time()
-
-  # Standardise `sub_criteria` inputs
-  if(class(case_sub_criteria) == "sub_criteria"){
-    case_sub_criteria <- list(case_sub_criteria)
-  }
-  if(class(recurrence_sub_criteria) == "sub_criteria"){
-    recurrence_sub_criteria <- list(recurrence_sub_criteria)
-  }
 
   # Validations
   errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
@@ -619,7 +611,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[lgk2 & iteration == 0] <- ite
     rm(cri_skp); rm(lgk2); rm(lgk1)
 
-    if(min(tag) == 2 | length(tag) < 2){
+    if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
         current_skipped <- length(tag[tag == 0]) + current_skipped
@@ -707,13 +699,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # Implement `case_sub_criteria`
     checks_lgk <- rep(FALSE, length(int))
-    if(class(case_sub_criteria[[1]]) == "sub_criteria"){
+    if(class(case_sub_criteria) == "sub_criteria"){
       c_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
         cri_2 <- cri + (cr/10)
         cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
         if(length(cr[cr & !cri_2]) > 0){
           ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
-          checks_lgk[cr & !cri_2] <- eval_sub_criteria(x = case_sub_criteria[[1]],
+          checks_lgk[cr & !cri_2] <- eval_sub_criteria(x = case_sub_criteria,
                                                        strata = cri[cr & !cri_2],
                                                        index_record = ref_rd[cr & !cri_2],
                                                        sn = int@id[cr & !cri_2])[[1]]
@@ -804,16 +796,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         cr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE))
       }
 
-      if(class(recurrence_sub_criteria[[1]]) == "sub_criteria"){
+      if(class(recurrence_sub_criteria) == "sub_criteria"){
         r_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
           cri_2 <- cri + (cr2/10)
           cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE)
           if(length(cr2[cr2 & !cri_2]) > 0){
             ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
-            checks_lgk[cr2 & !cri_2] <- eval_sub_criteria(x = recurrence_sub_criteria[[1]],
-                                                         strata = cri[cr2 & !cri_2],
-                                                         index_record = ref_rd[cr2 & !cri_2],
-                                                         sn = int@id[cr2 & !cri_2])[[1]]
+            checks_lgk[cr2 & !cri_2] <- eval_sub_criteria(x = recurrence_sub_criteria,
+                                                          strata = cri[cr2 & !cri_2],
+                                                          index_record = ref_rd[cr2 & !cri_2],
+                                                          sn = int@id[cr2 & !cri_2])[[1]]
           }
           checks_lgk
         })
@@ -929,7 +921,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
     }
 
-    if(min(tag) == 2 | length(tag) < 2){
+    if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
         current_skipped <- length(tag[tag == 0]) + current_skipped
@@ -1049,7 +1041,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     tag <- tag[tag != 2]
 
     ite <- ite + 1L
-    if(min(tag) == 2 | length(tag) < 2){
+    if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       if(display == "stats"){
         msg <- paste0("Skipped: ", fmt(length(tag[tag == 0])), " record(s)")
         cat(msg, "\n\n", sep ="")
@@ -1238,7 +1230,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #' @rdname episodes
 episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = case_length,
                                episode_unit = "days", strata = NULL, sn = NULL, episodes_max = Inf, rolls_max = Inf,
-                               case_overlap_methods = "overlap", recurrence_overlap_methods = case_overlap_methods,
+                               case_overlap_methods = 8, recurrence_overlap_methods = case_overlap_methods,
                                skip_if_b4_lengths = FALSE, data_source = NULL,
                                data_links = "ANY", custom_sort = NULL, skip_order = Inf, reference_event = "last_record",
                                case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
@@ -1347,8 +1339,8 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
                     rolls_max = opt_lst$rolls_max, case_for_recurrence = opt_lst$case_for_recurrence,
                     reference_event = opt_lst$reference_event,
                     episode_type = opt_lst$episode_type, recurrence_length = opt_lst$recurrence_length,
-                    case_sub_criteria = case_sub_criteria[[1]],
-                    recurrence_sub_criteria = recurrence_sub_criteria[[1]],
+                    case_sub_criteria = case_sub_criteria,
+                    recurrence_sub_criteria = recurrence_sub_criteria,
                     case_length_total = opt_lst$case_length_total,
                     recurrence_length_total = opt_lst$recurrence_length_total)
 
@@ -1364,12 +1356,12 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
 #' @rdname episodes
 #' @export
 fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
-                           to_s4 = TRUE, case_overlap_methods = "overlap", deduplicate = FALSE,
+                           to_s4 = TRUE, case_overlap_methods = 8, deduplicate = FALSE,
                            display = "none", bi_direction = FALSE,
                            recurrence_length = case_length,
                            recurrence_overlap_methods = case_overlap_methods,
                            include_index_period = TRUE, ...,
-                           overlap_methods = "overlap", overlap_method = "overlap", x){
+                           overlap_methods = 8, overlap_method = 8, x){
   args <- as.list(substitute(...()))
   if (length(names(args)[names(args) == ""] > 0)){
     err <- paste0("Every argument must be specified:\n",
@@ -1386,7 +1378,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
     overlap_methods <- paste0(overlap_method[!duplicated(overlap_method)], collapse = "|")
     warning(paste0("`overlap_method` is deprecated:\n",
                    "i - Please use `case_overlap_methods` instead.\n",
-                   "i - Your values were passed to `overlap_methods`."), call. = FALSE)
+                   "i - Your values were passed to `case_overlap_methods`."), call. = FALSE)
   }
 
   if(missing(date) & !missing(x)) {
@@ -1427,7 +1419,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
 
   if(isTRUE(include_index_period)){
     case_length <- c(case_length, list(index_window(date)))
-    case_overlap_methods <- c(case_overlap_methods, list(rep("overlap", length(date))))
+    case_overlap_methods <- c(case_overlap_methods, list(rep(8, length(date))))
   }
 
   epids <- episodes(date = date, episode_type = "fixed", case_overlap_methods = case_overlap_methods,
@@ -1447,11 +1439,11 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
 #' @rdname episodes
 #' @export
 rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_length,
-                             episode_unit = "days", to_s4 = TRUE, case_overlap_methods = "overlap",
+                             episode_unit = "days", to_s4 = TRUE, case_overlap_methods = 8,
                              recurrence_overlap_methods = case_overlap_methods, deduplicate = FALSE,
                              display = "none", bi_direction = FALSE,
                              include_index_period = TRUE, ...,
-                             overlap_methods = "overlap", overlap_method = "overlap", x) {
+                             overlap_methods = 8, overlap_method = 8, x) {
 
   args <- as.list(substitute(...()))
   if (length(names(args)[names(args) == ""] > 0)){
@@ -1476,12 +1468,12 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
     recurrence_overlap_methods <- overlap_methods
     warning(paste0("`overlap_methods` is deprecated:\n",
                    "i - Please use `recurrence_overlap_methods` instead.\n",
-                   "i - Your values were passed to `case_overlap_methods`."), call. = FALSE)
+                   "i - Your values were passed to `recurrence_overlap_methods`."), call. = FALSE)
   }else if(missing(recurrence_overlap_methods) & !missing(overlap_method)) {
     recurrence_overlap_methods <- paste0(overlap_method[!duplicated(overlap_method)], collapse = "|")
     warning(paste0("`overlap_method` is deprecated:\n",
-                   "i - Please use `case_overlap_methods` instead.\n",
-                   "i - Your values were passed to `overlap_methods`."), call. = FALSE)
+                   "i - Please use `recurrence_overlap_methods` instead.\n",
+                   "i - Your values were passed to `recurrence_overlap_methods`."), call. = FALSE)
   }
 
   if(missing(date) & !missing(x)) {
@@ -1528,8 +1520,8 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
   if(isTRUE(include_index_period)){
     case_length <- c(case_length, list(index_window(date)))
     recurrence_length <- c(recurrence_length, list(index_window(date)))
-    case_overlap_methods <- c(case_overlap_methods, list(rep("overlap", length(date))))
-    recurrence_overlap_methods <- c(recurrence_overlap_methods, list(rep("overlap", length(date))))
+    case_overlap_methods <- c(case_overlap_methods, list(rep(8, length(date))))
+    recurrence_overlap_methods <- c(recurrence_overlap_methods, list(rep(8, length(date))))
   }
 
   epids <- episodes(date = date, episode_type = "rolling",
