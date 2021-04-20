@@ -20,11 +20,9 @@
   - New argument - `check_duplicates` in `links()`. Control the checking
     of logical tests on duplicate values. If `FALSE`, results are
     recycled for the duplicates.
-  - New argument - `case_length_total` and `recurrence_length_total` in
-    `episodes()`.
   - `as.data.frame` and `as.list` for the `pid`, `number_line`, `epid`,
     `pane` objects.
-  - A new type of episodes - “recursive” episodes.
+  - A new type of episode - “recursive” episodes.
   - `recurrence_from_last` renamed to `reference_event` and given two
     new options.
   - Optimised `episodes()` and `links()`. Speed improvements.
@@ -34,7 +32,7 @@
   - Default time zone for an `epid_interval` or `pane_interval` with
     `POSIXct` objects is now “GMT”.
   - `number_line_sequence()` - splits number\_line objects. Also
-    available as `seq` method.
+    available as a `seq` method.
   - `epid_total`, `pid_total` and `pane_total` slots are populated by
     default. No need to used `group_stats` to get these.
   - `to_df()` - Removed. Use `as.data.frame()` instead.
@@ -43,6 +41,10 @@
     exported. Use `episodes()` instead.
   - `sub_criteria()` - produces a `sub_criteria` object. Nested “AND”
     and “OR” conditions are now possible.
+  - `case_overlap_methods`, `recurrence_overlap_methods` and
+    `overlap_methods` now take `integer` codes for different
+    combinations of overlap methods. See `overlap_methods$options` for
+    the full list. `character` inputs are still supported.
 
 ## Bug fixes
 

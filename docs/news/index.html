@@ -148,10 +148,9 @@
 <li>New argument - <code>case_length_total</code> and <code>recurrence_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>. Number of temporal links required for a <code>window</code>/<code>episode</code>.</li>
 <li>New argument - <code>recursive</code> in <code><a href="../reference/links.html">links()</a></code>. Control if matches can spawn new matches.</li>
 <li>New argument - <code>check_duplicates</code> in <code><a href="../reference/links.html">links()</a></code>. Control the checking of logical tests on duplicate values. If <code>FALSE</code>, results are recycled for the duplicates.</li>
-<li>New argument - <code>case_length_total</code> and <code>recurrence_length_total</code> in <code><a href="../reference/episodes.html">episodes()</a></code>.</li>
 <li>
 <code>as.data.frame</code> and <code>as.list</code> for the <code>pid</code>, <code>number_line</code>, <code>epid</code>, <code>pane</code> objects.</li>
-<li>A new type of episodes - “recursive” episodes.</li>
+<li>A new type of episode - “recursive” episodes.</li>
 <li>
 <code>recurrence_from_last</code> renamed to <code>reference_event</code> and given two new options.</li>
 <li>Optimised <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code>. Speed improvements.</li>
@@ -163,7 +162,7 @@
 <ul>
 <li>Default time zone for an <code>epid_interval</code> or <code>pane_interval</code> with <code>POSIXct</code> objects is now “GMT”.</li>
 <li>
-<code><a href="../reference/number_line.html">number_line_sequence()</a></code> - splits number_line objects. Also available as <code>seq</code> method.</li>
+<code><a href="../reference/number_line.html">number_line_sequence()</a></code> - splits number_line objects. Also available as a <code>seq</code> method.</li>
 <li>
 <code>epid_total</code>, <code>pid_total</code> and <code>pane_total</code> slots are populated by default. No need to used <code>group_stats</code> to get these.</li>
 <li>
@@ -174,6 +173,8 @@
 <code>compress_number_line()</code> - Now an internal function. It’s no longer exported. Use <code><a href="../reference/episodes.html">episodes()</a></code> instead.</li>
 <li>
 <code><a href="../reference/sub_criteria.html">sub_criteria()</a></code> - produces a <code>sub_criteria</code> object. Nested “AND” and “OR” conditions are now possible.</li>
+<li>
+<code>case_overlap_methods</code>, <code>recurrence_overlap_methods</code> and <code>overlap_methods</code> now take <code>integer</code> codes for different combinations of overlap methods. See <code>overlap_methods$options</code> for the full list. <code>character</code> inputs are still supported.</li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">

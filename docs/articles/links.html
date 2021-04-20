@@ -90,7 +90,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Record linkage with diyar</h1>
             
-            <h4 class="date">13 April 2021</h4>
+            <h4 class="date">20 April 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/links.Rmd"><code>vignettes/links.Rmd</code></a></small>
       <div class="hidden name"><code>links.Rmd</code></div>
@@ -102,13 +102,13 @@
 <div id="introduction" class="section level1">
 <h1 class="hasAnchor">
 <a href="#introduction" class="anchor"></a>Introduction</h1>
-<p>Linking datasets to consolidate information is a common task in research, particularly with those involving “big data”. Deterministic and probabilistic linkage are the two most common methods of record linkage. Deterministic record linkage is the simplest of both methods but its accuracy relies heavily on good data quality. In contrast, probabilistic record linkage improves on this by using several methods to identify, validate and score matches, at the same time accounting for data quality. However, probabilistic record linkage can be complex to implement and computationally intensive. Multistage deterministic record linkage is an approach that lies between both methods. Here, matches are identified in successive stages of different matching conditions. This makes it more robust than a simple deterministic linkage but not typically as complex or as computationally intensive as probabilistic record linkage.</p>
+<p>Linking datasets to consolidate information is a common task in research. Deterministic and probabilistic linkage are the two most common methods of record linkage. Deterministic record linkage is the simplest of both methods but its accuracy relies heavily on good data quality. In contrast, probabilistic record linkage improves on this by using several methods to identify, validate and score matches among datasets of varying data quality. However, probabilistic record linkage can be complex to implement and computationally intensive. Multistage deterministic record linkage is an approach that lies between both methods. Here, matches are identified in successive stages of different matching conditions. This makes the process more robust than a simple deterministic linkage but not typically as complex or as computationally intensive as probabilistic record linkage.</p>
 <p><code><a href="../reference/links.html">links()</a></code> provides a convenient and flexible approach to implementing multistage deterministic record linkage in <code>R</code>. It allows a user to specify what constitutes a match e.g. similarity scores, text transformations or partial string matches etc. It also has mechanisms to address missing data and conflicting matches across successive stages of the linkage process.</p>
 </div>
 <div id="overview" class="section level1">
 <h1 class="hasAnchor">
 <a href="#overview" class="anchor"></a>Overview</h1>
-<p>The <code><a href="../reference/links.html">links()</a></code> function assigns records to unique record-groups (<code>pid</code> object) based on a set of matching criteria. These are essentially group identifiers with additional information about each group stored in the slots of the <code>pid</code> object. See an example below.</p>
+<p>The <code><a href="../reference/links.html">links()</a></code> function assigns records to unique record-groups based on a set of matching criteria. These are stored as a <code>pid</code> object which is essentially a group identifier with additional information about each group stored in the slots of the <code>pid</code> object. See an example below.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="co">## 3-stage linkage</span>
 <span class="co"># Attributes to be compared at each stage</span>
 <span class="no">attr_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>)
@@ -132,7 +132,7 @@
 <span class="co">#&gt; 6     NA     NA      3         B P.1 (CRI 003)</span>
 <span class="co">#&gt; 7     NA     NA      3         B P.1 (CRI 003)</span>
 <span class="co">#&gt; 8     NA     NA      3         B P.1 (CRI 003)</span></pre></body></html></div>
-<p>There are <code>as.data.frame</code> and <code>as.list</code> methods for easy access to components of <code>pid</code> object.</p>
+<p>There are <code>as.data.frame</code> and <code>as.list</code> methods for easy access to components of a <code>pid</code> object.</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="co"># Components of a `pid` identifier</span>
 <span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="no">dfr</span>$<span class="no">pd1</span>)
 <span class="co">#&gt;   pid sn pid_cri link_id pid_total iteration pid_dataset</span>
@@ -148,13 +148,13 @@
 <div id="implementation" class="section level1">
 <h1 class="hasAnchor">
 <a href="#implementation" class="anchor"></a>Implementation</h1>
-<p>At each stage, records are linked if their values are an <code><a href="../reference/predefined_tests.html">exact_match()</a></code>. By default, the priority of matches decreases with each subsequent stage i.e. matches at the 1<sup>st</sup> stage are superior and will not be overwritten by matches at the 2<sup>nd</sup> stage. Records with missing (<code>NA</code>) or unmatched values are skipped at each stage, and another attempt to match them is made in the next stage of the process.</p>
+<p>At each stage, records are linked if their values are an <code><a href="../reference/predefined_tests.html">exact_match()</a></code>. By default, the priority of matches decreases with each subsequent stage i.e. matches at the 1<sup>st</sup> stage are superior and will not be overwritten by matches at the 2<sup>nd</sup> stage. Records with missing (<code>NA</code>) or unmatched values are skipped at each stage, while another attempt to match them is made in the next stage of the process.</p>
 <p>At each stage, additional matching criteria can be supplied with a <code>sub_criteria</code> object. A <code>sub_criteria</code> contains a set of attributes to be compared, corresponding logical tests for each attribute and corresponding logical tests for the equivalence of values in each attribute. Nested conditions is also possible by nesting a <code>sub_criteria</code>. Every <code>sub_criteria</code> must be linked to a stage (<code>criteria</code>). This is done by supplying every <code>sub_criteria</code> as a named <code>list</code> . Each element’s name must correspond to a stage. For example, <code>"cr1"</code> and <code>"cr13"</code> correspond to stages 1 and 13 respectively. Any unlinked <code>sub_criteria</code> will be ignored.</p>
 <p>Records are assessed in iterations. If a stage has no <code>sub_criteria</code>, it will take one iteration to complete the stage. If a stage has a <code>sub_criteria</code>, multiple iterations maybe required to complete that stage.</p>
 <div id="match-priority" class="section level2">
 <h2 class="hasAnchor">
 <a href="#match-priority" class="anchor"></a>Match priority</h2>
-<p>By default, a match at one stage is always superior to a match at the next stage. See the “multistage matches” section for a different behaviour. Additionally, records with missing or unmatched values are skipped at each stage of the process. In the example below, by stage 1, records 1, 2 and 7 are either missing or unmatched values. Therefore, they are skipped at stage 1 but subsequently linked together at stage 2 due to matching dates of birth with records 5 and 6.</p>
+<p>By default, a match at one stage is always superior to a match at the next stage. Additionally, records with missing or unmatched values are skipped at each stage of the process. In the example below, by stage 1, records 1, 2 and 7 are either missing or unmatched values. Therefore, they are skipped at stage 1 but subsequently linked together at stage 2 due to matching dates of birth with records 5 and 6.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="co"># Attribute - Names</span>
 <span class="no">attr_4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">NA</span>, <span class="fl">NA</span>, <span class="st">"James"</span>, <span class="st">"James"</span>, <span class="st">"Tobi"</span>, <span class="st">"Tobi"</span>, <span class="st">"Ope"</span>)
 <span class="co"># Date of birth </span>
@@ -176,7 +176,7 @@
 <span class="co">#&gt; 6   Tobi 12/04/1957 P.5 (CRI 001)</span>
 <span class="co">#&gt; 7    Ope 12/04/1957 P.5 (CRI 002)</span></pre></body></html></div>
 <p>In contrast, a set of records matched at a particular stage will remain linked for the rest to the linkage process even if their values at subsequent stages are different. This was the case with records 3 and 4.</p>
-<p>To maintain this match priority, introducing a new record that permits a match at an earlier stage will result in records being transferred between groups. In the example below, a new <code>"Ope"</code> record is introduced and linked to the existing <code>"Ope"</code> record. However, a consequence of this change is that at stage 2 (matching dates of birth), records 1 and 2 have the option of either being linked to the <code>"Ope"</code> or <code>"Tobi"</code> records. Usually, they will be linked to the <code>"Ope"</code> records because the link between <code>"Ope"</code> records is considered to have a higher priority (stage 1) than that of the <code>"Tobi"</code> records (stage 2). However, if the <code>"Ope"</code> and <code>"Tobi"</code> records were linked at the same stage (see <code>pd2bii</code>), priority is given to the first group the process encounters. In the instance above, this was the <code>"Tobi"</code> records.</p>
+<p>To maintain this match priority, introducing a new record that permits a match at an earlier stage will result in records being transferred between groups. In the example below, a new <code>"Ope"</code> record is introduced and linked to the existing <code>"Ope"</code> record. However, a consequence of this change is that at stage 2 (matching dates of birth), records 1 and 2 have the option of either being linked to the <code>"Ope"</code> or <code>"Tobi"</code> records. Usually, they will be linked to the <code>"Ope"</code> records because the link between <code>"Ope"</code> records is considered to have a higher priority (stage 1) than that of the <code>"Tobi"</code> records (stage 2). However, if the <code>"Ope"</code> and <code>"Tobi"</code> records were linked at the same stage (see <code>pd2bii</code>), priority is given to the first group the process encounters.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">attr_4c</span> <span class="kw">&lt;-</span> <span class="no">attr_4b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">attr_4</span>, <span class="st">"Ope"</span>)
 <span class="no">attr_4c</span>[<span class="no">attr_4c</span> <span class="kw">==</span> <span class="st">"Tobi"</span>] <span class="kw">&lt;-</span> <span class="fl">NA</span>
 <span class="no">attr_5b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">attr_5</span>, <span class="st">"13/02/1991"</span>)
@@ -353,8 +353,8 @@
 <div id="probabilistic-record-linkage" class="section level3">
 <h3 class="hasAnchor">
 <a href="#probabilistic-record-linkage" class="anchor"></a>Probabilistic record linkage</h3>
-<p>The complexity of a user-defined logical test can range from relatively simple to complex use cases such as that implemented in <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code>. <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code> is a wrapper function of <code><a href="../reference/links.html">links()</a></code> using a specific <code>sub_criteria</code> to achieve probabilistic record linkage. There are a few differences between <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code> and the typical implementation of probabilistic record linkage. These are summarised below.</p>
-<p><strong>Table 1: Difference between the typical approach to probabilistic record linkage and <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code>.</strong></p>
+<p>The complexity of a user-defined logical test can range from relatively simple use cases to complex ones such as that implemented in <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code>. <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code> is a wrapper function of <code><a href="../reference/links.html">links()</a></code> using a specific <code>sub_criteria</code> to achieve probabilistic record linkage. There are a few differences between <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code> and the typical implementation of probabilistic record linkage. These are summarised below.</p>
+<p><strong>Table 1: Differences between the typical approach to probabilistic record linkage and <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code>.</strong></p>
 <table class="table">
 <colgroup>
 <col width="33%">
@@ -364,7 +364,7 @@
 <thead><tr class="header">
 <th>Aspects</th>
 <th>Typical approach</th>
-<th><code>links_wf_probabilistic</code></th>
+<th><code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code></th>
 </tr></thead>
 <tbody>
 <tr class="odd">
@@ -386,8 +386,7 @@
 </table>
 <p>Due to these differences, there are two functionalities to help select a score-threshold before the actual linkage. The first is to use <code><a href="../reference/links_wf_probabilistic.html">prob_score_range()</a></code> to review the range of scores attainable for a given dataset. The second is to use the <code>id_1</code> and <code>id_2</code> arguments to return the scores for specific record pairs. Calculation of the score-threshold is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity. See <code><a href="../reference/links_wf_probabilistic.html">help(links_wf_probabilistic)</a></code> for a more detailed explanation of the implementation of this method. See below for examples of how <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code> can be used.</p>
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">missing_staff_id</span>);
-<span class="no">dfr_5</span> <span class="kw">&lt;-</span> <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"staff_id"</span>,  <span class="st">"initials"</span>,
-                          <span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>)]
+<span class="no">dfr_5</span> <span class="kw">&lt;-</span> <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"staff_id"</span>,  <span class="st">"initials"</span>, <span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>)]
 <span class="no">dfr_5</span>
 <span class="co">#&gt;   staff_id initials hair_colour     branch_office</span>
 <span class="co">#&gt; 1       NA     G.D.       Brown Republic of Ghana</span>
@@ -474,7 +473,7 @@
 <span class="co">#&gt; [1,]          1.733354   0.2931724             1</span>
 <span class="co">#&gt; [2,]          1.733354   0.2931724             1</span>
 <span class="co">#&gt; [3,]         -3.836501 -15.5095038             0</span></pre></body></html></div>
-<p>Similar wrapper functions can be written for implementing more other type of EM algorithms.</p>
+<p>Similar wrapper functions can be written to implement other type of EM algorithms.</p>
 </div>
 </div>
 </div>
@@ -498,8 +497,8 @@
 <span class="co">#&gt;  by records per group:</span>
 <span class="co">#&gt;      1 record:            8</span></pre></body></html></div>
 <p>However, the same outcome can be achieved with a <code>criteria</code> and will only take one iteration to complete the same process</p>
-<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">sub_cri</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="no">Opes</span>$<span class="no">date_of_birth</span>, <span class="kw">sep</span> <span class="kw">=</span> <span class="st">"-"</span>)
-<span class="no">new_cri</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="st">" "</span>, <span class="no">sub_cri</span>)
+<div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="no">new_cri</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">Opes</span>$<span class="no">department</span>, <span class="no">Opes</span>$<span class="no">hair_colour</span>, <span class="no">Opes</span>$<span class="no">date_of_birth</span>, <span class="kw">sep</span> <span class="kw">=</span> <span class="st">"-"</span>)
+<span class="no">new_cri</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">Opes</span>$<span class="no">name</span>, <span class="st">" "</span>, <span class="no">new_cri</span>)
 <span class="no">Opes</span>$<span class="no">pd4c2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="no">new_cri</span>)
 
 <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">Opes</span>$<span class="no">pd4c2</span>@<span class="kw">iteration</span>)
@@ -541,9 +540,7 @@
 <div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="co"># Dataset </span>
 <span class="no">dfr_6</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">attr_1</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="fl">1</span>, <span class="fl">10</span>))
 <span class="co"># Logical test - Absolute difference between values is &gt; 0</span>
-<span class="no">rng_1p_func</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>){
-  <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(<span class="no">y</span> - <span class="no">x</span>) <span class="kw">&gt;</span> <span class="fl">0</span>
-}
+<span class="no">rng_1p_func</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html">abs</a></span>(<span class="no">y</span> - <span class="no">x</span>) <span class="kw">&gt;</span> <span class="fl">0</span>
 <span class="no">sub_cri_7</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">dfr_6</span>$<span class="no">attr_1</span>, <span class="kw">match_funcs</span> <span class="kw">=</span> <span class="no">rng_1p_func</span>)
 
 <span class="no">dfr_6</span>$<span class="no">pd_7a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="st">"place_holder"</span>, <span class="kw">sub_criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="st">"cr1"</span> <span class="kw">=</span> <span class="no">sub_cri_7</span>),
@@ -574,8 +571,8 @@
                      <span class="kw">check_duplicates</span>  <span class="kw">=</span> <span class="fl">FALSE</span>)
 
 <span class="co"># Same outcome - identical identifiers</span>
-<span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="no">dfr_6</span>$<span class="no">pd_7c</span>@<span class="kw">iteration</span> <span class="kw">==</span> <span class="no">dfr_6</span>$<span class="no">pd_7d</span>@<span class="kw">iteration</span>)
-<span class="co">#&gt; [1] FALSE</span>
+<span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="no">dfr_6</span>$<span class="no">pd_7c</span> <span class="kw">==</span> <span class="no">dfr_6</span>$<span class="no">pd_7d</span>)
+<span class="co">#&gt; [1] TRUE</span>
 
 <span class="co"># but different number of iterations</span>
 <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">dfr_6</span>$<span class="no">pd_7c</span>@<span class="kw">iteration</span>); <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">dfr_6</span>$<span class="no">pd_7d</span>@<span class="kw">iteration</span>)
@@ -586,7 +583,7 @@
 <h3 class="hasAnchor">
 <a href="#recurisve" class="anchor"></a><code>recurisve</code>
 </h3>
-<p>Matching records can either be included or excluded from subsequent iteration of checks at the same <code>criteria</code> or stage. Excluding such records ultimately reduces the overall processing time but this can lead to different outcomes depending on the nature of the attribute being compared. If the attribute is to be compared in such a way that matching records can spawn new matches, having <code>recurisve</code> as <code>FALSE</code> will miss these links. The example below demonstrates this.</p>
+<p>Matching records can either be included or excluded from subsequent iteration of the checks within the same <code>criteria</code> or stage of the linkage process. Excluding such records ultimately reduces the overall processing time but this can lead to different outcomes depending on the nature of the attribute being compared. If the attribute is to be compared in such a way that matching records can spawn new matches, having <code>recurisve</code> as <code>FALSE</code> will miss these links. The example below demonstrates this.</p>
 <div class="sourceCode" id="cb15"><html><body><pre class="r"><span class="co"># Dataset </span>
 <span class="no">dfr_7</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">attr_1</span> <span class="kw">=</span> <span class="fl">1</span>:<span class="fl">10</span>, <span class="kw">stringsAsFactors</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 <span class="co"># Logical test - Absolute difference of less than 4</span>
@@ -614,7 +611,7 @@
 <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">dfr_7</span>$<span class="no">pd_8a</span>@<span class="kw">iteration</span>); <span class="fu"><a href="https://rdrr.io/r/base/Extremes.html">max</a></span>(<span class="no">dfr_7</span>$<span class="no">pd_8b</span>@<span class="kw">iteration</span>)
 <span class="co">#&gt; [1] 7</span>
 <span class="co">#&gt; [1] 3</span></pre></body></html></div>
-<p>In contrast, if the attributes are to be compared in such a way that matches will not spawn new matches, then having <code>recurisve</code> as <code>FALSE</code> will lead to the same outcome but with the added benefit of taking fewer iterations to complete the same process. The example below demonstrates this. <code>attr_10</code> contains 26 unique values therefore, 26 iterations are required to complete the linkage. However, if <code>recursive</code> is <code>TRUE</code> then at each iteration 260,000 records are assessed. In contrast, when <code>recursive</code> is <code>FALSE</code> then 10,000 less records are assessed at each subsequent iteration.</p>
+<p>In contrast, if the attributes are to be compared in such a way that matches will not spawn new matches, then having <code>recurisve</code> as <code>FALSE</code> will lead to the same outcome but with the added benefit of taking fewer iterations to complete the same process. The example below demonstrates this. <code>attr_10</code> contains 26 unique values therefore, 26 iterations are required to complete the linkage based on exact matches. However, if <code>recursive</code> is <code>TRUE</code> then at each iteration 260,000 records are assessed. In contrast, when <code>recursive</code> is <code>FALSE</code> then 10,000 less records are assessed at each subsequent iteration.</p>
 <div class="sourceCode" id="cb16"><html><body><pre class="r"><span class="co"># dataset </span>
 <span class="no">attr_10</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/rep.html">rep</a></span>(<span class="no">LETTERS</span>, <span class="fl">10000</span>)
 <span class="no">sub_cri_10</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">attr_10</span>)
@@ -625,7 +622,7 @@
                  <span class="kw">recursive</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;   13.42    1.53   15.29</span>
+<span class="co">#&gt;   18.34    2.50   21.78</span>
 
 <span class="co"># Faster</span>
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
@@ -633,14 +630,14 @@
                  <span class="kw">recursive</span> <span class="kw">=</span> <span class="fl">FALSE</span>)
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;     6.3     1.0     7.5</span>
+<span class="co">#&gt;    8.78    1.06   10.22</span>
 
 <span class="co"># Fastest</span>
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
   <span class="no">pd_8e</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/match.html">match</a></span>(<span class="no">attr_10</span>, <span class="no">attr_10</span>)
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;    0.02    0.00    0.01</span>
+<span class="co">#&gt;    0.01    0.00    0.02</span>
 
 <span class="co"># Same outcomes - identical identifiers</span>
 <span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="no">pd_8c</span> <span class="kw">==</span> <span class="no">pd_8d</span>) <span class="kw">&amp;</span> <span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="no">pd_8c</span> <span class="kw">==</span> <span class="no">pd_8e</span>)

@@ -19,12 +19,12 @@ knitr::opts_chunk$set(
 library(diyar)
 # library(cowplot)
 library(ggplot2)
-date <- function(x) as.Date(x, "%d/%m/%Y")
-dttm <- function(x) as.POSIXct(x, "UTC", format = "%d/%m/%Y %H:%M:%S")
+# date <- function(x) as.Date(x, "%d/%m/%Y")
+# dttm <- function(x) as.POSIXct(x, "UTC", format = "%d/%m/%Y %H:%M:%S")
 ```
 
 # Introduction
-In epidemiological analyses an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-offs are used to distinguish one case of an event from another. This is an important aspect of most case definitions. For example, distinguishing repeat or recurrent infections in a patient from first occurrence of the infection.
+In epidemiological analyses an exact distinction between temporal events is not always possible. Therefore, static but reasonable cut-offs are used to distinguish one case of an event from another. This is an important aspect of most case definitions. For example, distinguishing repeat or recurrent infections in a patient from the first occurrence of that infection.
 
 Scripting such case definitions in `R` can be challenging. `episodes()` and `partitions()` provide a convenient but flexible solution to this. It links events into a temporal sequence, creating a unique group identifier with useful information about each group. These identifiers can then be used for record deduplication or further analyses.
 
@@ -408,19 +408,19 @@ dfr$admin_period <- number_line(dfr$admin_dt, dfr$discharge_dt)
                                   
 # Group overlapping hospital stays
 dfr$ep_len1 <- index_window(dfr$admin_period)
-ep21 <- episodes(date = dfr$admin_period, case_length = dfr$ep_len1)
+dfr$ep21 <- episodes(date = dfr$admin_period, case_length = dfr$ep_len1)
 
 # Group overlapping hospital stays and those within 21 days of the end point of an index hospital stay 
 dfr$ep_len2 <- expand_number_line(index_window(dfr$admin_period), 20, "right")
-ep22 <- episodes(date = dfr$admin_period, case_length =  dfr$ep_len2)
+dfr$ep22 <- episodes(date = dfr$admin_period, case_length =  dfr$ep_len2)
 
-dfr
+dfr[c("admin_period", "ep_len1", "ep_len2", "ep21", "ep22")]
 ```
 
 ```{r warning=FALSE, include=FALSE}
-# plt1 <- schema(ep21, seed = 2,
+# plt1 <- schema(dfr$ep21, seed = 2,
 #                show_label = c("length_label", "length_arrow"), theme = "light")
-# plt2 <- schema(ep22, seed = 2,
+# plt2 <- schema(dfr$ep22, seed = 2,
 #                show_label = c("length_label", "length_arrow"), theme = "light")
 # 
 # f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "black")),
@@ -502,7 +502,7 @@ See `overlap_methods$options` for a list of supported options.
 # Strengths and limitations
  `episodes()` is implemented as a loop. Although, the function continues to be optimised, each iteration of the loop costs additional processing time. This can be further compounded by the number of records being assessed. The exact time taken to complete an iteration will depend on a machine's specifications but the number of iterations required to complete the tracking process is constant. This additional processing is often negligible when analysing small datasets but becomes more noticeable with much larger datasets and more complex `case_sub_criteria` or `recurrence_sub_criteria`.
 
-In general, this issue can be mitigated by taking measures to either reducing the number of iterations required to complete the episode tracking process or reducing the number of records being assessed. Examples are described below. 
+In general, this issue can be mitigated by taking measures to either reduce the number of iterations required to complete the episode tracking process or reducing the number of records being assessed. Examples are described below. 
 
 ## Efficient use of arguments
 Different combinations of arguments can lead to the same outcome however, each will often require different number of iterations to complete the same process. In general, shorter and multiple `case_length` and `recurrence_length`, fewer `strata`, and the use of `custom_sort`, a `sub_criteria` and multiple index events will increase the number of iterations required to complete the process. A good understanding of each argument will be beneficial in knowing the most efficient combination of arguments to use for a case definition. For example, `ep4` was created with a `sub_criteria` and took 9 iterations to complete.
@@ -562,10 +562,10 @@ system.time(
 **Figure 11: Effect of using multiple index events**
 <img src = "fig_e11.png" width = "1000" height="290">
 
-The three methods have resulted in the same outcome therefore the "fastest" approach is recommended. Unless required, multiple index events should be avoided. A scenario where this would be required would be if a `sub_criteria` is being assessed, and multiple index events can have different attributes.
+The three methods above have resulted in the same outcome therefore the "fastest" approach is recommended. Unless required, multiple index events should be avoided. A scenario where this would be required would be if a `sub_criteria` is being assessed and multiple index events can have different attributes.
 
 ### Reduce the number of records being assessed
-To further reduce processing time, exact duplicates such as same day events can be excluded prior to the tracking process. These duplicate events can be linked back to the group identifier if they were indexed before exclusion. See the example below.
+To further reduce processing time, exact duplicates such as same day events can be excluded prior to the tracking process. These duplicate events can be linked back to the group identifier if they were indexed before exclusion. In the example below, despite both approaches leading to the same outcome and number of iterations, it takes longer to complete the process when working with the duplicate events.
 
 ```{r warning=FALSE}
 # 10,000 duplicate events from the same `strata` e.g. patient or location
@@ -577,7 +577,9 @@ system.time(
 # Faster
 system.time(
   {
+    # Duplicate events not included in analysis 
     ep24b <- episodes(event_dt, case_length = 5, episode_type = "fixed")
+    # Results recycled for the duplicate events
     ep24b <- ep24b[match(dup_events2, event_dt)]
     }
 )
@@ -593,7 +595,7 @@ max(ep24a@iteration); max(ep24b@iteration)
 `episode_max`, `rolls_max` and `skip_order` are arguments used to stop the episode tracking process once certain conditions are met. By doing this, the total number of iterations and processing time is therefore reduced. `episodes_max` specifies the maximum number of episodes required from a `strata`. `rolls_max` specifies the number of recurrences an index case is allowed. `skip_order` stops the episode tracking process when all records with the `nth` level of a `custom_sort` have been linked to an episode. `skip_order` is particularly useful when tracking rare events among other common events. Once all rare events have been tracked, the process is stopped. The example below has a mix of two `"Rare"` events and 20 `"Common"` events, and takes 11 iterations to complete.
 
 ```{r warning=FALSE}
-# Attribute 4 - Frequency
+# Attribute 4 - Occurrence
 attr_4 <- c(rep("Common", 5), "Rare", rep("Common", 12), "Rare", rep("Common", 3))
 attr_4 <- factor(attr_4, levels = c("Rare", "Common"))
 
