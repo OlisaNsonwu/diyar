@@ -22,7 +22,7 @@ data$date_int <- as.number_line(data$date)
 
 episodes <- function(..., to_s4 = T){
   if(to_s4 == F){
-    as.data.frame(diyar::episodes(..., display = "none"))
+    as.data.frame(diyar::episodes(..., display = "none"), stringsAsFactors = FALSE)
   }else{
     x <- diyar::episodes(..., display = "none")
     x@options <- list()
@@ -32,7 +32,7 @@ episodes <- function(..., to_s4 = T){
 
 fixed_episodes <- function(..., to_s4 = T){
   if(to_s4 == F){
-    as.data.frame(diyar::fixed_episodes(..., display = "none"))
+    as.data.frame(diyar::fixed_episodes(..., display = "none"), stringsAsFactors = FALSE)
   }else{
     x <- diyar::fixed_episodes(..., display = "none")
     x@options <- list()
@@ -42,7 +42,7 @@ fixed_episodes <- function(..., to_s4 = T){
 
 rolling_episodes <- function(..., to_s4 = T){
   if(to_s4 == F){
-    as.data.frame(diyar::rolling_episodes(..., display = "none"))
+    as.data.frame(diyar::rolling_episodes(..., display = "none"), stringsAsFactors = FALSE)
   }else{
     x <- diyar::rolling_episodes(..., display = "none")
     x@options <- list()
