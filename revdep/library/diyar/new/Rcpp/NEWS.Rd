@@ -3,6 +3,40 @@
 \newcommand{\ghpr}{\href{https://github.com/RcppCore/Rcpp/pull/#1}{##1}}
 \newcommand{\ghit}{\href{https://github.com/RcppCore/Rcpp/issues/#1}{##1}}
 
+\section{Changes in Rcpp patch release version 1.0.6 (2021-01-14)}{
+  \itemize{
+    \item Changes in Rcpp API:
+    \itemize{
+      \item Replace remaining few uses of \code{EXTPTR_PTR} with
+      \code{R_ExternalPtrAddr} (Kevin in \ghpr{1098} fixing
+      \ghit{1097}).
+      \item Add \code{push_back} and \code{push_front} for
+      \code{DataFrame} (Walter Somerville in \ghpr{1099} fixing
+      \ghit{1094}).
+      \item Remove a misleading-to-wrong comment (Mattias Ellert in
+      \ghpr{1109} cleaning up after \ghpr{1049}).
+      \item Address a sanitizer report by initializing two private
+      \code{bool} variables (Benjamin Christoffersen in \ghpr{1113}).
+      \item External pointer finalizer toggle default values were
+      corrected to true (Dirk in \ghpr{1115}).
+    }
+    \item Changes in Rcpp Documentation:
+    \itemize{
+      \item Several URLs were updated to https and/or new addresses (Dirk).
+    }
+    \item Changes in Rcpp Deployment:
+    \itemize{
+      \item Added GitHub Actions CI using the same container-based setup
+      used previously, and also carried code coverage over (Dirk in
+      \ghpr{1128}).
+    }
+    \item Changes in Rcpp support functions:
+    \itemize{
+      \item \code{Rcpp.package.skeleton()} avoids warning from R. (Dirk)
+    }
+  }
+}
+
 \section{Changes in Rcpp patch release version 1.0.5 (2020-07-01)}{
   \itemize{
     \item Changes in Rcpp API:

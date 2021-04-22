@@ -89,6 +89,8 @@ op_expmat::apply_direct(Mat<typename T1::elem_type>& out, const Base<typename T1
     
     if(try_sympd)
       {
+      arma_extra_debug_print("op_expmat: attempting sympd optimisation");
+      
       // if matrix A is sympd, all its eigenvalues are positive
       
       Col< T> eigval;
@@ -105,7 +107,7 @@ op_expmat::apply_direct(Mat<typename T1::elem_type>& out, const Base<typename T1
         return true;
         }
       
-      arma_extra_debug_print("warning: sympd optimisation failed");
+      arma_extra_debug_print("op_expmat: sympd optimisation failed");
       
       // fallthrough if eigen decomposition failed
       }
@@ -146,7 +148,7 @@ op_expmat::apply_direct(Mat<typename T1::elem_type>& out, const Base<typename T1
     
     if( (D.is_finite() == false) || (E.is_finite() == false) )  { return false; }
     
-    const bool status = solve(out, D, E);
+    const bool status = solve(out, D, E, solve_opts::no_approx);
     
     if(status == false)  { return false; }
     

@@ -1,8 +1,8 @@
 Package: Rfast
 Type: Package
 Title: A Collection of Efficient and Extremely Fast R Functions
-Version: 1.9.9
-Date: 2020-03-07
+Version: 2.0.1
+Date: 2020-09-13
 Author: Manos Papadakis, Michail Tsagris, Marios Dimitriadis, Stefanos Fafalios, Ioannis Tsamardinos, Matteo Fasiolo, Giorgos Borboudakis, John Burkardt, Changliang Zou, Kleanthi Lakiotaki and Christina Chatzipantsiou.
 Maintainer: Manos Papadakis <rfastofficial@gmail.com>
 Depends: R (>= 3.5.0), Rcpp (>= 0.12.3), RcppZiggurat
@@ -14,8 +14,8 @@ Description: A collection of fast (utility) functions for data analysis. Column-
 License: GPL (>= 2.0)
 LazyData: TRUE
 NeedsCompilation: yes
-Packaged: 2020-03-07 12:32:43 UTC; MANOS
+Packaged: 2020-09-12 22:36:14 UTC; MANOS
 Repository: CRAN
-Date/Publication: 2020-03-08 22:40:02 UTC
-Built: R 3.6.3; x86_64-w64-mingw32; 2020-08-21 14:25:22 UTC; windows
+Date/Publication: 2020-09-14 04:10:03 UTC
+Built: R 3.6.3; x86_64-w64-mingw32; 2021-04-18 21:56:12 UTC; windows
 Archs: i386, x64

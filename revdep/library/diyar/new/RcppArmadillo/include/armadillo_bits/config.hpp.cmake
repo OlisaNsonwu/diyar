@@ -15,17 +15,27 @@
 
 
 
+#if !defined(ARMA_WARN_LEVEL)
+  #define ARMA_WARN_LEVEL 2
+#endif
+//// The level of warning messages printed to ARMA_CERR_STREAM.
+//// Must be an integer >= 0. The default value is 2.
+//// 0 = no warnings
+//// 1 = only critical warnings about arguments and/or data which are likely to lead to incorrect results
+//// 2 = as per level 1, and warnings about poorly conditioned systems (low rcond) detected by solve(), spsolve(), etc
+//// 3 = as per level 2, and warnings about failed decompositions, failed saving/loading, etc
+
 #if !defined(ARMA_USE_LAPACK)
 #cmakedefine ARMA_USE_LAPACK
 //// Comment out the above line if you don't have LAPACK or a high-speed replacement for LAPACK,
-//// such as Intel MKL, AMD ACML, or the Accelerate framework.
+//// such as OpenBLAS, Intel MKL, or the Accelerate framework.
 //// LAPACK is required for matrix decompositions (eg. SVD) and matrix inverse.
 #endif
 
 #if !defined(ARMA_USE_BLAS)
 #cmakedefine ARMA_USE_BLAS
 //// Comment out the above line if you don't have BLAS or a high-speed replacement for BLAS,
-//// such as OpenBLAS, GotoBLAS, Intel MKL, AMD ACML, or the Accelerate framework.
+//// such as OpenBLAS, Intel MKL, or the Accelerate framework.
 //// BLAS is used for matrix multiplication.
 //// Without BLAS, matrix multiplication will still work, but might be slower.
 #endif
@@ -62,7 +72,7 @@
 //// You will then need to link your programs directly with -llapack -lblas instead of -larmadillo
 
 // #define ARMA_BLAS_CAPITALS
-//// Uncomment the above line if your BLAS and LAPACK libraries have capitalised function names (eg. ACML on 64-bit Windows)
+//// Uncomment the above line if your BLAS and LAPACK libraries have capitalised function names
 
 #define ARMA_BLAS_UNDERSCORE
 //// Uncomment the above line if your BLAS and LAPACK libraries have function names with a trailing underscore.
@@ -73,6 +83,12 @@
 
 // #define ARMA_BLAS_LONG_LONG
 //// Uncomment the above line if your BLAS and LAPACK libraries use "long long" instead of "int"
+
+// #define ARMA_BLAS_NOEXCEPT
+//// Uncomment the above line if you require BLAS functions to have the 'noexcept' specification
+
+// #define ARMA_LAPACK_NOEXCEPT
+//// Uncomment the above line if you require LAPACK functions to have the 'noexcept' specification
 
 #define ARMA_USE_FORTRAN_HIDDEN_ARGS
 //// Comment out the above line to call BLAS and LAPACK functions without using so-called "hidden" arguments.
@@ -99,12 +115,6 @@
 //// uncomment the above define and specify the appropriate include directory.
 //// Make sure the directory has a trailing /
 
-#if !defined(ARMA_USE_CXX11)
-// #define ARMA_USE_CXX11
-//// Uncomment the above line to forcefully enable use of C++11 features.
-//// Note that ARMA_USE_CXX11 is automatically enabled when a C++11 compiler is detected.
-#endif
-
 #if !defined(ARMA_USE_OPENMP)
 // #define ARMA_USE_OPENMP
 //// Uncomment the above line to forcefully enable use of OpenMP for parallelisation.
@@ -114,8 +124,7 @@
 #if !defined(ARMA_64BIT_WORD)
 // #define ARMA_64BIT_WORD
 //// Uncomment the above line if you require matrices/vectors capable of holding more than 4 billion elements.
-//// Your machine and compiler must have support for 64 bit integers (eg. via "long" or "long long").
-//// Note that ARMA_64BIT_WORD is automatically enabled when a C++11 compiler is detected and std::size_t has 64 bits.
+//// Note that ARMA_64BIT_WORD is automatically enabled when std::size_t has 64 bits and ARMA_32BIT_WORD is not defined.
 #endif
 
 #if !defined(ARMA_USE_HDF5)
@@ -135,7 +144,7 @@
   #define ARMA_OPTIMISE_SYMPD
   //// Comment out the above line if you don't want automatically optimised handling
   //// of symmetric/hermitian positive definite matrices by various functions:
-  //// solve(), inv(), expmat(), logmat(), sqrtmat(), rcond()
+  //// solve(), inv(), pinv(), expmat(), logmat(), sqrtmat(), rcond()
 #endif
 
 #cmakedefine ARMA_USE_HDF5_ALT
@@ -208,6 +217,11 @@
 //// Comment out the above line if you don't want errors and warnings printed (eg. failed decompositions)
 #endif
 
+#if !defined(ARMA_PRINT_EXCEPTIONS)
+// #define ARMA_PRINT_EXCEPTIONS
+//// see also compiler_setup.hpp
+#endif
+
 #if !defined(ARMA_PRINT_HDF5_ERRORS)
 // #define ARMA_PRINT_HDF5_ERRORS
 #endif
@@ -247,14 +261,17 @@
   #undef ARMA_USE_FORTRAN_HIDDEN_ARGS
 #endif
 
-#if defined(ARMA_DONT_USE_CXX11)
-  #undef ARMA_USE_CXX11
-  #undef ARMA_USE_EXTERN_CXX11_RNG
+#if !defined(ARMA_DONT_USE_STD_MUTEX)
+  // #define ARMA_DONT_USE_STD_MUTEX
+  //// Uncomment the above line to disable use of std::mutex
 #endif
 
-#if !defined(ARMA_DONT_USE_CXX11_MUTEX)
-  // #define ARMA_DONT_USE_CXX11_MUTEX
-  //// Uncomment the above line to disable use of std::mutex in C++11
+// for compatibility with earlier versions of Armadillo
+#if defined(ARMA_DONT_USE_CXX11_MUTEX)
+  #pragma message ("WARNING: support for ARMA_DONT_USE_CXX11_MUTEX is deprecated and will be removed;")
+  #pragma message ("WARNING: use ARMA_DONT_USE_STD_MUTEX instead")
+  #undef  ARMA_DONT_USE_STD_MUTEX
+  #define ARMA_DONT_USE_STD_MUTEX
 #endif
 
 #if defined(ARMA_DONT_USE_OPENMP)
@@ -262,15 +279,20 @@
 #endif
 
 #if defined(ARMA_USE_WRAPPER)
-  #if defined(ARMA_USE_CXX11)
-    #if !defined(ARMA_USE_EXTERN_CXX11_RNG)
-      #cmakedefine ARMA_USE_EXTERN_CXX11_RNG
-    #endif
+  #if !defined(ARMA_USE_EXTERN_RNG)
+    #cmakedefine ARMA_USE_EXTERN_RNG
   #endif
 #endif
 
+#if defined(ARMA_DONT_USE_EXTERN_RNG)
+  #undef ARMA_USE_EXTERN_RNG
+#endif
+
+// for compatibility with earlier versions of Armadillo
 #if defined(ARMA_DONT_USE_EXTERN_CXX11_RNG)
-  #undef ARMA_USE_EXTERN_CXX11_RNG
+  #pragma message ("WARNING: support for ARMA_DONT_USE_EXTERN_CXX11_RNG is deprecated and will be removed;")
+  #pragma message ("WARNING: use ARMA_DONT_USE_EXTERN_RNG instead")
+  #undef ARMA_USE_EXTERN_RNG
 #endif
 
 #if defined(ARMA_32BIT_WORD)
@@ -292,6 +314,10 @@
 
 #if defined(ARMA_DONT_PRINT_ERRORS)
   #undef ARMA_PRINT_ERRORS
+#endif
+
+#if defined(ARMA_DONT_PRINT_EXCEPTIONS)
+  #undef ARMA_PRINT_EXCEPTIONS
 #endif
 
 #if defined(ARMA_DONT_PRINT_HDF5_ERRORS)

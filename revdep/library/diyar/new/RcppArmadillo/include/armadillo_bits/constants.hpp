@@ -27,7 +27,7 @@ namespace priv
     template<typename eT>
     static
     typename arma_real_only<eT>::result
-    nan(typename arma_real_only<eT>::result* junk = 0)
+    nan(typename arma_real_only<eT>::result* junk = nullptr)
       {
       arma_ignore(junk);
       
@@ -45,7 +45,7 @@ namespace priv
     template<typename eT>
     static
     typename arma_cx_only<eT>::result
-    nan(typename arma_cx_only<eT>::result* junk = 0)
+    nan(typename arma_cx_only<eT>::result* junk = nullptr)
       {
       arma_ignore(junk);
       
@@ -58,7 +58,7 @@ namespace priv
     template<typename eT>
     static
     typename arma_integral_only<eT>::result
-    nan(typename arma_integral_only<eT>::result* junk = 0)
+    nan(typename arma_integral_only<eT>::result* junk = nullptr)
       {
       arma_ignore(junk);
       
@@ -69,7 +69,7 @@ namespace priv
     template<typename eT>
     static
     typename arma_real_only<eT>::result
-    inf(typename arma_real_only<eT>::result* junk = 0)
+    inf(typename arma_real_only<eT>::result* junk = nullptr)
       {
       arma_ignore(junk);
       
@@ -87,7 +87,7 @@ namespace priv
     template<typename eT>
     static
     typename arma_cx_only<eT>::result
-    inf(typename arma_cx_only<eT>::result* junk = 0)
+    inf(typename arma_cx_only<eT>::result* junk = nullptr)
       {
       arma_ignore(junk);
       
@@ -100,7 +100,7 @@ namespace priv
     template<typename eT>
     static
     typename arma_integral_only<eT>::result
-    inf(typename arma_integral_only<eT>::result* junk = 0)
+    inf(typename arma_integral_only<eT>::result* junk = nullptr)
       {
       arma_ignore(junk);
       
@@ -113,7 +113,7 @@ namespace priv
 
 
 //! various constants.
-//! Physical constants taken from NIST 2014 CODATA values, and some from WolframAlpha (values provided as of 2009-06-23)
+//! Physical constants taken from NIST 2018 CODATA values, and some from WolframAlpha (values provided as of 2009-06-23)
 //! http://physics.nist.gov/cuu/Constants
 //! http://www.wolframalpha.com
 //! See also http://en.wikipedia.org/wiki/Physical_constant
@@ -230,62 +230,40 @@ namespace priv
   
   template<typename eT>
   static
-  arma_inline
+  constexpr
   typename arma_real_only<eT>::result
-  most_neg(typename arma_real_only<eT>::result* junk = 0)
+  most_neg()
     {
-    arma_ignore(junk);
-    
-    if(std::numeric_limits<eT>::has_infinity)
-      {
-      return -(std::numeric_limits<eT>::infinity());
-      }
-    else
-      {
-      return -(std::numeric_limits<eT>::max());
-      }
+    return (std::numeric_limits<eT>::has_infinity) ? -(std::numeric_limits<eT>::infinity()) : std::numeric_limits<eT>::lowest();
     }
   
   
   template<typename eT>
   static
-  arma_inline
+  constexpr
   typename arma_integral_only<eT>::result
-  most_neg(typename arma_integral_only<eT>::result* junk = 0)
+  most_neg()
     {
-    arma_ignore(junk);
-    
-    return std::numeric_limits<eT>::min();
+    return std::numeric_limits<eT>::lowest();
     }
   
   
   template<typename eT>
   static
-  arma_inline
+  constexpr
   typename arma_real_only<eT>::result
-  most_pos(typename arma_real_only<eT>::result* junk = 0)
+  most_pos()
     {
-    arma_ignore(junk);
-    
-    if(std::numeric_limits<eT>::has_infinity)
-      {
-      return std::numeric_limits<eT>::infinity();
-      }
-    else
-      {
-      return std::numeric_limits<eT>::max();
-      }
+    return (std::numeric_limits<eT>::has_infinity) ? std::numeric_limits<eT>::infinity() : std::numeric_limits<eT>::max();
     }
   
   
   template<typename eT>
   static
-  arma_inline
+  constexpr
   typename arma_integral_only<eT>::result
-  most_pos(typename arma_integral_only<eT>::result* junk = 0)
+  most_pos()
     {
-    arma_ignore(junk);
-    
     return std::numeric_limits<eT>::max();
     }
 

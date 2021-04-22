@@ -9,13 +9,15 @@
 
 <h3>Description</h3>
 
-<p>S4 objects to store the results of <code><a href="links.html">record_group</a></code>
+<p>S4 objects storing the result of <code><a href="links.html">links</a></code>.
 </p>
 
 
 <h3>Usage</h3>
 
 <pre>
+is.pid(x)
+
 as.pid(x, ...)
 
 ## S3 method for class 'pid'
@@ -23,6 +25,18 @@ format(x, ...)
 
 ## S3 method for class 'pid'
 unique(x, ...)
+
+## S3 method for class 'pid'
+summary(object, ...)
+
+## S3 method for class 'pid_summary'
+print(x, ...)
+
+## S3 method for class 'pid'
+as.data.frame(x, ...)
+
+## S3 method for class 'pid'
+as.list(x, ...)
 
 ## S4 method for signature 'pid'
 show(object)
@@ -74,5 +88,36 @@ c(x, ...)
 </td></tr>
 </table>
 
-<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>sn</code></dt><dd><p>Unique record identifier.</p>
+</dd>
+<dt><code>.Data</code></dt><dd><p>Unique group identifier.</p>
+</dd>
+<dt><code>link_id</code></dt><dd><p>Unique record identifier for matching records.</p>
+</dd>
+<dt><code>pid_cri</code></dt><dd><p>Matching criteria.</p>
+</dd>
+<dt><code>pid_dataset</code></dt><dd><p>Data sources in each group.</p>
+</dd>
+<dt><code>pid_total</code></dt><dd><p>The number of records in each group.</p>
+</dd>
+<dt><code>iteration</code></dt><dd><p>The iteration of the linkage process when a record was linked to its group.</p>
+</dd>
+</dl>
+
+
+<h3>Examples</h3>
+
+<pre>
+# A test for pid objects
+pd &lt;- links(criteria = 1)
+is.pid(pd); is.pid(2)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
 </body></html>

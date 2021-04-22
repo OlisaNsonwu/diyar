@@ -9,13 +9,15 @@
 
 <h3>Description</h3>
 
-<p>S4 objects to store the results of <code><a href="episodes.html">episodes</a></code>
+<p>S4 objects storing the result of <code><a href="episodes.html">episodes</a></code>.
 </p>
 
 
 <h3>Usage</h3>
 
 <pre>
+is.epid(x)
+
 as.epid(x)
 
 ## S3 method for class 'epid'
@@ -23,6 +25,18 @@ format(x, ...)
 
 ## S3 method for class 'epid'
 unique(x, ...)
+
+## S3 method for class 'epid'
+summary(object, ...)
+
+## S3 method for class 'epid_summary'
+print(x, ...)
+
+## S3 method for class 'epid'
+as.data.frame(x, ...)
+
+## S3 method for class 'epid'
+as.list(x, ...)
 
 ## S4 method for signature 'epid'
 show(object)
@@ -74,5 +88,48 @@ c(x, ...)
 </td></tr>
 </table>
 
-<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+
+<h3>Slots</h3>
+
+
+<dl>
+<dt><code>sn</code></dt><dd><p>Unique record identifier.</p>
+</dd>
+<dt><code>.Data</code></dt><dd><p>Unique <code>episode</code> identifier.</p>
+</dd>
+<dt><code>wind_id</code></dt><dd><p>Unique window identifier.</p>
+</dd>
+<dt><code>wind_nm</code></dt><dd><p>Type of window i.e. &quot;Case&quot; or &quot;Recurrence&quot;.</p>
+</dd>
+<dt><code>case_nm</code></dt><dd><p>Record type in regards to case assignment.</p>
+</dd>
+<dt><code>dist_wind_index</code></dt><dd><p>Unit difference between each record and its window's reference record.</p>
+</dd>
+<dt><code>dist_epid_index</code></dt><dd><p>Unit difference between each record and its episode's reference record.</p>
+</dd>
+<dt><code>epid_dataset</code></dt><dd><p>Data sources in each <code>episode</code>.</p>
+</dd>
+<dt><code>epid_interval</code></dt><dd><p>The start and end dates of each <code>episode</code>. A <code><a href="number_line.html">number_line</a></code> object.</p>
+</dd>
+<dt><code>epid_length</code></dt><dd><p>The duration or length of (<code>epid_interval</code>).</p>
+</dd>
+<dt><code>epid_total</code></dt><dd><p>The number of records in each <code>episode</code>.</p>
+</dd>
+<dt><code>iteration</code></dt><dd><p>The iteration of the tracking process when a record was linked to its episode.</p>
+</dd>
+<dt><code>options</code></dt><dd><p>Some options passed to the instance of <code><a href="episodes.html">episodes</a></code>.</p>
+</dd>
+</dl>
+
+
+<h3>Examples</h3>
+
+<pre>
+# A test for `epid` objects
+ep &lt;- episodes(date = 1)
+is.epid(ep); is.epid(2)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
 </body></html>

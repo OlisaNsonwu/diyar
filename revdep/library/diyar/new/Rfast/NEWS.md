@@ -1,6 +1,48 @@
 <h1 align="center"> _Rfast_ </h1>
 
 > <b>New version</b> </br>
+Date release: **13/09/2019** 
+>
+
+***
+
+> <h3>**_Statistical functions_**</h3>
+>
+>>1. <u> **Improved** </u>(_**by speed, correctness or options**_) 
+>>
+>>  |	    Function	    |           What's new!             |
+>>  | --------------------- | --------------------------------- |
+>>  | Var                   | Time improvement for removing NAs.|
+***
+>
+>>2. <u> **New** </u>
+>>
+>>  | 	     Function	      |          What's new!            |
+>>  | --------------------- | ------------------------------------------- |
+>>  |                       |  											  |
+>
+***
+> <h3>**_Utility functions_**</h3>  
+>
+>>1. <u> **Improved** </u>(_**by speed, correctness or options**_) 
+>>
+>>  | 	    Function	    |            What's new!                  |
+>>  | --------------------- | --------------------------------------- |
+>>  |  checkUsage           | From now on check for S3methods and fix bug.        |
+>>  |  Tcrossprod           | same as R's tcrossprod.        |
+>>  |  Crossprod            | same as R's crossprod.        |
+>
+***
+> <h3>**_LinkingTo functions_**</h3>  
+>>1. <u> **Improved** </u>(_**by speed, correctness or options**_) 
+>>
+>>  | 	    Function	    |            What's new!                  |
+>>  | --------------------- | --------------------------------------- |
+>>  |  matrix_multiplication | Add new arguments for perfoming cross or tcross product. |
+***
+>
+
+> <b>Version 1.9.9</b> </br>
 Date release: **11/12/2019** 
 >
 
@@ -80,7 +122,7 @@ Date release: **11/12/2019**
 >> 2. Include in your cpp files the header "Rfast.h" and enjoy!
 >
 
-> <b>New version</b> </br>
+> <b>Version 1.9.8 </b> </br>
 Date release: **07/06/2019** 
 >
 

@@ -1,30 +1,29 @@
 Package: diyar
 Type: Package
-Title: Multistage Record Linkage and Case Definition for
-        Epidemiological Analysis
-Date: 2020-08-26
-Version: 0.2.0
-URL: https://cran.r-project.org/package=diyar
+Title: Record Linkage and Epidemiological Case Definitions in R
+Date: 2021-04-20
+Version: 0.2.0.9000
+URL: https://olisansonwu.github.io/diyar/index.html
 BugReports: https://github.com/OlisaNsonwu/diyar/issues
 Author: Olisaeloka Nsonwu
 Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
-Description: Perform multistage deterministic linkages, apply case definitions to datasets, and deduplicate records.
-    Records are linked by different matching criteria in a specified order of certainty. 
-    The linkage process handles missing data and conflicting matches using this same order.
-    Track events (e.g. sample collection) and period (e.g. hospital admission) to episodes. 
-    This process permits several options such as episode lengths and recurrence.
-    Record linkage and episode tracking assign unique group identifiers to matched records.
-    This then allows for record deduplication or sub-analyses within these groups.  
+Description: An R package for record linkage and implementing epidemiological case definitions in R.
+    Record linkage is implemented either through a multistage determinitic approach or a probablisitic approach. 
+    Matching records are assigned to unqiue groups. There are mechanisms to address misssing data and conflicting matches across linkage stages.
+    Track and assign events (e.g. sample collection) and periods (e.g. hospital admission) to unique groups based on a case definition. 
+    The tracking process permits several options such as episode lengths and recurrence.
+    Duplicate events or records can then be identified for removal or further analyses.  
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-Imports: methods, grDevices, graphics, utils, Rfast
+Imports: methods, grDevices, graphics, utils, Rfast, ggplot2, rlang
 RoxygenNote: 7.1.1
-Suggests: knitr, rmarkdown, testthat, covr
+Suggests: knitr, rmarkdown, testthat, covr, stringdist
 VignetteBuilder: knitr
 Language: en-GB
 RemoteType: local
 RemoteUrl: C:\Users\Loky\Documents\GitHub\diyar
 NeedsCompilation: no
-Packaged: 2020-08-26 20:55:07 UTC; Loky
-Built: R 3.6.1; ; 2020-08-26 20:55:07 UTC; windows
+Packaged: 2021-04-22 19:03:39 UTC; Loky
+Depends: R (>= 3.5.0)
+Built: R 3.6.1; ; 2021-04-22 19:03:40 UTC; windows

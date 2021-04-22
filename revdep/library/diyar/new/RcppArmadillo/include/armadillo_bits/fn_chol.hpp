@@ -31,7 +31,7 @@ chol
   {
   arma_extra_debug_sigprint();
   
-  const char sig = (layout != NULL) ? layout[0] : char(0);
+  const char sig = (layout != nullptr) ? layout[0] : char(0);
   
   arma_debug_check( ((sig != 'u') && (sig != 'l')), "chol(): layout must be \"upper\" or \"lower\"" );
   
@@ -52,7 +52,7 @@ chol
   {
   arma_extra_debug_sigprint();
   
-  const char sig = (layout != NULL) ? layout[0] : char(0);
+  const char sig = (layout != nullptr) ? layout[0] : char(0);
   
   arma_debug_check( ((sig != 'u') && (sig != 'l')), "chol(): layout must be \"upper\" or \"lower\"" );
   
@@ -61,7 +61,7 @@ chol
   if(status == false)
     {
     out.soft_reset();
-    arma_debug_warn("chol(): decomposition failed");
+    arma_debug_warn_level(3, "chol(): decomposition failed");
     }
   
   return status;

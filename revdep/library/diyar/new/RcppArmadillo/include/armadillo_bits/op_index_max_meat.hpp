@@ -29,7 +29,7 @@ op_index_max::apply(Mat<uword>& out, const mtOp<uword,T1,op_index_max>& in)
   typedef typename T1::elem_type eT;
   
   const uword dim = in.aux_uword_a;
-  arma_debug_check( (dim > 1), "index_max(): parameter 'dim' must be 0 or 1");
+  arma_debug_check( (dim > 1), "index_max(): parameter 'dim' must be 0 or 1" );
   
   const quasi_unwrap<T1> U(in.m);
   const Mat<eT>& X = U.M;
@@ -98,7 +98,7 @@ op_index_max::apply_noalias(Mat<uword>& out, const Mat<eT>& X, const uword dim)
       
       for(uword row=0; row < X_n_rows; ++row)
         {
-        tmp_mem[row] = std::abs(col_mem[row]);
+        tmp_mem[row] = eop_aux::arma_abs(col_mem[row]);
         }
       }
     else
@@ -113,7 +113,7 @@ op_index_max::apply_noalias(Mat<uword>& out, const Mat<eT>& X, const uword dim)
       for(uword row=0; row < X_n_rows; ++row)
         {
         T& max_val = tmp_mem[row];
-        T  col_val = (is_cx<eT>::yes) ? T(std::abs(col_mem[row])) : T(access::tmp_real(col_mem[row]));
+        T  col_val = (is_cx<eT>::yes) ? T(eop_aux::arma_abs(col_mem[row])) : T(access::tmp_real(col_mem[row]));
         
         if(max_val < col_val)
           {

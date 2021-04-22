@@ -21,7 +21,7 @@
 
 struct field_prealloc_n_elem
   {
-  static const uword val = 16;
+  static constexpr uword val = 16;
   };
 
 
@@ -71,7 +71,9 @@ class field
   inline void  set_size(const SizeMat&  s);
   inline void  set_size(const SizeCube& s);
   
-  #if defined(ARMA_USE_CXX11)
+  inline            field(const std::vector<oT>& x);
+  inline field& operator=(const std::vector<oT>& x);
+  
   inline            field(const std::initializer_list<oT>& list);
   inline field& operator=(const std::initializer_list<oT>& list);
   
@@ -80,7 +82,6 @@ class field
   
   inline            field(field&& X);
   inline field& operator=(field&& X);
-  #endif
   
   template<typename oT2>
   inline void copy_size(const field<oT2>& x);
@@ -106,8 +107,9 @@ class field
   arma_inline       oT& operator()(const uword row, const uword col, const uword slice);
   arma_inline const oT& operator()(const uword row, const uword col, const uword slice) const;
   
-  inline field_injector<field> operator<<(const oT& val);
-  inline field_injector<field> operator<<(const injector_end_of_row<>& x);
+  
+  arma_cold inline field_injector<field> operator<<(const oT& val);
+  arma_cold inline field_injector<field> operator<<(const injector_end_of_row<>& x);
   
   
   inline       subview_field<oT> row(const uword row_num);
@@ -162,13 +164,8 @@ class field
   arma_cold inline void print(                           const std::string extra_text = "") const;
   arma_cold inline void print(std::ostream& user_stream, const std::string extra_text = "") const;
   
-  #if defined(ARMA_USE_CXX11)
   inline const field& for_each(const std::function< void(      oT&) >& F);
   inline const field& for_each(const std::function< void(const oT&) >& F) const;
-  #else
-  template<typename functor> inline const field& for_each(functor F);
-  template<typename functor> inline const field& for_each(functor F) const;
-  #endif
   
   inline const field& fill(const oT& x);
   
@@ -194,11 +191,11 @@ class field
   arma_inline arma_warn_unused bool in_range(const uword   in_row, const uword in_col, const uword in_slice, const SizeCube& s) const;
   
   
-  inline arma_cold bool save(const std::string   name, const file_type type = arma_binary, const bool print_status = true) const;
-  inline arma_cold bool save(      std::ostream& os,   const file_type type = arma_binary, const bool print_status = true) const;
+  inline arma_cold bool save(const std::string   name, const file_type type = arma_binary) const;
+  inline arma_cold bool save(      std::ostream& os,   const file_type type = arma_binary) const;
   
-  inline arma_cold bool load(const std::string   name, const file_type type = auto_detect, const bool print_status = true);
-  inline arma_cold bool load(      std::istream& is,   const file_type type = auto_detect, const bool print_status = true);
+  inline arma_cold bool load(const std::string   name, const file_type type = auto_detect);
+  inline arma_cold bool load(      std::istream& is,   const file_type type = auto_detect);
   
   
   inline arma_cold bool quiet_save(const std::string   name, const file_type type = arma_binary) const;

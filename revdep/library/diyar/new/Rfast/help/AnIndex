@@ -124,6 +124,7 @@ cova	cova
 cox.poisrat	cox.poisrat
 cqtest	ftest
 cqtests	kruskaltests
+Crossprod	mat.mult
 ct.mle	normal.mle
 data.frame.to_matrix	data.frame.to_matrix
 dcor	dcor
@@ -409,6 +410,7 @@ standardise	standardise
 submatrix	submatrix
 Table	Table
 Table.sign	Table
+Tcrossprod	mat.mult
 tmle	normal.mle
 tobit.mle	tobit.mle
 topological_sort	topological_sort

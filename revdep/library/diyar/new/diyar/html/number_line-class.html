@@ -9,8 +9,7 @@
 
 <h3>Description</h3>
 
-<p>S4 objects representing a series of finite numbers on a number line
-Used for range matching in <code><a href="links.html">record_group</a></code> and interval grouping in <code><a href="episodes.html">fixed_episodes</a></code>, <code><a href="episodes.html">rolling_episodes</a></code> and <code><a href="episodes.html">episode_group</a></code>
+<p>S4 objects representing a range of numeric values
 </p>
 
 
@@ -29,10 +28,10 @@ x[i, j, ..., drop = TRUE]
 ## S4 method for signature 'number_line'
 x[[i, j, ..., exact = TRUE]]
 
-## S4 replacement method for signature 'number_line,ANY,ANY,ANY'
+## S4 replacement method for signature 'number_line'
 x[i, j, ...] &lt;- value
 
-## S4 replacement method for signature 'number_line,ANY,ANY,ANY'
+## S4 replacement method for signature 'number_line'
 x[[i, j, ...]] &lt;- value
 
 ## S4 method for signature 'number_line'
@@ -48,10 +47,16 @@ c(x, ...)
 unique(x, ...)
 
 ## S3 method for class 'number_line'
+seq(x, fill = TRUE, simplify = FALSE, ...)
+
+## S3 method for class 'number_line'
 sort(x, decreasing = FALSE, ...)
 
 ## S3 method for class 'number_line'
 format(x, ...)
+
+## S3 method for class 'number_line'
+as.data.frame(x, ...)
 </pre>
 
 
@@ -94,9 +99,17 @@ format(x, ...)
 <td>
 <p>slot name</p>
 </td></tr>
+<tr valign="top"><td><code>fill</code></td>
+<td>
+<p><code>[logical]</code>. Retain (<code>TRUE</code>) or drop (<code>FALSE</code>) the remainder of an uneven split</p>
+</td></tr>
+<tr valign="top"><td><code>simplify</code></td>
+<td>
+<p><code>[logical]</code>. Split into <code>number_line</code> or sequence of finite numbers</p>
+</td></tr>
 <tr valign="top"><td><code>decreasing</code></td>
 <td>
-<p>logical. Should the sort be increasing or decreasing</p>
+<p>If <code>TRUE</code>, sort in descending order.</p>
 </td></tr>
 </table>
 
@@ -105,15 +118,15 @@ format(x, ...)
 
 
 <dl>
-<dt><code>start</code></dt><dd><p>Start of the number line</p>
+<dt><code>start</code></dt><dd><p>First value in the range.</p>
 </dd>
-<dt><code>id</code></dt><dd><p>Unique <code>numeric</code> ID. Providing this is optional.</p>
+<dt><code>id</code></dt><dd><p>Unique element id. Optional.</p>
 </dd>
-<dt><code>gid</code></dt><dd><p>Unique <code>numeric</code> Group ID. Providing this is optional.</p>
+<dt><code>gid</code></dt><dd><p>Unique group id. Optional.</p>
 </dd>
-<dt><code>.Data</code></dt><dd><p>Length/with and direction of the <code>number_line</code> object.</p>
+<dt><code>.Data</code></dt><dd><p>Length, duration or width of the range.</p>
 </dd>
 </dl>
 
-<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
 </body></html>

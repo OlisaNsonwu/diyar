@@ -1,0 +1,180 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Probabilistic record linkage</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for links_wf_probabilistic {diyar}"><tr><td>links_wf_probabilistic {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Probabilistic record linkage</h2>
+
+<h3>Description</h3>
+
+<p>A specific use case of <code>links</code> for probabilistic record linkage.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+links_wf_probabilistic(
+  attribute,
+  blocking_attribute = NULL,
+  cmp_func = diyar::exact_match,
+  cmp_threshold = 0.95,
+  probabilistic = TRUE,
+  m_probability = 0.95,
+  score_threshold = 1,
+  id_1 = NULL,
+  id_2 = NULL,
+  ...
+)
+
+prob_score_range(attribute, m_probability = 0.95)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>attribute</code></td>
+<td>
+<p><code>[list]</code>. Attributes to compare.</p>
+</td></tr>
+<tr valign="top"><td><code>blocking_attribute</code></td>
+<td>
+<p><code>[atomic]</code>. Subsets of the dataset.</p>
+</td></tr>
+<tr valign="top"><td><code>cmp_func</code></td>
+<td>
+<p><code>[list|function]</code>. String comparators for each <code>attribute</code>. See <code>Details</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>cmp_threshold</code></td>
+<td>
+<p><code>[list|numeric|<a href="number_line.html">number_line</a>]</code>. Weight-thresholds for each <code>cmp_func</code>. See <code>Details</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>probabilistic</code></td>
+<td>
+<p><code>[logical]</code>. If <code>TRUE</code>, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See <code>Details</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>m_probability</code></td>
+<td>
+<p><code>[list|numeric]</code>. The probability that a match from the string comparator is actually from the same entity.</p>
+</td></tr>
+<tr valign="top"><td><code>score_threshold</code></td>
+<td>
+<p><code>[numeric|<a href="number_line.html">number_line</a>]</code>. Score-threshold for linked records. See <code>Details</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>id_1</code></td>
+<td>
+<p><code>[list|numeric]</code>. One half of a specific pair of records to check for match weights and score-thresholds.</p>
+</td></tr>
+<tr valign="top"><td><code>id_2</code></td>
+<td>
+<p><code>[list|numeric]</code>. One half of a specific pair of records to check for match weights and score-thresholds.</p>
+</td></tr>
+<tr valign="top"><td><code>...</code></td>
+<td>
+<p>Arguments passed to <b><code>links</code></b></p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p><code>links_wf_probabilistic</code> is a wrapper function of <code><a href="links.html">links</a></code> for probabilistic record linkage.
+Its implementation is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
+</p>
+<p>In summary, record pairs are created and categorised as matches and non-matches (<code>cmp_func</code>).
+Two probabilities (<code>m</code> and <code>u</code>) are then estimated for each record pair to score matches and non-matches.
+The <code>m</code>-probability is the probability that matched records are actually from the same entity i.e a true match,
+while <code>u</code>-probability is the probability that matched records are not from the same entity i.e. a false match.
+<code>m</code>-probabilities must be supplied but <code>u</code>-probabilities are calculated for each value of an <code>attribute</code>.
+This is calculated as the frequency of each value in the dataset.
+Record pairs whose total score are above a certain threshold (<code>score_threshold</code>) are assumed to belong to the same entity.
+</p>
+<p>Agreement (match) and disagreement (non-match) scores are calculated as described by Asher et al. (2020).
+</p>
+<p>For each record pair, an agreement for attribute <i>i</i> is calculated as;
+</p>
+<p style="text-align: center;"><i>log_2 (m_i / u_i)</i></p>
+
+<p>For each record pair, a disagreement score for attribute <i>i</i> is calculated as;
+</p>
+<p style="text-align: center;"><i>log_2 ((1-m_i) / (1-u_i))</i></p>
+
+<p>where <i>m_i</i> and <i>u_i</i> are the <code>m</code> and <code>u</code>-probabilities for each value of attribute <i>i</i>.
+</p>
+<p>Missing data (<code>NA</code>) are categorised as non-matches and assigned a <code>u</code>-probability of <code>0</code>.
+</p>
+<p>By default, matches and non-matches for each <code>attribute</code> are determined as an <code><a href="predefined_tests.html">exact_match</a></code> with a binary outcome.
+String comparators can also be used with thresholds (<code>cmp_threshold</code>) for each similarity score.
+If <code>probabilistic</code> is <code>FALSE</code>,
+the sum of all similarity scores is used as the <code>score_threshold</code> instead of deriving one from the <code>m</code> and <code>u</code>-probabilities.
+</p>
+<p><code>links_wf_probabilistic</code> requires a <code>score_threshold</code> in advance of the linkage process.
+This differs from the typical approach where a <code>score_threshold</code> is selected after the linkage process,
+following a review of all calculated scores.
+To help with this, <code>prob_score_range</code> will return the range of scores attainable for a given set of attributes.
+Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specific records pairs, aiding the review of potential scores.
+</p>
+<p>A <code>blocking_attribute</code> can be used to reduce processing time by restricting comparisons to subsets of the dataset.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code><a href="pid-class.html">pid</a></code>; <code>list</code>
+</p>
+
+
+<h3>References</h3>
+
+<p>Fellegi, I. P., &amp; Sunter, A. B. (1969). A Theory for Record Linkage. <em>Journal of the Statistical Association</em>, 64(328), 1183–1210. https://doi.org/10.1080/01621459.1969.10501049
+</p>
+<p>Asher, J., Resnick, D., Brite, J., Brackbill, R., &amp; Cone, J. (2020). An Introduction to Probabilistic Record Linkage with a Focus on Linkage Processing for WTC Registries. <em>International journal of environmental research and public health</em>, 17(18), 6937. https://doi.org/10.3390/ijerph17186937.
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="links.html">links</a></code>; <code><a href="episodes.html">episodes</a></code>; <code><a href="partitions.html">partitions</a></code>; <code><a href="predefined_tests.html">predefined_tests</a></code>; <code><a href="sub_criteria.html">sub_criteria</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+# Using exact matches
+dfr &lt;- missing_staff_id[c("staff_id",  "initials",
+                          "hair_colour", "branch_office")]
+score_range &lt;- prob_score_range(attribute = as.list(dfr))
+prob_pids1 &lt;- links_wf_probabilistic(attribute = as.list(dfr),
+                                     score_threshold = score_range$minimum_score)
+prob_pids1
+
+# Using other logical tests e.g. string comparators
+# For example, matching last word in `hair_colour` and `branch_office`
+last_word_wf &lt;- function(x) tolower(gsub("^.* ", "", x))
+last_word_cmp &lt;- function(x, y) last_word_wf(x) == last_word_wf(y)
+prob_pids2 &lt;- links_wf_probabilistic(attribute = as.list(dfr),
+                                     cmp_func = c(diyar::exact_match,
+                                                  diyar::exact_match,
+                                                  last_word_cmp,
+                                                  last_word_cmp),
+                                     score_threshold = score_range$mid_scorce)
+prob_pids2
+
+# Results for specific record pairs
+prob_pids3 &lt;- links_wf_probabilistic(attribute = as.list(dfr),
+                                     cmp_func = c(diyar::exact_match,
+                                                  diyar::exact_match,
+                                                  last_word_cmp,
+                                                  last_word_cmp),
+                                     score_threshold = score_range$mid_scorce,
+                                     id_1 = c(1, 1, 1),
+                                     id_2 = c(6, 7, 4))
+prob_pids3
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
+</body></html>

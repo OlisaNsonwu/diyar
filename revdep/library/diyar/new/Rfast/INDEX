@@ -183,7 +183,8 @@ lower_tri               Lower and Upper triangular of a matrix
 mad2                    Mean - Median absolute deviation of a vector
 mahala                  Mahalanobis distance
 mat.mat                 Number of equal columns between two matrices
-mat.mult                Matrix multiplication
+mat.mult                Matrix multiplication, Cross and Tcross
+                        product.
 match.coefs             Column-wise matching coefficients
 matrnorm                Generates random values from a normal and puts
                         them in a matrix

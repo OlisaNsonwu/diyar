@@ -61,20 +61,12 @@ inline SEXP Rcpp_list5(SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4) {
     return x0;
 }
 
-
-
-// `Rf_lang6()` is available on R 3.3, but `Rf_list6()` is not
-inline SEXP Rcpp_list6( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5 )
-{
+inline SEXP Rcpp_list6(SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5) {
     PROTECT(x0);
     x0 = Rf_cons(x0, Rcpp_list5(x1, x2, x3, x4, x5));
     UNPROTECT(1);
     return x0;
 }
-
-
-
-
 
 inline SEXP Rcpp_list7( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6 )
 {
@@ -92,10 +84,6 @@ inline SEXP Rcpp_lang7( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SE
     return x0;
 }
 
-
-
-
-
 inline SEXP Rcpp_list8( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7 )
 {
     PROTECT(x0);
@@ -111,10 +99,6 @@ inline SEXP Rcpp_lang8( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SE
     UNPROTECT(1);
     return x0;
 }
-
-
-
-
 
 inline SEXP Rcpp_list9( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8 )
 {
@@ -132,10 +116,6 @@ inline SEXP Rcpp_lang9( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SE
     return x0;
 }
 
-
-
-
-
 inline SEXP Rcpp_list10( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9 )
 {
     PROTECT(x0);
@@ -151,10 +131,6 @@ inline SEXP Rcpp_lang10( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     UNPROTECT(1);
     return x0;
 }
-
-
-
-
 
 inline SEXP Rcpp_list11( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10 )
 {
@@ -172,10 +148,6 @@ inline SEXP Rcpp_lang11( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     return x0;
 }
 
-
-
-
-
 inline SEXP Rcpp_list12( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11 )
 {
     PROTECT(x0);
@@ -191,10 +163,6 @@ inline SEXP Rcpp_lang12( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     UNPROTECT(1);
     return x0;
 }
-
-
-
-
 
 inline SEXP Rcpp_list13( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12 )
 {
@@ -212,10 +180,6 @@ inline SEXP Rcpp_lang13( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     return x0;
 }
 
-
-
-
-
 inline SEXP Rcpp_list14( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12, SEXP x13 )
 {
     PROTECT(x0);
@@ -231,10 +195,6 @@ inline SEXP Rcpp_lang14( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     UNPROTECT(1);
     return x0;
 }
-
-
-
-
 
 inline SEXP Rcpp_list15( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12, SEXP x13, SEXP x14 )
 {
@@ -252,10 +212,6 @@ inline SEXP Rcpp_lang15( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     return x0;
 }
 
-
-
-
-
 inline SEXP Rcpp_list16( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12, SEXP x13, SEXP x14, SEXP x15 )
 {
     PROTECT(x0);
@@ -271,10 +227,6 @@ inline SEXP Rcpp_lang16( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     UNPROTECT(1);
     return x0;
 }
-
-
-
-
 
 inline SEXP Rcpp_list17( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12, SEXP x13, SEXP x14, SEXP x15, SEXP x16 )
 {
@@ -292,10 +244,6 @@ inline SEXP Rcpp_lang17( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     return x0;
 }
 
-
-
-
-
 inline SEXP Rcpp_list18( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12, SEXP x13, SEXP x14, SEXP x15, SEXP x16, SEXP x17 )
 {
     PROTECT(x0);
@@ -312,10 +260,6 @@ inline SEXP Rcpp_lang18( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     return x0;
 }
 
-
-
-
-
 inline SEXP Rcpp_list19( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12, SEXP x13, SEXP x14, SEXP x15, SEXP x16, SEXP x17, SEXP x18 )
 {
     PROTECT(x0);
@@ -331,10 +275,6 @@ inline SEXP Rcpp_lang19( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, S
     UNPROTECT(1);
     return x0;
 }
-
-
-
-
 
 inline SEXP Rcpp_list20( SEXP x0, SEXP x1, SEXP x2, SEXP x3, SEXP x4, SEXP x5, SEXP x6, SEXP x7, SEXP x8, SEXP x9, SEXP x10, SEXP x11, SEXP x12, SEXP x13, SEXP x14, SEXP x15, SEXP x16, SEXP x17, SEXP x18, SEXP x19 )
 {

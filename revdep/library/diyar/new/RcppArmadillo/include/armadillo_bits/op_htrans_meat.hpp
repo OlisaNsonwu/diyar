@@ -20,7 +20,6 @@
 
 
 template<typename eT>
-arma_hot
 arma_inline
 void
 op_htrans::apply_mat_noalias(Mat<eT>& out, const Mat<eT>& A, const typename arma_not_cx<eT>::result* junk)
@@ -163,7 +162,6 @@ op_htrans::apply_mat_noalias_large(Mat< std::complex<T> >& out, const Mat< std::
 
 
 template<typename eT>
-arma_hot
 arma_inline
 void
 op_htrans::apply_mat_inplace(Mat<eT>& out, const typename arma_not_cx<eT>::result* junk)
@@ -221,7 +219,6 @@ op_htrans::apply_mat_inplace(Mat<eT>& out, const typename arma_cx_only<eT>::resu
 
 
 template<typename eT>
-arma_hot
 arma_inline
 void
 op_htrans::apply_mat(Mat<eT>& out, const Mat<eT>& A, const typename arma_not_cx<eT>::result* junk)
@@ -395,26 +392,6 @@ op_htrans::apply(Mat<typename T1::elem_type>& out, const Op<T1,op_htrans>& in, c
   arma_ignore(junk);
   
   op_htrans::apply_direct(out, in.m);
-  }
-
-
-
-template<typename T1>
-arma_hot
-inline
-void
-op_htrans::apply(Mat<typename T1::elem_type>& out, const Op< Op<T1, op_trimat>, op_htrans>& in)
-  {
-  arma_extra_debug_sigprint();
-  
-  typedef typename T1::elem_type eT;
-  
-  const unwrap<T1>   tmp(in.m.m);
-  const Mat<eT>& A = tmp.M;
-  
-  const bool upper = in.m.aux_uword_a;
-  
-  op_trimat::apply_htrans(out, A, upper);
   }
 
 

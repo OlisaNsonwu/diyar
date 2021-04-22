@@ -9,7 +9,8 @@
 
 <h3>Description</h3>
 
-<p>Link records in ordered stages with flexible matching conditions.
+<p>Match records in successive stages with different matching conditions.
+Each set of linked records are assigned a unique identifier with relevant group-level information.
 </p>
 
 
@@ -23,10 +24,12 @@ links(
   strata = NULL,
   data_source = NULL,
   data_links = "ANY",
-  display = "progress",
+  display = "none",
   group_stats = FALSE,
   expand = TRUE,
-  shrink = FALSE
+  shrink = FALSE,
+  recursive = FALSE,
+  check_duplicates = FALSE
 )
 
 record_group(df, ..., to_s4 = TRUE)
@@ -38,93 +41,126 @@ record_group(df, ..., to_s4 = TRUE)
 <table summary="R argblock">
 <tr valign="top"><td><code>criteria</code></td>
 <td>
-<p><code>list</code> of attributes to compare at each stage. Comparisons are done as an exact match i.e. (<code>==</code>). See <code>Details</code>.</p>
+<p><code>[list|atomic]</code>. Attributes to compare. Each element of the list is a stage in the linkage process. See <code>Details</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>sub_criteria</code></td>
 <td>
-<p><code>list</code> of additional attributes to compare at each stage. Comparisons are done as an exact match or with user-defined logical tests <code>function</code>. See <code><a href="sub_criteria.html">sub_criteria</a></code></p>
+<p><code>[list|<a href="sub_criteria.html">sub_criteria</a>]</code>. Additional matching criteria for each stage of the linkage process. See <code><a href="sub_criteria.html">sub_criteria</a></code></p>
 </td></tr>
 <tr valign="top"><td><code>sn</code></td>
 <td>
-<p>Unique numerical record identifier. Useful for creating familiar episode identifiers.</p>
+<p><code>[integer]</code>. Unique record identifier. Useful for creating familiar <code><a href="pid-class.html">pid</a></code> identifiers.</p>
 </td></tr>
 <tr valign="top"><td><code>strata</code></td>
 <td>
-<p>Subsets. Record groups are tracked separately within each subset.</p>
+<p><code>[atomic]</code>. Subsets of the dataset. Record-groups are created separately for each <code>strata</code>. See <code>Details</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>data_source</code></td>
 <td>
-<p>Unique data source identifier. Useful when the dataset contains data from multiple sources.</p>
+<p><code>[character]</code>. Data source identifier. Adds the list of data sources in each record-group to the <code><a href="pid-class.html">pid</a></code>. Useful when the dataset has data from multiple sources.</p>
 </td></tr>
 <tr valign="top"><td><code>data_links</code></td>
 <td>
-<p>A set of <code>data_sources</code> required in each record group. A <code>strata</code> without records from these data sources will be skipped, and record groups without these will be unlinked. See <code>Details</code>.</p>
+<p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href="pid-class.html">pid</a></code>. A record-group without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>display</code></td>
 <td>
-<p>The messages printed on screen. Options are; <code>"none"</code> (default) or, <code>"progress"</code> and <code>"stats"</code> for a progress update or a more detailed breakdown of the linkage process.</p>
+<p><code>[character]</code>. Progress messages printed on screen. Options are; <code>"none"</code> (default), <code>"progress"</code> or <code>"stats"</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>group_stats</code></td>
 <td>
-<p>If <code>TRUE</code> (default), group-specific information like record counts. See <code>Value</code>.</p>
+<p><code>[logical]</code>. If <code>TRUE</code> (default), return group specific information like record counts for each <code><a href="pid-class.html">pid</a></code>.</p>
 </td></tr>
 <tr valign="top"><td><code>expand</code></td>
 <td>
-<p>If <code>TRUE</code>, allows increases in the size of a record group at subsequent stages of the linkage process.</p>
+<p><code>[logical]</code>. If <code>TRUE</code>, allows a record-group to expand with each subsequent stages of the linkage process. <em>Not interchangeable with <code>shrink</code></em>.</p>
 </td></tr>
 <tr valign="top"><td><code>shrink</code></td>
 <td>
-<p>If <code>TRUE</code>, allows reductions in the size of a record group at subsequent stages of the linkage process.</p>
+<p><code>[logical]</code>. If <code>TRUE</code>, forces a record-group to shrink with each subsequent stage of the linkage process. <em>Not interchangeable with <code>expand</code></em>.</p>
+</td></tr>
+<tr valign="top"><td><code>recursive</code></td>
+<td>
+<p><code>[logical]</code>. If <code>TRUE</code>, within each iteration of the process, a match can spawn new matches. See <code>vignette("links")</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>check_duplicates</code></td>
+<td>
+<p><code>[logical]</code>. If <code>TRUE</code>, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See <code>vignette("links")</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>df</code></td>
 <td>
-<p><code>data.frame</code>. One or more datasets appended together. See <code>Details</code>.</p>
+<p><code>[data.frame]</code>. Deprecated. One or more datasets appended together. See <code>Details</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>...</code></td>
 <td>
-<p>Arguments passed to <b><code>links</code></b></p>
+<p>Arguments passed to <code>links</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>to_s4</code></td>
 <td>
-<p>Data type of returned object. <code><a href="pid-class.html">pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p>
+<p><code>[logical]</code>. Deprecated. Output type - <code><a href="pid-class.html">pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p>
 </td></tr>
 </table>
 
 
 <h3>Details</h3>
 
-<p><b><code>links()</code></b> performs an ordered multistage deterministic linkage.
-The relevance or priority of each stage is determined by the order in which they have been listed.
+<p>Match priority decreases with each subsequent stage of linkage
+i.e. earlier stages (<code>criteria</code>) are considered superior.
+Therefore, it's important for each <code>criteria</code> to be listed in an order of decreasing relevance.
 </p>
-<p><code>sub_criteria</code> specifies additional matching conditions for each stage (<code>criteria</code>) of the process.
-If <code>sub_criteria</code> is not <code>NULL</code>, only records with matching <code>criteria</code> and <code>sub_criteria</code> are linked.
-If a record has missing values for any <code>criteria</code>, that record is skipped at that stage, and another attempt is made at the next stage.
-If there are no matches for a record at every stage, that record is assigned a unique group ID.
+<p>Records with missing <code>criteria</code> values (<code>NA</code>) are skipped at each stage of the linkage process, while
+records with missing <code>strata</code> values (<code>NA</code>) are skipped from the entire linkage process.
 </p>
-<p>By default, records are compared for an exact match.
-However, user-defined logical tests (function) are also permitted.
-The function must be able to compare two atomic vectors and return either TRUE or FALSE.
-The function must have two arguments - x for the attribute and y for what it'll be compared against.
+<p>If a record is skipped, another attempt will be made to match the record at the next stage.
+If a record does not match any other record by the end of the linkage process (or it has a missing <code>strata</code>),
+it is assigned to a unique record-group.
 </p>
-<p>A match at each stage is considered more relevant than a match at the next stage. Therefore, <code>criteria</code> should always be listed in order of decreasing relevance.
+<p>A <code><a href="sub_criteria.html">sub_criteria</a></code> can be used to request additional matching conditions for each stage of the linkage process.
+When used, only records with matching <code>criteria</code> and <code>sub_criteria</code> are linked.
 </p>
-<p><code>data_source</code> - including this populates the <code>pid_dataset</code> slot. See <code>Value</code>.
+<p>In <b><code><a href="links.html">links</a></code></b>, each <code><a href="sub_criteria.html">sub_criteria</a></code> must be linked to a <code>criteria</code>.
+This is done by adding a <code><a href="sub_criteria.html">sub_criteria</a></code> to a named element of a <code>list</code>.
+Each element's name must correspond to a stage. See below for an example of 3 <code>sub_criteria</code> linked to
+<code>criteria</code> <code>1</code>, <code>5</code> and <code>13</code>.
 </p>
-<p><code>data_links</code> should be a <code>list</code> of <code>atomic</code> vectors with every element named <code>"l"</code> (links) or <code>"g"</code> (groups).
+<p>For example;
+</p>
+<p style="text-align: center;"><i>list("cr1" = sub_criteria, "cr5" = sub_criteria, "cr13" = sub_criteria).</i></p>
+
+<p><code><a href="sub_criteria.html">sub_criteria</a></code> can be nested to achieve nested conditions.
+A <code><a href="sub_criteria.html">sub_criteria</a></code> can be linked to different <code>criteria</code>.
+Any unlinked <code><a href="sub_criteria.html">sub_criteria</a></code> will be ignored.
+</p>
+<p>By default, attributes in a <code><a href="sub_criteria.html">sub_criteria</a></code> are compared for an <code><a href="predefined_tests.html">exact_match</a></code>.
+However, user-defined logical tests (<code>function</code>) are also permitted. Such tests must meet 3 requirements:
+</p>
+
+<ol>
+<li><p> It must be able to compare two <code>atomic</code> vectors.
+</p>
+</li>
+<li><p> It must have two arguments named <code>`x`</code> and <code>`y`</code>, where <code>`y`</code> is the value for one observation being compared against all other observations (<code>`x`</code>).
+</p>
+</li>
+<li><p> It must return either <code>TRUE</code> or <code>FALSE</code>.
+</p>
+</li></ol>
+
+<p>Every element in <code>data_links</code> must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
+Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</code>.
 </p>
 
 <ul>
-<li> <p><code>"l"</code> - Record groups with records from every listed data source will be retained.
+<li><p> If named <code>"l"</code>, only groups with records from every listed <code>data_source</code> will remain linked.
 </p>
 </li>
-<li> <p><code>"g"</code> - Record groups with records from any listed data source will be retained.
+<li><p> If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will remain linked.
 </p>
 </li></ul>
 
-<p><code>data_links</code> is useful for skipping record groups that are not required.
-</p>
-<p><b><code>record_group()</code></b> as it existed before <code>v0.2.0</code> has been retired.
-Its now exists to support previous code and arguments with minimal disruption. Please use <b><code>links()</code></b> moving forward.
+<p><b><code>record_group()</code></b> has been retired is no longer supported.
+It only exists to support previous code with minimal input from users.
+Moving forward, please use <b><code>links()</code></b>.
 </p>
 <p>See <code>vignette("links")</code> for more information.
 </p>
@@ -132,71 +168,56 @@ Its now exists to support previous code and arguments with minimal disruption. P
 
 <h3>Value</h3>
 
-<p><code><a href="pid-class.html">pid</a></code> objects or <code>data.frame</code> if <code>to_s4</code> is <code>FALSE</code>)
+<p><code><a href="pid-class.html">pid</a></code>
 </p>
-
-<ul>
-<li> <p><code>sn</code> - unique record identifier as provided (or generated)
-</p>
-</li>
-<li> <p><code>pid | .Data</code> - unique group identifier
-</p>
-</li>
-<li> <p><code>link_id</code> - unique record identifier of matching records
-</p>
-</li>
-<li> <p><code>pid_cri</code> - matching criteria
-</p>
-</li>
-<li> <p><code>pid_dataset</code> - data sources in each group
-</p>
-</li>
-<li> <p><code>pid_total</code> - number of records in each group
-</p>
-</li>
-<li> <p><code>iteration</code> - iteration of the process when each record was linked to its record group
-</p>
-</li></ul>
-
 
 
 <h3>See Also</h3>
 
-<p><code><a href="episodes.html">episodes</a></code>, <code><a href="predefined_tests.html">predefined_tests</a></code> and <code><a href="sub_criteria.html">sub_criteria</a></code>
+<p><code><a href="episodes.html">episodes</a></code>; <code><a href="partitions.html">partitions</a></code>; <code><a href="predefined_tests.html">predefined_tests</a></code>; <code><a href="sub_criteria.html">sub_criteria</a></code>; <code><a href="schema.html">schema</a></code>
 </p>
 
 
 <h3>Examples</h3>
 
 <pre>
-library(diyar)
 # Exact match
-links(criteria = c("Obinna","James","Ojay","James","Obinna"))
+attr_1 &lt;- c(1, 1, 1, NA, NA, NA, NA, NA)
+attr_2 &lt;- c(NA, NA, 2, 2, 2, NA, NA, NA)
+links(criteria = list(attr_1, attr_2))
 
 # User-defined tests using `sub_criteria()`
-# Matching `sex` and + 20-year age gaps
+# Matching `sex` and a 20-year age range
 age &lt;- c(30, 28, 40, 25, 25, 29, 27)
 sex &lt;- c("M", "M", "M", "F", "M", "M", "F")
-f1 &lt;- function(x, y) (y - x) %in% 0:20
+f1 &lt;- function(x, y) abs(y - x) %in% 0:20
 links(criteria = sex,
-      sub_criteria = list(s1 = sub_criteria(age, funcs = f1)))
+      sub_criteria = list(cr1 = sub_criteria(age, match_funcs = f1)))
 
-# Multistage linkage
+# Multistage matches
 # Relevance of matches: `forename` &gt; `surname`
 data(staff_records); staff_records
 links(criteria = list(staff_records$forename, staff_records$surname),
       data_source = staff_records$sex)
 
 # Relevance of matches:
-# `staff_id` &gt; `age` AND (`initials`, `hair_colour` OR `branch_office`)
+# `staff_id` &gt; `age` (AND (`initials`, `hair_colour` OR `branch_office`))
 data(missing_staff_id); missing_staff_id
 links(criteria = list(missing_staff_id$staff_id, missing_staff_id$age),
-      sub_criteria = list(s2 = sub_criteria(missing_staff_id$initials,
+      sub_criteria = list(cr2 = sub_criteria(missing_staff_id$initials,
                                           missing_staff_id$hair_colour,
                                           missing_staff_id$branch_office)),
       data_source = missing_staff_id$source_1)
 
+# Group expansion
+match_cri &lt;- list(c(1,NA,NA,1,NA,NA),
+                  c(1,1,1,2,2,2),
+                  c(3,3,3,2,2,2))
+links(criteria = match_cri, expand = TRUE)
+links(criteria = match_cri, expand = FALSE)
+links(criteria = match_cri, shrink = TRUE)
+
 </pre>
 
-<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
 </body></html>

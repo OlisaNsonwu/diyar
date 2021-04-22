@@ -1,15 +1,16 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Track episodes for case definitions and record deduplication.</title>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Link events to chronological episodes.</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="R.css" />
 </head><body>
 
 <table width="100%" summary="page for episodes {diyar}"><tr><td>episodes {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
 
-<h2>Track episodes for case definitions and record deduplication.</h2>
+<h2>Link events  to chronological episodes.</h2>
 
 <h3>Description</h3>
 
-<p>Link events into a chronological sequence of episodes.
+<p>Link events with matching attributes and within specified durations of each other.
+Each set of linked records are assigned a unique identifier with relevant group-level information.
 </p>
 
 
@@ -22,39 +23,71 @@ episodes(
   episode_type = "fixed",
   recurrence_length = case_length,
   episode_unit = "days",
+  strata = NULL,
+  sn = NULL,
   episodes_max = Inf,
   rolls_max = Inf,
-  overlap_methods_c = "overlap",
-  overlap_methods_r = overlap_methods_c,
-  sn = NULL,
-  strata = NULL,
+  case_overlap_methods = 8,
+  recurrence_overlap_methods = case_overlap_methods,
   skip_if_b4_lengths = FALSE,
   data_source = NULL,
   data_links = "ANY",
   custom_sort = NULL,
   skip_order = Inf,
-  recurrence_from_last = TRUE,
+  reference_event = "last_record",
   case_for_recurrence = FALSE,
   from_last = FALSE,
   group_stats = FALSE,
-  display = "none"
+  display = "none",
+  case_sub_criteria = NULL,
+  recurrence_sub_criteria = case_sub_criteria,
+  case_length_total = 1,
+  recurrence_length_total = case_length_total
+)
+
+episodes_wf_splits(
+  date,
+  case_length = Inf,
+  episode_type = "fixed",
+  recurrence_length = case_length,
+  episode_unit = "days",
+  strata = NULL,
+  sn = NULL,
+  episodes_max = Inf,
+  rolls_max = Inf,
+  case_overlap_methods = 8,
+  recurrence_overlap_methods = case_overlap_methods,
+  skip_if_b4_lengths = FALSE,
+  data_source = NULL,
+  data_links = "ANY",
+  custom_sort = NULL,
+  skip_order = Inf,
+  reference_event = "last_record",
+  case_for_recurrence = FALSE,
+  from_last = FALSE,
+  group_stats = FALSE,
+  display = "none",
+  case_sub_criteria = NULL,
+  recurrence_sub_criteria = case_sub_criteria,
+  case_length_total = 1,
+  recurrence_length_total = case_length_total
 )
 
 fixed_episodes(
   date,
   case_length = Inf,
   episode_unit = "days",
-  to_s4 = T,
-  overlap_methods_c = "overlap",
-  deduplicate = F,
-  display = "progress",
-  bi_direction = F,
+  to_s4 = TRUE,
+  case_overlap_methods = 8,
+  deduplicate = FALSE,
+  display = "none",
+  bi_direction = FALSE,
   recurrence_length = case_length,
-  overlap_methods_r = overlap_methods_c,
-  include_index_period = T,
+  recurrence_overlap_methods = case_overlap_methods,
+  include_index_period = TRUE,
   ...,
-  overlap_methods = "overlap",
-  overlap_method = "overlap",
+  overlap_methods = 8,
+  overlap_method = 8,
   x
 )
 
@@ -63,16 +96,16 @@ rolling_episodes(
   case_length = Inf,
   recurrence_length = case_length,
   episode_unit = "days",
-  to_s4 = T,
-  overlap_methods_c = "overlap",
-  overlap_methods_r = overlap_methods_c,
-  deduplicate = F,
-  display = "progress",
-  bi_direction = F,
-  include_index_period = T,
+  to_s4 = TRUE,
+  case_overlap_methods = 8,
+  recurrence_overlap_methods = case_overlap_methods,
+  deduplicate = FALSE,
+  display = "none",
+  bi_direction = FALSE,
+  include_index_period = TRUE,
   ...,
-  overlap_methods = "overlap",
-  overlap_method = "overlap",
+  overlap_methods = 8,
+  overlap_method = 8,
   x
 )
 
@@ -85,180 +118,199 @@ episode_group(df, ..., episode_type = "fixed")
 <table summary="R argblock">
 <tr valign="top"><td><code>date</code></td>
 <td>
-<p>Event date (<code>date</code>, <code>datetime</code> or <code>numeric</code>) or period (<code><a href="number_line.html">number_line</a></code>).</p>
+<p><code>[date|datetime|integer|<a href="number_line.html">number_line</a>]</code>. Event date or period.</p>
 </td></tr>
 <tr valign="top"><td><code>case_length</code></td>
 <td>
-<p>Cut-off point (<code>numeric</code>) or period (<code><a href="number_line.html">number_line</a></code>), distinguishing one <code>"case"</code> from another.
+<p><code>[integer|<a href="number_line.html">number_line</a>]</code>. Duration from index event distinguishing one <code>"case"</code> from another.
 This is the case window.</p>
 </td></tr>
 <tr valign="top"><td><code>episode_type</code></td>
 <td>
-<p><code>"fixed"</code> or <code>"rolling"</code>.</p>
+<p><code>[character]</code>. Options are <code>"fixed"</code> (default), <code>"rolling"</code> or <code>"recursive"</code>. See <code>Details</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>recurrence_length</code></td>
 <td>
-<p>Cut-off point or period distinguishing a <code>"recurrent"</code> event from its index <code>"case"</code>.
-This is the recurrence window. By default, it's the same as <code>case_length</code>.</p>
+<p><code>[integer|<a href="number_line.html">number_line</a>]</code>. Duration from the last <code>"duplicate"</code> event distinguishing a <code>"recurrent"</code> event from its index event. This is the recurrence window.</p>
 </td></tr>
 <tr valign="top"><td><code>episode_unit</code></td>
 <td>
-<p>Time units for <code>case_length</code> and <code>recurrence_length</code>. Options are &quot;seconds&quot;, &quot;minutes&quot;, &quot;hours&quot;, &quot;days&quot;, &quot;weeks&quot;, &quot;months&quot; or &quot;years&quot;. See <code>diyar::episode_unit</code>.</p>
-</td></tr>
-<tr valign="top"><td><code>episodes_max</code></td>
-<td>
-<p>The maximum number of episodes permitted within each <code>strata</code>.</p>
-</td></tr>
-<tr valign="top"><td><code>rolls_max</code></td>
-<td>
-<p>Maximum number of times the index <code>"case"</code> can recur. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p>
-</td></tr>
-<tr valign="top"><td><code>overlap_methods_c</code></td>
-<td>
-<p>Methods of overlap considered when tracking duplicates of <code>"case"</code> events. See (<code><a href="overlaps.html">overlaps</a></code>)</p>
-</td></tr>
-<tr valign="top"><td><code>overlap_methods_r</code></td>
-<td>
-<p>Methods of overlap considered when tracking duplicates of <code>"recurrent"</code> events. See (<code><a href="overlaps.html">overlaps</a></code>)</p>
-</td></tr>
-<tr valign="top"><td><code>sn</code></td>
-<td>
-<p>Unique numerical record identifier. Useful for creating familiar episode identifiers.</p>
+<p><code>[character]</code>. Time units for <code>case_length</code> and <code>recurrence_length</code>. Options are &quot;seconds&quot;, &quot;minutes&quot;, &quot;hours&quot;, &quot;days&quot; (default), &quot;weeks&quot;, &quot;months&quot; or &quot;years&quot;. See <code>diyar::episode_unit</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>strata</code></td>
 <td>
-<p>Subsets. Episodes are tracked separately within each subset. <code><a href="links.html">links</a></code> is useful for creating these.</p>
+<p><code>[atomic]</code>. Subsets of the dataset. Episodes are created separately for each <code>strata</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>sn</code></td>
+<td>
+<p><code>[integer]</code>. Unique record identifier. Useful for creating familiar <code><a href="epid-class.html">epid</a></code> identifiers.</p>
+</td></tr>
+<tr valign="top"><td><code>episodes_max</code></td>
+<td>
+<p><code>[integer]</code>. The maximum number of episodes permitted within each <code>strata</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>rolls_max</code></td>
+<td>
+<p><code>[integer]</code>. Maximum number of times the index <code>"case"</code> can recur. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>case_overlap_methods</code></td>
+<td>
+<p><code>[character|integer]</code>. Methods of overlap considered when tracking duplicates of <code>"case"</code> events. See (<code><a href="overlaps.html">overlaps</a></code>)</p>
+</td></tr>
+<tr valign="top"><td><code>recurrence_overlap_methods</code></td>
+<td>
+<p><code>[character|integer]</code>. Methods of overlap considered when tracking duplicates of <code>"recurrent"</code> events. See (<code><a href="overlaps.html">overlaps</a></code>)</p>
 </td></tr>
 <tr valign="top"><td><code>skip_if_b4_lengths</code></td>
 <td>
-<p>If <code>TRUE</code> (default), <code>events</code> before the cut-off points or periods are skipped.</p>
+<p><code>[logical]</code>. If <code>TRUE</code> (default), when using lagged <code>case_length</code> or <code>recurrence_length</code>, <code>events</code> before the cut-off point or period are skipped.</p>
 </td></tr>
 <tr valign="top"><td><code>data_source</code></td>
 <td>
-<p>Unique data source identifier. Useful when the dataset has data from multiple sources.</p>
+<p><code>[character]</code>. Unique data source identifier. Adds the list of datasets in each episode to the <code><a href="epid-class.html">epid</a></code>. Useful when the dataset has data from multiple sources.</p>
 </td></tr>
 <tr valign="top"><td><code>data_links</code></td>
 <td>
-<p>A set of <code>data_sources</code> required in each episode. A <code>strata</code> without records from these data sources will be skipped, and episodes without these will be unlinked. See <code>Details</code>.</p>
+<p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href="epid-class.html">epid</a></code>. An episode without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>custom_sort</code></td>
 <td>
-<p>Preferential order for selecting index (<code>"case"</code>) events. Required for tracking episodes in a non-chronological sequence.</p>
+<p><code>[atomic]</code>. Preferential order for selecting index or reference events.</p>
 </td></tr>
 <tr valign="top"><td><code>skip_order</code></td>
 <td>
-<p><code>"nth"</code> level of <code>custom_sort</code>. Episodes with index events beyond this level of preference are skipped.</p>
+<p><code>[integer]</code>. <code>"nth"</code> level of <code>custom_sort</code>. Episodes with index events beyond this level of preference are skipped.</p>
 </td></tr>
-<tr valign="top"><td><code>recurrence_from_last</code></td>
+<tr valign="top"><td><code>reference_event</code></td>
 <td>
-<p>If <code>TRUE</code> (default), the reference event for a <code>recurrence window</code> will be the last event from the previous window.
-If <code>FALSE</code> (default), it will be the first event. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p>
+<p><code>[character]</code>. Specifies which of the duplicates are used as reference events for subsequent windows. Options are &quot;last_record&quot; (default), &quot;last_event&quot;, &quot;first_record&quot; or &quot;&quot;firs_event&quot;.</p>
 </td></tr>
 <tr valign="top"><td><code>case_for_recurrence</code></td>
 <td>
-<p>If <code>TRUE</code>, both <code>"case"</code> and <code>"recurrent"</code> events will have a case window.
+<p><code>[logical]</code>. If <code>TRUE</code>, both <code>"case"</code> and <code>"recurrent"</code> events will have a case window.
 If <code>FALSE</code> (default), only <code>case events</code> will have a <code>case window</code>. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>from_last</code></td>
 <td>
-<p>Chronological sequence of episode tracking. Ascending (<code>TRUE</code>) or descending <code>TRUE</code>.</p>
+<p><code>[logical]</code>. Chronological order of episode tracking i.e. ascending (<code>TRUE</code>) or descending (<code>FALSE</code>).</p>
 </td></tr>
 <tr valign="top"><td><code>group_stats</code></td>
 <td>
-<p>If <code>TRUE</code> (default), episode-specific information like episode start and endpoints are returned. See <code>Value</code>.</p>
+<p><code>[logical]</code>. If <code>TRUE</code> (default), episode-specific information like episode start and end dates are returned.</p>
 </td></tr>
 <tr valign="top"><td><code>display</code></td>
 <td>
-<p>The messages printed on screen. Options are; <code>"none"</code> (default) or, <code>"progress"</code> and <code>"stats"</code> for a progress update or a more detailed breakdown of the tracking process.</p>
+<p><code>[character]</code>. The progress messages printed on screen. Options are; <code>"none"</code> (default), <code>"progress"</code> and <code>"stats"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>case_sub_criteria</code></td>
+<td>
+<p><code>[<a href="sub_criteria.html">sub_criteria</a>]</code>. Matching conditions for &quot;case&quot; windows in addition to temporal links.</p>
+</td></tr>
+<tr valign="top"><td><code>recurrence_sub_criteria</code></td>
+<td>
+<p><code>[<a href="sub_criteria.html">sub_criteria</a>]</code>. Matching conditions for &quot;recurrence&quot; windows in addition to temporal links.</p>
+</td></tr>
+<tr valign="top"><td><code>case_length_total</code></td>
+<td>
+<p><code>[integer|<a href="number_line.html">number_line</a>]</code>. Minimum number of matched case windows required for an episode.</p>
+</td></tr>
+<tr valign="top"><td><code>recurrence_length_total</code></td>
+<td>
+<p><code>[integer|<a href="number_line.html">number_line</a>]</code>. Minimum number of matched recurrence windows required for an episode.</p>
 </td></tr>
 <tr valign="top"><td><code>to_s4</code></td>
 <td>
-<p>Data type of returned object. <code><a href="epid-class.html">epid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p>
+<p><code>[logical]</code>. Deprecated. Output type - <code><a href="epid-class.html">epid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p>
 </td></tr>
 <tr valign="top"><td><code>deduplicate</code></td>
 <td>
-<p>if <code>TRUE</code>, <code>"duplicate"</code> events are excluded from the output.</p>
+<p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, <code>"duplicate"</code> events are excluded from the <code><a href="epid-class.html">epid</a></code>.</p>
 </td></tr>
 <tr valign="top"><td><code>bi_direction</code></td>
 <td>
-<p>If <code>TRUE</code>, <code>"duplicate"</code> events before and after the index event are tracked.</p>
+<p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, <code>"duplicate"</code> events before and after the index event are tracked.</p>
 </td></tr>
 <tr valign="top"><td><code>include_index_period</code></td>
 <td>
-<p>If <code>TRUE</code>, overlaps with the index event or period are linked even if they are outside the cut-off period.</p>
+<p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, events overlapping with the index event or period are linked even if they are outside the cut-off period.</p>
 </td></tr>
 <tr valign="top"><td><code>...</code></td>
 <td>
-<p>Arguments passed to <b><code>episodes</code></b></p>
+<p>Arguments passed to <code>episodes</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>overlap_methods</code></td>
 <td>
-<p>Deprecated. Please use <code>overlap_methods_c</code> or <code>overlap_methods_r</code>. Methods of overlap considered when tracking duplicate event. See (<code><a href="overlaps.html">overlaps</a></code>)</p>
+<p><code>[character]</code>. Deprecated. Please use <code>case_overlap_methods</code> or <code>recurrence_overlap_methods</code>. Methods of overlap considered when tracking duplicate event. See (<code><a href="overlaps.html">overlaps</a></code>)</p>
 </td></tr>
 <tr valign="top"><td><code>overlap_method</code></td>
 <td>
-<p>Deprecated. Please use <code>overlap_methods_c</code> or <code>overlap_methods_r</code>. Methods of overlap considered when tracking event. All event are checked by the same set of <code>overlap_method</code>.</p>
+<p><code>[character]</code>. Deprecated. Please use <code>case_overlap_methods</code> or <code>recurrence_overlap_methods</code>. Methods of overlap considered when tracking event. All event are checked by the same set of <code>overlap_method</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>x</code></td>
 <td>
-<p>Deprecated. Record date or period. Please use <code>date</code></p>
+<p><code>[date|datetime|integer|<a href="number_line.html">number_line</a>]</code>. Deprecated. Record date or period. Please use <code>date</code>.</p>
 </td></tr>
 <tr valign="top"><td><code>df</code></td>
 <td>
-<p><code>data.frame</code>. One or more datasets appended together. See <code>Details</code>.</p>
+<p><code>[data.frame]</code>. Deprecated. One or more datasets appended together. See <code>Details</code>.</p>
 </td></tr>
 </table>
 
 
 <h3>Details</h3>
 
-<p>Episodes are tracked from index events in chronological sequence as determined by <code>from_last</code>.
-You can use <code>custom_sort</code> for a non-chronological sequence. However, ties will be broken by chronological orders.
+<p>All dated records within a specified duration of an index record are linked together as an episode.
+By default, this process occurs in ascending order, beginning with the earliest event.
+This can be changed to a descending (<code>from_last</code>) or custom order (<code>custom_sort</code>).
+Ties are always broken by the chronological order of events.
 </p>
-<p>A <code>"fixed"</code> episode has a fixed maximum duration determined by <code>case_length</code>.
-But a <code>"rolling"</code> episode can continue to recur. therefore, its maximum duration is variable.
+<p>A <code>"fixed"</code> episode has a fixed maximum duration determined by <code>case_length</code>, while a <code>"rolling"</code> episode can continue to recur.
 A <code>"rolling"</code> episode will persist as long as is specified by <code>rolls_max</code>.
 </p>
-<p><b><code>episodes()</code></b> will categorise records into 5 types of events;
+<p><b><code>episodes()</code></b> will categorise records into 5 type of events;
 </p>
 
 <ul>
-<li> <p><code>"Case"</code> - Index case of the episode.
+<li> <p><code>"Case"</code> - Index event of the episode.
 </p>
 </li>
-<li> <p><code>"Duplicate_C"</code> - Duplicate of the index case.
+<li> <p><code>"Duplicate_C"</code> - Duplicate of the index event.
 </p>
 </li>
-<li> <p><code>"Recurrent"</code> - Recurrent event of the index case.
+<li> <p><code>"Recurrent"</code> - Recurrence of the index event.
 </p>
 </li>
 <li> <p><code>"Duplicate_R"</code> - Duplicate of the recurrent event.
 </p>
 </li>
-<li> <p><code>"Skipped"</code> - Those skipped from the episode tracking process.
+<li> <p><code>"Skipped"</code> - Records excluded from the episode tracking process.
 </p>
 </li></ul>
 
-<p><code>data_source</code> - including this populates the <code>epid_dataset</code> slot. See <code>Value</code>.
-</p>
-<p><code>data_links</code> should be a <code>list</code> of <code>atomic</code> vectors with every element named <code>"l"</code> (links) or <code>"g"</code> (groups).
+<p>Every element in <code>data_links</code> must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
+Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</code>.
 </p>
 
 <ul>
-<li> <p><code>"l"</code> - Episodes with records from every listed data source will be retained.
+<li><p> If named <code>"l"</code>, only groups with records from every listed <code>data_source</code> will be unlinked.
 </p>
 </li>
-<li> <p><code>"g"</code> - Episodes with records from any listed data source will be retained.
+<li><p> If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be unlinked.
 </p>
 </li></ul>
 
-<p><code>data_links</code> and <code>skip_order</code> are useful for skipping episodes that are not required to minimise processing time.
+<p><em><code>NA</code> values in <code>strata</code> excludes records from the episode tracking process</em>
 </p>
-<p><b><code>episode_group()</code></b> as it existed before <code>v0.2.0</code> has been retired.
-Its now exists to support previous code with minimal disruption. Please use <b><code>episodes()</code></b> moving forward.
+<p><b><code>episodes_wf_splits()</code></b> is a wrapper function of <b><code>episode_group()</code></b> which reframes the data before the episode tracking process.
+This aims to reduce the overall processing time for the tracking process. See <code>vignette("episodes")</code> for further details.
 </p>
-<p><b><code>rolling_episodes()</code></b> and <b><code>rolling_episodes()</code></b> are wrapper functions for tracking <code>"fixed"</code> and <code>"rolling"</code> episodes respectively.
-They exist for convenience, to support previous code and arguments with minimal disruption.
+<p><b><code>episode_group()</code></b> has been retired.
+It now only exists to support previous code with minimal input from users.
+Moving forward, please use <b><code>episodes()</code></b>.
+</p>
+<p><b><code>rolling_episodes()</code></b> and <b><code>rolling_episodes()</code></b> are convenience functions
+to support previous code with minimal input from users.
+Moving forward, please use <b><code>episodes()</code></b>.
 </p>
 <p>See <code>vignette("episodes")</code> for more information.
 </p>
@@ -266,59 +318,19 @@ They exist for convenience, to support previous code and arguments with minimal 
 
 <h3>Value</h3>
 
-<p><code><a href="epid-class.html">epid</a></code> objects or <code>data.frame</code> if <code>to_s4</code> is <code>FALSE</code>
+<p><code><a href="epid-class.html">epid</a></code>
 </p>
-
-<ul>
-<li> <p><code>sn</code> - unique record identifier as provided (or generated)
-</p>
-</li>
-<li> <p><code>epid | .Data</code> - unique episode identifier
-</p>
-</li>
-<li> <p><code>wind_id</code> - unique window identifier
-</p>
-</li>
-<li> <p><code>wind_nm</code> - type of window i.e. &quot;Case&quot; or &quot;Recurrence&quot;
-</p>
-</li>
-<li> <p><code>case_nm</code> - record type in regards to case assignment
-</p>
-</li>
-<li> <p><code>dist_from_wind</code> - duration of each event from its window's reference event
-</p>
-</li>
-<li> <p><code>dist_from_epid</code> - duration of each event from its episode's reference event
-</p>
-</li>
-<li> <p><code>epid_dataset</code> - data sources in each episode
-</p>
-</li>
-<li> <p><code>epid_interval</code> - episode start and end dates. A <code><a href="number_line.html">number_line</a></code> object.
-</p>
-</li>
-<li> <p><code>epid_length</code> - the difference between episode start and end dates (<code>difftime</code>). If possible, it's the same unit as <code>episode_unit</code> otherwise, a difference in days is returned
-</p>
-</li>
-<li> <p><code>epid_total</code> - number of records in each episode
-</p>
-</li>
-<li> <p><code>iteration</code> - iteration of the process when each event was tracked to its episode.
-</p>
-</li></ul>
-
 
 
 <h3>See Also</h3>
 
-<p><code><a href="windows.html">epid_length</a></code>, <code><a href="windows.html">epid_window</a></code>, <code><a href="links.html">links</a></code>, <code><a href="overlaps.html">overlaps</a></code> and <code><a href="number_line.html">number_line</a></code>
+<p><code><a href="custom_sort.html">custom_sort</a></code>; <code><a href="sub_criteria.html">sub_criteria</a></code>; <code><a href="windows.html">epid_length</a></code>; <code><a href="windows.html">epid_window</a></code>; <code><a href="partitions.html">partitions</a></code>; <code><a href="links.html">links</a></code>; <code><a href="overlaps.html">overlaps</a></code>; <code><a href="number_line.html">number_line</a></code>; <code><a href="schema.html">schema</a></code>
 </p>
 
 
 <h3>Examples</h3>
 
 <pre>
-library(diyar)
 data(infections)
 data(hospital_admissions)
 
@@ -344,11 +356,11 @@ hospital_admissions$admin_period &lt;- number_line(hospital_admissions$admin_dt,
 admissions &lt;- hospital_admissions[c("admin_period","epi_len")]
 
 # Episodes of overlapping periods of admission
-hospital_admissions$epids_i&lt;- episodes(date = hospital_admissions$admin_period,
+hospital_admissions$epids_i &lt;- episodes(date = hospital_admissions$admin_period,
                                        case_length = 0,
-                                       overlap_methods_c = "inbetween")
+                                       case_overlap_methods = "inbetween")
 
 </pre>
 
-<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
 </body></html>

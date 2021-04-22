@@ -1,19 +1,17 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
-<head><title>R: Multistage Record Linkage and Case Definition for
-Epidemiological Analysis</title>
+<head><title>R: Record Linkage and Epidemiological Case Definitions in R</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="R.css" />
 </head><body>
-<h1> Multistage Record Linkage and Case Definition for
-Epidemiological Analysis
+<h1> Record Linkage and Epidemiological Case Definitions in R
 <img class="toplogo" src="../../../doc/html/Rlogo.svg" alt="[R logo]" />
 </h1>
 <hr/>
 <div style="text-align: center;">
 <a href="../../../doc/html/packages.html"><img class="arrow" src="../../../doc/html/left.jpg" alt="[Up]" /></a>
 <a href="../../../doc/html/index.html"><img class="arrow" src="../../../doc/html/up.jpg" alt="[Top]" /></a>
-</div><h2>Documentation for package &lsquo;diyar&rsquo; version 0.2.0</h2>
+</div><h2>Documentation for package &lsquo;diyar&rsquo; version 0.2.0.9000</h2>
 
 <ul><li><a href="../DESCRIPTION">DESCRIPTION file</a>.</li>
 </ul>
@@ -21,79 +19,164 @@ Epidemiological Analysis
 <h2>Help Pages</h2>
 
 
+<p style="text-align: center;">
+<a href="#A">A</a>
+<a href="#C">C</a>
+<a href="#D">D</a>
+<a href="#E">E</a>
+<a href="#F">F</a>
+<a href="#H">H</a>
+<a href="#I">I</a>
+<a href="#L">L</a>
+<a href="#M">M</a>
+<a href="#N">N</a>
+<a href="#O">O</a>
+<a href="#P">P</a>
+<a href="#R">R</a>
+<a href="#S">S</a>
+<a href="#U">U</a>
+<a href="#W">W</a>
+<a href="#misc">misc</a>
+</p>
+
+
+<h2><a name="A">-- A --</a></h2>
+
 <table width="100%">
-<tr><td style="width: 25%;"><a href="number_line-class.html">$-method</a></td>
-<td>'number_line' object</td></tr>
-<tr><td style="width: 25%;"><a href="number_line-class.html">$&lt;--method</a></td>
-<td>'number_line' object</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">across</a></td>
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">aligns_end</a></td>
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">aligns_start</a></td>
 <td>Overlapping number line objects</td></tr>
+<tr><td style="width: 25%;"><a href="epid-class.html">as.data.frame.epid</a></td>
+<td>'epid' object</td></tr>
+<tr><td style="width: 25%;"><a href="number_line-class.html">as.data.frame.number_line</a></td>
+<td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">as.data.frame.pane</a></td>
+<td>'pane' object</td></tr>
+<tr><td style="width: 25%;"><a href="pid-class.html">as.data.frame.pid</a></td>
+<td>'pid' objects</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">as.epid</a></td>
 <td>'epid' object</td></tr>
+<tr><td style="width: 25%;"><a href="epid-class.html">as.list.epid</a></td>
+<td>'epid' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">as.list.pane</a></td>
+<td>'pane' object</td></tr>
+<tr><td style="width: 25%;"><a href="pid-class.html">as.list.pid</a></td>
+<td>'pid' objects</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">as.number_line</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">as.pane</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">as.pid</a></td>
 <td>'pid' objects</td></tr>
+</table>
+
+<h2><a name="C">-- C --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="epid-class.html">c-method</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">c-method</a></td>
 <td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">c-method</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">c-method</a></td>
 <td>'pid' objects</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">chain</a></td>
 <td>Overlapping number line objects</td></tr>
-<tr><td style="width: 25%;"><a href="combns.html">combns</a></td>
-<td>Generate every permutation of n elements.</td></tr>
-<tr><td style="width: 25%;"><a href="number_line.html">compress_number_line</a></td>
-<td>Number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="custom_sort.html">custom_sort</a></td>
 <td>Nested sorting</td></tr>
+</table>
+
+<h2><a name="D">-- D --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="diyar_label.html">decode</a></td>
+<td>Labelling in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">decode.default</a></td>
+<td>Labelling in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">decode.d_label</a></td>
+<td>Labelling in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">diyar_label</a></td>
+<td>Labelling in 'diyar'</td></tr>
+</table>
+
+<h2><a name="E">-- E --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="diyar_label.html">encode</a></td>
+<td>Labelling in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">encode.default</a></td>
+<td>Labelling in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">encode.d_label</a></td>
+<td>Labelling in 'diyar'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">end_point</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">end_point&lt;-</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">epid-class</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="windows.html">epid_lengths</a></td>
-<td>Window and lengths</td></tr>
+<td>Windows and lengths</td></tr>
 <tr><td style="width: 25%;"><a href="windows.html">epid_windows</a></td>
-<td>Window and lengths</td></tr>
+<td>Windows and lengths</td></tr>
 <tr><td style="width: 25%;"><a href="episodes.html">episodes</a></td>
-<td>Track episodes for case definitions and record deduplication.</td></tr>
+<td>Link events to chronological episodes.</td></tr>
+<tr><td style="width: 25%;"><a href="episodes.html">episodes_wf_splits</a></td>
+<td>Link events to chronological episodes.</td></tr>
 <tr><td style="width: 25%;"><a href="episodes.html">episode_group</a></td>
-<td>Track episodes for case definitions and record deduplication.</td></tr>
+<td>Link events to chronological episodes.</td></tr>
 <tr><td style="width: 25%;"><a href="patient_list.html">episode_unit</a></td>
 <td>Datasets in 'diyar' package</td></tr>
+<tr><td style="width: 25%;"><a href="sub_criteria.html">eval_sub_criteria</a></td>
+<td>Sub-criteria</td></tr>
+<tr><td style="width: 25%;"><a href="sub_criteria.html">eval_sub_criteria.sub_criteria</a></td>
+<td>Sub-criteria</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">exact</a></td>
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="predefined_tests.html">exact_match</a></td>
-<td>User defined tests</td></tr>
+<td>Predefined logical tests in *'diyar'*</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">exclude_overlap_method</a></td>
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">expand_number_line</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
+</table>
+
+<h2><a name="F">-- F --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="episodes.html">fixed_episodes</a></td>
-<td>Track episodes for case definitions and record deduplication.</td></tr>
+<td>Link events to chronological episodes.</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">format.epid</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">format.number_line</a></td>
 <td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">format.pane</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">format.pid</a></td>
 <td>'pid' objects</td></tr>
+</table>
+
+<h2><a name="H">-- H --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="patient_list.html">hospital_admissions</a></td>
 <td>Datasets in 'diyar' package</td></tr>
 <tr><td style="width: 25%;"><a href="patient_list.html">hourly_data</a></td>
 <td>Datasets in 'diyar' package</td></tr>
+</table>
+
+<h2><a name="I">-- I --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="overlaps.html">inbetween</a></td>
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">include_overlap_method</a></td>
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="windows.html">index_window</a></td>
-<td>Window and lengths</td></tr>
+<td>Windows and lengths</td></tr>
 <tr><td style="width: 25%;"><a href="patient_list.html">infections</a></td>
 <td>Datasets in 'diyar' package</td></tr>
 <tr><td style="width: 25%;"><a href="patient_list.html">infections_2</a></td>
@@ -105,27 +188,55 @@ Epidemiological Analysis
 <tr><td style="width: 25%;"><a href="set_operations.html">intersect_number_lines</a></td>
 <td>Set operations on number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">invert_number_line</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
+<tr><td style="width: 25%;"><a href="epid-class.html">is.epid</a></td>
+<td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">is.number_line</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">is.pane</a></td>
+<td>'pane' object</td></tr>
+<tr><td style="width: 25%;"><a href="pid-class.html">is.pid</a></td>
+<td>'pid' objects</td></tr>
+</table>
+
+<h2><a name="L">-- L --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="number_line.html">left_point</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">left_point&lt;-</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="links.html">links</a></td>
 <td>Multistage deterministic record linkage</td></tr>
+<tr><td style="width: 25%;"><a href="links_wf_probabilistic.html">links_wf_probabilistic</a></td>
+<td>Probabilistic record linkage</td></tr>
 <tr><td style="width: 25%;"><a href="listr.html">listr</a></td>
 <td>Written lists.</td></tr>
+</table>
+
+<h2><a name="M">-- M --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="patient_list.html">missing_staff_id</a></td>
 <td>Datasets in 'diyar' package</td></tr>
+</table>
+
+<h2><a name="N">-- N --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="number_line.html">number_line</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">number_line-class</a></td>
 <td>'number_line' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">number_line_sequence</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">number_line_width</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
+</table>
+
+<h2><a name="O">-- O --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="patient_list.html">Opes</a></td>
 <td>Datasets in 'diyar' package</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">overlap</a></td>
@@ -134,6 +245,19 @@ Epidemiological Analysis
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">overlap_method</a></td>
 <td>Overlapping number line objects</td></tr>
+<tr><td style="width: 25%;"><a href="patient_list.html">overlap_methods</a></td>
+<td>Datasets in 'diyar' package</td></tr>
+<tr><td style="width: 25%;"><a href="overlaps.html">overlap_method_codes</a></td>
+<td>Overlapping number line objects</td></tr>
+</table>
+
+<h2><a name="P">-- P --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="pane-class.html">pane-class</a></td>
+<td>'pane' object</td></tr>
+<tr><td style="width: 25%;"><a href="partitions.html">partitions</a></td>
+<td>Distribute events specified intervals.</td></tr>
 <tr><td style="width: 25%;"><a href="patient_list.html">patient_list</a></td>
 <td>Datasets in 'diyar' package</td></tr>
 <tr><td style="width: 25%;"><a href="patient_list.html">patient_list_2</a></td>
@@ -141,37 +265,75 @@ Epidemiological Analysis
 <tr><td style="width: 25%;"><a href="pid-class.html">pid-class</a></td>
 <td>'pid' objects</td></tr>
 <tr><td style="width: 25%;"><a href="predefined_tests.html">predefined_tests</a></td>
-<td>User defined tests</td></tr>
+<td>Predefined logical tests in *'diyar'*</td></tr>
+<tr><td style="width: 25%;"><a href="epid-class.html">print.epid_summary</a></td>
+<td>'epid' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">print.pane_summary</a></td>
+<td>'pane' object</td></tr>
+<tr><td style="width: 25%;"><a href="pid-class.html">print.pid_summary</a></td>
+<td>'pid' objects</td></tr>
+<tr><td style="width: 25%;"><a href="predefined_tests.html">prob_link</a></td>
+<td>Predefined logical tests in *'diyar'*</td></tr>
+<tr><td style="width: 25%;"><a href="links_wf_probabilistic.html">prob_score_range</a></td>
+<td>Probabilistic record linkage</td></tr>
+</table>
+
+<h2><a name="R">-- R --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="predefined_tests.html">range_match</a></td>
-<td>User defined tests</td></tr>
+<td>Predefined logical tests in *'diyar'*</td></tr>
 <tr><td style="width: 25%;"><a href="predefined_tests.html">range_match_legacy</a></td>
-<td>User defined tests</td></tr>
+<td>Predefined logical tests in *'diyar'*</td></tr>
 <tr><td style="width: 25%;"><a href="links.html">record_group</a></td>
 <td>Multistage deterministic record linkage</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">rep-method</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">rep-method</a></td>
 <td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">rep-method</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">rep-method</a></td>
 <td>'pid' objects</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">rep.d_label</a></td>
+<td>Labelling in 'diyar'</td></tr>
 <tr><td style="width: 25%;"><a href="overlaps.html">reverse</a></td>
 <td>Overlapping number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">reverse_number_line</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">right_point</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">right_point&lt;-</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="episodes.html">rolling_episodes</a></td>
-<td>Track episodes for case definitions and record deduplication.</td></tr>
+<td>Link events to chronological episodes.</td></tr>
+</table>
+
+<h2><a name="S">-- S --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="schema.html">schema</a></td>
+<td>Schema diagram for linked records in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="schema.html">schema.epid</a></td>
+<td>Schema diagram for linked records in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="schema.html">schema.number_line</a></td>
+<td>Schema diagram for linked records in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="schema.html">schema.pane</a></td>
+<td>Schema diagram for linked records in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="schema.html">schema.pid</a></td>
+<td>Schema diagram for linked records in 'diyar'</td></tr>
+<tr><td style="width: 25%;"><a href="number_line-class.html">seq.number_line</a></td>
+<td>'number_line' object</td></tr>
 <tr><td style="width: 25%;"><a href="set_operations.html">set_operations</a></td>
 <td>Set operations on number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">shift_number_line</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">show-method</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">show-method</a></td>
 <td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">show-method</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">show-method</a></td>
 <td>'pid' objects</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">sort.number_line</a></td>
@@ -179,41 +341,72 @@ Epidemiological Analysis
 <tr><td style="width: 25%;"><a href="patient_list.html">staff_records</a></td>
 <td>Datasets in 'diyar' package</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">start_point</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line.html">start_point&lt;-</a></td>
-<td>Number line objects</td></tr>
+<td>'number_line'</td></tr>
 <tr><td style="width: 25%;"><a href="set_operations.html">subtract_number_lines</a></td>
 <td>Set operations on number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="sub_criteria.html">sub_criteria</a></td>
-<td>Sub-criteria for *'links'*</td></tr>
-<tr><td style="width: 25%;"><a href="to_s4.html">to_df</a></td>
-<td>Change the returned outputs of 'diyar' functions</td></tr>
-<tr><td style="width: 25%;"><a href="to_s4.html">to_s4</a></td>
-<td>Change the returned outputs of 'diyar' functions</td></tr>
+<td>Sub-criteria</td></tr>
+<tr><td style="width: 25%;"><a href="epid-class.html">summary.epid</a></td>
+<td>'epid' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">summary.pane</a></td>
+<td>'pane' object</td></tr>
+<tr><td style="width: 25%;"><a href="pid-class.html">summary.pid</a></td>
+<td>'pid' objects</td></tr>
+</table>
+
+<h2><a name="U">-- U --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="set_operations.html">union_number_lines</a></td>
 <td>Set operations on number line objects</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">unique.epid</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">unique.number_line</a></td>
 <td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">unique.pane</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">unique.pid</a></td>
 <td>'pid' objects</td></tr>
+</table>
+
+<h2><a name="W">-- W --</a></h2>
+
+<table width="100%">
 <tr><td style="width: 25%;"><a href="windows.html">windows</a></td>
-<td>Window and lengths</td></tr>
+<td>Windows and lengths</td></tr>
+</table>
+
+<h2><a name="misc">-- misc --</a></h2>
+
+<table width="100%">
+<tr><td style="width: 25%;"><a href="number_line-class.html">$-method</a></td>
+<td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="number_line-class.html">$&lt;--method</a></td>
+<td>'number_line' object</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">[-method</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">[-method</a></td>
 <td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">[-method</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">[-method</a></td>
 <td>'pid' objects</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">[.d_label</a></td>
+<td>Labelling in 'diyar'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">[&lt;--method</a></td>
 <td>'number_line' object</td></tr>
 <tr><td style="width: 25%;"><a href="epid-class.html">[[-method</a></td>
 <td>'epid' object</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">[[-method</a></td>
 <td>'number_line' object</td></tr>
+<tr><td style="width: 25%;"><a href="pane-class.html">[[-method</a></td>
+<td>'pane' object</td></tr>
 <tr><td style="width: 25%;"><a href="pid-class.html">[[-method</a></td>
 <td>'pid' objects</td></tr>
+<tr><td style="width: 25%;"><a href="diyar_label.html">[[.d_label</a></td>
+<td>Labelling in 'diyar'</td></tr>
 <tr><td style="width: 25%;"><a href="number_line-class.html">[[&lt;--method</a></td>
 <td>'number_line' object</td></tr>
 </table>

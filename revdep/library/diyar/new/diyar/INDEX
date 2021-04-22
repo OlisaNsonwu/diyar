@@ -1,18 +1,20 @@
-combns                  Generate every permutation of n elements.
 custom_sort             Nested sorting
+diyar_label             Labelling in 'diyar'
 epid-class              'epid' object
-episodes                Track episodes for case definitions and record
-                        deduplication.
+episodes                Link events to chronological episodes.
 links                   Multistage deterministic record linkage
+links_wf_probabilistic
+                        Probabilistic record linkage
 listr                   Written lists.
-number_line             Number line objects
+number_line             'number_line'
 number_line-class       'number_line' object
 overlaps                Overlapping number line objects
+pane-class              'pane' object
+partitions              Distribute events specified intervals.
 pid-class               'pid' objects
-predefined_tests        User defined tests
+predefined_tests        Predefined logical tests in *'diyar'*
+schema                  Schema diagram for linked records in 'diyar'
 set_operations          Set operations on number line objects
 staff_records           Datasets in 'diyar' package
-sub_criteria            Sub-criteria for *'links'*
-to_s4                   Change the returned outputs of 'diyar'
-                        functions
-windows                 Window and lengths
+sub_criteria            Sub-criteria
+windows                 Windows and lengths

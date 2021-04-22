@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Distribute events specified intervals.</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<link rel="stylesheet" type="text/css" href="R.css" />
+</head><body>
+
+<table width="100%" summary="page for partitions {diyar}"><tr><td>partitions {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
+
+<h2>Distribute events specified intervals.</h2>
+
+<h3>Description</h3>
+
+<p>Distribute events into groups defined by time or numerical intervals.
+Each set of linked records are assigned a unique identifier with relevant group-level data.
+</p>
+
+
+<h3>Usage</h3>
+
+<pre>
+partitions(
+  date,
+  window = number_line(0, Inf),
+  windows_total = 1,
+  separate = FALSE,
+  sn = NULL,
+  strata = NULL,
+  data_links = "ANY",
+  custom_sort = NULL,
+  group_stats = FALSE,
+  data_source = NULL,
+  by = NULL,
+  length.out = NULL,
+  fill = TRUE,
+  display = "none"
+)
+</pre>
+
+
+<h3>Arguments</h3>
+
+<table summary="R argblock">
+<tr valign="top"><td><code>date</code></td>
+<td>
+<p><code>[date|datetime|integer|<a href="number_line.html">number_line</a>]</code>. Event date or period.</p>
+</td></tr>
+<tr valign="top"><td><code>window</code></td>
+<td>
+<p><code>[integer|<a href="number_line.html">number_line</a>]</code>. Numeric or time intervals.</p>
+</td></tr>
+<tr valign="top"><td><code>windows_total</code></td>
+<td>
+<p><code>[integer|<a href="number_line.html">number_line</a>]</code>. Minimum number of matched <code>windows</code> required for a pane. See <code>details</code></p>
+</td></tr>
+<tr valign="top"><td><code>separate</code></td>
+<td>
+<p><code>[logical]</code>. If <code>TRUE</code>, events matched to different <code>windows</code> are not linked.</p>
+</td></tr>
+<tr valign="top"><td><code>sn</code></td>
+<td>
+<p><code>[integer]</code>. Unique record identifier. Useful for creating familiar <code><a href="pane-class.html">pane</a></code> identifiers.</p>
+</td></tr>
+<tr valign="top"><td><code>strata</code></td>
+<td>
+<p><code>[atomic]</code>. Subsets of the dataset. Panes are created separately for each <code>strata</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>data_links</code></td>
+<td>
+<p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href="pane-class.html">pane</a></code>. A <code><a href="pane-class.html">pane</a></code> without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>custom_sort</code></td>
+<td>
+<p><code>[atomic]</code>. Preferred order for selecting <code>"index"</code> events.</p>
+</td></tr>
+<tr valign="top"><td><code>group_stats</code></td>
+<td>
+<p><code>[logical]</code>. If <code>TRUE</code> (default), the returned <code>pane</code> object will include group specific information like panes start and end dates.</p>
+</td></tr>
+<tr valign="top"><td><code>data_source</code></td>
+<td>
+<p><code>[character]</code>. Unique data source identifier. Adds the list of datasets in each pane to the <code><a href="pane-class.html">pane</a></code>. Useful when the dataset has data from multiple sources.</p>
+</td></tr>
+<tr valign="top"><td><code>by</code></td>
+<td>
+<p><code>[integer]</code>. Width of splits.</p>
+</td></tr>
+<tr valign="top"><td><code>length.out</code></td>
+<td>
+<p><code>[integer]</code>. Number of splits.</p>
+</td></tr>
+<tr valign="top"><td><code>fill</code></td>
+<td>
+<p><code>[logical]</code>. Retain (<code>TRUE</code>) or drop (<code>FALSE</code>) the remainder of an uneven split.</p>
+</td></tr>
+<tr valign="top"><td><code>display</code></td>
+<td>
+<p><code>[character]</code>. The progress messages printed on screen. Options are; <code>"none"</code> (default) or <code>"stats"</code>.</p>
+</td></tr>
+</table>
+
+
+<h3>Details</h3>
+
+<p>Each assigned group is referred to as a <code><a href="pane-class.html">pane</a></code> A <code><a href="pane-class.html">pane</a></code> consists of events within a specific time or numerical intervals (<code>window</code>).
+</p>
+<p>Each <code>window</code> must cover a separate interval. Overlapping <code>windows</code> are merged before events are distributed into panes.
+Events that occur over two <code>windows</code> are assigned to the last one listed.
+</p>
+<p>Alternatively, you can create <code>windows</code> by splitting a period into equal parts (<code>length.out</code>), or into a sequence of intervals with fixed widths (<code>by</code>).
+</p>
+<p>By default, the earliest event is taken as the <code>"Index"</code> event of the <code><a href="pane-class.html">pane</a></code>.
+An alternative can be chosen with <code>custom_sort</code>.
+</p>
+<p><b><code>partitions()</code></b> will categorise records into 3 types;
+</p>
+
+<ul>
+<li> <p><code>"Index"</code> - Index event/record of the pane.
+</p>
+</li>
+<li> <p><code>"Duplicate_I"</code> - Duplicate of the <code>"Index"</code> record.
+</p>
+</li>
+<li> <p><code>"Skipped"</code> - Records that are not assigned to a pane.
+</p>
+</li></ul>
+
+<p>Every element in <code>data_links</code> must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
+Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</code>.
+</p>
+
+<ul>
+<li><p> If named <code>"l"</code>, only groups with records from every listed <code>data_source</code> will be retained.
+</p>
+</li>
+<li><p> If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be retained.
+</p>
+</li></ul>
+
+<p><em><code>NA</code> values in <code>strata</code> excludes records from the partitioning tracking process</em>.
+</p>
+<p>See <code>vignette("episodes")</code> for more information.
+</p>
+
+
+<h3>Value</h3>
+
+<p><code><a href="pane-class.html">pane</a></code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="pane-class.html">pane</a></code>; <code><a href="number_line.html">number_line_sequence</a></code>; <code><a href="episodes.html">episodes</a></code>; <code><a href="links.html">links</a></code>; <code><a href="overlaps.html">overlaps</a></code>; <code><a href="number_line.html">number_line</a></code>; <code><a href="schema.html">schema</a></code>
+</p>
+
+
+<h3>Examples</h3>
+
+<pre>
+events &lt;- c(30, 2, 11, 10, 100)
+windows &lt;- number_line(c(1, 9, 25), c(3, 12, 35))
+
+events
+partitions(date = events, length.out = 3, separate = TRUE)
+partitions(date = events, by = 10, separate = TRUE)
+partitions(date = events, window = windows, separate = TRUE)
+partitions(date = events, window = windows, separate = FALSE)
+partitions(date = events, window = windows, separate = FALSE, windows_total = 4)
+
+</pre>
+
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
+</body></html>

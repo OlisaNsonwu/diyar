@@ -1,22 +1,32 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Sub-criteria for *'links'*</title>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml"><head><title>R: Sub-criteria</title>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <link rel="stylesheet" type="text/css" href="R.css" />
 </head><body>
 
 <table width="100%" summary="page for sub_criteria {diyar}"><tr><td>sub_criteria {diyar}</td><td style="text-align: right;">R Documentation</td></tr></table>
 
-<h2>Sub-criteria for <b><code><a href="links.html">links</a></code></b></h2>
+<h2>Sub-criteria</h2>
 
 <h3>Description</h3>
 
-<p>Additional matching conditions for each stage in <code><a href="links.html">links</a></code>.
+<p>Matching criteria for each iteration of <b><code><a href="links.html">links</a></code></b> and <b><code><a href="episodes.html">episodes</a></code></b>.
 </p>
 
 
 <h3>Usage</h3>
 
 <pre>
-sub_criteria(..., funcs = diyar::exact_match)
+sub_criteria(
+  ...,
+  match_funcs = diyar::exact_match,
+  equal_funcs = diyar::exact_match,
+  operator = "or"
+)
+
+eval_sub_criteria(x, ...)
+
+## S3 method for class 'sub_criteria'
+eval_sub_criteria(x, strata, index_record, sn, check_duplicates = TRUE, ...)
 </pre>
 
 
@@ -25,53 +35,96 @@ sub_criteria(..., funcs = diyar::exact_match)
 <table summary="R argblock">
 <tr valign="top"><td><code>...</code></td>
 <td>
-<p>Additional attributes to compare.</p>
+<p><code>[atomic]</code>.. Attributes.</p>
 </td></tr>
-<tr valign="top"><td><code>funcs</code></td>
+<tr valign="top"><td><code>match_funcs</code></td>
 <td>
-<p>User defined logical test.</p>
+<p><code>[function]</code>. User defined logical test for matches.</p>
+</td></tr>
+<tr valign="top"><td><code>equal_funcs</code></td>
+<td>
+<p><code>[function]</code>. User defined logical test for identical record sets (all attributes of the same record).</p>
+</td></tr>
+<tr valign="top"><td><code>operator</code></td>
+<td>
+<p><code>[character]</code>. Options are <code>"and"</code> or <code>"or"</code>.</p>
+</td></tr>
+<tr valign="top"><td><code>x</code></td>
+<td>
+<p><code>[sub_Criteria]</code></p>
+</td></tr>
+<tr valign="top"><td><code>strata</code></td>
+<td>
+<p><code>[integer]</code>. Subsets of the dataset</p>
+</td></tr>
+<tr valign="top"><td><code>index_record</code></td>
+<td>
+<p><code>[logical]</code>. Represents the <code>y</code>-value of the <code>x</code>-<code>y</code> record pair to be compared.
+See (<b><code><a href="predefined_tests.html">predefined_tests</a></code></b>).</p>
+</td></tr>
+<tr valign="top"><td><code>sn</code></td>
+<td>
+<p><code>[integer]</code> Unique index for each record.</p>
+</td></tr>
+<tr valign="top"><td><code>check_duplicates</code></td>
+<td>
+<p><code>[logical]</code>. If <code>FALSE</code>, does not check duplicate values. The result of the initial check will be recycled.</p>
 </td></tr>
 </table>
 
 
 <h3>Details</h3>
 
-<p><b><code>sub_criteria()</code></b> is the mechanism for providing a <code>sub_criteria</code> to an instance of <b><code>links</code></b>.
+<p><b><code>sub_criteria()</code></b> is the mechanism for providing matching criteria to an iteration of <b><code>links</code></b> or <b><code>episodes</code></b>.
+It creates a <code>sub_criteria</code> class object which contains the attributes to be compared,
+logical tests for the comparisons (see <b><code><a href="predefined_tests.html">predefined_tests</a></code></b> for examples) and
+another set of logical tests to determine identical records.
 </p>
-<p>Each attribute (<code>atomic</code> vectors) is compared as an exact match or with a user-defined logical test.
-The test must be supplied as a function with at least two arguments named <code>`x`</code> and <code>`y`</code>.
-Where <code>`y`</code> is the value for one observation being compared against all other observations (<code>`x`</code>).
-</p>
-<p>Each attribute must have the same length.
-</p>
-<p><code>funcs</code> must be a <code>function</code> or <code>list</code> of <code>functions</code> to use with each attribute.
-</p>
-<p>Each <code>funcs</code> must evaluate to <code>TRUE</code> or <code>FALSE</code>.
-</p>
-<p>Each <code>sub_criteria</code> must be linked to a <code>criteria</code> in <b><code><a href="links.html">links</a></code></b>.
-You can link multiple <code>sub_criteria</code> to one <code>criteria</code>.
-Any unlinked <code>sub_criteria</code> will be ignored.
+<p><em>*Determining identical records reduces processing time.</em>
 </p>
 
 
 <h3>Value</h3>
 
-<p><code>function</code> or <code>list</code> of <code>functions</code>
+<p><code>sub_criteria</code>
+</p>
+<p><code>Logical</code>
+</p>
+
+
+<h3>See Also</h3>
+
+<p><code><a href="predefined_tests.html">predefined_tests</a></code>, <code><a href="links.html">links</a></code> and <code><a href="episodes.html">episodes</a></code>
 </p>
 
 
 <h3>Examples</h3>
 
 <pre>
-library(diyar)
+# Sub-criteria
+s_cri1 &lt;- sub_criteria(c(30, 28, 40, 25, 25, 29, 27),
+                       match_funcs = range_match)
+s_cri2 &lt;- sub_criteria(c(30, 28, 40, 25, 25, 29, 27),
+                       match_funcs = exact_match)
 
-sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match)
+# Nested sub-criteria
+s_cri3 &lt;- sub_criteria(s_cri1, s_cri2, operator = "or")
+s_cri4 &lt;- sub_criteria(s_cri1, s_cri3, operator = "and")
 
-# Link each `sub_critera` a `criteria`.
-list(
-c1 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match),
-c2 = sub_criteria(c(30, 28, 40, 25, 25, 29, 27), funcs = range_match))
+`eval_sub_criteria`
+# 3 values
+strata &lt;- rep(1, 3)
+index_record &lt;- c(TRUE, FALSE, FALSE)
+sn &lt;- 1:3
+
+# Test for a match in either attribute
+sub_cri_1 &lt;- sub_criteria(c(1, 1, 0), c(2, 1, 2))
+eval_sub_criteria(sub_cri_1, strata, index_record, sn)
+
+# Test for a match in both attributes
+sub_cri_2 &lt;- sub_criteria(c(1, 1, 0), c(2, 1, 2), operator = "and")
+eval_sub_criteria(sub_cri_2, strata, index_record, sn)
 </pre>
 
-<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0 <a href="00Index.html">Index</a>]</div>
+<hr /><div style="text-align: center;">[Package <em>diyar</em> version 0.2.0.9000 <a href="00Index.html">Index</a>]</div>
 </body></html>
