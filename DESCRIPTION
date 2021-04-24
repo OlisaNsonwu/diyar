@@ -8,8 +8,8 @@ BugReports: https://github.com/OlisaNsonwu/diyar/issues
 Author: Olisaeloka Nsonwu
 Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
 Description: An R package for record linkage and implementing epidemiological case definitions in R.
-    Record linkage is implemented either through a multistage determinitic approach or a probablisitic approach. 
-    Matching records are assigned to unqiue groups. There are mechanisms to address misssing data and conflicting matches across linkage stages.
+    Record linkage is implemented either through a multistage deterministic approach or a probabilistic approach. 
+    Matching records are assigned to unique groups. There are mechanisms to address missing data and conflicting matches across linkage stages.
     Track and assign events (e.g. sample collection) and periods (e.g. hospital admission) to unique groups based on a case definition. 
     The tracking process permits several options such as episode lengths and recurrence.
     Duplicate events or records can then be identified for removal or further analyses.  

@@ -1,5 +1,27 @@
 ## Resubmission
 This is a resubmission. Summary of changes below:
+*Optimised functions
+*New functions and functionalities
+*Updated documentation and vignettes
+*Updated package to v.0.3.0
+
+## Test environments
+* Windows 10 (local machine), R 4.0.2
+* win-builder (release)
+* Fedora (rhub)
+* Linux (rhub)
+
+## R CMD check results
+There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments. 
+
+There was 1 NOTE:
+Could not eliminate this. No messaged dsiplayed. This is a first submission (since the package was archived).
+
+## Downstream dependencies
+*Checked downstream dependencies - All passed
+
+## Resubmission
+This is a resubmission. Summary of changes below:
 * Unit tests removed submitted build
 
 ## Test environments
@@ -28,9 +50,6 @@ This is a resubmission. Summary of changes below:
 
 ## R CMD check results
 There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments. 
-
-There was 1 NOTE:
-Could not eliminate this. No messaged dsiplayed. This is a first submission (since the package was archived).
 
 ## Downstream dependencies
 *Checked downstream dependencies - All passed
