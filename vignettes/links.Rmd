@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ```{r, include = FALSE}
 library(diyar); 
 # library(cowplot)
-library(ggplot2)
+# library(ggplot2)
 ```
 
 # Introduction
@@ -121,7 +121,7 @@ dfr_2c
 #                label_colour = "white",
 #                label_size = 12,
 #                label_x = c(0, 0))
-# ggsave(plot = f, filename = "fig_p1.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_p1.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 1: Effect of a change to the match priority**
@@ -143,7 +143,7 @@ dfr
 #                labels = c("pd1", "pd1b"),
 #                label_colour = "white",
 #                label_size = 12)
-# ggsave(plot = f, filename = "fig_p2.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_p2.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 2: Group expansion** 

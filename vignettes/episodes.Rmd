@@ -18,7 +18,7 @@ knitr::opts_chunk$set(
 ```{r include=FALSE}
 library(diyar)
 # library(cowplot)
-library(ggplot2)
+# library(ggplot2)
 # date <- function(x) as.Date(x, "%d/%m/%Y")
 # dttm <- function(x) as.POSIXct(x, "UTC", format = "%d/%m/%Y %H:%M:%S")
 ```
@@ -77,7 +77,7 @@ as.data.frame(s_data$ep2)
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(-.065, -.065, -.0615, -.015))
-# ggsave(plot = f, filename = "fig_e1.png", width = 15, height = 9, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e1.png", width = 15, height = 9, units = "in")
 ```
 
 Figure 1 gives a visual representation of the difference between these identifiers.
@@ -115,7 +115,7 @@ ep2 <- episodes(event_dt, strata = attr_2, case_length = 5)
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(0, 0))
-# ggsave(plot = f, filename = "fig_e2.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e2.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 2: Using a `strata` to specify additional criteria for linked events**
@@ -166,7 +166,7 @@ ep6 <- episodes(event_dt, case_length = 5, case_sub_criteria = sub_cri_4)
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(0, 0))
-# ggsave(plot = f, filename = "fig_e3.png", width = 15, height = 9, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e3.png", width = 15, height = 9, units = "in")
 ```
 
 **Figure 3: Using a `sub_criteria` to specify additional criteria for linked events**
@@ -231,7 +231,7 @@ ep8 <- episodes(event_dt, case_length = 2, episode_type = "fixed",
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(0, 0))
-# ggsave(plot = f, filename = "fig_e4.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e4.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 4: Using `case_sub_criteria` to specify complex criteria for linked events**
@@ -267,7 +267,7 @@ pn5 <- partitions(event_dt, length.out = 2, separate = FALSE)
 #                label_colour = "black",
 #                label_y = c(0.07,.07,0.07,0.07))
 # 
-# ggsave(plot = f, filename = "fig_e5.png", width = 15, height = 9, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e5.png", width = 15, height = 9, units = "in")
 ```
 
 **Figure 5: Using partitions**
@@ -300,7 +300,7 @@ ep12 <- episodes(event_dt, case_length = number_line(-5, 5), custom_sort = c_sor
 #                plt3 + theme(plot.background = element_rect(color = "black")),
 #                plt4 + theme(plot.background = element_rect(color = "black")),
 #                labels = c("ep9", "ep10", "ep11", "ep12"), label_colour = "black")
-# ggsave(plot = f, filename = "fig_e6.png", width = 15, height = 9, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e6.png", width = 15, height = 9, units = "in")
 ```
 
 **Figure 6: Selecting index events when tracking episodes**
@@ -353,7 +353,7 @@ ep18 <- episodes(event_dt, case_length = 1,  recurrence_length = 3,
 #                plt6 + theme(plot.background = element_rect(color = "black")),
 #                labels = c("ep13", "ep14", "ep15", "ep16", "ep17", "ep18"),
 #                label_colour = "black")
-# ggsave(plot = f, filename = "fig_e7.png", width = 15, height = 9, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e7.png", width = 15, height = 9, units = "in")
 ```
 
 **Figure 7: Recurrence of the index event**
@@ -393,7 +393,7 @@ ep20 <- episodes(event_dt,
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(0, 0))
-# ggsave(plot = f, filename = "fig_e8.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e8.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 8: Lags between index and repeat events**
@@ -429,7 +429,7 @@ dfr[c("admin_period", "ep_len1", "ep_len2", "ep21", "ep22")]
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(0, 0))
-# ggsave(plot = f, filename = "fig_e9.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e9.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 9: Tracking episodes of overlapping intervals**
@@ -491,7 +491,7 @@ epids$exact
 #           epids_schema[[9]] + theme(plot.background = element_rect(color = "black")),
 #           labels = methods, label_colour = "black", ncol = 3,
 #           label_x = c(.8,.75,.62,.65,.8,.65,.5,.32,.25))
-# ggsave(plot = f, filename = "fig_e10.png", width = 15, height = 9, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e10.png", width = 15, height = 9, units = "in")
 ```
 
 **Figure 10: Overlap methods**
@@ -556,7 +556,7 @@ system.time(
 #                label_x = c(0.6, 0.6, 0.6),
 #                label_y = c(0.07, 0.07, 0.07),
 #                nrow = 1)
-# ggsave(plot = f, filename = "fig_e11.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e11.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 11: Effect of using multiple index events**
@@ -614,10 +614,10 @@ summary(ep25b)
 ```
 
 ```{r warning=FALSE, include=FALSE}
-# plt1 <- schema(ep24a, seed = 2,
+# plt1 <- schema(ep25a, seed = 2,
 #                show_label = FALSE,
 #                custom_label = attr_4, theme = "light")
-# plt2 <- schema(ep24b, seed = 2,
+# plt2 <- schema(ep25b, seed = 2,
 #                show_label = FALSE,
 #                custom_label = attr_4, theme = "light")
 # 
@@ -627,7 +627,7 @@ summary(ep25b)
 #                label_colour = "black",
 #                label_size = 12,
 #                label_x = c(0, 0))
-# ggsave(plot = f, filename = "fig_e12.png", width = 15, height = 4.5, units = "in")
+# ggsave(dpi = 100, plot = f, filename = "fig_e12.png", width = 15, height = 4.5, units = "in")
 ```
 
 **Figure 12: Using `skip_order` to stop the episode tracking process**

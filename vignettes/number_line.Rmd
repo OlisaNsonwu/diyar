@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r include = FALSE}
-library(ggplot2)
+library(diyar)
+# library(ggplot2)
 # library(cowplot)
 ```
 
@@ -110,12 +111,12 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
  # strata <- sort(rep(seq_len(length(nl2)/2), 2))
  # nl_ep <- episodes(nl2, strata = strata, case_length = index_window(nl2))
  # plt1 <- schema(nl_ep[1:12], seed = 2, show_labels = c("date", "case_overlap_methods"),
- #                theme = "light") 
+ #                theme = "light")
  # plt2 <- schema(nl_ep[13:24], seed = 2, show_labels = c("date", "case_overlap_methods"),
  #                theme = "light")
  # f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "white")),
  #                plt2 + theme(plot.background = element_rect(color = "white")))
- # ggsave(plot = f, filename = "fig_n1.png", width = 15, height = 9, units = "in")
+ # ggsave(dpi = 100, plot = f, filename = "fig_n1.png", width = 15, height = 9, units = "in")
 ```
 
 **Figure 1: Overlap methods for `number_line`**
