@@ -301,7 +301,7 @@ overlaps_err <- function(opts){
   if(class(opts) == "character"){
     opts <- tolower(opts)
     opts_cd <- overlap_method_codes(opts)
-  }else if(class(opts) == "numeric"){
+  }else if(class(opts) %in% c("numeric", "integer")){
     opts_cd <- match(opts, seq_len(length(diyar::overlap_methods$options)))
   }
 

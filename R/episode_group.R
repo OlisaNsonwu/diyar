@@ -416,6 +416,40 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     grouped_epids$int@gid <- gidx
     rm(idx); rm(gidx)
     int <- int[tag != 2]
+
+    if(isTRUE(any_rolling_epi)) roll_n <- roll_n[tag != 2]
+    if(isFALSE(one_epid_type)){
+      lead_epid_type <- lead_epid_type[tag != 2]
+      episode_type <- episode_type[tag != 2]
+    }
+    if(isFALSE(one_case_for_rec)){
+      lead_case_for_rec <- lead_case_for_rec[tag != 2]
+      case_for_recurrence <- case_for_recurrence[tag != 2]
+    }
+    if(isFALSE(one_rec_from_last)){
+      lead_ref_event <- lead_ref_event[tag != 2]
+      reference_event <- reference_event[tag != 2]
+    }
+    if(isFALSE(one_skip_b4_len)){
+      lead_skip_b4_len <- lead_skip_b4_len[tag != 2]
+      skip_if_b4_lengths <- skip_if_b4_lengths[tag != 2]
+    }
+    if(isFALSE(one_epl_min)){
+      lead_epl_min <- lead_epl_min[tag != 2]
+      case_length_total <- case_length_total[tag != 2]
+    }
+    if(isFALSE(one_rcl_min)){
+      lead_rcl_min <- lead_rcl_min[tag != 2]
+      recurrence_length_total <- recurrence_length_total[tag != 2]
+    }
+    ep_l <- lapply(ep_l, function(x){x[tag != 2]})
+    mths_a <- lapply(mths_a, function(x){x[tag != 2]})
+
+    if(isTRUE(any_rolling_epi)){
+      rc_l <- lapply(rc_l, function(x){x[tag != 2]})
+      mths_b <- lapply(mths_b, function(x){x[tag != 2]})
+    }
+    grouped_epids$tag <- c(grouped_epids$tag, tag[tag == 2])
     tag <- tag[tag != 2]
   }
   if(display == "stats" & excluded > 0) cat(paste0("Pre-tracking\nChecked: ", fmt(inp_n), " record(s)\nSkipped: ", fmt(excluded), " record(s).","\n\n"))
