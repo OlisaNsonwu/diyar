@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -132,13 +132,30 @@
       <small>Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/NEWS.md'><code>NEWS.md</code></a></small>
     </div>
 
-    <div id="version-0209000" class="section level1">
-<h1 class="page-header" data-toc-text="0.2.0.9000">
-<a href="#version-0209000" class="anchor"></a>Version 0.2.0.9000<small> Unreleased </small>
+    <div id="version-0309000" class="section level1">
+<h1 class="page-header" data-toc-text="0.3.0.9000">
+<a href="#version-0309000" class="anchor"></a>Version 0.3.0.9000<small> Unreleased </small>
 </h1>
 <div id="new-features" class="section level2">
 <h2 class="hasAnchor">
 <a href="#new-features" class="anchor"></a>New features</h2>
+</div>
+<div id="changes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#changes" class="anchor"></a>Changes</h2>
+</div>
+<div id="bug-fixes" class="section level2">
+<h2 class="hasAnchor">
+<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+</div>
+</div>
+    <div id="version-030" class="section level1">
+<h1 class="page-header" data-toc-text="0.3.0">
+<a href="#version-030" class="anchor"></a>Version 0.3.0<small> 2021-04-25 </small>
+</h1>
+<div id="new-features-1" class="section level2">
+<h2 class="hasAnchor">
+<a href="#new-features-1" class="anchor"></a>New features</h2>
 <ul>
 <li>New function - <code><a href="../reference/links_wf_probabilistic.html">links_wf_probabilistic()</a></code>. Probabilistic record linkage.</li>
 <li>New function - <code><a href="../reference/partitions.html">partitions()</a></code>. Spilt events into sections in time.</li>
@@ -156,9 +173,9 @@
 <li>Optimised <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code>. Speed improvements.</li>
 </ul>
 </div>
-<div id="changes" class="section level2">
+<div id="changes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes" class="anchor"></a>Changes</h2>
+<a href="#changes-1" class="anchor"></a>Changes</h2>
 <ul>
 <li>Default time zone for an <code>epid_interval</code> or <code>pane_interval</code> with <code>POSIXct</code> objects is now “GMT”.</li>
 <li>
@@ -177,9 +194,9 @@
 <code>case_overlap_methods</code>, <code>recurrence_overlap_methods</code> and <code>overlap_methods</code> now take <code>integer</code> codes for different combinations of overlap methods. See <code>overlap_methods$options</code> for the full list. <code>character</code> inputs are still supported.</li>
 </ul>
 </div>
-<div id="bug-fixes" class="section level2">
+<div id="bug-fixes-1" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code>"Single-record"</code> was wrong in <code>links</code> summary output. Resolved.</li>
@@ -190,9 +207,9 @@
 <h1 class="page-header" data-toc-text="0.2.0">
 <a href="#version-020" class="anchor"></a>Version 0.2.0<small> 2020-09-17 </small>
 </h1>
-<div id="new-features-1" class="section level2">
+<div id="new-features-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-features-1" class="anchor"></a>New features</h2>
+<a href="#new-features-2" class="anchor"></a>New features</h2>
 <ul>
 <li>Better support for <code>Inf</code> in <code>number_line</code> objects.</li>
 <li>Can now use multiple <code>case_lengths</code> or <code>recurrence_lengths</code> for the same event.
@@ -221,9 +238,9 @@
 </li>
 </ul>
 </div>
-<div id="changes-1" class="section level2">
+<div id="changes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-1" class="anchor"></a>Changes</h2>
+<a href="#changes-2" class="anchor"></a>Changes</h2>
 <ul>
 <li>
 <code><a href="../reference/number_line.html">number_line()</a></code> - <code>l</code> and <code>r</code> must have the same length or be <code>1</code>.</li>
@@ -267,9 +284,9 @@
 <li>Events can now have missing cut-off points (<code>NA_real_</code>) or periods (<code><a href="../reference/number_line.html">number_line(NA_real_, NA_real_)</a></code>) <code>case_length</code> and <code>recurrence_length</code>. This ensures that the event does not become an index case however, it can still be part of different episode. For reference, an event with a missing <code>strata</code> (<code>NA_character_</code>) ensures that the event does not become an index case nor part of any episode.</li>
 </ul>
 </div>
-<div id="bug-fixes-1" class="section level2">
+<div id="bug-fixes-2" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-1" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <code>fixed_episodes</code>, <code>rolling_episodes</code> and <code>episode_group</code> - <code>include_index_period</code> didn’t work in certain situations. Corrected.</li>
@@ -282,9 +299,9 @@
 <h1 class="page-header" data-toc-text="0.1.0">
 <a href="#version-010" class="anchor"></a>Version 0.1.0<small> 2020-06-13 </small>
 </h1>
-<div id="new-features-2" class="section level2">
+<div id="new-features-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#new-features-2" class="anchor"></a>New features</h2>
+<a href="#new-features-3" class="anchor"></a>New features</h2>
 <ul>
 <li>
 <code><a href="../reference/links.html">record_group()</a></code> - <code>strata</code> argument. Perform record grouping separately within subsets of a dataset.</li>
@@ -322,9 +339,9 @@
 <code>left_point(x)&lt;-</code>, <code>right_point(x)&lt;-</code>, <code>start_point(x)&lt;-</code> and <code>end_point(x)&lt;-</code> accessor functions</li>
 </ul>
 </div>
-<div id="changes-2" class="section level2">
+<div id="changes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-2" class="anchor"></a>Changes</h2>
+<a href="#changes-3" class="anchor"></a>Changes</h2>
 <ul>
 <li>
 <code><a href="../reference/overlaps.html">overlap()</a></code> renamed to <code><a href="../reference/overlaps.html">overlaps()</a></code>. <code><a href="../reference/overlaps.html">overlap()</a></code> is now a convenience <code>overlap_method</code> for ANY kind of overlap</li>
@@ -382,9 +399,9 @@
 <li>cheat sheet updated</li>
 </ul>
 </div>
-<div id="bug-fixes-2" class="section level2">
+<div id="bug-fixes-3" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-2" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Recurrence was not checked if the initial case event had no duplicates. Resolved</li>
 <li>
@@ -396,9 +413,9 @@
 <h1 class="page-header" data-toc-text="0.0.3">
 <a href="#version-003" class="anchor"></a>Version 0.0.3<small> 2019-12-08 </small>
 </h1>
-<div id="changes-3" class="section level2">
+<div id="changes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-3" class="anchor"></a>Changes</h2>
+<a href="#changes-4" class="anchor"></a>Changes</h2>
 <ul>
 <li>
 <a href="https://github.com/OlisaNsonwu/diyar/issues/7"><a href='https://github.com/OlisaNsonwu/diyar/issues/7'>#7</a></a> <code><a href="../reference/episodes.html">episode_group()</a></code>, <code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code> - optimized to take less time when working with large datasets</li>
@@ -431,9 +448,9 @@
 </li>
 </ul>
 </div>
-<div id="changes-4" class="section level2">
+<div id="changes-5" class="section level2">
 <h2 class="hasAnchor">
-<a href="#changes-4" class="anchor"></a>Changes</h2>
+<a href="#changes-5" class="anchor"></a>Changes</h2>
 <ul>
 <li>
 <code><a href="../reference/episodes.html">fixed_episodes()</a></code> and <code><a href="../reference/episodes.html">rolling_episodes()</a></code> are now wrapper functions of <code><a href="../reference/episodes.html">episode_group()</a></code>. Functionality remains the same but now includes all arguments available to <code><a href="../reference/episodes.html">episode_group()</a></code>
@@ -448,9 +465,9 @@
 </li>
 </ul>
 </div>
-<div id="bug-fixes-3" class="section level2">
+<div id="bug-fixes-4" class="section level2">
 <h2 class="hasAnchor">
-<a href="#bug-fixes-3" class="anchor"></a>Bug fixes</h2>
+<a href="#bug-fixes-4" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>
 <a href="https://github.com/OlisaNsonwu/diyar/issues/3"><a href='https://github.com/OlisaNsonwu/diyar/issues/3'>#3</a></a> - Resolved a bug with <code>episode_unit</code> in <code><a href="../reference/episodes.html">episode_group()</a></code>

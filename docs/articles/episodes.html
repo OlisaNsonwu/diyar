@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -90,7 +90,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Epidemiological case definitions in R</h1>
             
-            <h4 class="date">20 April 2021</h4>
+            <h4 class="date">29 April 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/episodes.Rmd"><code>vignettes/episodes.Rmd</code></a></small>
       <div class="hidden name"><code>episodes.Rmd</code></div>
@@ -463,21 +463,21 @@
   <span class="no">ep23a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">dup_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"recursive"</span>)
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;     0.3     0.0     0.3</span>
+<span class="co">#&gt;    0.19    0.00    0.19</span>
 <span class="co"># Faster</span>
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
   <span class="no">ep23b</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">dup_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">reference_event</span> <span class="kw">=</span> <span class="st">"last_event"</span>)
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;    0.17    0.00    0.17</span>
+<span class="co">#&gt;    0.09    0.00    0.09</span>
 <span class="co"># Fastest</span>
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
   <span class="no">ep23c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">dup_events</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>,
                   <span class="kw">reference_event</span> <span class="kw">=</span> <span class="st">"last_record"</span>)
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;    0.08    0.00    0.07</span></pre></body></html></div>
+<span class="co">#&gt;    0.03    0.00    0.03</span></pre></body></html></div>
 <p><strong>Figure 11: Effect of using multiple index events</strong> <img src="fig_e11.png" width="1000" height="290"></p>
 <p>The three methods above have resulted in the same outcome therefore the “fastest” approach is recommended. Unless required, multiple index events should be avoided. A scenario where this would be required would be if a <code>sub_criteria</code> is being assessed and multiple index events can have different attributes.</p>
 <div id="reduce-the-number-of-records-being-assessed" class="section level3">
@@ -491,7 +491,7 @@
   <span class="no">ep24a</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">dup_events2</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">5</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"fixed"</span>)
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;    1.56    0.19    1.85</span>
+<span class="co">#&gt;    0.88    0.13    1.00</span>
 <span class="co"># Faster</span>
 <span class="fu"><a href="https://rdrr.io/r/base/system.time.html">system.time</a></span>(
   {
@@ -502,7 +502,7 @@
     }
 )
 <span class="co">#&gt;    user  system elapsed </span>
-<span class="co">#&gt;    0.07    0.00    0.06</span>
+<span class="co">#&gt;    0.03    0.00    0.03</span>
 
 <span class="co"># Same outcomes - identical identifiers</span>
 <span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="no">ep24a</span> <span class="kw">==</span> <span class="no">ep24b</span>)

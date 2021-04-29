@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -218,8 +218,9 @@ another set of logical tests to determine identical records.</p>
 <span class='no'>s_cri3</span> <span class='kw'>&lt;-</span> <span class='fu'>sub_criteria</span>(<span class='no'>s_cri1</span>, <span class='no'>s_cri2</span>, <span class='kw'>operator</span> <span class='kw'>=</span> <span class='st'>"or"</span>)
 <span class='no'>s_cri4</span> <span class='kw'>&lt;-</span> <span class='fu'>sub_criteria</span>(<span class='no'>s_cri1</span>, <span class='no'>s_cri3</span>, <span class='kw'>operator</span> <span class='kw'>=</span> <span class='st'>"and"</span>)
 
-<span class='no'>`eval_sub_criteria`</span></div><div class='output co'>#&gt; function(x, ...) UseMethod("eval_sub_criteria")
-#&gt; &lt;bytecode: 0x0000000023fa2038&gt;
+<span class='no'>`eval_sub_criteria`</span></div><div class='output co'>#&gt; function (x, ...) 
+#&gt; UseMethod("eval_sub_criteria")
+#&gt; &lt;bytecode: 0x00000000280f9d00&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='co'># 3 values</span>
 <span class='no'>strata</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='fl'>1</span>, <span class='fl'>3</span>)
 <span class='no'>index_record</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>TRUE</span>, <span class='fl'>FALSE</span>, <span class='fl'>FALSE</span>)

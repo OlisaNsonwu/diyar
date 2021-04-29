@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
       </span>
     </div>
 
@@ -204,28 +204,35 @@
 <p><b><code>prob_link()</code></b> - Test that a record sets <code>x</code> and <code>y</code> are from the same entity based on calculated weights and probability scores.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>`exact_match`</span></div><div class='output co'>#&gt; function(x, y) {
-#&gt;   x == y &amp; !is.na(x) &amp; !is.na(y)
+    <pre class="examples"><div class='input'><span class='no'>`exact_match`</span></div><div class='output co'>#&gt; function (x, y) 
+#&gt; {
+#&gt;     x == y &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000023818f68&gt;
+#&gt; &lt;bytecode: 0x0000000026d91d98&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='fu'>exact_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>exact_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
-<span class='no'>`range_match`</span></div><div class='output co'>#&gt; function(x, y, range = 10){
-#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
-#&gt;   (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)
+<span class='no'>`range_match`</span></div><div class='output co'>#&gt; function (x, y, range = 10) 
+#&gt; {
+#&gt;     x &lt;- as.numeric(x)
+#&gt;     y &lt;- as.numeric(y)
+#&gt;     (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000022dfec48&gt;
+#&gt; &lt;bytecode: 0x00000000281bf7a8&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='fu'>range_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>16</span>, <span class='kw'>range</span> <span class='kw'>=</span> <span class='fl'>6</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>range_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>16</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>range</span> <span class='kw'>=</span> <span class='fl'>6</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
-<span class='no'>`range_match_legacy`</span></div><div class='output co'>#&gt; function(x, y) {
-#&gt;   lg &lt;- overlap(as.number_line(x@gid), x)
-#&gt;   lg[is.na(lg)] &lt;- F
-#&gt;   if(any(!lg)) {
-#&gt;     rng_i &lt;- paste(head(which(!lg), 5), collapse = ", ", sep="")
-#&gt;     rng_v &lt;- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
-#&gt;     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
-#&gt;   }
-#&gt;   overlap(as.number_line(x@gid), y)
+<span class='no'>`range_match_legacy`</span></div><div class='output co'>#&gt; function (x, y) 
+#&gt; {
+#&gt;     lg &lt;- overlap(as.number_line(x@gid), x)
+#&gt;     lg[is.na(lg)] &lt;- F
+#&gt;     if (any(!lg)) {
+#&gt;         rng_i &lt;- paste(head(which(!lg), 5), collapse = ", ", 
+#&gt;             sep = "")
+#&gt;         rng_v &lt;- as.character(substitute(x))[!as.character(substitute(x)) %in% 
+#&gt;             c("$", "df2")]
+#&gt;         stop(paste0("Range matching error: Actual value (gid) is out of range in ", 
+#&gt;             "[", rng_i, "]"))
+#&gt;     }
+#&gt;     overlap(as.number_line(x@gid), y)
 #&gt; }
-#&gt; &lt;bytecode: 0x00000000230bb458&gt;
+#&gt; &lt;bytecode: 0x000000002866da78&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='no'>x_nl</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>10</span>, <span class='fl'>16</span>, <span class='kw'>gid</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 <span class='no'>y_nl1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>16</span>, <span class='fl'>10</span>)
 <span class='no'>y_nl2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>16</span>, <span class='fl'>10</span>)
