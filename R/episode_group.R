@@ -74,9 +74,9 @@
 #' }
 #'
 #' \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}
-#'
-#' \bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episode_group()}} which reframes the data before the episode tracking process.
-#' This aims to reduce the overall processing time for the tracking process. See \code{vignette("episodes")} for further details.
+#
+# \bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episode_group()}} which reframes the data before the episode tracking process.
+# This aims to reduce the overall processing time for the tracking process. See \code{vignette("episodes")} for further details.
 #'
 #' \bold{\code{episode_group()}} has been retired.
 #' It now only exists to support previous code with minimal input from users.
@@ -1261,7 +1261,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   return(epids)
 }
 
-#' @rdname episodes
 episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", recurrence_length = case_length,
                                episode_unit = "days", strata = NULL, sn = NULL, episodes_max = Inf, rolls_max = Inf,
                                case_overlap_methods = 8, recurrence_overlap_methods = case_overlap_methods,

@@ -2,41 +2,12 @@
 % Please edit documentation in R/episode_group.R
 \name{episodes}
 \alias{episodes}
-\alias{episodes_wf_splits}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
 \alias{episode_group}
 \title{Link events  to chronological episodes.}
 \usage{
 episodes(
-  date,
-  case_length = Inf,
-  episode_type = "fixed",
-  recurrence_length = case_length,
-  episode_unit = "days",
-  strata = NULL,
-  sn = NULL,
-  episodes_max = Inf,
-  rolls_max = Inf,
-  case_overlap_methods = 8,
-  recurrence_overlap_methods = case_overlap_methods,
-  skip_if_b4_lengths = FALSE,
-  data_source = NULL,
-  data_links = "ANY",
-  custom_sort = NULL,
-  skip_order = Inf,
-  reference_event = "last_record",
-  case_for_recurrence = FALSE,
-  from_last = FALSE,
-  group_stats = FALSE,
-  display = "none",
-  case_sub_criteria = NULL,
-  recurrence_sub_criteria = case_sub_criteria,
-  case_length_total = 1,
-  recurrence_length_total = case_length_total
-)
-
-episodes_wf_splits(
   date,
   case_length = Inf,
   episode_type = "fixed",
@@ -209,9 +180,6 @@ Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 }
 
 \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}
-
-\bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episode_group()}} which reframes the data before the episode tracking process.
-This aims to reduce the overall processing time for the tracking process. See \code{vignette("episodes")} for further details.
 
 \bold{\code{episode_group()}} has been retired.
 It now only exists to support previous code with minimal input from users.
