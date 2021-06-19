@@ -67,7 +67,7 @@
 #' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will remain linked.
 #' }
 #'
-#' \bold{\code{record_group()}} has been retired is no longer supported.
+#' \bold{\code{record_group()}} has been retired and is no longer supported.
 #' It only exists to support previous code with minimal input from users.
 #' Moving forward, please use \bold{\code{links()}}.
 #'
@@ -123,7 +123,8 @@ links <- function(criteria,
                   expand = TRUE,
                   shrink = FALSE,
                   recursive = FALSE,
-                  check_duplicates = FALSE){
+                  check_duplicates = FALSE,
+                  tie_sort = NULL){
   tm_a <- Sys.time()
 
   if(class(sub_criteria) == "sub_criteria"){
@@ -163,6 +164,13 @@ links <- function(criteria,
   }else{
     sn <- as.integer(sn)
   }
+  # User-defined order of case-assignment
+  if(!is.null(tie_sort)) {
+    t_sort <- as.integer(as.factor(tie_sort))
+    if(length(t_sort) == 1) t_sort <- rep(t_sort, ds_len)
+  }else{
+    t_sort <- rep(0L, ds_len)
+  }
 
   # `data_links`
   dl_lst <- unlist(data_links, use.names = FALSE)
@@ -192,7 +200,8 @@ links <- function(criteria,
                     "link_id" = link_id,
                     "sn" = sn,
                     "pr_sn" = pr_sn,
-                    "iteration" = iteration)
+                    "iteration" = iteration,
+                    "t_sort" = t_sort)
 
   if(display != "none") cat("\n")
   i <- ite <- 1L
@@ -225,6 +234,7 @@ links <- function(criteria,
       pids_repo$tag[skp_lgk] -> bkp_tag
       pids_repo$pid_cri[skp_lgk] -> bkp_pid_cri
       pids_repo$iteration[skp_lgk] -> bkp_iteration
+
       # Reset identifiers
       pids_repo$pid[skp_lgk] <- sn_ref
       pids_repo$link_id[skp_lgk] <- sn_ref
@@ -250,11 +260,12 @@ links <- function(criteria,
       link_id <- pids_repo$link_id[skp_lgk]
       pid <- pids_repo$pid[skp_lgk]
       iteration <- pids_repo$iteration[skp_lgk]
+      t_sort <- pids_repo$t_sort[skp_lgk]
 
       s_tag <- tag
       s_tag[s_tag != 0 & !expand] <- 1
       s_tag[!expand] <- !s_tag[!expand]
-      sort_ord <- order(cri, -s_tag, pid_cri, sn, decreasing = TRUE)
+      sort_ord <- order(cri, -s_tag, pid_cri, t_sort, sn, decreasing = TRUE)
       rm(s_tag)
       cri <- cri[sort_ord]
       sn <- sn[sort_ord]
@@ -296,6 +307,7 @@ links <- function(criteria,
       pid <- pids_repo$pid[skp_lgk]
       link_id <- pids_repo$link_id[skp_lgk]
       iteration <- pids_repo$iteration[skp_lgk]
+      t_sort <- pids_repo$t_sort[skp_lgk]
 
       # Flags
       cs_len <- length(cri)
@@ -304,10 +316,10 @@ links <- function(criteria,
       min_pid <- sn_ref
       min_m_tag <- 0L
       while (min_pid == sn_ref) {
-        sort_ord <- order(cri, m_tag, pid_cri, sn, decreasing = TRUE)
+        sort_ord <- order(cri, m_tag, pid_cri, t_sort, sn, decreasing = TRUE)
         for(vr in c("tag","cri", "pid", "tag","m_tag",
                     "pid_cri", "sn", "pr_sn",
-                    "link_id", "iteration")){
+                    "link_id", "iteration", "t_sort")){
           assign(vr, get(vr)[sort_ord])
         }
 
@@ -397,7 +409,7 @@ links <- function(criteria,
           exc_lgk <- which(m_tag != 2)
           for(vr in c("cri", "pid", "tag",
                       "pid_cri", "sn",
-                      "link_id", "iteration")){
+                      "link_id", "iteration", "t_sort")){
             pids_repo[[vr]][pr_sn[inc_lgk]] <- get(vr)[inc_lgk]
             assign(vr, get(vr)[exc_lgk])
           }

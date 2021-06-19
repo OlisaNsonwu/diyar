@@ -547,8 +547,8 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       if(nrow(y) > 0){
         if(any(y$bi_dir)){
           v <- y[y$bi_dir,]
-          v$start <- y$pt_end
-          y$end <- y$pt_end
+          v$start <- v$pt_end
+          y$end[y$bi_dir] <- y$pt_end[y$bi_dir]
           y <- rbind(y, v)
           rm(v)
         }

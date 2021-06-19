@@ -17,7 +17,8 @@ links(
   expand = TRUE,
   shrink = FALSE,
   recursive = FALSE,
-  check_duplicates = FALSE
+  check_duplicates = FALSE,
+  tie_sort = NULL
 )
 
 record_group(df, ..., to_s4 = TRUE)
@@ -103,7 +104,7 @@ Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 \item If named \code{"g"}, only groups with records from any listed \code{data_source} will remain linked.
 }
 
-\bold{\code{record_group()}} has been retired is no longer supported.
+\bold{\code{record_group()}} has been retired and is no longer supported.
 It only exists to support previous code with minimal input from users.
 Moving forward, please use \bold{\code{links()}}.
 

@@ -442,6 +442,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       lead_rcl_min <- lead_rcl_min[tag != 2]
       recurrence_length_total <- recurrence_length_total[tag != 2]
     }
+
+    wind_id_lst <- list(wind_id1 = wind_id)
     ep_l <- lapply(ep_l, function(x){x[tag != 2]})
     mths_a <- lapply(mths_a, function(x){x[tag != 2]})
 

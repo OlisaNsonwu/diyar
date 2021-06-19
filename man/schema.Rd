@@ -73,7 +73,14 @@ schema(x, ...)
 Create schema diagrams for \code{\link[=number_line-class]{number_line}}, \code{\link[=epid-class]{epid}}, \code{\link[=pid-class]{pid}} and \code{\link[=pane-class]{pane}} objects.
 }
 \details{
-A visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process (\code{\link{partitions}}).
+A visual aid to describe the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process (\code{\link{partitions}}).
+
+\bold{\code{show_labels} options (multi-select)}
+\itemize{
+\item schema.epid - \bold{TRUE}, \bold{FALSE}, "sn", "epid", "date", "case_nm", "length_label", "length_arrow", "case_overlap_methods" or "recurrece_overlap_methods"
+\item schema.pane - \bold{TRUE}, \bold{FALSE}, "sn", "pane", "date", "case_nm" or "window_label"
+\item schema.pid - \bold{TRUE}, \bold{FALSE}, "sn" or "pid"
+}
 }
 \examples{
 schema(number_line(c(1, 2), c(2, 1)))

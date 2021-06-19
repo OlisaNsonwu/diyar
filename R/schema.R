@@ -17,7 +17,14 @@
 #'
 #' @return \code{ggplot} objects
 #' @details
-#' A visual aid to describing the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process (\code{\link{partitions}}).
+#' A visual aid to describe the data linkage (\code{\link{links}}), episode tracking (\code{\link{episodes}}) or partitioning process (\code{\link{partitions}}).
+#'
+#' \bold{\code{show_labels} options (multi-select)}
+#' \itemize{
+#' \item schema.epid - \bold{TRUE}, \bold{FALSE}, "sn", "epid", "date", "case_nm", "length_label", "length_arrow", "case_overlap_methods" or "recurrece_overlap_methods"
+#' \item schema.pane - \bold{TRUE}, \bold{FALSE}, "sn", "pane", "date", "case_nm" or "window_label"
+#' \item schema.pid - \bold{TRUE}, \bold{FALSE}, "sn" or "pid"
+#' }
 #'
 #' @examples
 #' schema(number_line(c(1, 2), c(2, 1)))
@@ -341,13 +348,18 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     case_l_ar$start <- as.numeric(case_l_ar$start)
     case_l_ar$end <- as.numeric(case_l_ar$end)
 
-    case_l_ar$pl_x_e <- max(plt_df$end, plt_df$start)
-    case_l_ar$pl_x_s <- min(plt_df$start, plt_df$end)
+    pl_x_e <- max(plt_df$end, plt_df$start)
+    pl_x_s <- min(plt_df$start, plt_df$end)
 
-    lgk <- ((case_l_ar$end > case_l_ar$pl_x_e) | is.infinite(case_l_ar$end))
-    case_l_ar$end[lgk] <- case_l_ar$pl_x_e[lgk]
-    lgk <- ((case_l_ar$start < case_l_ar$pl_x_s) | is.infinite(case_l_ar$start))
-    case_l_ar$start[lgk] <- case_l_ar$pl_x_s[lgk]
+    lgk <- ((case_l_ar$end > pl_x_e & case_l_ar$end > case_l_ar$start))
+    case_l_ar$end[lgk] <- pl_x_e
+    lgk <- ((case_l_ar$end < pl_x_s & case_l_ar$end < case_l_ar$start))
+    case_l_ar$end[lgk] <- pl_x_s
+
+    lgk <- ((case_l_ar$start < pl_x_s & case_l_ar$end > case_l_ar$start))
+    case_l_ar$start[lgk] <- pl_x_s
+    lgk <- ((case_l_ar$start > pl_x_e & case_l_ar$end < case_l_ar$start))
+    case_l_ar$start[lgk] <- pl_x_e
 
     case_l_ar$bck_dir <- abs(case_l_ar$nl_s) > abs(case_l_ar$nl_e)
     rev_len <- reverse_number_line(number_line(case_l_ar$start[case_l_ar$bck_dir], case_l_ar$end[case_l_ar$bck_dir]), direction = "both")

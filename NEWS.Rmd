@@ -13,8 +13,10 @@ knitr::opts_chunk$set(
 ## New features
 
 ## Changes
++ Removed documentation for `episodes_wf_splits`.
 
 ## Bug fixes
++ Corrected length arrows in `schema.epid`.
 
 # Version 0.3.0
 
