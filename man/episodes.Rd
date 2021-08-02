@@ -2,12 +2,42 @@
 % Please edit documentation in R/episode_group.R
 \name{episodes}
 \alias{episodes}
+\alias{episodes_wf_splits}
 \alias{fixed_episodes}
 \alias{rolling_episodes}
 \alias{episode_group}
 \title{Link events  to chronological episodes.}
 \usage{
 episodes(
+  date,
+  case_length = Inf,
+  episode_type = "fixed",
+  recurrence_length = case_length,
+  episode_unit = "days",
+  strata = NULL,
+  sn = NULL,
+  episodes_max = Inf,
+  rolls_max = Inf,
+  case_overlap_methods = 8,
+  recurrence_overlap_methods = case_overlap_methods,
+  skip_if_b4_lengths = FALSE,
+  data_source = NULL,
+  data_links = "ANY",
+  custom_sort = NULL,
+  skip_order = Inf,
+  reference_event = "last_record",
+  case_for_recurrence = FALSE,
+  from_last = FALSE,
+  group_stats = FALSE,
+  display = "none",
+  case_sub_criteria = NULL,
+  recurrence_sub_criteria = case_sub_criteria,
+  case_length_total = 1,
+  recurrence_length_total = case_length_total,
+  skip_unique_strata = TRUE
+)
+
+episodes_wf_splits(
   date,
   case_length = Inf,
   episode_type = "fixed",
@@ -125,6 +155,8 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item{case_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode.}
 
 \item{recurrence_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode.}
+
+\item{skip_unique_strata}{\code{[logical]}. If \code{TRUE} (default), all strata with a single record are skipped skipped.}
 
 \item{to_s4}{\code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 

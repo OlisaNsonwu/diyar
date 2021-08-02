@@ -72,7 +72,7 @@ sub_criteria <- function(...,
 }
 
 #' @rdname sub_criteria
-#' @param x \code{[sub_Criteria]}
+#' @param x \code{[sub_criteria]}
 #' @return \code{Logical}
 #' @export
 eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
@@ -99,7 +99,11 @@ eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 #' sub_cri_2 <- sub_criteria(c(1, 1, 0), c(2, 1, 2), operator = "and")
 #' eval_sub_criteria(sub_cri_2, strata, index_record, sn)
 #' @export
-eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_duplicates = TRUE, ...){
+eval_sub_criteria.sub_criteria <- function(x,
+                                           strata = seq_len(max(attr_eval(s_cri))),
+                                           index_record = c(TRUE, rep(FALSE, length(strata) - 1)),
+                                           sn = seq_len(length(strata)),
+                                           check_duplicates = TRUE, ...){
   curr_ds_len <- length(strata)
   curr_strata <- strata
   sc_ord <- order(curr_strata, -index_record, decreasing = TRUE)
@@ -158,15 +162,17 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
         err <- "Output is not a `logical` object"
       }
 
-      err <- paste0("Unable to evaluate `match_funcs-", j, "` at `sub_criteria` \"", names(x[j]),"\":\n",
+      err <- paste0("Unable to evaluate `match_funcs`:\n",
                     "i - Each function in `match_funcs` must have the following syntax and output.\n",
                     "i - Syntax ~ `function(x, y, ...)`.\n",
                     "i - Output ~ `TRUE` or `FALSE`.\n",
                     "X - Issue with `match_funcs`: ", err, ".")
       stop(err, call. = F)
     }
-    out1 <- ifelse(is.na(lgk), 0, lgk)
-    if(length(out1) != length(curr_strata)){
+
+    out1 <- lgk
+    out1[is.na(lgk)] <- 0
+    if(!length(out1) %in% c(1, length(curr_strata))){
       err <- paste0("Output length of `match_funcs` must be 1 or the same as `criteria`:\n",
                     "i - Unexpected length for `match_funcs`:\n",
                     "i - Expecting a length of 1 of ", length(curr_strata), ".\n",
@@ -184,7 +190,7 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
           err <- "Output is not a `logical` object"
         }
 
-        err <- paste0("Unable to evaluate `equal_funcs-", j, "` at `sub_criteria` \"", names(x[j]),"\":\n",
+        err <- paste0("Unable to evaluate `equal_funcs`:\n",
                       "i - Each function in `equal_funcs` must have the following syntax and output.\n",
                       "i - Syntax ~ `function(x, y, ...)`.\n",
                       "i - Output ~ `TRUE` or `FALSE`.\n",
@@ -192,9 +198,10 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
         stop(err, call. = F)
       }
       lgk <- as.numeric(lgk)
-      out2 <- ifelse(is.na(lgk), 0, lgk)
+      out2 <- lgk
+      out2[is.na(lgk)] <- 0
       if(length(out2) == 1) out2 <- rep(out2, length(curr_strata))
-      if(length(out2) != length(curr_strata)){
+      if(!length(out2) %in% c(1,length(curr_strata))){
         err <- paste0("Output length of `equal_funcs` must be 1 or the same as `criteria`:\n",
                       "i - Unexpected length for `equal_funcs`:\n",
                       "i - Expecting a length of 1 of ", length(curr_strata), ".\n",
@@ -205,7 +212,7 @@ eval_sub_criteria.sub_criteria <- function(x, strata, index_record, sn, check_du
     }
     return(out1)
   })
-  if(length(sn) == 1){
+  if(length(sn) == 1 | length(matches) == 1){
     matches <- t(as.matrix(matches))
   }
   operator <- attr(x, "operator")

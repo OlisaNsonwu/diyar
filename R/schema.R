@@ -479,10 +479,10 @@ schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
 
   # `Pane` data
   panes <- x
+  plt_df <- as.data.frame(panes)
   if(!is.null(custom_label)){
     plt_df$custom_label <- custom_label
   }
-  plt_df <- as.data.frame(panes)
   plt_df$start <- as.number_line(x@options$date)@start
   plt_df$end <- right_point(as.number_line(x@options$date))
   plt_df$epid <- as.character(panes@.Data)

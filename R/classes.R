@@ -163,6 +163,17 @@ format.number_line <- function(x, ...){
 
 #' @rdname number_line-class
 #' @export
+as.list.number_line <- function(x, ...){
+  x_df <- as.data.frame(x)
+  cmbi_cd <-  diyar:::combination_code(x_df$start, x_df$end, x_df$id, x_df$gid)
+  x_dups <- x[!duplicated(cmbi_cd)]
+  y <- lapply(seq_len(length(x_dups)), function(j) x_dups[j])
+  y <- y[match(cmbi_cd, cmbi_cd[!duplicated(cmbi_cd)])]
+  return(y)
+}
+
+#' @rdname number_line-class
+#' @export
 as.data.frame.number_line <- function(x, ...){
   y <- data.frame(start = x@start,
                   end = x@start + x@.Data,
@@ -223,30 +234,48 @@ is.epid <- function(x) all(class(x) == "epid")
 #' @rdname epid-class
 #' @export
 as.epid <- function(x){
-  er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.integer(x) + 0L, silent = TRUE))
+  x <- match(x, x[!duplicated(x)])
+  tots <- rle(sort(x))
 
-  if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to an `epid` object"))
-  y <- x
-  x <- as.integer(x)
-  x[!is.finite(as.integer(x))] <- NA
-  x <- methods::new("epid", .Data = x, sn = seq_len(length(x)),
-                    wind_id = list(wind_id1 = rep(NA_integer_, length(x))),
-                    dist_wind_index = rep(NA_real_, length(x)),
-                    dist_epid_index = rep(NA_real_, length(x)),
-                    case_nm = rep(NA_integer_, length(x)),
-                    wind_nm = rep(NA_integer_, length(x)),
-                    epid_interval = as.number_line(rep(NA_real_, length(x))),
-                    epid_total = rep(NA_integer_, length(x)),
-                    epid_dataset = rep(NA_integer_, length(x)),
-                    iteration = rep(NA_integer_, length(x))
-                    )
+  x <- methods::new("epid",
+                    .Data = x,
+                    sn = seq_len(length(x)),
+                    wind_id = list(wind_id1 = x))
 
-  if(class(y) == "number_line"){
-    x@epid_interval <- y
-    x@sn <- y@id
-    x@.Data <- y@gid
-  }
+  x@dist_epid_index <- x@dist_wind_index <-
+    x@case_nm <- x@wind_nm <-
+    rep(0L, length(x))
+  x@case_nm[duplicated(x@.Data)] <- 2L
+  x@wind_nm[duplicated(x@.Data)] <- 1L
+
+  class(x@case_nm) <- "d_label"
+  attr(x@case_nm, "value") <- -1L : 5L
+  attr(x@case_nm, "label") <- c("Skipped", "Case", "Recurrent", "Duplicate_C", "Duplicate_R", "Case_CR", "Recurrent_CR")
+  attr(x@case_nm, "state") <- "encoded"
+
+  class(x@wind_nm) <- "d_label"
+  attr(x@wind_nm, "value") <- -1L : 1L
+  attr(x@wind_nm, "label") <- c("Skipped", "Case", "Recurrence")
+  attr(x@wind_nm, "state") <- "encoded"
+
+  x@epid_total <- tots$lengths[match(x, tots$values)]
+  x@iteration <- rep(1L, length(x))
+
+  x@options <- list(date = x@.Data,
+                    strata = x@.Data,
+                    case_length = list(Inf),
+                    recurrence_length = list(Inf))
+
+  x@options$episode_unit <- "seconds"
+  x@options$episode_unit <- match(x@options$episode_unit, names(diyar::episode_unit))
+
+  class(x@options$episode_unit) <- "d_label"
+  attr(x@options$episode_unit, "value") <- as.vector(sort(x@options$episode_unit[!duplicated(x@options$episode_unit)]))
+  attr(x@options$episode_unit, "label") <- names(diyar::episode_unit)[attr(x@options$episode_unit, "value")]
+  attr(x@options$episode_unit, "state") <- "encoded"
+
+  x@options$from_last <- FALSE
+
   return(x)
 }
 
@@ -262,7 +291,7 @@ format.epid <- function(x, ...){
       return(paste0("E.",
                     formatC(x@.Data, width = nchar(max(x@.Data)), flag = 0, format = "fg"),
                     int_l,
-                    " (", c("S", "C", "R", "D", "D")[x@case_nm + 2L], ")"))
+                    " (", c("S", "C", "R", "D", "D", "C","R")[x@case_nm + 2L], ")"))
     }
 }
 
@@ -514,7 +543,13 @@ setMethod("[[", signature(x = "epid"),
 
 #' @rdname epid-class
 setMethod("c", signature(x = "epid"), function(x,...) {
-  to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  for (vr in slotNames(x)){
+    if(all(is.na(slot(x, vr)))){
+      slot(x, vr) <- NULL
+    }
+  }
+  x
 })
 
 
@@ -565,28 +600,28 @@ is.pane <- function(x) all(class(x) == "pane")
 #' @rdname pane-class
 #' @export
 as.pane <- function(x){
-  er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.integer(x) + 0L, silent = TRUE))
+  x <- match(x, x[!duplicated(x)])
+  tots <- rle(sort(x))
 
-  if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to an `pane` object"))
-  y <- x
-  x <- as.integer(x)
-  x[!is.finite(as.integer(x))] <- NA
   x <- methods::new("pane",
                     .Data = x,
-                    sn = seq_len(length(x)),
-                    window_matched = rep(NA_integer_, length(x)),
-                    dist_pane_index = rep(NA_real_, length(x)),
-                    case_nm = rep(NA_integer_, length(x)),
-                    pane_interval = as.number_line(rep(NA_integer_, length(x))),
-                    pane_total = rep(NA_integer_, length(x)),
-                    pane_dataset = rep(NA_integer_, length(x)))
+                    sn = seq_len(length(x)))
 
-  if(class(y) == "number_line"){
-    x@pane_interval <- y
-    x@sn <- y@id
-    x@.Data <- y@gid
-  }
+  x@dist_pane_index <- x@case_nm <-
+    rep(0L, length(x))
+  x@case_nm[duplicated(x@.Data)] <- 1L
+
+  class(x@case_nm) <- "d_label"
+  attr(x@case_nm, "value") <- c(-1, 0, 1)
+  attr(x@case_nm, "label") <- c("Skipped", "Index", "Duplicate_I")
+  attr(x@case_nm, "state") <- "encoded"
+
+  x@pane_total <- tots$lengths[match(x, tots$values)]
+  x@window_list <- rep(list("1" = number_line(0, Inf)), length(x))
+  x@window_matched <- rep(1L, length(x))
+  x@options <- list(date = x@.Data,
+                    strata = x@.Data,
+                    separate = FALSE)
   return(x)
 }
 
@@ -818,7 +853,13 @@ setMethod("[[", signature(x = "pane"),
 
 #' @rdname pane-class
 setMethod("c", signature(x = "pane"), function(x,...) {
-  to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  for (vr in slotNames(x)){
+    if(all(is.na(slot(x, vr)))){
+      slot(x, vr) <- NULL
+    }
+  }
+  x
 })
 
 #' @name pid-class
@@ -861,20 +902,16 @@ is.pid <- function(x) all(class(x) == "pid")
 #' @rdname pid-class
 #' @export
 as.pid <- function(x, ...){
-  er1 <- suppressWarnings(try(as.integer(x), silent = TRUE))
-  er2 <- suppressWarnings(try(as.integer(x) + 0L, silent = TRUE))
-
-  if(!is.integer(er1) | !is.integer(er2)) stop(paste0("`x` can't be coerced to a `pid` object"))
-
-  x[!is.finite(as.integer(x))] <- NA
+  x <- match(x, x[!duplicated(x)])
+  tots <- rle(sort(x))
   x <- methods::new("pid",
-                    .Data = as.integer(x),
+                    .Data = x,
                     sn = seq_len(length(x)),
-                    pid_cri = rep(NA_integer_, length(x)),
-                    link_id = rep(NA_integer_, length(x)),
-                    pid_total = rep(NA_integer_, length(x)),
-                    pid_dataset = rep(NA_character_, length(x)),
-                    iteration = rep(NA_integer_, length(x)))
+                    pid_cri = rep(1L, length(x)),
+                    link_id = x,
+                    pid_total = tots$lengths[match(x, tots$values)],
+                    pid_dataset = NULL,
+                    iteration = rep(1L, length(x)))
   return(x)
 }
 
@@ -1061,5 +1098,11 @@ setMethod("[[", signature(x = "pid"),
 
 #' @rdname pid-class
 setMethod("c", signature(x = "pid"), function(x,...) {
-  to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  for (vr in slotNames(x)){
+    if(all(is.na(slot(x, vr)))){
+      slot(x, vr) <- NULL
+    }
+  }
+  x
 })

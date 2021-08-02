@@ -134,7 +134,7 @@ links <- function(criteria,
   err <- err_links_checks_0(criteria, sub_criteria,
                             sn, strata, data_source, data_links,
                             display,group_stats, expand, shrink,
-                            recursive, check_duplicates)
+                            recursive, check_duplicates, tie_sort)
 
   if(!isFALSE(err)) stop(err, call. = FALSE)
   if(class(criteria) != "list") criteria <- list(criteria)
@@ -143,7 +143,7 @@ links <- function(criteria,
 
   # Maximum no. of records from all criteria
   ds_len <- c(as.numeric(lapply(criteria, length)),
-              as.numeric(unlist(lapply(sub_criteria, extract_3dot_lengths), use.names = FALSE)))
+              as.numeric(unlist(lapply(sub_criteria, attr_eval), use.names = FALSE)))
   ds_len <- max(ds_len)
   err <- err_sn_1(sn = sn, ref_num = ds_len, ref_nm = "criteria")
   if(!isFALSE(err)) stop(err, call. = FALSE)

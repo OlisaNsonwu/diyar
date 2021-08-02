@@ -4,12 +4,14 @@
 \alias{custom_sort}
 \title{Nested sorting}
 \usage{
-custom_sort(..., decreasing = FALSE)
+custom_sort(..., decreasing = FALSE, unique = FALSE)
 }
 \arguments{
 \item{...}{Sequence of \code{atomic} vectors. Passed to \bold{\code{\link{order}}}.}
 
 \item{decreasing}{Sort order. Passed to \bold{\code{\link{order}}}.}
+
+\item{unique}{If \code{FALSE} (default), ties get the same rank. If \code{TRUE}, ties are broken.}
 }
 \value{
 \code{numeric} sort order.

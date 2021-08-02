@@ -15,7 +15,14 @@ sub_criteria(
 
 eval_sub_criteria(x, ...)
 
-\method{eval_sub_criteria}{sub_criteria}(x, strata, index_record, sn, check_duplicates = TRUE, ...)
+\method{eval_sub_criteria}{sub_criteria}(
+  x,
+  strata = seq_len(max(attr_eval(s_cri))),
+  index_record = c(TRUE, rep(FALSE, length(strata) - 1)),
+  sn = seq_len(length(strata)),
+  check_duplicates = TRUE,
+  ...
+)
 }
 \arguments{
 \item{...}{\code{[atomic]}.. Attributes.}
@@ -26,7 +33,7 @@ eval_sub_criteria(x, ...)
 
 \item{operator}{\code{[character]}. Options are \code{"and"} or \code{"or"}.}
 
-\item{x}{\code{[sub_Criteria]}}
+\item{x}{\code{[sub_criteria]}}
 
 \item{strata}{\code{[integer]}. Subsets of the dataset}
 

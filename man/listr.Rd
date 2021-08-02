@@ -2,7 +2,7 @@
 % Please edit documentation in R/conv_funcs.R
 \name{listr}
 \alias{listr}
-\title{Written lists.}
+\title{Grammatical lists.}
 \usage{
 listr(x, sep = ", ", conj = " and", lim = Inf)
 }

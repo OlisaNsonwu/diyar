@@ -367,7 +367,7 @@ overlap_method <- function(x, y){
 
   if(length(x) == 0 & length(y) == 0) return(character())
 
-  m <- rep("none", length(x))
+  m <- rep("none", max(c(length(x), length(y))))
   lgk <- which(across(x, y) & m == "none")
   m[lgk] <- "across"
   lgk <- which(inbetween(x, y) & m == "none")

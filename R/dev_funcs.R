@@ -696,3 +696,17 @@ space_out_yy <- function(x_axis){
 
   return(y_axis)
 }
+
+d_nodes <- function(x){
+  nodes <- data.frame(id = x@sn, label = x@sn)
+  edges <- lapply(x@wind_id, function(w){
+    data.frame(from = x@sn[x@sn != w & !is.na(w)], to = w[x@sn != w & !is.na(w)])
+  })
+  edges <- do.call("rbind", edges)
+  row.names(edges) <- NULL
+  edges <- edges[!duplicated(edges),]
+
+  nodes$x <- as.numeric(x@options$date)
+  nodes$x <- (nodes$x - min(nodes$x))/max(nodes$x - min(nodes$x)) * 1000
+  list(nodes = nodes, edges = edges)
+}

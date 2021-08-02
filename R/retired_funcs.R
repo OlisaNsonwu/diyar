@@ -1493,3 +1493,16 @@ overlaps_v2_retired <- function(x, y, methods = "overlap", method = "overlap"){
   rm(list = ls()[ls() != "lgk_2"])
   lgk_2
 }
+
+custom_sort_retired <- function(..., decreasing = FALSE){
+  ord <- order(..., decreasing = decreasing)
+  ord <- match(seq_len(length(ord)), ord)
+
+  ord_l <- list(...)
+  ord_l <- eval(parse(text = paste0("paste0(",paste0("ord_l[[", seq_len(length(ord_l)), "]]", collapse = ",' ',"),")")))
+
+  ord <- (ord[!duplicated(ord_l)])[match(ord_l, ord_l[!duplicated(ord_l)])]
+  ord <- match(ord, sort(ord[!duplicated(ord)]))
+
+  ord
+}
