@@ -384,20 +384,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   if(display != "none") cat("\n")
   epids_repo <- list("e" = e,
-                        "tag" = tag,
-                        "cri" = cri,
-                        "assign_ord" = assign_ord,
-                        "int" = int,
-                        "epid_n" = epid_n,
-                        "c_sort" = c_sort,
-                        "skip_order" = skip_order,
-                        "case_nm" = case_nm,
-                        "wind_nm" = wind_nm,
-                        "wind_id" = wind_id,
-                        "wind_id_lst" = list(wind_id),
-                        "rolls_max" = rolls_max,
-                        "episodes_max" = episodes_max,
-                        "iteration" = iteration)
+                     "tag" = tag,
+                     "cri" = cri,
+                     "assign_ord" = assign_ord,
+                     "int" = int,
+                     "epid_n" = epid_n,
+                     "c_sort" = c_sort,
+                     "skip_order" = skip_order,
+                     "case_nm" = case_nm,
+                     "wind_nm" = wind_nm,
+                     "wind_id" = wind_id,
+                     "wind_id_lst" = list(wind_id),
+                     "rolls_max" = rolls_max,
+                     "episodes_max" = episodes_max,
+                     "iteration" = iteration)
 
   # Subset out all linked records
   if(any(tag == 2)){
@@ -1031,7 +1031,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(epids_repo$wind_id_lst) < length(wind_id_lst)){
       w_diff <- length(wind_id_lst) - length(epids_repo$wind_id_lst)
       epids_repo$wind_id_lst <- c(epids_repo$wind_id_lst,
-                                     rep(list(rep(NA_real_, inp_n)), w_diff))
+                                  rep(list(rep(NA_real_, inp_n)), w_diff))
 
     }
     epids_repo$wind_id_lst <- lapply(seq_len(length(wind_id_lst)), function(i){
@@ -1105,7 +1105,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(epids_repo$wind_id_lst) < length(wind_id_lst)){
       w_diff <- length(wind_id_lst) - length(epids_repo$wind_id_lst)
       epids_repo$wind_id_lst <- c(epids_repo$wind_id_lst,
-                                     rep(list(rep(NA_real_, inp_n)), w_diff))
+                                  rep(list(rep(NA_real_, inp_n)), w_diff))
 
     }
     epids_repo$wind_id_lst <- lapply(seq_len(length(wind_id_lst)), function(i){

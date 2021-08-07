@@ -33,13 +33,12 @@ ep <- episodes(1:8)
 unlinked_ep <- delink(ep, ep@sn \%in\% c(3, 8))
 ep; unlinked_ep
 
-pn <- partitions(1:8, length.out = 2, separate = T)
+pn <- partitions(1:8, length.out = 2, separate = TRUE)
 unlinked_pn <- delink(pn, pn@.Data == 5)
 pn; unlinked_pn
 
 pd <- links(list(c(1, 1, 1, NA, NA),
-                 c(NA, NA, 2, 2, 2),
-                 c(NA, NA, NA, NA)))
+                 c(NA, NA, 2, 2, 2)))
 unlinked_pd <- delink(pd, pd@pid_cri == 1)
 pd; unlinked_pd
 

@@ -17,7 +17,7 @@ eval_sub_criteria(x, ...)
 
 \method{eval_sub_criteria}{sub_criteria}(
   x,
-  strata = seq_len(max(attr_eval(s_cri))),
+  strata = seq_len(max(attr_eval(x))),
   index_record = c(TRUE, rep(FALSE, length(strata) - 1)),
   sn = seq_len(length(strata)),
   check_duplicates = TRUE,

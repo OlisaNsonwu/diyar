@@ -19,6 +19,7 @@
 #' @param display \code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.
 #' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param ... Arguments passed to \code{links}.
+#' @param tie_sort \code{[atomic]}. Preferential order for selecting breaking tied matches within a stage.
 #'
 #' @return \code{\link[=pid-class]{pid}}
 #'

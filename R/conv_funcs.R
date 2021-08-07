@@ -778,7 +778,7 @@ combi <- function(...){
   combi <- list(...)
   # Validations
   err_txt <- unlist(lapply(seq_len(length(combi)), function(i){
-    x <- diyar:::err_atomic_vectors(combi[[i]], paste0("vector ", i))
+    x <- err_atomic_vectors(combi[[i]], paste0("vector ", i))
     x[x == FALSE] <- NA_character_
     x
   }), use.names = FALSE)
@@ -800,9 +800,9 @@ combi <- function(...){
 
   combi_cd <- match(combi[[1]], combi[[1]])
   for (j in seq_len(length(combi))[-1]){
-   k <- match(combi[[j]], combi[[j]])
-   combi_cd <- combi_cd + (1/k)
-   combi_cd <- match(combi_cd, combi_cd)
+    k <- match(combi[[j]], combi[[j]])
+    combi_cd <- combi_cd + (1/k)
+    combi_cd <- match(combi_cd, combi_cd)
   }
   rm(list = ls()[ls() != "combi_cd"])
   return(combi_cd)

@@ -544,9 +544,9 @@ setMethod("[[", signature(x = "epid"),
 #' @rdname epid-class
 setMethod("c", signature(x = "epid"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
-  for (vr in slotNames(x)){
-    if(all(is.na(slot(x, vr)))){
-      slot(x, vr) <- NULL
+  for (vr in methods::slotNames(x)){
+    if(all(is.na(methods::slot(x, vr)))){
+      methods::slot(x, vr) <- NULL
     }
   }
   x
@@ -854,9 +854,9 @@ setMethod("[[", signature(x = "pane"),
 #' @rdname pane-class
 setMethod("c", signature(x = "pane"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
-  for (vr in slotNames(x)){
-    if(all(is.na(slot(x, vr)))){
-      slot(x, vr) <- NULL
+  for (vr in methods::slotNames(x)){
+    if(all(is.na(methods::slot(x, vr)))){
+      methods::slot(x, vr) <- NULL
     }
   }
   x
@@ -1100,9 +1100,9 @@ setMethod("[[", signature(x = "pid"),
 #' @rdname pid-class
 setMethod("c", signature(x = "pid"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
-  for (vr in slotNames(x)){
-    if(all(is.na(slot(x, vr)))){
-      slot(x, vr) <- NULL
+  for (vr in methods::slotNames(x)){
+    if(all(is.na(methods::slot(x, vr)))){
+      methods::slot(x, vr) <- NULL
     }
   }
   x
