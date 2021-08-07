@@ -1,5 +1,24 @@
 ## Resubmission
 This is a resubmission. Summary of changes below:
+*Packages in Suggests used conditionally
+*New functions
+*Minor bug fixes
+*Updated package to v.0.3.1
+
+## Test environments
+* Windows 10 (local machine), R 4.0.2
+* win-builder (release)
+* Debian Linux (rhub)
+* Ubuntu Linux (rhub)
+
+## R CMD check results
+There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments.
+
+## Downstream dependencies
+*Checked downstream dependencies - All passed
+
+## Resubmission
+This is a resubmission. Summary of changes below:
 *Optimised functions
 *New functions and functionalities
 *Updated documentation and vignettes
@@ -34,7 +53,7 @@ This is a resubmission. Summary of changes below:
 There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments. 
 
 There was 1 NOTE:
-Could not eliminate this. No messaged dsiplayed. This is a first submission (since the package was archived).
+Could not eliminate this. No messaged displayed. This is a first submission (since the package was archived).
 
 ## Resubmission
 This is a resubmission. Summary of changes below:

@@ -17,9 +17,21 @@ knitr::opts_chunk$set(
 
 ```{r, include = FALSE}
 library(diyar)
-library(stringdist)
+# library(stringdist)
 # library(cowplot)
 # library(ggplot2)
+
+stringdist <- function(...){
+if (requireNamespace("stringdist", quietly = TRUE)) {
+      stringdist::stringdist(...)
+   } else {
+     warning("`stringdist` package not found\nSimilarity scores were not calculated.\n`exact_match()` was used instead")
+     k <- list(...)
+      as.numeric(!exact_match(k[[1]], k[[2]]))
+   }  
+}
+
+
 ```
 
 # Introduction
