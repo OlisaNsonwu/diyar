@@ -26,5 +26,6 @@ b <- c(2, 3, 2, 1, 1)
 
 custom_sort(a, b)
 custom_sort(b, a)
+custom_sort(b, a, unique = TRUE)
 
 }

@@ -745,7 +745,7 @@ f_rbind <- function(..., deparse.level = 1){
 attr_eval <- function(x, func = length, simplify = TRUE){
   if(all(class(x) == "sub_criteria")){
     x <- lapply(x, function(x){
-      rec_eval(x[[1]], func = func, simplify = simplify)
+      attr_eval(x[[1]], func = func, simplify = simplify)
     })
   }else if(all(class(x) == "list")){
     x <- lapply(x, func)
@@ -756,25 +756,24 @@ attr_eval <- function(x, func = length, simplify = TRUE){
   if(simplify) unlist(x, use.names = FALSE) else x
 }
 
-#' @name concat_code
-#' @title Concatenate strings
-#' @description Numeric codes for unique concatenation of strings.
+#' @name combi
+#' @title Vector combinations
+#' @description Numeric codes for unique combination of vectors.
 #' @param ... \code{[atomic]}
 #' @return \code{numeric}
-#' @details
-#' For large datasets, \code{concat_code} provides a faster solution to concatenating variables compared to \code{paste0} and \code{paste}.
 #'
 #' @examples
 #' x <- c("A", "B", "A", "C", "B", "B")
 #' y <- c("X", "X", "Z", "Z", "X", "Z")
-#' concat_code(x, y)
+#' combi(x, y)
 #'
-#' # The above is equivalent but quicker than efficiently than this.
+#' # The code above is equivalent to but quicker than the one below.
 #' z <- paste0(y, "-", x)
 #' z <- match(z, z)
 #' z
 #' @export
-concat_code <- function(...){
+
+combi <- function(...){
   # ... must be vectors
   combi <- list(...)
   # Validations
@@ -797,23 +796,15 @@ concat_code <- function(...){
     stop(err_txt, call. = FALSE)
   }
 
-  mx_n <- max(unlist(lapply(seq_len(length(combi)), function(i){
-    x <- combi[[i]]
-    x <- match(x, x[!duplicated(x)])
-    floor(log10(max(x)))
-  }), use.names = FALSE))
+  combi[vec_lens == 1] <- NULL
 
-  combi_cd <- sapply(seq_len(length(combi)), function(i){
-    x <- combi[[i]]
-    x <- match(x, x[!duplicated(x)])
-    if(length(x) == 1){
-      x <- rep(x, max(vec_lens))
-    }
-    10 ^ (mx_n + i) * x
-  })
-
-  combi_cd <- rowSums(combi_cd)
-  combi_cd <- match(combi_cd, combi_cd)
+  combi_cd <- match(combi[[1]], combi[[1]])
+  for (j in seq_len(length(combi))[-1]){
+   k <- match(combi[[j]], combi[[j]])
+   combi_cd <- combi_cd + (1/k)
+   combi_cd <- match(combi_cd, combi_cd)
+  }
+  rm(list = ls()[ls() != "combi_cd"])
   return(combi_cd)
 }
 

@@ -1,10 +1,15 @@
 
-# Version 0.3.0.9000
+# Version 0.3.1
 
 ## New features
 
 -   New function - `delink()`. Unlink identifiers.
--   New function - `episodes_wf_splits()`.
+-   New function - `episodes_wf_splits()`. Wrapper function of
+    `episodes()` for better optimised handling of duplicates records.
+-   New function - `combi()`. Numeric codes for unique combination of
+    vectors.
+-   New function - `attr_eval()`. Recursive evaluation of a function on
+    each attribute of a `sub_criteria`.
 
 ## Changes
 

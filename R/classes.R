@@ -109,7 +109,7 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) as.data.frame(as.number_line(y)))))
-  x@id <- x@gid <- seq_len(length(x))
+  # x@id <- x@gid <- seq_len(length(x))
   return(x)
 })
 
@@ -165,7 +165,7 @@ format.number_line <- function(x, ...){
 #' @export
 as.list.number_line <- function(x, ...){
   x_df <- as.data.frame(x)
-  cmbi_cd <-  diyar:::combination_code(x_df$start, x_df$end, x_df$id, x_df$gid)
+  cmbi_cd <-  combi(x_df$start, x_df$end, x_df$id, x_df$gid)
   x_dups <- x[!duplicated(cmbi_cd)]
   y <- lapply(seq_len(length(x_dups)), function(j) x_dups[j])
   y <- y[match(cmbi_cd, cmbi_cd[!duplicated(cmbi_cd)])]
@@ -953,9 +953,10 @@ summary.pid <- function(object, ...){
   l <- c(sort(l), 0, -1)
   summ$pid_cri <- dst_tab(object@pid_cri[order(object@pid_cri)], order_by_label = l)
   rm(x, l)
-  summ$pid_cri$values[summ$pid_cri$values == 0] <- "Skipped"
-  summ$pid_cri$values[summ$pid_cri$values == "-1"] <- "No hits"
-  summ$pid_cri$values[!summ$pid_cri$values %in% c("Skipped", "No hits")] <- paste0("Criteria ", summ$pid_cri$values[!summ$pid_cri$values %in% c("Skipped", "No hits")])
+  summ$pid_cri$values[summ$pid_cri$values == 0] <- "No hits"
+  summ$pid_cri$values[summ$pid_cri$values == "-1"] <- "Skipped"
+  lgk <- !summ$pid_cri$values %in% c("Skipped", "No hits")
+  summ$pid_cri$values[lgk] <- paste0("Criteria ", summ$pid_cri$values[lgk])
   summ$data_source <- if(is.null(object@pid_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@pid_dataset[!duplicated(object@.Data)])[order(object@pid_dataset[!duplicated(object@.Data)])]), order_by_label = sort(attr(object@pid_dataset, "label")))
   class(summ) <- "pid_summary"
   return(summ)

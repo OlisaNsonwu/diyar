@@ -14,7 +14,7 @@ attr_eval(x, func = length, simplify = TRUE)
 \item{simplify}{If \code{TRUE} (default), coerce to a vector.}
 }
 \value{
-\code{vector}; \code{vector}
+\code{vector}; \code{list}
 }
 \description{
 Recursive evaluation of a function (\code{func}) on each attribute (vector) in a \bold{\code{\link{sub_criteria}}}.

@@ -16,7 +16,8 @@ knitr::opts_chunk$set(
 ```
 
 ```{r, include = FALSE}
-library(diyar); 
+library(diyar)
+library(stringdist)
 # library(cowplot)
 # library(ggplot2)
 ```
@@ -210,13 +211,13 @@ dfr_4$forename
 
 # Logical test 1 - Similarity score of 70% or more 
 jw_func <- function(x, y){
-  score <- 1 - stringdist::stringdist(x, y, "jw")
+  score <- 1 - stringdist(x, y, "jw")
   score > .7
 }
 
 # Logical test 2 - Matching Soundex
 soundex_func <- function(x, y){
-  score <- 1 - stringdist::stringdist(x, y, "soundex")
+  score <- 1 - stringdist(x, y, "soundex")
   as.logical(score)
 }
 
