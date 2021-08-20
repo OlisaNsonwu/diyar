@@ -164,12 +164,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     cri <- match(strata, strata[!duplicated(strata)])
   }
 
+  tm_ia <- Sys.time()
   options_lst = list(date = date,
                      strata = if(class(strata) == "NULL") NULL else encode(strata),
                      case_length = if(class(case_length) != "list") list(case_length) else case_length,
                      recurrence_length = if(class(recurrence_length) != "list") list(recurrence_length) else recurrence_length,
                      episode_unit = ep_units,
                      from_last = from_last)
+  if(display != "none"){
+    tms <- difftime(Sys.time(), tm_ia)
+    tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
+    cat(paste0("Data validation: ", tms, "\n"))
+  }
+
+  tm_ia <- Sys.time()
   # Standardise inputs
   # `display`
   display <- tolower(display)
@@ -349,7 +357,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(!is.null(data_source)) {
     if(length(data_source) == 1) data_source <- rep(data_source, inp_n)
   }
+  if(display != "none"){
+    tms <- difftime(Sys.time(), tm_ia)
+    tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
+    cat(paste0("Data standardisation: ", tms, "\n"))
+  }
 
+  tm_ia <- Sys.time()
   # User-specified records to skip
   if(!is.null(strata)){
     lgk <- is.na(strata)
@@ -457,7 +471,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       mths_b <- lapply(mths_b, function(x){x[ntag_lgk]})
     }
   }
-  if(display == "stats" & excluded > 0) cat(paste0("Pre-tracking\nChecked: ", fmt(inp_n), " record(s)\nSkipped: ", fmt(excluded), " record(s).","\n\n"))
+  tms <- difftime(Sys.time(), tm_ia)
+  tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
+  if(display == "stats"){
+    cat(paste0("Pre-tracking\n",
+               "Checked: ", fmt(inp_n), " record(s)\n",
+               "Skipped: ", fmt(excluded), " record(s).","\n",
+               "Time: ", tms,
+               "\n\n"))
+  }
   ite <- 1L
   while (suppressWarnings(min(tag)) != 2 & length(tag) > 0) {
     if(display == "stats"){
@@ -651,15 +673,18 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rm(cri_skp); rm(lgk2); rm(lgk1)
 
     if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
+      tms <- difftime(Sys.time(), tm_ia)
+      tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
       if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
         current_skipped <- length(tag[tag == 0]) + current_skipped
         msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
                       "Tracked: ", fmt(current_tagged), " record(s)\n",
-                      "Skipped: ", fmt(current_skipped), " record(s)")
+                      "Skipped: ", fmt(current_skipped), " record(s)\n",
+                      "Time: ", tms)
         cat(msg, "\n\n", sep ="")
       }else if (tolower(display) == "progress") {
-        progress_bar(inp_n, inp_n, 100, msg = "Tracking episodes")
+        progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", tms, ")"))
       }
       break
     }
@@ -969,15 +994,18 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
+      tms <- difftime(Sys.time(), tm_ia)
+      tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
       if(display == "stats"){
         current_tagged <- length(tag[tag == 2])
         current_skipped <- length(tag[tag == 0]) + current_skipped
         msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
                       "Tracked: ", fmt(current_tagged), " record(s)\n",
-                      "Skipped: ", fmt(current_skipped), " record(s)")
+                      "Skipped: ", fmt(current_skipped), " record(s)\n",
+                      "Time: ", tms)
         cat(msg, "\n\n", sep ="")
       }else if (tolower(display) == "progress") {
-        progress_bar(inp_n, inp_n, 100, msg = "Tracking episodes")
+        progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", tms, ")"))
       }
       iteration[iteration == 0] <- ite
       break
@@ -1017,10 +1045,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[tag != 0 & iteration == 0] <- ite
     current_tagged <- length(tag[tag == 2])
     if(display == "stats"){
+      tms <- difftime(Sys.time(), tm_ia)
+      tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
       msg <- paste0("Checked: ", fmt(current_tot), " record(s)\n",
                     "Tracked: ", fmt(current_tagged - current_skipped), " record(s)\n",
-                    "Skipped: ", fmt(current_skipped), " record(s)")
+                    "Skipped: ", fmt(current_skipped), " record(s)\n",
+                    "Time: ", tms)
       cat(msg, "\n\n", sep ="")
+      tm_ia <- Sys.time()
     }
 
     # Subset out all linked records
@@ -1084,16 +1116,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     ite <- ite + 1L
+    tms <- difftime(Sys.time(), tm_ia)
+    tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
     if (tolower(display) == "progress") {
-      progress_bar(length(epids_repo$tag[epids_repo$tag == 2]), inp_n, 100, msg = "Tracking episodes")
+      progress_bar(length(epids_repo$tag[epids_repo$tag == 2]), inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", tms, ")"))
+      tm_ia <- Sys.time()
     }
 
     if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       if(display == "stats"){
-        msg <- paste0("Skipped: ", fmt(length(tag[tag == 0])), " record(s)")
+        msg <- paste0("Skipped: ", fmt(length(tag[tag == 0])), " record(s)\n",
+                      "Time: ", tms)
         cat(msg, "\n\n", sep ="")
       }else if (tolower(display) == "progress") {
-        progress_bar(inp_n, inp_n, 100, msg = "Tracking episodes")
+        progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", tms, ")"))
       }
       break
     }
