@@ -1129,3 +1129,16 @@ plot.d_report <- function(x, ...){
     ggplot2::scale_x_continuous("Iteration", labels = x_labs[seq(1, length(x_labs), length.out = 10)],
                                 breaks = x_breaks[seq(1, length(x_labs), length.out = 10)])
 }
+
+#' @rdname epid-class
+#' @export
+as.list.d_report <- function(x, ...){
+  class(x) <- NULL
+  return(as.list(x, ..))
+}
+
+#' @rdname epid-class
+#' @export
+as.data.frame.d_report <- function(x, ...){
+  return(as.data.frame(as.list(x)))
+}

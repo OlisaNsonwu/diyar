@@ -516,7 +516,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(tolower(display) %in% c("stats_with_report", "stats")){
       cat(paste0("Pre-tracking\n",
                  "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                 "Skipped: ", fmt(rp_data[[5]]), " record(s).","\n",
+                 "Skipped: ", fmt(rp_data[[5]]), " record(s)","\n",
                  "Time: ", fmt(rp_data[[2]], "difftime"),
                  "\n\n"))
     }
@@ -1497,6 +1497,11 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
                     skip_unique_strata = FALSE)
 
   rp_lgk <- match(date_strata_cmbi, date_strata_cmbi[!date_strata_cmbi_dup])
+  if(tolower(display) %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    wf_epid <- epids$epid[rp_lgk]
+  }else{
+    wf_epid <- epids[rp_lgk]
+  }
   wf_epid <- epids[rp_lgk]
   wf_epid@sn <- sn
   wf_epid@case_nm[wf_epid@case_nm == 4 & date_strata_cmbi_dup] <- 2
@@ -1507,6 +1512,10 @@ episodes_wf_splits <- function(date, case_length = Inf, episode_type = "fixed", 
     x[lgk] <- wf_epid@sn[lgk]
     return(x)
   })
+  if(tolower(display) %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    wf_epid <- list(epid = wf_epid,
+                    report = epids$report)
+  }
   rm(list = ls()[ls() != "wf_epid"])
   return(wf_epid)
 }
@@ -1520,7 +1529,7 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
                                case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                                display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
                                case_length_total = 1, recurrence_length_total = case_length_total){
-
+  tm_a <- Sys.time()
   if(is.null(sn)) {
     sn <- seq_len(length(date))
   }
@@ -1558,16 +1567,26 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
 
   if(length(combi_opt_lst) != 0){
     combi_opt_lst <- lapply(combi_opt_lst, function(x){
-      if(all(class(x) == "number_line")){
-        list(date@start, date@.Data)
-      }else if(all(class(x) == "sub_criteria")){
-        list(attr_eval(x, func = identity))
+      if(all(class(x) == "sub_criteria")){
+        attr_eval(x, func = identity, simplify = FALSE)
       }else{
         list(x)
       }
     })
 
     combi_opt_lst <- unlist(combi_opt_lst, recursive = FALSE, use.names = FALSE)
+    combi_opt_lst <- lapply(combi_opt_lst, function(x){
+      if(all(class(x) == "number_line")){
+        list(x@start, x@.Data)
+      }else{
+        x
+      }
+    })
+    # sub_criteria with d_attributes/number_line objects
+    lgk <- unlist(lapply(combi_opt_lst, function(x) all(class(x) == "list")), use.names = FALSE)
+    combi_opt_lst <- c(combi_opt_lst[!lgk],
+                       unlist(combi_opt_lst[lgk], recursive = FALSE, use.names = FALSE))
+
     cmbi_cd <- combi(combi_opt_lst)
     rf_lgk <- duplicated(cmbi_cd)
   }else{
@@ -1584,6 +1603,18 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
       return(x[!rf_lgk])
     }
   })
+
+  if(!tolower(display) %in% c("none")){
+    rp_data <- di_report(tm_a, "Remove duplicate record-sets", current_tot = length(date), current_skipped = length(rf_lgk[rf_lgk]))
+    report_a <- rp_data
+    if(tolower(display) %in% c("stats_with_report", "stats")){
+      cat(paste0("Remove duplicates information\n",
+                 "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
+                 "Skipped: ", fmt(rp_data[[5]]), " record(s)","\n",
+                 "Time: ", fmt(rp_data[[2]], "difftime"),
+                 "\n\n"))
+    }
+  }
 
   epids <- episodes(sn = opt_lst$sn, date = opt_lst$date,
                     case_length = opt_lst$case_length,
@@ -1604,8 +1635,14 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
                     recurrence_length_total = opt_lst$recurrence_length_total,
                     skip_unique_strata = FALSE)
 
+  tm_a <- Sys.time()
   rp_lgk <- match(cmbi_cd, cmbi_cd[!rf_lgk])
-  wf_epid <- epids[rp_lgk]
+  if(tolower(display) %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    wf_epid <- epids$epid[rp_lgk]
+  }else{
+    wf_epid <- epids[rp_lgk]
+  }
+
   wf_epid@sn <- sn
   wf_epid@case_nm[wf_epid@case_nm == 4 & rf_lgk] <- 2
   wf_epid@case_nm[wf_epid@case_nm == 5 & rf_lgk] <- 3
@@ -1615,6 +1652,28 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
     x[lgk] <- wf_epid@sn[lgk]
     return(x)
   })
+  if(!tolower(display) %in% c("none")){
+    rp_data <- di_report(tm_a, "Return duplicate data", current_tot = length(date), current_tagged = length(rf_lgk[rf_lgk]))
+    report_b <- rp_data
+    if(tolower(display) %in% c("stats_with_report", "stats")){
+      cat(paste0("\n\n",
+                 "Return duplicate data\n",
+                 "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
+                 "Tracked: ", fmt(rp_data[[4]]), " record(s)","\n",
+                 "Time: ", fmt(rp_data[[2]], "difftime"),
+                 "\n\n"))
+    }
+  }
+  if(tolower(display) %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    report <- rbind(as.data.frame(report_a),
+                    as.data.frame(epids$report),
+                    as.data.frame(report_b))
+    report <- as.list(report)
+    class(report) <- "d_report"
+    wf_epid <- list(epid = wf_epid,
+                    report = report)
+  }
+
   rm(list = ls()[ls() != "wf_epid"])
   return(wf_epid)
 }

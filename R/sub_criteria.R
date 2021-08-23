@@ -128,7 +128,7 @@ eval_sub_criteria.sub_criteria <- function(x,
       )
     }
 
-    if(class(x) == "list"){
+    if(class(x) == "d_attribute"){
       ds_len <- length(x[[1]])
       x <- lapply(x, function(x){
         if(length(x) == 1){

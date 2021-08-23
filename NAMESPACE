@@ -2,10 +2,12 @@
 
 S3method("[",d_label)
 S3method("[[",d_label)
+S3method(as.data.frame,d_report)
 S3method(as.data.frame,epid)
 S3method(as.data.frame,number_line)
 S3method(as.data.frame,pane)
 S3method(as.data.frame,pid)
+S3method(as.list,d_report)
 S3method(as.list,epid)
 S3method(as.list,number_line)
 S3method(as.list,pane)

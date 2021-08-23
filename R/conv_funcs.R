@@ -851,14 +851,14 @@ dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
   y
 }
 
-di_report <- function(start_time = NA_real_, iteration = NA, current_tot = NA_real_,
-                      current_tagged = NA_real_, current_skipped = NA_real_, criteria = NA_real_){
+di_report <- function(start_time = 0L, iteration = NA, current_tot = 0L,
+                      current_tagged = 0L, current_skipped = 0L, criteria = 0L){
   tms <- difftime(Sys.time(), start_time, units = "secs")
   x <- list(iteration = iteration,
             duration = tms,
-            records_checked = current_tot,
-            records_tracked = current_tagged,
-            records_skipped = current_skipped,
-            criteria = criteria)
+            records_checked = as.integer(current_tot),
+            records_tracked = as.integer(current_tagged),
+            records_skipped = as.integer(current_skipped),
+            criteria = as.integer(criteria))
   return(x)
 }
