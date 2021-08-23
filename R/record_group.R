@@ -150,7 +150,8 @@ links <- function(criteria,
   err <- err_sn_1(sn = sn, ref_num = ds_len, ref_nm = "criteria")
   if(!isFALSE(err)) stop(err, call. = FALSE)
   if(!tolower(display) %in% c("none")){
-    report <- rp_data <- list(di_report(tm_a, "Data validation", current_tot = ds_len))
+    rp_data <- di_report(tm_a, "Data validation", current_tot = ds_len)
+    report <- list(rp_data)
     if(tolower(display) %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
     }
@@ -213,7 +214,7 @@ links <- function(criteria,
                     "t_sort" = t_sort)
 
   if(!tolower(display) %in% c("none")){
-    rp_data <- list(di_report(tm_ia, "Data standardisation", current_tot = ds_len))
+    rp_data <- di_report(tm_ia, "Data standardisation", current_tot = ds_len)
     report <- c(report, list(rp_data))
     if(tolower(display) %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))

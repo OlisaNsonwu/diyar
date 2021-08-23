@@ -150,7 +150,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 skip_unique_strata = skip_unique_strata)
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
   if(!tolower(display) %in% c("none")){
-    report <- rp_data <- list(di_report(tm_a, "Data validation"))
+    rp_data <- di_report(tm_a, "Data validation")
+    report <- list(rp_data)
     if(tolower(display) %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
     }
