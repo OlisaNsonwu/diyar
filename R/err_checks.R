@@ -5,11 +5,7 @@
 err_sub_criteria_1 <- function(...){
   args <- list(...)
   err <- lapply(args, function(x){
-    if(all(class(x) == "list")){
-      # lapply(x, function(y){
-      #   if(is.atomic(y)) NA_character_ else class(y)
-      # })
-    }else if(is.atomic(x) | all(class(x) == "sub_criteria")){
+    if(is.atomic(x) | all(class(x) %in% c("d_attribute", "sub_criteria"))){
       NA_character_
     }else{
       class(x)
@@ -22,7 +18,7 @@ err_sub_criteria_1 <- function(...){
   if(length(err) > 0){
     paste0("Invalid object type for `...` in `sub_criteria()`:\n",
            "i - `...` must be an `atomic` vector OR,\n",
-           "i - `...` must be a `list` of `atomic`  vectors OR,\n",
+           "i - `...` must be a `d_attribute` object OR,\n",
            "i - `...` must be a `sub_criteria` object.\n",
            paste0("X - `...` ", "contains is a `", err,"` object.", collapse = "\n"))
   }else{
@@ -325,7 +321,7 @@ err_criteria_2 <- function(criteria){
 
   if(!min(err) %in% c(1, max(err)) | min(err) == 0){
     paste0("Length of each `criteria` must be the same or equal to 1:\n",
-           paste0("X - `criteria ", names(err),"` is ", err, ".", collapse = "\n"))
+           paste0("X - `criteria ", names(err),"` is ", fmt(err), ".", collapse = "\n"))
   }else{
     F
   }
@@ -357,8 +353,8 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
     return(paste0("Length of each `", arg_nm, "` and each attribute of `", cri_nm, "` must be the same or equal to 1:\n",
                   "i - Expecting ", listr(unique(c(1, err)), conj = " or"), ".\n",
-                  "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(sort(err)), ".\n",
-                  "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of attribute(s) in `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(sort(err2)), "."))
+                  "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(fmt(sort(err))), ".\n",
+                  "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of attribute(s) in `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(fmt(sort(err2))), "."))
   }else{
     F
   }
@@ -372,8 +368,8 @@ err_sub_criteria_3dot_1 <- function(...){
 
   if(length(err) != 1 | all(err == 0)){
     paste0("Different lengths for each attribute (`...`) in `sub_criteria()`:\n",
-           "i - Each at in attribute (`...`) must have the same length.\n",
-           "i - This includes recursive evaluations of `list` and `sub_criteria` objects.\n",
+           "i - Each attribute in (`...`) must have the same length.\n",
+           "i - This includes recursive evaluations of `d_attribute` and `sub_criteria` objects.\n",
            paste0("X - `...` ", "contains elements of lengths ", listr(err),".", collapse = "\n"))
   }else{
     FALSE
@@ -393,8 +389,8 @@ err_sn_1 <- function(sn, ref_nm, ref_num){
   if(class(sn) != "NULL"){
     if(length(sn) != ref_num){
       err <- paste0("Length of `sn` must be the same as `", ref_nm, "`:\n",
-                    "i - Expecting a length of ", ref_num, ".\n",
-                    "X - Length is ", length(sn), ".\n")
+                    "i - Expecting a length of ", fmt(ref_num), ".\n",
+                    "X - Length is ", fmt(length(sn)), ".\n")
       return(err)
     }
 
@@ -593,8 +589,8 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
   if(length(err) > 0){
     err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
                   ifelse(ref_nm == "", "", paste0("i - Length must be 1 or the same as `", ref_nm, "`.\n")),
-                  "i - Expecting a length of ", listr(unique(ref_len), conj = " or"), ".\n",
-                  paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", err, ".", collapse = "\n"))
+                  "i - Expecting a length of ", listr(fmt(unique(ref_len)), conj = " or"), ".\n",
+                  paste0("X - ", ifelse(rep(multi_opts, fmt(length(err))), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", fmt(err), ".", collapse = "\n"))
     return(err)
   }
 
@@ -763,7 +759,7 @@ err_episodes_checks_1 <- function(date,
   if(err != FALSE) return(err[1])
   err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling", "recursive"))
   if(err != FALSE) return(err[1])
-  err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
+  err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
   if(err != FALSE) return(err[1])
   err <- err_overlap_methods_1(overlap_methods = case_overlap_methods, "case_overlap_methods")
   if(err != FALSE) return(err[1])
@@ -899,15 +895,8 @@ err_episodes_checks_0 <- function(date = 1,
                                   recurrence_sub_criteria = NULL,
                                   case_length_total = 1,
                                   recurrence_length_total = 1,
-                                  skip_checks = NULL){
-
-  # Standardise `sub_criteria` inputs
-  # if(class(case_sub_criteria) == "sub_criteria"){
-  #   case_sub_criteria <- list(case_sub_criteria)
-  # }
-  # if(class(recurrence_sub_criteria) == "sub_criteria"){
-  #   recurrence_sub_criteria <- list(recurrence_sub_criteria)
-  # }
+                                  skip_checks = NULL,
+                                  timed = FALSE){
 
   # Check for non-atomic vectors
   args <- list(date = date,
@@ -1082,7 +1071,7 @@ err_episodes_checks_0 <- function(date = 1,
   if(err != FALSE) return(err)
   err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling", "recursive"))
   if(err != FALSE) return(err)
-  err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
+  err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
   if(err != FALSE) return(err)
   err <- err_spec_vals(reference_event, "reference_event", c("first_record", "first_event", "last_record", "last_event", TRUE, FALSE))
   if(err != FALSE) return(err)
@@ -1107,18 +1096,6 @@ err_episodes_checks_0 <- function(date = 1,
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err)
-    # err <- err_sub_criteria_5.0(case_sub_criteria, cri_nm = "case_sub_criteria")
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_5.0(case_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "case_sub_criteria")
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_6.0(case_sub_criteria)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_6.0(case_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "case_sub_criteria")
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_7(case_sub_criteria)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_7(case_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
-    # if(err != FALSE) return(err)
   }
 
   if(class(recurrence_sub_criteria) != "NULL"){
@@ -1126,18 +1103,6 @@ err_episodes_checks_0 <- function(date = 1,
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err)
-    # err <- err_sub_criteria_5.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_5.0(recurrence_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_6.0(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_6.0(recurrence_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3, cri_nm = "recurrence_sub_criteria")
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_7(recurrence_sub_criteria)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_7(recurrence_sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
-    # if(err != FALSE) return(err)
   }
 
   err <- err_mins_1(case_length_total, "case_length_total")
@@ -1254,24 +1219,12 @@ err_links_checks_0 <- function(criteria,
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
     if(err != FALSE) return(err)
-    # err <- err_sub_criteria_5.0(sub_criteria)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_5.0(sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_6.0(sub_criteria)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_6.0(sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_7(sub_criteria)
-    # if(err != FALSE) return(err)
-    # err <- err_sub_criteria_7(sub_criteria, funcs_l = "equal_funcs", funcs_pos = 3)
-    # if(err != FALSE) return(err)
   }
   err <- err_criteria_1(criteria)
   if(err != FALSE) return(err)
   err <- err_criteria_2(criteria)
   if(err != FALSE) return(err)
-  err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
+  err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
   if(err != FALSE) return(err)
   return(FALSE)
 }
@@ -1944,7 +1897,7 @@ err_links_wf_probablistic_0 <- function(attribute,
   if(any(which(ref_err != err & err != 1))){
     err <- paste0("Lengths of `cmp_func`, `cmp_threshold` and `m_probability` must be 1 or match the number of attributes supplied:\n",
                   "i - Expecting lengths of 1 or ", ref_err, "\n",
-                  paste0("X - Length of `", names(err[err_lgk]), "` is ", err[err_lgk], ".", collapse = "\n"))
+                  paste0("X - Length of `", names(err[err_lgk]), "` is ", fmt(err[err_lgk]), ".", collapse = "\n"))
     return(err)
   }
 
@@ -1968,4 +1921,20 @@ err_sub_criteria_0 <- function(...,
   if(!isFALSE(err)) return(err)
 
   return(FALSE)
+}
+
+
+err_3dot_lens <- function(...){
+  args <- list(...)
+  err <- lapply(list(...), length)
+  err <- unlist(err, use.names = FALSE)
+  err <- sort(err[!duplicated(err)])
+
+  if(length(err) != 1 | all(err == 0)){
+    paste0("Different lengths for each attribute (`...`) in `attr()`:\n",
+           "i - Each attribute in (`...`) must have the same length.\n",
+           paste0("X - `...` ", "contains elements of lengths ", listr(err),".", collapse = "\n"))
+  }else{
+    FALSE
+  }
 }

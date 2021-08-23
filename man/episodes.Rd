@@ -146,7 +146,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.}
 
-\item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} and \code{"stats"}.}
+\item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
 \item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links.}
 
@@ -179,7 +179,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \value{
 
 
-\code{\link[=epid-class]{epid}}
+\code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
 Link events with matching attributes and within specified durations of each other.

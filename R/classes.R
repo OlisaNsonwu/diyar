@@ -116,7 +116,7 @@ setMethod("c", signature(x = "number_line"), function(x,...) {
 #' @rdname number_line-class
 #' @export
 unique.number_line <- function(x, ...){
-  x <- x[!duplicated(data.frame(x@start, x@.Data))]
+  x <- x[!duplicated(combi(x@start, x@.Data))]
   return(x)
 }
 
@@ -156,8 +156,8 @@ format.number_line <- function(x, ...){
     s[x@.Data == 0 & !is.na(x@.Data) & !is.nan(x@.Data)] <- "=="
 
     paste0(x@start, " ",
-          s, " ",
-          x@start + x@.Data)
+           s, " ",
+           x@start + x@.Data)
   }
 }
 
@@ -285,14 +285,14 @@ format.epid <- function(x, ...){
   if (length(x) == 0) {
     return("epid(0)")
   }else {
-      int_l <- rep("", length(x))
-      int_l[!is.na(x@epid_interval)] <- paste0(" ",
-                                               format.number_line(x@epid_interval[!is.na(x@epid_interval)]))
-      return(paste0("E.",
-                    formatC(x@.Data, width = nchar(max(x@.Data)), flag = 0, format = "fg"),
-                    int_l,
-                    " (", c("S", "C", "R", "D", "D", "C","R")[x@case_nm + 2L], ")"))
-    }
+    int_l <- rep("", length(x))
+    int_l[!is.na(x@epid_interval)] <- paste0(" ",
+                                             format.number_line(x@epid_interval[!is.na(x@epid_interval)]))
+    return(paste0("E.",
+                  formatC(x@.Data, width = nchar(max(x@.Data)), flag = 0, format = "fg"),
+                  int_l,
+                  " (", c("S", "C", "R", "D", "D", "C","R")[x@case_nm + 2L], ")"))
+  }
 }
 
 #' @rdname epid-class
@@ -360,8 +360,8 @@ print.epid_summary <- function(x, ...){
     pd_len <- ifelse(ds_len > 20, 1, 20 - ds_len)
     pd_txt <- unlist(lapply(pd_len, function(j) paste0(rep(" ", j), collapse = "")), use.names = FALSE)
     ds_txt <- ifelse(nchar(val) > 20,
-           paste0(substr(val, 1, 20), "~"),
-           val)
+                     paste0(substr(val, 1, 20), "~"),
+                     val)
 
     if(length(ds_len) > 0){
       ds_txt <- paste0("     ", ds_txt, ":", pd_txt,
@@ -637,7 +637,7 @@ format.pane <- function(x, ...){
                          "",
                          paste0(" ", format.number_line(x@pane_interval))),
                   " (", c("S", "I", "D")[x@case_nm + 2L], ")"))
-    }
+  }
 }
 
 #' @rdname pane-class
@@ -1107,3 +1107,25 @@ setMethod("c", signature(x = "pid"), function(x,...) {
   }
   x
 })
+
+#' @rdname epid-class
+#' @export
+plot.d_report <- function(x, ...){
+  . <- NULL
+  t <- length(x$iteration)
+  x <- data.frame(x = c(x$iteration, x$iteration, x$iteration, x$iteration),
+                   y = c(as.numeric(x$duration), x$records_checked, x$records_tracked, x$records_skipped),
+                   l = c(rep(paste0("duration (", attr(x$duration, "units"), ")"), t),
+                         rep("records_checked", t), rep("records_tracked", t),
+                         rep("records_skipped", t)),
+                   stringsAsFactors = FALSE)
+  x$x_cd <- match(x$x, x$x)
+  x_breaks <- x$x_cd[!duplicated(x$x)]
+  x_labs <- x$x[!duplicated(x$x)]
+
+  ggplot2::ggplot(data = x, aes(.data$x_cd, .data$y)) +
+    ggplot2::geom_line() +
+    ggplot2::facet_wrap(~ .data$l, ncol =2, scales = "free") +
+    ggplot2::scale_x_continuous("Iteration", labels = x_labs[seq(1, length(x_labs), length.out = 10)],
+                                breaks = x_breaks[seq(1, length(x_labs), length.out = 10)])
+}

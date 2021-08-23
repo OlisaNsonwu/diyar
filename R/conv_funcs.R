@@ -36,7 +36,14 @@ enq_vr <- function(x){
 }
 
 # @rdname finite_check
-fmt <- function(x) formatC(x, format="d", big.mark=",")
+fmt <- function(x, fmt = "count"){
+  if(fmt == "difftime"){
+    paste0(ifelse(round(x) == 0, "< 0.01", round(as.numeric(x), 2)), " ", attr(x, "units"))
+  }else{
+    formatC(x, format="d", big.mark=",")
+  }
+
+}
 
 # @rdname finite_check
 duplicates_check <- function(x){
@@ -747,13 +754,31 @@ attr_eval <- function(x, func = length, simplify = TRUE){
     x <- lapply(x, function(x){
       attr_eval(x[[1]], func = func, simplify = simplify)
     })
-  }else if(all(class(x) == "list")){
+  }else if(all(class(x) == "d_attribute")){
     x <- lapply(x, func)
   }else if(is.atomic(x)){
     x <- func(x)
   }
 
   if(simplify) unlist(x, use.names = FALSE) else x
+}
+
+sp_scri <- function(b, lgk){
+  for (i in seq_len(length(b))) {
+    attr <- (b[[i]][[1]])
+    if(all(class(attr) == "sub_criteria")){
+      b[[i]][[1]] <- sp_scri(attr, lgk)
+    }else if(all(class(attr) == "d_attribute")){
+      attr <- lapply(attr, function(x){
+        x[lgk]
+      })
+      class(attr) <- "d_attribute"
+      b[[i]][[1]] <- attr
+    }else{
+      b[[i]][[1]] <- attr[lgk]
+    }
+  }
+  return(b)
 }
 
 #' @name combi
@@ -776,6 +801,11 @@ attr_eval <- function(x, func = length, simplify = TRUE){
 combi <- function(...){
   # ... must be vectors
   combi <- list(...)
+  is_list <- unlist(lapply(combi, function(x){
+    all(class(x) == "list")
+  }), use.names = FALSE)
+  combi <- c(unlist(combi[is_list], recursive = FALSE),
+             combi[!is_list])
   # Validations
   err_txt <- unlist(lapply(seq_len(length(combi)), function(i){
     x <- err_atomic_vectors(combi[[i]], paste0("vector ", i))
@@ -819,4 +849,16 @@ dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
   y$values <- y$values[pos]
   y$lengths <- y$lengths[pos]
   y
+}
+
+di_report <- function(start_time = NA_real_, iteration = NA, current_tot = NA_real_,
+                      current_tagged = NA_real_, current_skipped = NA_real_, criteria = NA_real_){
+  tms <- difftime(Sys.time(), start_time, units = "secs")
+  x <- list(iteration = iteration,
+            duration = tms,
+            records_checked = current_tot,
+            records_tracked = current_tagged,
+            records_skipped = current_skipped,
+            criteria = criteria)
+  return(x)
 }

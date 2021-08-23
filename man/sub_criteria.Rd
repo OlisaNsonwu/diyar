@@ -4,6 +4,7 @@
 \alias{sub_criteria}
 \alias{eval_sub_criteria}
 \alias{eval_sub_criteria.sub_criteria}
+\alias{attrs}
 \title{Sub-criteria}
 \usage{
 sub_criteria(
@@ -23,6 +24,8 @@ eval_sub_criteria(x, ...)
   check_duplicates = TRUE,
   ...
 )
+
+attrs(...)
 }
 \arguments{
 \item{...}{\code{[atomic]}.. Attributes.}

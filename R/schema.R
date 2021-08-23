@@ -827,3 +827,25 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
     )
   return(f)
 }
+
+#' @rdname schema
+#' @export
+schema.d_report <- function(x, ...){
+  . <- NULL
+  x <- data.frame(x)
+  b2 <- data.frame(x = c(x$iteration, x$iteration, x$iteration, x$iteration),
+                   y = c(as.numeric(x$duration), x$records_checked, x$records_tracked, x$records_skipped),
+                   l = c(rep(paste0("duration (", attr(x$duration, "units"), ")"), nrow(x)),
+                         rep("records_checked", nrow(x)), rep("records_tracked", nrow(x)),
+                         rep("records_skipped", nrow(x))),
+                   stringsAsFactors = FALSE)
+  x$x_cd <- match(x$x, x$x)
+  x_breaks <- x$x_cd[!duplicated(x$x)]
+  x_labs <- x$x[!duplicated(x$x)]
+
+  ggplot2::ggplot(data = .data$x, aes(.data$x_cd, .data$y)) +
+    ggplot2::geom_line() +
+    ggplot2::facet_wrap(~l, ncol =2, scales = "free") +
+    ggplot2::scale_x_continuous("Iteration", labels = x_labs[seq(1, length(x_labs), length.out =10)],
+                                breaks = x_breaks[seq(1, length(x_labs), length.out =10)])
+}

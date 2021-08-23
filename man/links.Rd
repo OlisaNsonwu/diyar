@@ -36,7 +36,7 @@ record_group(df, ..., to_s4 = TRUE)
 
 \item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be unlinked. See \code{Details}.}
 
-\item{display}{\code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.}
+\item{display}{\code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.}
 
@@ -57,7 +57,7 @@ record_group(df, ..., to_s4 = TRUE)
 \item{to_s4}{\code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 }
 \value{
-\code{\link[=pid-class]{pid}}
+\code{\link[=pid-class]{pid}}; \code{list}
 }
 \description{
 Match records in successive stages with different matching conditions.

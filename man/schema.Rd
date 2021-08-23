@@ -6,6 +6,7 @@
 \alias{schema.epid}
 \alias{schema.pane}
 \alias{schema.pid}
+\alias{schema.d_report}
 \title{Schema diagram for linked records in \code{diyar}}
 \usage{
 schema(x, ...)
@@ -44,6 +45,8 @@ schema(x, ...)
   custom_label = NULL,
   ...
 )
+
+\method{schema}{d_report}(x, ...)
 }
 \arguments{
 \item{x}{\code{[\link[=number_line-class]{number_line}|\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}}

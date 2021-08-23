@@ -242,3 +242,14 @@ eval_sub_criteria.sub_criteria <- function(x,
   }
 
 }
+
+#' @rdname sub_criteria
+#' @export
+attrs <- function(...){
+  x <- list(...)
+  err <- err_3dot_lens(x)
+  if(!isFALSE(err)) stop(err, call. = FALSE)
+  rm(list = ls()[ls() != "x"])
+  class(x) <- "d_attribute"
+  x
+}

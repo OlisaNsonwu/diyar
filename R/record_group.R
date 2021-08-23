@@ -16,12 +16,12 @@
 #' @param shrink \code{[logical]}. If \code{TRUE}, forces a record-group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
 #' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. See \code{vignette("links")}.
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.
-#' @param display \code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.
+#' @param display \code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
 #' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param ... Arguments passed to \code{links}.
 #' @param tie_sort \code{[atomic]}. Preferential order for selecting breaking tied matches within a stage.
 #'
-#' @return \code{\link[=pid-class]{pid}}
+#' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
 #' @seealso \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
 #'
@@ -138,6 +138,7 @@ links <- function(criteria,
                             recursive, check_duplicates, tie_sort)
 
   if(!isFALSE(err)) stop(err, call. = FALSE)
+
   if(class(criteria) != "list") criteria <- list(criteria)
 
   if(isTRUE(shrink)) expand <- !shrink
@@ -148,6 +149,13 @@ links <- function(criteria,
   ds_len <- max(ds_len)
   err <- err_sn_1(sn = sn, ref_num = ds_len, ref_nm = "criteria")
   if(!isFALSE(err)) stop(err, call. = FALSE)
+  if(!tolower(display) %in% c("none")){
+    report <- rp_data <- list(di_report(tm_a, "Data validation", current_tot = ds_len))
+    if(tolower(display) %in% c("stats_with_report", "stats")){
+      cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
+    }
+  }
+  tm_ia <- Sys.time()
 
   if(!is.null(data_source)) {
     if(length(data_source) == 1) data_source <- rep(data_source, ds_len)
@@ -204,10 +212,19 @@ links <- function(criteria,
                     "iteration" = iteration,
                     "t_sort" = t_sort)
 
+  if(!tolower(display) %in% c("none")){
+    rp_data <- list(di_report(tm_ia, "Data standardisation", current_tot = ds_len))
+    report <- c(report, list(rp_data))
+    if(tolower(display) %in% c("stats_with_report", "stats")){
+      cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
+    }
+  }
+  tm_ia <- Sys.time()
+
   if(display != "none") cat("\n")
   i <- ite <- 1L
   while(i %in% seq_len(length(criteria)) & (min(pids_repo$tag) == 0 | shrink)){
-    if(display %in% c("progress", "stats")){
+    if(tolower(display) %in% c("progress", "stats", "progress_with_report", "stats_with_report")){
       cat(paste0("`Criteria ", i,"`.\n"))
     }
     # Current stage
@@ -373,7 +390,7 @@ links <- function(criteria,
         m_tag[which(h_ri %in% rep_lgk_2 & !recursive)] <- 2L
         m_tag[ref_rd] <- 2L
 
-        # Duplicate records sets can be closed
+        # Duplicate record-sets can be closed
         if(isFALSE(check_duplicates)){
           m_tag[equals_ref_rd > 0] <- 2L
           pid[pid == sn_ref & equals_ref_rd > 0] <- sn[pid == sn_ref & equals_ref_rd > 0]
@@ -404,6 +421,13 @@ links <- function(criteria,
 
         iteration[pid != sn_ref & iteration == 0] <- ite
         pid_cri[pid_cri == mxp_cri | (pid_cri != mxp_cri & shrink)] <- i
+
+        if(!tolower(display) %in% c("none")){
+          rp_data <- di_report(tm_ia, ite, length(m_tag), criteria = i, current_tagged = length(which(m_tag == 2 & iteration == ite)))
+          report <- c(report, list(rp_data))
+        }
+        tm_ia <- Sys.time()
+
         # If not recursive, exclude linked records.
         if(isFALSE(recursive)){
           inc_lgk <- which(m_tag == 2)
@@ -423,11 +447,12 @@ links <- function(criteria,
           pids_repo$link_id[pr_sn] <- link_id
           pids_repo$iteration[pr_sn] <- iteration
         }
-        ite <- ite + 1L
-        if(tolower(display) %in% c("progress", "stats") & length(curr_sub_cri) > 0) {
+        if(tolower(display) %in% c("stats_with_report", "stats", "progress_with_report", "progress") & length(curr_sub_cri) > 0){
           msg <- paste0("Checking `sub_criteria`")
           progress_txt(length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref]), cs_len, msg = msg)
         }
+        tm_ia <- Sys.time()
+        ite <- ite + 1L
       }
     }
 
@@ -470,12 +495,21 @@ links <- function(criteria,
     pids_repo$tag <- tag_h
     pids_repo$tag[which(pids_repo$pid != sn_ref)] <- 1L
     pids_repo$iteration[pids_repo$tag == 0 & pids_repo$iteration != 0] <- 0L
-    if(display != "none" & length(curr_sub_cri) > 0) cat("\n")
-    if(display %in% c("stats", "progress")){
-      current_tot <- length(skp_lgk)
-      assigned <- length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref])
-      cat(paste0("Checked: ", fmt(current_tot), " record(s).\nLinked: ", fmt(assigned)," record(s).\n\n"))
+
+    if(!tolower(display) %in% c("none")){
+      if(length(curr_sub_cri) == 0){
+        cat("\n")
+        rp_data <- di_report(tm_ia, ite, length(skp_lgk), criteria = i, current_tagged = assigned)
+        report <- c(report, list(rp_data))
+      }
+      if(tolower(display) %in% c("stats", "progress", "stats_with_report", "progress_with_report")){
+        current_tot <- length(skp_lgk)
+        assigned <- length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref])
+        cat(paste0("Checked: ", fmt(current_tot), " record(s).\nLinked: ", fmt(assigned)," record(s).\n\n"))
+      }
     }
+    tm_ia <- Sys.time()
+
     i <- i + 1L
   }
 
@@ -533,6 +567,10 @@ links <- function(criteria,
   tms <- difftime(tm_z, tm_a)
   tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
 
+  if(tolower(display) %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    pids <- list(pid = pids, report = as.list(do.call("rbind", lapply(report, as.data.frame))))
+    class(pids$report) <- "d_report"
+  }
   if(tolower(display) != "none") cat("Records linked in ", tms, "!\n", sep = "")
   rm(list = ls()[ls() != "pids"])
   return(pids)

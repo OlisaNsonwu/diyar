@@ -16,6 +16,7 @@
 \alias{[,epid-method}
 \alias{[[,epid-method}
 \alias{c,epid-method}
+\alias{plot.d_report}
 \title{\code{epid} object}
 \usage{
 is.epid(x)
@@ -43,6 +44,8 @@ as.epid(x)
 \S4method{[[}{epid}(x, i, j, ..., exact = TRUE)
 
 \S4method{c}{epid}(x, ...)
+
+\method{plot}{d_report}(x, ...)
 }
 \arguments{
 \item{x}{x}
