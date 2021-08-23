@@ -498,14 +498,14 @@ links <- function(criteria,
     pids_repo$iteration[pids_repo$tag == 0 & pids_repo$iteration != 0] <- 0L
 
     if(!tolower(display) %in% c("none")){
+      current_tot <- length(skp_lgk)
+      assigned <- length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref])
       if(length(curr_sub_cri) == 0){
         cat("\n")
-        rp_data <- di_report(tm_ia, ite, length(skp_lgk), criteria = i, current_tagged = assigned)
+        rp_data <- di_report(tm_ia, ite-1, length(skp_lgk), criteria = i, current_tagged = assigned)
         report <- c(report, list(rp_data))
       }
       if(tolower(display) %in% c("stats", "progress", "stats_with_report", "progress_with_report")){
-        current_tot <- length(skp_lgk)
-        assigned <- length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref])
         cat(paste0("Checked: ", fmt(current_tot), " record(s).\nLinked: ", fmt(assigned)," record(s).\n\n"))
       }
     }
