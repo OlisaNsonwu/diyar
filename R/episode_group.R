@@ -1528,7 +1528,8 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
                                data_links = "ANY", custom_sort = NULL, skip_order = Inf, reference_event = "last_record",
                                case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                                display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
-                               case_length_total = 1, recurrence_length_total = case_length_total){
+                               case_length_total = 1, recurrence_length_total = case_length_total,
+                               duplicates_recovered = "ALL"){
   tm_a <- Sys.time()
   if(is.null(sn)) {
     sn <- seq_len(length(date))
@@ -1605,10 +1606,10 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
   })
 
   if(!tolower(display) %in% c("none")){
-    rp_data <- di_report(tm_a, "Remove duplicate record-sets", current_tot = length(date), current_skipped = length(rf_lgk[rf_lgk]))
+    rp_data <- di_report(tm_a, "Remove duplicates", current_tot = length(date), current_skipped = length(rf_lgk[rf_lgk]))
     report_a <- rp_data
     if(tolower(display) %in% c("stats_with_report", "stats")){
-      cat(paste0("Remove duplicates information\n",
+      cat(paste0("Remove duplicates\n",
                  "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
                  "Skipped: ", fmt(rp_data[[5]]), " record(s)","\n",
                  "Time: ", fmt(rp_data[[2]], "difftime"),
@@ -1644,20 +1645,29 @@ episodes_wf_splits_v2 <- function(date, case_length = Inf, episode_type = "fixed
   }
 
   wf_epid@sn <- sn
-  wf_epid@case_nm[wf_epid@case_nm == 4 & rf_lgk] <- 2
-  wf_epid@case_nm[wf_epid@case_nm == 5 & rf_lgk] <- 3
-  lgk <- which(wf_epid@case_nm %in% c(0, -1) & wf_epid@epid_total == 1)
-  wf_epid@.Data[lgk] <- wf_epid@sn[lgk]
-  wf_epid@wind_id <- lapply(wf_epid@wind_id, function(x){
-    x[lgk] <- wf_epid@sn[lgk]
-    return(x)
-  })
+  wf_epid@case_nm[((wf_epid@case_nm %in% c(0, 4) & tolower(duplicates_recovered) == "all") |
+                    (wf_epid@case_nm == 0 & tolower(duplicates_recovered) == "same_date") |
+                    (wf_epid@case_nm == 4 & tolower(duplicates_recovered) == "same_sub_criteria")) & rf_lgk] <- 2
+  wf_epid@case_nm[((wf_epid@case_nm %in% c(1, 5) & tolower(duplicates_recovered) == "all") |
+                     (wf_epid@case_nm == 1 & tolower(duplicates_recovered) == "same_date") |
+                     (wf_epid@case_nm == 5 & tolower(duplicates_recovered) == "same_sub_criteria")) & rf_lgk] <- 3
+  lgk <- which(wf_epid@case_nm == -1 | (wf_epid@case_nm %in% c(0, 1, 4, 5) & rf_lgk))
+  if(length(lgk) > 0){
+    wf_epid@.Data[lgk] <- wf_epid@sn[lgk]
+    wf_epid@wind_id <- lapply(wf_epid@wind_id, function(x){
+      x[lgk] <- wf_epid@sn[lgk]
+      return(x)
+    })
+  }
+  tot <- rle(sort(wf_epid@.Data[!seq_len(length(wf_epid)) %in% lgk]))
+  wf_epid@epid_total <- tot$lengths[match(wf_epid@.Data, tot$values)]
+
   if(!tolower(display) %in% c("none")){
-    rp_data <- di_report(tm_a, "Return duplicate data", current_tot = length(date), current_tagged = length(rf_lgk[rf_lgk]))
+    rp_data <- di_report(tm_a, "Return duplicates", current_tot = length(date), current_tagged = length(rf_lgk[rf_lgk]))
     report_b <- rp_data
     if(tolower(display) %in% c("stats_with_report", "stats")){
       cat(paste0("\n\n",
-                 "Return duplicate data\n",
+                 "Return duplicates\n",
                  "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
                  "Tracked: ", fmt(rp_data[[4]]), " record(s)","\n",
                  "Time: ", fmt(rp_data[[2]], "difftime"),

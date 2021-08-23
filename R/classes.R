@@ -1123,7 +1123,7 @@ plot.d_report <- function(x, ...){
   x_breaks <- x$x_cd[!duplicated(x$x)]
   x_labs <- x$x[!duplicated(x$x)]
 
-  ggplot2::ggplot(data = x, aes(.data$x_cd, .data$y)) +
+  ggplot2::ggplot(data = x, ggplot2::aes(.data$x_cd, .data$y)) +
     ggplot2::geom_line() +
     ggplot2::facet_wrap(~ .data$l, ncol =2, scales = "free") +
     ggplot2::scale_x_continuous("Iteration", labels = x_labs[seq(1, length(x_labs), length.out = 10)],
@@ -1140,5 +1140,5 @@ as.list.d_report <- function(x, ...){
 #' @rdname epid-class
 #' @export
 as.data.frame.d_report <- function(x, ...){
-  return(as.data.frame(as.list(x)))
+  return(as.data.frame(as.list(x), ...))
 }
