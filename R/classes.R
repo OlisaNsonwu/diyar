@@ -42,11 +42,11 @@ setMethod("rep", signature(x = "number_line"), function(x, ...) {
 #' @param drop drop
 setMethod("[", signature(x = "number_line"),
           function(x, i, j, ..., drop = TRUE) {
-            methods::new("number_line",
-                         x@.Data[i],
-                         start = x@start[i],
-                         id = x@id[i],
-                         gid = x@gid[i])
+            x@.Data <- x@.Data[i]
+            x@start <- x@start[i]
+            x@id <- x@id[i]
+            x@gid <- x@gid[i]
+            return(x)
           })
 
 #' @aliases [[,number_line-method
@@ -1113,11 +1113,12 @@ setMethod("c", signature(x = "pid"), function(x,...) {
 plot.d_report <- function(x, ...){
   . <- NULL
   t <- length(x$iteration)
-  x <- data.frame(x = c(x$iteration, x$iteration, x$iteration, x$iteration),
-                   y = c(as.numeric(x$duration), x$records_checked, x$records_tracked, x$records_skipped),
+  x <- data.frame(x = c(x$iteration, x$iteration, x$iteration, x$iteration, x$iteration),
+                   y = c(as.numeric(x$duration), x$records_checked, x$records_tracked, x$records_skipped, x$memory),
                    l = c(rep(paste0("duration (", attr(x$duration, "units"), ")"), t),
                          rep("records_checked", t), rep("records_tracked", t),
-                         rep("records_skipped", t)),
+                         rep("records_skipped", t),
+                         rep("memory", t)),
                    stringsAsFactors = FALSE)
   x$x_cd <- match(x$x, x$x)
   x_breaks <- x$x_cd[!duplicated(x$x)]

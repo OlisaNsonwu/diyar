@@ -39,10 +39,12 @@ enq_vr <- function(x){
 fmt <- function(x, fmt = "count"){
   if(fmt == "difftime"){
     paste0(ifelse(round(x) == 0, "< 0.01", round(as.numeric(x), 2)), " ", attr(x, "units"))
+  }else if(fmt == "MB"){
+    class(x) <- "object_size"
+    format(x, fmt)
   }else{
     formatC(x, format="d", big.mark=",")
   }
-
 }
 
 # @rdname finite_check
@@ -781,6 +783,27 @@ sp_scri <- function(b, lgk){
   return(b)
 }
 
+rf_scri <- function(b, strata){
+  for (i in seq_len(length(b))) {
+    attr <- (b[[i]][[1]])
+    if(all(class(attr) == "sub_criteria")){
+      b[[i]][[1]] <- sp_scri(attr, strata)
+    }else if(all(class(attr) == "d_attribute")){
+      attr <- lapply(attr, function(x){
+        x <- split(x, strata)[strata[!duplicated(strata)]]
+        names(x) <- NULL
+        x
+      })
+      class(attr) <- "d_attribute"
+      b[[i]][[1]] <- attr
+    }else{
+      b[[i]][[1]] <- split(attr, strata)[strata[!duplicated(strata)]]
+      names(b[[i]][[1]]) <- NULL
+    }
+  }
+  return(b)
+}
+
 #' @name combi
 #' @title Vector combinations
 #' @description Numeric codes for unique combination of vectors.
@@ -828,11 +851,11 @@ combi <- function(...){
 
   combi[vec_lens == 1] <- NULL
 
-  combi_cd <- match(combi[[1]], combi[[1]])
+  combi_cd <- match(combi[[1]], (combi[[1]])[!duplicated(combi[[1]])])
   for (j in seq_len(length(combi))[-1]){
-    k <- match(combi[[j]], combi[[j]])
+    k <- match(combi[[j]], (combi[[j]])[!duplicated(combi[[j]])])
     combi_cd <- combi_cd + (1/k)
-    combi_cd <- match(combi_cd, combi_cd)
+    combi_cd <- match(combi_cd, combi_cd[!duplicated(combi_cd)])
   }
   rm(list = ls()[ls() != "combi_cd"])
   return(combi_cd)
@@ -852,13 +875,23 @@ dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
 }
 
 di_report <- function(start_time = 0L, iteration = NA, current_tot = 0L,
-                      current_tagged = 0L, current_skipped = 0L, criteria = 0L){
+                      current_tagged = 0L, current_skipped = 0L, criteria = 0L, memory = 0L){
   tms <- difftime(Sys.time(), start_time, units = "secs")
   x <- list(iteration = iteration,
             duration = tms,
             records_checked = as.integer(current_tot),
             records_tracked = as.integer(current_tagged),
             records_skipped = as.integer(current_skipped),
-            criteria = as.integer(criteria))
+            criteria = as.integer(criteria),
+            memory = as.numeric(memory))
   return(x)
+}
+
+mem_usage <- function(){
+  objs <- ls(envir = sys.frames()[[length(sys.frames()) - 1]])
+  fnx <- function(x) object.size(get(x,  envir = sys.frames()[[length(sys.frames()) - 3]]))
+  objs <- lapply(objs, fnx)
+  objs <- sum(unlist(objs, use.names = FALSE))
+  class(objs) <- "object_size"
+  return(objs)
 }

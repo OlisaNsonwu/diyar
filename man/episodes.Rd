@@ -37,33 +37,7 @@ episodes(
   skip_unique_strata = TRUE
 )
 
-episodes_wf_splits(
-  date,
-  case_length = Inf,
-  episode_type = "fixed",
-  recurrence_length = case_length,
-  episode_unit = "days",
-  strata = NULL,
-  sn = NULL,
-  episodes_max = Inf,
-  rolls_max = Inf,
-  case_overlap_methods = 8,
-  recurrence_overlap_methods = case_overlap_methods,
-  skip_if_b4_lengths = FALSE,
-  data_source = NULL,
-  data_links = "ANY",
-  custom_sort = NULL,
-  skip_order = Inf,
-  reference_event = "last_record",
-  case_for_recurrence = FALSE,
-  from_last = FALSE,
-  group_stats = FALSE,
-  display = "none",
-  case_sub_criteria = NULL,
-  recurrence_sub_criteria = case_sub_criteria,
-  case_length_total = 1,
-  recurrence_length_total = case_length_total
-)
+episodes_wf_splits(..., duplicates_recovered = "ALL", reframe = FALSE)
 
 fixed_episodes(
   date,
@@ -158,6 +132,8 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{skip_unique_strata}{\code{[logical]}. If \code{TRUE} (default), all strata with a single record are skipped skipped.}
 
+\item{...}{Arguments passed to \code{episodes}.}
+
 \item{to_s4}{\code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 
 \item{deduplicate}{\code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.}
@@ -165,8 +141,6 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \item{bi_direction}{\code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.}
 
 \item{include_index_period}{\code{[logical]}. Deprecated. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.}
-
-\item{...}{Arguments passed to \code{episodes}.}
 
 \item{overlap_methods}{\code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})}
 

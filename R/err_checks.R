@@ -869,34 +869,15 @@ err_split_nl_1 <- function(x,
   return(FALSE)
 }
 
-err_episodes_checks_0 <- function(date = 1,
-                                  case_length = 1,
-                                  recurrence_length = 1,
-                                  episode_type = "fixed",
-                                  episode_unit = "days",
-                                  case_overlap_methods = "overlap",
-                                  recurrence_overlap_methods = "overlap",
-                                  display = "none",
-                                  sn = seq_len(length(date)),
-                                  episodes_max = 1,
-                                  rolls_max = 1,
-                                  strata = 1,
-                                  skip_if_b4_lengths = TRUE,
-                                  skip_unique_strata = TRUE,
-                                  data_source = 1,
-                                  data_links = "ANY",
-                                  custom_sort = rep(1, length(date)),
-                                  skip_order = 1,
-                                  reference_event = "last_record",
-                                  case_for_recurrence = TRUE,
-                                  from_last = TRUE,
-                                  group_stats = TRUE,
-                                  case_sub_criteria = NULL,
-                                  recurrence_sub_criteria = NULL,
-                                  case_length_total = 1,
-                                  recurrence_length_total = 1,
-                                  skip_checks = NULL,
-                                  timed = FALSE){
+err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fixed", recurrence_length = case_length,
+                                  episode_unit = "days", strata = 1, sn = seq_len(length(date)), episodes_max = 1, rolls_max = 1,
+                                  case_overlap_methods = 8, recurrence_overlap_methods = case_overlap_methods,
+                                  skip_if_b4_lengths = FALSE, data_source = 1,
+                                  data_links = "ANY", custom_sort = 1, skip_order = 1, reference_event = "last_record",
+                                  case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
+                                  display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = NULL,
+                                  case_length_total = 1, recurrence_length_total = case_length_total,
+                                  skip_unique_strata = TRUE, skip_checks = NULL, ...){
 
   # Check for non-atomic vectors
   args <- list(date = date,
@@ -1812,7 +1793,7 @@ err_links_wf_probablistic_0 <- function(attribute,
                                         score_threshold,
                                         id_1, id_2){
   # Check for non-atomic vectors
-  args <- list(blocking_attribute = attribute,
+  args <- list(blocking_attribute = blocking_attribute,
                cmp_threshold = cmp_threshold,
                probabilistic = probabilistic,
                m_probability = m_probability,
@@ -1850,14 +1831,14 @@ err_links_wf_probablistic_0 <- function(attribute,
   err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
-  if(class(attribute) != "list"){
-    attribute <- list(attribute)
+  if(class(attribute) != "d_attribute"){
+    attribute <- attrs(attribute)
   }
 
   err <- unlist(lapply(attribute, is.atomic), use.names = FALSE)
   if(length(which(!err)) > 0){
-    err <- paste0("`attribute` must be an `atomic` object or `list` of `atomic` objects:\n",
-                  paste0("X - Attribute -", which(!err), "is `", err[which(!err)], "`.", collapse = "\n"))
+    err <- paste0("`attribute` must be an `atomic` object or `d_attribute` objects:\n",
+                  paste0("X - Attribute - ", which(!err), " is `", err[which(!err)], "`.", collapse = "\n"))
     return(err)
   }
 

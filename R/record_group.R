@@ -336,11 +336,18 @@ links <- function(criteria,
       min_m_tag <- 0L
       while (min_pid == sn_ref) {
         sort_ord <- order(cri, m_tag, pid_cri, t_sort, sn, decreasing = TRUE)
-        for(vr in c("tag","cri", "pid", "tag","m_tag",
-                    "pid_cri", "sn", "pr_sn",
-                    "link_id", "iteration", "t_sort")){
-          assign(vr, get(vr)[sort_ord])
-        }
+
+        tag <- tag[sort_ord]
+        cri <- cri[sort_ord]
+        pid <- pid[sort_ord]
+        tag <- tag[sort_ord]
+        m_tag <- m_tag[sort_ord]
+        pid_cri <- pid_cri[sort_ord]
+        sn <- sn[sort_ord]
+        pr_sn <- pr_sn[sort_ord]
+        link_id <- link_id[sort_ord]
+        iteration <- iteration[sort_ord]
+        t_sort <- t_sort[sort_ord]
 
         if(!is.null(strata)) {
           strata <- strata[sort_ord]
@@ -354,10 +361,14 @@ links <- function(criteria,
         tr_sn <- (sn[lgk])[rep_lgk]
         ref_rd <- tr_sn == sn
         # Check the `sub_criteria`
+        if(ite == 3){
+          # browser()
+        }
         sub_cri_match <- eval_sub_criteria(x = curr_sub_cri[[1]],
                                            strata = cri,
                                            index_record = ref_rd,
-                                           sn = pr_sn,
+                                           sn = match(pr_sn, sort(pr_sn)),
+                                           # sn = pr_sn,
                                            check_duplicates = check_duplicates)
         if(isFALSE(check_duplicates)){
           equals_ref_rd <- sub_cri_match[[2]] | ref_rd
@@ -433,14 +444,29 @@ links <- function(criteria,
         if(isFALSE(recursive)){
           inc_lgk <- which(m_tag == 2)
           exc_lgk <- which(m_tag != 2)
-          for(vr in c("cri", "pid", "tag",
-                      "pid_cri", "sn",
-                      "link_id", "iteration", "t_sort")){
-            pids_repo[[vr]][pr_sn[inc_lgk]] <- get(vr)[inc_lgk]
-            assign(vr, get(vr)[exc_lgk])
-          }
+
+          pids_repo$cri[pr_sn[inc_lgk]] <- cri[inc_lgk]
+          pids_repo$pid[pr_sn[inc_lgk]] <- pid[inc_lgk]
+          pids_repo$tag[pr_sn[inc_lgk]] <- tag[inc_lgk]
+          pids_repo$pid_cri[pr_sn[inc_lgk]] <- pid_cri[inc_lgk]
+          pids_repo$sn[pr_sn[inc_lgk]] <- sn[inc_lgk]
+          pids_repo$link_id[pr_sn[inc_lgk]] <- link_id[inc_lgk]
+          pids_repo$iteration[pr_sn[inc_lgk]] <- t_sort[inc_lgk]
+          pids_repo$t_sort[pr_sn[inc_lgk]] <- t_sort[inc_lgk]
+
+          cri <- cri[exc_lgk]
+          pid <- pid[exc_lgk]
+          tag <- tag[exc_lgk]
+          pid_cri <- pid_cri[exc_lgk]
+          sn <- sn[exc_lgk]
+          link_id <- link_id[exc_lgk]
+          iteration <- t_sort[exc_lgk]
+          t_sort <- t_sort[exc_lgk]
+
           pr_sn <- pr_sn[exc_lgk]
           m_tag <- m_tag[exc_lgk]
+          curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(pr_sn))
+
         }else{
           pids_repo$pid[pr_sn] <- pid
           pids_repo$tag[pr_sn] <- tag
@@ -725,8 +751,8 @@ links_wf_probabilistic <- function(attribute,
                                      id_1 = id_1, id_2 = id_2)
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
-  if(class(attribute) != "list"){
-    attribute <- list(attribute)
+  if(class(attribute) != "d_attribute"){
+    attribute <- attr(attribute)
   }
 
   if(is.null(names(attribute))){
@@ -832,7 +858,7 @@ links_wf_probabilistic <- function(attribute,
   }else{
     pids <- links(criteria = "place_holder",
                   strata = blocking_attribute,
-                  sub_criteria = list("cr1" = sub_criteria(c(attribute, u_probs),
+                  sub_criteria = list("cr1" = sub_criteria(attrs(c(attribute, u_probs)),
                                                            match_funcs = prob_link_2,
                                                            equal_funcs = same_rec_func)),
                   ...)
@@ -864,8 +890,8 @@ links_wf_probabilistic <- function(attribute,
 #' @rdname links_wf_probabilistic
 #' @export
 prob_score_range <- function(attribute, m_probability = .95){
-  if(class(attribute) != "list"){
-    attribute <- list(attribute)
+  if(class(attribute) != "d_attribute"){
+    attribute <- attrs(attribute)
   }
   if(is.null(names(attribute))){
     names(attribute) <- paste0("var_", seq_len(length(attribute)))

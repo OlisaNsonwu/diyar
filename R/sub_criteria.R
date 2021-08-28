@@ -245,8 +245,29 @@ eval_sub_criteria.sub_criteria <- function(x,
 
 #' @rdname sub_criteria
 #' @export
-attrs <- function(...){
-  x <- list(...)
+attrs <- function(x, ...) UseMethod("attrs")
+
+#' @rdname sub_criteria
+#' @export
+attrs.default <- function(x, ...){
+  m_attrs(list(x, ...))
+}
+
+#' @rdname sub_criteria
+#' @export
+attrs.list <- function(x, ...){
+  m_attrs(c(x, ...))
+
+}
+
+#' @rdname sub_criteria
+#' @export
+attrs.data.frame <- function(x, ...){
+  m_attrs(c(as.list(x), ...))
+}
+
+#'
+m_attrs <- function(x) {
   err <- err_3dot_lens(x)
   if(!isFALSE(err)) stop(err, call. = FALSE)
   rm(list = ls()[ls() != "x"])
