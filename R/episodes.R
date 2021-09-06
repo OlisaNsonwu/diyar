@@ -1428,10 +1428,9 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ALL", reframe = FALS
   rm(def_list, unnamed_args, named_pos, unamed_pos)
 
   if(is.null(opt_lst$sn)) {
-    sn <- seq_len(length(opt_lst$date))
-  }else{
-    sn <- opt_lst$sn
+    opt_lst$sn <- seq_len(length(opt_lst$date))
   }
+  sn <- opt_lst$sn
   display <- opt_lst$display
 
   combi_opt_lst <- opt_lst[names(opt_lst) != "sn"]
