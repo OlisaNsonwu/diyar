@@ -1468,11 +1468,6 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ALL", reframe = FALS
     rf_lgk[1] <- FALSE
   }
 
-  opt_lst <- c(!opt_lst[names(opt_lst) %in% c("recurrence_sub_criteria", "recurrence_length_total",
-                                             "recurrence_overlap_methods", "recurrence_length")],
-               opt_lst[names(opt_lst) %in% c("recurrence_sub_criteria", "recurrence_length_total",
-                                             "recurrence_overlap_methods", "recurrence_length")]
-               )
   opt_lst_nms <- names(opt_lst)
   opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
     if(all(class(opt_lst[[i]]) == "sub_criteria")) {
@@ -1482,7 +1477,12 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ALL", reframe = FALS
         return(sp_scri(opt_lst[[i]], !rf_lgk))
       }
     }else if(all(class(opt_lst[[i]]) == "name")) {
-      return(opt_lst[[as.character(opt_lst[[i]])]])
+      x <- opt_lst[[as.character(opt_lst[[i]])]]
+      if(length(x) %in% 0:1){
+        return(x)
+      }else{
+        return(x[!rf_lgk])
+      }
     }else if(length(opt_lst[[i]]) %in% 0:1 | names(opt_lst[i]) %in% "data_links"){
       return(opt_lst[[i]])
     }else{
