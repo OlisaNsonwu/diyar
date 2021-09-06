@@ -182,7 +182,7 @@ datasets <- function(by, val, sep = ","){
 }
 
 
-check_links <- function(cri, data_source, data_links){
+check_links_retired <- function(cri, data_source, data_links){
   dl_lst <- unlist(data_links, use.names = F)
   func <- function(x, y, e) {
     if(tolower(e) == "l"){
@@ -208,6 +208,56 @@ check_links <- function(cri, data_source, data_links){
     r$rq <- dlks
   }
   r
+}
+
+check_links <- function(cri, data_source, data_links){
+  dsc <- sort(data_source[!duplicated(data_source)])
+  tmp <- rep(NA, length(data_source))
+  datatset <- lapply(dsc, function(x){
+    cri1 <- cri[x == data_source]
+    cri1 <- cri1[!duplicated(cri1)]
+    tmp[cri %in% cri1] <- x
+    rm(cri1)
+    tmp
+    })
+
+  cmb_cd <- combi(datatset)
+  cmb_cd_idx <- which(!duplicated(cmb_cd))
+  datatset_p <- lapply(datatset, function(x){
+    x <- x[cmb_cd_idx]
+  })
+  names(datatset_p) <- paste0("X", seq_len(length(datatset_p)))
+  datatset_p <- as.matrix(as.data.frame(datatset_p))
+  datatset_p <- lapply(seq_len(nrow(datatset_p)), function(i){
+    unlist(datatset_p[i,], use.names = FALSE)
+  })
+  hits <- sapply(1:length(data_links), function(i){
+    if(tolower(names(data_links[i])) == "l"){
+      unlist(lapply(datatset_p, function(x){
+        all(data_links[[i]] %in% x)
+      }), use.names = FALSE)
+    }else if (tolower(names(data_links[i])) == "g"){
+      unlist(lapply(datatset_p, function(x){
+        any(data_links[[i]] %in% x)
+      }), use.names = FALSE)
+    }
+  })
+  if(is.vector(hits) & length(hits) > 1){
+    hits <- hits > 0
+  }else if (!is.vector(hits)){
+    hits <- rowSums(hits) > 0
+  }
+
+  datatset_p <- unlist(lapply(datatset_p, function(x) {
+    paste0(x[!is.na(x)], collapse = ",")
+    }), use.names = FALSE)
+
+  return(
+    list(
+      ds = datatset_p[cmb_cd],
+      rq = hits[cmb_cd]
+    )
+  )
 }
 
 prep_lengths <- function(length, overlap_methods, int,
@@ -307,6 +357,7 @@ overlaps_err_retired <- function(opts){
 }
 
 overlaps_err <- function(opts){
+  # opts <- as.vector(opts)
   if(class(opts) == "character"){
     opts <- tolower(opts)
     opts_cd <- overlap_method_codes(opts)
@@ -630,9 +681,9 @@ length_to_range <- function(lengths, date, from_last, episode_unit){
   }
 
   len <- lapply(len, function(x){
-    if(length(x) == 1){
-      x <- rep(x, length(date))
-    }
+    # if(length(x) == 1){
+    #   x <- rep(x, length(date))
+    # }
     x <- epid_windows(date, x, names(diyar::episode_unit)[episode_unit])
     return(x)
   })
@@ -666,12 +717,12 @@ pane_checks <- function(dates, windows){
   as.integer(ep_checks)
 }
 
-check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, int, case_nm){
+check_skips <- function(lgk, cri, cr, tr_ep_l, vr, tr_date, date, case_nm){
   if(length(lgk[lgk]) > 0){
-    ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) start_point(x[lgk])))
-    ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_int, function(x) end_point(x[lgk])))
-    ep_l_bounds_a <- start_point(tr_int[lgk])
-    ep_l_bounds_z <- end_point(tr_int[lgk])
+    ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_l, function(x) start_point(x[lgk])))
+    ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_l, function(x) end_point(x[lgk])))
+    ep_l_bounds_a <- start_point(tr_date[lgk])
+    ep_l_bounds_z <- end_point(tr_date[lgk])
 
     ep_l_bounds_a <- ifelse(ep_l_min_a[1,] < ep_l_bounds_a, ep_l_min_a[1,], ep_l_bounds_a)
     ep_l_bounds_z <- ifelse(ep_l_min_z[2,] > ep_l_bounds_z, ep_l_min_z[2,], ep_l_bounds_z)
@@ -681,10 +732,10 @@ check_skips <- function(lgk, lead_skip_b4_len, cri, cr, tr_ep_int, vr, tr_int, i
         l = ep_l_bounds_a,
         r = ep_l_bounds_z))
 
-    ep_obds_checks <- suppressWarnings(overlap(int[lgk], epc_bnds))
+    ep_obds_checks <- suppressWarnings(overlap(date[lgk], epc_bnds))
     ep_obds_checks <- ifelse(is.na(ep_obds_checks), FALSE, ep_obds_checks)
 
-    ref_period <- overlap(int, tr_int)
+    ref_period <- overlap(date, tr_date)
     ref_period <- ifelse(is.na(ref_period), FALSE, ref_period)
     skp_crxt <- cri[vr & !ref_period]
     skp_crxt <- skp_crxt[!duplicated(skp_crxt)]
@@ -850,7 +901,9 @@ combi <- function(...){
   }
 
   combi[vec_lens == 1] <- NULL
-
+  if(length(combi) == 0){
+    return(rep(1, max(dd_err)))
+  }
   combi_cd <- match(combi[[1]], (combi[[1]])[!duplicated(combi[[1]])])
   for (j in seq_len(length(combi))[-1]){
     k <- match(combi[[j]], (combi[[j]])[!duplicated(combi[[j]])])
@@ -894,4 +947,20 @@ mem_usage <- function(){
   objs <- sum(unlist(objs, use.names = FALSE))
   class(objs) <- "object_size"
   return(objs)
+}
+
+i <- function(x, n){
+  if(length(x) == 1){
+    return(x)
+  }else{
+    return(x[n])
+  }
+}
+
+tr <- function(x, indx, ref_index){
+  if(length(x) == 1){
+   x
+  }else{
+    (x[indx])[ref_index]
+  }
 }

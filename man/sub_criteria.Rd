@@ -5,9 +5,6 @@
 \alias{eval_sub_criteria}
 \alias{eval_sub_criteria.sub_criteria}
 \alias{attrs}
-\alias{attrs.default}
-\alias{attrs.list}
-\alias{attrs.data.frame}
 \title{Sub-criteria}
 \usage{
 sub_criteria(
@@ -28,13 +25,7 @@ eval_sub_criteria(x, ...)
   ...
 )
 
-attrs(x, ...)
-
-\method{attrs}{default}(x, ...)
-
-\method{attrs}{list}(x, ...)
-
-\method{attrs}{data.frame}(x, ...)
+attrs(..., .obj = NULL)
 }
 \arguments{
 \item{...}{\code{[atomic]}.. Attributes.}

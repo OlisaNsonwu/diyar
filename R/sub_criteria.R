@@ -107,12 +107,13 @@ eval_sub_criteria.sub_criteria <- function(x,
   curr_ds_len <- length(strata)
   curr_strata <- strata
   sc_ord <- order(curr_strata, -index_record, decreasing = TRUE)
+  rc_sc_ord <- order(sc_ord)
 
   curr_sn <- sn[sc_ord]
   curr_strata <- curr_strata[sc_ord]
 
   rrr <- rle(curr_strata)
-  lgk <- !duplicated(curr_strata, fromLast = TRUE)
+  lgk <- which(!duplicated(curr_strata, fromLast = TRUE))
 
   matches <- sapply(1:length(x), function(j){
     a <- x[[j]]
@@ -127,6 +128,7 @@ eval_sub_criteria.sub_criteria <- function(x,
                use.names = FALSE)
       )
     }
+    # browser()
 
     if(class(x) == "d_attribute"){
       ds_len <- length(x[[1]])
@@ -134,13 +136,15 @@ eval_sub_criteria.sub_criteria <- function(x,
         if(length(x) == 1){
           x <- rep(x, curr_ds_len)
         }else{
-          x <- x[match(curr_sn, seq_len(ds_len))]
+          # x <- x[match(curr_sn, seq_len(ds_len))]
+          x <- x[curr_sn]
         }
         x
       })
 
       y <- lapply(x, function(x){
-        y <- rep(x[lgk], rrr$lengths[match(curr_strata[lgk], rrr$values)])
+        # y <- rep(x[lgk], rrr$lengths[match(curr_strata[lgk], rrr$values)])
+        y <- rep(x[lgk], rrr$lengths)
         y
       })
     }else{
@@ -148,9 +152,12 @@ eval_sub_criteria.sub_criteria <- function(x,
       if(length(x) == 1){
         x <- rep(x, curr_ds_len)
       }else{
-        x <- x[match(curr_sn, seq_len(ds_len))]
+        # browser()
+        # x <- x[match(curr_sn, seq_len(ds_len))]
+        x <- x[curr_sn]
       }
-      y <- rep(x[lgk], rrr$lengths[match(curr_strata[lgk], rrr$values)])
+      # y <- rep(x[lgk], rrr$lengths[match(curr_strata[lgk], rrr$values)])
+      y <- rep(x[lgk], rrr$lengths)
     }
 
     f1 <- a[[2]]
@@ -172,13 +179,14 @@ eval_sub_criteria.sub_criteria <- function(x,
 
     out1 <- lgk
     out1[is.na(lgk)] <- 0
-    if(!length(out1) %in% c(1, length(curr_strata))){
+    if(!length(out1) %in% c(1, curr_ds_len)){
       err <- paste0("Output length of `match_funcs` must be 1 or the same as `criteria`:\n",
                     "i - Unexpected length for `match_funcs`:\n",
-                    "i - Expecting a length of 1 of ", length(curr_strata), ".\n",
+                    "i - Expecting a length of 1 of ", curr_ds_len, ".\n",
                     "X - Length is ", length(out1), ".")
       stop(err, call. = F)
     }
+    out1 <- out1[rc_sc_ord]
 
     if(isFALSE(check_duplicates)){
       f2 <- a[[3]]
@@ -200,15 +208,16 @@ eval_sub_criteria.sub_criteria <- function(x,
       lgk <- as.numeric(lgk)
       out2 <- lgk
       out2[is.na(lgk)] <- 0
-      if(length(out2) == 1) out2 <- rep(out2, length(curr_strata))
-      if(!length(out2) %in% c(1,length(curr_strata))){
+      if(length(out2) == 1) out2 <- rep(out2, curr_ds_len)
+      if(!length(out2) %in% c(1,curr_ds_len)){
         err <- paste0("Output length of `equal_funcs` must be 1 or the same as `criteria`:\n",
                       "i - Unexpected length for `equal_funcs`:\n",
-                      "i - Expecting a length of 1 of ", length(curr_strata), ".\n",
+                      "i - Expecting a length of 1 of ", curr_ds_len, ".\n",
                       "X - Length is ", length(out2), ".")
         stop(err, call. = F)
       }
-      out1 <- c(out1[match(sn, curr_sn)], out2[match(sn, curr_sn)])
+      # out1 <- c(out1[match(sn, curr_sn)], out2[match(sn, curr_sn)])
+      out1 <- c(out1, out2[rc_sc_ord])
     }
     return(out1)
   })
@@ -235,42 +244,27 @@ eval_sub_criteria.sub_criteria <- function(x,
   if(isFALSE(check_duplicates)){
     set_match.rf <- set_match[((length(set_match)/2)+1):length(set_match)]
     set_match <- set_match[1:(length(set_match)/2)]
-    return(list(logical_test = set_match,
-                equal_test = set_match.rf))
+    x <- list(logical_test = set_match,
+              equal_test = set_match.rf)
   }else{
-    return(list(logical_test = set_match))
+    x <- list(logical_test = set_match)
   }
-
+  rm(list = ls()[ls() != "x"])
+  return(x)
 }
 
 #' @rdname sub_criteria
 #' @export
-attrs <- function(x, ...) UseMethod("attrs")
-
-#' @rdname sub_criteria
-#' @export
-attrs.default <- function(x, ...){
-  m_attrs(list(x, ...))
-}
-
-#' @rdname sub_criteria
-#' @export
-attrs.list <- function(x, ...){
-  m_attrs(c(x, ...))
-
-}
-
-#' @rdname sub_criteria
-#' @export
-attrs.data.frame <- function(x, ...){
-  m_attrs(c(as.list(x), ...))
-}
-
-#'
-m_attrs <- function(x) {
+attrs <- function(..., .obj = NULL){
+  if(!is.null(.obj)){
+    x <- as.list(.obj)
+  }else{
+    x <- list(...)
+  }
   err <- err_3dot_lens(x)
   if(!isFALSE(err)) stop(err, call. = FALSE)
   rm(list = ls()[ls() != "x"])
   class(x) <- "d_attribute"
   x
 }
+

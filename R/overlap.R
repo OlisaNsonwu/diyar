@@ -162,12 +162,10 @@ overlaps <- function(x, y, methods = 8){
 overlap <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
-
   err <- err_object_types(x, "x", "number_line")
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((x@start >= y@start & x@start <= y@start + y@.Data) | (x@start <= y@start & x@start >= y@start + y@.Data)) |
@@ -189,7 +187,6 @@ exact <- function(x, y){
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- y@start == x@start & x@.Data == y@.Data
@@ -208,7 +205,6 @@ reverse <- function(x, y){
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((x@start == y@start + y@.Data & x@start + x@.Data == y@start) |
@@ -232,7 +228,6 @@ across <- function(x, y){
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   sp_x <- start_point(x)
@@ -256,17 +251,15 @@ across <- function(x, y){
 chain <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
-
   err <- err_object_types(x, "x", "number_line")
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
     ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
-  r <- ifelse(!is.finite(r) | x@.Data * y@.Data < 0 | is.na(x@.Data * y@.Data), FALSE, r)
+  r[which(!is.finite(r) | x@.Data * y@.Data < 0 | is.na(x@.Data * y@.Data))] <- FALSE
 
   return(r)
 }
@@ -280,12 +273,10 @@ chain <- function(x, y){
 aligns_start <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
-
   err <- err_object_types(x, "x", "number_line")
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((x@start == y@start) |
@@ -306,12 +297,10 @@ aligns_start <- function(x, y){
 aligns_end <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
-
   err <- err_object_types(x, "x", "number_line")
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((x@start + x@.Data == y@start + y@.Data) |
@@ -332,12 +321,10 @@ aligns_end <- function(x, y){
 inbetween <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
-
   err <- err_object_types(x, "x", "number_line")
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(logical())
 
   r <- ((x@start > y@start & x@start < y@start + y@.Data) & (x@start + x@.Data > y@start & x@start + x@.Data < y@start + y@.Data)) |
@@ -359,12 +346,10 @@ inbetween <- function(x, y){
 overlap_method <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
-
   err <- err_object_types(x, "x", "number_line")
   if(err != F) stop(err, call. = F)
   err <- err_object_types(y, "y", "number_line")
   if(err != F) stop(err, call. = F)
-
   if(length(x) == 0 & length(y) == 0) return(character())
 
   m <- rep("none", max(c(length(x), length(y))))
@@ -433,7 +418,7 @@ exclude_overlap_method <- function(methods){
 overlap_method_codes <- function(methods){
   x2 <- methods[!duplicated(methods)]
   x2_cd <-  lapply(x2, function(x){
-    lgk <- sapply(strsplit(x, "\\|"), function(x){
+    lgk <- sapply(strsplit(as.vector(x), "\\|"), function(x){
       x <- x[x %in% names(diyar::overlap_methods$methods)]
       x <- paste0(sort(x), collapse = "|")
       match(x, diyar::overlap_methods$options)

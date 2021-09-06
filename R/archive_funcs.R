@@ -1,4 +1,4 @@
-episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
+episode_group_archive <- function(df, sn = NULL, strata = NULL, date,
                                  case_length, episode_type="fixed", episode_unit = "days", episodes_max = Inf,
                                  recurrence_length = NULL, rolls_max =Inf, skip_if_b4_lengths = TRUE,
                                  data_source = NULL, data_links = "ANY",
@@ -832,7 +832,7 @@ episode_group_retired <- function(df, sn = NULL, strata = NULL, date,
   T1
 }
 
-fixed_episodes_retired <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days",
+fixed_episodes_archive <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days",
                                   episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                                   custom_sort = NULL, skip_order =NULL, from_last = FALSE,
                                   overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain","overlap","none"),
@@ -925,20 +925,20 @@ fixed_episodes_retired <- function(date, sn = NULL, strata = NULL, case_length, 
   df$method <- m
 
   if(is.null(data_source)){
-    episode_group_retired(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
+    episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4,
                          include_index_period=include_index_period)
   }else{
-    episode_group_retired(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
+    episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4,
                          include_index_period=include_index_period)
   }
 }
-rolling_episodes_retired <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days",
+rolling_episodes_archive <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days",
                                     episodes_max = Inf, rolls_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
                                     custom_sort = NULL, skip_order = NULL, from_last = FALSE,
                                     overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain","overlap","none"),
@@ -1039,13 +1039,13 @@ rolling_episodes_retired <- function(date, sn = NULL, strata = NULL, case_length
   df$method <- m
 
   if(is.null(data_source)){
-    episode_group_retired(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
+    episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
                          recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links, include_index_period=include_index_period)
   }else{
-    episode_group_retired(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
+    episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
                          bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
                          from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
@@ -1054,7 +1054,7 @@ rolling_episodes_retired <- function(date, sn = NULL, strata = NULL, case_length
 
 }
 
-record_group_retired <- function(df, sn=NULL, criteria,
+record_group_archive <- function(df, sn=NULL, criteria,
                                 sub_criteria=NULL, strata = NULL, data_source = NULL,
                                 group_stats=FALSE, display=TRUE, to_s4 = TRUE){
 
@@ -1331,7 +1331,7 @@ record_group_retired <- function(df, sn=NULL, criteria,
   df
 }
 
-overlaps_retired <- function(x, y, methods = "overlap", method = "overlap"){
+overlaps_archive <- function(x, y, methods = "overlap", method = "overlap"){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
   if(err != F) stop(err, call. = F)
@@ -1402,7 +1402,7 @@ overlaps_retired <- function(x, y, methods = "overlap", method = "overlap"){
   return(p)
 }
 
-overlaps_v2_retired <- function(x, y, methods = "overlap", method = "overlap"){
+overlaps_v2_archive <- function(x, y, methods = "overlap", method = "overlap"){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
   if(err != F) stop(err, call. = F)
@@ -1494,7 +1494,7 @@ overlaps_v2_retired <- function(x, y, methods = "overlap", method = "overlap"){
   lgk_2
 }
 
-custom_sort_retired <- function(..., decreasing = FALSE){
+custom_sort_archive <- function(..., decreasing = FALSE){
   ord <- order(..., decreasing = decreasing)
   ord <- match(seq_len(length(ord)), ord)
 
@@ -1507,7 +1507,7 @@ custom_sort_retired <- function(..., decreasing = FALSE){
   ord
 }
 
-combi_retired <- function(...){
+combi_archive <- function(...){
   # ... must be vectors
   combi <- list(...)
   # Validations

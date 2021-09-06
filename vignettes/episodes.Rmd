@@ -204,10 +204,10 @@ eqv_funx <- function(x, y){
 }
 
 # Sub-criteria 
-sub_cri_5 <- sub_criteria(list(attr = attr_1, rd_id= rd_id), match_funcs = cri_funx_1, 
+sub_cri_5 <- sub_criteria(attrs(attr = attr_1, rd_id= rd_id), match_funcs = cri_funx_1, 
                           equal_funcs = eqv_funx)
 
-sub_cri_6 <- sub_criteria(list(attr = attr_1, rd_id= rd_id), match_funcs = cri_funx_2,
+sub_cri_6 <- sub_criteria(attrs(attr = attr_1, rd_id= rd_id), match_funcs = cri_funx_2,
                           equal_funcs = eqv_funx)
 
 ep7 <- episodes(event_dt, case_length = 2, episode_type = "fixed", 

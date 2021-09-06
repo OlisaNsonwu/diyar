@@ -263,7 +263,7 @@ score_range
 # Logical test - Matching last word in `hair_colour` and `branch_office`
 last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
 last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
-prob_pids2 <- links_wf_probabilistic(attribute = attrs(dfr_5),
+prob_pids2 <- links_wf_probabilistic(attribute = attrs(.obj = dfr_5),
                                      cmp_func = c(diyar::exact_match,
                                                   diyar::exact_match,
                                                   last_word_cmp,
@@ -272,7 +272,7 @@ prob_pids2 <- links_wf_probabilistic(attribute = attrs(dfr_5),
 prob_pids2
 
 # Results for specific record pairs
-prob_pids3 <- links_wf_probabilistic(attribute = attrs(dfr_5),
+prob_pids3 <- links_wf_probabilistic(attribute = attrs(.obj = dfr_5),
                                      cmp_func = c(diyar::exact_match,
                                                   diyar::exact_match,
                                                   last_word_cmp,
