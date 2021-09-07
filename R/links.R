@@ -485,11 +485,10 @@ links <- function(criteria,
           if(ite == 4){
             # browser()
           }
-          curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(pr_sn)[exc_lgk]))
+          # curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(pr_sn)[exc_lgk]))
+          curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(order(pr_sn))[exc_lgk]))
           pr_sn <- pr_sn[exc_lgk]
           m_tag <- m_tag[exc_lgk]
-
-
         }else{
           pids_repo$pid[pr_sn] <- pid
           pids_repo$tag[pr_sn] <- tag

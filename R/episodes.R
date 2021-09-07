@@ -142,7 +142,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rp_data <- di_report(tm_a, "Data validation")
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
-      cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
   tm_ia <- Sys.time()
@@ -339,7 +339,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rp_data <- di_report(tm_ia, "Data standardisation")
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
-      cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
   tm_ia <- Sys.time()
@@ -436,7 +436,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     if(!is.null(case_sub_criteria) & length(ntag_lgk) > 0){
       # case_sub_criteria <- sp_scri(case_sub_criteria, sort(date@id))
-      case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
+      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
+      case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
     }
 
     if(isTRUE(any_rolling_epi)) {
@@ -452,7 +453,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
       if(!is.null(recurrence_sub_criteria) & length(ntag_lgk) > 0){
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(date@id))
-        recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
+        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
+        recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
       }
     }
     date <- date[ntag_lgk]
@@ -1084,7 +1086,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     # if(ite ==2) browser()
     if(!is.null(case_sub_criteria) & length(ntag_lgk) > 0){
       # case_sub_criteria <- sp_scri(case_sub_criteria, s_pos)
-      case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
+      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
+      case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
     }
 
     ld_reference_event <- ld_reference_event[ntag_lgk]
@@ -1112,7 +1115,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       recurrence_overlap_methods <- lapply(recurrence_overlap_methods, function(x){x[ntag_lgk]})
       if(!is.null(recurrence_sub_criteria) & length(ntag_lgk) > 0 & any_rolling_epi){
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, s_pos)
-        recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
+        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
+        recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
       }
 
       ld_case_for_recurrence <- ld_case_for_recurrence[ntag_lgk]
@@ -1494,7 +1498,7 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ALL", reframe = FALS
   })
   names(opt_lst) <- opt_lst_nms
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Remove duplicates", current_tot = length(date), current_skipped = length(rf_lgk[rf_lgk]))
+    rp_data <- di_report(tm_a, "Remove duplicates", current_tot = length(rf_lgk), current_skipped = length(rf_lgk[rf_lgk]))
     report_a <- rp_data
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0("Remove duplicates\n",

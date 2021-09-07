@@ -949,18 +949,3 @@ mem_usage <- function(){
   return(objs)
 }
 
-i <- function(x, n){
-  if(length(x) == 1){
-    return(x)
-  }else{
-    return(x[n])
-  }
-}
-
-tr <- function(x, indx, ref_index){
-  if(length(x) == 1){
-   x
-  }else{
-    (x[indx])[ref_index]
-  }
-}
