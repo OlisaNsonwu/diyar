@@ -305,18 +305,22 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ord_a[!from_last] <- abs(min(as.numeric(date@start), na.rm = TRUE) - as.numeric(date@start[!from_last]))
   ord_z[!from_last] <- abs(min(as.numeric(right_point(date)), na.rm = TRUE) - as.numeric(right_point(date[!from_last])))
 
-  assign_ord <- order(ord_a, -ord_z)
+  assign_ord <- order(order(ord_a, -ord_z))
   rm(ord_a); rm(ord_z)
-  assign_ord <- match(seq_len(inp_n), assign_ord)
+  # assign_ord <- match(seq_len(inp_n), assign_ord)
 
   # User-defined order of case-assignment
   if(!is.null(custom_sort)) {
-    c_sort <- as.numeric(as.factor(custom_sort))
-    if(length(c_sort) == 1) c_sort <- rep(c_sort, inp_n)
-    assign_ord <- order(as.factor(c_sort), assign_ord)
-    assign_ord <- match(seq_len(inp_n), assign_ord)
+    if(any(!class(custom_sort) %in% c("numeric", "integer", "double"))){
+      custom_sort <- as.integer(as.factor(custom_sort))
+    }
+    if(length(custom_sort) == 1){
+      custom_sort <- rep(custom_sort, inp_n)
+    }
+    assign_ord <- order(order(custom_sort, assign_ord))
+    # assign_ord <- match(seq_len(inp_n), assign_ord)
   }else{
-    c_sort <- rep(0L, inp_n)
+    custom_sort <- rep(0L, inp_n)
   }
 
   # Flags
@@ -368,7 +372,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   # Skip events without the required `skip_order`
   if(all(is.infinite(skip_order))){
-    lgk <- c_sort <= skip_order
+    lgk <- custom_sort <= skip_order
     lgk <- !cri %in% cri[lgk]
     tag[lgk] <- 2L
     case_nm[lgk] <- -1L
@@ -413,7 +417,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     assign_ord <- assign_ord[ntag_lgk]
     # date <- date[ntag_lgk]
     epid_n <- epid_n[ntag_lgk]
-    c_sort <- c_sort[ntag_lgk]
+    custom_sort <- custom_sort[ntag_lgk]
     wind_nm <- wind_nm[ntag_lgk]
     wind_id <- wind_id[ntag_lgk]
     wind_id_lst <- list(wind_id)
@@ -502,7 +506,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     assign_ord <- assign_ord[sort_ord]
     date <- date[sort_ord]
     epid_n <- epid_n[sort_ord]
-    c_sort <- c_sort[sort_ord]
+    custom_sort <- custom_sort[sort_ord]
     wind_nm <- wind_nm[sort_ord]
     wind_id <- wind_id[sort_ord]
     rolls_max <- rolls_max[sort_ord]
@@ -550,7 +554,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     tr_case_length_total <- (case_length_total[lgk_i])[rep_lgk]
     tr_e <- (e[lgk_i])[rep_lgk]
     tr_skip_order <- (skip_order[lgk_i])[rep_lgk]
-    tr_c_sort <- (c_sort[lgk_i])[rep_lgk]
+    tr_custom_sort <- (custom_sort[lgk_i])[rep_lgk]
     if(any(names(case_overlap_methods) == "g") | any(names(case_overlap_methods) == "b")){
       tr_case_overlap_methods <- lapply(case_overlap_methods, function(x){
         (x[lgk_i])[rep_lgk]
@@ -629,7 +633,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[which(lgk1 & iteration == 0)] <- ite
 
     # Implement `skip_order`
-    cri_skp <- cri[tr_c_sort > tr_skip_order]
+    cri_skp <- cri[tr_custom_sort > tr_skip_order]
     cri_skp <- cri_skp[!duplicated(cri_skp)]
     lgk2 <- cri %in% cri_skp
     current_skipped <- length(cri[lgk1 | lgk2])
@@ -1067,7 +1071,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     cri <- cri[ntag_lgk]
     assign_ord <- assign_ord[ntag_lgk]
     epid_n <- epid_n[ntag_lgk]
-    c_sort <- c_sort[ntag_lgk]
+    custom_sort <- custom_sort[ntag_lgk]
     skip_order <- skip_order[ntag_lgk]
     case_nm <- case_nm[ntag_lgk]
     wind_nm <- wind_nm[ntag_lgk]
@@ -1148,6 +1152,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
       break
     }
+
+    # if(length(wind_id_lst) >1){
+    #   browser()
+    # }
   }
   # browser()
   if(!display %in% c("none_with_report", "none")) cat("\n")
@@ -1296,7 +1304,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       epids@dist_wind_index[!req_links] <- 0
       epids@case_nm[!req_links] <- -1L
       epids@.Data[!req_links] <- epids@sn[!req_links]
-      epids@wind_id[!req_links] <- epids@sn[!req_links]
+      # epids@wind_id[!req_links] <- epids@sn[!req_links]
+      epids@wind_id <- lapply(epids@wind_id, function(x){
+        x[!req_links] <- epids@sn[!req_links]
+        return(x)
+      })
       datasets[!req_links] <- data_source[!req_links]
     }
     epids@epid_dataset <- encode(datasets)

@@ -1,11 +1,32 @@
 
+# Version 0.3.1.9000
+
+## New features
+
+-   New function - `sp_scri()`. XXXXXXXX.
+-   New function - `rf_scri()`. XXXXXXXX.
+-   New function - `attrs()`. XXXXXXXXXX.
+-   New `S3`object - `d_report`. XXXXXXXX
+-   New `S3`object - `d_attribute`. XXXXXXXX
+
+## Changes
+
+-   Optimised `episodes()` and `links()`. Reduced processing times.
+-   Three new `display` values. `"progress_with_report"`,
+    `"stats_with_report"` and `"none_with_report"`.
+
+## Bug fixes
+
+-   Corrected `wind_id` when using the `data_link` argument.
+
 # Version 0.3.1
 
 ## New features
 
 -   New function - `delink()`. Unlink identifiers.
 -   New function - `episodes_wf_splits()`. Wrapper function of
-    `episodes()` for better optimised handling of duplicates records.
+    `episodes()`. Better optimised for handling datasets with many
+    duplicate records.
 -   New function - `combi()`. Numeric codes for unique combination of
     vectors.
 -   New function - `attr_eval()`. Recursive evaluation of a function on

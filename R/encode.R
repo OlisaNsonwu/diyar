@@ -1,5 +1,5 @@
-#' @name diyar_label
-#' @aliases diyar_label
+#' @name encode
+#' @aliases encode
 #' @title Labelling in \code{diyar}
 #'
 #' @description Encode and decode character and numeric values.
@@ -19,17 +19,17 @@
 #'
 encode <- function(x, ...) UseMethod("encode")
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @export
 #' @examples
 #' nms <- decode(cds)
 #' nms
 decode <- function(x, ...) UseMethod("decode")
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @export
 encode.default <- function(x, ...){
-  x_cd <- match(x, x)
+  x_cd <- match(x, x[!duplicated(x)])
   val_cd <- seq_len(length(x[!duplicated(x_cd)]))
   val_nm <- sort(x[!duplicated(x_cd)], na.last = TRUE)
   rm(x_cd)
@@ -41,7 +41,7 @@ encode.default <- function(x, ...){
   return(x)
 }
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @export
 encode.d_label <- function(x, ...){
   if(attr(x, "state") == "encoded") return(x)
@@ -53,10 +53,10 @@ encode.d_label <- function(x, ...){
   return(y)
 }
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @export
 decode.default <- function(x, ...){
-  x_cd <- match(x, x)
+  x_cd <- match(x, x[!duplicated(x)])
   val_cd <- seq_len(length(x[!duplicated(x_cd)]))
   val_nm <- sort(x[!duplicated(x_cd)], na.last = TRUE)
   rm(x_cd)
@@ -67,7 +67,7 @@ decode.default <- function(x, ...){
   return(x)
 }
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @export
 decode.d_label <- function(x, ...){
   if(attr(x, "state") == "decoded") return(x)
@@ -79,7 +79,7 @@ decode.d_label <- function(x, ...){
   return(y)
 }
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @export
 rep.d_label <- function(x, ...){
   y <- rep(as.vector(x), ...)
@@ -91,7 +91,7 @@ rep.d_label <- function(x, ...){
   y
 }
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @param i i
 #' @param drop drop
 #' @export
@@ -104,7 +104,7 @@ rep.d_label <- function(x, ...){
   y
 }
 
-#' @rdname diyar_label
+#' @rdname encode
 #' @export
 `[[.d_label` <- function(x, i, ..., drop = TRUE) {
   y <- as.vector(x)[i]

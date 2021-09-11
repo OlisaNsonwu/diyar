@@ -179,7 +179,9 @@ links <- function(criteria,
   }
   # User-defined order of case-assignment
   if(!is.null(tie_sort)) {
-    tie_sort <- as.integer(as.factor(tie_sort))
+    if(any(!class(tie_sort) %in% c("numeric", "integer", "double"))){
+      tie_sort <- as.integer(as.factor(tie_sort))
+    }
     if(length(tie_sort) == 1) tie_sort <- rep(tie_sort, ds_len)
   }else{
     tie_sort <- rep(0L, ds_len)
@@ -361,9 +363,6 @@ links <- function(criteria,
         iteration <- iteration[sort_ord]
         tie_sort <- tie_sort[sort_ord]
 
-        if(!is.null(strata)) {
-          strata <- strata[sort_ord]
-        }
         # Reference records
         lgk <- which(!duplicated(cri, fromLast = TRUE))
         rep_lgk <- match(cri, cri[lgk])
@@ -856,7 +855,7 @@ links_wf_probabilistic <- function(attribute,
                                                            equal_funcs = same_rec_func)),
                   ...)
     x <- c(attribute, u_probs)
-    y <- lapply(x, function(k)k[match(pids@link_id, pids@sn)])
+    y <- lapply(x, function(k) k[match(pids@link_id, pids@sn)])
     id_1 <- pids@sn
     id_2 <- pids@link_id
     thresh_lgk <- which(pids@pid_cri %in% -1:0)
