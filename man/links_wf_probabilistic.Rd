@@ -90,8 +90,8 @@ A \code{blocking_attribute} can be used to reduce processing time by restricting
 # Using exact matches
 dfr <- missing_staff_id[c("staff_id",  "initials",
                           "hair_colour", "branch_office")]
-score_range <- prob_score_range(attribute = as.list(dfr))
-prob_pids1 <- links_wf_probabilistic(attribute = as.list(dfr),
+score_range <- prob_score_range(attribute = attrs(.obj = dfr))
+prob_pids1 <- links_wf_probabilistic(attribute = attrs(.obj = dfr),
                                      score_threshold = score_range$minimum_score)
 prob_pids1
 
@@ -99,7 +99,7 @@ prob_pids1
 # For example, matching last word in `hair_colour` and `branch_office`
 last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
 last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
-prob_pids2 <- links_wf_probabilistic(attribute = as.list(dfr),
+prob_pids2 <- links_wf_probabilistic(attribute = attrs(.obj = dfr),
                                      cmp_func = c(diyar::exact_match,
                                                   diyar::exact_match,
                                                   last_word_cmp,
@@ -108,7 +108,7 @@ prob_pids2 <- links_wf_probabilistic(attribute = as.list(dfr),
 prob_pids2
 
 # Results for specific record pairs
-prob_pids3 <- links_wf_probabilistic(attribute = as.list(dfr),
+prob_pids3 <- links_wf_probabilistic(attribute = attrs(.obj = dfr),
                                      cmp_func = c(diyar::exact_match,
                                                   diyar::exact_match,
                                                   last_word_cmp,

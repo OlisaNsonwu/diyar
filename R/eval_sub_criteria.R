@@ -16,7 +16,7 @@ eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 #' @param check_duplicates \code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.
 #'
 #' @examples
-#' Consider three records
+#' # Consider three records
 #' strata <- rep(1, 3)
 #' index_record <- c(TRUE, FALSE, FALSE)
 #' sn <- 1:3

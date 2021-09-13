@@ -7,7 +7,7 @@
 \usage{
 reframe(x, ...)
 
-\method{reframe}{sub_criteria}(x, func = identity)
+\method{reframe}{sub_criteria}(x, func = identity, ...)
 }
 \arguments{
 \item{x}{\code{[\link[=sub_criteria-class]{sub_criteria}]}.}

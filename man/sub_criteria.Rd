@@ -59,10 +59,14 @@ attrs(month.abb, month.name)
 # Or a data.frame or list with elements of the same length
 attrs(.obj = mtcars)
 
+# Or a combinaiton of the both
+attrs(mtcars$mpg, mtcars$cyl, .obj = mtcars)
+
+# Each can then be passed to a `sub-criteria`
 sub_criteria(
-attrs(month.abb, month.name),
-attrs(.obj = mtcars),
-attrs(month.abb, month.name, .obj = mtcars)
+month.abb,
+month.name,
+attrs(month.abb, month.name)
 )
 
 }

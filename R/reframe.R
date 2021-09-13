@@ -24,7 +24,7 @@ reframe <- function(x, ...) UseMethod("reframe")
 #'
 #' @rdname reframe
 #' @export
-reframe.sub_criteria <- function(x, func = identity){
+reframe.sub_criteria <- function(x, func = identity, ...){
   for (i in seq_len(length(x))) {
     attr <- (x[[i]][[1]])
     if(all(class(attr) == "sub_criteria")){

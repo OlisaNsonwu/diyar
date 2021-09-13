@@ -37,7 +37,7 @@ See (\bold{\code{\link{predefined_tests}}}).}
 Evaluate a \code{\link{sub_criteria}}.
 }
 \examples{
-Consider three records
+# Consider three records
 strata <- rep(1, 3)
 index_record <- c(TRUE, FALSE, FALSE)
 sn <- 1:3
