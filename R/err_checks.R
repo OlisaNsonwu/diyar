@@ -361,13 +361,12 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
 }
 
 err_sub_criteria_3dot_1 <- function(...){
-  args <- list(...)
   err <- lapply(list(...), attr_eval)
   err <- unlist(err, use.names = FALSE)
   err <- sort(err[!duplicated(err)])
 
   if(length(err) != 1 | all(err == 0)){
-    paste0("Different lengths for each attribute (`...`) in `sub_criteria()`:\n",
+    paste0("Different lengths for each attribute (`...`) of a `sub_criteria`:\n",
            "i - Each attribute in (`...`) must have the same length.\n",
            "i - This includes recursive evaluations of `d_attribute` and `sub_criteria` objects.\n",
            paste0("X - `...` ", "contains elements of lengths ", listr(err),".", collapse = "\n"))

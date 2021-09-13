@@ -2,66 +2,56 @@
 % Please edit documentation in R/episodes.R
 \name{episodes_wf_splits}
 \alias{episodes_wf_splits}
-\title{XXXXXXXXXXXXXXXXXXXXXX.}
+\title{Track episodes in a minimised dataset.}
 \usage{
-episodes_wf_splits(..., duplicates_recovered = "ALL", reframe = FALSE)
+episodes_wf_splits(..., duplicates_recovered = "ANY", reframe = FALSE)
 }
 \arguments{
 \item{...}{Arguments passed to \code{\link{episodes}}.}
 
-\item{duplicates_recovered}{XXXXXXXXXXXXXXXXXXXXXXXXXX}
+\item{duplicates_recovered}{\code{[character]}. Determines which duplicate records are recycled.
+Options are \code{"ANY"} (default), \code{"without_sub_criteria"} or \code{"with_sub_criteria"}.}
 
-\item{reframe}{XXXXXXXXXXXXXXXXXXXXXXXXXX}
+\item{reframe}{\code{[logical]}. Determines if the \code{\link[=sub_criteria]{sub_criteria's}} attributes for the duplicate records are reframed (\code{TRUE}) or excluded (\code{FALSE}).}
 }
 \value{
 \code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
-XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.
+Exclude duplicate records from the same day or period prior to using \code{\link{episodes}}.
+Only duplicate records that will not affect the case definition are excluded.
+The resulting episode identifiers are recycled for the duplicate records.
 }
 \details{
 \bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episodes()}} which strips or re-frames the dataset to
 the minimum number of records required to implement a case definition.
-This leads to the same outcome as would \code{\link{episodes}} but with benefit of shorter processing times.
-It is recommended for larger datasets with duplicate events.
+This leads to the same outcome but with benefit of a shorter processing time.
 
-If a \code{\link{sub_criteria}} is passed to \code{case_sub_criteria} or \code{recurrence_sub_criteria},
-duplicate records in each attribute can either be stripped or reframed using the \code{reframe} argument. See \code{Examples}.
+Duplicate records from the same point or period in time are excluded from \bold{\code{episodes()}}.
+The resulting \code{\link[=epid-class]{epid}} object is then recycled for the duplicates.
 
-See \code{vignette("episodes")} for further details.
+The \code{duplicates_recovered} argument determines which index identifiers are recycled.
+If \code{"without_sub_criteria"} is selected, only index identifers created from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
+The opposite (\code{"Case"} and \code{"Recurrent"}) is the case if \code{"with_sub_criteria"} is selected.
+
+If a \code{\link{sub_criteria}} is used, it's corresponding attributes for the duplicate records
+can either be excluded or reframed using the \code{reframe} argument. See \code{Examples}.
 }
 \examples{
-10,000 duplicate records of 20 events
+# With 10,000 duplicate records of 20 events,
+# `episodes_wf_splits()` will take less time than `episodes()`
 dates <- seq(from = as.Date("2019-04-01"), to = as.Date("2019-04-20"), by = 1)
 dates <- rep(dates, 10000)
 
-# `episodes_wf_splits` will generally take less more time
 system.time(
   ep1 <- episodes(dates, 1)
 )
-
 system.time(
   ep2 <- episodes_wf_splits(dates, 1)
 )
 
-# Results will be identical
+# Both lead to the same outcome.
 all(ep1 == ep2)
-
-# Split vs Reframed `sub_criteria`
- # Duplicate values for an attribute - color
- attr <- colours()[1:5]
- attr <- rep(attr, 3)
- # A running number as `sub_criteria`
- sub_cri <- sub_criteria(1:length(attr))
- # Having `reframe` as `TRUE` or `FALSE` will either;
-   # split the `sub_criteria` OR
-   split_scri <- diyar:::sp_scri(sub_cri, !duplicated(attr))
-   # reframed the `sub_criteria`
-   reframed_scri <- diyar:::rf_scri(sub_cri, attr)
-
- # The new attributes
- attr_eval(split_scri, identity, simplify = FALSE)
- attr_eval(reframed_scri, identity, simplify = FALSE)
 }
 \seealso{
 \code{\link{episodes}}; \code{\link{sub_criteria}}

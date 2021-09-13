@@ -1,17 +1,18 @@
 #' @name record_group
 #' @title Multistage deterministic record linkage
 #'
-#' @description Match records in successive stages with different matching conditions.
+#' @description Match records in consecutive stages with different matching conditions.
 #' Each set of linked records are assigned a unique identifier with relevant group-level information.
 #'
 #' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
-#' @param ... Arguments passed to \code{links}.
+#' @param ... Arguments passed to \bold{\code{\link{links}}}.
 #'
 #' @return \code{\link[=pid-class]{pid}}
 #'
-#' @seealso \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
+#' @seealso \code{\link{links}}
 #'
 #' @details
+#' \bold{\code{record_group()}} is are superseded. Moving forward, please use \bold{\code{\link{links}}}.
 #'
 #' @aliases record_group
 #' @export

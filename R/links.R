@@ -1,7 +1,7 @@
 #' @name links
 #' @title Multistage deterministic record linkage
 #'
-#' @description Match records in successive stages with different matching conditions.
+#' @description Match records in consecutive stages with different matching conditions.
 #' Each set of linked records are assigned a unique identifier with relevant group-level information.
 #'
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.
@@ -24,19 +24,19 @@
 #' @seealso \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
 #'
 #' @details
-#' Match priority decreases with each subsequent stage of linkage
+#' Match priority decreases with each subsequent stage of the linkage process
 #' i.e. earlier stages (\code{criteria}) are considered superior.
 #' Therefore, it's important for each \code{criteria} to be listed in an order of decreasing relevance.
 #'
-#' Records with missing \code{criteria} values (\code{NA}) are skipped at each stage of the linkage process, while
-#' records with missing \code{strata} values (\code{NA}) are skipped from the entire linkage process.
+#' Records with missing \code{criteria} (\code{NA}) are skipped at each stage, while
+#' records with missing \code{strata} (\code{NA}) are skipped from the entire linkage process.
 #'
 #' If a record is skipped, another attempt will be made to match the record at the next stage.
 #' If a record does not match any other record by the end of the linkage process (or it has a missing \code{strata}),
 #' it is assigned to a unique record-group.
 #'
 #' A \code{\link{sub_criteria}} can be used to request additional matching conditions for each stage of the linkage process.
-#' When used, only records with matching \code{criteria} and \code{sub_criteria} are linked.
+#' When used, only records with a matching \code{criteria} and \code{sub_criteria} are linked.
 #'
 #' In \bold{\code{\link{links}}}, each \code{\link{sub_criteria}} must be linked to a \code{criteria}.
 #' This is done by adding a \code{\link{sub_criteria}} to a named element of a \code{list}.
@@ -48,15 +48,16 @@
 #' \deqn{list("cr1" = sub_criteria, "cr5" = sub_criteria, "cr13" = sub_criteria).}
 #'
 #' \code{\link{sub_criteria}} can be nested to achieve nested conditions.
+#'
 #' A \code{\link{sub_criteria}} can be linked to different \code{criteria}.
+#'
 #' Any unlinked \code{\link{sub_criteria}} will be ignored.
 #'
 #' By default, attributes in a \code{\link{sub_criteria}} are compared for an \code{\link{exact_match}}.
-#' However, user-defined logical tests (\code{function}) are also permitted. Such tests must meet 3 requirements:
+#' However, user-defined funcitons are also permitted. Such functions must meet two requirements:
 #' \enumerate{
-#' \item It must be able to compare two \code{atomic} vectors.
 #' \item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
-#' \item It must return either \code{TRUE} or \code{FALSE}.
+#' \item It must return either a \code{logical} object i.e. \code{TRUE} or \code{FALSE}.
 #' }
 #'
 #' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
@@ -65,10 +66,6 @@
 #' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will remain linked.
 #' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will remain linked.
 #' }
-#'
-#' \bold{\code{record_group()}} has been retired and is no longer supported.
-#' It only exists to support previous code with minimal input from users.
-#' Moving forward, please use \bold{\code{links()}}.
 #'
 #' See \code{vignette("links")} for more information.
 #'

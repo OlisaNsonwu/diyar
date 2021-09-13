@@ -11,8 +11,7 @@ knitr::opts_chunk$set(
 # Version 0.3.1.9000
 
 ## New features
-+ New function - `sp_scri()`. XXXXXXXX.
-+ New function - `rf_scri()`. XXXXXXXX. 
++ New function - `reframe()`. Modify the attributes of a `sub_criteria` object.
 + New function - `attrs()`. XXXXXXXXXX.
 + New `S3`object - `d_report`. XXXXXXXX
 + New `S3`object - `d_attribute`. XXXXXXXX

@@ -9,18 +9,18 @@ record_group(df, ..., to_s4 = TRUE)
 \arguments{
 \item{df}{\code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.}
 
-\item{...}{Arguments passed to \code{links}.}
+\item{...}{Arguments passed to \bold{\code{\link{links}}}.}
 }
 \value{
 \code{\link[=pid-class]{pid}}
 }
 \description{
-Match records in successive stages with different matching conditions.
+Match records in consecutive stages with different matching conditions.
 Each set of linked records are assigned a unique identifier with relevant group-level information.
 }
 \details{
-
+\bold{\code{record_group()}} is are superseded. Moving forward, please use \bold{\code{\link{links}}}.
 }
 \seealso{
-\code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
+\code{\link{links}}
 }

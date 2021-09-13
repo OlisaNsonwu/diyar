@@ -2,8 +2,6 @@
 % Please edit documentation in R/sub_criteria.R
 \name{sub_criteria}
 \alias{sub_criteria}
-\alias{eval_sub_criteria}
-\alias{eval_sub_criteria.sub_criteria}
 \alias{attrs}
 \title{Sub-criteria}
 \usage{
@@ -14,21 +12,10 @@ sub_criteria(
   operator = "or"
 )
 
-eval_sub_criteria(x, ...)
-
-\method{eval_sub_criteria}{sub_criteria}(
-  x,
-  strata = seq_len(max(attr_eval(x))),
-  index_record = c(TRUE, rep(FALSE, length(strata) - 1)),
-  sn = seq_len(length(strata)),
-  check_duplicates = TRUE,
-  ...
-)
-
 attrs(..., .obj = NULL)
 }
 \arguments{
-\item{...}{\code{[atomic]}.. Attributes.}
+\item{...}{\code{[atomic]}. Attributes.}
 
 \item{match_funcs}{\code{[function]}. User defined logical test for matches.}
 
@@ -36,32 +23,24 @@ attrs(..., .obj = NULL)
 
 \item{operator}{\code{[character]}. Options are \code{"and"} or \code{"or"}.}
 
-\item{x}{\code{[sub_criteria]}}
-
-\item{strata}{\code{[integer]}. Subsets of the dataset}
-
-\item{index_record}{\code{[logical]}. Represents the \code{y}-value of the \code{x}-\code{y} record pair to be compared.
-See (\bold{\code{\link{predefined_tests}}}).}
-
-\item{sn}{\code{[integer]} Unique index for each record.}
-
-\item{check_duplicates}{\code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.}
+\item{.obj}{\code{[data.frame|list]}. Attributes}
 }
 \value{
-\code{sub_criteria}
-
-\code{Logical}
+\code{\link[=sub_criteria-class]{sub_criteria}}
 }
 \description{
-Matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
+Additional matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
 }
 \details{
-\bold{\code{sub_criteria()}} is the mechanism for providing matching criteria to an iteration of \bold{\code{links}} or \bold{\code{episodes}}.
+\bold{\code{sub_criteria()}} - The mechanism for providing matching criteria to an iteration of \bold{\code{links}} or \bold{\code{episodes}}.
 It creates a \code{sub_criteria} class object which contains the attributes to be compared,
 logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 another set of logical tests to determine identical records.
 
-\emph{*Determining identical records reduces processing time.}
+\bold{\code{attrs()}} - Passes a collection of attributes to \bold{\code{sub_criteria()}}.
+
+Every attribute, including those in a collection, must have
+the same length or a length of 1.
 }
 \examples{
 # Sub-criteria
@@ -74,20 +53,19 @@ s_cri2 <- sub_criteria(c(30, 28, 40, 25, 25, 29, 27),
 s_cri3 <- sub_criteria(s_cri1, s_cri2, operator = "or")
 s_cri4 <- sub_criteria(s_cri1, s_cri3, operator = "and")
 
-`eval_sub_criteria`
-# 3 values
-strata <- rep(1, 3)
-index_record <- c(TRUE, FALSE, FALSE)
-sn <- 1:3
+# Objects of the same length
+attrs(month.abb, month.name)
 
-# Test for a match in either attribute
-sub_cri_1 <- sub_criteria(c(1, 1, 0), c(2, 1, 2))
-eval_sub_criteria(sub_cri_1, strata, index_record, sn)
+# Or a data.frame or list with elements of the same length
+attrs(.obj = mtcars)
 
-# Test for a match in both attributes
-sub_cri_2 <- sub_criteria(c(1, 1, 0), c(2, 1, 2), operator = "and")
-eval_sub_criteria(sub_cri_2, strata, index_record, sn)
+sub_criteria(
+attrs(month.abb, month.name),
+attrs(.obj = mtcars),
+attrs(month.abb, month.name, .obj = mtcars)
+)
+
 }
 \seealso{
-\code{\link{predefined_tests}}, \code{\link{links}} and \code{\link{episodes}}
+\code{\link{predefined_tests}}; \code{\link{links}}; \code{\link{episodes}}; \code{\link{eval_sub_criteria}}
 }

@@ -1194,3 +1194,4 @@ as.data.frame.d_report <- function(x, ...){
   class(x) <- "d_lazy_opts"
   return(x)
 }
+

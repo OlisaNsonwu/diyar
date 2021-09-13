@@ -1,7 +1,7 @@
 #' @name episode_group
 #' @title Link events to chronological episodes.
 #'
-#' @description Link dated events (records) which ave similar attributes and occur within specified durations of each other.
+#' @description Link dated events (records) which have similar attributes and occur within specified durations of each other.
 #' Each set of linked records are assigned a unique identifier with relevant group-level information.
 #'
 #' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
@@ -46,7 +46,7 @@
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
 #' @seealso
-#' \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
+#' \code{\link{episodes}}
 #'
 #' @details
 #' These functions are superseded. Moving forward, please use \code{\link{episodes}}.

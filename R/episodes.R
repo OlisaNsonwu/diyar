@@ -1,37 +1,36 @@
 #' @name episodes
 #' @title Link events to chronological episodes.
 #'
-#' @description Link dated events (records) which ave similar attributes and occur within specified durations of each other.
+#' @description Link dated events (records) with similar attributes and occur within specified durations of each other.
 #' Each set of linked records are assigned a unique identifier with relevant group-level information.
 #'
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
-#' @param case_length \code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"case"} from another.
-#' This is the case window.
+#' @param case_length \code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"Case"} from another.
 #' @param episodes_max \code{[integer]}. The maximum number of episodes permitted within each \code{strata}.
 #' @param episode_type \code{[character]}. Options are \code{"fixed"} (default), \code{"rolling"} or \code{"recursive"}. See \code{Details}.
-#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event. This is the recurrence window.
+#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from an event distinguishing a \code{"Recurrent"} event from its index event.
 #' @param episode_unit \code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
-#' @param rolls_max \code{[integer]}. Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each episode to the \code{\link[=epid-class]{epid}}. Useful when the dataset has data from multiple sources.
+#' @param rolls_max \code{[integer]}. Maximum number of times the index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
+#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each episode to the \code{\link[=epid-class]{epid}}. Useful when the dataset contains information from different sources.
 #' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
-#' @param case_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
-#' @param recurrence_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
-#' @param custom_sort \code{[atomic]}. Preferential order for selecting index or reference events.
+#' @param case_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}})
+#' @param recurrence_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Recurrence"} event. See (\code{\link{overlaps}})
+#' @param custom_sort \code{[atomic]}. Preferential order for selecting index events.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
 #' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param reference_event \code{[character]}. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".
-#' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
-#' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.
+#' @param reference_event \code{[character]}. Specifies which events are used as index events for a subsequent \code{case_length} or \code{recurrence_length}. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"} or \code{"first_event"}.
+#' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, both \code{"Case"} and \code{"Recurrent"} events will have a \code{case_length}.
+#' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
 #' @param skip_order \code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be unlinked. See \code{Details}.
-#' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), when using lagged \code{case_length} or \code{recurrence_length}, \code{events} before the cut-off point or period are skipped.
-#' @param skip_unique_strata \code{[logical]}. If \code{TRUE} (default), all strata with a single record are skipped skipped.
-#' @param case_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links.
-#' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links.
-#' @param case_length_total \code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode.
-#' @param recurrence_length_total \code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode.
+#' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), events before a lagged \code{case_length} or \code{recurrence_length} are skipped.
+#' @param skip_unique_strata \code{[logical]}. If \code{TRUE} (default), events from a strata with a single record are skipped.
+#' @param case_sub_criteria \code{[\link{sub_criteria}]}. Additional matching criteria for events of a \code{case_length}.
+#' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Additional matching criteria for events of a \code{recurrence_length}.
+#' @param case_length_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{case_lengths} required for an episode.
+#' @param recurrence_length_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{recurrence_lengths} required for an episode.
 #'
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
@@ -39,23 +38,22 @@
 #' \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
 #'
 #' @details
-#' \bold{\code{episodes()}} is an iterative function that links dated records (events) which
+#' \bold{\code{episodes()}} is an iterative function which links dated records (events) that
 #' are within specified durations of each other.
 #' In each iteration, an index event is selected and compared against every other event.
 #'
-#' Every event is linked to a unique group (episode) identifier (\code{\link[=epid-class]{epid}}) based on the duration between events and
-#' several other criteria specified through its arguments.
+#' Every event is linked to a unique group (episode; \code{\link[=epid-class]{epid}} object).
+#' These episodes represent occurences on interest as defined by the relationship between index events and other events in the episode.
 #'
-#' By default, this process occurs in ascending order; beginning with the earliest event and proceeding to the most recent event.
+#' By default, this process occurs in ascending order; beginning with the earliest event and proceeding to the most recent one.
 #' This can be changed to a descending (\code{from_last}) or custom order (\code{custom_sort}).
 #' Ties are always broken by the chronological order of events.
 #'
-#' These unique episodes represent occurrences of interest.
-#' In general, three type of episodes are possible in \code{diyar}; \code{"fixed"}, \code{"rolling"} and \code{"recursive"}.
+#' In general, three type of episodes are possible;
 #' \itemize{
-#' \item \code{"fixed"} - Events within fixed durations of one index event.
-#' \item \code{"rolling"} - Events within recurring durations of one index event.
-#' \item \code{"recursive"} - Events within recurring durations of multiple index events.
+#' \item \code{"fixed"} - An episodes where all events are within fixed durations of one index event.
+#' \item \code{"rolling"} - An episode where all events are within recurring durations of one index event.
+#' \item \code{"recursive"} - An episode where all events are within recurring durations of multiple index events.
 #' }
 #'
 #' Every event in each episode is categorise as;
@@ -74,7 +72,7 @@
 #' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be unlinked.
 #' }
 #'
-#' \emph{\code{NA} values in \code{strata} excludes records from the episode tracking process}
+#' \emph{Records with a missing (\code{NA}) \code{strata} are excluded from the episode tracking process.}
 #'
 #' See \code{vignette("episodes")} for further details.
 #'
@@ -101,11 +99,11 @@
 #' # Interval grouping
 #' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
 #'                                                 hospital_admissions$discharge_dt)
-#' admissions <- hospital_admissions[c("admin_period","epi_len")]
+#' admissions <- hospital_admissions[c("admin_period", "epi_len")]
 #'
-#' # Episodes of overlapping periods of admission
+#' # Episodes of hospital stays
 #' hospital_admissions$epids_i <- episodes(date = hospital_admissions$admin_period,
-#'                                        case_length = 0,
+#'                                        case_length = index_window(hospital_admissions$admin_period),
 #'                                        case_overlap_methods = "inbetween")
 #'
 #' @aliases episodes
@@ -441,7 +439,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(!is.null(case_sub_criteria) & length(ntag_lgk) > 0){
       # case_sub_criteria <- sp_scri(case_sub_criteria, sort(date@id))
       # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
-      case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+      case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
     }
 
     if(isTRUE(any_rolling_epi)) {
@@ -458,7 +457,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(!is.null(recurrence_sub_criteria) & length(ntag_lgk) > 0){
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(date@id))
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
-        recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+        recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
       }
     }
     date <- date[ntag_lgk]
@@ -1091,7 +1091,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(!is.null(case_sub_criteria) & length(ntag_lgk) > 0){
       # case_sub_criteria <- sp_scri(case_sub_criteria, s_pos)
       # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
-      case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+      case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
     }
 
     ld_reference_event <- ld_reference_event[ntag_lgk]
@@ -1120,7 +1121,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(!is.null(recurrence_sub_criteria) & length(ntag_lgk) > 0 & any_rolling_epi){
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, s_pos)
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
-        recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
+        recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
       }
 
       ld_case_for_recurrence <- ld_case_for_recurrence[ntag_lgk]
@@ -1289,31 +1291,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   attr(epids@wind_nm, "label") <- c("Skipped", "Case", "Recurrence")
   attr(epids@wind_nm, "state") <- "encoded"
 
-  # `epid_dataset` slot
-  if(!is.null(data_source)){
-    data_source <- data_source[match(tmp_pos[fd], seq_len(inp_n))]
-    # Data links
-    # names(e) <- tmp_pos
-    # browser()
-    rst <- check_links(e[fd], data_source, data_links)
-    datasets <- rst$ds
-
-    if(!all(toupper(dl_lst) == "ANY")){
-      req_links <- rst$rq
-      epids@dist_epid_index[!req_links] <- 0
-      epids@dist_wind_index[!req_links] <- 0
-      epids@case_nm[!req_links] <- -1L
-      epids@.Data[!req_links] <- epids@sn[!req_links]
-      # epids@wind_id[!req_links] <- epids@sn[!req_links]
-      epids@wind_id <- lapply(epids@wind_id, function(x){
-        x[!req_links] <- epids@sn[!req_links]
-        return(x)
-      })
-      datasets[!req_links] <- data_source[!req_links]
-    }
-    epids@epid_dataset <- encode(datasets)
-  }
-
   if(isTRUE(group_stats)){
     # `epid_interval` slot
     lgk <- which(epid_n != 1)
@@ -1350,27 +1327,53 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     epids@epid_length <- epid_l[fd]
   }
 
-  tm_z <- Sys.time()
-  tms <- difftime(tm_z, tm_a)
-  tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
+  # `epid_dataset` slot
+  if(!is.null(data_source)){
+    data_source <- data_source[match(tmp_pos[fd], seq_len(inp_n))]
+    # Data links
+    # names(e) <- tmp_pos
+    # browser()
+    rst <- check_links(e[fd], data_source, data_links)
+    epids@epid_dataset <- rst$ds
+
+    if(!all(toupper(dl_lst) == "ANY")){
+      req_links <- rst$rq
+      epids <- suppressWarnings(delink(epids, !req_links))
+      # epids@dist_epid_index[!req_links] <- 0
+      # epids@dist_wind_index[!req_links] <- 0
+      # epids@case_nm[!req_links] <- -1L
+      # epids@.Data[!req_links] <- epids@sn[!req_links]
+      # epids@wind_id[!req_links] <- epids@sn[!req_links]
+      # epids@wind_id <- lapply(epids@wind_id, function(x){
+      #   x[!req_links] <- epids@sn[!req_links]
+      #   return(x)
+      # })
+      epids@epid_dataset[!req_links] <- data_source[!req_links]
+    }
+    epids@epid_dataset <- encode(epids@epid_dataset)
+  }
 
   if(display %in% c("none_with_report", "progress_with_report", "stats_with_report")){
     epids <- list(epid = epids, report = as.list(do.call("rbind", lapply(report, as.data.frame))))
     class(epids$report) <- "d_report"
   }
-  if(!display %in% c("none_with_report", "none")) cat("Episodes tracked in ", tms, "!\n", sep = "")
+  tms <- difftime(Sys.time(), tm_a)
+  if(!display %in% c("none_with_report", "none")) cat("Episodes tracked in ", fmt("difftime"), "!\n", sep = "")
   rm(list = ls()[ls() != "epids"])
   return(epids)
 }
 
 #' @name episodes_wf_splits
-#' @title XXXXXXXXXXXXXXXXXXXXXX.
+#' @title Track episodes in a minimised dataset.
 #'
-#' @description XXXXXXXXXXXXXXXXXXXXXXXXXXXXX.
+#' @description Exclude duplicate records from the same day or period prior to using \code{\link{episodes}}.
+#' Only duplicate records that will not affect the case definition are excluded.
+#' The resulting episode identifiers are recycled for the duplicate records.
 #'
 #' @param ... Arguments passed to \code{\link{episodes}}.
-#' @param duplicates_recovered XXXXXXXXXXXXXXXXXXXXXXXXXX
-#' @param reframe XXXXXXXXXXXXXXXXXXXXXXXXXX
+#' @param duplicates_recovered \code{[character]}. Determines which duplicate records are recycled.
+#' Options are \code{"ANY"} (default), \code{"without_sub_criteria"} or \code{"with_sub_criteria"}.
+#' @param reframe \code{[logical]}. Determines if the \code{\link[=sub_criteria]{sub_criteria's}} attributes for the duplicate records are reframed (\code{TRUE}) or excluded (\code{FALSE}).
 #'
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
@@ -1380,54 +1383,43 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #' @details
 #' \bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episodes()}} which strips or re-frames the dataset to
 #' the minimum number of records required to implement a case definition.
-#' This leads to the same outcome as would \code{\link{episodes}} but with benefit of shorter processing times.
-#' It is recommended for larger datasets with duplicate events.
+#' This leads to the same outcome but with benefit of a shorter processing time.
 #'
-#' If a \code{\link{sub_criteria}} is passed to \code{case_sub_criteria} or \code{recurrence_sub_criteria},
-#' duplicate records in each attribute can either be stripped or reframed using the \code{reframe} argument. See \code{Examples}.
+#' Duplicate records from the same point or period in time are excluded from \bold{\code{episodes()}}.
+#' The resulting \code{\link[=epid-class]{epid}} object is then recycled for the duplicates.
 #'
-#' See \code{vignette("episodes")} for further details.
+#' The \code{duplicates_recovered} argument determines which index identifiers are recycled.
+#' If \code{"without_sub_criteria"} is selected, only index identifers created from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
+#' The opposite (\code{"Case"} and \code{"Recurrent"}) is the case if \code{"with_sub_criteria"} is selected.
+#'
+#' If a \code{\link{sub_criteria}} is used, it's corresponding attributes for the duplicate records
+#' can either be excluded or reframed using the \code{reframe} argument. See \code{Examples}.
 #'
 #' @examples
-#' 10,000 duplicate records of 20 events
+#' # With 10,000 duplicate records of 20 events,
+#' # `episodes_wf_splits()` will take less time than `episodes()`
 #' dates <- seq(from = as.Date("2019-04-01"), to = as.Date("2019-04-20"), by = 1)
 #' dates <- rep(dates, 10000)
 #'
-#' # `episodes_wf_splits` will generally take less more time
 #' system.time(
 #'   ep1 <- episodes(dates, 1)
 #' )
-#'
 #' system.time(
 #'   ep2 <- episodes_wf_splits(dates, 1)
 #' )
 #'
-#' # Results will be identical
+#' # Both lead to the same outcome.
 #' all(ep1 == ep2)
-#'
-#'# Split vs Reframed `sub_criteria`
-#'  # Duplicate values for an attribute - color
-#'  attr <- colours()[1:5]
-#'  attr <- rep(attr, 3)
-#'  # A running number as `sub_criteria`
-#'  sub_cri <- sub_criteria(1:length(attr))
-#'  # Having `reframe` as `TRUE` or `FALSE` will either;
-#'    # split the `sub_criteria` OR
-#'    split_scri <- diyar:::sp_scri(sub_cri, !duplicated(attr))
-#'    # reframed the `sub_criteria`
-#'    reframed_scri <- diyar:::rf_scri(sub_cri, attr)
-#'
-#'  # The new attributes
-#'  attr_eval(split_scri, identity, simplify = FALSE)
-#'  attr_eval(reframed_scri, identity, simplify = FALSE)
 
 #' @export
-episodes_wf_splits <- function(..., duplicates_recovered = "ALL", reframe = FALSE){
+episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALSE){
   tm_a <- Sys.time()
 
   # Validations
   errs <- err_episodes_checks_0(...)
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
+
+  duplicates_recovered <- tolower(duplicates_recovered)
 
   opt_lst <- list(...)
   def_list <- formals(episodes)
@@ -1498,9 +1490,11 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ALL", reframe = FALS
   opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
     if(all(class(opt_lst[[i]]) == "sub_criteria")) {
       if(reframe){
-        return(rf_scri(opt_lst[[i]], cmbi_cd))
+        # return(rf_scri(opt_lst[[i]], cmbi_cd))
+        return(reframe(opt_lst[[i]], func = function(x) split(x, cmbi_cd)))
       }else{
-        return(sp_scri(opt_lst[[i]], !rf_lgk))
+        # return(sp_scri(opt_lst[[i]], !rf_lgk))
+        return(reframe(opt_lst[[i]], func = function(x) x[!rf_lfgk]))
       }
     }else if(length(opt_lst[[i]]) %in% 0:1 | opt_lst_nms[i] %in% "data_links"){
       return(opt_lst[[i]])
@@ -1549,12 +1543,12 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ALL", reframe = FALS
   }
 
   wf_epid@sn <- sn
-  wf_epid@case_nm[((wf_epid@case_nm %in% c(0, 4) & tolower(duplicates_recovered) == "all") |
-                     (wf_epid@case_nm == 0 & tolower(duplicates_recovered) == "same_date") |
-                     (wf_epid@case_nm == 4 & tolower(duplicates_recovered) == "same_sub_criteria")) & rf_lgk] <- 2
-  wf_epid@case_nm[((wf_epid@case_nm %in% c(1, 5) & tolower(duplicates_recovered) == "all") |
-                     (wf_epid@case_nm == 1 & tolower(duplicates_recovered) == "same_date") |
-                     (wf_epid@case_nm == 5 & tolower(duplicates_recovered) == "same_sub_criteria")) & rf_lgk] <- 3
+  wf_epid@case_nm[((wf_epid@case_nm %in% c(0, 4) & duplicates_recovered == "any") |
+                     (wf_epid@case_nm == 0 & duplicates_recovered == "without_sub_criteria") |
+                     (wf_epid@case_nm == 4 & duplicates_recovered == "with_sub_criteria")) & rf_lgk] <- 2
+  wf_epid@case_nm[((wf_epid@case_nm %in% c(1, 5) & duplicates_recovered == "all") |
+                     (wf_epid@case_nm == 1 & duplicates_recovered == "without_sub_criteria") |
+                     (wf_epid@case_nm == 5 & duplicates_recovered == "with_sub_criteria")) & rf_lgk] <- 3
   lgk <- which(wf_epid@case_nm == -1 | (wf_epid@case_nm %in% c(0, 1, 4, 5) & rf_lgk))
   if(length(lgk) > 0){
     wf_epid@.Data[lgk] <- wf_epid@sn[lgk]

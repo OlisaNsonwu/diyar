@@ -123,12 +123,12 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
-Link dated events (records) which ave similar attributes and occur within specified durations of each other.
+Link dated events (records) which have similar attributes and occur within specified durations of each other.
 Each set of linked records are assigned a unique identifier with relevant group-level information.
 }
 \details{
 These functions are superseded. Moving forward, please use \code{\link{episodes}}.
 }
 \seealso{
-\code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
+\code{\link{episodes}}
 }
