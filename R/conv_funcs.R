@@ -928,24 +928,14 @@ dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
 }
 
 di_report <- function(start_time = 0L, iteration = NA, current_tot = 0L,
-                      current_tagged = 0L, current_skipped = 0L, criteria = 0L, memory = 0L){
+                      current_tagged = 0L, current_skipped = 0L, criteria = 0L){
   tms <- difftime(Sys.time(), start_time, units = "secs")
   x <- list(iteration = iteration,
             duration = tms,
             records_checked = as.integer(current_tot),
             records_tracked = as.integer(current_tagged),
             records_skipped = as.integer(current_skipped),
-            criteria = as.integer(criteria),
-            memory = as.numeric(memory))
+            criteria = as.integer(criteria))
   return(x)
-}
-
-mem_usage <- function(){
-  objs <- ls(envir = sys.frames()[[length(sys.frames()) - 1]])
-  fnx <- function(x) object.size(get(x,  envir = sys.frames()[[length(sys.frames()) - 3]]))
-  objs <- lapply(objs, fnx)
-  objs <- sum(unlist(objs, use.names = FALSE))
-  class(objs) <- "object_size"
-  return(objs)
 }
 

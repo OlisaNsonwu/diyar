@@ -13,6 +13,11 @@
 
 \method{as.data.frame}{d_report}(x, ...)
 }
+\arguments{
+\item{x}{\code{[d_report]}.}
+
+\item{...}{Arguments passed to other methods}
+}
 \description{
 d_report
 }

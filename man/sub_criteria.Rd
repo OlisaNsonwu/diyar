@@ -26,7 +26,7 @@ attrs(..., .obj = NULL)
 \item{.obj}{\code{[data.frame|list]}. Attributes}
 }
 \value{
-\code{\link[=sub_criteria-class]{sub_criteria}}
+\code{\link{sub_criteria}}
 }
 \description{
 Additional matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.

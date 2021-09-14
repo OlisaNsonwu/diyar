@@ -134,10 +134,9 @@ Unnamed elements are assumed to be \code{"l"}.
 See \code{vignette("episodes")} for further details.
 }
 \examples{
-data(infections)
-data(hospital_admissions)
+data(infections); db_1 <- infections
+data(hospital_admissions) ; db_2 <- hospital_admissions
 
-db_1 <- infections
 db_1$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Fixed episodes
@@ -154,14 +153,12 @@ db_1$rd_b <- episodes(date = db_1$date,
                      episode_type = "rolling")
 
 # Interval grouping
-hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
-                                                hospital_admissions$discharge_dt)
-admissions <- hospital_admissions[c("admin_period", "epi_len")]
-
+db_2$admin_period <- number_line(db_2$admin_dt,
+                                 db_2$discharge_dt)
 # Episodes of hospital stays
-hospital_admissions$epids_i <- episodes(date = hospital_admissions$admin_period,
-                                       case_length = index_window(hospital_admissions$admin_period),
-                                       case_overlap_methods = "inbetween")
+db_2$epids_i <- episodes(date = db_2$admin_period,
+                         case_length = index_window(db_2$admin_period),
+                         case_overlap_methods = "inbetween")
 
 }
 \seealso{

@@ -77,10 +77,9 @@
 #' See \code{vignette("episodes")} for further details.
 #'
 #' @examples
-#' data(infections)
-#' data(hospital_admissions)
+#' data(infections); db_1 <- infections
+#' data(hospital_admissions) ; db_2 <- hospital_admissions
 #'
-#' db_1 <- infections
 #' db_1$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 #'
 #' # Fixed episodes
@@ -97,14 +96,12 @@
 #'                      episode_type = "rolling")
 #'
 #' # Interval grouping
-#' hospital_admissions$admin_period <- number_line(hospital_admissions$admin_dt,
-#'                                                 hospital_admissions$discharge_dt)
-#' admissions <- hospital_admissions[c("admin_period", "epi_len")]
-#'
+#' db_2$admin_period <- number_line(db_2$admin_dt,
+#'                                  db_2$discharge_dt)
 #' # Episodes of hospital stays
-#' hospital_admissions$epids_i <- episodes(date = hospital_admissions$admin_period,
-#'                                        case_length = index_window(hospital_admissions$admin_period),
-#'                                        case_overlap_methods = "inbetween")
+#' db_2$epids_i <- episodes(date = db_2$admin_period,
+#'                          case_length = index_window(db_2$admin_period),
+#'                          case_overlap_methods = "inbetween")
 #'
 #' @aliases episodes
 #' @export
@@ -1364,7 +1361,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 }
 
 #' @name episodes_wf_splits
-#' @title Track episodes in a minimised dataset.
+#' @title Track episodes in a reduced dataset.
 #'
 #' @description Exclude duplicate records from the same day or period prior to using \code{\link{episodes}}.
 #' Only duplicate records that will not affect the case definition are excluded.
@@ -1494,7 +1491,7 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
         return(reframe(opt_lst[[i]], func = function(x) split(x, cmbi_cd)))
       }else{
         # return(sp_scri(opt_lst[[i]], !rf_lgk))
-        return(reframe(opt_lst[[i]], func = function(x) x[!rf_lfgk]))
+        return(reframe(opt_lst[[i]], func = function(x) x[!rf_lgk]))
       }
     }else if(length(opt_lst[[i]]) %in% 0:1 | opt_lst_nms[i] %in% "data_links"){
       return(opt_lst[[i]])

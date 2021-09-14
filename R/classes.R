@@ -1161,10 +1161,13 @@ plot.d_report <- function(x, ...){
 }
 
 #' @rdname d_report
+#'
+#' @param x \code{[d_report]}.
+#' @param ... Arguments passed to other methods
 #' @export
 as.list.d_report <- function(x, ...){
   class(x) <- NULL
-  return(as.list(x, ..))
+  return(as.list(x, ...))
 }
 
 #' @rdname d_report

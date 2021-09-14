@@ -6,6 +6,7 @@
 #'
 #' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
 #' @param ... Arguments passed to \bold{\code{\link{links}}}.
+#' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #'
 #' @return \code{\link[=pid-class]{pid}}
 #'

@@ -46,8 +46,6 @@ links(
 \item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.}
 
 \item{tie_sort}{\code{[atomic]}. Preferential order for selecting breaking tied matches within a stage.}
-
-\item{...}{Arguments passed to \code{links}.}
 }
 \value{
 \code{\link[=pid-class]{pid}}; \code{list}

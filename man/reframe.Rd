@@ -10,7 +10,7 @@ reframe(x, ...)
 \method{reframe}{sub_criteria}(x, func = identity, ...)
 }
 \arguments{
-\item{x}{\code{[\link[=sub_criteria-class]{sub_criteria}]}.}
+\item{x}{Arguments passed to methods.}
 
 \item{func}{\code{[function]}. Transformation function.}
 }

@@ -80,42 +80,8 @@ This is the case window.}
 
 \item{x}{\code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}.}
 
-\item{sn}{\code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.}
-
-\item{strata}{\code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}.}
-
-\item{episodes_max}{\code{[integer]}. The maximum number of episodes permitted within each \code{strata}.}
-
-\item{rolls_max}{\code{[integer]}. Maximum number of times the index \code{"case"} can recur. Only used if \code{episode_type} is \code{"rolling"}.}
-
-\item{data_source}{\code{[character]}. Unique data source identifier. Adds the list of datasets in each episode to the \code{\link[=epid-class]{epid}}. Useful when the dataset has data from multiple sources.}
-
-\item{from_last}{\code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).}
-
-\item{custom_sort}{\code{[atomic]}. Preferential order for selecting index or reference events.}
-
-\item{group_stats}{\code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.}
-
-\item{reference_event}{\code{[character]}. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".}
-
 \item{case_for_recurrence}{\code{[logical]}. If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
 If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
-
-\item{skip_order}{\code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.}
-
-\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be unlinked. See \code{Details}.}
-
-\item{skip_if_b4_lengths}{\code{[logical]}. If \code{TRUE} (default), when using lagged \code{case_length} or \code{recurrence_length}, \code{events} before the cut-off point or period are skipped.}
-
-\item{skip_unique_strata}{\code{[logical]}. If \code{TRUE} (default), all strata with a single record are skipped skipped.}
-
-\item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "case" windows in addition to temporal links.}
-
-\item{recurrence_sub_criteria}{\code{[\link{sub_criteria}]}. Matching conditions for "recurrence" windows in addition to temporal links.}
-
-\item{case_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched case windows required for an episode.}
-
-\item{recurrence_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched recurrence windows required for an episode.}
 }
 \value{
 

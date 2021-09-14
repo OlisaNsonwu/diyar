@@ -11,7 +11,7 @@
 #' @seealso
 #' \code{\link{predefined_tests}}; \code{\link{links}}; \code{\link{episodes}}; \code{\link{eval_sub_criteria}}
 #'
-#' @return \code{\link[=sub_criteria-class]{sub_criteria}}
+#' @return \code{\link{sub_criteria}}
 #'
 #' @details
 #' \bold{\code{sub_criteria()}} - The mechanism for providing matching criteria to an iteration of \bold{\code{links}} or \bold{\code{episodes}}.

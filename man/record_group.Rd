@@ -10,6 +10,8 @@ record_group(df, ..., to_s4 = TRUE)
 \item{df}{\code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.}
 
 \item{...}{Arguments passed to \bold{\code{\link{links}}}.}
+
+\item{to_s4}{\code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).}
 }
 \value{
 \code{\link[=pid-class]{pid}}

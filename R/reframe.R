@@ -5,7 +5,8 @@
 #' @description
 #' Modify the attributes of a \code{\link{sub_criteria}} object.
 #'
-#' @param x \code{[\link[=sub_criteria-class]{sub_criteria}]}.
+#' @param x \code{[\link{sub_criteria}]}.
+#' @param x Arguments passed to methods.
 #' @param func \code{[function]}. Transformation function.
 #'
 #' @seealso \code{\link{sub_criteria}}; \code{\link{eval_sub_criteria}}; \code{\link{attr_eval}}

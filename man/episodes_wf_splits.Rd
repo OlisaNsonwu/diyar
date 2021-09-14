@@ -2,7 +2,7 @@
 % Please edit documentation in R/episodes.R
 \name{episodes_wf_splits}
 \alias{episodes_wf_splits}
-\title{Track episodes in a minimised dataset.}
+\title{Track episodes in a reduced dataset.}
 \usage{
 episodes_wf_splits(..., duplicates_recovered = "ANY", reframe = FALSE)
 }

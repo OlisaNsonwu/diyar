@@ -16,7 +16,6 @@
 #' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. See \code{vignette("links")}.
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.
 #' @param display \code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param ... Arguments passed to \code{links}.
 #' @param tie_sort \code{[atomic]}. Preferential order for selecting breaking tied matches within a stage.
 #'
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
