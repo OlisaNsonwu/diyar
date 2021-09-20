@@ -1031,7 +1031,7 @@ print.pid_summary <- function(x, ...){
                 "Total records:", paste0(paste0(rep(" ", (mx_ds_len - 9) + 7), collapse = ""), fmt(x$total_records)), "\n",
                 " by matching criteria:", "\n",
                 paste0(ds_txts["pid_cri"], "\n"),
-                "Total record groups:", paste0(paste0(rep(" ", (mx_ds_len - 10) + 7), collapse = ""), fmt(x$total_episodes)), "\n",
+                "Total record groups:", paste0(paste0(rep(" ", (mx_ds_len - 10) + 7), collapse = ""), fmt(x$total_groups)), "\n",
                 " by group dataset:", "\n",
                 paste0(ds_txts["data_source"], "\n"),
                 " by records per group:", "\n",

@@ -300,7 +300,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ord_a[!from_last] <- abs(min(as.numeric(date@start), na.rm = TRUE) - as.numeric(date@start[!from_last]))
   ord_z[!from_last] <- abs(min(as.numeric(right_point(date)), na.rm = TRUE) - as.numeric(right_point(date[!from_last])))
 
-  assign_ord <- order(order(ord_a, -ord_z))
+  assign_ord <- order(order(ord_a, -ord_z, date@gid))
   rm(ord_a); rm(ord_z)
   # assign_ord <- match(seq_len(inp_n), assign_ord)
 
@@ -437,7 +437,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       # case_sub_criteria <- sp_scri(case_sub_criteria, sort(date@id))
       # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
       # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
-      case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
+      # case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
+      case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[ntag_lgk])
     }
 
     if(isTRUE(any_rolling_epi)) {
@@ -455,7 +456,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(date@id))
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
         # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
-        recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
+        # recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
+        recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[ntag_lgk])
       }
     }
     date <- date[ntag_lgk]
@@ -492,7 +494,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
 
     # Sort dataset on order of case-assignment
-    sort_ord <- order(cri, tag, assign_ord, date@gid, decreasing = TRUE)
+    sort_ord <- order(cri, tag, assign_ord, decreasing = TRUE)
     if(any(tag == 2)){
       sort_ord <- sort_ord[tag[sort_ord] != 2]
     }

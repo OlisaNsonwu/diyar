@@ -151,7 +151,7 @@ eval_sub_criteria.sub_criteria <- function(x,
     }
     return(out1)
   })
-  if(length(sn) == 1 | length(matches) == 1){
+  if(isFALSE(is.matrix(matches))){
     matches <- t(as.matrix(matches))
   }
   operator <- attr(x, "operator")

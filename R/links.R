@@ -338,6 +338,7 @@ links <- function(criteria,
       link_id <- pids_repo$link_id[skp_lgk]
       iteration <- pids_repo$iteration[skp_lgk]
       tie_sort <- pids_repo$tie_sort[skp_lgk]
+      curr_sub_cri[[1]] <- reframe(curr_sub_cri[[1]], func = function(x) x[skp_lgk])
 
       # Flags
       cs_len <- length(cri)
@@ -368,17 +369,18 @@ links <- function(criteria,
         tr_sn <- (sn[lgk])[rep_lgk]
         ref_rd <- tr_sn == sn
         # Check the `sub_criteria`
-        if(ite == 2){
+        if(any(tr_sn %in% c(2, 58184))){
           # browser()
         }
         # browser()
+        # print(ite)
         sub_cri_match <- eval_sub_criteria(x = curr_sub_cri[[1]],
                                            strata = cri,
                                            index_record = ref_rd,
                                            # sn = match(pr_sn, order(pr_sn)),
                                            # sn = pr_sn,
-                                           # sn = order(sort(pr_sn)),
-                                           sn = if(isFALSE(recursive)) order(order(pr_sn)) else pr_sn,
+                                           sn = order(order(pr_sn)),
+                                           # sn = if(isFALSE(recursive)) order(order(pr_sn)) else pr_sn,
                                            check_duplicates = check_duplicates)
         if(isFALSE(check_duplicates)){
           equals_ref_rd <- sub_cri_match[[2]] | ref_rd
@@ -395,7 +397,9 @@ links <- function(criteria,
                            ((tr_pid_cri == pid_cri & !expand) | (expand)))
 
         pid[rep_lgk] <- tr_pid[rep_lgk]
-        link_id[rep_lgk] <- tr_sn[rep_lgk]
+        lgk <- which(h_ri %in% rep_lgk & link_id == sn_ref)
+        link_id[lgk] <- tr_sn[lgk]
+        rm(lgk)
 
         # Records are assigned new pids if they do not match previously tagged records
         # browser()
@@ -405,6 +409,8 @@ links <- function(criteria,
                              sub_cri_match > 0)
         pid[rep_lgk_2] <- tr_sn[rep_lgk_2]
         link_id[rep_lgk_2] <- tr_sn[rep_lgk_2]
+        # lgk <- which(h_ri %in% rep_lgk_2 & link_id == sn_ref)
+        # link_id[lgk] <- tr_sn[lgk]
 
         # If not recursive, all matches are closed (m_tag == 2)
         # Otherwise, new members of a group (m_tag == -1) are checked against other records
@@ -432,7 +438,7 @@ links <- function(criteria,
           r_lid <- li_u[lgk]
           r_lgk <- which(r_pid != pid & !is.na(r_pid) & !is.na(pid))
           pid[r_lgk] <- r_pid[r_lgk]
-          link_id[r_lgk] <- r_pid[r_lgk]
+          # link_id[r_lgk] <- r_pid[r_lgk]
         }
 
         # Track when to end checks for the current criteria
@@ -468,6 +474,9 @@ links <- function(criteria,
           pids_repo$iteration[pr_sn[inc_lgk]] <- iteration[inc_lgk]
           pids_repo$tie_sort[pr_sn[inc_lgk]] <- tie_sort[inc_lgk]
 
+          if(length(cri[exc_lgk]) == 0){
+            next
+          }
           cri <- cri[exc_lgk]
           pid <- pid[exc_lgk]
           tag <- tag[exc_lgk]
@@ -477,11 +486,12 @@ links <- function(criteria,
           iteration <- iteration[exc_lgk]
           tie_sort <- tie_sort[exc_lgk]
 
-          if(ite == 4){
+          if(ite == 1){
             # browser()
           }
           # curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(pr_sn)[exc_lgk]))
-          curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(order(pr_sn))[exc_lgk]))
+          # curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(order(pr_sn))[exc_lgk]))
+          curr_sub_cri[[1]] <- reframe(curr_sub_cri[[1]], func = function(x) x[sort(order(order(pr_sn))[exc_lgk])])
           pr_sn <- pr_sn[exc_lgk]
           m_tag <- m_tag[exc_lgk]
         }else{
