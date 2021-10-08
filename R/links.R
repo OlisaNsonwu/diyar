@@ -8,7 +8,7 @@
 #' @param strata \code{[atomic]}. Subsets of the dataset. Record-groups are created separately for each \code{strata}. See \code{Details}.
 #' @param criteria \code{[list|atomic]}. Attributes to compare. Each element of the list is a stage in the linkage process. See \code{Details}.
 #' @param sub_criteria \code{[list|\link{sub_criteria}]}. Additional matching criteria for each stage of the linkage process. See \code{\link{sub_criteria}}
-#' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the dataset has data from multiple sources.
+#' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be unlinked. See \code{Details}.
 #' @param expand \code{[logical]}. If \code{TRUE}, allows a record-group to expand with each subsequent stages of the linkage process. \emph{Not interchangeable with \code{shrink}}.
@@ -16,7 +16,7 @@
 #' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. See \code{vignette("links")}.
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.
 #' @param display \code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param tie_sort \code{[atomic]}. Preferential order for selecting breaking tied matches within a stage.
+#' @param tie_sort \code{[atomic]}. Preferential order for breaking tied matches within a stage.
 #'
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
@@ -156,14 +156,12 @@ links <- function(criteria,
   tm_ia <- Sys.time()
 
   if(!is.null(data_source)) {
-    # if(length(data_source) == 1) data_source <- rep(data_source, ds_len)
     class(data_source) <- "d_lazy_opts"
   }
 
   # Standardise inputs
   # `strata`
   if(!is.null(strata)) {
-    # if(length(strata) == 1) strata <- rep(strata, ds_len)
     class(strata) <- "d_lazy_opts"
   }
   # `sn`
@@ -181,7 +179,6 @@ links <- function(criteria,
     if(length(tie_sort) == 1) tie_sort <- rep(tie_sort, ds_len)
   }else{
     tie_sort <- rep(0L, ds_len)
-    # tie_sort <- 0L
   }
 
   class(tie_sort) <- "d_lazy_opts"
@@ -195,7 +192,6 @@ links <- function(criteria,
 
   # Place holders for group-level options
   tag <- rep(0L, ds_len)
-  # tag_h <- tag
   iteration <- rep(0L, ds_len)
   m_tag <- rep(0L, ds_len)
   mxp_cri <- length(criteria) + 1L
@@ -289,43 +285,17 @@ links <- function(criteria,
       iteration <- pids_repo$iteration[skp_lgk]
       tie_sort <- pids_repo$tie_sort[skp_lgk]
 
-      s_tag <- tag
-      s_tag[s_tag != 0 & !expand] <- 1
-      s_tag[!expand] <- !s_tag[!expand]
-      sort_ord <- order(cri, -s_tag, pid_cri, tie_sort, sn, decreasing = TRUE)
-      rm(s_tag)
-      cri <- cri[sort_ord]
-      sn <- sn[sort_ord]
-      pr_sn <- pr_sn[sort_ord]
-      pid <- pid[sort_ord]
-      tag <- tag[sort_ord]
-      link_id <- link_id[sort_ord]
+      pp <- inherit(tag, cri, pid_cri, tie_sort, sn, pr_sn, expand, pid, link_id, sn_ref = sn_ref)
+      pp$tag[!pp$pid %in% c(sn_ref, NA)] <- 1L
+      iteration[which(pp$pid != sn_ref & iteration == 0)] <- ite
 
-      lgk <- which(!duplicated(cri, fromLast = TRUE))
-      rep_lgk <- match(cri, cri[lgk])
-      tr_pid <- (pid[lgk])[rep_lgk]
-      tr_sn <- (sn[lgk])[rep_lgk]
-      tr_tag <- (tag[lgk])[rep_lgk]
-      rm(rep_lgk)
-      lgk <- which(cri %in% cri[!duplicated(cri)] & tr_tag == 1 & cri > 0 & tag != 1 & expand)
-      pid[lgk] <- tr_pid[lgk]
-      link_id[lgk] <- tr_sn[lgk]
-      lgk <- which(cri %in% cri[!duplicated(cri)] & tr_tag == 0 & cri > 0 & tag != 1)
-      pid[lgk] <- tr_sn[lgk]
-      link_id[lgk] <- tr_sn[lgk]
-      lgk <- which(tag != 1)
-      pidlgk <- pid[lgk]
-      link_id[lgk] <- link_id[lgk]
-      rm(lgk)
-      tag[!pid %in% c(sn_ref, NA)] <- 1L
-      iteration[which(pid != sn_ref & iteration == 0)] <- ite
-
-      pids_repo$pid[pr_sn] <- pid
-      pids_repo$tag[pr_sn] <- tag
-      pids_repo$pid_cri[pr_sn][which(pids_repo$pid_cri[pr_sn] == mxp_cri | (pids_repo$pid_cri[pr_sn] != mxp_cri & shrink))] <- i
-      pids_repo$link_id[pr_sn] <- link_id
-      pids_repo$iteration[pr_sn] <- iteration
+      pids_repo$pid[pp$pr_sn] <- pp$pid
+      pids_repo$tag[pp$pr_sn] <- pp$tag
+      pids_repo$pid_cri[pp$pr_sn][which(pids_repo$pid_cri[pp$pr_sn] == mxp_cri | (pids_repo$pid_cri[pp$pr_sn] != mxp_cri & shrink))] <- i
+      pids_repo$link_id[pp$pr_sn] <- pp$link_id
+      pids_repo$iteration[pp$pr_sn] <- iteration
       ite <- ite + 1L
+      rm(pp)
     }else{
       # Stages with a `sub_criteria` are evaluated here
       # Only records with non-missing values are checked
@@ -342,10 +312,13 @@ links <- function(criteria,
 
       # Flags
       cs_len <- length(cri)
-      h_ri <- seq_len(cs_len)
       m_tag <- rep(0L, cs_len)
       min_pid <- sn_ref
       min_m_tag <- 0L
+
+      if(display %in% c("stats_with_report", "stats", "progress_with_report", "progress")){
+        cat("Checking `sub_criteria`\n")
+      }
       while (min_pid == sn_ref) {
         sort_ord <- order(cri, m_tag, pid_cri, tie_sort, sn, decreasing = TRUE)
         tag <- tag[sort_ord]
@@ -359,6 +332,7 @@ links <- function(criteria,
         link_id <- link_id[sort_ord]
         iteration <- iteration[sort_ord]
         tie_sort <- tie_sort[sort_ord]
+        h_ri <- seq_len(length(cri))
 
         # Reference records
         lgk <- which(!duplicated(cri, fromLast = TRUE))
@@ -368,20 +342,18 @@ links <- function(criteria,
         tr_pid <- (pid[lgk])[rep_lgk]
         tr_sn <- (sn[lgk])[rep_lgk]
         ref_rd <- tr_sn == sn
+
+        pos_repo <- make_batch_pairs(strata = cri, index_record = ref_rd, sn = order(order(pr_sn)))
         # Check the `sub_criteria`
-        if(any(tr_sn %in% c(2, 58184))){
-          # browser()
-        }
-        # browser()
-        # print(ite)
         sub_cri_match <- eval_sub_criteria(x = curr_sub_cri[[1]],
-                                           strata = cri,
-                                           index_record = ref_rd,
-                                           # sn = match(pr_sn, order(pr_sn)),
-                                           # sn = pr_sn,
-                                           sn = order(order(pr_sn)),
-                                           # sn = if(isFALSE(recursive)) order(order(pr_sn)) else pr_sn,
+                                           x_pos = pos_repo$x_pos,
+                                           y_pos = pos_repo$y_pos,
                                            check_duplicates = check_duplicates)
+        sub_cri_match <- lapply(sub_cri_match, function(x){
+         x[ref_rd] <- 1
+         x
+        })
+        rm(pos_repo)
         if(isFALSE(check_duplicates)){
           equals_ref_rd <- sub_cri_match[[2]] | ref_rd
         }
@@ -402,19 +374,15 @@ links <- function(criteria,
         rm(lgk)
 
         # Records are assigned new pids if they do not match previously tagged records
-        # browser()
         rep_lgk_2 <- which((((pid == sn_ref | (pid != sn_ref & tr_pid_cri == pid_cri & recursive)) &
                                tr_pid == sn_ref &
                                !is.na(tr_pid))) &
                              sub_cri_match > 0)
         pid[rep_lgk_2] <- tr_sn[rep_lgk_2]
         link_id[rep_lgk_2] <- tr_sn[rep_lgk_2]
-        # lgk <- which(h_ri %in% rep_lgk_2 & link_id == sn_ref)
-        # link_id[lgk] <- tr_sn[lgk]
 
         # If not recursive, all matches are closed (m_tag == 2)
         # Otherwise, new members of a group (m_tag == -1) are checked against other records
-        # browser()
         rep_lgk_2 <-  which(h_ri %in% which(m_tag == 0) & h_ri %in% c(rep_lgk, rep_lgk_2))
         m_tag[which(h_ri %in% rep_lgk_2 & recursive)] <- -1L
         m_tag[which(h_ri %in% rep_lgk_2 & !recursive)] <- 2L
@@ -438,7 +406,6 @@ links <- function(criteria,
           r_lid <- li_u[lgk]
           r_lgk <- which(r_pid != pid & !is.na(r_pid) & !is.na(pid))
           pid[r_lgk] <- r_pid[r_lgk]
-          # link_id[r_lgk] <- r_pid[r_lgk]
         }
 
         # Track when to end checks for the current criteria
@@ -486,11 +453,6 @@ links <- function(criteria,
           iteration <- iteration[exc_lgk]
           tie_sort <- tie_sort[exc_lgk]
 
-          if(ite == 1){
-            # browser()
-          }
-          # curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(pr_sn)[exc_lgk]))
-          # curr_sub_cri[[1]] <- sp_scri(curr_sub_cri[[1]], sort(order(order(pr_sn))[exc_lgk]))
           curr_sub_cri[[1]] <- reframe(curr_sub_cri[[1]], func = function(x) x[sort(order(order(pr_sn))[exc_lgk])])
           pr_sn <- pr_sn[exc_lgk]
           m_tag <- m_tag[exc_lgk]
@@ -501,17 +463,23 @@ links <- function(criteria,
           pids_repo$link_id[pr_sn] <- link_id
           pids_repo$iteration[pr_sn] <- iteration
         }
-        if(display %in% c("stats_with_report", "stats", "progress_with_report", "progress") & length(curr_sub_cri) > 0){
-          msg <- paste0("Checking `sub_criteria`")
-          progress_txt(length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref]), cs_len, msg = msg)
+        if(display %in% c("stats_with_report", "stats", "progress_with_report", "progress")){
+          progress_bar(length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref]),
+                       cs_len, 100,
+                       msg = paste0("Iteration ",
+                                    fmt(ite), " (",
+                                    fmt(difftime(Sys.time(), tm_ia), "difftime"),
+                                    ")"))
         }
         tm_ia <- Sys.time()
         ite <- ite + 1L
       }
+      if(display %in% c("stats_with_report", "stats", "progress_with_report", "progress")){
+        cat("\n")
+      }
     }
 
     if(shrink){
-      # ds_rid <- seq_len(ds_len)
       ds_rid <- n_seq
       reset_lgk <- which(pids_repo$pid %in% pids_repo$pid[!ds_rid %in% skp_lgk] & pids_repo$pid %in% pids_repo$pid[ds_rid %in% skp_lgk] & !ds_rid %in% skp_lgk)
       if(length(reset_lgk) > 0){
@@ -560,7 +528,9 @@ links <- function(criteria,
         report <- c(report, list(rp_data))
       }
       if(display %in% c("stats", "progress", "stats_with_report", "progress_with_report")){
-        cat(paste0("Checked: ", fmt(current_tot), " record(s).\nLinked: ", fmt(assigned)," record(s).\n\n"))
+        cat(paste0("Total: ", fmt(cs_len), " record(s).\n",
+                   "Checked: ", fmt(current_tot), " record(s).\n",
+                   "Linked: ", fmt(assigned)," record(s).\n\n"))
       }
     }
     tm_ia <- Sys.time()
@@ -584,11 +554,6 @@ links <- function(criteria,
   link_id[pid == sn_ref] <- sn[pid == sn_ref]
   pid[pid == sn_ref] <- sn[pid == sn_ref]
 
-  # browser()
-  # tmp_pos <- pr_sn
-  # fd <- match(pr_sn, tmp_pos)
-
-  # pid_f <- pid[fd]
   pids <- methods::new("pid",
                        .Data = pid,
                        sn = sn,
@@ -600,10 +565,8 @@ links <- function(criteria,
   pids@pid_total <- r$lengths[match(pid, r$values)]
 
   if(!is.null(data_source)){
-    # data_source <- data_source[match(pr_sn[fd], n_seq)]
     # Data links
     rst <- check_links(pids@.Data, data_source, data_links)
-    # datasets <- rst$ds
 
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
@@ -628,329 +591,3 @@ links <- function(criteria,
   rm(list = ls()[ls() != "pids"])
   return(pids)
 }
-
-
-#' @name links_wf_probabilistic
-#' @title Probabilistic record linkage
-#'
-#' @description A specific use case of \code{links} for probabilistic record linkage.
-#'
-#' @param blocking_attribute \code{[atomic]}. Subsets of the dataset.
-#' @param attribute \code{[list]}. Attributes to compare.
-#' @param cmp_func \code{[list|function]}. String comparators for each \code{attribute}. See \code{Details}.
-#' @param cmp_threshold \code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.
-#' @param probabilistic \code{[logical]}. If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.
-#' @param m_probability \code{[list|numeric]}. The probability that a match from the string comparator is actually from the same entity.
-#' @param score_threshold \code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.
-#' @param id_1 \code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.
-#' @param id_2 \code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.
-#' @param ... Arguments passed to \bold{\code{links}}
-#'
-#' @return \code{\link[=pid-class]{pid}}; \code{list}
-#'
-#' @seealso \code{\link{links}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}
-#'
-#' @details
-#' \code{links_wf_probabilistic} is a wrapper function of \code{\link{links}} for probabilistic record linkage.
-#' Its implementation is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
-#'
-#' In summary, record pairs are created and categorised as matches and non-matches (\code{cmp_func}).
-#' Two probabilities (\code{m} and \code{u}) are then estimated for each record pair to score matches and non-matches.
-#' The \code{m}-probability is the probability that matched records are actually from the same entity i.e a true match,
-#' while \code{u}-probability is the probability that matched records are not from the same entity i.e. a false match.
-#' \code{m}-probabilities must be supplied but \code{u}-probabilities are calculated for each value of an \code{attribute}.
-#' This is calculated as the frequency of each value in the dataset.
-#' Record pairs whose total score are above a certain threshold (\code{score_threshold}) are assumed to belong to the same entity.
-#'
-#' Agreement (match) and disagreement (non-match) scores are calculated as described by Asher et al. (2020).
-#'
-#' For each record pair, an agreement for attribute \eqn{i} is calculated as;
-#'
-#' \deqn{\log_{2}(m_{i}/u_{i})}{log_2 (m_i / u_i)}
-#'
-#' For each record pair, a disagreement score for attribute \eqn{i} is calculated as;
-#'
-#' \deqn{\log_{2}((1-m_{i})/(1-u_{i}))}{log_2 ((1-m_i) / (1-u_i))}
-#'
-#' where \eqn{m_{i}}{m_i} and \eqn{u_{i}}{u_i} are the \code{m} and \code{u}-probabilities for each value of attribute \eqn{i}.
-#'
-#' Missing data (\code{NA}) are categorised as non-matches and assigned a \code{u}-probability of \code{0}.
-#'
-#' By default, matches and non-matches for each \code{attribute} are determined as an \code{\link{exact_match}} with a binary outcome.
-#' String comparators can also be used with thresholds (\code{cmp_threshold}) for each similarity score.
-#' If \code{probabilistic} is \code{FALSE},
-#' the sum of all similarity scores is used as the \code{score_threshold} instead of deriving one from the \code{m} and \code{u}-probabilities.
-#'
-#' \code{links_wf_probabilistic} requires a \code{score_threshold} in advance of the linkage process.
-#' This differs from the typical approach where a \code{score_threshold} is selected after the linkage process,
-#' following a review of all calculated scores.
-#' To help with this, \code{prob_score_range} will return the range of scores attainable for a given set of attributes.
-#' Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs, aiding the review of potential scores.
-#'
-#' A \code{blocking_attribute} can be used to reduce processing time by restricting comparisons to subsets of the dataset.
-#'
-#' @references
-#' Fellegi, I. P., & Sunter, A. B. (1969). A Theory for Record Linkage. \emph{Journal of the Statistical Association}, 64(328), 1183–1210. https://doi.org/10.1080/01621459.1969.10501049
-#'
-#' Asher, J., Resnick, D., Brite, J., Brackbill, R., & Cone, J. (2020). An Introduction to Probabilistic Record Linkage with a Focus on Linkage Processing for WTC Registries. \emph{International journal of environmental research and public health}, 17(18), 6937. https://doi.org/10.3390/ijerph17186937.
-#'
-#' @aliases links_wf_probabilistic
-#'
-#' @examples
-#' # Using exact matches
-#' dfr <- missing_staff_id[c("staff_id",  "initials",
-#'                           "hair_colour", "branch_office")]
-#' score_range <- prob_score_range(attribute = attrs(.obj = dfr))
-#' prob_pids1 <- links_wf_probabilistic(attribute = attrs(.obj = dfr),
-#'                                      score_threshold = score_range$minimum_score)
-#' prob_pids1
-#'
-#' # Using other logical tests e.g. string comparators
-#' # For example, matching last word in `hair_colour` and `branch_office`
-#' last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
-#' last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
-#' prob_pids2 <- links_wf_probabilistic(attribute = attrs(.obj = dfr),
-#'                                      cmp_func = c(diyar::exact_match,
-#'                                                   diyar::exact_match,
-#'                                                   last_word_cmp,
-#'                                                   last_word_cmp),
-#'                                      score_threshold = score_range$mid_scorce)
-#' prob_pids2
-#'
-#' # Results for specific record pairs
-#' prob_pids3 <- links_wf_probabilistic(attribute = attrs(.obj = dfr),
-#'                                      cmp_func = c(diyar::exact_match,
-#'                                                   diyar::exact_match,
-#'                                                   last_word_cmp,
-#'                                                   last_word_cmp),
-#'                                      score_threshold = score_range$mid_scorce,
-#'                                      id_1 = c(1, 1, 1),
-#'                                      id_2 = c(6, 7, 4))
-#' prob_pids3
-#' @export
-links_wf_probabilistic <- function(attribute,
-                                   blocking_attribute = NULL,
-                                   cmp_func = diyar::exact_match,
-                                   cmp_threshold = .95,
-                                   probabilistic = TRUE,
-                                   m_probability = .95,
-                                   score_threshold = 1,
-                                   id_1 = NULL, id_2 = NULL,
-                                   ...
-){
-
-  err <- err_links_wf_probablistic_0(attribute = attribute,
-                                     blocking_attribute = blocking_attribute,
-                                     cmp_func = cmp_func,
-                                     cmp_threshold = cmp_threshold,
-                                     probabilistic = probabilistic,
-                                     m_probability = m_probability,
-                                     score_threshold = score_threshold,
-                                     id_1 = id_1, id_2 = id_2)
-  if(!isFALSE(err)) stop(err, call. = FALSE)
-
-  if(class(attribute) != "d_attribute"){
-    attribute <- attr(attribute)
-  }
-
-  if(is.null(names(attribute))){
-    names(attribute) <- paste0("var_", seq_len(length(attribute)))
-  }
-
-  if(isTRUE(probabilistic)){
-    # u-probabilities
-    u_probs <- lapply(attribute, function(x){
-      x_cd <- match(x, x[!duplicated(x)])
-      x_cd[is.na(x)] <- NA_real_
-      r <- rle(x_cd[order(x_cd)])
-      n <- r$lengths[match(x_cd, r$values)]
-      p <- n/length(x_cd)
-      p[is.na(x_cd)] <- 0
-      p
-    })
-
-    lgk <- unlist(lapply(u_probs, function(x){
-      any(x == 1)
-    }), use.names = FALSE)
-    if(any(lgk[lgk])){
-      warning(paste0("Attributes with identicial values in every record are ignored:\n",
-                     paste0("i - `", names(attribute)[lgk], "` was ignored!", collapse = "\n")), call. = FALSE)
-    }
-    attribute <- attribute[!lgk]
-
-    # m-probabilities
-    if(class(m_probability) != "list"){
-      m_probability <- list(m_probability)
-    }
-    if(length(m_probability) == 1 & length(attribute) > 1){
-      m_probability <- rep(m_probability, length(attribute))
-    }
-  }else{
-    u_probs <- lapply(attribute, function(x){
-      rep(0, length(x))
-    })
-  }
-
-  # Attribute names
-  attr_nm <- names(attribute)
-
-  # Threshold for agreement in each attribute
-  if(is.number_line(cmp_threshold)){
-    cmp_threshold[cmp_threshold@.Data < 0] <- reverse_number_line(cmp_threshold[cmp_threshold@.Data < 0], "decreasing")
-  }else{
-    cmp_threshold <- number_line(cmp_threshold, Inf)
-  }
-
-  if(length(cmp_threshold) == 1 & length(attribute) > 1){
-    cmp_threshold <- rep(cmp_threshold, length(attribute))
-  }
-
-  if(is.number_line(score_threshold)){
-    score_threshold[score_threshold@.Data < 0] <- reverse_number_line(score_threshold[score_threshold@.Data < 0], "decreasing")
-  }else{
-    score_threshold <- number_line(score_threshold, Inf)
-  }
-
-  # String comparator for each attribute
-  if(class(cmp_func) != "list"){
-    cmp_func <- list(cmp_func)
-  }
-  if(length(cmp_func) == 1 & length(attribute) > 1){
-    cmp_func <- rep(cmp_func, length(attribute))
-  }
-
-  # Weight or probabilistic matching
-  prob_link_2 <- function(x, y){
-    prob_link(x, y,
-              cmp_threshold = cmp_threshold,
-              m_probability = m_probability,
-              score_threshold = score_threshold,
-              return_weights = FALSE,
-              probabilistic = probabilistic,
-              cmp_func = cmp_func)
-
-  }
-
-  # Identify identical records to skip repeat checks
-  same_rec_func <- function(x, y){
-    attr_n <- length(x)
-    lgk <- sapply(seq_len(attr_n), function(i){
-      lgk <- x[[i]] == y[[i]] | (is.na(x[[i]]) & is.na(y[[i]]))
-      lgk[is.na(lgk)] <- FALSE
-      lgk
-    })
-    if(is.null(nrow(lgk))){
-      sum(lgk) == attr_n
-    }else{
-      rowSums(lgk) == attr_n
-    }
-  }
-
-  # Re-calculate weights for linked records
-  if(!is.null(id_1) & !is.null(id_2)){
-    pids <- NULL
-    x <- c(attribute, u_probs)
-    y <- lapply(x, function(k) k[id_2])
-    x <- lapply(x, function(k) k[id_1])
-    thresh_lgk <- integer()
-  }else{
-    pids <- links(criteria = "place_holder",
-                  strata = blocking_attribute,
-                  sub_criteria = list("cr1" = sub_criteria(attrs(.obj = c(attribute, u_probs)),
-                                                           match_funcs = prob_link_2,
-                                                           equal_funcs = same_rec_func)),
-                  ...)
-    x <- c(attribute, u_probs)
-    y <- lapply(x, function(k) k[match(pids@link_id, pids@sn)])
-    id_1 <- pids@sn
-    id_2 <- pids@link_id
-    thresh_lgk <- which(pids@pid_cri %in% -1:0)
-  }
-
-  pid_weights <- prob_link(x, y,
-                           cmp_threshold = cmp_threshold,
-                           m_probability = m_probability,
-                           score_threshold = score_threshold,
-                           return_weights = TRUE,
-                           cmp_func = cmp_func,
-                           probabilistic = probabilistic)
-  # Mask unlinked records
-  pid_weights[thresh_lgk,] <- NA_real_
-  pid_weights <- cbind(id_1, id_2, pid_weights)
-  colnames(pid_weights)[1:2] <- c("sn_x","sn_y")
-  # Output
-  pids <- list(pid = pids,
-               pid_weights = pid_weights)
-  rm(list = ls()[ls() != "pids"])
-  return(pids)
-}
-
-#' @rdname links_wf_probabilistic
-#' @export
-prob_score_range <- function(attribute, m_probability = .95){
-  if(class(attribute) != "d_attribute"){
-    attribute <- attrs(attribute)
-  }
-  if(is.null(names(attribute))){
-    names(attribute) <- paste0("var_", seq_len(length(attribute)))
-  }
-  u_probs <- lapply(attribute, function(x){
-    x_cd <- match(x, x[!duplicated(x)])
-    x_cd[is.na(x)] <- NA_real_
-    r <- rle(x_cd[order(x_cd)])
-    n <- r$lengths[match(x_cd, r$values)]
-    p <- n/length(x_cd)
-    p[is.na(x_cd)] <- 0
-    p
-  })
-
-  lgk <- unlist(lapply(u_probs, function(x){
-    any(x == 1)
-  }), use.names = FALSE)
-  if(any(lgk[lgk])){
-    warning(paste0("Attributes with identicial values in every record will be ignored:\n",
-                   paste0("i - `", names(attribute)[lgk], "` will be ignored!", collapse = "\n")), call. = FALSE)
-
-    attribute <- attribute[!lgk]
-    u_probs <- u_probs[!lgk]
-  }
-
-  if(class(m_probability) != "list"){
-    m_probability <- list(m_probability)
-  }
-  if(length(m_probability) != 1 & any(lgk[lgk])){
-    m_probability <- m_probability[!lgk]
-  }
-  if(length(m_probability) == 1 & length(attribute) > 1){
-    m_probability <- rep(m_probability, length(attribute))
-  }
-
-  max_thresh <- sapply(seq_len(length(u_probs)), function(i){
-    curr_uprob <- u_probs[[i]]
-    # Exclude u-probability of '0'
-    # These are from missing data and will never be an agreement
-    curr_uprob[curr_uprob == 0] <- 1
-    curr_mprob <- m_probability[[i]]
-    log2(curr_mprob/curr_uprob)
-  })
-  if(is.null(nrow(max_thresh))){
-    max_thresh <- max(sum(max_thresh))
-  }else{
-    max_thresh <- max(rowSums(max_thresh))
-  }
-  min_thresh <- sapply(seq_len(length(u_probs)), function(i){
-    curr_uprob <- u_probs[[i]]
-    curr_mprob <- m_probability[[i]]
-    log2((1 - curr_mprob)/(1 - curr_uprob))
-  })
-  if(is.null(nrow(min_thresh))){
-    min_thresh <- min(sum(min_thresh))
-  }else{
-    min_thresh <- min(rowSums(min_thresh))
-  }
-  list(minimum_score = min_thresh,
-       mid_scorce = (min_thresh + max_thresh)/2,
-       maximum_score = max_thresh)
-}
-
-

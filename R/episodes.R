@@ -13,7 +13,7 @@
 #' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from an event distinguishing a \code{"Recurrent"} event from its index event.
 #' @param episode_unit \code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
 #' @param rolls_max \code{[integer]}. Maximum number of times the index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
-#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each episode to the \code{\link[=epid-class]{epid}}. Useful when the dataset contains information from different sources.
+#' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each episode to the \code{\link[=epid-class]{epid}}. Useful when the data is from multiple sources.
 #' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
 #' @param case_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}})
 #' @param recurrence_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Recurrence"} event. See (\code{\link{overlaps}})
@@ -133,8 +133,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 recurrence_length_total = recurrence_length_total,
                                 skip_unique_strata = skip_unique_strata)
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
+  inp_n <- length(date)
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Data validation")
+    rp_data <- di_report(tm_a, "Data validation", inp_n)
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -142,7 +143,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
   tm_ia <- Sys.time()
 
-  inp_n <- length(date)
   # `episode_unit`
   episode_unit <- tolower(episode_unit)
   episode_unit <- match(episode_unit, names(diyar::episode_unit))
@@ -257,10 +257,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ld_skip_if_b4_lengths <- skip_if_b4_lengths
   ld_episode_type <- episode_type
 
-  mk_lazy_opt <- function(x){
-    class(x) <- "d_lazy_opts"
-    return(x)
-  }
   case_overlap_methods <- lapply(case_overlap_methods, mk_lazy_opt)
 
   if(isTRUE(any_rolling_epi)){
@@ -302,7 +298,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   assign_ord <- order(order(ord_a, -ord_z, date@gid))
   rm(ord_a); rm(ord_z)
-  # assign_ord <- match(seq_len(inp_n), assign_ord)
 
   # User-defined order of case-assignment
   if(!is.null(custom_sort)) {
@@ -313,7 +308,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       custom_sort <- rep(custom_sort, inp_n)
     }
     assign_ord <- order(order(custom_sort, assign_ord))
-    # assign_ord <- match(seq_len(inp_n), assign_ord)
   }else{
     custom_sort <- rep(0L, inp_n)
   }
@@ -335,7 +329,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(data_source) == 1) data_source <- rep(data_source, inp_n)
   }
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Data standardisation")
+    rp_data <- di_report(tm_ia, "Data standardisation", inp_n,)
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -387,18 +381,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(!display %in% c("none_with_report", "none")) cat("\n")
   epids_repo <- list("e" = e,
                      "tag" = tag,
-                     # "cri" = cri,
-                     # "assign_ord" = assign_ord,
                      "int" = date,
-                     # "epid_n" = epid_n,
-                     # "c_sort" = c_sort,
-                     # "skip_order" = skip_order,
                      "case_nm" = case_nm,
                      "wind_nm" = wind_nm,
                      "wind_id" = wind_id,
                      "wind_id_lst" = list(wind_id),
-                     # "rolls_max" = rolls_max,
-                     # "episodes_max" = episodes_max,
                      "iteration" = iteration)
 
   # Subset out all linked records
@@ -410,7 +397,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     tag <- tag[ntag_lgk]
     cri <- cri[ntag_lgk]
     assign_ord <- assign_ord[ntag_lgk]
-    # date <- date[ntag_lgk]
     epid_n <- epid_n[ntag_lgk]
     custom_sort <- custom_sort[ntag_lgk]
     wind_nm <- wind_nm[ntag_lgk]
@@ -434,10 +420,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     ld_case_length_total <- ld_case_length_total[ntag_lgk]
 
     if(!is.null(case_sub_criteria) & length(ntag_lgk) > 0){
-      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(date@id))
-      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
-      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
-      # case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
       case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[ntag_lgk])
     }
 
@@ -453,16 +435,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       recurrence_overlap_methods <- lapply(recurrence_overlap_methods, function(x){x[ntag_lgk]})
 
       if(!is.null(recurrence_sub_criteria) & length(ntag_lgk) > 0){
-        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(date@id))
-        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
-        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
-        # recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
         recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[ntag_lgk])
       }
     }
     date <- date[ntag_lgk]
   }
-
 
   if(!display %in% c("none")){
     rp_data <- di_report(tm_ia, "Pre-tracking", inp_n, current_skipped = excluded)
@@ -478,7 +455,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   tm_ia <- Sys.time()
 
   ite <- 1L
-
   while (suppressWarnings(min(tag)) != 2 & length(tag) > 0) {
     if(display %in% c("stats_with_report", "stats")){
       msg <- paste0("Iteration ", fmt(ite) ,".\n")
@@ -521,7 +497,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     wind_id_lst <- lapply(wind_id_lst, function(x){x[sort_ord]})
     ep_l <- lapply(ep_l, function(x){x[sort_ord]})
     case_overlap_methods <- lapply(case_overlap_methods, function(x){x[sort_ord]})
-
 
     ld_episode_type <- ld_episode_type[sort_ord]
     ld_reference_event <- ld_reference_event[sort_ord]
@@ -735,22 +710,21 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # Implement `case_sub_criteria`
     checks_lgk <- rep(FALSE, length(date))
-
-    if(ite == 4){
-      # browser()
-    }
     if(class(case_sub_criteria) == "sub_criteria"){
       c_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
         cri_2 <- cri + (cr/10)
         cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE) & skip_unique_strata
         if(length(cr[cr & !cri_2]) > 0){
           ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
+          pos_repo <- make_batch_pairs(strata = cri[cr & !cri_2],
+                                       index_record = ref_rd[cr & !cri_2],
+                                       sn = order(order(date@id))[cr & !cri_2])
+          # Check the `sub_criteria`
           checks_lgk[cr & !cri_2] <- eval_sub_criteria(x = case_sub_criteria,
-                                                       strata = cri[cr & !cri_2],
-                                                       index_record = ref_rd[cr & !cri_2],
-                                                       # sn = match(date@id, sort(date@id))[cr & !cri_2]
-                                                       sn = order(order(date@id))[cr & !cri_2]
-          )[[1]]
+                                                       x_pos = pos_repo$x_pos,
+                                                       y_pos = pos_repo$y_pos)[[1]]
+          checks_lgk[ref_rd] <- 1L
+          rm(pos_repo)
         }
         checks_lgk
       })
@@ -843,13 +817,17 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE) & skip_unique_strata
           if(length(cr2[cr2 & !cri_2]) > 0){
             ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
+            pos_repo <- make_batch_pairs(strata = cri[cr2 & !cri_2],
+                                         index_record = ref_rd[cr2 & !cri_2],
+                                         sn = order(order(date@id))[cr2 & !cri_2])
+            # Check the `sub_criteria`
             checks_lgk[cr2 & !cri_2] <- eval_sub_criteria(x = recurrence_sub_criteria,
-                                                          strata = cri[cr2 & !cri_2],
-                                                          index_record = ref_rd[cr2 & !cri_2],
-                                                          # sn = match(date@id, sort(date@id))[cr2 & !cri_2]
-                                                          sn = order(order(date@id))[cr2 & !cri_2]
-            )[[1]]
+                                                          x_pos = pos_repo$x_pos,
+                                                          y_pos = pos_repo$y_pos)[[1]]
+            checks_lgk[ref_rd & cr2 & !cri_2] <- 1L
+
           }
+          rm(pos_repo)
           checks_lgk
         })
 
@@ -886,7 +864,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       x
     })
 
-    # browser()
     e[cr & tr_tag %in% c(-1, -2)] <- tr_e[cr & tr_tag %in% c(-1, -2)]
     lgk_p <- which(cr & tr_tag %in% c(0))
     lgk_p1 <- which(cr & tr_tag %in% c(0) & !c_sub_cri)
@@ -996,10 +973,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # Events in between `case_length`s and `recurrence_length`s
     if(isTRUE(any_skip_b4_len)){
-      # browser()
       lgk <- ld_skip_if_b4_lengths & tag != 2 & tr_tag %in% c(0, -2)
       lgk <- check_skips(lgk = lgk,
-                         # ld_skip_if_b4_lengths = ld_skip_if_b4_lengths,
                          cri = cri,
                          cr = cr,
                          vr = vr,
@@ -1010,7 +985,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(isTRUE(any_rolling_epi_curr)){
         lgk2 <- ld_skip_if_b4_lengths & tag != 2 & tr_tag %in% c(-1)
         lgk2 <- check_skips(lgk = lgk2,
-                            # ld_skip_if_b4_lengths = ld_skip_if_b4_lengths,
                             cri = cri,
                             cr = cr,
                             vr = vr,
@@ -1045,26 +1019,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     # Subset out all linked records
     tag_lgk <- which(tag == 2)
     ntag_lgk <- which(tag != 2)
-    # rtag_lgk <- match(date@id[tag_lgk], epids_repo$date@id)
     rtag_lgk <- date@id[tag_lgk]
+
     epids_repo$e[rtag_lgk] <- e[tag_lgk]
-    # epids_repo$cri[rtag_lgk] <- cri[tag_lgk]
-    # epids_repo$assign_ord[rtag_lgk] <- assign_ord[tag_lgk]
-    # epids_repo$epid_n[rtag_lgk] <- epid_n[tag_lgk]
-    # epids_repo$c_sort[rtag_lgk] <- c_sort[tag_lgk]
-    # epids_repo$skip_order[rtag_lgk] <- skip_order[tag_lgk]
     epids_repo$case_nm[rtag_lgk] <- case_nm[tag_lgk]
     epids_repo$wind_nm[rtag_lgk] <- wind_nm[tag_lgk]
     epids_repo$wind_id[rtag_lgk] <- wind_id[tag_lgk]
-    # epids_repo$rolls_max[rtag_lgk] <- rolls_max[tag_lgk]
     epids_repo$iteration[rtag_lgk] <- iteration[tag_lgk]
-    # epids_repo$episodes_max[rtag_lgk] <- episodes_max[tag_lgk]
     epids_repo$date[rtag_lgk] <- date[tag_lgk]
     epids_repo$tag[rtag_lgk] <- tag[tag_lgk]
-
-    # if((!is.null(case_sub_criteria) | !is.null(recurrence_sub_criteria)) & length(ntag_lgk) > 0){
-    #   s_pos <- match(sort(date@id[ntag_lgk]), sort(date@id))
-    # }
 
     e <- e[ntag_lgk]
     cri <- cri[ntag_lgk]
@@ -1078,7 +1041,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rolls_max <- rolls_max[ntag_lgk]
     iteration <- iteration[ntag_lgk]
     episodes_max <- episodes_max[ntag_lgk]
-    # date <- date[ntag_lgk]
     tag <- tag[ntag_lgk]
     episode_type <- episode_type[ntag_lgk]
     reference_event <- reference_event[ntag_lgk]
@@ -1086,11 +1048,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     case_length_total <- case_length_total[ntag_lgk]
     ep_l <- lapply(ep_l, function(x){x[ntag_lgk]})
     case_overlap_methods <- lapply(case_overlap_methods, function(x){x[ntag_lgk]})
-    # if(ite ==2) browser()
+
     if(!is.null(case_sub_criteria) & length(ntag_lgk) > 0){
-      # case_sub_criteria <- sp_scri(case_sub_criteria, s_pos)
-      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(date@id)[ntag_lgk]))
-      # case_sub_criteria <- sp_scri(case_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
       case_sub_criteria <- reframe(case_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
     }
 
@@ -1118,9 +1077,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       rc_l <- lapply(rc_l, function(x){x[ntag_lgk]})
       recurrence_overlap_methods <- lapply(recurrence_overlap_methods, function(x){x[ntag_lgk]})
       if(!is.null(recurrence_sub_criteria) & length(ntag_lgk) > 0 & any_rolling_epi){
-        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, s_pos)
-        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(date@id)[ntag_lgk]))
-        # recurrence_sub_criteria <- sp_scri(recurrence_sub_criteria, sort(order(order(date@id))[ntag_lgk]))
         recurrence_sub_criteria <- reframe(recurrence_sub_criteria, func = function(x) x[sort(order(order(date@id))[ntag_lgk])])
       }
 
@@ -1133,7 +1089,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       progress_bar(length(epids_repo$tag[epids_repo$tag == 2]),
                    inp_n, 100,
                    msg = paste0("Iteration ",
-                                ite, " (",
+                                fmt(ite), " (",
                                 fmt(difftime(Sys.time(), tm_ia), "difftime"),
                                 ")"))
       tm_ia <- Sys.time()
@@ -1153,18 +1109,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
       break
     }
-
-    # if(length(wind_id_lst) >1){
-    #   browser()
-    # }
   }
-  # browser()
   if(!display %in% c("none_with_report", "none")) cat("\n")
 
   if(length(e) > 0){
     tag_lgk <- which(tag == 2)
     ntag_lgk <- which(tag != 2)
-    # rtag_lgk <- match(date@id[tag_lgk], epids_repo$date@id)
     rtag_lgk <- date@id[tag_lgk]
 
     epids_repo$e[rtag_lgk] <- e[tag_lgk]
@@ -1173,6 +1123,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     epids_repo$wind_id[rtag_lgk] <- wind_id[tag_lgk]
     epids_repo$date[rtag_lgk] <- date[tag_lgk]
     epids_repo$tag[rtag_lgk] <- tag[tag_lgk]
+    epids_repo$iteration[rtag_lgk] <- iteration[tag_lgk]
 
     e <- e[tag_lgk]
     case_nm <- case_nm[tag_lgk]
@@ -1185,7 +1136,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       w_diff <- length(wind_id_lst) - length(epids_repo$wind_id_lst)
       epids_repo$wind_id_lst <- c(epids_repo$wind_id_lst,
                                   rep(list(rep(NA_real_, inp_n)), w_diff))
-
     }
     epids_repo$wind_id_lst <- lapply(seq_len(length(wind_id_lst)), function(i){
       epids_repo$wind_id_lst[[i]][rtag_lgk] <- wind_id_lst[[i]][tag_lgk]
@@ -1330,23 +1280,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(!is.null(data_source)){
     data_source <- data_source[match(tmp_pos[fd], seq_len(inp_n))]
     # Data links
-    # names(e) <- tmp_pos
-    # browser()
     rst <- check_links(e[fd], data_source, data_links)
     epids@epid_dataset <- rst$ds
 
     if(!all(toupper(dl_lst) == "ANY")){
       req_links <- rst$rq
       epids <- suppressWarnings(delink(epids, !req_links))
-      # epids@dist_epid_index[!req_links] <- 0
-      # epids@dist_wind_index[!req_links] <- 0
-      # epids@case_nm[!req_links] <- -1L
-      # epids@.Data[!req_links] <- epids@sn[!req_links]
-      # epids@wind_id[!req_links] <- epids@sn[!req_links]
-      # epids@wind_id <- lapply(epids@wind_id, function(x){
-      #   x[!req_links] <- epids@sn[!req_links]
-      #   return(x)
-      # })
       epids@epid_dataset[!req_links] <- data_source[!req_links]
     }
     epids@epid_dataset <- encode(epids@epid_dataset)
@@ -1357,7 +1296,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     class(epids$report) <- "d_report"
   }
   tms <- difftime(Sys.time(), tm_a)
-  if(!display %in% c("none_with_report", "none")) cat("Episodes tracked in ", fmt("difftime"), "!\n", sep = "")
+  if(!display %in% c("none_with_report", "none")) cat("Episodes tracked in ", fmt(tms, "difftime"), "!\n", sep = "")
   rm(list = ls()[ls() != "epids"])
   return(epids)
 }
@@ -1489,10 +1428,8 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
     if(all(class(opt_lst[[i]]) == "sub_criteria")) {
       if(reframe){
-        # return(rf_scri(opt_lst[[i]], cmbi_cd))
         return(reframe(opt_lst[[i]], func = function(x) split(x, cmbi_cd)))
       }else{
-        # return(sp_scri(opt_lst[[i]], !rf_lgk))
         return(reframe(opt_lst[[i]], func = function(x) x[!rf_lgk]))
       }
     }else if(length(opt_lst[[i]]) %in% 0:1 | opt_lst_nms[i] %in% "data_links"){
@@ -1704,8 +1641,9 @@ index_window <- function(date, from_last = FALSE){
 #'
 #' @export
 custom_sort <- function(..., decreasing = FALSE, unique = FALSE){
-  ord <- order(..., decreasing = decreasing)
-  ord <- match(seq_len(length(ord)), ord)
+  # ord <- order(..., decreasing = decreasing)
+  # ord <- match(seq_len(length(ord)), ord)
+  ord <- order(order(..., decreasing = decreasing))
   if(!unique){
     ord_l <- combi(...)
     ord <- (ord[!duplicated(ord_l)])[match(ord_l, ord_l[!duplicated(ord_l)])]

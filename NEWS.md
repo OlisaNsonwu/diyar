@@ -3,8 +3,17 @@
 
 ## New features
 
--   New function - `sp_scri()`. XXXXXXXX.
--   New function - `rf_scri()`. XXXXXXXX.
+-   New function - `reframe()`. Modify the attributes of a
+    `sub_criteria` object.
+-   New function - `link_records()`. Record linkage by creating all
+    record pairs as opposed to batches as with `link()`.
+-   New function - `make_pairs()`. Create every combination of
+    records-pairs for a given dataset.
+-   New function - `make_pairs_wf_source()`. Create records-pairs from
+    different sources only.
+-   New function - `make_ids()`. Convert an edge list to a group
+    identifier.
+-   New function - `merge_ids()`. Merge two group identifiers.
 -   New function - `attrs()`. XXXXXXXXXX.
 -   New `S3`object - `d_report`. XXXXXXXX
 -   New `S3`object - `d_attribute`. XXXXXXXX
@@ -17,7 +26,11 @@
 
 ## Bug fixes
 
--   Corrected `wind_id` when using the `data_link` argument.
+-   Incorrect `wind_id` list in `episodes()` when `data_link` is used.
+    Resolved.
+-   Incorrect `link_id` `links()` when `recursive` is used. Resolved.
+-   `iteration` not recorded in some situations with `episodes()`.
+    Resolved.
 
 # Version 0.3.1
 

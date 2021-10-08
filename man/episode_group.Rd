@@ -79,9 +79,6 @@ This is the case window.}
 \item{overlap_method}{\code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.}
 
 \item{x}{\code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}.}
-
-\item{case_for_recurrence}{\code{[logical]}. If \code{TRUE}, both \code{"case"} and \code{"recurrent"} events will have a case window.
-If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"}.}
 }
 \value{
 

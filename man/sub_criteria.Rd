@@ -37,7 +37,7 @@ It creates a \code{sub_criteria} class object which contains the attributes to b
 logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 another set of logical tests to determine identical records.
 
-\bold{\code{attrs()}} - Passes a collection of attributes to \bold{\code{sub_criteria()}}.
+\bold{\code{attrs()}} - Pass a collection of attributes to each \code{...} in \bold{\code{sub_criteria()}}.
 
 Every attribute, including those in a collection, must have
 the same length or a length of 1.

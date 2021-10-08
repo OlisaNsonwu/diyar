@@ -3,14 +3,16 @@
 \name{reframe}
 \alias{reframe}
 \alias{reframe.sub_criteria}
-\title{\code{sub_criteria} object}
+\title{Modify \code{sub_criteria} objects}
 \usage{
 reframe(x, ...)
 
 \method{reframe}{sub_criteria}(x, func = identity, ...)
 }
 \arguments{
-\item{x}{Arguments passed to methods.}
+\item{x}{\code{[\link{sub_criteria}]}.}
+
+\item{...}{Arguments passed to methods.}
 
 \item{func}{\code{[function]}. Transformation function.}
 }
@@ -18,11 +20,7 @@ reframe(x, ...)
 Modify the attributes of a \code{\link{sub_criteria}} object.
 }
 \examples{
-s_cri <- sub_criteria(
-month.abb,
-month.name
-)
-
+s_cri <- sub_criteria(month.abb, month.name)
 reframe(s_cri, func = function(x) x[12])
 reframe(s_cri, func = function(x) x[12:1])
 reframe(s_cri, func = function(x) attrs(x[1:6], x[7:12]))

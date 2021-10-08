@@ -17,12 +17,11 @@ range_match_legacy(x, y)
 prob_link(
   x,
   y,
+  cmp_func,
   cmp_threshold,
-  m_probability,
   score_threshold,
-  return_weights,
   probabilistic,
-  cmp_func
+  return_weights
 )
 }
 \arguments{
@@ -32,17 +31,15 @@ prob_link(
 
 \item{range}{Difference between \code{y} and \code{x}.}
 
-\item{cmp_threshold}{Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.}
+\item{cmp_func}{Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.}
 
-\item{m_probability}{Matching set of m-probabilities. The probability that a match from \code{cmp_func} is a true match. See \code{\link{links_wf_probabilistic}}.}
+\item{cmp_threshold}{Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.}
 
 \item{score_threshold}{Score threshold determining matched or linked records. See \code{\link{links_wf_probabilistic}}.}
 
-\item{return_weights}{If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.}
-
 \item{probabilistic}{If \code{TRUE}, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See \code{\link{links_wf_probabilistic}}.}
 
-\item{cmp_func}{Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.}
+\item{return_weights}{If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.}
 }
 \description{
 A collection of predefined logical tests used with \bold{\code{\link{sub_criteria}}} objects.
@@ -54,7 +51,7 @@ A collection of predefined logical tests used with \bold{\code{\link{sub_criteri
 
 \bold{\code{range_match_legacy()}} - test that \code{overlap(as.number_line(x@gid), y)} is \code{TRUE}.
 
-\bold{\code{prob_link()}} - Test that a record sets \code{x} and \code{y} are from the same entity based on calculated weights and probability scores.
+\bold{\code{prob_link()}} - Test that a record-sets \code{x} and \code{y} are from the same entity based on calculated weights and probability scores.
 }
 \examples{
 `exact_match`

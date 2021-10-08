@@ -587,7 +587,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
 
   if(length(err) > 0){
     err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
-                  ifelse(ref_nm == "", "", paste0("i - Length must be 1 or the same as `", ref_nm, "`.\n")),
+                  ifelse(ref_nm == "", "", paste0("i - Length must be ", ifelse(1 %in% ref_len,"1 or ", ""), "the same as `", ref_nm, "`.\n")),
                   "i - Expecting a length of ", listr(fmt(unique(ref_len)), conj = " or"), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, fmt(length(err))), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", fmt(err), ".", collapse = "\n"))
     return(err)
@@ -1159,6 +1159,9 @@ err_links_checks_0 <- function(criteria,
   # Check for required object lengths
   if(class(criteria) != "list") criteria <- list(criteria)
   len_lims <- c(1, length(criteria[[1]]))
+  if(!is.null(sub_criteria)){
+    len_lims <- max(c(len_lims, unlist(lapply(sub_criteria, attr_eval), use.names = FALSE)))
+  }
   args <- list(data_source = data_source,
                display = display,
                group_stats = group_stats,
@@ -1179,7 +1182,7 @@ err_links_checks_0 <- function(criteria,
 
   err <- mapply(err_match_ref_len,
                 args,
-                rep(as.list("criteria"), length(args_lens)),
+                rep(as.list("criteria/sub_criteria"), length(args_lens)),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -1789,13 +1792,15 @@ err_links_wf_probablistic_0 <- function(attribute,
                                         cmp_threshold,
                                         probabilistic,
                                         m_probability,
+                                        u_probability,
                                         score_threshold,
                                         id_1, id_2){
   # Check for non-atomic vectors
   args <- list(blocking_attribute = blocking_attribute,
                cmp_threshold = cmp_threshold,
                probabilistic = probabilistic,
-               m_probability = m_probability,
+               # m_probability = m_probability,
+               # u_probability = u_probability,
                score_threshold = score_threshold,
                id_1 = id_1, id_2 = id_2)
 
@@ -1807,16 +1812,22 @@ err_links_wf_probablistic_0 <- function(attribute,
   if(length(err) > 0) return(err[1])
 
   # Check for required object types
-  args <- list(cmp_threshold = cmp_threshold,
+  args <- list(
+               # attribute = attribute,
+               cmp_threshold = cmp_threshold,
                probabilistic = probabilistic,
                m_probability = m_probability,
+               u_probability = u_probability,
                score_threshold = score_threshold,
                cmp_func = cmp_func,
                id_1 = id_1, id_2 = id_2)
 
-  args_classes <- list(cmp_threshold = c("list", "numeric", "integer"),
+  args_classes <- list(
+                       # attribute = c("list", "data.frame", "matrix", "d_attribute"),
+                       cmp_threshold = c("list", "numeric", "integer"),
                        probabilistic = "logical",
                        m_probability = c("list", "numeric", "integer"),
+                       u_probability = c("list", "numeric", "integer", "NULL"),
                        score_threshold = c("list", "numeric", "integer", "number_line"),
                        cmp_func = c("list", "function"),
                        id_1 = c("NULL", "numeric", "integer"),
@@ -1830,7 +1841,12 @@ err_links_wf_probablistic_0 <- function(attribute,
   err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
-  if(class(attribute) != "d_attribute"){
+  if(class(attribute) %in% c("list", "data.frame")){
+    attribute <- attrs(.obj = attribute)
+  }else if(class(attribute) %in% c("matrix")){
+    attribute <- attrs(.obj = as.data.frame(attribute))
+  }else if(class(attribute) %in% c("d_attribute")){
+  }else{
     attribute <- attrs(attribute)
   }
 
@@ -1870,17 +1886,44 @@ err_links_wf_probablistic_0 <- function(attribute,
   }
 
   err <- c("m_probability" = length(m_probability),
+           "u_probability" = length(u_probability),
            "cmp_func" = length(cmp_func),
            "cmp_threshold" = length(cmp_threshold))
+  if(is.null(u_probability)){
+    err <- err[names(err) != "u_probability"]
+  }
   ref_err <- length(attribute)
   err_lgk <- which(ref_err != err & err != 1)
   if(any(which(ref_err != err & err != 1))){
-    err <- paste0("Lengths of `cmp_func`, `cmp_threshold` and `m_probability` must be 1 or match the number of attributes supplied:\n",
+    err <- paste0("Lengths of `cmp_func`, `cmp_threshold`, `m_probability` and `u_probability` must be 1 or match the number of attributes supplied:\n",
                   "i - Expecting lengths of 1 or ", ref_err, "\n",
-                  paste0("X - Length of `", names(err[err_lgk]), "` is ", fmt(err[err_lgk]), ".", collapse = "\n"))
+                  paste0("X - Length of `", names(err[err_lgk]), "` is ", err[err_lgk], ".", collapse = "\n"))
     return(err)
   }
 
+  if(all(class(m_probability) != "list")){
+    m_probability <- as.list(m_probability)
+  }
+  err <- lapply(m_probability, function(x) !all(x >= 0 & x <= 1))
+  err <- unlist(err, use.names = FALSE)
+  if(length(err[err]) > 0){
+    err <- paste0("m-probabilities must be between 0 and 1:\n",
+                  paste0("X - `m_probability[[", which(err), "]]` is ", m_probability[[which(err)]], ".", collapse = "\n"))
+    return(err)
+  }
+
+  if(!is.null(u_probability)){
+    if(all(class(u_probability) != "list")){
+      u_probability <- as.list(u_probability)
+    }
+    err <- lapply(u_probability, function(x) !all(x >= 0 & x <= 1))
+    err <- unlist(err, use.names = FALSE)
+    if(length(err[err]) > 0){
+      err <- paste0("u-probabilities must be between 0 and 1:\n",
+                    paste0("X - `u_probability[[", which(err), "]]` is ", u_probability[[which(err)]], ".", collapse = "\n"))
+      return(err)
+    }
+  }
   return(FALSE)
 }
 
@@ -1911,10 +1954,76 @@ err_3dot_lens <- function(...){
   err <- sort(err[!duplicated(err)])
 
   if(length(err) != 1 | all(err == 0)){
-    paste0("Different lengths for each attribute (`...`) in `attr()`:\n",
+    paste0("Different lengths for each attribute (`...`) in `attrs()`:\n",
            "i - Each attribute in (`...`) must have the same length.\n",
            paste0("X - `...` ", "contains elements of lengths ", listr(err),".", collapse = "\n"))
   }else{
     FALSE
   }
 }
+
+err_make_pairs_1 <- function(x = 1, strata = NULL,
+                             repeats_allowed = TRUE,
+                             permutations_allowed = TRUE){
+
+  # Check for non-atomic vectors
+  args <- list(x = x,
+               strata = strata,
+               repeats_allowed = repeats_allowed,
+               permutations_allowed = permutations_allowed)
+
+  err <- mapply(err_atomic_vectors,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object types
+  args <- list(repeats_allowed = repeats_allowed,
+               permutations_allowed = permutations_allowed)
+
+  args_classes <- list(repeats_allowed = "logical",
+                       permutations_allowed = "logical")
+
+  err <- mapply(err_object_types,
+                args,
+                as.list(names(args)),
+                args_classes[match(names(args), names(args_classes))])
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for required object lengths
+  len_lims <- c(1, length(x))
+  args <- list(strata = strata,
+               repeats_allowed = repeats_allowed,
+               permutations_allowed = permutations_allowed)
+
+  args_lens <- list(strata = c(0, length(x)),
+               repeats_allowed = 1,
+               permutations_allowed = 1)
+
+  err <- mapply(err_match_ref_len,
+                args,
+                rep(as.list("x"), length(args_lens)),
+                args_lens[match(names(args), names(args_lens))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  # Check for missing values where they are not permitted
+  args <- list(repeats_allowed = repeats_allowed,
+               permutations_allowed = permutations_allowed)
+
+  err <- mapply(err_missing_check,
+                args,
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+  return(FALSE)
+}
+

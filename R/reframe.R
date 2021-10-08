@@ -1,22 +1,18 @@
 #' @name reframe
 #' @aliases reframe
-#' @title \code{sub_criteria} object
+#' @title Modify \code{sub_criteria} objects
 #'
 #' @description
 #' Modify the attributes of a \code{\link{sub_criteria}} object.
 #'
 #' @param x \code{[\link{sub_criteria}]}.
-#' @param x Arguments passed to methods.
+#' @param ... Arguments passed to methods.
 #' @param func \code{[function]}. Transformation function.
 #'
 #' @seealso \code{\link{sub_criteria}}; \code{\link{eval_sub_criteria}}; \code{\link{attr_eval}}
 #'
 #' @examples
-#' s_cri <- sub_criteria(
-#' month.abb,
-#' month.name
-#' )
-#'
+#' s_cri <- sub_criteria(month.abb, month.name)
 #' reframe(s_cri, func = function(x) x[12])
 #' reframe(s_cri, func = function(x) x[12:1])
 #' reframe(s_cri, func = function(x) attrs(x[1:6], x[7:12]))

@@ -29,7 +29,7 @@ links(
 
 \item{strata}{\code{[atomic]}. Subsets of the dataset. Record-groups are created separately for each \code{strata}. See \code{Details}.}
 
-\item{data_source}{\code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the dataset has data from multiple sources.}
+\item{data_source}{\code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.}
 
 \item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be unlinked. See \code{Details}.}
 
@@ -45,7 +45,7 @@ links(
 
 \item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.}
 
-\item{tie_sort}{\code{[atomic]}. Preferential order for selecting breaking tied matches within a stage.}
+\item{tie_sort}{\code{[atomic]}. Preferential order for breaking tied matches within a stage.}
 }
 \value{
 \code{\link[=pid-class]{pid}}; \code{list}

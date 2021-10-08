@@ -13,7 +13,7 @@
 #' @seealso \code{\link{links}}
 #'
 #' @details
-#' \bold{\code{record_group()}} is are superseded. Moving forward, please use \bold{\code{\link{links}}}.
+#' \bold{\code{record_group()}} is superseded. Moving forward, please use \bold{\code{\link{links}}}.
 #'
 #' @aliases record_group
 #' @export

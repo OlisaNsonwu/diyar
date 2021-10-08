@@ -939,3 +939,220 @@ di_report <- function(start_time = 0L, iteration = NA, current_tot = 0L,
   return(x)
 }
 
+permute_num <- function(x, r = 2){
+  (((x ^ r) - x)/r) + x
+}
+
+inherit <- function(tag, cri, pid_cri, tie_sort, sn, pr_sn, expand, pid, link_id, upd_link_id = TRUE, old_link_id = NULL, sn_ref){
+  hri <- seq_len(length(tag))
+  s_tag <- tag
+  s_tag[s_tag != 0 & !expand] <- 1
+  s_tag[!expand] <- !s_tag[!expand]
+  sort_ord <- order(cri, -s_tag, pid_cri, tie_sort, sn, decreasing = TRUE)
+  rm(s_tag)
+  cri <- cri[sort_ord]
+  sn <- sn[sort_ord]
+  pr_sn <- pr_sn[sort_ord]
+  pid <- pid[sort_ord]
+  tag <- tag[sort_ord]
+  link_id <- link_id[sort_ord]
+  if(!is.null(old_link_id)){
+    old_link_id <- old_link_id[sort_ord]
+  }
+  lgk <- which(!duplicated(cri, fromLast = TRUE))
+  rep_lgk <- match(cri, cri[lgk])
+  tr_pid <- (pid[lgk])[rep_lgk]
+  tr_sn <- (sn[lgk])[rep_lgk]
+  tr_tag <- (tag[lgk])[rep_lgk]
+  rm(rep_lgk)
+  lgk <- which(cri %in% cri[!duplicated(cri)] & tr_tag == 1 & cri > 0 & tag != 1 & expand)
+  pid[lgk] <- tr_pid[lgk]
+  if(upd_link_id){
+    link_id[lgk] <- tr_sn[lgk]
+  }else{
+    # ll <- which(!duplicated(cri, fromLast = TRUE))
+    # link_id[link_id %in% link_id[ll]] <- tr_sn[link_id %in% link_id[ll]]
+    link_id[pr_sn %in% tr_sn & tr_tag == 1] <- old_link_id[pr_sn %in% tr_sn & tr_tag == 1]
+  }
+  lgk <- which(cri %in% cri[!duplicated(cri)] & tr_tag == 0 & cri > 0 & tag != 1)
+  pid[lgk] <- tr_sn[lgk]
+  if(upd_link_id){
+    link_id[lgk] <- tr_sn[lgk]
+  }else{
+
+  }
+
+  return(list(
+    pid = pid,
+    link_id = link_id,
+    tag = tag,
+    pid_cri = pid_cri,
+    pr_sn = pr_sn
+  ))
+}
+
+mk_lazy_opt <- function(x){
+  class(x) <- "d_lazy_opts"
+  return(x)
+}
+
+prep_prob_link_args <- function(attribute,
+                                blocking_attribute,
+                                cmp_func,
+                                cmp_threshold,
+                                probabilistic,
+                                m_probability,
+                                score_threshold,
+                                u_probability,
+                                repeats_allowed = FALSE,
+                                permutations_allowed = FALSE,
+                                method = "make_pairs",
+                                ignore_same_source,
+                                data_source){
+  if(class(attribute) %in% c("list", "data.frame")){
+    attribute <- attrs(.obj = attribute)
+  }else if(class(attribute) %in% c("matrix")){
+    attribute <- attrs(.obj = as.data.frame(attribute))
+  }else if(class(attribute) %in% c("d_attribute")){
+  }else{
+    attribute <- attrs(attribute)
+  }
+
+  if(is.null(names(attribute))){
+    names(attribute) <- paste0("var_", seq_len(length(attribute)))
+  }
+
+  # Attribute names
+  attr_nm <- names(attribute)
+  rd_n <- length(attribute[[1]])
+
+  lgk <- unlist(lapply(attribute, function(x) length(x[!duplicated(x)]) == 1), use.names = FALSE)
+  if(any(lgk)){
+    warning(paste0("Attributes with identicial values in every record are ignored:\n",
+                   paste0("i - `", attr_nm[lgk], "` was ignored!", collapse = "\n")), call. = FALSE)
+  }
+  attribute <- attribute[!lgk]
+
+  # Threshold for agreement in each attribute
+  if(is.number_line(cmp_threshold)){
+    cmp_threshold[cmp_threshold@.Data < 0] <- reverse_number_line(cmp_threshold[cmp_threshold@.Data < 0], "decreasing")
+  }else{
+    cmp_threshold <- suppressWarnings(number_line(cmp_threshold, Inf))
+  }
+
+  if(length(cmp_threshold) == 1 & length(attribute) > 1){
+    cmp_threshold <- rep(cmp_threshold, length(attribute))
+  }
+
+  if(is.number_line(score_threshold)){
+    score_threshold[score_threshold@.Data < 0] <- reverse_number_line(score_threshold[score_threshold@.Data < 0], "decreasing")
+  }else{
+    score_threshold <- suppressWarnings(number_line(score_threshold, Inf))
+  }
+
+  # String comparator for each attribute
+  if(class(cmp_func) != "list"){
+    cmp_func <- list(cmp_func)
+  }
+  if(length(cmp_func) == 1 & length(attribute) > 1){
+    cmp_func <- rep(cmp_func, length(attribute))
+  }
+
+  if(method == "make_pairs"){
+    # Create record-pairs
+    if(isTRUE(ignore_same_source)){
+      r_pairs <- make_pairs_wf_source(seq_len(rd_n),
+                            strata = as.vector(blocking_attribute),
+                            repeats_allowed = repeats_allowed,
+                            permutations_allowed = permutations_allowed,
+                            data_source = data_source)
+    }else{
+      r_pairs <- make_pairs(seq_len(rd_n),
+                            strata = as.vector(blocking_attribute),
+                            repeats_allowed = repeats_allowed,
+                            permutations_allowed = permutations_allowed)
+    }
+
+
+    x <- lapply(attribute, function(k) k[r_pairs$x_pos])
+    y <- lapply(attribute, function(k) k[r_pairs$y_pos])
+    rp_n <- length(x[[1]])
+  }else{
+    rp_n <- length(attribute[[1]])
+    r_pairs <- list()
+    x <- y <- integer()
+  }
+
+
+  if(isTRUE(probabilistic)){
+    # u-probabilities
+    if(is.null(u_probability)){
+      u_probability <- lapply(if(method == "make_pairs") x else attribute, function(x){
+        x_cd <- match(x, x[!duplicated(x)])
+        x_cd[is.na(x)] <- NA_real_
+        r <- rle(x_cd[order(x_cd)])
+        n <- r$lengths[match(x_cd, r$values)]
+        p <- n/length(x_cd)
+        p[is.na(x_cd)] <- 0
+        p
+      })
+    }
+
+    # m-probabilities
+    if(class(m_probability) != "list"){
+      m_probability <- list(m_probability)
+    }
+    if(length(m_probability) == 1 & length(attribute) > 1){
+      m_probability <- rep(m_probability, length(attribute))
+    }
+
+    u_probability <- lapply(u_probability, function(x){
+      if(length(x) != rp_n){
+        rep(x, rp_n)
+      }else{
+        x
+      }
+    })
+    m_probability <- lapply(m_probability, function(x){
+      if(length(x) != rp_n){
+        rep(x, rp_n)
+      }else{
+        x
+      }
+    })
+
+  }else{
+    m_probability <- u_probability <- rep(list(rep(0L, rp_n)), length(attribute))
+  }
+
+  return(list(attribute = attribute,
+              x = x,
+              y = y,
+              blocking_attribute = blocking_attribute,
+              cmp_func = cmp_func,
+              cmp_threshold = cmp_threshold,
+              probabilistic = probabilistic,
+              m_probability = m_probability,
+              score_threshold = score_threshold,
+              u_probability = u_probability,
+              r_pairs = r_pairs))
+}
+
+make_batch_pairs <- function(strata, index_record, sn){
+  curr_ds_len <- length(strata)
+  strata <- strata
+  sc_ord <- order(strata, -index_record, decreasing = TRUE)
+  rc_sc_ord <- order(sc_ord)
+
+  sn <- sn[sc_ord]
+  strata <- strata[sc_ord]
+
+  rrr <- rle(strata)
+  lgk <- which(!duplicated(strata, fromLast = TRUE))
+
+  pos_repo <- list(sn = sn)
+  pos_repo$x_pos <- seq_len(length(sn))[sn]
+  pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
+  pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
+  return(pos_repo)
+}

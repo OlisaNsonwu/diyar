@@ -62,22 +62,21 @@ range_match_legacy <- function(x, y) {
 #' @param cmp_func Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.
 #' @param cmp_threshold Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.
 #' @param probabilistic If \code{TRUE}, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See \code{\link{links_wf_probabilistic}}.
-#' @param m_probability Matching set of m-probabilities. The probability that a match from \code{cmp_func} is a true match. See \code{\link{links_wf_probabilistic}}.
 #' @param score_threshold Score threshold determining matched or linked records. See \code{\link{links_wf_probabilistic}}.
 #' @param return_weights If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.
 #' @details
-#' \bold{\code{prob_link()}} - Test that a record sets \code{x} and \code{y} are from the same entity based on calculated weights and probability scores.
+#' \bold{\code{prob_link()}} - Test that a record-sets \code{x} and \code{y} are from the same entity based on calculated weights and probability scores.
 #' @examples
 #'
+#' @export
 prob_link <- function(x, y,
+                      cmp_func,
                       cmp_threshold,
-                      m_probability,
                       score_threshold,
-                      return_weights,
                       probabilistic,
-                      cmp_func){
+                      return_weights){
   # Number of attributes
-  attr_n <- length(x)/2
+  attr_n <- length(x)/3
   attr_nm <- names(x)[seq_len(attr_n)]
 
   # Weights from a string comparator
@@ -89,12 +88,12 @@ prob_link <- function(x, y,
   })
 
   # Agreement/disagreement based on string comparators
-  matches <- lapply(seq_len(attr_n), function(i){
-    lgk <- (wts[[i]] >= as.numeric(cmp_threshold[i]@start) & wts[[i]] <= as.numeric(right_point(cmp_threshold[i])))
-    lgk & !is.na(lgk)
-  })
+  # matches <- lapply(seq_len(attr_n), function(i){
+  #   lgk <- (wts[[i]] >= as.numeric(cmp_threshold[i]@start) & wts[[i]] <= as.numeric(right_point(cmp_threshold[i])))
+  #   lgk & !is.na(lgk)
+  # })
 
-  out_2 <- sapply(wts, function(x) x)
+  out_2 <- sapply(wts, identity)
 
   if(is.null(nrow(out_2))){
     sum_wt <- sum(out_2)
@@ -112,7 +111,8 @@ prob_link <- function(x, y,
   if(is.null(ncol(out_2))){
     out_2 <- t(out_2)
   }
-  out_a <- cbind(out_2, sum_wt, lgk)
+
+  out_a <- cbind(as.data.frame(out_2), sum_wt, lgk)
   colnames(out_a) <- c(paste0("cmp.", attr_nm), "cmp.weight", "cmp.threshold")
 
   if(isFALSE(probabilistic)){
@@ -121,14 +121,21 @@ prob_link <- function(x, y,
 
   # If probability based, matches are based on scores derived from m- and u-probabilities
   pwts <- sapply(seq_len(attr_n), function(i){
-    pwts <- rep(0, length(matches[[i]]))
-    curr_match <- (matches[[i]])
-    curr_uprob <- (x[[i + attr_n]])
-    curr_mprob <- (m_probability[[i]])
+    pwts <- rep(0, length(wts[[i]]))
+    # Agreement/disagreement based on string comparators
+    curr_match <- (wts[[i]])
+    curr_match <- (curr_match >= as.numeric(cmp_threshold[i]@start) & curr_match <= as.numeric(right_point(cmp_threshold[i])))
+    curr_match <- curr_match & !is.na(curr_match)
+
+    curr_uprob <- (x[[i + (attr_n * 2)]])
+    curr_mprob <- (x[[i + attr_n]])
     # agreements
-    pwts[curr_match] <- log2(curr_mprob/curr_uprob[curr_match])
+    pwts_a <- log2(curr_mprob/curr_uprob)
     # disagreements
-    pwts[!curr_match] <- log2((1 - curr_mprob)/(1 - curr_uprob[!curr_match]))
+    pwts_b <- log2((1 - curr_mprob)/(1 - curr_uprob))
+
+    pwts <- pwts_a
+    pwts[!curr_match] <- pwts_b[!curr_match]
     pwts
   })
 
@@ -142,7 +149,7 @@ prob_link <- function(x, y,
     if(is.null(ncol(pwts))){
       pwts <- t(pwts)
     }
-    out_b <- cbind(pwts, sum_wt, lgk)
+    out_b <- cbind(as.data.frame(pwts), sum_wt, as.logical(lgk))
     colnames(out_b) <- c(paste0("prb.", attr_nm),
                          "prb.weight",
                          "prb.threshold")

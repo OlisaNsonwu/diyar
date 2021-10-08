@@ -1,0 +1,261 @@
+---
+title: "Overview: diyar at a glance"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Overview: diyar at a glance}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+# library(cowplot)
+library(ggplot2)
+# `schema` theme
+theme <- "light" # dark vs light
+bd_line <- ifelse(theme == "dark", "white", "black")
+```
+
+# Introduction
+`diyar` is a data analytical package for linking records with shared characteristics.
+Linked records are assigned to unique groups represented by identifiers.
+These identifiers are stored as an `S4` class with useful information about each group in its slots.
+
+The package is capable of assessing and comparing a record's characteristics in several ways, making it useful in ordinarily complex data analysis such as record linkage and contact or network analysis. 
+The main functions responsible for these analyses are `links()`, `episodes()` and `partitions()`.
+These functions provide a lot of flexibility in terms of what and how comparisons are done, as well as what are considered matches.
+Each is best suited to different use cases explained below.
+
+  + `links()` - Comparing records without a temporal aspect to them.
+  + `episodes()` - Comparing records with a temporal aspect to them, while factoring the duration between individual records.
+  + `partitions()` - Comparing records with a temporal aspect to them, without factoring the duration between individual records.
+
+It's worth noting that `links()` and `episodes()` are iterative (loops) functions. 
+At their core, they are simply repeating comparisons of an index record against other records. 
+
+# Record groupping functions
+## `links()`
+`links()` is primarily used for record linkage, particularly multi-stage record linkage.
+Here, records are matched on different attributes in successive stages. 
+The priority of matches decreases with each stage, that is; a match at one stage (and thus attribute) is considered more relevant than a match at the next stage.
+As a result, changing the order of each stage/attribute results in a different linkage strategy, which in turn leads to different outcomes.
+This is demonstrated below with the `missing_staff_id` sample dataset.
+
+```{r warning = FALSE}
+library(diyar)
+data(missing_staff_id)
+dfr_stages <- missing_staff_id[c("age", "hair_colour", "branch_office", "source_1")]
+dfr_stages$p1 <- links(as.list(dfr_stages[c("hair_colour", "branch_office")]))
+dfr_stages$p2 <- links(as.list(dfr_stages[c("branch_office", "hair_colour")]))
+dfr_stages
+```
+User-defined comparisons are also possible using a `sub_criteria` object.
+These are `S3` objects that contains attributes and the functions used to compare them.
+They are used to either relax or strengthen the conditions for a match.
+An example below.
+```{r warning = FALSE}
+# A function to extract the last word in a string
+last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
+# A logical test using `last_word_wf`.
+last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
+# sub_critria` objects
+s_cri_a <- sub_criteria(dfr_stages$hair_colour, dfr_stages$branch_office, 
+                        match_funcs = c(last_word_cmp, last_word_cmp), operator = "or")
+s_cri_b <- sub_criteria(dfr_stages$hair_colour, dfr_stages$branch_office, 
+                        match_funcs = c(last_word_cmp, last_word_cmp), operator = "and")
+
+dfr_stages$p3 <- links("place_holder", sub_criteria = list("cr1" = s_cri_a), recursive = TRUE)
+dfr_stages$p4 <- links("place_holder", sub_criteria = list("cr1" = s_cri_b), recursive = TRUE)
+```
+`sub_criteria` can also be nested for nested conditions.
+```{r warning = FALSE}
+s_cri_nested_1 <- sub_criteria(s_cri_a, s_cri_b, operator = "or")
+s_cri_nested_2 <- sub_criteria(dfr_stages$source_1, s_cri_b, operator = "or")
+dfr_stages$p5 <- links(list("place_holder", dfr_stages$age), 
+                   sub_criteria = list("cr1" = s_cri_nested_1,
+                                       "cr2" = s_cri_nested_2))
+```
+
+```{r warning = FALSE}
+# Results
+dfr_stages
+```
+
+## `episodes()`
+`episodes()` is designed to compare dated records (events) and assign them to unique groups (episodes) based on the duration between events. 
+Three type of episodes are possible; fixed, rolling and recursive episodes (Figure 1). 
+A fixed episode is a set of events within a defined period before or after an index event. A rolling episode is a repeating series of fixed episodes linked together as recurrences. A recursive episode is a rolling episode where every event serves as an index event.
+
+```{r warning = FALSE}
+dfr_2 <- c(1:5, 10:15, 20:25)
+dfr_2 <- data.frame(date = as.Date("2020-01-01") + dfr_2)
+dfr_2$ep1 <- episodes(dfr_2$date, case_length = 5, episode_type = "fixed")
+dfr_2$ep2 <- episodes(dfr_2$date, case_length = 5, episode_type = "rolling")
+dfr_2$ep3 <- episodes(dfr_2$date, case_length = 5, episode_type = "recursive")
+dfr_2
+```
+
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(dfr_2$ep1, seed = 2, show_label = c("length_arrow", "length_label"), theme = theme)
+# plt2 <- schema(dfr_2$ep2, seed = 2, show_label = c("length_arrow", "length_label"), theme = theme)
+# plt3 <- schema(dfr_2$ep3, seed = 2, show_label = FALSE, theme = theme)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = bd_line)), 
+#                plt2 + theme(plot.background = element_rect(color = bd_line)),
+#                plt3 + theme(plot.background = element_rect(color = bd_line)),
+#                labels = c("Fixed episodes (ep1)", 
+#                           "Rolling episodes (ep2)", 
+#                           "Recursive episodes (ep3)"), 
+#                label_colour = bd_line,
+#                label_size = 11,
+#                ncol = 1,
+#                label_x = c(-.05, -.05, -.05),
+#                label_y = c(.15, .15, .15))
+# 
+# ggsave(dpi = 100, plot = f, filename = "fig_o1.png", width = 12, height = 8, units = "in")
+```
+
+**Figure 1: Episodes.** 
+<img src = "fig_o1.png" width = "700" height = "580">
+
+There are several options to determine which records are used as the index event, how many index events are used, how many durations from the index events are assessed, the nature of recurrences where applicable and additional matching criteria through `sub_criteria` objects as described above. See `help(episodes)` for more details about these. Also useful is `episodes_wf_splits()`; a wrapper function of `episodes()` which is better optimised for analyses with duplicate records.  
+
+## `partitions()`
+`partitions()` assigns events to groups (panes) if they are within a defined interval (Figure 1). Unlike `episodes()`, the duration between events is not a factor. Here, events from the same pane simply occurred within the same interval. See examples below.
+
+```{r warning=FALSE}
+event_dt <- seq(from = as.Date("2021-01-01"), to = as.Date("2021-01-11"), by = 1)
+dfr_3 <- data.frame(date = event_dt)
+
+# Group events into 2 equal parts per `strata`.
+dfr_3$pn2 <- partitions(event_dt, length.out = 2, separate = TRUE)
+# Group events into 3-day sequences per `strata`.
+dfr_3$pn3 <- partitions(event_dt, by = 3, separate = TRUE)
+# Group events into a specified period of time in each `strata`.
+dfr_3$pn4 <- partitions(event_dt, window = number_line(event_dt[4], event_dt[7]))
+# Group events from separate periods into one pane.
+dfr_3$pn5 <- partitions(event_dt, length.out = 2, separate = FALSE)
+```
+
+```{r warning=FALSE, include=FALSE}
+# plt1 <- schema(dfr_3$pn2, seed = 2, show_label = "window_label", theme = theme)
+# plt2 <- schema(dfr_3$pn3, seed = 2, show_label = "window_label", theme = theme)
+# plt3 <- schema(dfr_3$pn4, seed = 2, show_label = "window_label", theme = theme)
+# plt4 <- schema(dfr_3$pn5, seed = 2, show_label = "window_label", theme = theme)
+# 
+# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = bd_line)), 
+#                plt2 + theme(plot.background = element_rect(color = bd_line)),
+#                plt3 + theme(plot.background = element_rect(color = bd_line)),
+#                plt4 + theme(plot.background = element_rect(color = bd_line)),
+#                labels = c("pn2", "pn3", "pn4", "pn5"), 
+#                label_colour = bd_line,
+#                label_size = 16,
+#                label_y = c(0.1,.1,0.1,0.1))
+# 
+# ggsave(dpi = 100, plot = f, filename = "fig_o2.png", width = 15, height = 8, units = "in")
+```
+
+**Figure 2: Panes`**
+<img src = "fig_o2.png" width = "700" height = "400">
+
+# Other useful functions
+## `number_line()`
+Produces a `number_line` object. 
+This is an `S4` class representing two points of an interval.
+It's covered in more detail in the [`number_line` and overlaps vignette](number_line.html).
+It's useful when tracking episodes from periods in time as opposed to points in time.
+See an example of this below.
+```{r warning=FALSE}
+data(hospital_admissions)
+dfr_4 <- hospital_admissions[c("admin_dt", "discharge_dt")]
+dfr_4$admin_period <- number_line(dfr_4$admin_dt, dfr_4$discharge_dt)
+                                  
+# Group overlapping hospital stays
+dfr_4$nl1 <- index_window(dfr_4$admin_period)
+dfr_4$ep4 <- episodes(date = dfr_4$admin_period, case_length = dfr_4$nl1)
+
+# Group overlapping hospital stays and those within 21 days of the end point of an index hospital stay 
+dfr_4$nl2 <- expand_number_line(index_window(dfr_4$admin_period), 20, "right")
+dfr_4$ep5 <- episodes(date = dfr_4$admin_period, case_length =  dfr_4$nl2)
+```
+They can also be used as an attribute in a `sub_criteria` object.
+```{r warning=FALSE}
+s_cri_c <- sub_criteria(dfr_4$admin_period, match_funcs = overlaps)
+dfr_4$pd5 <- links("place_holder", sub_criteria = list("cr1" = s_cri_c), recursive = TRUE)
+# Results
+dfr_4[c("admin_period", "nl1", "nl2", "ep4", "ep5", "pd5")]
+```
+
+## `link_records()`
+Implements probabilistic record linkage.
+Record-pairs are generated and compared for matches.
+Matches can be weighted to allow for imperfect matches.
+Match probabilities are then calculated and used to determine assign a match score.
+This can be memory intensive as the number of record doubles exponentially therefore,
+`links_wf_probabilistic()` - a wrapper function of `links()`, is provided to
+compare batches of record-pairs in iterations.  
+```{r warning=FALSE}
+dfr_5 <- missing_staff_id[c(2, 4, 5, 6)]
+
+# Using string comparators
+# For example, matching last word in `hair_colour` and `branch_office`
+last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
+last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
+
+p6a <- link_records(dfr_5, cmp_threshold = 1,
+                           cmp_func = c(exact_match, exact_match,
+                                        last_word_cmp, last_word_cmp),
+                           score_threshold = -4)
+p6b <- links_wf_probabilistic(dfr_5, cmp_threshold = 1,
+                              cmp_func = c(exact_match, exact_match,
+                                           last_word_cmp, last_word_cmp),
+                              score_threshold = -4,
+                              recursive = TRUE)
+# Identifiers
+p6a$pid; p6b$pid
+
+# Weights
+subset(as.data.frame(p6a$pid_weights), prb.threshold == 1)
+subset(as.data.frame(p6b$pid_weights), prb.threshold == 1)
+```
+
+
+# Processing time
+As mentioned, `episodes()` and `links()` are iterative functions.
+Although both continue to be optimised, each iteration costs additional processing time.
+The main way to mitigate this is to reduce the number of iterations required to complete an analyses. 
+To help with this, both functions have arguments which ensure that only the minimum number of records required to complete the process is used.
+
+In addition, the flexibility of `episodes()` and `links()` results in situations where the use of different arguments lead to the same outcome. 
+However, some approach will often require less iterations to complete the same process compared to others. 
+Therefore, a good grasp of the role of each argument is useful in knowing the most efficient combination of arguments to use. 
+Furthermore, for some analyses, `episodes()` and `links()` can be used interchangeably however, this tends to be less efficient. 
+For example, `dfr_4$ep4` and `dfr_4$pd5` are essentially the same outcome; two groups with the same set of records in each. However, we can see below that `episodes()` created `dfr_4$ep4` in two iterations compared to the 7 iterations it took `links()` to create `dfr_4$ep4`.
+```{r warning=FALSE}
+summary(dfr_4$ep4)
+
+summary(dfr_4$pd5)
+```
+It's also worth noting that using a `sub_criteria` can cost a lot in processing time.
+Therefore, it should not be used if it can be avoided.
+For example, `dfr_stages$p4` was created using `sub_cri_b` which took `r max(dfr_stages$p4@iteration)`.
+However, the same outcome can be achieved in 1 iteration with a `criteria`. 
+See the difference below.
+```{r warning=FALSE}
+dfr_stages$p4b <- links(paste0(last_word_wf(dfr_stages$hair_colour),
+                           last_word_wf(dfr_stages$branch_office),
+                           sep = "-"))
+
+summary(dfr_stages$p4b)
+
+all(dfr_stages$p4 == dfr_stages$p4b)
+```
+
+These time difference are negligible when dealing with relatively small datasets but become more apparent as the size increases.

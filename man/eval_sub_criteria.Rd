@@ -9,9 +9,8 @@ eval_sub_criteria(x, ...)
 
 \method{eval_sub_criteria}{sub_criteria}(
   x,
-  strata = seq_len(max(attr_eval(x))),
-  index_record = c(TRUE, rep(FALSE, length(strata) - 1)),
-  sn = seq_len(length(strata)),
+  x_pos = seq_len(max(attr_eval(x))),
+  y_pos = rep(1L, length(x_pos)),
   check_duplicates = TRUE,
   ...
 )
@@ -21,12 +20,9 @@ eval_sub_criteria(x, ...)
 
 \item{...}{Arguments passed to methods.}
 
-\item{strata}{\code{[integer]}. Subsets of the dataset}
+\item{x_pos}{\code{[integer]}. Index of one half of a record pair}
 
-\item{index_record}{\code{[logical]}. Index record (\code{y}) being compared against other records (\code{x}).
-See (\bold{\code{\link{predefined_tests}}}).}
-
-\item{sn}{\code{[integer]} Unique index for each record.}
+\item{y_pos}{\code{[integer]}. Index of one half of a record pair}
 
 \item{check_duplicates}{\code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.}
 }
@@ -37,18 +33,17 @@ See (\bold{\code{\link{predefined_tests}}}).}
 Evaluate a \code{\link{sub_criteria}}.
 }
 \examples{
-# Consider three records
-strata <- rep(1, 3)
-index_record <- c(TRUE, FALSE, FALSE)
-sn <- 1:3
+# Consider two attributes
+attr_1 <- c(1, 1, 0)
+attr_2 <- c(2, 1, 2)
 
 # Test for a match in either attribute
-sub_cri_1 <- sub_criteria(c(1, 1, 0), c(2, 1, 2))
-eval_sub_criteria(sub_cri_1, strata, index_record, sn)
+sub_cri_1 <- sub_criteria(attr_1, attr_2)
+eval_sub_criteria(sub_cri_1)
 
 # Test for a match in both attributes
-sub_cri_2 <- sub_criteria(c(1, 1, 0), c(2, 1, 2), operator = "and")
-eval_sub_criteria(sub_cri_2, strata, index_record, sn)
+sub_cri_2 <- sub_criteria(attr_1, attr_2, operator = "and")
+eval_sub_criteria(sub_cri_2)
 }
 \seealso{
 \code{\link{sub_criteria}}; \code{\link{reframe}}

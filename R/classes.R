@@ -137,7 +137,6 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) as.data.frame(as.number_line(y)))))
-  # x@id <- x@gid <- seq_len(length(x))
   return(x)
 })
 
@@ -248,7 +247,7 @@ setClass("epid",
                         epid_total = "integer",
                         epid_dataset = "ANY",
                         iteration = "integer",
-                        options = "list"))
+                        options = "ANY"))
 
 #' @rdname epid-class
 #' @examples
@@ -319,7 +318,7 @@ format.epid <- function(x, ...){
     return(paste0("E.",
                   formatC(x@.Data, width = nchar(max(x@.Data)), flag = 0, format = "fg"),
                   int_l,
-                  " (", c("S", "C", "R", "D", "D", "C","R")[x@case_nm + 2L], ")"))
+                  " (", c("S", "C", "R", "D", "D", "C", "R")[x@case_nm + 2L], ")"))
   }
 }
 
@@ -573,8 +572,14 @@ setMethod("[[", signature(x = "epid"),
 setMethod("c", signature(x = "epid"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
   for (vr in methods::slotNames(x)){
-    if(all(is.na(methods::slot(x, vr)))){
-      methods::slot(x, vr) <- NULL
+    if(length(methods::slot(x, vr)) > 0){
+      if(all(is.na(methods::slot(x, vr)))){
+        if(vr == "options"){
+          methods::slot(x, vr) <- list()
+        }else{
+          methods::slot(x, vr) <- NULL
+        }
+      }
     }
   }
   x
@@ -614,7 +619,7 @@ setClass("pane",
                         pane_length = "ANY",
                         pane_total = "integer",
                         pane_dataset = "ANY",
-                        options = "list"))
+                        options = "ANY"))
 
 #' @rdname pane-class
 #' @examples
@@ -883,8 +888,14 @@ setMethod("[[", signature(x = "pane"),
 setMethod("c", signature(x = "pane"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
   for (vr in methods::slotNames(x)){
-    if(all(is.na(methods::slot(x, vr)))){
-      methods::slot(x, vr) <- NULL
+    if(length(methods::slot(x, vr)) > 0){
+      if(all(is.na(methods::slot(x, vr)))){
+        if(vr == "options"){
+          methods::slot(x, vr) <- list()
+        }else{
+          methods::slot(x, vr) <- NULL
+        }
+      }
     }
   }
   x
@@ -1129,8 +1140,14 @@ setMethod("[[", signature(x = "pid"),
 setMethod("c", signature(x = "pid"), function(x,...) {
   x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
   for (vr in methods::slotNames(x)){
-    if(all(is.na(methods::slot(x, vr)))){
-      methods::slot(x, vr) <- NULL
+    if(length(methods::slot(x, vr)) > 0){
+      if(all(is.na(methods::slot(x, vr)))){
+        if(vr == "options"){
+          methods::slot(x, vr) <- list()
+        }else{
+          methods::slot(x, vr) <- NULL
+        }
+      }
     }
   }
   x
@@ -1146,12 +1163,13 @@ plot.d_report <- function(x, ...){
   x <- data.frame(x = c(x$iteration, x$iteration, x$iteration, x$iteration),
                    y = c(as.numeric(x$duration), x$records_checked, x$records_tracked, x$records_skipped),
                    l = c(rep(paste0("duration (", attr(x$duration, "units"), ")"), t),
-                         rep("records_checked", t), rep("records_tracked", t),
+                         rep("records_checked", t), rep("records_assigned", t),
                          rep("records_skipped", t)),
                    stringsAsFactors = FALSE)
   x$x_cd <- match(x$x, x$x)
   x_breaks <- x$x_cd[!duplicated(x$x)]
   x_labs <- x$x[!duplicated(x$x)]
+  x_labs <- gsub(" ", "\n", x_labs)
 
   ggplot2::ggplot(data = x, ggplot2::aes(.data$x_cd, .data$y)) +
     ggplot2::geom_line() +
