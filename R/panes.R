@@ -1,5 +1,5 @@
 #' @name partitions
-#' @title Distribute events specified intervals.
+#' @title Distribute events into specified intervals.
 #'
 #' @description Distribute events into groups defined by time or numerical intervals.
 #' Each set of linked records are assigned a unique identifier with relevant group-level data.
@@ -10,14 +10,14 @@
 #' @param separate \code{[logical]}. If \code{TRUE}, events matched to different \code{windows} are not linked.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
 #' @param window \code{[integer|\link{number_line}]}. Numeric or time intervals.
-#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the dataset has data from multiple sources.
+#' @param data_source \code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the data is from multiple sources.
 #' @param custom_sort \code{[atomic]}. Preferred order for selecting \code{"index"} events.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include group specific information like panes start and end dates.
 #' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pane-class]{pane}}. A \code{\link[=pane-class]{pane}} without records from these \code{data_sources} will be unlinked. See \code{Details}.
 #' @param by \code{[integer]}. Width of splits.
 #' @param length.out \code{[integer]}. Number of splits.
 #' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
-#' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default) or \code{"stats"}.
+#' @param display \code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.
 #' @return
 #'
 #' @return \code{\link[=pane-class]{pane}}
@@ -35,6 +35,7 @@
 #'
 #' By default, the earliest event is taken as the \code{"Index"} event of the \code{\link[=pane-class]{pane}}.
 #' An alternative can be chosen with \code{custom_sort}.
+#' Note that this is simply a convenience option because it has no bearing on how groups are assigned.
 #'
 #' \bold{\code{partitions()}} will categorise records into 3 types;
 #' \itemize{
@@ -50,7 +51,7 @@
 #' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
 #' }
 #'
-#' \emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.
+#' \emph{\code{NA} values in \code{strata} excludes records from the partitioning process}.
 #'
 #' See \code{vignette("episodes")} for more information.
 #'

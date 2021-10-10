@@ -2,7 +2,7 @@
 % Please edit documentation in R/panes.R
 \name{partitions}
 \alias{partitions}
-\title{Distribute events specified intervals.}
+\title{Distribute events into specified intervals.}
 \usage{
 partitions(
   date,
@@ -40,7 +40,7 @@ partitions(
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), the returned \code{pane} object will include group specific information like panes start and end dates.}
 
-\item{data_source}{\code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the dataset has data from multiple sources.}
+\item{data_source}{\code{[character]}. Unique data source identifier. Adds the list of datasets in each pane to the \code{\link[=pane-class]{pane}}. Useful when the data is from multiple sources.}
 
 \item{by}{\code{[integer]}. Width of splits.}
 
@@ -48,7 +48,7 @@ partitions(
 
 \item{fill}{\code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.}
 
-\item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default) or \code{"stats"}.}
+\item{display}{\code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.}
 }
 \value{
 
@@ -69,6 +69,7 @@ Alternatively, you can create \code{windows} by splitting a period into equal pa
 
 By default, the earliest event is taken as the \code{"Index"} event of the \code{\link[=pane-class]{pane}}.
 An alternative can be chosen with \code{custom_sort}.
+Note that this is simply a convenience option because it has no bearing on how groups are assigned.
 
 \bold{\code{partitions()}} will categorise records into 3 types;
 \itemize{
@@ -84,7 +85,7 @@ Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 \item If named \code{"g"}, only groups with records from any listed \code{data_source} will be retained.
 }
 
-\emph{\code{NA} values in \code{strata} excludes records from the partitioning tracking process}.
+\emph{\code{NA} values in \code{strata} excludes records from the partitioning process}.
 
 See \code{vignette("episodes")} for more information.
 }

@@ -1,7 +1,7 @@
 #' @name episodes
 #' @title Link events to chronological episodes.
 #'
-#' @description Link dated events (records) with similar attributes and occur within specified durations of each other.
+#' @description Link dated events (records) with similar attributes and which occur within specified durations of each other.
 #' Each set of linked records are assigned a unique identifier with relevant group-level information.
 #'
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.
@@ -17,14 +17,14 @@
 #' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
 #' @param case_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}})
 #' @param recurrence_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Recurrence"} event. See (\code{\link{overlaps}})
-#' @param custom_sort \code{[atomic]}. Preferential order for selecting index events.
+#' @param custom_sort \code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
-#' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
+#' @param display \code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
 #' @param reference_event \code{[character]}. Specifies which events are used as index events for a subsequent \code{case_length} or \code{recurrence_length}. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"} or \code{"first_event"}.
 #' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, both \code{"Case"} and \code{"Recurrent"} events will have a \code{case_length}.
 #' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
 #' @param skip_order \code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
-#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be unlinked. See \code{Details}.
+#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
 #' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), events before a lagged \code{case_length} or \code{recurrence_length} are skipped.
 #' @param skip_unique_strata \code{[logical]}. If \code{TRUE} (default), events from a strata with a single record are skipped.
 #' @param case_sub_criteria \code{[\link{sub_criteria}]}. Additional matching criteria for events of a \code{case_length}.
@@ -35,10 +35,10 @@
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
 #' @seealso
-#' \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
+#' \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{link_records}}; \code{\link{schema}}
 #'
 #' @details
-#' \bold{\code{episodes()}} is an iterative function which links dated records (events) that
+#' \bold{\code{episodes()}} links dated records (events) that
 #' are within specified durations of each other.
 #' In each iteration, an index event is selected and compared against every other event.
 #'
@@ -58,9 +58,11 @@
 #'
 #' Every event in each episode is categorise as;
 #' \itemize{
-#' \item \code{"Case"} - Index event of the episode.
+#' \item \code{"Case"} - Index event of the episode (without matching \code{\link{sub_criteria}}).
+#' \item \code{"Case_CR"} - Index event of the episode (with matching \code{\link{sub_criteria}}).
 #' \item \code{"Duplicate_C"} - Duplicate of the index event.
-#' \item \code{"Recurrent"} - Recurrence of the index event.
+#' \item \code{"Recurrent"} - Recurrence of the index event (without matching \code{\link{sub_criteria}}).
+#' \item \code{"Recurrent_CR"} - Recurrence of the index event (with matching \code{\link{sub_criteria}}).
 #' \item \code{"Duplicate_R"} - Duplicate of the recurrent event.
 #' \item \code{"Skipped"} - Records excluded from the episode tracking process.
 #' }
@@ -1310,8 +1312,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #'
 #' @param ... Arguments passed to \code{\link{episodes}}.
 #' @param duplicates_recovered \code{[character]}. Determines which duplicate records are recycled.
-#' Options are \code{"ANY"} (default), \code{"without_sub_criteria"} or \code{"with_sub_criteria"}.
-#' @param reframe \code{[logical]}. Determines if the \code{\link[=sub_criteria]{sub_criteria's}} attributes for the duplicate records are reframed (\code{TRUE}) or excluded (\code{FALSE}).
+#' Options are \code{"ANY"} (default), \code{"without_sub_criteria"} or \code{"with_sub_criteria"}. See \code{Details}.
+#' @param reframe \code{[logical]}. Determines if the duplicate records in a \code{\link[=sub_criteria]{sub_criteria's}} are reframed (\code{TRUE}) or excluded (\code{FALSE}).
 #'
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
@@ -1319,19 +1321,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #' \code{\link{episodes}}; \code{\link{sub_criteria}}
 #'
 #' @details
-#' \bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episodes()}} which strips or re-frames the dataset to
+#' \bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episodes()}} which reduces or re-frames the dataset to
 #' the minimum number of records required to implement a case definition.
-#' This leads to the same outcome but with benefit of a shorter processing time.
+#' This leads to the same outcome but with the benefit of a shorter processing time.
 #'
 #' Duplicate records from the same point or period in time are excluded from \bold{\code{episodes()}}.
 #' The resulting \code{\link[=epid-class]{epid}} object is then recycled for the duplicates.
 #'
-#' The \code{duplicates_recovered} argument determines which index identifiers are recycled.
-#' If \code{"without_sub_criteria"} is selected, only index identifers created from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
+#' The \code{duplicates_recovered} argument determines which identifiers are recycled for the excluded duplicates.
+#' If \code{"without_sub_criteria"} is selected, only identifers created from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
 #' The opposite (\code{"Case"} and \code{"Recurrent"}) is the case if \code{"with_sub_criteria"} is selected.
+#' Excluded duplicates of \code{"Duplicate_C"} and \code{"Duplicate_R"} are always recycled.
 #'
-#' If a \code{\link{sub_criteria}} is used, it's corresponding attributes for the duplicate records
-#' can either be excluded or reframed using the \code{reframe} argument. See \code{Examples}.
+#' The \code{reframe} argument will either \code{\link{reframe}} or subset a \code{\link{sub_criteria}}.
+#' Both will require slightly different functions for \code{match_funcs} or \code{equal_funcs}. See \code{Examples}.
 #'
 #' @examples
 #' # With 10,000 duplicate records of 20 events,
@@ -1346,7 +1349,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #'   ep2 <- episodes_wf_splits(dates, 1)
 #' )
 #'
-#' # Both lead to the same outcome.
+#' # Both leads to the same outcome.
 #' all(ep1 == ep2)
 
 #' @export

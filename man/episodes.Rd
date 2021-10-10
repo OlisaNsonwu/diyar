@@ -60,9 +60,9 @@ episodes(
 
 \item{data_source}{\code{[character]}. Data source identifier. Adds the list of data sources in each episode to the \code{\link[=epid-class]{epid}}. Useful when the data is from multiple sources.}
 
-\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be unlinked. See \code{Details}.}
+\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
-\item{custom_sort}{\code{[atomic]}. Preferential order for selecting index events.}
+\item{custom_sort}{\code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.}
 
 \item{skip_order}{\code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.}
 
@@ -75,7 +75,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.}
 
-\item{display}{\code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
+\item{display}{\code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
 \item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Additional matching criteria for events of a \code{case_length}.}
 
@@ -91,11 +91,11 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 \code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
-Link dated events (records) with similar attributes and occur within specified durations of each other.
+Link dated events (records) with similar attributes and which occur within specified durations of each other.
 Each set of linked records are assigned a unique identifier with relevant group-level information.
 }
 \details{
-\bold{\code{episodes()}} is an iterative function which links dated records (events) that
+\bold{\code{episodes()}} links dated records (events) that
 are within specified durations of each other.
 In each iteration, an index event is selected and compared against every other event.
 
@@ -115,9 +115,11 @@ In general, three type of episodes are possible;
 
 Every event in each episode is categorise as;
 \itemize{
-\item \code{"Case"} - Index event of the episode.
+\item \code{"Case"} - Index event of the episode (without matching \code{\link{sub_criteria}}).
+\item \code{"Case_CR"} - Index event of the episode (with matching \code{\link{sub_criteria}}).
 \item \code{"Duplicate_C"} - Duplicate of the index event.
-\item \code{"Recurrent"} - Recurrence of the index event.
+\item \code{"Recurrent"} - Recurrence of the index event (without matching \code{\link{sub_criteria}}).
+\item \code{"Recurrent_CR"} - Recurrence of the index event (with matching \code{\link{sub_criteria}}).
 \item \code{"Duplicate_R"} - Duplicate of the recurrent event.
 \item \code{"Skipped"} - Records excluded from the episode tracking process.
 }
@@ -162,5 +164,5 @@ db_2$epids_i <- episodes(date = db_2$admin_period,
 
 }
 \seealso{
-\code{\link{episodes_wf_splits}}; \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{schema}}
+\code{\link{episodes_wf_splits}}; \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{link_records}}; \code{\link{schema}}
 }

@@ -77,11 +77,11 @@ Deterministic and probabilistic record linkage with partial or evaluated matches
 \details{
 \code{link_records()} and \code{links_wf_probabilistic()} are functions to implement probabilistic record linkage.
 \code{link_records()} compares every record-pair in one instance,
-while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and thus compares record-pairs in iterations.
+while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and therefore compares record-pairs in iterations.
 
 \code{link_records()} is more thorough in the sense that it compares every combination of record-pairs.
-However, this makes it memory intensive, particularly there's no \code{blocking_attribute}.
-In contrast, \code{links_wf_probabilistic()} is less memory intensive since it compares batches of record-pairs in iterations.
+This makes it faster but is memory intensive, particularly if there's no \code{blocking_attribute}.
+In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes longer since it compares batches of record-pairs in iterations.
 
 The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 
@@ -118,10 +118,10 @@ A \code{blocking_attribute} can be used to reduce the processing time by restric
 
 In \code{link_records()}, \code{score_threshold} is a convenience argument because every combination of record-pairs are returned
 therefore, a new \code{score_threshold} can be selected after reviewing the final scores.
-However, in \code{links_wf_probabilistic()}, the \code{score_threshold} more important
-because it's used to make a final selection is made at each iteration.
+However, in \code{links_wf_probabilistic()}, the \code{score_threshold} is more important
+because a final selection is made at each iteration.
 
-As a result, the with \code{links_wf_probabilistic()}, an acceptable \code{score_threshold} is required in advance.
+As a result, \code{links_wf_probabilistic()} requires an acceptable \code{score_threshold} in advance.
 To help with this, \code{prob_score_range()} can be used to return the range of scores attainable for a given set of \code{attribute}, \code{m} and \code{u}-probabilities.
 Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs, aiding the review of potential scores.
 }

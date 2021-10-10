@@ -17,13 +17,11 @@ knitr::opts_chunk$set(
 + New function - `make_pairs_wf_source()`. Create records-pairs from different sources only.
 + New function - `make_ids()`. Convert an edge list to a group identifier.
 + New function - `merge_ids()`. Merge two group identifiers.
-+ New function - `attrs()`. Used to pass set of attributes to an instance of `match_funcs` or `equal_funcs`.
-+ New `S3`object - `d_report`. Status of the analysis over its run time. Use 
-+ New `S3`object - `d_attribute`. XXXXXXXX
++ New function - `attrs()`. Pass a set of attributes to one instance of `match_funcs` or `equal_funcs`.
 
 ## Changes
 + Optimised `episodes()` and `links()`. Reduced processing times.
-+ Three new options for the `display` argument. `"progress_with_report"`, `"stats_with_report"` and `"none_with_report"`.
++ Three new options for the `display` argument. `"progress_with_report"`, `"stats_with_report"` and `"none_with_report"`. Creates a `d_report`; a status of the analysis over its run time.
 + `eval_sub_criteria()`. Record-pairs are no longer created in the function. Therefore, the `index_record` and `sn` have been replaced with `x_pos` and `y_pos`.
 
 ## Bug fixes

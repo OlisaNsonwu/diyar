@@ -31,13 +31,13 @@ links(
 
 \item{data_source}{\code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.}
 
-\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be unlinked. See \code{Details}.}
+\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
-\item{display}{\code{[character]}. Progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
+\item{display}{\code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.}
 
-\item{expand}{\code{[logical]}. If \code{TRUE}, allows a record-group to expand with each subsequent stages of the linkage process. \emph{Not interchangeable with \code{shrink}}.}
+\item{expand}{\code{[logical]}. If \code{TRUE}, allows a record-group to expand with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.}
 
 \item{shrink}{\code{[logical]}. If \code{TRUE}, forces a record-group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
 
@@ -51,7 +51,7 @@ links(
 \code{\link[=pid-class]{pid}}; \code{list}
 }
 \description{
-Match records in consecutive stages with different matching conditions.
+Match records in consecutive stages of different matching criteria.
 Each set of linked records are assigned a unique identifier with relevant group-level information.
 }
 \details{
@@ -76,7 +76,7 @@ Each element's name must correspond to a stage. See below for an example of 3 \c
 
 For example;
 
-\deqn{list("cr1" = sub_criteria, "cr5" = sub_criteria, "cr13" = sub_criteria).}
+\deqn{list("cr1" = sub_criteria(...), "cr5" = sub_criteria(...), "cr13" = sub_criteria(...)).}
 
 \code{\link{sub_criteria}} can be nested to achieve nested conditions.
 
@@ -88,7 +88,7 @@ By default, attributes in a \code{\link{sub_criteria}} are compared for an \code
 However, user-defined funcitons are also permitted. Such functions must meet two requirements:
 \enumerate{
 \item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
-\item It must return either a \code{logical} object i.e. \code{TRUE} or \code{FALSE}.
+\item It must return a \code{logical} object i.e.\code{TRUE} or \code{FALSE}.
 }
 
 Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
@@ -139,5 +139,5 @@ links(criteria = match_cri, shrink = TRUE)
 
 }
 \seealso{
-\code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
+\code{\link{link_records}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
 }
