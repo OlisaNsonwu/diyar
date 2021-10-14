@@ -28,9 +28,8 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-## Usage
-
-<img src = "fig_r1_light.png" width = "1000" height="580">
+<!-- ## Usage -->
+<!-- <img src = "fig_r1_light.png" width = "1000" height="580"> -->
 
 ### Number line
 
@@ -95,67 +94,82 @@ links(list(attr_1, attr_2))
 #> [5] "P.1 (CRI 002)" "P.6 (No hits)" "P.7 (No hits)" "P.8 (No hits)"
 ```
 
-`links_wf_probabilistic()` is a wrapper function of `links()` to
-implement probabilistic record linkage.
+Use `link_records()` to implement both deterministic and probabilistic
+record linkage by comparing every possible record-pair.
 
 ``` r
 data(missing_staff_id)
 dfr <- missing_staff_id[c("staff_id",  "initials", "hair_colour", "branch_office")]
-links_wf_probabilistic(as.list(dfr), score_threshold = -4.2)
-#> $pid
+p1 <- link_records(as.list(dfr), score_threshold = -4.2)
+p1$pid
 #> [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"
 #> [5] "P.5 (No hits)" "P.6 (No hits)" "P.1 (CRI 001)"
-#> 
-#> $pid_weights
-#>      sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
-#> [1,]    1    7            0            1               1                 1
-#> [2,]    2    2           NA           NA              NA                NA
-#> [3,]    3    3           NA           NA              NA                NA
-#> [4,]    4    4           NA           NA              NA                NA
-#> [5,]    5    5           NA           NA              NA                NA
-#> [6,]    6    6           NA           NA              NA                NA
-#> [7,]    7    7            1            1               1                 1
-#>      cmp.weight cmp.threshold prb.staff_id prb.initials prb.hair_colour
-#> [1,]          3            NA    -4.321928     1.148392        1.733354
-#> [2,]         NA            NA           NA           NA              NA
-#> [3,]         NA            NA           NA           NA              NA
-#> [4,]         NA            NA           NA           NA              NA
-#> [5,]         NA            NA           NA           NA              NA
-#> [6,]         NA            NA           NA           NA              NA
-#> [7,]          4            NA     1.733354     1.148392        1.733354
-#>      prb.branch_office prb.weight prb.threshold
-#> [1,]          1.733354  0.2931724             1
-#> [2,]                NA         NA            NA
-#> [3,]                NA         NA            NA
-#> [4,]                NA         NA            NA
-#> [5,]                NA         NA            NA
-#> [6,]                NA         NA            NA
-#> [7,]          1.733354  6.3484549             1
+subset(p1$pid_weights, record.match)
+#>   sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
+#> 6    1    7            0            1               1                 1
+#>   cmp.weight prb.staff_id prb.initials prb.hair_colour prb.branch_office
+#> 6          3    -4.321928     1.148392        1.733354          1.733354
+#>   prb.weight record.match
+#> 6  0.2931724         TRUE
 ```
 
-### Episode tracking
+`links_wf_probabilistic()` is a wrapper function of `links()` and an
+alternative to `link_records()`. It’s less memory intensive but can be
+slower in comparison.
+
+``` r
+p2 <- links_wf_probabilistic(as.list(dfr), score_threshold = -4.2, recursive = TRUE)
+p2$pid
+#> [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"
+#> [5] "P.5 (No hits)" "P.6 (No hits)" "P.1 (CRI 001)"
+subset(p2$pid_weights, record.match)
+#>   sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
+#> 1    1    1            0            1               1                 1
+#> 7    7    1            0            1               1                 1
+#>   cmp.weight prb.staff_id prb.initials prb.hair_colour prb.branch_office
+#> 1          3    -4.321928     1.148392        1.733354          1.733354
+#> 7          3    -3.836501     1.148392        1.733354          1.733354
+#>   prb.weight record.match
+#> 1  0.2931724         TRUE
+#> 7  0.7785993         TRUE
+```
+
+### Case definitions
 
 Use `episodes()` to create a unique identifier for related events based
 on a case definition.
 
 ``` r
-episodes(1:7, case_length = 2)
-#> [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.4 (C)" "E.4 (D)" "E.4 (D)" "E.7 (C)"
-episodes(1:7, case_length = 2, episode_type = "rolling")
-#> [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (R)" "E.1 (D)" "E.1 (R)" "E.1 (D)"
+dates <- seq(as.Date("2020-01-01"), as.Date("2020-01-07"), by = 1)
+episodes(dates, case_length = 2, group_stats = TRUE)
+#> [1] "E.1 2020-01-01 -> 2020-01-03 (C)" "E.1 2020-01-01 -> 2020-01-03 (D)"
+#> [3] "E.1 2020-01-01 -> 2020-01-03 (D)" "E.4 2020-01-04 -> 2020-01-06 (C)"
+#> [5] "E.4 2020-01-04 -> 2020-01-06 (D)" "E.4 2020-01-04 -> 2020-01-06 (D)"
+#> [7] "E.7 2020-01-07 == 2020-01-07 (C)"
+episodes(dates, case_length = 2, episode_type = "rolling", group_stats = TRUE)
+#> [1] "E.1 2020-01-01 -> 2020-01-07 (C)" "E.1 2020-01-01 -> 2020-01-07 (D)"
+#> [3] "E.1 2020-01-01 -> 2020-01-07 (D)" "E.1 2020-01-01 -> 2020-01-07 (R)"
+#> [5] "E.1 2020-01-01 -> 2020-01-07 (D)" "E.1 2020-01-01 -> 2020-01-07 (R)"
+#> [7] "E.1 2020-01-01 -> 2020-01-07 (D)"
 ```
 
 Use `partitions()` to create a unique identifier for events within the
-same time or numerical interval.
+same period or numerical interval.
 
 ``` r
-partitions(1:7, by = 2, separate = TRUE)
-#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.5 (I)" "PN.5 (D)" "PN.5 (D)"
-partitions(1:7, length.out = 3, separate = TRUE)
-#> [1] "PN.1 (I)" "PN.1 (D)" "PN.3 (I)" "PN.3 (D)" "PN.5 (I)" "PN.5 (D)" "PN.5 (D)"
+partitions(dates, by = 2, separate = TRUE, group_stats = TRUE)
+#> [1] "PN.1 2020-01-01 -> 2020-01-02 (I)" "PN.1 2020-01-01 -> 2020-01-02 (D)"
+#> [3] "PN.3 2020-01-03 -> 2020-01-04 (I)" "PN.3 2020-01-03 -> 2020-01-04 (D)"
+#> [5] "PN.5 2020-01-05 -> 2020-01-07 (I)" "PN.5 2020-01-05 -> 2020-01-07 (D)"
+#> [7] "PN.5 2020-01-05 -> 2020-01-07 (D)"
+partitions(dates, length.out = 3, separate = TRUE, group_stats = TRUE)
+#> [1] "PN.1 2020-01-01 -> 2020-01-02 (I)" "PN.1 2020-01-01 -> 2020-01-02 (D)"
+#> [3] "PN.3 2020-01-03 -> 2020-01-04 (I)" "PN.3 2020-01-03 -> 2020-01-04 (D)"
+#> [5] "PN.5 2020-01-05 -> 2020-01-07 (I)" "PN.5 2020-01-05 -> 2020-01-07 (D)"
+#> [7] "PN.5 2020-01-05 -> 2020-01-07 (D)"
 ```
 
-Find out more [here\!](https://olisansonwu.github.io/diyar/index.html)
+Find out more [here!](https://olisansonwu.github.io/diyar/index.html)
 
 ## Bugs and issues
 

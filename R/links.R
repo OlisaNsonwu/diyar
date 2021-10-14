@@ -284,6 +284,7 @@ links <- function(criteria,
       pid <- pids_repo$pid[skp_lgk]
       iteration <- pids_repo$iteration[skp_lgk]
       tie_sort <- pids_repo$tie_sort[skp_lgk]
+      cs_len <- length(cri)
 
       pp <- inherit(tag, cri, pid_cri, tie_sort, sn, pr_sn, expand, pid, link_id, sn_ref = sn_ref)
       pp$tag[!pp$pid %in% c(sn_ref, NA)] <- 1L
@@ -528,7 +529,7 @@ links <- function(criteria,
         report <- c(report, list(rp_data))
       }
       if(display %in% c("stats", "progress", "stats_with_report", "progress_with_report")){
-        cat(paste0("Total: ", fmt(cs_len), " record(s).\n",
+        cat(paste0("Total: ", fmt(ds_len), " record(s).\n",
                    "Checked: ", fmt(current_tot), " record(s).\n",
                    "Linked: ", fmt(assigned)," record(s).\n\n"))
       }

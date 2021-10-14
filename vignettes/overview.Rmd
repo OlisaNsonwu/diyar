@@ -1,9 +1,9 @@
 ---
-title: "Overview: diyar at a glance"
+title: "Diyar at a glance"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Overview: diyar at a glance}
+  %\VignetteIndexEntry{Diyar at a glance}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -23,43 +23,45 @@ theme <- "light" # dark vs light
 bd_line <- ifelse(theme == "dark", "white", "black")
 ```
 
-# Introduction
-`diyar` is a data analytical package for linking records with shared characteristics.
-Linked records are assigned to unique groups represented by identifiers.
-These identifiers are stored as an `S4` class with useful information about each group in its slots.
+# Oveview
+`diyar` is a data analytical package for linking entities (records) with shared characteristics.
+Linked entities are assigned to unique groups with identifiers.
+These identifiers are stored as an `S4` class with useful information about each group in their slots.
 
-The package is capable of assessing and comparing a record's characteristics in several ways, making it useful in ordinarily complex data analysis such as record linkage and contact or network analysis. 
-The main functions responsible for these analyses are `links()`, `episodes()` and `partitions()`.
-These functions provide a lot of flexibility in terms of what and how comparisons are done, as well as what are considered matches.
-Each is best suited to different use cases explained below.
+The package is capable of assessing and comparing an entity's characteristics in several ways, making it useful in ordinarily complex analyses such as record linkage and contact or network analyses, or the application of case definitions. 
 
-  + `links()` - Comparing records without a temporal aspect to them.
-  + `episodes()` - Comparing records with a temporal aspect to them, while factoring the duration between individual records.
-  + `partitions()` - Comparing records with a temporal aspect to them, without factoring the duration between individual records.
+The main functions are `links()` and `link_records()`, `episodes()` and `partitions()`.
+These functions very flexible in terms of what and how comparisons are done, as well as what are considered matches.
+Although each is best suited to certain use cases, their functionalities can sometimes overlap albeit less efficiently.
 
-It's worth noting that `links()` and `episodes()` are iterative (loops) functions. 
-At their core, they are simply repeating comparisons of an index record against other records. 
+  + `links()` and `link_record()` - compare records without a temporal aspect to them. For example, record linkage
+  + `episodes()` - compare records with a temporal aspect to them, while factoring the duration between individual records. For example, contact and network analysis.  
+  + `partitions()` - compare records with a temporal aspect to them, without factoring the duration between individual records. For example, application of case definitions.
 
-# Record groupping functions
+<!-- It's worth noting that `links()` and `episodes()` are iterative (loops) functions.  -->
+<!-- At their core, they are simply repeating comparisons of an index record against others.  -->
+
+# Record linkage
 ## `links()`
-`links()` is primarily used for record linkage, particularly multi-stage record linkage.
-Here, records are matched on different attributes in successive stages. 
-The priority of matches decreases with each stage, that is; a match at one stage (and thus attribute) is considered more relevant than a match at the next stage.
-As a result, changing the order of each stage/attribute results in a different linkage strategy, which in turn leads to different outcomes.
-This is demonstrated below with the `missing_staff_id` sample dataset.
+Primarily used for multi-stage record linkage.
+Here, records are compared and linked based on different matching criteria over multiple stages. 
+The priority of matches decreases with each stage, that is; a match at one stage (and thus criteria) is considered more relevant than a match at the next stage.
+As a result, changing the order of each stage or criteria is akin to a different linkage strategy and can lead to different outcomes.
+This is demonstrated below with the 2-setp linkages of the `missing_staff_id` sample dataset.
 
 ```{r warning = FALSE}
 library(diyar)
 data(missing_staff_id)
 dfr_stages <- missing_staff_id[c("age", "hair_colour", "branch_office", "source_1")]
+# Matching `hair_colour` before matching `branch_office`
 dfr_stages$p1 <- links(as.list(dfr_stages[c("hair_colour", "branch_office")]))
+# Matching `branch_office` before matching `hair_colour`
 dfr_stages$p2 <- links(as.list(dfr_stages[c("branch_office", "hair_colour")]))
 dfr_stages
 ```
-User-defined comparisons are also possible using a `sub_criteria` object.
-These are `S3` objects that contains attributes and the functions used to compare them.
-They are used to either relax or strengthen the conditions for a match.
-An example below.
+Aside from an `exact_match()`, user-defined comparisons are also possible using a `sub_criteria` object.
+These are `S3` objects that contains an entity's attributes and the functions to compare them.
+They either relax or strengthen the match criteria. Here is an example below.
 ```{r warning = FALSE}
 # A function to extract the last word in a string
 last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
@@ -74,7 +76,7 @@ s_cri_b <- sub_criteria(dfr_stages$hair_colour, dfr_stages$branch_office,
 dfr_stages$p3 <- links("place_holder", sub_criteria = list("cr1" = s_cri_a), recursive = TRUE)
 dfr_stages$p4 <- links("place_holder", sub_criteria = list("cr1" = s_cri_b), recursive = TRUE)
 ```
-`sub_criteria` can also be nested for nested conditions.
+`sub_criteria` can be nested to achieve a nested matching criteria.
 ```{r warning = FALSE}
 s_cri_nested_1 <- sub_criteria(s_cri_a, s_cri_b, operator = "or")
 s_cri_nested_2 <- sub_criteria(dfr_stages$source_1, s_cri_b, operator = "or")
@@ -88,7 +90,52 @@ dfr_stages$p5 <- links(list("place_holder", dfr_stages$age),
 dfr_stages
 ```
 
+## `link_records()`
+Is primarily used for probabilistic record linkage.
+Record-pairs are generated and compared for matches.
+Matches can be weighted to allow for imperfect matches.
+Match probabilities are then calculated and used to assign a match score.
+```{r warning=FALSE}
+dfr_5 <- missing_staff_id[c(2, 4, 5, 6)]
+
+# Using string comparators
+# For example, matching last word in `hair_colour` and `branch_office`
+last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
+last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
+
+p6a <- link_records(dfr_5, attr_threshold = 1,
+                           cmp_func = c(exact_match, exact_match,
+                                        last_word_cmp, last_word_cmp),
+                           score_threshold = -4)
+# Group identifiers
+p6a$pid
+
+# Weights
+subset(p6a$pid_weights, record.match)
+```
+The required number of record-pairs doubles exponentially as the size of the dataset increases. 
+This eventually becomes memory intensive.
+Arguments such as `blocking_attribute`, `repeats_allowed`, `permutations_allowed ` and `data_source` are used to limit the creation and comparison of only certain types of record-pairs. 
+
+## `links_wf_probabilistic()`
+Also primarily used for probabilistic record linkage. `links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `link_records()`. It's less memory intensive but can be slower in comparison.
+```{r warning=FALSE}
+p6b <- links_wf_probabilistic(dfr_5, attr_threshold = 1,
+                              cmp_func = c(exact_match, exact_match,
+                                           last_word_cmp, last_word_cmp),
+                              score_threshold = -4,
+                              recursive = TRUE)
+# Group identifiers
+p6b$pid
+
+# Weights
+subset(p6b$pid_weights, record.match)
+```
+Here, a final selection is made at each iteration. Therefore, an acceptable `score_threshold` is required in advance. To help with this, `prob_score_range()` can be used to return the range of scores attainable for a given set of attributes and, `m` and `u`-probabilities. Additionally, `id_1` and `id_2` can be used to compare specific records-pairs, aiding the review of potential scores.
+
+# Case definitions
 ## `episodes()`
+Primarily used for contact and network analysis.
 `episodes()` is designed to compare dated records (events) and assign them to unique groups (episodes) based on the duration between events. 
 Three type of episodes are possible; fixed, rolling and recursive episodes (Figure 1). 
 A fixed episode is a set of events within a defined period before or after an index event. A rolling episode is a repeating series of fixed episodes linked together as recurrences. A recursive episode is a rolling episode where every event serves as an index event.
@@ -125,10 +172,10 @@ dfr_2
 **Figure 1: Episodes.** 
 <img src = "fig_o1.png" width = "700" height = "580">
 
-There are several options to determine which records are used as the index event, how many index events are used, how many durations from the index events are assessed, the nature of recurrences where applicable and additional matching criteria through `sub_criteria` objects as described above. See `help(episodes)` for more details about these. Also useful is `episodes_wf_splits()`; a wrapper function of `episodes()` which is better optimised for analyses with duplicate records.  
+There are several options to determine which records are used as the index event, how many index events are used, how many durations from the index events are assessed, the nature of recurrences where applicable and additional matching criteria through `sub_criteria` objects as described above. See `help(episodes)` for more details about these. Also useful is `episodes_wf_splits()` - a wrapper function of `episodes()` which is better optimised for analyses with duplicate records.  
 
 ## `partitions()`
-`partitions()` assigns events to groups (panes) if they are within a defined interval (Figure 1). Unlike `episodes()`, the duration between events is not a factor. Here, events from the same pane simply occurred within the same interval. See examples below.
+`partitions()` assigns events to groups (panes) if they are within a defined interval (Figure 2). Unlike `episodes()`, the duration between events is not a factor. Here, events from the same pane simply occurred within the same interval. See the example below.
 
 ```{r warning=FALSE}
 event_dt <- seq(from = as.Date("2021-01-01"), to = as.Date("2021-01-11"), by = 1)
@@ -162,10 +209,13 @@ dfr_3$pn5 <- partitions(event_dt, length.out = 2, separate = FALSE)
 # ggsave(dpi = 100, plot = f, filename = "fig_o2.png", width = 15, height = 8, units = "in")
 ```
 
-**Figure 2: Panes`**
+**Figure 2: Panes**
 <img src = "fig_o2.png" width = "700" height = "400">
 
 # Other useful functions
+There are other functions which support the above mentioned ones but are also useful for common analytical tasks.
+Some of these are shown below.
+
 ## `number_line()`
 Produces a `number_line` object. 
 This is an `S4` class representing two points of an interval.
@@ -193,51 +243,38 @@ dfr_4$pd5 <- links("place_holder", sub_criteria = list("cr1" = s_cri_c), recursi
 dfr_4[c("admin_period", "nl1", "nl2", "ep4", "ep5", "pd5")]
 ```
 
-## `link_records()`
-Implements probabilistic record linkage.
-Record-pairs are generated and compared for matches.
-Matches can be weighted to allow for imperfect matches.
-Match probabilities are then calculated and used to determine assign a match score.
-This can be memory intensive as the number of record doubles exponentially therefore,
-`links_wf_probabilistic()` - a wrapper function of `links()`, is provided to
-compare batches of record-pairs in iterations.  
+## `make_pairs()`
+Create record pairs. 
 ```{r warning=FALSE}
-dfr_5 <- missing_staff_id[c(2, 4, 5, 6)]
+prs_1 <- make_pairs(LETTERS[1:4], repeats_allowed = FALSE, permutations_allowed = FALSE)
+prs_2 <- make_pairs(LETTERS[1:4], repeats_allowed = TRUE, permutations_allowed = TRUE)
+prs_3 <- make_pairs(1:5000, repeats_allowed = TRUE, permutations_allowed = TRUE)
 
-# Using string comparators
-# For example, matching last word in `hair_colour` and `branch_office`
-last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
-last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
+str(prs_1); str(prs_2); str(prs_3)
+```
 
-p6a <- link_records(dfr_5, cmp_threshold = 1,
-                           cmp_func = c(exact_match, exact_match,
-                                        last_word_cmp, last_word_cmp),
-                           score_threshold = -4)
-p6b <- links_wf_probabilistic(dfr_5, cmp_threshold = 1,
-                              cmp_func = c(exact_match, exact_match,
-                                           last_word_cmp, last_word_cmp),
-                              score_threshold = -4,
-                              recursive = TRUE)
-# Identifiers
-p6a$pid; p6b$pid
-
-# Weights
-subset(as.data.frame(p6a$pid_weights), prb.threshold == 1)
-subset(as.data.frame(p6b$pid_weights), prb.threshold == 1)
+## `combi()`
+Numeric codes for unique combination of vectors.
+This is a useful and faster alternative to `paste0` when it's more relevant to know a unique combination instead of the exact combination.
+```{r warning=FALSE}
+cmbi_dfr <- dfr_stages[c(1, 2)]
+cmbi_dfr$combi_nm <- paste(cmbi_dfr[[1]], cmbi_dfr[[2]])
+cmbi_dfr$combi_cd <- combi(as.list(cmbi_dfr))
+cmbi_dfr
 ```
 
 
 # Processing time
-As mentioned, `episodes()` and `links()` are iterative functions.
+`episodes()` and `links()` are iterative functions.
 Although both continue to be optimised, each iteration costs additional processing time.
 The main way to mitigate this is to reduce the number of iterations required to complete an analyses. 
 To help with this, both functions have arguments which ensure that only the minimum number of records required to complete the process is used.
 
-In addition, the flexibility of `episodes()` and `links()` results in situations where the use of different arguments lead to the same outcome. 
-However, some approach will often require less iterations to complete the same process compared to others. 
+The flexibility of `episodes()` and `links()` results in situations where the use of different arguments will lead to the same outcome. However, one combination will usually require the least number of iterations to complete the same process. 
 Therefore, a good grasp of the role of each argument is useful in knowing the most efficient combination of arguments to use. 
-Furthermore, for some analyses, `episodes()` and `links()` can be used interchangeably however, this tends to be less efficient. 
-For example, `dfr_4$ep4` and `dfr_4$pd5` are essentially the same outcome; two groups with the same set of records in each. However, we can see below that `episodes()` created `dfr_4$ep4` in two iterations compared to the 7 iterations it took `links()` to create `dfr_4$ep4`.
+
+For some analyses, `episodes()` and `links()` can be used interchangeably however, this tends to be less efficient. 
+For example, identifiers `dfr_4$ep4` and `dfr_4$pd5` are essentially the same outcome; 2 groups with the same set of records in each. However, we can see below that `episodes()` created `dfr_4$ep4` in 2 iterations compared to the 7 iterations it took `links()` to create `dfr_4$ep4`.
 ```{r warning=FALSE}
 summary(dfr_4$ep4)
 
@@ -245,17 +282,16 @@ summary(dfr_4$pd5)
 ```
 It's also worth noting that using a `sub_criteria` can cost a lot in processing time.
 Therefore, it should not be used if it can be avoided.
-For example, `dfr_stages$p4` was created using `sub_cri_b` which took `r max(dfr_stages$p4@iteration)`.
+For example, `dfr_stages$p4` was created using `sub_cri_b` which took `r max(dfr_stages$p4@iteration)` iterations.
 However, the same outcome can be achieved in 1 iteration with a `criteria`. 
 See the difference below.
 ```{r warning=FALSE}
-dfr_stages$p4b <- links(paste0(last_word_wf(dfr_stages$hair_colour),
-                           last_word_wf(dfr_stages$branch_office),
-                           sep = "-"))
+dfr_stages$p4b <- links(criteria = combi(last_word_wf(dfr_stages$hair_colour),
+                                         last_word_wf(dfr_stages$branch_office)))
 
 summary(dfr_stages$p4b)
 
 all(dfr_stages$p4 == dfr_stages$p4b)
 ```
 
-These time difference are negligible when dealing with relatively small datasets but become more apparent as the size increases.
+These time differences are negligible when dealing with relatively small datasets but become more apparent as the size increases.

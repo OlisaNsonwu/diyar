@@ -6,13 +6,13 @@
 #' @param blocking_attribute \code{[atomic]}. Subsets of the dataset.
 #' @param attribute \code{[atomic|list|data.frame|matrix|d_attribute]}. Attributes to compare.
 #' @param cmp_func \code{[list|function]}. String comparators for each \code{attribute}. See \code{Details}.
-#' @param cmp_threshold \code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.
+#' @param attr_threshold \code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.
 #' @param probabilistic \code{[logical]}. If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.
 #' @param m_probability \code{[list|numeric]}. The probability that a matching records are the same entity.
 #' @param u_probability \code{[list|numeric]}. The probability that a matching records are not the same entity.
 #' @param score_threshold \code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.
-#' @param id_1 \code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.
-#' @param id_2 \code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.
+#' @param id_1 \code{[list|numeric]}. Record id or index of one half of a record pair.
+#' @param id_2 \code{[list|numeric]}. Record id or index of one half of a record pair.
 #' @param ... Arguments passed to \bold{\code{links}}
 #' @param repeats_allowed \code{[logical]} If \code{TRUE}, repetition are included.
 #' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations are included.
@@ -26,7 +26,7 @@
 #' @details
 #' \code{link_records()} and \code{links_wf_probabilistic()} are functions to implement probabilistic record linkage.
 #' \code{link_records()} compares every record-pair in one instance,
-#' while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and therefore compares record-pairs in iterations.
+#' while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and so compares batches of record-pairs in iterations.
 #'
 #' \code{link_records()} is more thorough in the sense that it compares every combination of record-pairs.
 #' This makes it faster but is memory intensive, particularly if there's no \code{blocking_attribute}.
@@ -34,7 +34,7 @@
 #'
 #' The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 #'
-#' In summary, record-pairs are created and categorised as matches and non-matches (\code{cmp_threshold}) with user-defined functions (\code{cmp_func}).
+#' In summary, record-pairs are created and categorised as matches and non-matches (\code{attr_threshold}) with user-defined functions (\code{cmp_func}).
 #' Two probabilities (\code{m} and \code{u}) are then estimated for each record-pair to score the matches and non-matches.
 #' The \code{m}-probability is the probability that matched records are actually from the same entity i.e. a true match,
 #' while \code{u}-probability is the probability that matched records are not from the same entity i.e. a false match.
@@ -58,7 +58,7 @@
 #'
 #' By default, matches and non-matches for each \code{attribute} are determined as an \code{\link{exact_match}} with a binary outcome.
 #' Alternatively, user-defined functions (\code{cmp_func}) are used to create similarity scores.
-#' Pairs with similarity scores within (\code{cmp_threshold}) are then considered matches for the corresponding \code{attribute}.
+#' Pairs with similarity scores within (\code{attr_threshold}) are then considered matches for the corresponding \code{attribute}.
 #'
 #' If \code{probabilistic} is \code{FALSE},
 #' the sum of all similarity scores is used as the \code{score_threshold} instead of deriving one from the \code{m} and \code{u}-probabilities.
@@ -85,12 +85,12 @@
 #' @examples
 #' # Using exact matches
 #' dfr <- missing_staff_id[c(2, 4, 5, 6)]
-#' link_records(dfr, cmp_threshold = 1, probabilistic = FALSE, score_threshold = 2)
-#' links_wf_probabilistic(dfr, cmp_threshold = 1, probabilistic = FALSE,
+#' link_records(dfr, attr_threshold = 1, probabilistic = FALSE, score_threshold = 2)
+#' links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = FALSE,
 #'                        score_threshold = 2, recursive = TRUE)
 #'
-#' link_records(dfr, cmp_threshold = 1, probabilistic = TRUE, score_threshold = -16)
-#' links_wf_probabilistic(dfr, cmp_threshold = 1, probabilistic = TRUE,
+#' link_records(dfr, attr_threshold = 1, probabilistic = TRUE, score_threshold = -16)
+#' links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = TRUE,
 #'                        score_threshold = -16, recursive = TRUE)
 #'
 #' # Using string comparators
@@ -98,13 +98,13 @@
 #' last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
 #' last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
 #'
-#' link_records(dfr, cmp_threshold = 1,
+#' link_records(dfr, attr_threshold = 1,
 #'              cmp_func = c(diyar::exact_match,
 #'                           diyar::exact_match,
 #'                           last_word_cmp,
 #'                           last_word_cmp),
 #'              score_threshold = -4)
-#' links_wf_probabilistic(dfr, cmp_threshold = 1,
+#' links_wf_probabilistic(dfr, attr_threshold = 1,
 #'                     cmp_func = c(diyar::exact_match,
 #'                                  diyar::exact_match,
 #'                                  last_word_cmp,
@@ -116,7 +116,7 @@
 link_records <- function(attribute,
                          blocking_attribute = NULL,
                          cmp_func = diyar::exact_match,
-                         cmp_threshold = length(attribute),
+                         attr_threshold = 1,
                          probabilistic = TRUE,
                          m_probability = .95,
                          u_probability = NULL,
@@ -129,7 +129,7 @@ link_records <- function(attribute,
   err <- err_links_wf_probablistic_0(attribute = attribute,
                                      blocking_attribute = blocking_attribute,
                                      cmp_func = cmp_func,
-                                     cmp_threshold = cmp_threshold,
+                                     attr_threshold = attr_threshold,
                                      probabilistic = probabilistic,
                                      m_probability = m_probability,
                                      score_threshold = score_threshold,
@@ -140,7 +140,7 @@ link_records <- function(attribute,
   args_repo <- prep_prob_link_args(attribute = attribute,
                                    blocking_attribute = blocking_attribute,
                                    cmp_func = cmp_func,
-                                   cmp_threshold = cmp_threshold,
+                                   attr_threshold = attr_threshold,
                                    probabilistic = probabilistic,
                                    m_probability = m_probability,
                                    score_threshold = score_threshold,
@@ -152,7 +152,7 @@ link_records <- function(attribute,
 
   pid_weights <- prob_link(x = c(args_repo$x, args_repo$m_probability, args_repo$u_probability),
                             y = args_repo$y,
-                            cmp_threshold = args_repo$cmp_threshold,
+                            attr_threshold = args_repo$attr_threshold,
                             score_threshold = args_repo$score_threshold,
                             return_weights = TRUE,
                             cmp_func = args_repo$cmp_func,
@@ -169,20 +169,15 @@ link_records <- function(attribute,
     colnames(pid_weights)[1:2] <- c("sn_x","sn_y")
   }
 
-  if(isTRUE(probabilistic)){
-    pids <- pid_weights[c("sn_x", "sn_y", "prb.threshold")]
-    pids <- pids[pids$prb.threshold,]
-  }else{
-    pids <- pid_weights[c("sn_x", "sn_y", "cmp.threshold")]
-    pids <- pids[pids$cmp.threshold,]
-  }
+  pids <- pid_weights[c("sn_x", "sn_y", "record.match")]
+  pids <- pids[pids$record.match,]
 
   pids <- make_ids(pids$sn_x, pids$sn_y, max(c(pid_weights[,1], pid_weights[,2])))
   tots <- rle(sort(pids$group_id))
   pids <- methods::new("pid",
                .Data = pids$group_id,
                sn = pids$sn,
-               pid_cri = as.integer(pids$matched),
+               pid_cri = as.integer(pids$linked),
                link_id = pids$link_id,
                pid_total = tots$lengths[match(pids$group_id, tots$values)],
                iteration = rep(1L, length(pids$sn)))
@@ -202,7 +197,7 @@ link_records <- function(attribute,
 links_wf_probabilistic <- function(attribute,
                                    blocking_attribute = NULL,
                                    cmp_func = diyar::exact_match,
-                                   cmp_threshold = .95,
+                                   attr_threshold = 1,
                                    probabilistic = TRUE,
                                    m_probability = .95,
                                    u_probability = NULL,
@@ -214,7 +209,7 @@ links_wf_probabilistic <- function(attribute,
   err <- err_links_wf_probablistic_0(attribute = attribute,
                                      blocking_attribute = blocking_attribute,
                                      cmp_func = cmp_func,
-                                     cmp_threshold = cmp_threshold,
+                                     attr_threshold = attr_threshold,
                                      probabilistic = probabilistic,
                                      m_probability = m_probability,
                                      u_probability = u_probability,
@@ -225,7 +220,7 @@ links_wf_probabilistic <- function(attribute,
   args_repo <- prep_prob_link_args(attribute = attribute,
                                    blocking_attribute = blocking_attribute,
                                    cmp_func = cmp_func,
-                                   cmp_threshold = cmp_threshold,
+                                   attr_threshold = attr_threshold,
                                    probabilistic = probabilistic,
                                    m_probability = m_probability,
                                    score_threshold = score_threshold,
@@ -235,7 +230,7 @@ links_wf_probabilistic <- function(attribute,
   # Weight or probabilistic matching
   prob_link_wf <- function(x, y){
     prob_link(x, y,
-               cmp_threshold = args_repo$cmp_threshold,
+               attr_threshold = args_repo$attr_threshold,
                score_threshold = args_repo$score_threshold,
                return_weights = FALSE,
                probabilistic = probabilistic,
@@ -279,13 +274,13 @@ links_wf_probabilistic <- function(attribute,
   }
 
   pid_weights <- prob_link(x, y,
-                           cmp_threshold = args_repo$cmp_threshold,
+                           attr_threshold = args_repo$attr_threshold,
                            score_threshold = args_repo$score_threshold,
                            return_weights = TRUE,
                            cmp_func = args_repo$cmp_func,
                            probabilistic = probabilistic)
   # Mask unlinked records
-  pid_weights[thresh_lgk,] <- NA_real_
+  pid_weights[thresh_lgk,] <- NA
   pid_weights <- cbind(data.frame(id_1, id_2, stringsAsFactors = FALSE), pid_weights)
   colnames(pid_weights)[1:2] <- c("sn_x","sn_y")
 

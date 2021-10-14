@@ -1789,7 +1789,7 @@ err_sub_criteria_funcs <- function(..., funcs, funcs_l){
 err_links_wf_probablistic_0 <- function(attribute,
                                         blocking_attribute,
                                         cmp_func,
-                                        cmp_threshold,
+                                        attr_threshold,
                                         probabilistic,
                                         m_probability,
                                         u_probability,
@@ -1797,7 +1797,7 @@ err_links_wf_probablistic_0 <- function(attribute,
                                         id_1, id_2){
   # Check for non-atomic vectors
   args <- list(blocking_attribute = blocking_attribute,
-               cmp_threshold = cmp_threshold,
+               attr_threshold = attr_threshold,
                probabilistic = probabilistic,
                # m_probability = m_probability,
                # u_probability = u_probability,
@@ -1814,7 +1814,7 @@ err_links_wf_probablistic_0 <- function(attribute,
   # Check for required object types
   args <- list(
                # attribute = attribute,
-               cmp_threshold = cmp_threshold,
+               attr_threshold = attr_threshold,
                probabilistic = probabilistic,
                m_probability = m_probability,
                u_probability = u_probability,
@@ -1824,7 +1824,7 @@ err_links_wf_probablistic_0 <- function(attribute,
 
   args_classes <- list(
                        # attribute = c("list", "data.frame", "matrix", "d_attribute"),
-                       cmp_threshold = c("list", "numeric", "integer"),
+                       attr_threshold = c("list", "numeric", "integer"),
                        probabilistic = "logical",
                        m_probability = c("list", "numeric", "integer"),
                        u_probability = c("list", "numeric", "integer", "NULL"),
@@ -1888,14 +1888,14 @@ err_links_wf_probablistic_0 <- function(attribute,
   err <- c("m_probability" = length(m_probability),
            "u_probability" = length(u_probability),
            "cmp_func" = length(cmp_func),
-           "cmp_threshold" = length(cmp_threshold))
+           "attr_threshold" = length(attr_threshold))
   if(is.null(u_probability)){
     err <- err[names(err) != "u_probability"]
   }
   ref_err <- length(attribute)
   err_lgk <- which(ref_err != err & err != 1)
   if(any(which(ref_err != err & err != 1))){
-    err <- paste0("Lengths of `cmp_func`, `cmp_threshold`, `m_probability` and `u_probability` must be 1 or match the number of attributes supplied:\n",
+    err <- paste0("Lengths of `cmp_func`, `attr_threshold`, `m_probability` and `u_probability` must be 1 or match the number of attributes supplied:\n",
                   "i - Expecting lengths of 1 or ", ref_err, "\n",
                   paste0("X - Length of `", names(err[err_lgk]), "` is ", err[err_lgk], ".", collapse = "\n"))
     return(err)

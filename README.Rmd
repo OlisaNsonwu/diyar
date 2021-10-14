@@ -28,9 +28,9 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-## Usage
+<!-- ## Usage -->
 
-<img src = "fig_r1_light.png" width = "1000" height="580">
+<!-- <img src = "fig_r1_light.png" width = "1000" height="580"> -->
 
 ### Number line
 Use `number_line()` to create `number_line` objects - a range of numeric values. These can be split or manipulated in several ways. 
@@ -64,24 +64,33 @@ attr_1 <- c(1, 1, 1, NA, NA, NA, NA, NA)
 attr_2 <- c(NA, NA, 2, 2, 2, NA, NA, NA)
 links(list(attr_1, attr_2))
 ```  
-`links_wf_probabilistic()` is a wrapper function of `links()` to implement probabilistic record linkage.
+Use `link_records()` to implement both deterministic and probabilistic record linkage by comparing every possible record-pair. 
 ```{r message = FALSE, warning = FALSE}
 data(missing_staff_id)
 dfr <- missing_staff_id[c("staff_id",  "initials", "hair_colour", "branch_office")]
-links_wf_probabilistic(as.list(dfr), score_threshold = -4.2)
+p1 <- link_records(as.list(dfr), score_threshold = -4.2)
+p1$pid
+subset(p1$pid_weights, record.match)
+```
+`links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `link_records()`. It's less memory intensive but can be slower in comparison.
+```{r message = FALSE, warning = FALSE}
+p2 <- links_wf_probabilistic(as.list(dfr), score_threshold = -4.2, recursive = TRUE)
+p2$pid
+subset(p2$pid_weights, record.match)
 ``` 
 
-### Episode tracking
+### Case definitions
 Use `episodes()` to create a unique identifier for related events based on a case definition.
 ```{r message = FALSE, warning = FALSE}
-episodes(1:7, case_length = 2)
-episodes(1:7, case_length = 2, episode_type = "rolling")
+dates <- seq(as.Date("2020-01-01"), as.Date("2020-01-07"), by = 1)
+episodes(dates, case_length = 2, group_stats = TRUE)
+episodes(dates, case_length = 2, episode_type = "rolling", group_stats = TRUE)
 ``` 
 
-Use `partitions()` to create a unique identifier for events within the same time or numerical interval.
+Use `partitions()` to create a unique identifier for events within the same period or numerical interval.
 ```{r message = FALSE, warning = FALSE}
-partitions(1:7, by = 2, separate = TRUE)
-partitions(1:7, length.out = 3, separate = TRUE)
+partitions(dates, by = 2, separate = TRUE, group_stats = TRUE)
+partitions(dates, length.out = 3, separate = TRUE, group_stats = TRUE)
 ``` 
 
 Find out more [here!](https://olisansonwu.github.io/diyar/index.html)

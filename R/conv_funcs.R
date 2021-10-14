@@ -999,7 +999,7 @@ mk_lazy_opt <- function(x){
 prep_prob_link_args <- function(attribute,
                                 blocking_attribute,
                                 cmp_func,
-                                cmp_threshold,
+                                attr_threshold,
                                 probabilistic,
                                 m_probability,
                                 score_threshold,
@@ -1026,22 +1026,31 @@ prep_prob_link_args <- function(attribute,
   attr_nm <- names(attribute)
   rd_n <- length(attribute[[1]])
 
-  lgk <- unlist(lapply(attribute, function(x) length(x[!duplicated(x)]) == 1), use.names = FALSE)
+  lgk <- unlist(lapply(attribute, function(x){
+    if(is.number_line(x)){
+      length(unique(x)) == 1
+    }else{
+      length(x[!duplicated(x)]) == 1
+    }
+  }), use.names = FALSE)
   if(any(lgk)){
     warning(paste0("Attributes with identicial values in every record are ignored:\n",
                    paste0("i - `", attr_nm[lgk], "` was ignored!", collapse = "\n")), call. = FALSE)
   }
+  if(all(lgk)){
+    stop("Linkage stopped since all attributes were ignored.", call. = FALSE)
+  }
   attribute <- attribute[!lgk]
 
   # Threshold for agreement in each attribute
-  if(is.number_line(cmp_threshold)){
-    cmp_threshold[cmp_threshold@.Data < 0] <- reverse_number_line(cmp_threshold[cmp_threshold@.Data < 0], "decreasing")
+  if(is.number_line(attr_threshold)){
+    attr_threshold[attr_threshold@.Data < 0] <- reverse_number_line(attr_threshold[attr_threshold@.Data < 0], "decreasing")
   }else{
-    cmp_threshold <- suppressWarnings(number_line(cmp_threshold, Inf))
+    attr_threshold <- suppressWarnings(number_line(attr_threshold, Inf))
   }
 
-  if(length(cmp_threshold) == 1 & length(attribute) > 1){
-    cmp_threshold <- rep(cmp_threshold, length(attribute))
+  if(length(attr_threshold) == 1 & length(attribute) > 1){
+    attr_threshold <- rep(attr_threshold, length(attribute))
   }
 
   if(is.number_line(score_threshold)){
@@ -1086,8 +1095,19 @@ prep_prob_link_args <- function(attribute,
 
   if(isTRUE(probabilistic)){
     # u-probabilities
+    # if(is.null(u_probability)){
+    #   u_probability <- lapply(if(method == "make_pairs") x else attribute, function(x){
+    #     x_cd <- match(x, x[!duplicated(x)])
+    #     x_cd[is.na(x)] <- NA_real_
+    #     r <- rle(x_cd[order(x_cd)])
+    #     n <- r$lengths[match(x_cd, r$values)]
+    #     p <- n/length(x_cd)
+    #     p[is.na(x_cd)] <- 0
+    #     p
+    #   })
+    # }
     if(is.null(u_probability)){
-      u_probability <- lapply(if(method == "make_pairs") x else attribute, function(x){
+      u_probability <- lapply(attribute, function(x){
         x_cd <- match(x, x[!duplicated(x)])
         x_cd[is.na(x)] <- NA_real_
         r <- rle(x_cd[order(x_cd)])
@@ -1096,6 +1116,12 @@ prep_prob_link_args <- function(attribute,
         p[is.na(x_cd)] <- 0
         p
       })
+
+      if(method == "make_pairs"){
+        u_probability <- lapply(seq_len(length(attribute)), function(i){
+          u_probability[[i]][match(x[[i]], attribute[[i]])]
+        })
+      }
     }
 
     # m-probabilities
@@ -1130,7 +1156,7 @@ prep_prob_link_args <- function(attribute,
               y = y,
               blocking_attribute = blocking_attribute,
               cmp_func = cmp_func,
-              cmp_threshold = cmp_threshold,
+              attr_threshold = attr_threshold,
               probabilistic = probabilistic,
               m_probability = m_probability,
               score_threshold = score_threshold,

@@ -626,7 +626,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
           cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                     "Tracked: ", fmt(rp_data[[4]]), " record(s)\n",
+                     "Assigned: ", fmt(rp_data[[4]]), " record(s)\n",
                      "Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
                      "Time: ", fmt(rp_data[[2]], "difftime"),
                      "\n\n"))
@@ -960,7 +960,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
           cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                     "Tracked: ", fmt(rp_data[[4]]), " record(s)\n",
+                     "Assigned: ", fmt(rp_data[[4]]), " record(s)\n",
                      "Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
                      "Time: ", fmt(rp_data[[2]], "difftime"),
                      "\n\n"))
@@ -1009,7 +1009,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       report <- c(report, list(rp_data))
       if(display %in% c("stats_with_report", "stats")){
         cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                   "Tracked: ", fmt(rp_data[[4]]), " record(s)\n",
+                   "Assigned: ", fmt(rp_data[[4]]), " record(s)\n",
                    "Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
                    "Time: ", fmt(rp_data[[2]], "difftime"),
 
@@ -1506,7 +1506,7 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
       cat(paste0("\n\n",
                  "Return duplicates\n",
                  "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                 "Tracked: ", fmt(rp_data[[4]]), " record(s)","\n",
+                 "Assigned: ", fmt(rp_data[[4]]), " record(s)","\n",
                  "Time: ", fmt(rp_data[[2]], "difftime"),
                  "\n\n"))
     }
@@ -1644,8 +1644,6 @@ index_window <- function(date, from_last = FALSE){
 #'
 #' @export
 custom_sort <- function(..., decreasing = FALSE, unique = FALSE){
-  # ord <- order(..., decreasing = decreasing)
-  # ord <- match(seq_len(length(ord)), ord)
   ord <- order(order(..., decreasing = decreasing))
   if(!unique){
     ord_l <- combi(...)

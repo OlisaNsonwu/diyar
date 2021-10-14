@@ -24,10 +24,12 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
   x[rp] <- y_pos[rp]
   y[rp] <- x_pos[rp]
 
+  # browser()
   y1 <- x[match(x, y)]
+  # tmp <- y[match(y, x)]
+  # y1[is.na(y1)] <- tmp[is.na(y1)]
   y1[is.na(y1)] <- x[is.na(y1)]
   y2 <- y1[match(y1, y)]
-  # y2[is.na(y2)] <- y[is.na(y2)]
   lgk <- which(is.na(y2) & !(x != y1 | (x == y1 & y1 %in% y1[x != y1])))
   y2[lgk] <- y[lgk]
   lgk <- which(is.na(y2) & (x != y1 | (x == y1 & y1 %in% y1[x != y1])))
@@ -35,13 +37,7 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
 
   sn <- seq_len(id_length)
   link_id <- y1[match(sn, y)]
-  # link_id <- y1[match(sn, x)]
-  # tmp <- y1[match(sn, x)]
   tmp <- y2[match(sn, x)]
-  # tmp <- y2[match(sn, y)]
-
-  # link_id <- x[match(sn, y)]
-  # tmp <- x[match(sn, x)]
   link_id[is.na(link_id)] <- tmp[is.na(link_id)]
   group_id <- y2[match(sn, y)]
   tmp <- y2[match(sn, x)]

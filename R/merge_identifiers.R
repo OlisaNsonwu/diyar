@@ -98,12 +98,26 @@ merge_ids.pid <- function(id1, id2, tie_sort = NULL, ...){
   repo$tr_pr_match <- repo$pr_match[match(repo$id2, repo$id2)]
   repo$tr_id1 <- repo$id1[match(repo$id2, repo$id2)]
   repo$new_id <- repo$id1
-  lgk <- repo$tr_pr_match & !repo$pr_match & !duplicated(repo$id1)
+
+  new_cri <- max(repo$id1@pid_cri)
+  new_cri <- ifelse(new_cri == 0, 2L, new_cri + 1L)
+  new_iteration <- max(repo$id1@iteration) + 1L
+  lgk <- (repo$tr_pr_match & !repo$pr_match & !duplicated(repo$id1))
   repo$new_id@link_id[lgk] <- repo$tr_id1@link_id[lgk]
   lgk <- repo$tr_pr_match & !repo$pr_match
   repo$new_id@.Data[lgk] <- repo$tr_id1@.Data[lgk]
-  repo$new_id@pid_cri[lgk] <- max(repo$new_id@pid_cri + 1L)
-  repo$new_id@iteration[lgk] <- max(repo$new_id@iteration + 1L)
+  repo$new_id@pid_cri[lgk] <- new_cri
+  repo$new_id@iteration[lgk] <- new_iteration
+
+  new_cri <- max(repo$id1@pid_cri)
+  new_cri <- ifelse(new_cri == 0, 1L, new_cri)
+  new_cri <- new_cri + max(repo$id2@pid_cri)
+  new_iteration <- max(repo$id1@iteration) + max(repo$id2@iteration) + 1L
+  lgk <- (!repo$tr_pr_match & !repo$id2@pid_cri %in% c(-1:0))
+  repo$new_id@link_id[lgk] <- repo$id2@link_id[lgk]
+  repo$new_id@.Data[lgk] <- repo$id2@.Data[lgk]
+  repo$new_id@pid_cri[lgk] <- new_cri
+  repo$new_id@iteration[lgk] <- new_iteration
 
   repo$new_id@pid_dataset <- NA_character_
   repo <- repo$new_id
@@ -112,6 +126,9 @@ merge_ids.pid <- function(id1, id2, tie_sort = NULL, ...){
   repo@sn <- mp1[[2]][match(repo@sn, mp1[[1]])]
   repo@link_id <- mp1[[2]][match(repo@link_id, mp1[[1]])]
   repo@.Data <- mp1[[2]][match(repo@.Data, mp1[[1]])]
+
+  tots <- rle(sort(repo@.Data))
+  repo@pid_total <- tots$lengths[match(repo@.Data, tots$values)]
   return(repo)
 }
 

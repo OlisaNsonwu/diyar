@@ -10,7 +10,7 @@ link_records(
   attribute,
   blocking_attribute = NULL,
   cmp_func = diyar::exact_match,
-  cmp_threshold = length(attribute),
+  attr_threshold = 1,
   probabilistic = TRUE,
   m_probability = 0.95,
   u_probability = NULL,
@@ -25,7 +25,7 @@ links_wf_probabilistic(
   attribute,
   blocking_attribute = NULL,
   cmp_func = diyar::exact_match,
-  cmp_threshold = 0.95,
+  attr_threshold = 1,
   probabilistic = TRUE,
   m_probability = 0.95,
   u_probability = NULL,
@@ -44,7 +44,7 @@ prob_score_range(attribute, m_probability = 0.95, u_probability = NULL)
 
 \item{cmp_func}{\code{[list|function]}. String comparators for each \code{attribute}. See \code{Details}.}
 
-\item{cmp_threshold}{\code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.}
+\item{attr_threshold}{\code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.}
 
 \item{probabilistic}{\code{[logical]}. If \code{TRUE}, scores are assigned base on Fellegi-Sunter model for probabilistic record linkage. See \code{Details}.}
 
@@ -62,9 +62,9 @@ prob_score_range(attribute, m_probability = 0.95, u_probability = NULL)
 
 \item{ignore_same_source}{\code{[logical]} If \code{TRUE}, only records from different \bold{\code{data_source}} are compared.}
 
-\item{id_1}{\code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.}
+\item{id_1}{\code{[list|numeric]}. Record id or index of one half of a record pair.}
 
-\item{id_2}{\code{[list|numeric]}. One half of a specific pair of records to check for match weights and score-thresholds.}
+\item{id_2}{\code{[list|numeric]}. Record id or index of one half of a record pair.}
 
 \item{...}{Arguments passed to \bold{\code{links}}}
 }
@@ -77,7 +77,7 @@ Deterministic and probabilistic record linkage with partial or evaluated matches
 \details{
 \code{link_records()} and \code{links_wf_probabilistic()} are functions to implement probabilistic record linkage.
 \code{link_records()} compares every record-pair in one instance,
-while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and therefore compares record-pairs in iterations.
+while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and so compares batches of record-pairs in iterations.
 
 \code{link_records()} is more thorough in the sense that it compares every combination of record-pairs.
 This makes it faster but is memory intensive, particularly if there's no \code{blocking_attribute}.
@@ -85,7 +85,7 @@ In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes 
 
 The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 
-In summary, record-pairs are created and categorised as matches and non-matches (\code{cmp_threshold}) with user-defined functions (\code{cmp_func}).
+In summary, record-pairs are created and categorised as matches and non-matches (\code{attr_threshold}) with user-defined functions (\code{cmp_func}).
 Two probabilities (\code{m} and \code{u}) are then estimated for each record-pair to score the matches and non-matches.
 The \code{m}-probability is the probability that matched records are actually from the same entity i.e. a true match,
 while \code{u}-probability is the probability that matched records are not from the same entity i.e. a false match.
@@ -109,7 +109,7 @@ Missing data (\code{NA}) are considered non-matches and assigned a \code{u}-prob
 
 By default, matches and non-matches for each \code{attribute} are determined as an \code{\link{exact_match}} with a binary outcome.
 Alternatively, user-defined functions (\code{cmp_func}) are used to create similarity scores.
-Pairs with similarity scores within (\code{cmp_threshold}) are then considered matches for the corresponding \code{attribute}.
+Pairs with similarity scores within (\code{attr_threshold}) are then considered matches for the corresponding \code{attribute}.
 
 If \code{probabilistic} is \code{FALSE},
 the sum of all similarity scores is used as the \code{score_threshold} instead of deriving one from the \code{m} and \code{u}-probabilities.
@@ -128,12 +128,12 @@ Additionally, \code{id_1} and \code{id_2} can be used to link specific records p
 \examples{
 # Using exact matches
 dfr <- missing_staff_id[c(2, 4, 5, 6)]
-link_records(dfr, cmp_threshold = 1, probabilistic = FALSE, score_threshold = 2)
-links_wf_probabilistic(dfr, cmp_threshold = 1, probabilistic = FALSE,
+link_records(dfr, attr_threshold = 1, probabilistic = FALSE, score_threshold = 2)
+links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = FALSE,
                        score_threshold = 2, recursive = TRUE)
 
-link_records(dfr, cmp_threshold = 1, probabilistic = TRUE, score_threshold = -16)
-links_wf_probabilistic(dfr, cmp_threshold = 1, probabilistic = TRUE,
+link_records(dfr, attr_threshold = 1, probabilistic = TRUE, score_threshold = -16)
+links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = TRUE,
                        score_threshold = -16, recursive = TRUE)
 
 # Using string comparators
@@ -141,13 +141,13 @@ links_wf_probabilistic(dfr, cmp_threshold = 1, probabilistic = TRUE,
 last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
 last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
 
-link_records(dfr, cmp_threshold = 1,
+link_records(dfr, attr_threshold = 1,
              cmp_func = c(diyar::exact_match,
                           diyar::exact_match,
                           last_word_cmp,
                           last_word_cmp),
              score_threshold = -4)
-links_wf_probabilistic(dfr, cmp_threshold = 1,
+links_wf_probabilistic(dfr, attr_threshold = 1,
                     cmp_func = c(diyar::exact_match,
                                  diyar::exact_match,
                                  last_word_cmp,

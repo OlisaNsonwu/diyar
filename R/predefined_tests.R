@@ -60,7 +60,7 @@ range_match_legacy <- function(x, y) {
 
 #' @rdname predefined_tests
 #' @param cmp_func Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.
-#' @param cmp_threshold Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.
+#' @param attr_threshold Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.
 #' @param probabilistic If \code{TRUE}, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See \code{\link{links_wf_probabilistic}}.
 #' @param score_threshold Score threshold determining matched or linked records. See \code{\link{links_wf_probabilistic}}.
 #' @param return_weights If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.
@@ -71,7 +71,7 @@ range_match_legacy <- function(x, y) {
 #' @export
 prob_link <- function(x, y,
                       cmp_func,
-                      cmp_threshold,
+                      attr_threshold,
                       score_threshold,
                       probabilistic,
                       return_weights){
@@ -86,12 +86,6 @@ prob_link <- function(x, y,
     wts[is.na(wts)] <- 0
     wts
   })
-
-  # Agreement/disagreement based on string comparators
-  # matches <- lapply(seq_len(attr_n), function(i){
-  #   lgk <- (wts[[i]] >= as.numeric(cmp_threshold[i]@start) & wts[[i]] <= as.numeric(right_point(cmp_threshold[i])))
-  #   lgk & !is.na(lgk)
-  # })
 
   out_2 <- sapply(wts, identity)
 
@@ -113,18 +107,18 @@ prob_link <- function(x, y,
   }
 
   out_a <- cbind(as.data.frame(out_2), sum_wt, lgk)
-  colnames(out_a) <- c(paste0("cmp.", attr_nm), "cmp.weight", "cmp.threshold")
+  colnames(out_a) <- c(paste0("cmp.", attr_nm), "cmp.weight", "record.match")
 
   if(isFALSE(probabilistic)){
     if(isTRUE(return_weights)) return(out_a) else return(lgk)
   }
-
+  out_a$record.match <- NULL
   # If probability based, matches are based on scores derived from m- and u-probabilities
   pwts <- sapply(seq_len(attr_n), function(i){
     pwts <- rep(0, length(wts[[i]]))
     # Agreement/disagreement based on string comparators
     curr_match <- (wts[[i]])
-    curr_match <- (curr_match >= as.numeric(cmp_threshold[i]@start) & curr_match <= as.numeric(right_point(cmp_threshold[i])))
+    curr_match <- (curr_match >= as.numeric(attr_threshold[i]@start) & curr_match <= as.numeric(right_point(attr_threshold[i])))
     curr_match <- curr_match & !is.na(curr_match)
 
     curr_uprob <- (x[[i + (attr_n * 2)]])
@@ -152,7 +146,7 @@ prob_link <- function(x, y,
     out_b <- cbind(as.data.frame(pwts), sum_wt, as.logical(lgk))
     colnames(out_b) <- c(paste0("prb.", attr_nm),
                          "prb.weight",
-                         "prb.threshold")
+                         "record.match")
     return(cbind(out_a, out_b))
   }else{
     return(lgk)

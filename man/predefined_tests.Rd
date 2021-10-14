@@ -18,7 +18,7 @@ prob_link(
   x,
   y,
   cmp_func,
-  cmp_threshold,
+  attr_threshold,
   score_threshold,
   probabilistic,
   return_weights
@@ -33,7 +33,7 @@ prob_link(
 
 \item{cmp_func}{Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.}
 
-\item{cmp_threshold}{Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.}
+\item{attr_threshold}{Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.}
 
 \item{score_threshold}{Score threshold determining matched or linked records. See \code{\link{links_wf_probabilistic}}.}
 

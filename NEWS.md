@@ -14,15 +14,21 @@
 -   New function - `make_ids()`. Convert an edge list to a group
     identifier.
 -   New function - `merge_ids()`. Merge two group identifiers.
--   New function - `attrs()`. XXXXXXXXXX.
--   New `S3`object - `d_report`. XXXXXXXX
--   New `S3`object - `d_attribute`. XXXXXXXX
+-   New function - `attrs()`. Pass a set of attributes to one instance
+    of `match_funcs` or `equal_funcs`.
 
 ## Changes
 
 -   Optimised `episodes()` and `links()`. Reduced processing times.
--   Three new `display` values. `"progress_with_report"`,
-    `"stats_with_report"` and `"none_with_report"`.
+-   Three new options for the `display` argument.
+    `"progress_with_report"`, `"stats_with_report"` and
+    `"none_with_report"`. Creates a `d_report`; a status of the analysis
+    over its run time.
+-   `eval_sub_criteria()`. Record-pairs are no longer created in the
+    function. Therefore, the `index_record` and `sn` have been replaced
+    with `x_pos` and `y_pos`.
+-   `link_records()` and `links_wf_probabilistic()`. The `cmp_threshold`
+    argument has been renamed to `attr_threshold`.
 
 ## Bug fixes
 
