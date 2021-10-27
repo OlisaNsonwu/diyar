@@ -63,6 +63,8 @@ prob_score_range(attribute, m_probability = 0.95, u_probability = NULL)
 
 \item{ignore_same_source}{\code{[logical]} If \code{TRUE}, only records from different \bold{\code{data_source}} are compared.}
 
+\item{display}{\code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
+
 \item{id_1}{\code{[list|numeric]}. Record id or index of one half of a record pair.}
 
 \item{id_2}{\code{[list|numeric]}. Record id or index of one half of a record pair.}

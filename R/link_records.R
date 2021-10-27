@@ -18,7 +18,7 @@
 #' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations are included.
 #' @param ignore_same_source \code{[logical]} If \code{TRUE}, only records from different \bold{\code{data_source}} are compared.
 #' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.
-#'
+#' @param display \code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
 #' @seealso \code{\link{links}}
