@@ -124,8 +124,9 @@ link_records <- function(attribute,
                          repeats_allowed = FALSE,
                          permutations_allowed = FALSE,
                          data_source = NULL,
-                         ignore_same_source = TRUE){
-
+                         ignore_same_source = TRUE,
+                         display = "none"){
+  tm_a <- Sys.time()
   err <- err_links_wf_probablistic_0(attribute = attribute,
                                      blocking_attribute = blocking_attribute,
                                      cmp_func = cmp_func,
@@ -136,6 +137,15 @@ link_records <- function(attribute,
                                      id_1 = NULL, id_2 = NULL,
                                      u_probability = u_probability)
   if(!isFALSE(err)) stop(err, call. = FALSE)
+
+  if(!display %in% c("none")){
+    rp_data <- di_report(tm_a, "Data validation", current_tot = length(attrs(attribute)[[1]]))
+    report <- list(rp_data)
+    if(display %in% c("stats_with_report", "stats")){
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
+    }
+  }
+  tm_ia <- Sys.time()
 
   args_repo <- prep_prob_link_args(attribute = attribute,
                                    blocking_attribute = blocking_attribute,
@@ -149,7 +159,14 @@ link_records <- function(attribute,
                                    permutations_allowed = permutations_allowed,
                                    ignore_same_source = ignore_same_source,
                                    data_source = data_source)
-
+  if(!display %in% c("none")){
+    rp_data <- di_report(tm_a, "Pairs created", current_tot = length(args_repo$x[[1]]))
+    report <- c(report, list(rp_data))
+    if(display %in% c("stats_with_report", "stats")){
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
+    }
+  }
+  tm_ia <- Sys.time()
   pid_weights <- prob_link(x = c(args_repo$x, args_repo$m_probability, args_repo$u_probability),
                             y = args_repo$y,
                             attr_threshold = args_repo$attr_threshold,
@@ -157,7 +174,13 @@ link_records <- function(attribute,
                             return_weights = TRUE,
                             cmp_func = args_repo$cmp_func,
                             probabilistic = probabilistic)
-
+  if(!display %in% c("none")){
+    rp_data <- di_report(tm_a, "Weights calculated", current_tot = length(args_repo$x[[1]]))
+    report <- c(report, list(rp_data))
+    if(display %in% c("stats_with_report", "stats")){
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
+    }
+  }
   # Output
   if(!is.null(data_source)){
     pid_weights <- cbind(data.frame(args_repo$r_pairs$x_pos, args_repo$r_pairs$y_pos,
@@ -186,8 +209,19 @@ link_records <- function(attribute,
     rst <- check_links(pids@.Data, data_source, list(l = "ANY"))
     pids@pid_dataset <- encode(rst$ds)
   }
+  if(!display %in% c("none")){
+    rp_data <- di_report(tm_a, "`pid` created", current_tot = length(args_repo$x[[1]]), current_tagged = nrow(pid_weights[pid_weights$record.match,]))
+    report <- c(report, list(rp_data))
+    if(display %in% c("stats_with_report", "stats")){
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
+    }
+  }
   pids <- list(pid = pids,
                pid_weights = pid_weights)
+  if(display %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    pids$report <- as.list(do.call("rbind", lapply(report, as.data.frame)))
+    class(pids$report) <- "d_report"
+  }
   rm(list = ls()[ls() != "pids"])
   return(pids)
 }

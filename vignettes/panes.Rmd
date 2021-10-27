@@ -1,0 +1,139 @@
+---
+title: "Divvy up events with `partitions`"
+date: "`r format(Sys.Date(), '%d %B %Y')`"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Divvy up events with `partitions`}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r include=FALSE}
+library(diyar)
+```
+This vignette will introduce you to `partitions()`.
+`partitions()` provides an alternative approach to implementing case definitions when compared with `episodes()`.
+In summary, it uses specific temporal boundaries as the window of occurrence.
+This differs from `episodes()` where the boundaries are calculated as durations relative to index events.
+`partitions()` produces a similar `S4` class identifier (`pane`) referred to as panes and share similar arguments with `episodes()`.
+
+To demonstrate this difference, let's review the `homes` dataset below. It has data on household members including their ages. 
+We'll attempt to apply a case definition to identify a three-generation home, 
+where each generation includes individuals aged not more than 16 years apart.  
+```{r warning=FALSE}
+homes <- data.frame(member = c("son 1", "son 2", "daughter_1", 
+                               "father", "mother", "grand_father", "grand_mother"), 
+                    age = c(4, 6, 17, 43, 40, 74, 69))
+homes
+```
+The simplest approach would be to specify the age bands for each generation. In this context, these are the temporal boundaries. 
+
+```{r warning=FALSE, fig.width=7, message=FALSE}
+age_bands <- seq(0, 69, by =17)
+age_bands <- number_line(age_bands, age_bands + 16)
+age_bands
+
+homes$grp_1 <- partitions(homes$age, window = age_bands, separate = TRUE)
+homes
+
+schema(homes$grp_1, seed = 4,
+       custom_label = paste0(homes$member, " \n(", homes$age, " yrs)"))
+```
+However, we can make the case that the children are all part of the same generation since no two are older than 16 years apart.
+This presents the main difference between `partitions()` and `episodes()`.
+Unlike `episodes()`, the duration (age-gaps) between records is not a factor. Here records or events are linked together simply because they exist within the same interval (age-gap). 
+
+To correct this, we can start the age band from age 6 but this becomes difficult to manage when analysing multiple homes. Instead, we can use the `by` or `lenght.out` argument to create windows (`window`) relative to the first event (or `custom_sort`) only. 
+Although this makes it more like `episodes()`, it is still different since all age gaps are relative to only one reference event `(I)`.
+
+```{r warning=FALSE, fig.width=7}
+homes$grp_2 <- partitions(homes$age, by = 16, separate = TRUE)
+schema(homes$grp_2, seed = 4,
+       custom_label = paste0(homes$member, " \n(", homes$age, " yrs)"))
+```
+
+Now that we have identified the generations, we can build on this by linking every record in the household if there's a desired number of generations. Below we ask for three to four generations.
+```{r warning=FALSE, fig.width=7}
+homes$grp_3 <- partitions(homes$age, by = 16, 
+                          separate = FALSE,
+                          windows_total = number_line(3, 4))
+homes
+
+schema(homes$grp_3, seed = 4,
+       custom_label = paste0(homes$member, " \n(", homes$age, " yrs)"))
+```
+Despite the use of `by` and `length.out`, if the configurations of records relative to the index record changes, the resulting identifier can change as well. For example, if the `"mother"` and `"father"` were five years younger, this would place them in two different age gaps, resulting in a total of four generations.
+```{r warning=FALSE, fig.width=7}
+homes$alt_age <- homes$age
+lgk <- homes$member %in% c("father", "mother")
+homes$alt_age[lgk] <- homes$alt_age[lgk] - 5
+homes$grp_4 <- partitions(homes$alt_age, by = 16, 
+                          separate = TRUE,
+                          windows_total = number_line(3, 4))
+homes
+
+schema(homes$grp_4, seed = 4,
+       custom_label = paste0(homes$member, " \n(", homes$alt_age, " yrs)"))
+```
+
+This makes a difference if we specifically request only three generations as the condition for our three-generation households. 
+```{r warning=FALSE, fig.width=7}
+homes$grp_5 <- partitions(homes$alt_age, by = 16, 
+                          separate = FALSE,
+                          windows_total = number_line(3, 3))
+
+homes
+schema(homes$grp_5, seed = 4,
+       custom_label = paste0(homes$member, " \n(", homes$alt_age, " yrs)"))
+```
+
+We see that the household no longer has a common identifier that would identify it as a three-generation household. If we wish to address this, then `episodes()` would be the better option.
+```{r warning=FALSE, fig.width=7}
+homes$grp_6 <- episodes(homes$alt_age, 
+                        case_length = 16)
+homes
+
+schema(homes$grp_6, seed = 4,
+       show_labels = c("length_arrow", "length_label"),
+       custom_label = paste0(homes$member, " \n(", homes$alt_age, " yrs)"))
+```
+Unlike `partitions()`, additional analyses is required to flag the whole household as a three-generation household. For example, we can count the number of "occurrences" ( age gaps in `epid` talk).
+```{r warning=FALSE, fig.width=7}
+as.data.frame(homes$grp_6)
+
+homes$t3_home <- length(unique(homes$grp_6@wind_id[[1]])) == 3
+homes
+```
+
+Similar to `episodes()`, everything we've discussed above can be done separately for different subsets of the dataset by using the `strata` argument. For example, different households.
+
+```{r warning=FALSE, fig.width=7}
+duplicate <- rbind(homes[1:2], homes[1:2])
+duplicate$house_hold <- c(rep("london", 7), rep("hull", 7))
+
+duplicate$grp_1 <- partitions(duplicate$age, by = 16, 
+                               separate = FALSE,
+                               windows_total = number_line(3, 4), 
+                               strata = duplicate$house_hold)
+duplicate$grp_2 <- episodes(duplicate$age, 
+                             case_length = 16, 
+                             strata = duplicate$house_hold)
+```
+
+```{r warning=FALSE, fig.width=7, fig.height=8}
+duplicate
+schema(duplicate$grp_1, seed = 5,
+       custom_label = paste0(duplicate$member, " (", duplicate$age, " yrs) in \n", duplicate$house_hold))
+```
+```{r warning=FALSE, fig.width=7, fig.height=7}
+schema(duplicate$grp_2, seed = 4,
+       show_labels = c("length_arrow", "length_label"),
+       custom_label = paste0(duplicate$member, " (", duplicate$age, " yrs) in \n", duplicate$house_hold))
+```

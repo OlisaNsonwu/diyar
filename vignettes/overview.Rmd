@@ -1,9 +1,9 @@
 ---
-title: "Diyar at a glance"
+title: "`diyar` at a glance"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Diyar at a glance}
+  %\VignetteIndexEntry{`diyar` at a glance}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -31,7 +31,7 @@ These identifiers are stored as an `S4` class with useful information about each
 The package is capable of assessing and comparing an entity's characteristics in several ways, making it useful in ordinarily complex analyses such as record linkage and contact or network analyses, or the application of case definitions. 
 
 The main functions are `links()` and `link_records()`, `episodes()` and `partitions()`.
-These functions very flexible in terms of what and how comparisons are done, as well as what are considered matches.
+These functions are very flexible in terms of what and how comparisons are done, as well as what are considered matches.
 Although each is best suited to certain use cases, their functionalities can sometimes overlap albeit less efficiently.
 
   + `links()` and `link_record()` - compare records without a temporal aspect to them. For example, record linkage
@@ -115,7 +115,7 @@ subset(p6a$pid_weights, record.match)
 ```
 The required number of record-pairs doubles exponentially as the size of the dataset increases. 
 This eventually becomes memory intensive.
-Arguments such as `blocking_attribute`, `repeats_allowed`, `permutations_allowed ` and `data_source` are used to limit the creation and comparison of only certain types of record-pairs. 
+Arguments such as `blocking_attribute`, `repeats_allowed`, `permutations_allowed ` and `data_source` are used to limit the creation and comparison of only certain record-pairs. 
 
 ## `links_wf_probabilistic()`
 Also primarily used for probabilistic record linkage. `links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `link_records()`. It's less memory intensive but can be slower in comparison.
@@ -250,12 +250,14 @@ prs_1 <- make_pairs(LETTERS[1:4], repeats_allowed = FALSE, permutations_allowed 
 prs_2 <- make_pairs(LETTERS[1:4], repeats_allowed = TRUE, permutations_allowed = TRUE)
 prs_3 <- make_pairs(1:5000, repeats_allowed = TRUE, permutations_allowed = TRUE)
 
-str(prs_1); str(prs_2); str(prs_3)
+str(prs_1)
+str(prs_2)
+str(prs_3)
 ```
 
 ## `combi()`
 Numeric codes for unique combination of vectors.
-This is a useful and faster alternative to `paste0` when it's more relevant to know a unique combination instead of the exact combination.
+This aims to be a faster alternative to `paste0` when it's more relevant to know a unique combination instead of the exact combination.
 ```{r warning=FALSE}
 cmbi_dfr <- dfr_stages[c(1, 2)]
 cmbi_dfr$combi_nm <- paste(cmbi_dfr[[1]], cmbi_dfr[[2]])
@@ -270,7 +272,7 @@ Although both continue to be optimised, each iteration costs additional processi
 The main way to mitigate this is to reduce the number of iterations required to complete an analyses. 
 To help with this, both functions have arguments which ensure that only the minimum number of records required to complete the process is used.
 
-The flexibility of `episodes()` and `links()` results in situations where the use of different arguments will lead to the same outcome. However, one combination will usually require the least number of iterations to complete the same process. 
+The flexibility of `episodes()` and `links()` results in situations where the use of different arguments will lead to the same outcome. However, one combination will usually require fewer number of iterations to complete the same process. 
 Therefore, a good grasp of the role of each argument is useful in knowing the most efficient combination of arguments to use. 
 
 For some analyses, `episodes()` and `links()` can be used interchangeably however, this tends to be less efficient. 

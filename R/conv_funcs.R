@@ -1095,17 +1095,6 @@ prep_prob_link_args <- function(attribute,
 
   if(isTRUE(probabilistic)){
     # u-probabilities
-    # if(is.null(u_probability)){
-    #   u_probability <- lapply(if(method == "make_pairs") x else attribute, function(x){
-    #     x_cd <- match(x, x[!duplicated(x)])
-    #     x_cd[is.na(x)] <- NA_real_
-    #     r <- rle(x_cd[order(x_cd)])
-    #     n <- r$lengths[match(x_cd, r$values)]
-    #     p <- n/length(x_cd)
-    #     p[is.na(x_cd)] <- 0
-    #     p
-    #   })
-    # }
     if(is.null(u_probability)){
       u_probability <- lapply(attribute, function(x){
         x_cd <- match(x, x[!duplicated(x)])

@@ -18,7 +18,8 @@ link_records(
   repeats_allowed = FALSE,
   permutations_allowed = FALSE,
   data_source = NULL,
-  ignore_same_source = TRUE
+  ignore_same_source = TRUE,
+  display = "none"
 )
 
 links_wf_probabilistic(

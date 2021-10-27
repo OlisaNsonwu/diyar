@@ -217,8 +217,6 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
   ord <- order(pane, -c_sort, -as.numeric(int@start), -as.numeric(right_point(int)))
   s_pane <- pane[ord]
   s_sn <- sn[ord]
-  # names(s_pane) <- s_sn
-  # index_sn <- rle(s_pane)
 
   r <- rle(s_pane)
   lgk <- !duplicated(s_pane, fromLast = TRUE) | is.na(s_pane)
@@ -298,8 +296,6 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
 
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)
-  tms <- paste0(ifelse(round(tms) == 0, "< 0.01", round(as.numeric(tms), 2)), " ", attr(tms, "units"))
-
-  if(tolower(display) != "none") cat("Records partitioned in ", tms, "!\n", sep = "")
+  if(tolower(display) != "none") cat("Records partitioned in ", fmt(tms, "difftime"), "!\n", sep = "")
   return(panes)
 }

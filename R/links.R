@@ -150,7 +150,7 @@ links <- function(criteria,
     rp_data <- di_report(tm_a, "Data validation", current_tot = ds_len)
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
-      cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
   tm_ia <- Sys.time()
@@ -214,7 +214,7 @@ links <- function(criteria,
     rp_data <- di_report(tm_ia, "Data standardisation", current_tot = ds_len)
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
-      cat(paste0(rp_data[[1]], ": ", rp_data[[3]], "\n"))
+      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
   tm_ia <- Sys.time()
