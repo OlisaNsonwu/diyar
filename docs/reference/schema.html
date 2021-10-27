@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,13 +95,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/links.html">Record linkage with diyar</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">`number_line` and overlaps</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -112,7 +118,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/OlisaNsonwu/diyar/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -229,10 +235,16 @@
     <p><code>ggplot</code> objects</p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>A visual aid to describing the data linkage (<code><a href='links.html'>links</a></code>), episode tracking (<code><a href='episodes.html'>episodes</a></code>) or partitioning process (<code><a href='partitions.html'>partitions</a></code>).</p>
+    <p>A visual aid to describe the data linkage (<code><a href='links.html'>links</a></code>), episode tracking (<code><a href='episodes.html'>episodes</a></code>) or partitioning process (<code><a href='partitions.html'>partitions</a></code>).</p>
+<p><b><code>show_labels</code> options (multi-select)</b></p><ul>
+<li><p>schema.epid - <b>TRUE</b>, <b>FALSE</b>, "sn", "epid", "date", "case_nm", "length_label", "length_arrow", "case_overlap_methods" or "recurrence_overlap_methods"</p></li>
+<li><p>schema.pane - <b>TRUE</b>, <b>FALSE</b>, "sn", "pane", "date", "case_nm" or "window_label"</p></li>
+<li><p>schema.pid - <b>TRUE</b>, <b>FALSE</b>, "sn" or "pid"</p></li>
+</ul>
+
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'>schema</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>1</span>)))</div><div class='output co'>#&gt; <span class='warning'>Warning: replacing previous import 'vctrs::data_frame' by 'tibble::data_frame' when loading 'dplyr'</span></div><div class='img'><img src='schema-1.png' alt='' width='700' height='433' /></div><div class='input'>
+    <pre class="examples"><div class='input'><span class='fu'>schema</span>(<span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>2</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>1</span>)))</div><div class='img'><img src='schema-1.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='fu'>schema</span>(<span class='fu'><a href='episodes.html'>episodes</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='fl'>2</span>))</div><div class='img'><img src='schema-2.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='fu'>schema</span>(<span class='fu'><a href='partitions.html'>partitions</a></span>(<span class='fl'>1</span>:<span class='fl'>10</span>, <span class='kw'>by</span> <span class='kw'>=</span> <span class='fl'>2</span>, <span class='kw'>separate</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>))</div><div class='output co'>#&gt; <span class='warning'>Warning: `l` and `r` have different classes. They may need to be reconciled.</span></div><div class='img'><img src='schema-3.png' alt='' width='700' height='433' /></div><div class='input'>
 <span class='fu'>schema</span>(<span class='fu'><a href='links.html'>links</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/list.html'>list</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>NA</span>, <span class='fl'>NA</span>), <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>NA</span>, <span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>NA</span>))))</div><div class='img'><img src='schema-4.png' alt='' width='700' height='433' /></div><div class='input'>

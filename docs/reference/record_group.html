@@ -8,21 +8,29 @@
 
 <title>Multistage deterministic record linkage — record_group • diyar</title>
 
+
 <!-- jquery -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>
 <!-- Bootstrap -->
 
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha256-916EbMg70RQy9LHiGkXzG8hSg9EdNy97GazNG/aiY1w=" crossorigin="anonymous" />
-<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha256-U5ZEeKfGNOja007MMD3YBI0A3OSZOQbeG6z2f2Y0hu8=" crossorigin="anonymous"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css" integrity="sha256-bZLfwXAP04zRMK2BjiO8iu9pf4FbLqX6zitd+tIvLhE=" crossorigin="anonymous" />
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js" integrity="sha256-nuL8/2cJ5NDSSwnKD8VqreErSWHtnEP9E7AySL+1ev4=" crossorigin="anonymous"></script>
+
+<!-- bootstrap-toc -->
+<link rel="stylesheet" href="../bootstrap-toc.css">
+<script src="../bootstrap-toc.js"></script>
 
 <!-- Font Awesome icons -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha256-eZrrJcwDc/3uDhsdt61sL2oOBY362qM3lon1gyExkL0=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css" integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk=" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous" />
 
 <!-- clipboard.js -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.4/clipboard.min.js" integrity="sha256-FiZwavyI2V6+EXO1U+xzLG3IKldpiTFf3153ea9zikQ=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script>
 
-<!-- sticky kit -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/sticky-kit/1.1.3/sticky-kit.min.js" integrity="sha256-c4Rlo1ZozqTPE2RLuvbusY3+SU1pQaJC0TjuhygMipw=" crossorigin="anonymous"></script>
+<!-- headroom.js -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script>
 
 <!-- pkgdown -->
 <link href="../pkgdown.css" rel="stylesheet">
@@ -30,10 +38,11 @@
 
 
 
-<meta property="og:title" content="Multistage deterministic record linkage — record_group" />
 
-<meta property="og:description" content="Group matching or partially matching records in multiple stages of relevance using different criteria." />
-<meta name="twitter:card" content="summary" />
+<meta property="og:title" content="Multistage deterministic record linkage — record_group" />
+<meta property="og:description" content="Match records in consecutive stages with different matching conditions.
+Each set of linked records are assigned a unique identifier with relevant group-level information." />
+
 
 
 
@@ -47,9 +56,10 @@
 <![endif]-->
 
 
+
   </head>
 
-  <body>
+  <body data-spy="scroll" data-target="#toc">
     <div class="container template-reference-topic">
       <header>
       <div class="navbar navbar-default navbar-fixed-top" role="navigation">
@@ -63,7 +73,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.2.0.9000</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -71,7 +81,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fa fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -86,13 +96,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episode_group.html">Implementing case definitions for epidemiological analysis in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">Number lines and overlaps</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/record_group.html">Multistage deterministic linkage in R</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -100,9 +116,13 @@
   <a href="../news/index.html">Changelog</a>
 </li>
       </ul>
-      
       <ul class="nav navbar-nav navbar-right">
-        
+        <li>
+  <a href="https://github.com/OlisaNsonwu/diyar/">
+    <span class="fab fa-github fa-lg"></span>
+     
+  </a>
+</li>
       </ul>
       
     </div><!--/.nav-collapse -->
@@ -110,253 +130,59 @@
 </div><!--/.navbar -->
 
       
+
       </header>
 
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Multistage deterministic record linkage</h1>
-    
+    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/record_group.R'><code>R/record_group.R</code></a></small>
     <div class="hidden name"><code>record_group.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    
-    <p>Group matching or partially matching records in multiple stages of relevance using different criteria.</p>
-    
+    <p>Match records in consecutive stages with different matching conditions.
+Each set of linked records are assigned a unique identifier with relevant group-level information.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>record_group</span>(<span class='no'>df</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='no'>criteria</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>, <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
-    
+    <pre class="usage"><span class='fu'>record_group</span>(<span class='no'>df</span>, <span class='no'>...</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
     <colgroup><col class="name" /><col class="desc" /></colgroup>
     <tr>
       <th>df</th>
-      <td><p><code>data.frame</code>. One or more datasets appended together.</p></td>
+      <td><p><code>[data.frame]</code>. Deprecated. One or more datasets appended together. See <code>Details</code>.</p></td>
     </tr>
     <tr>
-      <th>sn</th>
-      <td><p>Unique numerical record identifier. Optional.</p></td>
-    </tr>
-    <tr>
-      <th>criteria</th>
-      <td><p>Column names of attributes to match. Each <code>criteria</code> is a stage in the process and the order in which they are listed determines the relevance of matches.</p></td>
-    </tr>
-    <tr>
-      <th>sub_criteria</th>
-      <td><p>Matching sub-criteria. Additional matching conditions for each stage (<code>criteria</code>).</p></td>
-    </tr>
-    <tr>
-      <th>strata</th>
-      <td><p>Subsets of the dataset. Record grouping will be done separately with each subset of the dataset. You can use multiple columns supplied as column names.</p></td>
-    </tr>
-    <tr>
-      <th>data_source</th>
-      <td><p>Unique dataset identifier. Useful when <code>df</code> contains data from multiple sources.</p></td>
-    </tr>
-    <tr>
-      <th>group_stats</th>
-      <td><p>If <code>TRUE</code>, output will include additional columns with useful stats for each record group.</p></td>
-    </tr>
-    <tr>
-      <th>display</th>
-      <td><p>If <code>TRUE</code> (default), a progress message is printed on screen.</p></td>
+      <th>...</th>
+      <td><p>Arguments passed to <b><code><a href='links.html'>links</a></code></b>.</p></td>
     </tr>
     <tr>
       <th>to_s4</th>
-      <td><p>If <code>TRUE</code> (default), record groups are returned as a <code><a href='pid-class.html'>pid</a></code> object.</p></td>
+      <td><p><code>[logical]</code>. Deprecated. Output type - <code><a href='pid-class.html'>pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
     </tr>
     </table>
-    
+
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code><a href='pid-class.html'>pid</a></code> objects or <code>data.frame</code> if <code>to_s4</code> is <code>FALSE</code>)</p>
-<ul>
-<li><p><code>sn</code> - unique record identifier as provided (or generated)</p></li>
-<li><p><code>pid | .Data</code> - unique group identifier</p></li>
-<li><p><code>link_id</code> - unique record identifier of matching records</p></li>
-<li><p><code>pid_cri</code> - matching criteria</p></li>
-<li><p><code>pid_dataset</code> - data sources in each group</p></li>
-<li><p><code>pid_total</code> - number of records in each group</p></li>
-</ul>
-
-    
+    <p><code><a href='pid-class.html'>pid</a></code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Record grouping occurs in stages of matching <code>criteria</code>.</p>
-<p>Records are matched in two ways: an exact match i.e. the equivalent of <code>(==)</code>, or range matching.
-An example of range matching is matching a date give or take 5 days, or matching an age give or take 2 years.
-To do this, create the range as a <code><a href='number_line.html'>number_line</a></code> object and supply it to the <code>criteria</code> or <code>sub_criteria</code> argument.
-The actual value within each range must be assigned to the <code>gid</code> slot of the <code>number_line</code> object.</p>
-<p>A match at each stage is considered more relevant than a match at the next stage.
-Therefore, <code>criteria</code> should be listed in order of decreasing relevance or certainty.</p>
-<p><code>sub_criteria</code> can be used to force additional matching conditions at each stage.
-If <code>sub_criteria</code> is not <code>NULL</code>, only records with matching <code>criteria</code> and <code>sub_criteria</code> values are grouped together.
-If a record has missing values for any <code>criteria</code>, that record is skipped at that stage, and another attempt is made at the next stage.
-If there are no matches for a record at every stage, that record is assigned a unique group ID.</p>
-<p>When a <code>data_source</code> identifier is provided,
-<code>pid_dataset</code> is included in the output. This lists the source of every record in each record group.</p>
-    
+    <p><b><code>record_group()</code></b> is superseded. Moving forward, please use <b><code><a href='links.html'>links</a></code></b>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='episode_group.html'>episode_group</a></code> and <code><a href='number_line.html'>number_line</a></code></p></div>
-    
+    <div class='dont-index'><p><code><a href='links.html'>links</a></code></p></div>
 
-    <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/library'>library</a></span>(<span class='no'>diyar</span>)
-<span class='no'>three_people</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/data.frame'>data.frame</a></span>(<span class='kw'>forename</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"Obinna"</span>,<span class='st'>"James"</span>,<span class='st'>"Ojay"</span>,<span class='st'>"James"</span>,<span class='st'>"Obinna"</span>),
-                           <span class='kw'>stringsAsFactors</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)
-
-<span class='no'>three_people</span>$<span class='no'>pids_a</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
-#&gt; Group criteria 1 - `forename`
-#&gt; 5 records(s): 4 assigned to record groups and 1 left to group.
-#&gt; Record grouping complete: 1 record(s) with a unique ID. </div><div class='input'><span class='no'>three_people</span></div><div class='output co'>#&gt;   forename       pids_a
-#&gt; 1   Obinna P.1 (CRI 01)
-#&gt; 2    James P.2 (CRI 01)
-#&gt; 3     Ojay P.3 (No Hit)
-#&gt; 4    James P.2 (CRI 01)
-#&gt; 5   Obinna P.1 (CRI 01)</div><div class='input'>
-<span class='co'># To handle missing or unknown data, recode missing or unknown values to NA or "".</span>
-<span class='no'>three_people</span>$<span class='no'>forename</span>[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>1</span>,<span class='fl'>4</span>)] <span class='kw'>&lt;-</span> <span class='fl'>NA</span>
-<span class='no'>three_people</span>$<span class='no'>pids_b</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>three_people</span>, <span class='kw'>criteria</span><span class='kw'>=</span> <span class='no'>forename</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span><span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
-#&gt; Group criteria 1 - `forename`
-#&gt; 5 records(s): 0 assigned to record groups and 5 left to group.
-#&gt; Record grouping complete: 5 record(s) with a unique ID. </div><div class='input'><span class='no'>three_people</span></div><div class='output co'>#&gt;   forename       pids_a       pids_b
-#&gt; 1     &lt;NA&gt; P.1 (CRI 01) P.1 (No Hit)
-#&gt; 2    James P.2 (CRI 01) P.2 (No Hit)
-#&gt; 3     Ojay P.3 (No Hit) P.3 (No Hit)
-#&gt; 4     &lt;NA&gt; P.2 (CRI 01) P.4 (No Hit)
-#&gt; 5   Obinna P.1 (CRI 01) P.5 (No Hit)</div><div class='input'>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>staff_records</span>); <span class='no'>staff_records</span></div><div class='output co'>#&gt;   r_id forename  surname sex    dataset
-#&gt; 1    1    James    Green   M Staff list
-#&gt; 2    2     &lt;NA&gt; Anderson   M Staff list
-#&gt; 3    3    Jamey    Green   M  Pay slips
-#&gt; 4    4              &lt;NA&gt;   F  Pay slips
-#&gt; 5    5  Derrick Anderson   M Staff list
-#&gt; 6    6  Darrack Anderson   M  Pay slips
-#&gt; 7    7 Christie    Green   F Staff list</div><div class='input'>
-<span class='co'># Range matching</span>
-<span class='no'>dob</span> <span class='kw'>&lt;-</span> <span class='no'>staff_records</span>[<span class='st'>"sex"</span>]
-<span class='no'>dob</span>$<span class='no'>age</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='fl'>30</span>,<span class='fl'>28</span>,<span class='fl'>40</span>,<span class='fl'>25</span>,<span class='fl'>25</span>,<span class='fl'>29</span>,<span class='fl'>27</span>)
-
-<span class='co'># age range: age + 20 years</span>
-<span class='no'>dob</span>$<span class='no'>range_a</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>dob</span>$<span class='no'>age</span>, <span class='no'>dob</span>$<span class='no'>age</span>+<span class='fl'>20</span>, <span class='kw'>gid</span><span class='kw'>=</span><span class='no'>dob</span>$<span class='no'>age</span>)
-<span class='no'>dob</span>$<span class='no'>pids_a</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range_a"</span>), <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
-#&gt; Group criteria 1 - `sex`
-#&gt; Matching criteria 1: iteration 2
-#&gt; Matching criteria 1: iteration 3
-#&gt; Matching criteria 1: iteration 4
-#&gt; Matching criteria 1: iteration 5
-#&gt; Matching criteria 1: iteration 6
-#&gt; 7 records(s): 7 assigned to record groups and 0 left to group.
-#&gt; Record grouping complete: 0 record(s) with a unique ID. </div><div class='input'><span class='no'>dob</span>[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"sex"</span>,<span class='st'>"age"</span>,<span class='st'>"range_a"</span>,<span class='st'>"pids_a"</span>)]</div><div class='output co'>#&gt;   sex age  range_a       pids_a
-#&gt; 1   M  30 30 -&gt; 50 P.5 (CRI 01)
-#&gt; 2   M  28 28 -&gt; 48 P.5 (CRI 01)
-#&gt; 3   M  40 40 -&gt; 60 P.5 (CRI 01)
-#&gt; 4   F  25 25 -&gt; 45 P.4 (CRI 01)
-#&gt; 5   M  25 25 -&gt; 45 P.5 (CRI 01)
-#&gt; 6   M  29 29 -&gt; 49 P.5 (CRI 01)
-#&gt; 7   F  27 27 -&gt; 47 P.4 (CRI 01)</div><div class='input'>
-<span class='co'># age range: age +- 20 years</span>
-<span class='no'>dob</span>$<span class='no'>range_b</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>dob</span>$<span class='no'>age</span>-<span class='fl'>20</span>, <span class='no'>dob</span>$<span class='no'>age</span>+<span class='fl'>20</span>, <span class='kw'>gid</span><span class='kw'>=</span><span class='no'>dob</span>$<span class='no'>age</span>)
-<span class='no'>dob</span>$<span class='no'>pids_b</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>sub_criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s1a</span><span class='kw'>=</span><span class='st'>"range_b"</span>), <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
-#&gt; Group criteria 1 - `sex`
-#&gt; 7 records(s): 7 assigned to record groups and 0 left to group.
-#&gt; Record grouping complete: 0 record(s) with a unique ID. </div><div class='input'><span class='no'>dob</span>[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"sex"</span>,<span class='st'>"age"</span>,<span class='st'>"range_b"</span>,<span class='st'>"pids_b"</span>)]</div><div class='output co'>#&gt;   sex age  range_b       pids_b
-#&gt; 1   M  30 10 -&gt; 50 P.1 (CRI 01)
-#&gt; 2   M  28  8 -&gt; 48 P.1 (CRI 01)
-#&gt; 3   M  40 20 -&gt; 60 P.1 (CRI 01)
-#&gt; 4   F  25  5 -&gt; 45 P.4 (CRI 01)
-#&gt; 5   M  25  5 -&gt; 45 P.1 (CRI 01)
-#&gt; 6   M  29  9 -&gt; 49 P.1 (CRI 01)
-#&gt; 7   F  27  7 -&gt; 47 P.4 (CRI 01)</div><div class='input'>
-<span class='no'>dob</span>$<span class='no'>pids_c</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>dob</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='no'>range_b</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
-#&gt; Group criteria 1 - `dmvr_d1`
-#&gt; 7 records(s): 7 assigned to record groups and 0 left to group.
-#&gt; Record grouping complete: 0 record(s) with a unique ID. </div><div class='input'><span class='no'>dob</span>[<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"age"</span>,<span class='st'>"range_b"</span>,<span class='st'>"pids_c"</span>)]</div><div class='output co'>#&gt;   age  range_b       pids_c
-#&gt; 1  30 10 -&gt; 50 P.1 (CRI 01)
-#&gt; 2  28  8 -&gt; 48 P.1 (CRI 01)
-#&gt; 3  40 20 -&gt; 60 P.1 (CRI 01)
-#&gt; 4  25  5 -&gt; 45 P.1 (CRI 01)
-#&gt; 5  25  5 -&gt; 45 P.1 (CRI 01)
-#&gt; 6  29  9 -&gt; 49 P.1 (CRI 01)
-#&gt; 7  27  7 -&gt; 47 P.1 (CRI 01)</div><div class='input'>
-
-<span class='co'># Multistage record grouping</span>
-<span class='no'>staff_records</span>$<span class='no'>pids_a</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>staff_records</span>, <span class='kw'>sn</span> <span class='kw'>=</span> <span class='no'>r_id</span>, <span class='kw'>criteria</span> <span class='kw'>=</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>forename</span>, <span class='no'>surname</span>),
-                                     <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>sex</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; Record grouping complete: 1 record(s) with a unique ID. </div><div class='input'><span class='no'>staff_records</span></div><div class='output co'>#&gt;   r_id forename  surname sex    dataset       pids_a
-#&gt; 1    1    James    Green   M Staff list P.1 (CRI 02)
-#&gt; 2    2     &lt;NA&gt; Anderson   M Staff list P.2 (CRI 02)
-#&gt; 3    3    Jamey    Green   M  Pay slips P.1 (CRI 02)
-#&gt; 4    4              &lt;NA&gt;   F  Pay slips P.4 (No Hit)
-#&gt; 5    5  Derrick Anderson   M Staff list P.2 (CRI 02)
-#&gt; 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 02)
-#&gt; 7    7 Christie    Green   F Staff list P.1 (CRI 02)</div><div class='input'>
-<span class='co'># Add `sex` to the second stage (`cri`) to be more certain</span>
-<span class='no'>staff_records</span>$<span class='no'>cri_2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/paste'>paste0</a></span>(<span class='no'>staff_records</span>$<span class='no'>surname</span>,<span class='st'>"-"</span>, <span class='no'>staff_records</span>$<span class='no'>sex</span>)
-<span class='no'>staff_records</span>$<span class='no'>pids_b</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>staff_records</span>, <span class='no'>r_id</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>forename</span>, <span class='no'>cri_2</span>),
-                                     <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>dataset</span>, <span class='kw'>display</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; Record grouping complete: 2 record(s) with a unique ID. </div><div class='input'><span class='no'>staff_records</span></div><div class='output co'>#&gt;   r_id forename  surname sex    dataset       pids_a      cri_2       pids_b
-#&gt; 1    1    James    Green   M Staff list P.1 (CRI 02)    Green-M P.1 (CRI 02)
-#&gt; 2    2     &lt;NA&gt; Anderson   M Staff list P.2 (CRI 02) Anderson-M P.2 (CRI 02)
-#&gt; 3    3    Jamey    Green   M  Pay slips P.1 (CRI 02)    Green-M P.1 (CRI 02)
-#&gt; 4    4              &lt;NA&gt;   F  Pay slips P.4 (No Hit)       NA-F P.4 (No Hit)
-#&gt; 5    5  Derrick Anderson   M Staff list P.2 (CRI 02) Anderson-M P.2 (CRI 02)
-#&gt; 6    6  Darrack Anderson   M  Pay slips P.2 (CRI 02) Anderson-M P.2 (CRI 02)
-#&gt; 7    7 Christie    Green   F Staff list P.1 (CRI 02)    Green-F P.7 (No Hit)</div><div class='input'>
-<span class='co'># Using sub-criteria</span>
-<span class='fu'><a href='https://www.rdocumentation.org/packages/utils/topics/data'>data</a></span>(<span class='no'>missing_staff_id</span>); <span class='no'>missing_staff_id</span></div><div class='output co'>#&gt;   r_id staff_id age initials hair_colour     branch_office source_1 source_2
-#&gt; 1    1       NA  30     G.D.       Brown Republic of Ghana        A        3
-#&gt; 2    2       NA  30     B.G.        Teal            France        A        1
-#&gt; 3    3       NA  30     X.P.        &lt;NA&gt;              &lt;NA&gt;        A        1
-#&gt; 4    4       NA  30     X.P.       Green              &lt;NA&gt;        B        1
-#&gt; 5    5       NA  30     &lt;NA&gt;       Green            France        A        1
-#&gt; 6    6        2  30     G.D.  Dark brown             Ghana        A        1
-#&gt; 7    7        2  30     G.D.       Brown Republic of Ghana        B        2</div><div class='input'>
-<span class='no'>missing_staff_id</span>$<span class='no'>pids</span> <span class='kw'>&lt;-</span> <span class='fu'>record_group</span>(<span class='no'>missing_staff_id</span>, <span class='no'>r_id</span>, <span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='no'>staff_id</span>, <span class='no'>age</span>),
-<span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/list'>list</a></span>(<span class='kw'>s2a</span><span class='kw'>=</span><span class='fu'><a href='https://www.rdocumentation.org/packages/base/topics/c'>c</a></span>(<span class='st'>"initials"</span>,<span class='st'>"hair_colour"</span>,<span class='st'>"branch_office"</span>)), <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='no'>source_1</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; 
-#&gt; Group criteria 1 - `staff_id`
-#&gt; 7 records(s): 2 assigned to record groups and 5 left to group.
-#&gt; Group criteria 2 - `age`
-#&gt; Matching criteria 2: iteration 2
-#&gt; Matching criteria 2: iteration 3
-#&gt; 5 records(s): 5 assigned to record groups and 0 left to group.
-#&gt; Record grouping complete: 0 record(s) with a unique ID. </div><div class='input'>
-<span class='no'>missing_staff_id</span></div><div class='output co'>#&gt;   r_id staff_id age initials hair_colour     branch_office source_1 source_2
-#&gt; 1    1       NA  30     G.D.       Brown Republic of Ghana        A        3
-#&gt; 2    2       NA  30     B.G.        Teal            France        A        1
-#&gt; 3    3       NA  30     X.P.        &lt;NA&gt;              &lt;NA&gt;        A        1
-#&gt; 4    4       NA  30     X.P.       Green              &lt;NA&gt;        B        1
-#&gt; 5    5       NA  30     &lt;NA&gt;       Green            France        A        1
-#&gt; 6    6        2  30     G.D.  Dark brown             Ghana        A        1
-#&gt; 7    7        2  30     G.D.       Brown Republic of Ghana        B        2
-#&gt;           pids
-#&gt; 1 P.6 (CRI 02)
-#&gt; 2 P.2 (CRI 02)
-#&gt; 3 P.3 (CRI 02)
-#&gt; 4 P.3 (CRI 02)
-#&gt; 5 P.2 (CRI 02)
-#&gt; 6 P.6 (CRI 01)
-#&gt; 7 P.6 (CRI 01)</div></pre>
   </div>
-  <div class="col-md-3 hidden-xs hidden-sm" id="sidebar">
-    <h2>Contents</h2>
-    <ul class="nav nav-pills nav-stacked">
-      <li><a href="#arguments">Arguments</a></li>
-      
-      <li><a href="#value">Value</a></li>
-
-      <li><a href="#details">Details</a></li>
-
-      <li><a href="#see-also">See also</a></li>
-      
-      <li><a href="#examples">Examples</a></li>
-    </ul>
-
+  <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
+    <nav id="toc" data-toggle="toc" class="sticky-top">
+      <h2 data-toc-skip>Contents</h2>
+    </nav>
   </div>
 </div>
+
 
       <footer>
       <div class="copyright">
@@ -364,13 +190,16 @@ If there are no matches for a record at every stage, that record is assigned a u
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.3.0.</p>
+  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
 </div>
+
       </footer>
    </div>
 
   
 
+
   </body>
 </html>
+
 

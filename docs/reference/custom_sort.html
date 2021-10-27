@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,13 +95,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/links.html">Record linkage with diyar</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">`number_line` and overlaps</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -112,7 +118,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/OlisaNsonwu/diyar/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -130,7 +136,7 @@
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Nested sorting</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/episode_group.R'><code>R/episode_group.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/episodes.R'><code>R/episodes.R</code></a></small>
     <div class="hidden name"><code>custom_sort.Rd</code></div>
     </div>
 
@@ -138,7 +144,7 @@
     <p>Returns a sort order after sorting by a vector within another vector.</p>
     </div>
 
-    <pre class="usage"><span class='fu'>custom_sort</span>(<span class='no'>...</span>, <span class='kw'>decreasing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
+    <pre class="usage"><span class='fu'>custom_sort</span>(<span class='no'>...</span>, <span class='kw'>decreasing</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>, <span class='kw'>unique</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -151,6 +157,10 @@
       <th>decreasing</th>
       <td><p>Sort order. Passed to <b><code><a href='https://rdrr.io/r/base/order.html'>order</a></code></b>.</p></td>
     </tr>
+    <tr>
+      <th>unique</th>
+      <td><p>If <code>FALSE</code> (default), ties get the same rank. If <code>TRUE</code>, ties are broken.</p></td>
+    </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
@@ -162,7 +172,7 @@
 <span class='no'>a</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>1</span>, <span class='fl'>2</span>, <span class='fl'>2</span>)
 <span class='no'>b</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fl'>2</span>, <span class='fl'>3</span>, <span class='fl'>2</span>, <span class='fl'>1</span>, <span class='fl'>1</span>)
 
-<span class='fu'>custom_sort</span>(<span class='no'>a</span>, <span class='no'>b</span>)</div><div class='output co'>#&gt; [1] 1 2 1 3 3</div><div class='input'><span class='fu'>custom_sort</span>(<span class='no'>b</span>, <span class='no'>a</span>)</div><div class='output co'>#&gt; [1] 2 3 2 1 1</div><div class='input'>
+<span class='fu'>custom_sort</span>(<span class='no'>a</span>, <span class='no'>b</span>)</div><div class='output co'>#&gt; [1] 1 2 1 3 3</div><div class='input'><span class='fu'>custom_sort</span>(<span class='no'>b</span>, <span class='no'>a</span>)</div><div class='output co'>#&gt; [1] 2 3 2 1 1</div><div class='input'><span class='fu'>custom_sort</span>(<span class='no'>b</span>, <span class='no'>a</span>, <span class='kw'>unique</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</div><div class='output co'>#&gt; [1] 3 5 4 1 2</div><div class='input'>
 </div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">

@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -79,7 +79,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -94,13 +94,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/links.html">Record linkage with diyar</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">`number_line` and overlaps</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -111,7 +117,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/OlisaNsonwu/diyar/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -154,13 +160,37 @@
       <tr>
         
         <td>
+          <p><code><a href="attr_eval.html">attr_eval()</a></code> </p>
+        </td>
+        <td><p>Sub-criteria attributes.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="combi.html">combi()</a></code> </p>
+        </td>
+        <td><p>Vector combinations</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="custom_sort.html">custom_sort()</a></code> </p>
         </td>
         <td><p>Nested sorting</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="diyar_label.html">encode()</a></code> <code><a href="diyar_label.html">decode()</a></code> <code><a href="diyar_label.html">rep(<i>&lt;d_label&gt;</i>)</a></code> <code><a href="diyar_label.html">`[`(<i>&lt;d_label&gt;</i>)</a></code> <code><a href="diyar_label.html">`[[`(<i>&lt;d_label&gt;</i>)</a></code> </p>
+          <p><code><a href="delink.html">delink()</a></code> </p>
+        </td>
+        <td><p>Unlink group identifiers</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="d_report.html">plot(<i>&lt;d_report&gt;</i>)</a></code> <code><a href="d_report.html">as.list(<i>&lt;d_report&gt;</i>)</a></code> <code><a href="d_report.html">as.data.frame(<i>&lt;d_report&gt;</i>)</a></code> </p>
+        </td>
+        <td><p>d_report</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="encode.html">encode()</a></code> <code><a href="encode.html">decode()</a></code> <code><a href="encode.html">rep(<i>&lt;d_label&gt;</i>)</a></code> <code><a href="encode.html">`[`(<i>&lt;d_label&gt;</i>)</a></code> <code><a href="encode.html">`[[`(<i>&lt;d_label&gt;</i>)</a></code> </p>
         </td>
         <td><p>Labelling in <code>diyar</code></p></td>
       </tr><tr>
@@ -172,31 +202,67 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="episodes.html">episodes()</a></code> <code><a href="episodes.html">episodes_wf_splits()</a></code> <code><a href="episodes.html">fixed_episodes()</a></code> <code><a href="episodes.html">rolling_episodes()</a></code> <code><a href="episodes.html">episode_group()</a></code> </p>
+          <p><code><a href="episodes.html">episodes()</a></code> </p>
         </td>
-        <td><p>Link events  to chronological episodes.</p></td>
+        <td><p>Link events to chronological episodes.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="links.html">links()</a></code> <code><a href="links.html">record_group()</a></code> </p>
+          <p><code><a href="episodes_wf_splits.html">episodes_wf_splits()</a></code> </p>
+        </td>
+        <td><p>Track episodes in a reduced dataset.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="episode_group.html">episode_group()</a></code> <code><a href="episode_group.html">fixed_episodes()</a></code> <code><a href="episode_group.html">rolling_episodes()</a></code> </p>
+        </td>
+        <td><p>Link events to chronological episodes.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="eval_sub_criteria.html">eval_sub_criteria()</a></code> </p>
+        </td>
+        <td><p>Evaluate a <code>sub_criteria</code>.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="links.html">links()</a></code> </p>
         </td>
         <td><p>Multistage deterministic record linkage</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="links_wf_probabilistic.html">links_wf_probabilistic()</a></code> <code><a href="links_wf_probabilistic.html">prob_score_range()</a></code> </p>
+          <p><code><a href="link_records.html">link_records()</a></code> <code><a href="link_records.html">links_wf_probabilistic()</a></code> <code><a href="link_records.html">prob_score_range()</a></code> </p>
         </td>
-        <td><p>Probabilistic record linkage</p></td>
+        <td><p>Record linkage</p></td>
       </tr><tr>
         
         <td>
           <p><code><a href="listr.html">listr()</a></code> </p>
         </td>
-        <td><p>Written lists.</p></td>
+        <td><p>Grammatical lists.</p></td>
       </tr><tr>
         
         <td>
-          <p><code><a href="number_line-class.html">show(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">rep(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[&lt;-`(<i>&lt;number_line&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[&lt;-`(<i>&lt;number_line&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>,<i>&lt;ANY&gt;</i>)</a></code> <code><a href="number_line-class.html">`$`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">c(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">unique(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">seq(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">sort(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">format(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">as.data.frame(<i>&lt;number_line&gt;</i>)</a></code> </p>
+          <p><code><a href="make_ids.html">make_ids()</a></code> </p>
+        </td>
+        <td><p>Convert and edge list to record identifiers.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="make_pairs.html">make_pairs()</a></code> <code><a href="make_pairs.html">make_pairs_wf_source()</a></code> </p>
+        </td>
+        <td><p>Record-pair combination.</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="merge_identifiers.html">merge_ids()</a></code> </p>
+        </td>
+        <td><p>Merge group identifiers</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="number_line-class.html">show(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">rep(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`[[&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">`$&lt;-`(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">c(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">unique(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">seq(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">sort(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">format(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">as.list(<i>&lt;number_line&gt;</i>)</a></code> <code><a href="number_line-class.html">as.data.frame(<i>&lt;number_line&gt;</i>)</a></code> </p>
         </td>
         <td><p><code>number_line</code> object</p></td>
       </tr><tr>
@@ -222,7 +288,7 @@
         <td>
           <p><code><a href="partitions.html">partitions()</a></code> </p>
         </td>
-        <td><p>Distribute events specified intervals.</p></td>
+        <td><p>Distribute events into specified intervals.</p></td>
       </tr><tr>
         
         <td>
@@ -244,6 +310,18 @@
       </tr><tr>
         
         <td>
+          <p><code><a href="record_group.html">record_group()</a></code> </p>
+        </td>
+        <td><p>Multistage deterministic record linkage</p></td>
+      </tr><tr>
+        
+        <td>
+          <p><code><a href="reframe.html">reframe()</a></code> </p>
+        </td>
+        <td><p>Modify <code>sub_criteria</code> objects</p></td>
+      </tr><tr>
+        
+        <td>
           <p><code><a href="schema.html">schema()</a></code> </p>
         </td>
         <td><p>Schema diagram for linked records in <code>diyar</code></p></td>
@@ -256,7 +334,7 @@
       </tr><tr>
         
         <td>
-          <p><code><a href="sub_criteria.html">sub_criteria()</a></code> <code><a href="sub_criteria.html">eval_sub_criteria()</a></code> </p>
+          <p><code><a href="sub_criteria.html">sub_criteria()</a></code> <code><a href="sub_criteria.html">attrs()</a></code> </p>
         </td>
         <td><p>Sub-criteria</p></td>
       </tr><tr>

@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Multistage deterministic record linkage — links" />
-<meta property="og:description" content="Match records in successive stages with different matching conditions.
+<meta property="og:description" content="Match records in consecutive stages of different matching criteria.
 Each set of linked records are assigned a unique identifier with relevant group-level information." />
 
 
@@ -73,7 +73,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,13 +96,19 @@ Each set of linked records are assigned a unique identifier with relevant group-
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/links.html">Record linkage with diyar</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">`number_line` and overlaps</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -113,7 +119,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/OlisaNsonwu/diyar/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -131,12 +137,12 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <div class="col-md-9 contents">
     <div class="page-header">
     <h1>Multistage deterministic record linkage</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/record_group.R'><code>R/record_group.R</code></a></small>
+    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/links.R'><code>R/links.R</code></a></small>
     <div class="hidden name"><code>links.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Match records in successive stages with different matching conditions.
+    <p>Match records in consecutive stages of different matching criteria.
 Each set of linked records are assigned a unique identifier with relevant group-level information.</p>
     </div>
 
@@ -152,10 +158,9 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>expand</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
   <span class='kw'>shrink</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
   <span class='kw'>recursive</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>check_duplicates</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>
-)
-
-<span class='fu'>record_group</span>(<span class='no'>df</span>, <span class='no'>...</span>, <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>)</pre>
+  <span class='kw'>check_duplicates</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
+  <span class='kw'>tie_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -178,15 +183,15 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>data_source</th>
-      <td><p><code>[character]</code>. Data source identifier. Adds the list of data sources in each record-group to the <code><a href='pid-class.html'>pid</a></code>. Useful when the dataset has data from multiple sources.</p></td>
+      <td><p><code>[character]</code>. Data source identifier. Adds the list of data sources in each record-group to the <code><a href='pid-class.html'>pid</a></code>. Useful when the data is from multiple sources.</p></td>
     </tr>
     <tr>
       <th>data_links</th>
-      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='pid-class.html'>pid</a></code>. A record-group without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p></td>
+      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='pid-class.html'>pid</a></code>. A record-group without records from these <code>data_sources</code> will be <code><a href='delink.html'>unlinked</a></code>. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>display</th>
-      <td><p><code>[character]</code>. Progress messages printed on screen. Options are; <code>"none"</code> (default), <code>"progress"</code> or <code>"stats"</code>.</p></td>
+      <td><p><code>[character]</code>. Display or produce a status update. Options are; <code>"none"</code> (default), <code>"progress"</code>, <code>"stats"</code>, <code>"none_with_report"</code>, <code>"progress_with_report"</code> or <code>"stats_with_report"</code>.</p></td>
     </tr>
     <tr>
       <th>group_stats</th>
@@ -194,7 +199,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>expand</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code>, allows a record-group to expand with each subsequent stages of the linkage process. <em>Not interchangeable with <code>shrink</code></em>.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, allows a record-group to expand with each subsequent stage of the linkage process. <em>Not interchangeable with <code>shrink</code></em>.</p></td>
     </tr>
     <tr>
       <th>shrink</th>
@@ -209,48 +214,39 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <td><p><code>[logical]</code>. If <code>TRUE</code>, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See <code><a href='../articles/links.html'>vignette("links")</a></code>.</p></td>
     </tr>
     <tr>
-      <th>df</th>
-      <td><p><code>[data.frame]</code>. Deprecated. One or more datasets appended together. See <code>Details</code>.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to <code>links</code>.</p></td>
-    </tr>
-    <tr>
-      <th>to_s4</th>
-      <td><p><code>[logical]</code>. Deprecated. Output type - <code><a href='pid-class.html'>pid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
+      <th>tie_sort</th>
+      <td><p><code>[atomic]</code>. Preferential order for breaking tied matches within a stage.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    <p><code><a href='pid-class.html'>pid</a></code></p>
+    <p><code><a href='pid-class.html'>pid</a></code>; <code>list</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>Match priority decreases with each subsequent stage of linkage
+    <p>Match priority decreases with each subsequent stage of the linkage process
 i.e. earlier stages (<code>criteria</code>) are considered superior.
 Therefore, it's important for each <code>criteria</code> to be listed in an order of decreasing relevance.</p>
-<p>Records with missing <code>criteria</code> values (<code>NA</code>) are skipped at each stage of the linkage process, while
-records with missing <code>strata</code> values (<code>NA</code>) are skipped from the entire linkage process.</p>
+<p>Records with missing <code>criteria</code> (<code>NA</code>) are skipped at each stage, while
+records with missing <code>strata</code> (<code>NA</code>) are skipped from the entire linkage process.</p>
 <p>If a record is skipped, another attempt will be made to match the record at the next stage.
 If a record does not match any other record by the end of the linkage process (or it has a missing <code>strata</code>),
 it is assigned to a unique record-group.</p>
 <p>A <code><a href='sub_criteria.html'>sub_criteria</a></code> can be used to request additional matching conditions for each stage of the linkage process.
-When used, only records with matching <code>criteria</code> and <code>sub_criteria</code> are linked.</p>
+When used, only records with a matching <code>criteria</code> and <code>sub_criteria</code> are linked.</p>
 <p>In <b><code>links</code></b>, each <code><a href='sub_criteria.html'>sub_criteria</a></code> must be linked to a <code>criteria</code>.
 This is done by adding a <code><a href='sub_criteria.html'>sub_criteria</a></code> to a named element of a <code>list</code>.
 Each element's name must correspond to a stage. See below for an example of 3 <code>sub_criteria</code> linked to
 <code>criteria</code> <code>1</code>, <code>5</code> and <code>13</code>.</p>
 <p>For example;</p>
-<p>$$list("cr1" = sub_criteria, "cr5" = sub_criteria, "cr13" = sub_criteria).$$</p>
-<p><code><a href='sub_criteria.html'>sub_criteria</a></code> can be nested to achieve nested conditions.
-A <code><a href='sub_criteria.html'>sub_criteria</a></code> can be linked to different <code>criteria</code>.
-Any unlinked <code><a href='sub_criteria.html'>sub_criteria</a></code> will be ignored.</p>
+<p>$$list("cr1" = sub_criteria(...), "cr5" = sub_criteria(...), "cr13" = sub_criteria(...)).$$</p>
+<p><code><a href='sub_criteria.html'>sub_criteria</a></code> can be nested to achieve nested conditions.</p>
+<p>A <code><a href='sub_criteria.html'>sub_criteria</a></code> can be linked to different <code>criteria</code>.</p>
+<p>Any unlinked <code><a href='sub_criteria.html'>sub_criteria</a></code> will be ignored.</p>
 <p>By default, attributes in a <code><a href='sub_criteria.html'>sub_criteria</a></code> are compared for an <code><a href='predefined_tests.html'>exact_match</a></code>.
-However, user-defined logical tests (<code>function</code>) are also permitted. Such tests must meet 3 requirements:</p><ol>
-<li><p>It must be able to compare two <code>atomic</code> vectors.</p></li>
+However, user-defined funcitons are also permitted. Such functions must meet two requirements:</p><ol>
 <li><p>It must have two arguments named <code>`x`</code> and <code>`y`</code>, where <code>`y`</code> is the value for one observation being compared against all other observations (<code>`x`</code>).</p></li>
-<li><p>It must return either <code>TRUE</code> or <code>FALSE</code>.</p></li>
+<li><p>It must return a <code>logical</code> object i.e.<code>TRUE</code> or <code>FALSE</code>.</p></li>
 </ol>
 
 <p>Every element in <code>data_links</code> must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
@@ -259,13 +255,10 @@ Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</cod
 <li><p>If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will remain linked.</p></li>
 </ul>
 
-<p><b><code>record_group()</code></b> has been retired is no longer supported.
-It only exists to support previous code with minimal input from users.
-Moving forward, please use <b><code>links()</code></b>.</p>
 <p>See <code><a href='../articles/links.html'>vignette("links")</a></code> for more information.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='episodes.html'>episodes</a></code>; <code><a href='partitions.html'>partitions</a></code>; <code><a href='predefined_tests.html'>predefined_tests</a></code>; <code><a href='sub_criteria.html'>sub_criteria</a></code>; <code><a href='schema.html'>schema</a></code></p></div>
+    <div class='dont-index'><p><code><a href='link_records.html'>link_records</a></code>; <code><a href='episodes.html'>episodes</a></code>; <code><a href='partitions.html'>partitions</a></code>; <code><a href='predefined_tests.html'>predefined_tests</a></code>; <code><a href='sub_criteria.html'>sub_criteria</a></code>; <code><a href='schema.html'>schema</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Exact match</span>

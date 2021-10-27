@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -80,7 +80,7 @@
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -95,13 +95,19 @@
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/links.html">Record linkage with diyar</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">`number_line` and overlaps</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -112,7 +118,7 @@
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/OlisaNsonwu/diyar/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -147,12 +153,11 @@
 <span class='fu'>prob_link</span>(
   <span class='no'>x</span>,
   <span class='no'>y</span>,
-  <span class='no'>cmp_threshold</span>,
-  <span class='no'>m_probability</span>,
+  <span class='no'>cmp_func</span>,
+  <span class='no'>attr_threshold</span>,
   <span class='no'>score_threshold</span>,
-  <span class='no'>return_weights</span>,
   <span class='no'>probabilistic</span>,
-  <span class='no'>cmp_func</span>
+  <span class='no'>return_weights</span>
 )</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
@@ -171,28 +176,24 @@
       <td><p>Difference between <code>y</code> and <code>x</code>.</p></td>
     </tr>
     <tr>
-      <th>cmp_threshold</th>
-      <td><p>Matching set of weight thresholds for each result of <code>cmp_func</code>. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
+      <th>cmp_func</th>
+      <td><p>Logical tests such as string comparators. See <code><a href='link_records.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     <tr>
-      <th>m_probability</th>
-      <td><p>Matching set of m-probabilities. The probability that a match from <code>cmp_func</code> is a true match. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
+      <th>attr_threshold</th>
+      <td><p>Matching set of weight thresholds for each result of <code>cmp_func</code>. See <code><a href='link_records.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     <tr>
       <th>score_threshold</th>
-      <td><p>Score threshold determining matched or linked records. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>return_weights</th>
-      <td><p>If <code>TRUE</code>, returns the match-weights and score-thresholds for record pairs. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
+      <td><p>Score threshold determining matched or linked records. See <code><a href='link_records.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     <tr>
       <th>probabilistic</th>
-      <td><p>If <code>TRUE</code>, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
+      <td><p>If <code>TRUE</code>, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See <code><a href='link_records.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     <tr>
-      <th>cmp_func</th>
-      <td><p>Logical tests such as string comparators. See <code><a href='links_wf_probabilistic.html'>links_wf_probabilistic</a></code>.</p></td>
+      <th>return_weights</th>
+      <td><p>If <code>TRUE</code>, returns the match-weights and score-thresholds for record pairs. See <code><a href='link_records.html'>links_wf_probabilistic</a></code>.</p></td>
     </tr>
     </table>
 
@@ -201,38 +202,31 @@
     <p><b><code>exact_match()</code></b> - test that  <code>x == y</code></p>
 <p><b><code>range_match()</code></b> - test that <code>x</code> \(\le\) <code>y</code> \(\le\) <code>(x + range)</code></p>
 <p><b><code>range_match_legacy()</code></b> - test that <code><a href='overlaps.html'>overlap(as.number_line(x@gid), y)</a></code> is <code>TRUE</code>.</p>
-<p><b><code>prob_link()</code></b> - Test that a record sets <code>x</code> and <code>y</code> are from the same entity based on calculated weights and probability scores.</p>
+<p><b><code>prob_link()</code></b> - Test that a record-sets <code>x</code> and <code>y</code> are from the same entity based on calculated weights and probability scores.</p>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='no'>`exact_match`</span></div><div class='output co'>#&gt; function (x, y) 
-#&gt; {
-#&gt;     x == y &amp; !is.na(x) &amp; !is.na(y)
+    <pre class="examples"><div class='input'><span class='no'>`exact_match`</span></div><div class='output co'>#&gt; function(x, y) {
+#&gt;   x == y &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x0000000026d91d98&gt;
+#&gt; &lt;bytecode: 0x00000000242eaa58&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='fu'>exact_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>1</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>exact_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>2</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
-<span class='no'>`range_match`</span></div><div class='output co'>#&gt; function (x, y, range = 10) 
-#&gt; {
-#&gt;     x &lt;- as.numeric(x)
-#&gt;     y &lt;- as.numeric(y)
-#&gt;     (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)
+<span class='no'>`range_match`</span></div><div class='output co'>#&gt; function(x, y, range = 10){
+#&gt;   x &lt;- as.numeric(x); y &lt;- as.numeric(y)
+#&gt;   (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)
 #&gt; }
-#&gt; &lt;bytecode: 0x00000000281bf7a8&gt;
+#&gt; &lt;bytecode: 0x000000002b6fbcf0&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='fu'>range_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>16</span>, <span class='kw'>range</span> <span class='kw'>=</span> <span class='fl'>6</span>)</div><div class='output co'>#&gt; [1] TRUE</div><div class='input'><span class='fu'>range_match</span>(<span class='kw'>x</span> <span class='kw'>=</span> <span class='fl'>16</span>, <span class='kw'>y</span> <span class='kw'>=</span> <span class='fl'>10</span>, <span class='kw'>range</span> <span class='kw'>=</span> <span class='fl'>6</span>)</div><div class='output co'>#&gt; [1] FALSE</div><div class='input'>
-<span class='no'>`range_match_legacy`</span></div><div class='output co'>#&gt; function (x, y) 
-#&gt; {
-#&gt;     lg &lt;- overlap(as.number_line(x@gid), x)
-#&gt;     lg[is.na(lg)] &lt;- F
-#&gt;     if (any(!lg)) {
-#&gt;         rng_i &lt;- paste(head(which(!lg), 5), collapse = ", ", 
-#&gt;             sep = "")
-#&gt;         rng_v &lt;- as.character(substitute(x))[!as.character(substitute(x)) %in% 
-#&gt;             c("$", "df2")]
-#&gt;         stop(paste0("Range matching error: Actual value (gid) is out of range in ", 
-#&gt;             "[", rng_i, "]"))
-#&gt;     }
-#&gt;     overlap(as.number_line(x@gid), y)
+<span class='no'>`range_match_legacy`</span></div><div class='output co'>#&gt; function(x, y) {
+#&gt;   lg &lt;- overlap(as.number_line(x@gid), x)
+#&gt;   lg[is.na(lg)] &lt;- F
+#&gt;   if(any(!lg)) {
+#&gt;     rng_i &lt;- paste(head(which(!lg), 5), collapse = ", ", sep="")
+#&gt;     rng_v &lt;- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
+#&gt;     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
+#&gt;   }
+#&gt;   overlap(as.number_line(x@gid), y)
 #&gt; }
-#&gt; &lt;bytecode: 0x000000002866da78&gt;
+#&gt; &lt;bytecode: 0x000000002b2aecb0&gt;
 #&gt; &lt;environment: namespace:diyar&gt;</div><div class='input'><span class='no'>x_nl</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>10</span>, <span class='fl'>16</span>, <span class='kw'>gid</span> <span class='kw'>=</span> <span class='fl'>10</span>)
 <span class='no'>y_nl1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>16</span>, <span class='fl'>10</span>)
 <span class='no'>y_nl2</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>16</span>, <span class='fl'>10</span>)

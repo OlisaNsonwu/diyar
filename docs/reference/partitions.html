@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Distribute events specified intervals. — partitions • diyar</title>
+<title>Distribute events into specified intervals. — partitions • diyar</title>
 
 
 <!-- jquery -->
@@ -39,7 +39,7 @@
 
 
 
-<meta property="og:title" content="Distribute events specified intervals. — partitions" />
+<meta property="og:title" content="Distribute events into specified intervals. — partitions" />
 <meta property="og:description" content="Distribute events into groups defined by time or numerical intervals.
 Each set of linked records are assigned a unique identifier with relevant group-level data." />
 
@@ -73,7 +73,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,13 +96,19 @@ Each set of linked records are assigned a unique identifier with relevant group-
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/links.html">Record linkage with diyar</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">`number_line` and overlaps</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -113,7 +119,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/OlisaNsonwu/diyar/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -130,7 +136,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Distribute events specified intervals.</h1>
+    <h1>Distribute events into specified intervals.</h1>
     <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/panes.R'><code>R/panes.R</code></a></small>
     <div class="hidden name"><code>partitions.Rd</code></div>
     </div>
@@ -198,7 +204,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>data_source</th>
-      <td><p><code>[character]</code>. Unique data source identifier. Adds the list of datasets in each pane to the <code><a href='pane-class.html'>pane</a></code>. Useful when the dataset has data from multiple sources.</p></td>
+      <td><p><code>[character]</code>. Unique data source identifier. Adds the list of datasets in each pane to the <code><a href='pane-class.html'>pane</a></code>. Useful when the data is from multiple sources.</p></td>
     </tr>
     <tr>
       <th>by</th>
@@ -214,7 +220,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>display</th>
-      <td><p><code>[character]</code>. The progress messages printed on screen. Options are; <code>"none"</code> (default) or <code>"stats"</code>.</p></td>
+      <td><p><code>[character]</code>. Display a status update. Options are; <code>"none"</code> (default), <code>"progress"</code> or <code>"stats"</code>.</p></td>
     </tr>
     </table>
 
@@ -231,7 +237,8 @@ Each set of linked records are assigned a unique identifier with relevant group-
 Events that occur over two <code>windows</code> are assigned to the last one listed.</p>
 <p>Alternatively, you can create <code>windows</code> by splitting a period into equal parts (<code>length.out</code>), or into a sequence of intervals with fixed widths (<code>by</code>).</p>
 <p>By default, the earliest event is taken as the <code>"Index"</code> event of the <code><a href='pane-class.html'>pane</a></code>.
-An alternative can be chosen with <code>custom_sort</code>.</p>
+An alternative can be chosen with <code>custom_sort</code>.
+Note that this is simply a convenience option because it has no bearing on how groups are assigned.</p>
 <p><b><code>partitions()</code></b> will categorise records into 3 types;</p><ul>
 <li><p><code>"Index"</code> - Index event/record of the pane.</p></li>
 <li><p><code>"Duplicate_I"</code> - Duplicate of the <code>"Index"</code> record.</p></li>
@@ -244,7 +251,7 @@ Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</cod
 <li><p>If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be retained.</p></li>
 </ul>
 
-<p><em><code>NA</code> values in <code>strata</code> excludes records from the partitioning tracking process</em>.</p>
+<p><em><code>NA</code> values in <code>strata</code> excludes records from the partitioning process</em>.</p>
 <p>See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for more information.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 

@@ -6,7 +6,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Link events  to chronological episodes. — episodes • diyar</title>
+<title>Link events to chronological episodes. — episodes • diyar</title>
 
 
 <!-- jquery -->
@@ -39,8 +39,8 @@
 
 
 
-<meta property="og:title" content="Link events  to chronological episodes. — episodes" />
-<meta property="og:description" content="Link events with matching attributes and within specified durations of each other.
+<meta property="og:title" content="Link events to chronological episodes. — episodes" />
+<meta property="og:description" content="Link dated events (records) with similar attributes and which occur within specified durations of each other.
 Each set of linked records are assigned a unique identifier with relevant group-level information." />
 
 
@@ -73,7 +73,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
       </span>
     </div>
 
@@ -81,7 +81,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <ul class="nav navbar-nav">
         <li>
   <a href="../index.html">
-    <span class="fas fa fas fa-home fa-lg"></span>
+    <span class="fas fa-home fa-lg"></span>
      
   </a>
 </li>
@@ -96,13 +96,19 @@ Each set of linked records are assigned a unique identifier with relevant group-
   </a>
   <ul class="dropdown-menu" role="menu">
     <li>
-      <a href="../articles/episodes.html">Epidemiological case definitions in R</a>
+      <a href="../articles/episodes.html">Introduction to epidemiological case definitions with diyar</a>
     </li>
     <li>
-      <a href="../articles/links.html">Record linkage with diyar</a>
+      <a href="../articles/links.html">Introduction to record linkage with diyar</a>
     </li>
     <li>
-      <a href="../articles/number_line.html">`number_line` and overlaps</a>
+      <a href="../articles/number_line.html">number_line and overlaps</a>
+    </li>
+    <li>
+      <a href="../articles/overview.html">diyar at a glance</a>
+    </li>
+    <li>
+      <a href="../articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
 </li>
@@ -113,7 +119,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       <ul class="nav navbar-nav navbar-right">
         <li>
   <a href="https://github.com/OlisaNsonwu/diyar/">
-    <span class="fab fa fab fa-github fa-lg"></span>
+    <span class="fab fa-github fa-lg"></span>
      
   </a>
 </li>
@@ -130,13 +136,13 @@ Each set of linked records are assigned a unique identifier with relevant group-
 <div class="row">
   <div class="col-md-9 contents">
     <div class="page-header">
-    <h1>Link events  to chronological episodes.</h1>
-    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/episode_group.R'><code>R/episode_group.R</code></a></small>
+    <h1>Link events to chronological episodes.</h1>
+    <small class="dont-index">Source: <a href='https://github.com/OlisaNsonwu/diyar/blob/master/R/episodes.R'><code>R/episodes.R</code></a></small>
     <div class="hidden name"><code>episodes.Rd</code></div>
     </div>
 
     <div class="ref-description">
-    <p>Link events with matching attributes and within specified durations of each other.
+    <p>Link dated events (records) with similar attributes and which occur within specified durations of each other.
 Each set of linked records are assigned a unique identifier with relevant group-level information.</p>
     </div>
 
@@ -165,74 +171,9 @@ Each set of linked records are assigned a unique identifier with relevant group-
   <span class='kw'>case_sub_criteria</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
   <span class='kw'>recurrence_sub_criteria</span> <span class='kw'>=</span> <span class='no'>case_sub_criteria</span>,
   <span class='kw'>case_length_total</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>recurrence_length_total</span> <span class='kw'>=</span> <span class='no'>case_length_total</span>
-)
-
-<span class='fu'>episodes_wf_splits</span>(
-  <span class='no'>date</span>,
-  <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>,
-  <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='no'>case_length</span>,
-  <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>,
-  <span class='kw'>strata</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>sn</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>rolls_max</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='kw'>recurrence_overlap_methods</span> <span class='kw'>=</span> <span class='no'>case_overlap_methods</span>,
-  <span class='kw'>skip_if_b4_lengths</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>data_source</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>data_links</span> <span class='kw'>=</span> <span class='st'>"ANY"</span>,
-  <span class='kw'>custom_sort</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>skip_order</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>reference_event</span> <span class='kw'>=</span> <span class='st'>"last_record"</span>,
-  <span class='kw'>case_for_recurrence</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>from_last</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>group_stats</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>display</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
-  <span class='kw'>case_sub_criteria</span> <span class='kw'>=</span> <span class='kw'>NULL</span>,
-  <span class='kw'>recurrence_sub_criteria</span> <span class='kw'>=</span> <span class='no'>case_sub_criteria</span>,
-  <span class='kw'>case_length_total</span> <span class='kw'>=</span> <span class='fl'>1</span>,
-  <span class='kw'>recurrence_length_total</span> <span class='kw'>=</span> <span class='no'>case_length_total</span>
-)
-
-<span class='fu'>fixed_episodes</span>(
-  <span class='no'>date</span>,
-  <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>,
-  <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>display</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
-  <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='no'>case_length</span>,
-  <span class='kw'>recurrence_overlap_methods</span> <span class='kw'>=</span> <span class='no'>case_overlap_methods</span>,
-  <span class='kw'>include_index_period</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='no'>x</span>
-)
-
-<span class='fu'>rolling_episodes</span>(
-  <span class='no'>date</span>,
-  <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>Inf</span>,
-  <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='no'>case_length</span>,
-  <span class='kw'>episode_unit</span> <span class='kw'>=</span> <span class='st'>"days"</span>,
-  <span class='kw'>to_s4</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='kw'>recurrence_overlap_methods</span> <span class='kw'>=</span> <span class='no'>case_overlap_methods</span>,
-  <span class='kw'>deduplicate</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>display</span> <span class='kw'>=</span> <span class='st'>"none"</span>,
-  <span class='kw'>bi_direction</span> <span class='kw'>=</span> <span class='fl'>FALSE</span>,
-  <span class='kw'>include_index_period</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>,
-  <span class='no'>...</span>,
-  <span class='kw'>overlap_methods</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='kw'>overlap_method</span> <span class='kw'>=</span> <span class='fl'>8</span>,
-  <span class='no'>x</span>
-)
-
-<span class='fu'>episode_group</span>(<span class='no'>df</span>, <span class='no'>...</span>, <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"fixed"</span>)</pre>
+  <span class='kw'>recurrence_length_total</span> <span class='kw'>=</span> <span class='no'>case_length_total</span>,
+  <span class='kw'>skip_unique_strata</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>
+)</pre>
 
     <h2 class="hasAnchor" id="arguments"><a class="anchor" href="#arguments"></a>Arguments</h2>
     <table class="ref-arguments">
@@ -243,8 +184,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>case_length</th>
-      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Duration from index event distinguishing one <code>"case"</code> from another.
-This is the case window.</p></td>
+      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Duration from index event distinguishing one <code>"Case"</code> from another.</p></td>
     </tr>
     <tr>
       <th>episode_type</th>
@@ -252,7 +192,7 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>recurrence_length</th>
-      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Duration from the last <code>"duplicate"</code> event distinguishing a <code>"recurrent"</code> event from its index event. This is the recurrence window.</p></td>
+      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Duration from an event distinguishing a <code>"Recurrent"</code> event from its index event.</p></td>
     </tr>
     <tr>
       <th>episode_unit</th>
@@ -272,31 +212,31 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>rolls_max</th>
-      <td><p><code>[integer]</code>. Maximum number of times the index <code>"case"</code> can recur. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
+      <td><p><code>[integer]</code>. Maximum number of times the index event recurs. Only used if <code>episode_type</code> is <code>"rolling"</code> or <code>"recursive"</code>.</p></td>
     </tr>
     <tr>
       <th>case_overlap_methods</th>
-      <td><p><code>[character|integer]</code>. Methods of overlap considered when tracking duplicates of <code>"case"</code> events. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
+      <td><p><code>[character|integer]</code>. Ways <code>"Duplicate"</code> events overlap with the <code>"Case"</code> event. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
     </tr>
     <tr>
       <th>recurrence_overlap_methods</th>
-      <td><p><code>[character|integer]</code>. Methods of overlap considered when tracking duplicates of <code>"recurrent"</code> events. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
+      <td><p><code>[character|integer]</code>. Ways <code>"Duplicate"</code> events overlap with the <code>"Recurrence"</code> event. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
     </tr>
     <tr>
       <th>skip_if_b4_lengths</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code> (default), when using lagged <code>case_length</code> or <code>recurrence_length</code>, <code>events</code> before the cut-off point or period are skipped.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code> (default), events before a lagged <code>case_length</code> or <code>recurrence_length</code> are skipped.</p></td>
     </tr>
     <tr>
       <th>data_source</th>
-      <td><p><code>[character]</code>. Unique data source identifier. Adds the list of datasets in each episode to the <code><a href='epid-class.html'>epid</a></code>. Useful when the dataset has data from multiple sources.</p></td>
+      <td><p><code>[character]</code>. Data source identifier. Adds the list of data sources in each episode to the <code><a href='epid-class.html'>epid</a></code>. Useful when the data is from multiple sources.</p></td>
     </tr>
     <tr>
       <th>data_links</th>
-      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='epid-class.html'>epid</a></code>. An episode without records from these <code>data_sources</code> will be unlinked. See <code>Details</code>.</p></td>
+      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='pid-class.html'>pid</a></code>. A record-group without records from these <code>data_sources</code> will be <code><a href='delink.html'>unlinked</a></code>. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>custom_sort</th>
-      <td><p><code>[atomic]</code>. Preferential order for selecting index or reference events.</p></td>
+      <td><p><code>[atomic]</code>. Preferential order for selecting index events. See <code><a href='custom_sort.html'>custom_sort</a></code>.</p></td>
     </tr>
     <tr>
       <th>skip_order</th>
@@ -304,12 +244,12 @@ This is the case window.</p></td>
     </tr>
     <tr>
       <th>reference_event</th>
-      <td><p><code>[character]</code>. Specifies which of the duplicates are used as reference events for subsequent windows. Options are "last_record" (default), "last_event", "first_record" or ""firs_event".</p></td>
+      <td><p><code>[character]</code>. Specifies which events are used as index events for a subsequent <code>case_length</code> or <code>recurrence_length</code>. Options are <code>"last_record"</code> (default), <code>"last_event"</code>, <code>"first_record"</code> or <code>"first_event"</code>.</p></td>
     </tr>
     <tr>
       <th>case_for_recurrence</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code>, both <code>"case"</code> and <code>"recurrent"</code> events will have a case window.
-If <code>FALSE</code> (default), only <code>case events</code> will have a <code>case window</code>. Only used if <code>episode_type</code> is <code>"rolling"</code>.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, both <code>"Case"</code> and <code>"Recurrent"</code> events will have a <code>case_length</code>.
+If <code>FALSE</code> (default), only <code>case events</code> will have a <code>case window</code>. Only used if <code>episode_type</code> is <code>"rolling"</code> or <code>"recursive"</code>.</p></td>
     </tr>
     <tr>
       <th>from_last</th>
@@ -321,110 +261,75 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     </tr>
     <tr>
       <th>display</th>
-      <td><p><code>[character]</code>. The progress messages printed on screen. Options are; <code>"none"</code> (default), <code>"progress"</code> and <code>"stats"</code>.</p></td>
+      <td><p><code>[character]</code>. Display or produce a status update. Options are; <code>"none"</code> (default), <code>"progress"</code>, <code>"stats"</code>, <code>"none_with_report"</code>, <code>"progress_with_report"</code> or <code>"stats_with_report"</code>.</p></td>
     </tr>
     <tr>
       <th>case_sub_criteria</th>
-      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Matching conditions for "case" windows in addition to temporal links.</p></td>
+      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Additional matching criteria for events of a <code>case_length</code>.</p></td>
     </tr>
     <tr>
       <th>recurrence_sub_criteria</th>
-      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Matching conditions for "recurrence" windows in addition to temporal links.</p></td>
+      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Additional matching criteria for events of a <code>recurrence_length</code>.</p></td>
     </tr>
     <tr>
       <th>case_length_total</th>
-      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched case windows required for an episode.</p></td>
+      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched <code>case_lengths</code> required for an episode.</p></td>
     </tr>
     <tr>
       <th>recurrence_length_total</th>
-      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched recurrence windows required for an episode.</p></td>
+      <td><p><code>[integer|<a href='number_line.html'>number_line</a>]</code>. Minimum number of matched <code>recurrence_lengths</code> required for an episode.</p></td>
     </tr>
     <tr>
-      <th>to_s4</th>
-      <td><p><code>[logical]</code>. Deprecated. Output type - <code><a href='epid-class.html'>epid</a></code> (<code>TRUE</code>) or <code>data.frame</code> (<code>FALSE</code>).</p></td>
-    </tr>
-    <tr>
-      <th>deduplicate</th>
-      <td><p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, <code>"duplicate"</code> events are excluded from the <code><a href='epid-class.html'>epid</a></code>.</p></td>
-    </tr>
-    <tr>
-      <th>bi_direction</th>
-      <td><p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, <code>"duplicate"</code> events before and after the index event are tracked.</p></td>
-    </tr>
-    <tr>
-      <th>include_index_period</th>
-      <td><p><code>[logical]</code>. Deprecated. If <code>TRUE</code>, events overlapping with the index event or period are linked even if they are outside the cut-off period.</p></td>
-    </tr>
-    <tr>
-      <th>...</th>
-      <td><p>Arguments passed to <code>episodes</code>.</p></td>
-    </tr>
-    <tr>
-      <th>overlap_methods</th>
-      <td><p><code>[character]</code>. Deprecated. Please use <code>case_overlap_methods</code> or <code>recurrence_overlap_methods</code>. Methods of overlap considered when tracking duplicate event. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
-    </tr>
-    <tr>
-      <th>overlap_method</th>
-      <td><p><code>[character]</code>. Deprecated. Please use <code>case_overlap_methods</code> or <code>recurrence_overlap_methods</code>. Methods of overlap considered when tracking event. All event are checked by the same set of <code>overlap_method</code>.</p></td>
-    </tr>
-    <tr>
-      <th>x</th>
-      <td><p><code>[date|datetime|integer|<a href='number_line.html'>number_line</a>]</code>. Deprecated. Record date or period. Please use <code>date</code>.</p></td>
-    </tr>
-    <tr>
-      <th>df</th>
-      <td><p><code>[data.frame]</code>. Deprecated. One or more datasets appended together. See <code>Details</code>.</p></td>
+      <th>skip_unique_strata</th>
+      <td><p><code>[logical]</code>. If <code>TRUE</code> (default), events from a strata with a single record are skipped.</p></td>
     </tr>
     </table>
 
     <h2 class="hasAnchor" id="value"><a class="anchor" href="#value"></a>Value</h2>
 
-    
-
-
-<p><code><a href='epid-class.html'>epid</a></code></p>
+    <p><code><a href='epid-class.html'>epid</a></code>; <code>list</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p>All dated records within a specified duration of an index record are linked together as an episode.
-By default, this process occurs in ascending order, beginning with the earliest event.
+    <p><b><code>episodes()</code></b> links dated records (events) that
+are within specified durations of each other.
+In each iteration, an index event is selected and compared against every other event.</p>
+<p>Every event is linked to a unique group (episode; <code><a href='epid-class.html'>epid</a></code> object).
+These episodes represent occurences on interest as defined by the relationship between index events and other events in the episode.</p>
+<p>By default, this process occurs in ascending order; beginning with the earliest event and proceeding to the most recent one.
 This can be changed to a descending (<code>from_last</code>) or custom order (<code>custom_sort</code>).
 Ties are always broken by the chronological order of events.</p>
-<p>A <code>"fixed"</code> episode has a fixed maximum duration determined by <code>case_length</code>, while a <code>"rolling"</code> episode can continue to recur.
-A <code>"rolling"</code> episode will persist as long as is specified by <code>rolls_max</code>.</p>
-<p><b><code>episodes()</code></b> will categorise records into 5 type of events;</p>
-<ul>
-<li><p><code>"Case"</code> - Index event of the episode.</p></li>
+<p>In general, three type of episodes are possible;</p><ul>
+<li><p><code>"fixed"</code> - An episodes where all events are within fixed durations of one index event.</p></li>
+<li><p><code>"rolling"</code> - An episode where all events are within recurring durations of one index event.</p></li>
+<li><p><code>"recursive"</code> - An episode where all events are within recurring durations of multiple index events.</p></li>
+</ul>
+
+<p>Every event in each episode is categorise as;</p><ul>
+<li><p><code>"Case"</code> - Index event of the episode (without matching <code><a href='sub_criteria.html'>sub_criteria</a></code>).</p></li>
+<li><p><code>"Case_CR"</code> - Index event of the episode (with matching <code><a href='sub_criteria.html'>sub_criteria</a></code>).</p></li>
 <li><p><code>"Duplicate_C"</code> - Duplicate of the index event.</p></li>
-<li><p><code>"Recurrent"</code> - Recurrence of the index event.</p></li>
+<li><p><code>"Recurrent"</code> - Recurrence of the index event (without matching <code><a href='sub_criteria.html'>sub_criteria</a></code>).</p></li>
+<li><p><code>"Recurrent_CR"</code> - Recurrence of the index event (with matching <code><a href='sub_criteria.html'>sub_criteria</a></code>).</p></li>
 <li><p><code>"Duplicate_R"</code> - Duplicate of the recurrent event.</p></li>
 <li><p><code>"Skipped"</code> - Records excluded from the episode tracking process.</p></li>
 </ul>
 
-<p>Every element in <code>data_links</code> must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
-Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</code>.</p><ul>
+<p>If <code>data_links</code> is supplied, every element of the list must be named <code>"l"</code> (links) or <code>"g"</code> (groups).
+Unnamed elements are assumed to be <code>"l"</code>.</p><ul>
 <li><p>If named <code>"l"</code>, only groups with records from every listed <code>data_source</code> will be unlinked.</p></li>
 <li><p>If named <code>"g"</code>, only groups with records from any listed <code>data_source</code> will be unlinked.</p></li>
 </ul>
 
-<p><em><code>NA</code> values in <code>strata</code> excludes records from the episode tracking process</em></p>
-<p><b><code>episodes_wf_splits()</code></b> is a wrapper function of <b><code>episode_group()</code></b> which reframes the data before the episode tracking process.
-This aims to reduce the overall processing time for the tracking process. See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for further details.</p>
-<p><b><code>episode_group()</code></b> has been retired.
-It now only exists to support previous code with minimal input from users.
-Moving forward, please use <b><code>episodes()</code></b>.</p>
-<p><b><code>rolling_episodes()</code></b> and <b><code>rolling_episodes()</code></b> are convenience functions
-to support previous code with minimal input from users.
-Moving forward, please use <b><code>episodes()</code></b>.</p>
-<p>See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for more information.</p>
+<p><em>Records with a missing (<code>NA</code>) <code>strata</code> are excluded from the episode tracking process.</em></p>
+<p>See <code><a href='../articles/episodes.html'>vignette("episodes")</a></code> for further details.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
-    <div class='dont-index'><p><code><a href='custom_sort.html'>custom_sort</a></code>; <code><a href='sub_criteria.html'>sub_criteria</a></code>; <code><a href='windows.html'>epid_length</a></code>; <code><a href='windows.html'>epid_window</a></code>; <code><a href='partitions.html'>partitions</a></code>; <code><a href='links.html'>links</a></code>; <code><a href='overlaps.html'>overlaps</a></code>; <code><a href='number_line.html'>number_line</a></code>; <code><a href='schema.html'>schema</a></code></p></div>
+    <div class='dont-index'><p><code><a href='episodes_wf_splits.html'>episodes_wf_splits</a></code>; <code><a href='custom_sort.html'>custom_sort</a></code>; <code><a href='sub_criteria.html'>sub_criteria</a></code>; <code><a href='windows.html'>epid_length</a></code>; <code><a href='windows.html'>epid_window</a></code>; <code><a href='partitions.html'>partitions</a></code>; <code><a href='links.html'>links</a></code>; <code><a href='overlaps.html'>overlaps</a></code>; <code><a href='number_line.html'>number_line</a></code>; <code><a href='link_records.html'>link_records</a></code>; <code><a href='schema.html'>schema</a></code></p></div>
 
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
-    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>infections</span>)
-<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>hospital_admissions</span>)
+    <pre class="examples"><div class='input'><span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>infections</span>); <span class='no'>db_1</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
+<span class='fu'><a href='https://rdrr.io/r/utils/data.html'>data</a></span>(<span class='no'>hospital_admissions</span>) ; <span class='no'>db_2</span> <span class='kw'>&lt;-</span> <span class='no'>hospital_admissions</span>
 
-<span class='no'>db_1</span> <span class='kw'>&lt;-</span> <span class='no'>infections</span>
 <span class='no'>db_1</span>$<span class='no'>patient_id</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='st'>"PID 1"</span>,<span class='fl'>8</span>), <span class='fu'><a href='https://rdrr.io/r/base/rep.html'>rep</a></span>(<span class='st'>"PID 2"</span>,<span class='fl'>3</span>))
 
 <span class='co'># Fixed episodes</span>
@@ -441,14 +346,12 @@ Moving forward, please use <b><code>episodes()</code></b>.</p>
                      <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"rolling"</span>)
 
 <span class='co'># Interval grouping</span>
-<span class='no'>hospital_admissions</span>$<span class='no'>admin_period</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>hospital_admissions</span>$<span class='no'>admin_dt</span>,
-                                                <span class='no'>hospital_admissions</span>$<span class='no'>discharge_dt</span>)
-<span class='no'>admissions</span> <span class='kw'>&lt;-</span> <span class='no'>hospital_admissions</span>[<span class='fu'><a href='https://rdrr.io/r/base/c.html'>c</a></span>(<span class='st'>"admin_period"</span>,<span class='st'>"epi_len"</span>)]
-
-<span class='co'># Episodes of overlapping periods of admission</span>
-<span class='no'>hospital_admissions</span>$<span class='no'>epids_i</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>hospital_admissions</span>$<span class='no'>admin_period</span>,
-                                       <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>0</span>,
-                                       <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div></pre>
+<span class='no'>db_2</span>$<span class='no'>admin_period</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>db_2</span>$<span class='no'>admin_dt</span>,
+                                 <span class='no'>db_2</span>$<span class='no'>discharge_dt</span>)
+<span class='co'># Episodes of hospital stays</span>
+<span class='no'>db_2</span>$<span class='no'>epids_i</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>db_2</span>$<span class='no'>admin_period</span>,
+                         <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fu'><a href='windows.html'>index_window</a></span>(<span class='no'>db_2</span>$<span class='no'>admin_period</span>),
+                         <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

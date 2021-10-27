@@ -1,9 +1,9 @@
 ---
-title: "Divvy up events with `partitions`"
+title: "Divvy up events with partitions"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Divvy up events with `partitions`}
+  %\VignetteIndexEntry{Divvy up events with partitions}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -46,6 +46,7 @@ homes
 schema(homes$grp_1, seed = 4,
        custom_label = paste0(homes$member, " \n(", homes$age, " yrs)"))
 ```
+
 However, we can make the case that the children are all part of the same generation since no two are older than 16 years apart.
 This presents the main difference between `partitions()` and `episodes()`.
 Unlike `episodes()`, the duration (age-gaps) between records is not a factor. Here records or events are linked together simply because they exist within the same interval (age-gap). 
@@ -69,6 +70,7 @@ homes
 schema(homes$grp_3, seed = 4,
        custom_label = paste0(homes$member, " \n(", homes$age, " yrs)"))
 ```
+
 Despite the use of `by` and `length.out`, if the configurations of records relative to the index record changes, the resulting identifier can change as well. For example, if the `"mother"` and `"father"` were five years younger, this would place them in two different age gaps, resulting in a total of four generations.
 ```{r warning=FALSE, fig.width=7}
 homes$alt_age <- homes$age
@@ -104,6 +106,7 @@ schema(homes$grp_6, seed = 4,
        show_labels = c("length_arrow", "length_label"),
        custom_label = paste0(homes$member, " \n(", homes$alt_age, " yrs)"))
 ```
+
 Unlike `partitions()`, additional analyses is required to flag the whole household as a three-generation household. For example, we can count the number of "occurrences" ( age gaps in `epid` talk).
 ```{r warning=FALSE, fig.width=7}
 as.data.frame(homes$grp_6)

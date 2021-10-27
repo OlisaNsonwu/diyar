@@ -1,5 +1,5 @@
 ---
-title: "`diyar` at a glance"
+title: "diyar at a glance"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
@@ -42,7 +42,7 @@ Although each is best suited to certain use cases, their functionalities can som
 <!-- At their core, they are simply repeating comparisons of an index record against others.  -->
 
 # Record linkage
-## `links()`
+## links
 Primarily used for multi-stage record linkage.
 Here, records are compared and linked based on different matching criteria over multiple stages. 
 The priority of matches decreases with each stage, that is; a match at one stage (and thus criteria) is considered more relevant than a match at the next stage.
@@ -90,7 +90,7 @@ dfr_stages$p5 <- links(list("place_holder", dfr_stages$age),
 dfr_stages
 ```
 
-## `link_records()`
+## link_records
 Is primarily used for probabilistic record linkage.
 Record-pairs are generated and compared for matches.
 Matches can be weighted to allow for imperfect matches.
@@ -117,7 +117,7 @@ The required number of record-pairs doubles exponentially as the size of the dat
 This eventually becomes memory intensive.
 Arguments such as `blocking_attribute`, `repeats_allowed`, `permutations_allowed ` and `data_source` are used to limit the creation and comparison of only certain record-pairs. 
 
-## `links_wf_probabilistic()`
+## links_wf_probabilistic
 Also primarily used for probabilistic record linkage. `links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `link_records()`. It's less memory intensive but can be slower in comparison.
 ```{r warning=FALSE}
 p6b <- links_wf_probabilistic(dfr_5, attr_threshold = 1,
@@ -134,7 +134,7 @@ subset(p6b$pid_weights, record.match)
 Here, a final selection is made at each iteration. Therefore, an acceptable `score_threshold` is required in advance. To help with this, `prob_score_range()` can be used to return the range of scores attainable for a given set of attributes and, `m` and `u`-probabilities. Additionally, `id_1` and `id_2` can be used to compare specific records-pairs, aiding the review of potential scores.
 
 # Case definitions
-## `episodes()`
+## episodes
 Primarily used for contact and network analysis.
 `episodes()` is designed to compare dated records (events) and assign them to unique groups (episodes) based on the duration between events. 
 Three type of episodes are possible; fixed, rolling and recursive episodes (Figure 1). 
@@ -170,11 +170,12 @@ dfr_2
 ```
 
 **Figure 1: Episodes.** 
+
 <img src = "fig_o1.png" width = "700" height = "580">
 
 There are several options to determine which records are used as the index event, how many index events are used, how many durations from the index events are assessed, the nature of recurrences where applicable and additional matching criteria through `sub_criteria` objects as described above. See `help(episodes)` for more details about these. Also useful is `episodes_wf_splits()` - a wrapper function of `episodes()` which is better optimised for analyses with duplicate records.  
 
-## `partitions()`
+## partitions
 `partitions()` assigns events to groups (panes) if they are within a defined interval (Figure 2). Unlike `episodes()`, the duration between events is not a factor. Here, events from the same pane simply occurred within the same interval. See the example below.
 
 ```{r warning=FALSE}
@@ -210,13 +211,14 @@ dfr_3$pn5 <- partitions(event_dt, length.out = 2, separate = FALSE)
 ```
 
 **Figure 2: Panes**
+
 <img src = "fig_o2.png" width = "700" height = "400">
 
 # Other useful functions
 There are other functions which support the above mentioned ones but are also useful for common analytical tasks.
 Some of these are shown below.
 
-## `number_line()`
+## number_line
 Produces a `number_line` object. 
 This is an `S4` class representing two points of an interval.
 It's covered in more detail in the [`number_line` and overlaps vignette](number_line.html).
@@ -243,8 +245,8 @@ dfr_4$pd5 <- links("place_holder", sub_criteria = list("cr1" = s_cri_c), recursi
 dfr_4[c("admin_period", "nl1", "nl2", "ep4", "ep5", "pd5")]
 ```
 
-## `make_pairs()`
-Create record pairs. 
+## make_pairs
+`make_pairs()` creates record pairs. 
 ```{r warning=FALSE}
 prs_1 <- make_pairs(LETTERS[1:4], repeats_allowed = FALSE, permutations_allowed = FALSE)
 prs_2 <- make_pairs(LETTERS[1:4], repeats_allowed = TRUE, permutations_allowed = TRUE)
@@ -255,8 +257,8 @@ str(prs_2)
 str(prs_3)
 ```
 
-## `combi()`
-Numeric codes for unique combination of vectors.
+## combi
+`combi()` creats numeric codes for unique combination of vectors.
 This aims to be a faster alternative to `paste0` when it's more relevant to know a unique combination instead of the exact combination.
 ```{r warning=FALSE}
 cmbi_dfr <- dfr_stages[c(1, 2)]
