@@ -37,7 +37,7 @@ event_dt$attr_2 <- c("Ward 1", "Ward 1", "Ward 3", "Ward 3", "Ward 2", "Ward 2",
 event_dt
 ```
 
-The simplest kind of case definitions are those where only only event is retained making every other event a duplicate `(D)` i.e. the same occurrence of the retained event (index) event `(C)`.
+The simplest kind of case definitions are those where only one event is retained making every other event a duplicate `(D)` of the index event `(C)`.
 ```{r warning=FALSE}
 event_dt$ep1 <- episodes(event_dt$date, episode_type = "fixed")
 event_dt
@@ -54,7 +54,7 @@ event_dt
 ```
 We can see that every event after the fourth day has now been assigned to a different episode, each with its own index event. This type of episode is referred to as a `"fixed"` episode.
 
-`episodes()` can also produces two additional type of episodes - `"rolling"` and `"recursive"`. See examples of each below.
+`episodes()` can also produce two additional type of episodes - `"rolling"` and `"recursive"`. See examples of each below.
 ```{r warning=FALSE}
 event_dt$ep3 <- episodes(event_dt$date, 3, episode_type = "rolling")
 event_dt$ep4 <- episodes(event_dt$date, 3, episode_type = "recursive")
@@ -62,7 +62,7 @@ event_dt
 ```
 
 Here, we see the creation (or rather categorisation) of recurrent events `(R)`.
-These are recurrence of index events as opposed to their duplicates `(D)`. For example, `ep3` initially ended on `2021-01-06`. However, for rolling and recursive episodes, the function takes the additional step of looking for other events within 4 days of `2021-01-06`. Records within this period are then categorised as recurrent events of the `2021-01-06` event, which itself is a duplicate of the `2021-01-01` event. This chaining process continues indefinitely until there are no more events within the period of recurrence or it's stop by the `rolls_max` argument.
+These are recurrence of index events as opposed to their duplicates. For example, `ep3` initially ends on `2021-01-06`. However, for rolling and recursive episodes, the function takes the additional step of looking for other events within 4 days of `2021-01-06`. Records within this period are then categorised as recurrent events of the `2021-01-06` event, which itself is a duplicate of the `2021-01-01` event. This chaining process continues indefinitely until there are no more events within the period of recurrence or it's stop by the `rolls_max` argument.
 
 Even though `ep1` has the same outcome (one episode) as `ep3` and `ep4`, they are very different case definitions.
 This is demonstrated below by using `schema()` to visualise the identifiers.
@@ -79,21 +79,21 @@ If the `from_last` argument is changed, the process will happen in the opposite 
 event_dt$ep5 <- episodes(event_dt$date, 3, episode_type = "rolling", from_last = TRUE)
 event_dt
 ```
-As seen above, the last record is now the index of the episode.
+We can now see that the last record is now the index of the episode in `ep5`.
 
 So far, we've discussed the different type of episodes and the direction of time in which they are tracked.
 The next important part of the tracking process is the selection of index events. 
-This determines which record is used as the reference when checking for other events within it's window of occurrence.
+This determines which record is used as the reference point when checking for other events within its window of occurrence.
 By default, this will be the earliest record from the direction of the tracking process but this can be changed to a custom preference using the `custom_sort` argument.
 
 To demonstrate this, let's preferentially use `"RTI"` infection events as index events for episodes.
 
 ```{r warning=FALSE, fig.width=7}
 custom_pref <- ifelse(event_dt$attr_1 == "RTI", 1, 2)
-event_dt$ep6 <- episodes(event_dt$date, 3, episode_type = "rolling", 
-                         custom_sort = custom_pref, skip_order = 1)
-event_dt$ep7 <- episodes(event_dt$date, 3, episode_type = "rolling", 
-                         custom_sort = custom_pref, skip_order = 1, from_last = TRUE)
+event_dt$ep6 <- episodes(event_dt$date, 3, custom_sort = custom_pref, 
+                         skip_order = 1)
+event_dt$ep7 <- episodes(event_dt$date, 3, custom_sort = custom_pref, 
+                         skip_order = 1, from_last = TRUE)
 ```
 
 ```{r warning=FALSE, fig.width=7}
@@ -103,9 +103,8 @@ schema(event_dt$ep7, seed = 2, show_labels = c("length_arrow"),
        custom_label = paste0(decode(event_dt$ep7@case_nm), " (", event_dt$attr_1, ")"))
 ```
 
-Another main aspect of the tracking process is the duration between event.
+Another main aspect of the tracking process is the duration between events.
 This is handled by the `case_length` and `recurrence_length` arguments.
-Unless specified, `recurrence_length` defaults to the `case_length`.
 A length of `3` means that events within 4 days (3-day difference) of the of the index event will be linked together as part of the same occurrence.
 Note that this is 4 days towards the direction of the tracking process therefore, events in the opposite direction will not be considered. We can see this above in the schema for `ep6`.
 
@@ -147,8 +146,8 @@ dfr$ep2 <- episodes(date = dfr$admin_period, case_length =  dfr$ep_len2)
 
 ```{r warning=FALSE, fig.width=7}
 dfr[c("admin_period", "ep_len1", "ep_len2", "ep1", "ep2")]
-schema(dfr$ep1, seed = 2, show_labels = FALSE)
-schema(dfr$ep2, seed = 2, show_labels = FALSE)
+schema(dfr$ep1, seed = 2, show_labels = "length_arrow")
+schema(dfr$ep2, seed = 2, show_labels = "length_arrow")
 ```
 
 Currently, the `diyar` packages recognises 7 mutually exclusive and 2 mutually inclusive ways a pair of intervals can overlap. Please see `vignette("number_line")` for more details about this. Using `case_overlap_methods` and `recurrence_overlap_methods`, the episode tracking process can be made to only capture intervals that overlap by specific methods. See the example below.
@@ -233,7 +232,8 @@ schema(event_dt$ep11, seed = 2, show_labels = c("length_arrow"),
 We can even combine both conditions into a nested condition.
 ```{r warning=FALSE}
 combined_sub_cri <- sub_criteria(sub_cri_1, sub_cri_2, operator = "and")
-event_dt$ep12 <- episodes(event_dt$date, case_length = 5, case_sub_criteria = combined_sub_cri)
+event_dt$ep12 <- episodes(event_dt$date, case_length = 5, 
+                          case_sub_criteria = combined_sub_cri)
 ```
 
 ```{r warning=FALSE, fig.width=7}

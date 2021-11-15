@@ -108,54 +108,27 @@ df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5L, df_7$age+5L, gi
 df_7$corrupt_range@gid[3] <- 205L
 
 test_7b <- test_7 <- df_7
-test_7$pids <- links(sn = df_7$r_id,
-                     criteria = df_7$cri_1,
-                     sub_criteria = list(cr1 = sub_criteria(df_7$age_range, match_funcs = range_match_legacy, equal_funcs = diyar::exact)))
-
-test_7b$pids <- links(sn = df_7$r_id,
-                      criteria = rep(1, nrow(df_7)),
-                      sub_criteria = list(cr1 = sub_criteria(df_7$age_range, match_funcs = range_match_legacy, equal_funcs = diyar::exact)))
-
-
-
-test_7$pids <- link_records(blocking_attribute = test_7$cri_2,
-                              attribute = list(test_7$age_range),
-                              cmp_func = range_match_legacy,
-                              probabilistic = FALSE,
-                            permutations_allowed = TRUE)$pid
-
-test_7b$pids <- link_records(attribute = list(test_7$age_range),
+test_7$pids <- link_records(attribute = list(test_7$age_range),
                             cmp_func = range_match_legacy,
                             probabilistic = FALSE,
                             permutations_allowed = TRUE)$pid
 
+test_7b$pids <- link_records(attribute = list(test_7$age_range),
+                             cmp_func = range_match_legacy,
+                             probabilistic = FALSE,
+                             permutations_allowed = TRUE)$pid
+
 test_that("test record grouping using range matching in criteria", {
   # expect_equal(test_7$pids@.Data, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))
-  expect_equal(test_7$pids@.Data, c(1, 1, 1, 4, 4, 6, 7, 6, 6, 10, 1, 4, 4, 1, 1))
+  expect_equal(test_7$pids@.Data, c(1, 1, 1, 4, 4, 6, 7, 6, 6, 4, 1, 4, 4, 1, 1))
   # expect_equal(test_7$pids@pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
   expect_equal(test_7$pids@pid_cri, c(rep(1,6),0, rep(1, 8)))
   # expect_equal(test_7$pids@pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
-  expect_equal(test_7$pids@pid_total, c(6, 6, 6, 4, 4, 3, 1, 3, 3, 1, 6, 4, 4, 6, 6))
+  expect_equal(test_7$pids@pid_total, c(6, 6, 6, 5, 5, 3, 1, 3, 3, 5, 6, 5, 5, 6, 6))
 })
 
 test_that("test record grouping using range matching in sub_criteria", {
   expect_equal(test_7b$pids@.Data, c(1,1,1,4,4,6,7,6,6,4,1,4,4,1,1))
   expect_equal(test_7b$pids@pid_cri, c(rep(1,6),0, rep(1, 8)))
   expect_equal(test_7b$pids@pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
-})
-
-dfs <- diyar::infections
-pids <- links(criteria = dfs$infection)
-
-test_that("test pid methods", {
-  expect_equal(show(pids), c("P.1 (CRI 001)","P.2 (CRI 001)","P.2 (CRI 001)","P.2 (CRI 001)",
-                             "P.1 (CRI 001)","P.2 (CRI 001)","P.1 (CRI 001)","P.1 (CRI 001)",
-                             "P.9 (CRI 001)","P.9 (CRI 001)","P.1 (CRI 001)"))
-  expect_equal(rep(pids,2), rep(pids,2))
-  expect_equal(unique(pids), unique(pids))
-})
-
-test_that("test some generic functions", {
-  expect_equal(show(new("pid")), "pid(0)")
-  expect_equal(c(as.pid(5), as.pid(5)), rep(as.pid(5), 2))
 })

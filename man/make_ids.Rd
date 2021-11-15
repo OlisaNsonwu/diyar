@@ -7,17 +7,20 @@
 make_ids(x_pos, y_pos, id_length = max(x_pos, y_pos))
 }
 \arguments{
-\item{x_pos}{\code{[integer]}.  Index of one half of a record pair}
+\item{x_pos}{\code{[integer]}. Index of one half of a record-pair}
 
-\item{y_pos}{\code{[integer]}.  Index of one half of a record pair}
+\item{y_pos}{\code{[integer]}. Index of one half of a record-pair}
 
-\item{id_length}{Target number of records.}
+\item{id_length}{Length of the record identifier.}
 }
 \value{
 \code{list}
 }
 \description{
 Create record-pair combination of a vector's elements.
+}
+\details{
+Record groups from non-recursive links have the lowest record ID (\code{sn}) in the set as their group ID.
 }
 \examples{
 make_ids(x_pos = rep(7, 7), y_pos = 1:7)

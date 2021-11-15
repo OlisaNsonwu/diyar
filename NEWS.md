@@ -37,6 +37,7 @@
 -   Incorrect `link_id` `links()` when `recursive` is used. Resolved.
 -   `iteration` not recorded in some situations with `episodes()`.
     Resolved.
+-   `skip_order` ends an open episode. Resolved.
 
 # Version 0.3.1
 

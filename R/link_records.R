@@ -83,12 +83,15 @@
 #' @aliases link_records
 #'
 #' @examples
-#' # Using exact matches
+#' # Deterministic linkage
 #' dfr <- missing_staff_id[c(2, 4, 5, 6)]
+#'
 #' link_records(dfr, attr_threshold = 1, probabilistic = FALSE, score_threshold = 2)
 #' links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = FALSE,
 #'                        score_threshold = 2, recursive = TRUE)
 #'
+#' # Probabilistic linkage
+#' prob_score_range(dfr)
 #' link_records(dfr, attr_threshold = 1, probabilistic = TRUE, score_threshold = -16)
 #' links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = TRUE,
 #'                        score_threshold = -16, recursive = TRUE)
@@ -147,35 +150,89 @@ link_records <- function(attribute,
   }
   tm_ia <- Sys.time()
 
-  args_repo <- prep_prob_link_args(attribute = attribute,
-                                   blocking_attribute = blocking_attribute,
-                                   cmp_func = cmp_func,
-                                   attr_threshold = attr_threshold,
-                                   probabilistic = probabilistic,
-                                   m_probability = m_probability,
-                                   score_threshold = score_threshold,
-                                   u_probability = u_probability,
-                                   repeats_allowed = repeats_allowed,
-                                   permutations_allowed = permutations_allowed,
-                                   ignore_same_source = ignore_same_source,
-                                   data_source = data_source)
+  if(class(attribute) %in% c("list", "data.frame")){
+    attribute <- attrs(.obj = attribute)
+  }else if(class(attribute) %in% c("matrix")){
+    attribute <- attrs(.obj = as.data.frame(attribute))
+  }else if(class(attribute) %in% c("d_attribute")){
+  }else{
+    attribute <- attrs(attribute)
+  }
+
+  if(is.null(names(attribute))){
+    names(attribute) <- paste0("var_", seq_len(length(attribute)))
+  }
+
+  # Attribute names
+  attr_nm <- names(attribute)
+  rd_n <- length(attribute[[1]])
+
+  lgk <- unlist(lapply(attribute, function(x){
+    if(is.number_line(x)){
+      length(unique(x)) == 1
+    }else{
+      length(x[!duplicated(x)]) == 1
+    }
+  }), use.names = FALSE)
+  if(any(lgk)){
+    warning(paste0("Attributes with identicial values in every record are ignored:\n",
+                   paste0("i - `", attr_nm[lgk], "` was ignored!", collapse = "\n")), call. = FALSE)
+  }
+  if(all(lgk)){
+    stop("Linkage stopped since all attributes were ignored.", call. = FALSE)
+  }
+  attribute <- attribute[!lgk]
+  attr_nm <- names(attribute)
+
+  probs_repo <- prep_prob_link_args(attribute = attribute,
+                                    m_probability = m_probability,
+                                    u_probability = u_probability)
+  thresh_repo <- prep_cmps_thresh(attr_nm = attr_nm,
+                                  cmp_func = cmp_func,
+                                  attr_threshold = attr_threshold,
+                                  score_threshold = score_threshold)
+
+  probs_repo$m_probability$x <- lapply(probs_repo$m_probability$x, mk_lazy_opt)
+  probs_repo$u_probability$x <- lapply(probs_repo$u_probability$x, mk_lazy_opt)
+  # Create record-pairs
+  rd_n <- length(attribute[[1]])
+  if(isTRUE(ignore_same_source)){
+    r_pairs <- make_pairs_wf_source(seq_len(rd_n),
+                                    strata = as.vector(blocking_attribute),
+                                    repeats_allowed = repeats_allowed,
+                                    permutations_allowed = permutations_allowed,
+                                    data_source = data_source)
+  }else{
+    r_pairs <- make_pairs(seq_len(rd_n),
+                          strata = as.vector(blocking_attribute),
+                          repeats_allowed = repeats_allowed,
+                          permutations_allowed = permutations_allowed)
+  }
+  x <- lapply(attribute, function(k) k[r_pairs$x_pos])
+  y <- lapply(attribute, function(k) k[r_pairs$y_pos])
+  rp_n <- length(x[[1]])
+
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Pairs created", current_tot = length(args_repo$x[[1]]))
+    rp_data <- di_report(tm_a, "Pairs created", current_tot = length(x[[1]]))
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
   tm_ia <- Sys.time()
-  pid_weights <- prob_link(x = c(args_repo$x, args_repo$m_probability, args_repo$u_probability),
-                            y = args_repo$y,
-                            attr_threshold = args_repo$attr_threshold,
-                            score_threshold = args_repo$score_threshold,
-                            return_weights = TRUE,
-                            cmp_func = args_repo$cmp_func,
-                            probabilistic = probabilistic)
+  pid_weights <- prob_link(x = c(x,
+                                 lapply(probs_repo$m_probability$x, function(k) k[r_pairs$x_pos]),
+                                 lapply(probs_repo$u_probability$x, function(k) k[r_pairs$x_pos])),
+                           y = c(y,
+                                 lapply(probs_repo$m_probability$x, function(k) k[r_pairs$y_pos]),
+                                 lapply(probs_repo$u_probability$x, function(k) k[r_pairs$y_pos])),
+                           attr_threshold = thresh_repo$attr_threshold,
+                           score_threshold = thresh_repo$score_threshold,
+                           return_weights = TRUE,
+                           cmp_func = thresh_repo$cmp_func,
+                           probabilistic = probabilistic)
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Weights calculated", current_tot = length(args_repo$x[[1]]))
+    rp_data <- di_report(tm_a, "Weights calculated", current_tot = length(x[[1]]))
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -183,12 +240,12 @@ link_records <- function(attribute,
   }
   # Output
   if(!is.null(data_source)){
-    pid_weights <- cbind(data.frame(args_repo$r_pairs$x_pos, args_repo$r_pairs$y_pos,
-                         data_source[args_repo$r_pairs$x_pos], data_source[args_repo$r_pairs$y_pos], stringsAsFactors = FALSE),
+    pid_weights <- cbind(data.frame(r_pairs$x_pos, r_pairs$y_pos,
+                                    data_source[r_pairs$x_pos], data_source[r_pairs$y_pos], stringsAsFactors = FALSE),
                          pid_weights)
     colnames(pid_weights)[1:4] <- c("sn_x","sn_y", "source_x", "source_y")
   }else{
-    pid_weights <- cbind(data.frame(args_repo$r_pairs$x_pos, args_repo$r_pairs$y_pos, stringsAsFactors = FALSE), pid_weights)
+    pid_weights <- cbind(data.frame(r_pairs$x_pos, r_pairs$y_pos, stringsAsFactors = FALSE), pid_weights)
     colnames(pid_weights)[1:2] <- c("sn_x","sn_y")
   }
 
@@ -198,19 +255,19 @@ link_records <- function(attribute,
   pids <- make_ids(pids$sn_x, pids$sn_y, max(c(pid_weights[,1], pid_weights[,2])))
   tots <- rle(sort(pids$group_id))
   pids <- methods::new("pid",
-               .Data = pids$group_id,
-               sn = pids$sn,
-               pid_cri = as.integer(pids$linked),
-               link_id = pids$link_id,
-               pid_total = tots$lengths[match(pids$group_id, tots$values)],
-               iteration = rep(1L, length(pids$sn)))
+                       .Data = pids$group_id,
+                       sn = pids$sn,
+                       pid_cri = as.integer(pids$linked),
+                       link_id = pids$link_id,
+                       pid_total = tots$lengths[match(pids$group_id, tots$values)],
+                       iteration = rep(1L, length(pids$sn)))
 
   if(!is.null(data_source)){
     rst <- check_links(pids@.Data, data_source, list(l = "ANY"))
     pids@pid_dataset <- encode(rst$ds)
   }
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "`pid` created", current_tot = length(args_repo$x[[1]]), current_tagged = nrow(pid_weights[pid_weights$record.match,]))
+    rp_data <- di_report(tm_a, "`pid` created", current_tot = length(x[[1]]), current_tagged = nrow(pid_weights[pid_weights$record.match,]))
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -251,24 +308,62 @@ links_wf_probabilistic <- function(attribute,
                                      id_1 = id_1, id_2 = id_2)
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
-  args_repo <- prep_prob_link_args(attribute = attribute,
-                                   blocking_attribute = blocking_attribute,
-                                   cmp_func = cmp_func,
-                                   attr_threshold = attr_threshold,
-                                   probabilistic = probabilistic,
-                                   m_probability = m_probability,
-                                   score_threshold = score_threshold,
-                                   u_probability = u_probability,
-                                   method = "links")
+  if(class(attribute) %in% c("list", "data.frame")){
+    attribute <- attrs(.obj = attribute)
+  }else if(class(attribute) %in% c("matrix")){
+    attribute <- attrs(.obj = as.data.frame(attribute))
+  }else if(class(attribute) %in% c("d_attribute")){
+  }else{
+    attribute <- attrs(attribute)
+  }
+
+  if(is.null(names(attribute))){
+    names(attribute) <- paste0("var_", seq_len(length(attribute)))
+  }
+
+  # Attribute names
+  attr_nm <- names(attribute)
+  rd_n <- length(attribute[[1]])
+
+  lgk <- unlist(lapply(attribute, function(x){
+    if(is.number_line(x)){
+      length(unique(x)) == 1
+    }else{
+      length(x[!duplicated(x)]) == 1
+    }
+  }), use.names = FALSE)
+  if(any(lgk)){
+    warning(paste0("Attributes with identicial values in every record are ignored:\n",
+                   paste0("i - `", attr_nm[lgk], "` was ignored!", collapse = "\n")), call. = FALSE)
+  }
+  if(all(lgk)){
+    stop("Linkage stopped since all attributes were ignored.", call. = FALSE)
+  }
+  attribute <- attribute[!lgk]
+  attr_nm <- names(attribute)
+
+  probs_repo <- prep_prob_link_args(attribute = attribute,
+                                    m_probability = m_probability,
+                                    u_probability = u_probability)
+  thresh_repo <- prep_cmps_thresh(attr_nm = attr_nm,
+                                  cmp_func = cmp_func,
+                                  attr_threshold = attr_threshold,
+                                  score_threshold = score_threshold)
+
+  probs_repo$m_probability$x <- lapply(probs_repo$m_probability$x, function(x) if(length(x) == 1) rep(x, rd_n) else x)
+  probs_repo$u_probability$x <- lapply(probs_repo$u_probability$x, function(x) if(length(x) == 1) rep(x, rd_n) else x)
+
+  probs_repo$m_probability$x <- lapply(probs_repo$m_probability$x, mk_lazy_opt)
+  probs_repo$u_probability$x <- lapply(probs_repo$u_probability$x, mk_lazy_opt)
 
   # Weight or probabilistic matching
   prob_link_wf <- function(x, y){
     prob_link(x, y,
-               attr_threshold = args_repo$attr_threshold,
-               score_threshold = args_repo$score_threshold,
-               return_weights = FALSE,
-               probabilistic = probabilistic,
-               cmp_func = args_repo$cmp_func)
+              attr_threshold = thresh_repo$attr_threshold,
+              score_threshold = thresh_repo$score_threshold,
+              return_weights = FALSE,
+              probabilistic = probabilistic,
+              cmp_func = thresh_repo$cmp_func)
   }
 
   # Identify identical records to skip repeat checks
@@ -289,18 +384,20 @@ links_wf_probabilistic <- function(attribute,
   # Re-calculate weights for linked records
   if(!is.null(id_1) & !is.null(id_2)){
     pids <- NULL
-    x <- c(args_repo$attribute, args_repo$m_probability, args_repo$u_probability)
+    x <- c(attribute, probs_repo$m_probability, probs_repo$u_probability)
     y <- lapply(x, function(k) k[id_2])
     x <- lapply(x, function(k) k[id_1])
     thresh_lgk <- integer()
   }else{
     pids <- links(criteria = "place_holder",
-                  strata = args_repo$blocking_attribute,
-                  sub_criteria = list("cr1" = sub_criteria(attrs(.obj = c(args_repo$attribute, args_repo$m_probability, args_repo$u_probability)),
+                  strata = blocking_attribute,
+                  sub_criteria = list("cr1" = sub_criteria(attrs(.obj = c(attribute,
+                                                                          probs_repo$m_probability$x,
+                                                                          probs_repo$u_probability$x)),
                                                            match_funcs = prob_link_wf,
                                                            equal_funcs = same_rec_func)),
                   ...)
-    x <- c(args_repo$attribute, args_repo$m_probability, args_repo$u_probability)
+    x <- c(attribute, probs_repo$m_probability$x, probs_repo$u_probability$x)
     y <- lapply(x, function(k) k[match(pids@link_id, pids@sn)])
     id_1 <- pids@sn
     id_2 <- pids@link_id
@@ -308,10 +405,10 @@ links_wf_probabilistic <- function(attribute,
   }
 
   pid_weights <- prob_link(x, y,
-                           attr_threshold = args_repo$attr_threshold,
-                           score_threshold = args_repo$score_threshold,
+                           attr_threshold = thresh_repo$attr_threshold,
+                           score_threshold = thresh_repo$score_threshold,
                            return_weights = TRUE,
-                           cmp_func = args_repo$cmp_func,
+                           cmp_func = thresh_repo$cmp_func,
                            probabilistic = probabilistic)
   # Mask unlinked records
   pid_weights[thresh_lgk,] <- NA
@@ -379,7 +476,7 @@ prob_score_range <- function(attribute,
     # These are from missing data and will never be an agreement
     curr_uprob[curr_uprob == 0] <- 1
     curr_mprob <- m_probability[[i]]
-    log2(curr_mprob/curr_uprob)
+    log2((curr_mprob ^ 2) / (curr_uprob ^ 2))
   })
   if(is.null(nrow(max_thresh))){
     max_thresh <- max(sum(max_thresh))
@@ -389,7 +486,7 @@ prob_score_range <- function(attribute,
   min_thresh <- sapply(seq_len(length(u_probability)), function(i){
     curr_uprob <- u_probability[[i]]
     curr_mprob <- m_probability[[i]]
-    log2((1 - curr_mprob)/(1 - curr_uprob))
+    log2((1 - (curr_mprob ^ 2))/(1 - (curr_uprob ^ 2)))
   })
   if(is.null(nrow(min_thresh))){
     min_thresh <- min(sum(min_thresh))

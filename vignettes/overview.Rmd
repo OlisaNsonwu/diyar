@@ -32,7 +32,7 @@ The package is capable of assessing and comparing an entity's characteristics in
 
 The main functions are `links()` and `link_records()`, `episodes()` and `partitions()`.
 These functions are very flexible in terms of what and how comparisons are done, as well as what are considered matches.
-Although each is best suited to certain use cases, their functionalities can sometimes overlap albeit less efficiently.
+Although each is best suited to certain use cases, their functionalities can sometimes overlap.
 
   + `links()` and `link_record()` - compare records without a temporal aspect to them. For example, record linkage
   + `episodes()` - compare records with a temporal aspect to them, while factoring the duration between individual records. For example, contact and network analysis.  
@@ -61,7 +61,7 @@ dfr_stages
 ```
 Aside from an `exact_match()`, user-defined comparisons are also possible using a `sub_criteria` object.
 These are `S3` objects that contains an entity's attributes and the functions to compare them.
-They either relax or strengthen the match criteria. Here is an example below.
+They either relax or strengthen the match criteria. See the example below.
 ```{r warning = FALSE}
 # A function to extract the last word in a string
 last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
@@ -114,8 +114,8 @@ p6a$pid
 subset(p6a$pid_weights, record.match)
 ```
 The required number of record-pairs doubles exponentially as the size of the dataset increases. 
-This eventually becomes memory intensive.
-Arguments such as `blocking_attribute`, `repeats_allowed`, `permutations_allowed ` and `data_source` are used to limit the creation and comparison of only certain record-pairs. 
+This becomes memory intensive with very large datasets.
+Arguments such as `blocking_attribute`, `repeats_allowed`, `permutations_allowed ` and `data_source` are used to limit the amount of record-pairs created. 
 
 ## links_wf_probabilistic
 Also primarily used for probabilistic record linkage. `links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `link_records()`. It's less memory intensive but can be slower in comparison.
@@ -274,7 +274,7 @@ Although both continue to be optimised, each iteration costs additional processi
 The main way to mitigate this is to reduce the number of iterations required to complete an analyses. 
 To help with this, both functions have arguments which ensure that only the minimum number of records required to complete the process is used.
 
-The flexibility of `episodes()` and `links()` results in situations where the use of different arguments will lead to the same outcome. However, one combination will usually require fewer number of iterations to complete the same process. 
+The flexibility of `episodes()` and `links()` results in situations where the use of different arguments will lead to the same outcome. However, one combination will usually require fewer iterations to complete the same process. 
 Therefore, a good grasp of the role of each argument is useful in knowing the most efficient combination of arguments to use. 
 
 For some analyses, `episodes()` and `links()` can be used interchangeably however, this tends to be less efficient. 

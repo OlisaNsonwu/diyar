@@ -52,7 +52,7 @@ episodes(
 
 \item{rolls_max}{\code{[integer]}. Maximum number of times the index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.}
 
-\item{case_overlap_methods}{\code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}})}
+\item{case_overlap_methods}{\code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}}).}
 
 \item{recurrence_overlap_methods}{\code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Recurrence"} event. See (\code{\link{overlaps}})}
 

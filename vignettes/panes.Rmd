@@ -19,7 +19,7 @@ knitr::opts_chunk$set(
 library(diyar)
 ```
 This vignette will introduce you to `partitions()`.
-`partitions()` provides an alternative approach to implementing case definitions when compared with `episodes()`.
+`partitions()` provides an alternative approach to implementing case definitions.
 In summary, it uses specific temporal boundaries as the window of occurrence.
 This differs from `episodes()` where the boundaries are calculated as durations relative to index events.
 `partitions()` produces a similar `S4` class identifier (`pane`) referred to as panes and share similar arguments with `episodes()`.
@@ -28,7 +28,7 @@ To demonstrate this difference, let's review the `homes` dataset below. It has d
 We'll attempt to apply a case definition to identify a three-generation home, 
 where each generation includes individuals aged not more than 16 years apart.  
 ```{r warning=FALSE}
-homes <- data.frame(member = c("son 1", "son 2", "daughter_1", 
+homes <- data.frame(member = c("son_1", "son_2", "daughter_1", 
                                "father", "mother", "grand_father", "grand_mother"), 
                     age = c(4, 6, 17, 43, 40, 74, 69))
 homes
@@ -49,7 +49,7 @@ schema(homes$grp_1, seed = 4,
 
 However, we can make the case that the children are all part of the same generation since no two are older than 16 years apart.
 This presents the main difference between `partitions()` and `episodes()`.
-Unlike `episodes()`, the duration (age-gaps) between records is not a factor. Here records or events are linked together simply because they exist within the same interval (age-gap). 
+Unlike `episodes()`, the duration (age gaps) between records is not a factor. Here records or events are linked together simply because they exist within the same interval (age gap). 
 
 To correct this, we can start the age band from age 6 but this becomes difficult to manage when analysing multiple homes. Instead, we can use the `by` or `lenght.out` argument to create windows (`window`) relative to the first event (or `custom_sort`) only. 
 Although this makes it more like `episodes()`, it is still different since all age gaps are relative to only one reference event `(I)`.
@@ -60,7 +60,7 @@ schema(homes$grp_2, seed = 4,
        custom_label = paste0(homes$member, " \n(", homes$age, " yrs)"))
 ```
 
-Now that we have identified the generations, we can build on this by linking every record in the household if there's a desired number of generations. Below we ask for three to four generations.
+Now that we have identified the generations, we can build on this by linking every record on the conditions that there's a specified number of generations (windows). Below we ask for three to four generations.
 ```{r warning=FALSE, fig.width=7}
 homes$grp_3 <- partitions(homes$age, by = 16, 
                           separate = FALSE,
@@ -85,7 +85,7 @@ schema(homes$grp_4, seed = 4,
        custom_label = paste0(homes$member, " \n(", homes$alt_age, " yrs)"))
 ```
 
-This makes a difference if we specifically request only three generations as the condition for our three-generation households. 
+This makes a difference if our conditions changes to only three generations as the condition for our three-generation households.
 ```{r warning=FALSE, fig.width=7}
 homes$grp_5 <- partitions(homes$alt_age, by = 16, 
                           separate = FALSE,
@@ -98,8 +98,7 @@ schema(homes$grp_5, seed = 4,
 
 We see that the household no longer has a common identifier that would identify it as a three-generation household. If we wish to address this, then `episodes()` would be the better option.
 ```{r warning=FALSE, fig.width=7}
-homes$grp_6 <- episodes(homes$alt_age, 
-                        case_length = 16)
+homes$grp_6 <- episodes(homes$alt_age, case_length = 16)
 homes
 
 schema(homes$grp_6, seed = 4,

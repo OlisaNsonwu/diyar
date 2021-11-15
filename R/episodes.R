@@ -15,7 +15,7 @@
 #' @param rolls_max \code{[integer]}. Maximum number of times the index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
 #' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each episode to the \code{\link[=epid-class]{epid}}. Useful when the data is from multiple sources.
 #' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
-#' @param case_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}})
+#' @param case_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}}).
 #' @param recurrence_overlap_methods \code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Recurrence"} event. See (\code{\link{overlaps}})
 #' @param custom_sort \code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
@@ -258,6 +258,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ld_reference_event <- reference_event
   ld_skip_if_b4_lengths <- skip_if_b4_lengths
   ld_episode_type <- episode_type
+  ld_custom_sort <- custom_sort
+  ld_skip_order <- skip_order
 
   case_overlap_methods <- lapply(case_overlap_methods, mk_lazy_opt)
 
@@ -417,6 +419,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     case_overlap_methods <- lapply(case_overlap_methods, function(x){x[ntag_lgk]})
 
     ld_episode_type <- ld_episode_type[ntag_lgk]
+    ld_custom_sort <- ld_custom_sort[ntag_lgk]
+    ld_skip_order <- ld_skip_order[ntag_lgk]
     ld_reference_event <- ld_reference_event[ntag_lgk]
     ld_skip_if_b4_lengths <- ld_skip_if_b4_lengths[ntag_lgk]
     ld_case_length_total <- ld_case_length_total[ntag_lgk]
@@ -501,6 +505,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     case_overlap_methods <- lapply(case_overlap_methods, function(x){x[sort_ord]})
 
     ld_episode_type <- ld_episode_type[sort_ord]
+    ld_custom_sort <- ld_custom_sort[sort_ord]
+    ld_skip_order <- ld_skip_order[sort_ord]
     ld_reference_event <- ld_reference_event[sort_ord]
     ld_skip_if_b4_lengths <- ld_skip_if_b4_lengths[sort_ord]
     ld_case_length_total <- ld_case_length_total[sort_ord]
@@ -540,6 +546,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     is_new_idx <- which(is_new_lgk)
 
     ld_episode_type[is_new_idx] <- tr_episode_type[is_new_idx]
+    ld_custom_sort[is_new_idx] <- tr_custom_sort[is_new_idx]
+    ld_skip_order[is_new_idx] <- tr_skip_order[is_new_idx]
     ld_skip_if_b4_lengths[is_new_idx] <- tr_skip_if_b4_lengths[is_new_idx]
     ld_case_length_total[is_new_idx] <- tr_case_length_total[is_new_idx]
     ld_reference_event[is_new_idx] <- tr_rec_from_last[is_new_idx]
@@ -609,7 +617,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[which(lgk1 & iteration == 0)] <- ite
 
     # Implement `skip_order`
-    cri_skp <- cri[tr_custom_sort > tr_skip_order]
+    cri_skp <- cri[ld_custom_sort > ld_skip_order]
     cri_skp <- cri_skp[!duplicated(cri_skp)]
     lgk2 <- cri %in% cri_skp
     current_skipped <- length(cri[lgk1 | lgk2])
@@ -1421,11 +1429,11 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
     if(all(class(opt_lst[[i]]) == "name")) {
       return(
         opt_lst[[as.character(opt_lst[[i]])]]
-        )
+      )
     }else{
       return(
         opt_lst[[i]]
-        )
+      )
     }
   })
   opt_lst <- lapply(seq_len(length(opt_lst)), function(i){

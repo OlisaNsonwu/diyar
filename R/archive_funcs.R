@@ -833,11 +833,11 @@ episode_group_archive <- function(df, sn = NULL, strata = NULL, date,
 }
 
 fixed_episodes_archive <- function(date, sn = NULL, strata = NULL, case_length, episode_unit = "days",
-                                  episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
-                                  custom_sort = NULL, skip_order =NULL, from_last = FALSE,
-                                  overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain","overlap","none"),
-                                  overlap_methods =  "overlap", bi_direction= FALSE, group_stats = FALSE,
-                                  display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, include_index_period = TRUE){
+                                   episodes_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
+                                   custom_sort = NULL, skip_order =NULL, from_last = FALSE,
+                                   overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain","overlap","none"),
+                                   overlap_methods =  "overlap", bi_direction= FALSE, group_stats = FALSE,
+                                   display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, include_index_period = TRUE){
 
   if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
@@ -926,25 +926,25 @@ fixed_episodes_archive <- function(date, sn = NULL, strata = NULL, case_length, 
 
   if(is.null(data_source)){
     episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
-                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
-                         display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4,
-                         include_index_period=include_index_period)
+                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
+                          from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
+                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4,
+                          include_index_period=include_index_period)
   }else{
     episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "fixed", episodes_max = episodes_max,
-                         bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
-                         display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4,
-                         include_index_period=include_index_period)
+                          bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
+                          from_last = from_last, overlap_methods = "method", data_links = data_links, skip_if_b4_lengths = skip_if_b4_lengths,
+                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate,to_s4 = to_s4,
+                          include_index_period=include_index_period)
   }
 }
 rolling_episodes_archive <- function(date, sn = NULL, strata = NULL, case_length, recurrence_length=NULL, episode_unit = "days",
-                                    episodes_max = Inf, rolls_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
-                                    custom_sort = NULL, skip_order = NULL, from_last = FALSE,
-                                    overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain","overlap","none"),
-                                    overlap_methods =  "overlap", bi_direction= FALSE, group_stats = FALSE,
-                                    display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE,
-                                    case_for_recurrence =FALSE, include_index_period=TRUE){
+                                     episodes_max = Inf, rolls_max = Inf, skip_if_b4_lengths = TRUE, data_source = NULL, data_links = "ANY",
+                                     custom_sort = NULL, skip_order = NULL, from_last = FALSE,
+                                     overlap_method = c("exact", "across","inbetween","aligns_start","aligns_end","chain","overlap","none"),
+                                     overlap_methods =  "overlap", bi_direction= FALSE, group_stats = FALSE,
+                                     display = TRUE, deduplicate = FALSE, x, to_s4 = TRUE, recurrence_from_last = TRUE,
+                                     case_for_recurrence =FALSE, include_index_period=TRUE){
 
   if(missing(date) & missing(x)) stop("argument 'date' is missing, with no default")
   if(missing(case_length)) stop("argument 'case_length' is missing, with no default")
@@ -1040,23 +1040,23 @@ rolling_episodes_archive <- function(date, sn = NULL, strata = NULL, case_length
 
   if(is.null(data_source)){
     episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
-                         bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
-                         display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
-                         recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links, include_index_period=include_index_period)
+                          bi_direction = bi_direction , data_source = NULL, custom_sort = "user_srt", skip_order = "skip_order",
+                          from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
+                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
+                          recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links, include_index_period=include_index_period)
   }else{
     episode_group_archive(df, sn=sn, date = "dts", strata= "sr", case_length = "epl", episode_type = "rolling", episodes_max = episodes_max,
-                         bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
-                         from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
-                         display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
-                         recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links, include_index_period=include_index_period)
+                          bi_direction = bi_direction , data_source = "ds", custom_sort = "user_srt", skip_order = "skip_order",
+                          from_last = from_last, overlap_methods = "method", recurrence_length = "rc_epl", rolls_max = rolls_max, skip_if_b4_lengths = skip_if_b4_lengths,
+                          display = display, episode_unit = episode_unit, group_stats = group_stats, deduplicate = deduplicate, to_s4 = to_s4,
+                          recurrence_from_last = recurrence_from_last, case_for_recurrence = case_for_recurrence, data_links = data_links, include_index_period=include_index_period)
   }
 
 }
 
 record_group_archive <- function(df, sn=NULL, criteria,
-                                sub_criteria=NULL, strata = NULL, data_source = NULL,
-                                group_stats=FALSE, display=TRUE, to_s4 = TRUE){
+                                 sub_criteria=NULL, strata = NULL, data_source = NULL,
+                                 group_stats=FALSE, display=TRUE, to_s4 = TRUE){
 
   if(missing(df)) stop("argument 'df' is missing, with no default")
   if(missing(criteria)) stop("argument 'criteria' is missing, with no default")
@@ -1548,47 +1548,37 @@ combi_archive <- function(...){
   return(combi_cd)
 }
 
-merge_ids.epid <- function(id1, id2, tie_sort, ...){
-  mp1 <- list(seq_len(length(id1)),
-              id1@sn)
-  mp2 <- list(seq_len(length(id2)),
-              id2@sn)
+make_ids_archive <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
+  ord <- order(x_pos, y_pos)
+  x <- x_pos <- as.integer(x_pos[ord])
+  y <- y_pos <- as.integer(y_pos[ord])
 
-  id1@sn <- mp1[[1]]
-  id1@wind_id[[1]] <- mp1[[1]][match(id1@wind_id[[1]], mp1[[2]])]
-  id1@.Data <- mp1[[1]][match(id1@.Data, mp1[[2]])]
+  rp <- y < x
+  x[rp] <- y_pos[rp]
+  y[rp] <- x_pos[rp]
 
-  id2@sn <- mp2[[1]]
-  id2@wind_id[[1]] <- mp2[[1]][match(id2@wind_id[[1]], mp2[[2]])]
-  id2@.Data <- mp2[[1]][match(id2@.Data, mp2[[2]])]
+  # browser()
+  y1 <- x[match(x, y)]
+  # tmp <- y[match(y, x)]
+  # y1[is.na(y1)] <- tmp[is.na(y1)]
+  y1[is.na(y1)] <- x[is.na(y1)]
+  y2 <- y1[match(y1, y)]
+  lgk <- which(is.na(y2) & !(x != y1 | (x == y1 & y1 %in% y1[x != y1])))
+  y2[lgk] <- y[lgk]
+  lgk <- which(is.na(y2) & (x != y1 | (x == y1 & y1 %in% y1[x != y1])))
+  y2[lgk] <- y1[lgk]
 
-  pr_match <- !(!duplicated(id1@.Data, fromLast = TRUE) & !duplicated(id1@.Data, fromLast = FALSE))
-  if(is.null(tie_sort)){
-    ord <- order(id2@.Data, -pr_match, id1@iteration, id1@sn)
-  }else{
-    ord <- order(id2@.Data, -pr_match, id1@iteration, tie_sort, id1@sn)
-  }
+  sn <- seq_len(id_length)
+  link_id <- y1[match(sn, y)]
+  tmp <- y2[match(sn, x)]
+  link_id[is.na(link_id)] <- tmp[is.na(link_id)]
+  group_id <- y2[match(sn, y)]
+  tmp <- y2[match(sn, x)]
+  group_id[is.na(group_id)] <- tmp[is.na(group_id)]
+  matched <- !is.na(link_id)
+  group_id[!matched] <- link_id[!matched] <- sn[!matched]
 
-  repo <- list(pr_match = pr_match,
-               id1 = id1, id2 = id2)
-
-  repo <- lapply(repo, function(x) x[ord])
-  repo$tr_pr_match <- repo$pr_match[match(repo$id2, repo$id2)]
-  repo$tr_id1 <- repo$id1[match(repo$id2, repo$id2)]
-  repo$new_id <- repo$id1
-  lgk <- repo$tr_pr_match & !repo$pr_match & !duplicated(repo$id1)
-  repo$new_id@wind_id[[1]][lgk] <- repo$tr_id1@wind_id[[1]][lgk]
-  lgk <- repo$tr_pr_match & !repo$pr_match
-  repo$new_id@.Data[lgk] <- repo$tr_id1@.Data[lgk]
-  repo$new_id@pid_cri[lgk] <- max(repo$new_id@pid_cri + 1L)
-  repo$new_id@iteration[lgk] <- max(repo$new_id@iteration + 1L)
-
-  repo$new_id@pid_dataset <- NA_character_
-  repo <- repo$new_id
-  repo <- repo[order(repo@sn)]
-
-  repo@sn <- mp1[[2]][match(repo@sn, mp1[[1]])]
-  repo@wind_id[[1]] <- mp1[[2]][match(repo@wind_id[[1]], mp1[[1]])]
-  repo@.Data <- mp1[[2]][match(repo@.Data, mp1[[1]])]
-  return(repo)
+  group_id <- sn[match(group_id, group_id)]
+  rm(list = ls()[!ls() %in% c("sn", "link_id", "group_id", "matched")])
+  return(list(sn = sn, link_id = link_id, group_id = group_id, linked = matched))
 }

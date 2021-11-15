@@ -123,6 +123,11 @@ prob_link <- function(x, y,
 
     curr_uprob <- (x[[i + (attr_n * 2)]])
     curr_mprob <- (x[[i + attr_n]])
+
+    lgk <- which(x[[i]] != y[[i]] & !is.na(x[[i]]) & !is.na(y[[i]]))
+    curr_uprob[lgk] <- curr_uprob[lgk] * (y[[i + (attr_n * 2)]])[lgk]
+    curr_mprob[lgk] <- curr_mprob[lgk] * (y[[i + attr_n]])[lgk]
+
     # agreements
     pwts_a <- log2(curr_mprob/curr_uprob)
     # disagreements

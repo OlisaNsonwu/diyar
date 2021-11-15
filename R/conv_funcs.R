@@ -996,7 +996,7 @@ mk_lazy_opt <- function(x){
   return(x)
 }
 
-prep_prob_link_args <- function(attribute,
+prep_prob_link_args_xx <- function(attribute,
                                 blocking_attribute,
                                 cmp_func,
                                 attr_threshold,
@@ -1151,6 +1151,82 @@ prep_prob_link_args <- function(attribute,
               score_threshold = score_threshold,
               u_probability = u_probability,
               r_pairs = r_pairs))
+}
+
+prep_prob_link_args <- function(attribute,
+                                probabilistic,
+                                m_probability,
+                                u_probability){
+  # u-probabilities
+  if(is.null(u_probability)){
+    u_probability <- list()
+    u_probability$x <- lapply(attribute, function(x){
+      x_cd <- match(x, x[!duplicated(x)])
+      x_cd[is.na(x)] <- NA_real_
+      r <- rle(x_cd[order(x_cd)])
+      n <- r$lengths[match(x_cd, r$values)]
+      p <- n/length(x_cd)
+      p[is.na(x_cd)] <- 0
+      p
+    })
+  }else if(class(u_probability) != "list"){
+    u_probability <- list(x = list(u_probability))
+  }
+  attr_nm <- names(attribute)
+  rm(attribute)
+  if(length(u_probability$x) == 1 & length(attr_nm) > 1){
+    u_probability$x <- rep(u_probability$x, length(attr_nm))
+  }
+
+  # m-probabilities
+  if(class(m_probability) != "list"){
+    m_probability <- list(x = list(m_probability))
+  }
+  if(length(m_probability$x) == 1 & length(attr_nm) > 1){
+    m_probability$x <- rep(m_probability$x, length(attr_nm))
+  }
+
+  names(m_probability$x) <- names(u_probability$x) <- attr_nm
+
+  return(list(m_probability = m_probability,
+              u_probability = u_probability))
+}
+
+prep_cmps_thresh <- function(attr_nm,
+                             cmp_func,
+                             attr_threshold,
+                             score_threshold){
+  # Threshold for agreement in each attribute
+  if(is.number_line(attr_threshold)){
+    attr_threshold[attr_threshold@.Data < 0] <- reverse_number_line(attr_threshold[attr_threshold@.Data < 0], "decreasing")
+  }else{
+    attr_threshold <- suppressWarnings(number_line(attr_threshold, Inf))
+  }
+
+  if(length(attr_threshold) == 1 & length(attr_nm) > 1){
+    attr_threshold <- rep(attr_threshold, length(attr_nm))
+  }
+
+  if(is.number_line(score_threshold)){
+    score_threshold[score_threshold@.Data < 0] <- reverse_number_line(score_threshold[score_threshold@.Data < 0], "decreasing")
+  }else{
+    score_threshold <- suppressWarnings(number_line(score_threshold, Inf))
+  }
+
+  # String comparator for each attribute
+  if(class(cmp_func) != "list"){
+    cmp_func <- list(cmp_func)
+  }
+  if(length(cmp_func) == 1 & length(attr_nm) > 1){
+    cmp_func <- rep(cmp_func, length(attr_nm))
+  }
+
+  names(attr_threshold) <-
+    names(cmp_func) <- attr_nm
+
+  return(list(cmp_func = cmp_func,
+              attr_threshold = attr_threshold,
+              score_threshold = score_threshold))
 }
 
 make_batch_pairs <- function(strata, index_record, sn){

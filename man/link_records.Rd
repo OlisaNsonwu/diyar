@@ -129,12 +129,15 @@ To help with this, \code{prob_score_range()} can be used to return the range of 
 Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs, aiding the review of potential scores.
 }
 \examples{
-# Using exact matches
+# Deterministic linkage
 dfr <- missing_staff_id[c(2, 4, 5, 6)]
+
 link_records(dfr, attr_threshold = 1, probabilistic = FALSE, score_threshold = 2)
 links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = FALSE,
                        score_threshold = 2, recursive = TRUE)
 
+# Probabilistic linkage
+prob_score_range(dfr)
 link_records(dfr, attr_threshold = 1, probabilistic = TRUE, score_threshold = -16)
 links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = TRUE,
                        score_threshold = -16, recursive = TRUE)

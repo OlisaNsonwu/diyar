@@ -34,7 +34,7 @@ A unique identifier that distinguishes one entity (staff) from another is often 
 `links()` is used to create one. 
 The identifier is created as an `S4` class (`pid`) with useful information about each group in its slots.
 
-The simplest linkage strategy would be to select one attribute as a distinguishing characteristic for each entity. This is the simple deterministic approach to record linkage.
+The simplest strategy would be to select one attribute as a distinguishing characteristic for each entity. This is the simple deterministic approach to record linkage.
 
 In the example below, we use `initials` and `hair_colour` as distinguishing characteristics. 
 ```{r warning = FALSE}
@@ -44,7 +44,7 @@ missing_staff_id[c("initials", "hair_colour", "p1", "p2")]
 ```
 
 Unsurprisingly, the uniqueness of identifiers `p1` and `p2` correspond to the uniqueness of the `initials` and `hair_colour` respectively. 
-Both linkage strategies represent different outcomes. 
+Both strategies represent different outcomes. 
 For example, `p1` identifies records 3 and 4 as the same person, while `p2` has it as records 4 and 5.
 
 To maximise coverage, `links()` can also implement an ordered multistage deterministic approach to record linkage. For example, we can say that records with matching `initials` should be linked to each other, then other records with a matching `hair_colour` should then be added to the group.
@@ -62,15 +62,15 @@ During record expansion the following rules are implemented.
 
 1.  Records with unique or missing values for one attribute (or stage) will not be linked. Instead another attempt to match them is made at the next stage.
 2.  Records linked at one stage will remain linked even if their attributes at the next stage are different i.e. earlier stages have priority.
-3.  If a record can be linked to multiple groups i.e. conflicting matches, the additional ordered rules rules are triggered;
+3.  If a record can be linked to multiple groups i.e. conflicting matches, the additional ordered rules below are used to break ties;
       + assign the record to whichever group was created at the earlier stage
-      + assign the record to a group using a custom preference provided by the `tie_sort` argument.
-      + assign the record to whichever group is ordered first in the dataset
+      + assign the record to preferred group using the `tie_sort` argument.
+      + assign the record to the group first encountered in the dataset
 
 At each stage, additional matching criteria can be specified.
 This is done through a `sub_criteria` object. 
 This is an `S3` class containing attributes to be compared and functions for the comparisons. 
-A `sub_criteria` is used for evaluated, fuzzy and/or nested matches.
+A `sub_criteria` object is used for evaluated, fuzzy and/or nested matches.
 
 For example, we can compare `hair_colour` and `branch_office` without any order (priority) to them.
 This is the equivalent of saying matching hair colour `OR/AND` branch office.
@@ -89,10 +89,10 @@ missing_staff_id$p5 <- links(criteria = "place_holder",
                              recursive = TRUE)
 missing_staff_id[c("hair_colour", "branch_office", "p4", "p5")]
 ```
-There is no limit to the number `sub_criteria` that can be specified but each `sub_criteria` must be paired to a `criteria`.
+There is no limit to the number of `sub_criteria` that can be specified but each `sub_criteria` must be paired to a `criteria`.
 Any unpaired `sub_criteria` will be ignored.
 
-An mentioned, a `sub_criteria` can be nested. 
+As mentioned, a `sub_criteria` can be nested. 
 For example, `scri_3` below is the equivalent of saying (matching hair colour `OR` branch office) `AND` (matching initials `OR` branch office).
 ```{r warning = FALSE}
 scri_3 <- sub_criteria(scri_1, 
@@ -139,7 +139,7 @@ missing_staff_id[c("hair_colour", "branch_office", "p4", "p5", "p6", "p7")]
 A `sub_criteria` provides a lot flexibly in terms of how attributes are compared however, it can cost a lot in processing time. This is because `links()` is an iterative function, comparing batches of record-pairs in iterations. This keeps memory usage down but at the cost of processing time. There are ways to mitigate this such as using the `recursive` and `check_duplicate` arguments. 
 
 In contrast to this, `link_records()` creates every possible record-pair of values for each attribute, which are then compared.
-This is often faster but at the cost of memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no `blocking_attribute`. Below we see how `link_records()` is used for the same fuzzy matching.
+This is often faster but at the costs more in memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no `blocking_attribute`. Below we see how `link_records()` is used for the same fuzzy matching.
 
 ```{r warning = FALSE}
 p8 <- link_records(attribute = list(missing_staff_id$hair_colour, 
@@ -172,7 +172,7 @@ p10 <- links_wf_probabilistic(attribute = list(missing_staff_id$hair_colour,
 p10
 ```
 
-`links()` and `link_records()` can perform record linkage across multiple datasets in one instance. To achieve this, values from the different datasets should be passed to the functions as single atomic vectors. The corresponding identifier for each dataset should then be passed to the `data_source` argument. The `strata` argument is a related feature which provides a blocking attribute, limiting the record linkage process to subsets of the dataset. See a demonstration of these below.
+`links()` and `link_records()` can perform record linkage across multiple datasets in one instance. To achieve this, values from the different datasets should be passed to the functions as single atomic vectors. The corresponding identifier for each dataset should then be passed to the `data_source` argument. The `strata` argument is a related feature which provides a blocking attribute, limiting the linkage process to subsets of the dataset. See a demonstration of these below.
 
 ```{r warning = FALSE}
 triplicate <- rbind(missing_staff_id[c(4:5, 7)],
@@ -191,8 +191,7 @@ triplicate
 ```
 
 The results are the different as per the linkage strategy.
-We can use `as.data.frame` or `as.list` to access the contents of each identifier which reveals 
-the reason for the difference.
+We can use `as.data.frame` or `as.list` to access the contents of each identifier inspect the difference.
 ```{r warning = FALSE}
 as.data.frame(triplicate$p1)
 
