@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Divvy up events with partitions</h1>
             
-            <h4 class="date">27 October 2021</h4>
+            <h4 class="date">15 November 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/panes.Rmd"><code>vignettes/panes.Rmd</code></a></small>
       <div class="hidden name"><code>panes.Rmd</code></div>
@@ -105,15 +105,15 @@
 
     
     
-<p>This vignette will introduce you to <code><a href="../reference/partitions.html">partitions()</a></code>. <code><a href="../reference/partitions.html">partitions()</a></code> provides an alternative approach to implementing case definitions when compared with <code><a href="../reference/episodes.html">episodes()</a></code>. In summary, it uses specific temporal boundaries as the window of occurrence. This differs from <code><a href="../reference/episodes.html">episodes()</a></code> where the boundaries are calculated as durations relative to index events. <code><a href="../reference/partitions.html">partitions()</a></code> produces a similar <code>S4</code> class identifier (<code>pane</code>) referred to as panes and share similar arguments with <code><a href="../reference/episodes.html">episodes()</a></code>.</p>
+<p>This vignette will introduce you to <code><a href="../reference/partitions.html">partitions()</a></code>. <code><a href="../reference/partitions.html">partitions()</a></code> provides an alternative approach to implementing case definitions. In summary, it uses specific temporal boundaries as the window of occurrence. This differs from <code><a href="../reference/episodes.html">episodes()</a></code> where the boundaries are calculated as durations relative to index events. <code><a href="../reference/partitions.html">partitions()</a></code> produces a similar <code>S4</code> class identifier (<code>pane</code>) referred to as panes and share similar arguments with <code><a href="../reference/episodes.html">episodes()</a></code>.</p>
 <p>To demonstrate this difference, let’s review the <code>homes</code> dataset below. It has data on household members including their ages. We’ll attempt to apply a case definition to identify a three-generation home, where each generation includes individuals aged not more than 16 years apart.</p>
-<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="no">homes</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">member</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"son 1"</span>, <span class="st">"son 2"</span>, <span class="st">"daughter_1"</span>,
+<div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="no">homes</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html">data.frame</a></span>(<span class="kw">member</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"son_1"</span>, <span class="st">"son_2"</span>, <span class="st">"daughter_1"</span>,
                                <span class="st">"father"</span>, <span class="st">"mother"</span>, <span class="st">"grand_father"</span>, <span class="st">"grand_mother"</span>),
                     <span class="kw">age</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">4</span>, <span class="fl">6</span>, <span class="fl">17</span>, <span class="fl">43</span>, <span class="fl">40</span>, <span class="fl">74</span>, <span class="fl">69</span>))
 <span class="no">homes</span>
 <span class="co">#&gt;         member age</span>
-<span class="co">#&gt; 1        son 1   4</span>
-<span class="co">#&gt; 2        son 2   6</span>
+<span class="co">#&gt; 1        son_1   4</span>
+<span class="co">#&gt; 2        son_2   6</span>
 <span class="co">#&gt; 3   daughter_1  17</span>
 <span class="co">#&gt; 4       father  43</span>
 <span class="co">#&gt; 5       mother  40</span>
@@ -128,8 +128,8 @@
 <span class="no">homes</span>$<span class="no">grp_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/partitions.html">partitions</a></span>(<span class="no">homes</span>$<span class="no">age</span>, <span class="kw">window</span> <span class="kw">=</span> <span class="no">age_bands</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 <span class="no">homes</span>
 <span class="co">#&gt;         member age    grp_1</span>
-<span class="co">#&gt; 1        son 1   4 PN.1 (I)</span>
-<span class="co">#&gt; 2        son 2   6 PN.1 (D)</span>
+<span class="co">#&gt; 1        son_1   4 PN.1 (I)</span>
+<span class="co">#&gt; 2        son_2   6 PN.1 (D)</span>
 <span class="co">#&gt; 3   daughter_1  17 PN.3 (I)</span>
 <span class="co">#&gt; 4       father  43 PN.5 (D)</span>
 <span class="co">#&gt; 5       mother  40 PN.5 (I)</span>
@@ -139,20 +139,20 @@
 <span class="fu"><a href="../reference/schema.html">schema</a></span>(<span class="no">homes</span>$<span class="no">grp_1</span>, <span class="kw">seed</span> <span class="kw">=</span> <span class="fl">4</span>,
        <span class="kw">custom_label</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">homes</span>$<span class="no">member</span>, <span class="st">" \n("</span>, <span class="no">homes</span>$<span class="no">age</span>, <span class="st">" yrs)"</span>))</pre></body></html></div>
 <p><img src="panes_files/figure-html/unnamed-chunk-3-1.png" width="672"></p>
-<p>However, we can make the case that the children are all part of the same generation since no two are older than 16 years apart. This presents the main difference between <code><a href="../reference/partitions.html">partitions()</a></code> and <code><a href="../reference/episodes.html">episodes()</a></code>. Unlike <code><a href="../reference/episodes.html">episodes()</a></code>, the duration (age-gaps) between records is not a factor. Here records or events are linked together simply because they exist within the same interval (age-gap).</p>
+<p>However, we can make the case that the children are all part of the same generation since no two are older than 16 years apart. This presents the main difference between <code><a href="../reference/partitions.html">partitions()</a></code> and <code><a href="../reference/episodes.html">episodes()</a></code>. Unlike <code><a href="../reference/episodes.html">episodes()</a></code>, the duration (age gaps) between records is not a factor. Here records or events are linked together simply because they exist within the same interval (age gap).</p>
 <p>To correct this, we can start the age band from age 6 but this becomes difficult to manage when analysing multiple homes. Instead, we can use the <code>by</code> or <code>lenght.out</code> argument to create windows (<code>window</code>) relative to the first event (or <code>custom_sort</code>) only. Although this makes it more like <code><a href="../reference/episodes.html">episodes()</a></code>, it is still different since all age gaps are relative to only one reference event <code>(I)</code>.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">homes</span>$<span class="no">grp_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/partitions.html">partitions</a></span>(<span class="no">homes</span>$<span class="no">age</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="fl">16</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
 <span class="fu"><a href="../reference/schema.html">schema</a></span>(<span class="no">homes</span>$<span class="no">grp_2</span>, <span class="kw">seed</span> <span class="kw">=</span> <span class="fl">4</span>,
        <span class="kw">custom_label</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">homes</span>$<span class="no">member</span>, <span class="st">" \n("</span>, <span class="no">homes</span>$<span class="no">age</span>, <span class="st">" yrs)"</span>))</pre></body></html></div>
 <p><img src="panes_files/figure-html/unnamed-chunk-4-1.png" width="672"></p>
-<p>Now that we have identified the generations, we can build on this by linking every record in the household if there’s a desired number of generations. Below we ask for three to four generations.</p>
+<p>Now that we have identified the generations, we can build on this by linking every record on the conditions that there’s a specified number of generations (windows). Below we ask for three to four generations.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">homes</span>$<span class="no">grp_3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/partitions.html">partitions</a></span>(<span class="no">homes</span>$<span class="no">age</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="fl">16</span>,
                           <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">FALSE</span>,
                           <span class="kw">windows_total</span> <span class="kw">=</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">3</span>, <span class="fl">4</span>))
 <span class="no">homes</span>
 <span class="co">#&gt;         member age    grp_1    grp_2    grp_3</span>
-<span class="co">#&gt; 1        son 1   4 PN.1 (I) PN.1 (I) PN.1 (I)</span>
-<span class="co">#&gt; 2        son 2   6 PN.1 (D) PN.1 (D) PN.1 (D)</span>
+<span class="co">#&gt; 1        son_1   4 PN.1 (I) PN.1 (I) PN.1 (I)</span>
+<span class="co">#&gt; 2        son_2   6 PN.1 (D) PN.1 (D) PN.1 (D)</span>
 <span class="co">#&gt; 3   daughter_1  17 PN.3 (I) PN.1 (D) PN.1 (D)</span>
 <span class="co">#&gt; 4       father  43 PN.5 (D) PN.5 (D) PN.1 (D)</span>
 <span class="co">#&gt; 5       mother  40 PN.5 (I) PN.5 (I) PN.1 (D)</span>
@@ -171,8 +171,8 @@
                           <span class="kw">windows_total</span> <span class="kw">=</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">3</span>, <span class="fl">4</span>))
 <span class="no">homes</span>
 <span class="co">#&gt;         member age    grp_1    grp_2    grp_3 alt_age    grp_4</span>
-<span class="co">#&gt; 1        son 1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I)</span>
-<span class="co">#&gt; 2        son 2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D)</span>
+<span class="co">#&gt; 1        son_1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I)</span>
+<span class="co">#&gt; 2        son_2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D)</span>
 <span class="co">#&gt; 3   daughter_1  17 PN.3 (I) PN.1 (D) PN.1 (D)      17 PN.1 (D)</span>
 <span class="co">#&gt; 4       father  43 PN.5 (D) PN.5 (D) PN.1 (D)      38 PN.4 (I)</span>
 <span class="co">#&gt; 5       mother  40 PN.5 (I) PN.5 (I) PN.1 (D)      35 PN.5 (I)</span>
@@ -182,15 +182,15 @@
 <span class="fu"><a href="../reference/schema.html">schema</a></span>(<span class="no">homes</span>$<span class="no">grp_4</span>, <span class="kw">seed</span> <span class="kw">=</span> <span class="fl">4</span>,
        <span class="kw">custom_label</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">homes</span>$<span class="no">member</span>, <span class="st">" \n("</span>, <span class="no">homes</span>$<span class="no">alt_age</span>, <span class="st">" yrs)"</span>))</pre></body></html></div>
 <p><img src="panes_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
-<p>This makes a difference if we specifically request only three generations as the condition for our three-generation households.</p>
+<p>This makes a difference if our conditions changes to only three generations as the condition for our three-generation households.</p>
 <div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="no">homes</span>$<span class="no">grp_5</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/partitions.html">partitions</a></span>(<span class="no">homes</span>$<span class="no">alt_age</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="fl">16</span>,
                           <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">FALSE</span>,
                           <span class="kw">windows_total</span> <span class="kw">=</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fl">3</span>, <span class="fl">3</span>))
 
 <span class="no">homes</span>
 <span class="co">#&gt;         member age    grp_1    grp_2    grp_3 alt_age    grp_4    grp_5</span>
-<span class="co">#&gt; 1        son 1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I) PN.1 (I)</span>
-<span class="co">#&gt; 2        son 2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D) PN.2 (I)</span>
+<span class="co">#&gt; 1        son_1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I) PN.1 (I)</span>
+<span class="co">#&gt; 2        son_2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D) PN.2 (I)</span>
 <span class="co">#&gt; 3   daughter_1  17 PN.3 (I) PN.1 (D) PN.1 (D)      17 PN.1 (D) PN.3 (I)</span>
 <span class="co">#&gt; 4       father  43 PN.5 (D) PN.5 (D) PN.1 (D)      38 PN.4 (I) PN.4 (I)</span>
 <span class="co">#&gt; 5       mother  40 PN.5 (I) PN.5 (I) PN.1 (D)      35 PN.5 (I) PN.5 (I)</span>
@@ -200,12 +200,11 @@
        <span class="kw">custom_label</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">homes</span>$<span class="no">member</span>, <span class="st">" \n("</span>, <span class="no">homes</span>$<span class="no">alt_age</span>, <span class="st">" yrs)"</span>))</pre></body></html></div>
 <p><img src="panes_files/figure-html/unnamed-chunk-7-1.png" width="672"></p>
 <p>We see that the household no longer has a common identifier that would identify it as a three-generation household. If we wish to address this, then <code><a href="../reference/episodes.html">episodes()</a></code> would be the better option.</p>
-<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">homes</span>$<span class="no">grp_6</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">homes</span>$<span class="no">alt_age</span>,
-                        <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">16</span>)
+<div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">homes</span>$<span class="no">grp_6</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/episodes.html">episodes</a></span>(<span class="no">homes</span>$<span class="no">alt_age</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">16</span>)
 <span class="no">homes</span>
 <span class="co">#&gt;         member age    grp_1    grp_2    grp_3 alt_age    grp_4    grp_5   grp_6</span>
-<span class="co">#&gt; 1        son 1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I) PN.1 (I) E.1 (C)</span>
-<span class="co">#&gt; 2        son 2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D) PN.2 (I) E.1 (D)</span>
+<span class="co">#&gt; 1        son_1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I) PN.1 (I) E.1 (C)</span>
+<span class="co">#&gt; 2        son_2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D) PN.2 (I) E.1 (D)</span>
 <span class="co">#&gt; 3   daughter_1  17 PN.3 (I) PN.1 (D) PN.1 (D)      17 PN.1 (D) PN.3 (I) E.1 (D)</span>
 <span class="co">#&gt; 4       father  43 PN.5 (D) PN.5 (D) PN.1 (D)      38 PN.4 (I) PN.4 (I) E.5 (D)</span>
 <span class="co">#&gt; 5       mother  40 PN.5 (I) PN.5 (I) PN.1 (D)      35 PN.5 (I) PN.5 (I) E.5 (C)</span>
@@ -238,8 +237,8 @@
 <span class="no">homes</span>$<span class="no">t3_home</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/length.html">length</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/unique.html">unique</a></span>(<span class="no">homes</span>$<span class="no">grp_6</span>@<span class="kw">wind_id</span><span class="kw">[[</span><span class="fl">1</span>]])) <span class="kw">==</span> <span class="fl">3</span>
 <span class="no">homes</span>
 <span class="co">#&gt;         member age    grp_1    grp_2    grp_3 alt_age    grp_4    grp_5   grp_6</span>
-<span class="co">#&gt; 1        son 1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I) PN.1 (I) E.1 (C)</span>
-<span class="co">#&gt; 2        son 2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D) PN.2 (I) E.1 (D)</span>
+<span class="co">#&gt; 1        son_1   4 PN.1 (I) PN.1 (I) PN.1 (I)       4 PN.1 (I) PN.1 (I) E.1 (C)</span>
+<span class="co">#&gt; 2        son_2   6 PN.1 (D) PN.1 (D) PN.1 (D)       6 PN.1 (D) PN.2 (I) E.1 (D)</span>
 <span class="co">#&gt; 3   daughter_1  17 PN.3 (I) PN.1 (D) PN.1 (D)      17 PN.1 (D) PN.3 (I) E.1 (D)</span>
 <span class="co">#&gt; 4       father  43 PN.5 (D) PN.5 (D) PN.1 (D)      38 PN.4 (I) PN.4 (I) E.5 (D)</span>
 <span class="co">#&gt; 5       mother  40 PN.5 (I) PN.5 (I) PN.1 (D)      35 PN.5 (I) PN.5 (I) E.5 (C)</span>
@@ -266,15 +265,15 @@
                              <span class="kw">strata</span> <span class="kw">=</span> <span class="no">duplicate</span>$<span class="no">house_hold</span>)</pre></body></html></div>
 <div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">duplicate</span>
 <span class="co">#&gt;          member age house_hold    grp_1    grp_2</span>
-<span class="co">#&gt; 1         son 1   4     london PN.1 (I) E.01 (C)</span>
-<span class="co">#&gt; 2         son 2   6     london PN.1 (D) E.01 (D)</span>
+<span class="co">#&gt; 1         son_1   4     london PN.1 (I) E.01 (C)</span>
+<span class="co">#&gt; 2         son_2   6     london PN.1 (D) E.01 (D)</span>
 <span class="co">#&gt; 3    daughter_1  17     london PN.1 (D) E.01 (D)</span>
 <span class="co">#&gt; 4        father  43     london PN.1 (D) E.05 (D)</span>
 <span class="co">#&gt; 5        mother  40     london PN.1 (D) E.05 (C)</span>
 <span class="co">#&gt; 6  grand_father  74     london PN.1 (D) E.07 (D)</span>
 <span class="co">#&gt; 7  grand_mother  69     london PN.1 (D) E.07 (C)</span>
-<span class="co">#&gt; 8         son 1   4       hull PN.8 (I) E.08 (C)</span>
-<span class="co">#&gt; 9         son 2   6       hull PN.8 (D) E.08 (D)</span>
+<span class="co">#&gt; 8         son_1   4       hull PN.8 (I) E.08 (C)</span>
+<span class="co">#&gt; 9         son_2   6       hull PN.8 (D) E.08 (D)</span>
 <span class="co">#&gt; 10   daughter_1  17       hull PN.8 (D) E.08 (D)</span>
 <span class="co">#&gt; 11       father  43       hull PN.8 (D) E.12 (D)</span>
 <span class="co">#&gt; 12       mother  40       hull PN.8 (D) E.12 (C)</span>

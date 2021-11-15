@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to record linkage with diyar</h1>
             
-            <h4 class="date">27 October 2021</h4>
+            <h4 class="date">15 November 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/links.Rmd"><code>vignettes/links.Rmd</code></a></small>
       <div class="hidden name"><code>links.Rmd</code></div>
@@ -118,7 +118,7 @@
 <span class="co">#&gt; 6    6        2  30     G.D.  Dark brown             Ghana        A        1</span>
 <span class="co">#&gt; 7    7        2  30     G.D.       Brown Republic of Ghana        B        2</span></pre></body></html></div>
 <p>A unique identifier that distinguishes one entity (staff) from another is often unavailable or incomplete as is the case with <code>staff_id</code> in this example. <code><a href="../reference/links.html">links()</a></code> is used to create one. The identifier is created as an <code>S4</code> class (<code>pid</code>) with useful information about each group in its slots.</p>
-<p>The simplest linkage strategy would be to select one attribute as a distinguishing characteristic for each entity. This is the simple deterministic approach to record linkage.</p>
+<p>The simplest strategy would be to select one attribute as a distinguishing characteristic for each entity. This is the simple deterministic approach to record linkage.</p>
 <p>In the example below, we use <code>initials</code> and <code>hair_colour</code> as distinguishing characteristics.</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">missing_staff_id</span>$<span class="no">p1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="no">missing_staff_id</span>$<span class="no">initials</span>)
 <span class="no">missing_staff_id</span>$<span class="no">p2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="no">missing_staff_id</span>$<span class="no">hair_colour</span>)
@@ -131,7 +131,7 @@
 <span class="co">#&gt; 5     &lt;NA&gt;       Green P.5 (No hits) P.4 (CRI 001)</span>
 <span class="co">#&gt; 6     G.D.  Dark brown P.1 (CRI 001) P.6 (No hits)</span>
 <span class="co">#&gt; 7     G.D.       Brown P.1 (CRI 001) P.1 (CRI 001)</span></pre></body></html></div>
-<p>Unsurprisingly, the uniqueness of identifiers <code>p1</code> and <code>p2</code> correspond to the uniqueness of the <code>initials</code> and <code>hair_colour</code> respectively. Both linkage strategies represent different outcomes. For example, <code>p1</code> identifies records 3 and 4 as the same person, while <code>p2</code> has it as records 4 and 5.</p>
+<p>Unsurprisingly, the uniqueness of identifiers <code>p1</code> and <code>p2</code> correspond to the uniqueness of the <code>initials</code> and <code>hair_colour</code> respectively. Both strategies represent different outcomes. For example, <code>p1</code> identifies records 3 and 4 as the same person, while <code>p2</code> has it as records 4 and 5.</p>
 <p>To maximise coverage, <code><a href="../reference/links.html">links()</a></code> can also implement an ordered multistage deterministic approach to record linkage. For example, we can say that records with matching <code>initials</code> should be linked to each other, then other records with a matching <code>hair_colour</code> should then be added to the group.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">missing_staff_id</span>$<span class="no">p3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"initials"</span>, <span class="st">"hair_colour"</span>)]))
 <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"initials"</span>, <span class="st">"hair_colour"</span>, <span class="st">"p1"</span>, <span class="st">"p2"</span>, <span class="st">"p3"</span>)]
@@ -148,15 +148,15 @@
 <ol style="list-style-type: decimal">
 <li>Records with unique or missing values for one attribute (or stage) will not be linked. Instead another attempt to match them is made at the next stage.</li>
 <li>Records linked at one stage will remain linked even if their attributes at the next stage are different i.e. earlier stages have priority.</li>
-<li>If a record can be linked to multiple groups i.e. conflicting matches, the additional ordered rules rules are triggered;
+<li>If a record can be linked to multiple groups i.e. conflicting matches, the additional ordered rules below are used to break ties;
 <ul>
 <li>assign the record to whichever group was created at the earlier stage</li>
-<li>assign the record to a group using a custom preference provided by the <code>tie_sort</code> argument.</li>
-<li>assign the record to whichever group is ordered first in the dataset</li>
+<li>assign the record to preferred group using the <code>tie_sort</code> argument.</li>
+<li>assign the record to the group first encountered in the dataset</li>
 </ul>
 </li>
 </ol>
-<p>At each stage, additional matching criteria can be specified. This is done through a <code>sub_criteria</code> object. This is an <code>S3</code> class containing attributes to be compared and functions for the comparisons. A <code>sub_criteria</code> is used for evaluated, fuzzy and/or nested matches.</p>
+<p>At each stage, additional matching criteria can be specified. This is done through a <code>sub_criteria</code> object. This is an <code>S3</code> class containing attributes to be compared and functions for the comparisons. A <code>sub_criteria</code> object is used for evaluated, fuzzy and/or nested matches.</p>
 <p>For example, we can compare <code>hair_colour</code> and <code>branch_office</code> without any order (priority) to them. This is the equivalent of saying matching hair colour <code>OR/AND</code> branch office.</p>
 <div class="sourceCode" id="cb4"><html><body><pre class="r"><span class="no">scri_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">missing_staff_id</span>$<span class="no">hair_colour</span>,
                        <span class="no">missing_staff_id</span>$<span class="no">branch_office</span>,
@@ -179,8 +179,8 @@
 <span class="co">#&gt; 5       Green            France P.2 (CRI 001) P.5 (No hits)</span>
 <span class="co">#&gt; 6  Dark brown             Ghana P.6 (No hits) P.6 (No hits)</span>
 <span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001)</span></pre></body></html></div>
-<p>There is no limit to the number <code>sub_criteria</code> that can be specified but each <code>sub_criteria</code> must be paired to a <code>criteria</code>. Any unpaired <code>sub_criteria</code> will be ignored.</p>
-<p>An mentioned, a <code>sub_criteria</code> can be nested. For example, <code>scri_3</code> below is the equivalent of saying (matching hair colour <code>OR</code> branch office) <code>AND</code> (matching initials <code>OR</code> branch office).</p>
+<p>There is no limit to the number of <code>sub_criteria</code> that can be specified but each <code>sub_criteria</code> must be paired to a <code>criteria</code>. Any unpaired <code>sub_criteria</code> will be ignored.</p>
+<p>As mentioned, a <code>sub_criteria</code> can be nested. For example, <code>scri_3</code> below is the equivalent of saying (matching hair colour <code>OR</code> branch office) <code>AND</code> (matching initials <code>OR</code> branch office).</p>
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">scri_3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">scri_1</span>,
                        <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">missing_staff_id</span>$<span class="no">initials</span>,
                                     <span class="no">missing_staff_id</span>$<span class="no">branch_office</span>,
@@ -237,7 +237,7 @@
 <span class="co">#&gt; 6 P.1 (CRI 001)</span>
 <span class="co">#&gt; 7 P.1 (CRI 001)</span></pre></body></html></div>
 <p>A <code>sub_criteria</code> provides a lot flexibly in terms of how attributes are compared however, it can cost a lot in processing time. This is because <code><a href="../reference/links.html">links()</a></code> is an iterative function, comparing batches of record-pairs in iterations. This keeps memory usage down but at the cost of processing time. There are ways to mitigate this such as using the <code>recursive</code> and <code>check_duplicate</code> arguments.</p>
-<p>In contrast to this, <code><a href="../reference/link_records.html">link_records()</a></code> creates every possible record-pair of values for each attribute, which are then compared. This is often faster but at the cost of memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no <code>blocking_attribute</code>. Below we see how <code><a href="../reference/link_records.html">link_records()</a></code> is used for the same fuzzy matching.</p>
+<p>In contrast to this, <code><a href="../reference/link_records.html">link_records()</a></code> creates every possible record-pair of values for each attribute, which are then compared. This is often faster but at the costs more in memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no <code>blocking_attribute</code>. Below we see how <code><a href="../reference/link_records.html">link_records()</a></code> is used for the same fuzzy matching.</p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">p8</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/link_records.html">link_records</a></span>(<span class="kw">attribute</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">missing_staff_id</span>$<span class="no">hair_colour</span>,
                                     <span class="no">missing_staff_id</span>$<span class="no">branch_office</span>),
                    <span class="kw">cmp_func</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">last_word_cmp</span>, <span class="no">last_word_cmp</span>),
@@ -283,27 +283,27 @@
 <span class="co">#&gt; </span>
 <span class="co">#&gt; $pid_weights</span>
 <span class="co">#&gt;    sn_x sn_y cmp.var_1 cmp.var_2 cmp.weight prb.var_1 prb.var_2 prb.weight</span>
-<span class="co">#&gt; 1     1    2         0         0          0 -3.836501 -3.836501  -7.673003</span>
-<span class="co">#&gt; 2     1    3         0         0          0 -3.836501 -3.836501  -7.673003</span>
-<span class="co">#&gt; 3     1    4         0         0          0 -3.836501 -3.836501  -7.673003</span>
-<span class="co">#&gt; 4     1    5         0         0          0 -3.836501 -3.836501  -7.673003</span>
-<span class="co">#&gt; 5     1    6         1         1          2  1.733354  1.733354   3.466709</span>
-<span class="co">#&gt; 6     1    7         1         1          2  1.733354  1.733354   3.466709</span>
-<span class="co">#&gt; 7     2    3         0         0          0 -4.099536 -3.836501  -7.936037</span>
-<span class="co">#&gt; 8     2    4         0         0          0 -4.099536 -3.836501  -7.936037</span>
-<span class="co">#&gt; 9     2    5         0         1          1 -4.099536  1.733354  -2.366181</span>
-<span class="co">#&gt; 10    2    6         0         0          0 -4.099536 -3.836501  -7.936037</span>
-<span class="co">#&gt; 11    2    7         0         0          0 -4.099536 -3.836501  -7.936037</span>
-<span class="co">#&gt; 12    3    4         0         0          0 -4.321928 -4.321928  -8.643856</span>
-<span class="co">#&gt; 13    3    5         0         0          0 -4.321928 -4.321928  -8.643856</span>
-<span class="co">#&gt; 14    3    6         0         0          0 -4.321928 -4.321928  -8.643856</span>
-<span class="co">#&gt; 15    3    7         0         0          0 -4.321928 -4.321928  -8.643856</span>
-<span class="co">#&gt; 16    4    5         1         0          1  1.733354 -4.321928  -2.588574</span>
-<span class="co">#&gt; 17    4    6         0         0          0 -3.836501 -4.321928  -8.158429</span>
-<span class="co">#&gt; 18    4    7         0         0          0 -3.836501 -4.321928  -8.158429</span>
-<span class="co">#&gt; 19    5    6         0         0          0 -3.836501 -3.836501  -7.673003</span>
-<span class="co">#&gt; 20    5    7         0         0          0 -3.836501 -3.836501  -7.673003</span>
-<span class="co">#&gt; 21    6    7         1         1          2  2.733354  2.733354   5.466709</span>
+<span class="co">#&gt; 1     1    2         0         0          0 -3.298333 -3.235597  -6.533930</span>
+<span class="co">#&gt; 2     1    3         0         0          0 -2.873027 -2.873027  -5.746054</span>
+<span class="co">#&gt; 3     1    4         0         0          0 -3.235597 -2.873027  -6.108624</span>
+<span class="co">#&gt; 4     1    5         0         0          0 -3.235597 -3.235597  -6.471194</span>
+<span class="co">#&gt; 5     1    6         1         1          2  4.466709  4.466709   8.933417</span>
+<span class="co">#&gt; 6     1    7         1         1          2  1.659354  1.659354   3.318708</span>
+<span class="co">#&gt; 7     2    3         0         0          0 -3.136062 -2.873027  -6.009089</span>
+<span class="co">#&gt; 8     2    4         0         0          0 -3.298333 -2.873027  -6.171360</span>
+<span class="co">#&gt; 9     2    5         0         1          1 -3.298333  1.659354  -1.638979</span>
+<span class="co">#&gt; 10    2    6         0         0          0 -3.328707 -3.298333  -6.627040</span>
+<span class="co">#&gt; 11    2    7         0         0          0 -3.298333 -3.235597  -6.533930</span>
+<span class="co">#&gt; 12    3    4         0         0          0 -3.358454 -3.358454  -6.716908</span>
+<span class="co">#&gt; 13    3    5         0         0          0 -3.358454 -3.358454  -6.716908</span>
+<span class="co">#&gt; 14    3    6         0         0          0 -3.358454 -3.358454  -6.716908</span>
+<span class="co">#&gt; 15    3    7         0         0          0 -3.358454 -3.358454  -6.716908</span>
+<span class="co">#&gt; 16    4    5         1         0          1  1.659354 -3.358454  -1.699100</span>
+<span class="co">#&gt; 17    4    6         0         0          0 -3.298333 -3.358454  -6.656787</span>
+<span class="co">#&gt; 18    4    7         0         0          0 -3.235597 -3.358454  -6.594051</span>
+<span class="co">#&gt; 19    5    6         0         0          0 -3.298333 -3.298333  -6.596666</span>
+<span class="co">#&gt; 20    5    7         0         0          0 -3.235597 -3.235597  -6.471194</span>
+<span class="co">#&gt; 21    6    7         1         1          2  4.466709  4.466709   8.933417</span>
 <span class="co">#&gt;    record.match</span>
 <span class="co">#&gt; 1         FALSE</span>
 <span class="co">#&gt; 2         FALSE</span>
@@ -344,7 +344,7 @@
 <span class="co">#&gt; 3    3    3        NA        NA         NA        NA        NA         NA</span>
 <span class="co">#&gt; 4    4    4        NA        NA         NA        NA        NA         NA</span>
 <span class="co">#&gt; 5    5    5        NA        NA         NA        NA        NA         NA</span>
-<span class="co">#&gt; 6    6    1         1         1          2  2.733354  2.733354   5.466709</span>
+<span class="co">#&gt; 6    6    1         1         1          2  4.466709  4.466709   8.933417</span>
 <span class="co">#&gt; 7    7    1         1         1          2  1.733354  1.733354   3.466709</span>
 <span class="co">#&gt;   record.match</span>
 <span class="co">#&gt; 1         TRUE</span>
@@ -354,7 +354,7 @@
 <span class="co">#&gt; 5           NA</span>
 <span class="co">#&gt; 6         TRUE</span>
 <span class="co">#&gt; 7         TRUE</span></pre></body></html></div>
-<p><code><a href="../reference/links.html">links()</a></code> and <code><a href="../reference/link_records.html">link_records()</a></code> can perform record linkage across multiple datasets in one instance. To achieve this, values from the different datasets should be passed to the functions as single atomic vectors. The corresponding identifier for each dataset should then be passed to the <code>data_source</code> argument. The <code>strata</code> argument is a related feature which provides a blocking attribute, limiting the record linkage process to subsets of the dataset. See a demonstration of these below.</p>
+<p><code><a href="../reference/links.html">links()</a></code> and <code><a href="../reference/link_records.html">link_records()</a></code> can perform record linkage across multiple datasets in one instance. To achieve this, values from the different datasets should be passed to the functions as single atomic vectors. The corresponding identifier for each dataset should then be passed to the <code>data_source</code> argument. The <code>strata</code> argument is a related feature which provides a blocking attribute, limiting the linkage process to subsets of the dataset. See a demonstration of these below.</p>
 <div class="sourceCode" id="cb10"><html><body><pre class="r"><span class="no">triplicate</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/cbind.html">rbind</a></span>(<span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">4</span>:<span class="fl">5</span>, <span class="fl">7</span>)],
                     <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">4</span>:<span class="fl">5</span>, <span class="fl">7</span>)],
                     <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">4</span>:<span class="fl">5</span>, <span class="fl">7</span>)])
@@ -390,7 +390,7 @@
 <span class="co">#&gt; 19     &lt;NA&gt;       Green        A       set_3 P.5 (CRI 002) P.17 (CRI 002)</span>
 <span class="co">#&gt; 20     G.D.  Dark brown        A       set_3 P.1 (CRI 001) P.15 (CRI 001)</span>
 <span class="co">#&gt; 21     G.D.       Brown        B       set_3 P.7 (CRI 001) P.15 (CRI 001)</span></pre></body></html></div>
-<p>The results are the different as per the linkage strategy. We can use <code>as.data.frame</code> or <code>as.list</code> to access the contents of each identifier which reveals the reason for the difference.</p>
+<p>The results are the different as per the linkage strategy. We can use <code>as.data.frame</code> or <code>as.list</code> to access the contents of each identifier inspect the difference.</p>
 <div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="no">triplicate</span>$<span class="no">p1</span>)
 <span class="co">#&gt;    pid sn pid_cri link_id pid_total iteration       pid_dataset</span>
 <span class="co">#&gt; 1    1  1       1       1         6         1 set_1,set_2,set_3</span>

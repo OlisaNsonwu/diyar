@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9020</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
       </span>
     </div>
 
@@ -188,7 +188,7 @@
     <h2 class="hasAnchor" id="examples"><a class="anchor" href="#examples"></a>Examples</h2>
     <pre class="examples"><div class='input'><span class='co'># Which `window` will a given `length` cover?</span>
 <span class='no'>date</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>()
-<span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt; [1] "2021-10-27 01:00:00 -&gt; 2021-11-06"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2021-11-01 -&gt; 2021-11-06"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(-<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2021-10-22 01:00:00 -&gt; 2021-11-06"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, -<span class='fl'>5</span>)</div><div class='output co'>#&gt; [1] "2021-10-27 01:00:00 &lt;- 2021-10-22 01:00:00"</div><div class='input'>
+<span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fl'>10</span>)</div><div class='output co'>#&gt; [1] "2021-11-15 -&gt; 2021-11-25"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2021-11-20 -&gt; 2021-11-25"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, <span class='fu'><a href='number_line.html'>number_line</a></span>(-<span class='fl'>5</span>, <span class='fl'>10</span>))</div><div class='output co'>#&gt; [1] "2021-11-10 -&gt; 2021-11-25"</div><div class='input'><span class='fu'>epid_windows</span>(<span class='no'>date</span>, -<span class='fl'>5</span>)</div><div class='output co'>#&gt; [1] "2021-11-15 &lt;- 2021-11-10"</div><div class='input'>
 
 <span class='co'># Which `length` is required to cover a given `window`?</span>
 <span class='no'>date</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>(), <span class='fu'><a href='https://rdrr.io/r/base/Sys.time.html'>Sys.Date</a></span>() + <span class='fl'>20</span>)
