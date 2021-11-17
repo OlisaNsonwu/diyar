@@ -77,7 +77,7 @@ A visual aid to describe the data linkage (\code{\link{links}}), episode trackin
 
 \bold{\code{show_labels} options (multi-select)}
 \itemize{
-\item schema.epid - \bold{TRUE}, \bold{FALSE}, "sn", "epid", "date", "case_nm", "length_label", "length_arrow", "case_overlap_methods" or "recurrence_overlap_methods"
+\item schema.epid - \bold{TRUE}, \bold{FALSE}, "sn", "epid", "date", "case_nm", "wind_nm", "length", "length_arrow", "case_overlap_methods" or "recurrence_overlap_methods"
 \item schema.pane - \bold{TRUE}, \bold{FALSE}, "sn", "pane", "date", "case_nm" or "window_label"
 \item schema.pid - \bold{TRUE}, \bold{FALSE}, "sn" or "pid"
 }

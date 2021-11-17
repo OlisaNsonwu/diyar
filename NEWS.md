@@ -29,6 +29,8 @@
     with `x_pos` and `y_pos`.
 -   `link_records()` and `links_wf_probabilistic()`. The `cmp_threshold`
     argument has been renamed to `attr_threshold`.
+-   `show_labels` argument in `schema()`. Two new options - `"wind_nm"`
+    and `"length"` to replace `"length_label"`.
 
 ## Bug fixes
 

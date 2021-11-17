@@ -53,8 +53,9 @@
 #' Any unlinked \code{\link{sub_criteria}} will be ignored.
 #'
 #' By default, attributes in a \code{\link{sub_criteria}} are compared for an \code{\link{exact_match}}.
-#' However, user-defined funcitons are also permitted. Such functions must meet two requirements:
+#' However, user-defined functions are also permitted. Such functions must meet three requirements:
 #' \enumerate{
+#' \item It must have be able to compare the attribute.
 #' \item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 #' \item It must return a \code{logical} object i.e.\code{TRUE} or \code{FALSE}.
 #' }

@@ -70,26 +70,26 @@
 #' @export
 #'
 partitions <- function(date, window = number_line(0, Inf), windows_total = 1, separate = FALSE, sn = NULL, strata = NULL,
-                  data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
-                  data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE, display = "none"){
+                       data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
+                       data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE, display = "none"){
   tm_a <- Sys.time()
 
   # Validations
   errs <- err_partitions_checks_0(date = date,
-                             window = window,
-                             windows_total = windows_total,
-                             separate = separate,
-                             sn = sn,
-                             strata = strata,
-                             data_source = data_source,
-                             data_links = data_links,
-                             custom_sort = custom_sort,
-                             group_stats = group_stats,
-                             by = by,
-                             length.out = length.out,
-                             fill = fill,
-                             display = display
-                             )
+                                  window = window,
+                                  windows_total = windows_total,
+                                  separate = separate,
+                                  sn = sn,
+                                  strata = strata,
+                                  data_source = data_source,
+                                  data_links = data_links,
+                                  custom_sort = custom_sort,
+                                  group_stats = group_stats,
+                                  by = by,
+                                  length.out = length.out,
+                                  fill = fill,
+                                  display = display
+  )
 
   if(errs != FALSE) stop(errs, call. = FALSE)
 
@@ -99,7 +99,7 @@ partitions <- function(date, window = number_line(0, Inf), windows_total = 1, se
 
   dl_lst <- unlist(data_links, use.names = FALSE)
   # Standardise inputs
-    # `data_links`
+  # `data_links`
   if(!all(class(data_links) == "list")){
     data_links <- list(l = data_links)
   }

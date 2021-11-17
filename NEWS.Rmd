@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
 + Three new options for the `display` argument. `"progress_with_report"`, `"stats_with_report"` and `"none_with_report"`. Creates a `d_report`; a status of the analysis over its run time.
 + `eval_sub_criteria()`. Record-pairs are no longer created in the function. Therefore, the `index_record` and `sn` have been replaced with `x_pos` and `y_pos`.
 + `link_records()` and `links_wf_probabilistic()`. The `cmp_threshold` argument has been renamed to `attr_threshold`.
++  `show_labels` argument in `schema()`. Two new options - `"wind_nm"` and `"length"` to replace `"length_label"`.
 
 ## Bug fixes
 + Incorrect `wind_id` list in `episodes()` when `data_link` is used. Resolved.

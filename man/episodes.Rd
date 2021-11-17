@@ -143,13 +143,13 @@ db_1$patient_id <- c(rep("PID 1",8), rep("PID 2",3))
 
 # Fixed episodes
 # One 16-day (15-day difference) episode per patient
-db_1$epids_p <- episodes(date = db_1$date,
-                         strata = db_1$patient_id,
-                         case_length = 15,
-                         episodes_max = 1)
+db_1$ep1 <- episodes(date = db_1$date,
+                     strata = db_1$patient_id,
+                     case_length = 15,
+                     episodes_max = 1)
 # Rolling episodes
 # 16-day episodes with recurrence periods of 11 days
-db_1$rd_b <- episodes(date = db_1$date,
+db_1$ep2 <- episodes(date = db_1$date,
                      case_length = 15,
                      recurrence_length = 10,
                      episode_type = "rolling")
@@ -158,9 +158,9 @@ db_1$rd_b <- episodes(date = db_1$date,
 db_2$admin_period <- number_line(db_2$admin_dt,
                                  db_2$discharge_dt)
 # Episodes of hospital stays
-db_2$epids_i <- episodes(date = db_2$admin_period,
-                         case_length = index_window(db_2$admin_period),
-                         case_overlap_methods = "inbetween")
+db_2$ep3 <- episodes(date = db_2$admin_period,
+                     case_length = index_window(db_2$admin_period),
+                     case_overlap_methods = "inbetween")
 
 }
 \seealso{
