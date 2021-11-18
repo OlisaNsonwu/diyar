@@ -3,5 +3,5 @@
 language: R
 sudo: false
 cache: packages
-before_install:
+after_success:
     - Rscript -e 'covr::codecov()'
