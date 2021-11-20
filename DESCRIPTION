@@ -30,7 +30,7 @@ Suggests:
     rmarkdown,
     testthat,
     covr,
-    Rcpp (≥ 0.12.3), 
+    Rcpp (>= 0.12.3), 
     RcppArmadillo
 VignetteBuilder: knitr
 Language: en-GB
