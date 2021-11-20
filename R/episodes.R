@@ -1391,7 +1391,15 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   display <- opt_lst$display
 
   combi_opt_lst <- opt_lst[names(opt_lst) != "sn"]
-  check_lens <- function(x) if(all(class(x) == "sub_criteria")) max(attr_eval(x)) else length(x)
+  check_lens <- function(x){
+    if(all(class(x) == "sub_criteria")){
+      max(attr_eval(x))
+    }else if(all(class(x) == "list")){
+      max(as.numeric(lapply(x, length)))
+    }else {
+      length(x)
+      }
+  }
   args_len <- unlist(lapply(combi_opt_lst, check_lens), use.names = FALSE)
   combi_opt_lst <- combi_opt_lst[args_len > 1]
 
@@ -1399,6 +1407,8 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
     combi_opt_lst <- lapply(combi_opt_lst, function(x){
       if(all(class(x) == "sub_criteria")){
         attr_eval(x, func = identity, simplify = FALSE)
+      }else if(all(class(x) == "list")){
+        x
       }else{
         list(x)
       }
@@ -1443,6 +1453,14 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
       }else{
         return(reframe(opt_lst[[i]], func = function(x) x[!rf_lgk]))
       }
+    }else if(all(class(opt_lst[[i]]) == "list")){
+      return(lapply(opt_lst[[i]], function(x){
+        if(length(x) == 1){
+          x
+        }else{
+          x[!rf_lgk]
+        }
+      }))
     }else if(length(opt_lst[[i]]) %in% 0:1 | opt_lst_nms[i] %in% "data_links"){
       return(opt_lst[[i]])
     }else{
@@ -1506,7 +1524,7 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   }
   tot <- rle(sort(wf_epid@.Data[!seq_len(length(wf_epid)) %in% lgk]))
   wf_epid@epid_total <- tot$lengths[match(wf_epid@.Data, tot$values)]
-
+  wf_epid@epid_total[is.na(wf_epid@epid_total)] <- 1L
   if(!display %in% c("none")){
     rp_data <- di_report(tm_a, "Return duplicates", current_tot = length(date), current_tagged = length(rf_lgk[rf_lgk]))
     report_b <- rp_data

@@ -10,7 +10,7 @@ df <- data.frame(
   )
 
 test_1 <- df
-test_1$pids <- link_records(attribute = df$cri_1, probabilistic = FALSE)$pid
+test_1$pids <- links_wf_probabilistic(attribute = df$cri_1, probabilistic = FALSE)$pid
 
 test_that("Matching input and ouput rows", {
   expect_equal(test_1$pids@sn, test_1$r_id)
@@ -28,8 +28,8 @@ test_2b <- test_2a <- df
 test_2a$cri_1 <- ifelse(test_2a$cri_1=="A", NA, test_2a$cri_1)
 test_2b$cri_1 <- ifelse(test_2b$cri_1=="A", "", test_2b$cri_1)
 
-test_2a$pids <- link_records(attribute = test_2a$cri_1, probabilistic = FALSE)$pid
-test_2b$pids <- link_records(attribute = test_2b$cri_1, probabilistic = FALSE)$pid
+test_2a$pids <- links_wf_probabilistic(attribute = test_2a$cri_1, probabilistic = FALSE)$pid
+test_2b$pids <- links_wf_probabilistic(attribute = test_2b$cri_1, probabilistic = FALSE)$pid
 
 test_that("test that test `NAs` are treated as unique record groups", {
   expect_equal(test_2a$pids@.Data, c(1,2,3,2,5))
@@ -51,12 +51,12 @@ test_3b <- test_3a
 
 test_3b$cri_1 <- ifelse(test_3b$r_id==7, NA, test_3b$cri_1)
 
-test_3a$pids_1 <- link_records(attribute = test_3a$cri_1, probabilistic = FALSE, data_source = rep(1, 7))$pid
-test_3a$pids_2 <- link_records(attribute = test_3a$cri_2, probabilistic = FALSE, data_source = rep(1, 7))$pid
+test_3a$pids_1 <- links_wf_probabilistic(attribute = test_3a$cri_1, probabilistic = FALSE)$pid
+test_3a$pids_2 <- links_wf_probabilistic(attribute = test_3a$cri_2, probabilistic = FALSE)$pid
 test_3a$pids <- merge_ids(test_3a$pids_1, test_3a$pids_2)
 
-test_3b$pids_1 <- link_records(attribute = test_3b$cri_1, probabilistic = FALSE, data_source = rep(1, 7))$pid
-test_3b$pids_2 <- link_records(attribute = test_3b$cri_2, probabilistic = FALSE, data_source = rep(1, 7))$pid
+test_3b$pids_1 <- links_wf_probabilistic(attribute = test_3b$cri_1, probabilistic = FALSE)$pid
+test_3b$pids_2 <- links_wf_probabilistic(attribute = test_3b$cri_2, probabilistic = FALSE)$pid
 test_3b$pids <- merge_ids(test_3b$pids_1, test_3b$pids_2)
 
 test_that("test that record grouping with >1 criteria follows an order of decreasing certaintity", {
@@ -81,13 +81,8 @@ df_4a <- data.frame(
 )
 
 test_4a <- df_4a
-test_4a$pids_1 <- link_records(attribute = test_4a$cri_1,
-                               probabilistic = FALSE,
-                               data_source = rep(1, 7))$pid
-test_4a$pids_2 <- link_records(blocking_attribute = test_4a$cri_2,
-                               attribute = list(test_4a$cri_2a, test_4a$cri_2b, test_4a$cri_2c),
-                               probabilistic = FALSE,
-                               data_source = rep(1, 7))$pid
+test_4a$pids_1 <- links_wf_probabilistic(attribute = test_4a$cri_1, probabilistic = FALSE)$pid
+test_4a$pids_2 <- links_wf_probabilistic(blocking_attribute = test_4a$cri_2, attribute = list(test_4a$cri_2a, test_4a$cri_2b, test_4a$cri_2c), probabilistic = FALSE)$pid
 test_4a$pids <- merge_ids(test_4a$pids_1, test_4a$pids_2)
 
 test_that("test record grouping with 1 set of sub-criteria per criteria", {
@@ -108,17 +103,17 @@ df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5L, df_7$age+5L, gi
 df_7$corrupt_range@gid[3] <- 205L
 
 test_7b <- test_7 <- df_7
-test_7$pids <- link_records(attribute = list(test_7$age_range),
+test_7$pids <- links_wf_probabilistic(attribute = list(test_7$age_range),
                             cmp_func = range_match_legacy,
                             probabilistic = FALSE,
-                            permutations_allowed = TRUE,
-                            data_source = rep(1, 15))$pid
+                            recursive = TRUE,
+                            check_duplicates = TRUE)$pid
 
-test_7b$pids <- link_records(attribute = list(test_7$age_range),
+test_7b$pids <- links_wf_probabilistic(attribute = list(test_7$age_range),
                              cmp_func = range_match_legacy,
                              probabilistic = FALSE,
-                             permutations_allowed = TRUE,
-                             data_source = rep(1, 15))$pid
+                             recursive = TRUE,
+                             check_duplicates = TRUE)$pid
 
 test_that("test record grouping using range matching in criteria", {
   # expect_equal(test_7$pids@.Data, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))
