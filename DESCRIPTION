@@ -29,6 +29,8 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    covr
+    covr,
+    Rcpp (≥ 0.12.3), 
+    RcppArmadillo
 VignetteBuilder: knitr
 Language: en-GB
