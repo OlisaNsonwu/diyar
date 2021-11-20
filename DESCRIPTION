@@ -21,6 +21,8 @@ Imports:
     grDevices,
     graphics,
     utils,
+    Rcpp (>= 0.12.3), 
+    RcppArmadillo
     Rfast,
     ggplot2,
     rlang
@@ -29,8 +31,6 @@ Suggests:
     knitr,
     rmarkdown,
     testthat,
-    covr,
-    Rcpp (>= 0.12.3), 
-    RcppArmadillo
+    covr
 VignetteBuilder: knitr
 Language: en-GB
