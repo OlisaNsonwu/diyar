@@ -254,13 +254,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     attr(case_length_total, "opts") <- attr(case_length, "opts") <-
     class(epid_unit) <- class(skip_if_b4_lengths) <- "d_lazy_opts"
 
-  ld_case_length_total <- case_length_total
-  ld_reference_event <- reference_event
-  ld_skip_if_b4_lengths <- skip_if_b4_lengths
-  ld_episode_type <- episode_type
-  ld_custom_sort <- custom_sort
-  ld_skip_order <- skip_order
-
   case_overlap_methods <- lapply(case_overlap_methods, mk_lazy_opt)
 
   if(isTRUE(any_rolling_epi)){
@@ -315,6 +308,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }else{
     custom_sort <- rep(0L, inp_n)
   }
+
+  ld_case_length_total <- case_length_total
+  ld_reference_event <- reference_event
+  ld_skip_if_b4_lengths <- skip_if_b4_lengths
+  ld_episode_type <- episode_type
+  ld_skip_order <- skip_order
+  ld_custom_sort <- custom_sort
 
   # Flags
   tag <- rep(0L, inp_n)
@@ -1170,7 +1170,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   rm(qfx)
 
   epid_unit <- epid_unit[match(date@id, seq_len(inp_n))]
-
   # `dist_epid_index` and `dist_wind_index`
   stat_pos <- date@id
   sort_ord <- order(e, wind_id, as.numeric(date@start))
@@ -1178,14 +1177,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   date <- date[sort_ord]
   r <- rle(e)
   epid_n <- rep(r$lengths, r$lengths)
-  lgk <- match(r$values, date@id)
+  lgk <- match(r$values, date@gid)
   dist_epid_index <- ((as.numeric(date@start) + as.numeric(right_point(date))) * .5) -
     rep(((as.numeric(date@start[lgk]) + as.numeric(right_point(date[lgk]))) * .5),  r$lengths)
 
   if(isTRUE(any_rolling_epi)){
     wind_id <- wind_id[sort_ord]
     r <- rle(wind_id)
-    lgk <- match(r$values, date@id)
+    lgk <- match(r$values, date@gid)
     dist_wind_index <- ((as.numeric(date@start) + as.numeric(right_point(date))) * .5) -
       rep(((as.numeric(date@start[lgk]) + as.numeric(right_point(date[lgk]))) * .5), r$lengths)
   }else{

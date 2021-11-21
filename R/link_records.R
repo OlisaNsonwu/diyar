@@ -203,9 +203,13 @@ link_records <- function(attribute,
   probs_repo$m_probability$x <- lapply(probs_repo$m_probability$x, mk_lazy_opt)
   probs_repo$u_probability$x <- lapply(probs_repo$u_probability$x, mk_lazy_opt)
 
-  blocking_attribute <- as.vector(blocking_attribute)
-  strata <- match(blocking_attribute, blocking_attribute[!duplicated(blocking_attribute)])
-  strata[is.na(blocking_attribute)] <- ((seq_len(rd_n) + max(strata))[is.na(blocking_attribute)])
+  if(!is.null(blocking_attribute)){
+    blocking_attribute <- as.vector(blocking_attribute)
+    strata <- match(blocking_attribute, blocking_attribute[!duplicated(blocking_attribute)])
+    strata[is.na(blocking_attribute)] <- ((seq_len(rd_n) + max(strata))[is.na(blocking_attribute)])
+  }else{
+    strata <- blocking_attribute
+  }
 
   # Create record-pairs
   if(isTRUE(ignore_same_source)){

@@ -32,6 +32,7 @@ knitr::opts_chunk$set(
 + Incorrect `link_id` `links()` when `recursive` is used. Resolved.
 + `iteration` not recorded in some situations with `episodes()`. Resolved.
 + `skip_order` ends an open episode. Resolved.
++ `NA` in `dist_wind_index` and `dist_epid_index` when `sn` is supplied. Resolved.
 
 # Version 0.3.1
 

@@ -988,3 +988,27 @@ test_that("test interchangeable use of interval grouping and event grouping ", {
   expect_equal(mth1, mth2)
   expect_equal(mth3, mth4)
 })
+
+dft_tst <- diyar::epids_mtest_1
+mtest_ep <- episodes(sn = dft_tst$sn,
+                strata = dft_tst$strata,
+                date = dft_tst$date,
+                case_length = list(dft_tst$epi_len, -dft_tst$epi_len),
+                episode_type = "fixed",
+                episodes_max = 1,
+                custom_sort =  dft_tst$c_sort,
+                from_last = TRUE)
+
+test_that("", {
+  expect_equal(mtest_ep@.Data, dft_tst$epid)
+  expect_equal(mtest_ep@sn, dft_tst$sn)
+  expect_equal(mtest_ep@wind_id$wind_id1, dft_tst$wind_id1)
+  expect_equal(decode(mtest_ep@wind_nm), dft_tst$wind_nm)
+  expect_equal(decode(mtest_ep@case_nm), dft_tst$case_nm)
+  expect_equal(mtest_ep@dist_wind_index, dft_tst$dist_wind_index)
+  expect_equal(mtest_ep@dist_epid_index, dft_tst$dist_epid_index)
+  expect_equal(mtest_ep@epid_length, NULL)
+  expect_equal(mtest_ep@epid_total, dft_tst$epid_total)
+  expect_equal(mtest_ep@epid_dataset, NULL)
+  expect_equal(mtest_ep@iteration, dft_tst$iteration)
+})
