@@ -951,6 +951,9 @@ as.pid <- function(x, ...){
                     pid_total = tots$lengths[match(x, tots$values)],
                     pid_dataset = NULL,
                     iteration = rep(1L, length(x)))
+
+  x@pid_cri[!duplicated(x@.Data, fromLast = TRUE) &
+              !duplicated(x@.Data, fromLast = FALSE)] <- 0L
   return(x)
 }
 

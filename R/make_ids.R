@@ -76,6 +76,8 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
                   link_id = tp.y[match(pr_sn, tp.x)],
                   group_id = tp.y[match(pr_sn, tp.x)])
 
+    ids_1$link_id[is.na(ids_1$link_id)] <- ids_1$sn[is.na(ids_1$link_id)]
+    ids_1$group_id[is.na(ids_1$group_id)] <- ids_1$sn[is.na(ids_1$group_id)]
     # Earliest record ID used for consistency for links()
     ids_1$link_id <- ids_1$sn[match(ids_1$link_id, ids_1$link_id)]
     ids_1$group_id <- ids_1$sn[match(ids_1$group_id, ids_1$group_id)]
@@ -88,8 +90,6 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
     y.t <- y.f[is_recursive]
 
     # Links
-    # lk_x <- x.t[is_recursive_p[is_recursive]]
-    # lk_y <- y.t[is_recursive_p[is_recursive]]
     lk_x <- x.t
     lk_y <- y.t
     # Recurse
@@ -119,6 +119,9 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
     ids_2 <- list(sn = pr_sn,
                   link_id = l2[match(pr_sn, x2)],
                   group_id = y2[match(pr_sn, x2)])
+
+    ids_2$link_id[is.na(ids_2$link_id)] <- ids_2$sn[is.na(ids_2$link_id)]
+    ids_2$group_id[is.na(ids_2$group_id)] <- ids_2$sn[is.na(ids_2$group_id)]
   }else{
     ids_2 <- list()
   }

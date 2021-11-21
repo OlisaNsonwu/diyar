@@ -3,7 +3,7 @@ title: "diyar at a glance"
 date: "`r format(Sys.Date(), '%d %B %Y')`"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{`diyar` at a glance}
+  %\VignetteIndexEntry{diyar at a glance}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -24,14 +24,14 @@ bd_line <- ifelse(theme == "dark", "white", "black")
 ```
 
 # Oveview
-`diyar` is a data analytical package for linking entities (records) with shared characteristics.
-Linked entities are assigned to unique groups with identifiers.
+`diyar` is a data analytical package for linking records with shared characteristics.
+Linked records represent an entity, which depending on the context can range from unique patients or occurrences as defined by a case definition. Each entity is assigned to unique group with identifiers.
 These identifiers are stored as an `S4` class with useful information about each group in their slots.
 
 The package is capable of assessing and comparing an entity's characteristics in several ways, making it useful in ordinarily complex analyses such as record linkage and contact or network analyses, or the application of case definitions. 
 
 The main functions are `links()` and `link_records()`, `episodes()` and `partitions()`.
-These functions are very flexible in terms of what and how comparisons are done, as well as what are considered matches.
+These functions are very flexible in terms of what and how they compare the record's characteristics, as well as what are considered matches.
 Although each is best suited to certain use cases, their functionalities can sometimes overlap.
 
   + `links()` and `link_record()` - compare records without a temporal aspect to them. For example, record linkage
@@ -47,7 +47,7 @@ Primarily used for multi-stage record linkage.
 Here, records are compared and linked based on different matching criteria over multiple stages. 
 The priority of matches decreases with each stage, that is; a match at one stage (and thus criteria) is considered more relevant than a match at the next stage.
 As a result, changing the order of each stage or criteria is akin to a different linkage strategy and can lead to different outcomes.
-This is demonstrated below with the 2-setp linkages of the `missing_staff_id` sample dataset.
+This is demonstrated below with 2-step linkages of the `missing_staff_id` sample dataset.
 
 ```{r warning = FALSE}
 library(diyar)
@@ -215,7 +215,7 @@ dfr_3$pn5 <- partitions(event_dt, length.out = 2, separate = FALSE)
 <img src = "fig_o2.png" width = "700" height = "400">
 
 # Other useful functions
-There are other functions which support the above mentioned ones but are also useful for common analytical tasks.
+There are other supporting functions which are useful for common analytical tasks.
 Some of these are shown below.
 
 ## number_line
@@ -271,13 +271,13 @@ cmbi_dfr
 # Processing time
 `episodes()` and `links()` are iterative functions.
 Although both continue to be optimised, each iteration costs additional processing time.
-The main way to mitigate this is to reduce the number of iterations required to complete an analyses. 
+The main way to mitigate this is to reduce the number of iterations required to complete an analysis. 
 To help with this, both functions have arguments which ensure that only the minimum number of records required to complete the process is used.
 
 The flexibility of `episodes()` and `links()` results in situations where the use of different arguments will lead to the same outcome. However, one combination will usually require fewer iterations to complete the same process. 
 Therefore, a good grasp of the role of each argument is useful in knowing the most efficient combination of arguments to use. 
 
-For some analyses, `episodes()` and `links()` can be used interchangeably however, this tends to be less efficient. 
+In some analyses, `episodes()` and `links()` can be used interchangeably however, one is usually less efficient in each situation.
 For example, identifiers `dfr_4$ep4` and `dfr_4$pd5` are essentially the same outcome; 2 groups with the same set of records in each. However, we can see below that `episodes()` created `dfr_4$ep4` in 2 iterations compared to the 7 iterations it took `links()` to create `dfr_4$ep4`.
 ```{r warning=FALSE}
 summary(dfr_4$ep4)
@@ -298,4 +298,4 @@ summary(dfr_stages$p4b)
 all(dfr_stages$p4 == dfr_stages$p4b)
 ```
 
-These time differences are negligible when dealing with relatively small datasets but become more apparent as the size increases.
+The time differences from these different iterations are negligible when dealing with relatively small datasets but become more apparent as the size increases.

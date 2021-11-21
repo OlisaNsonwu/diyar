@@ -12,13 +12,13 @@ episodes_wf_splits(..., duplicates_recovered = "ANY", reframe = FALSE)
 \item{duplicates_recovered}{\code{[character]}. Determines which duplicate records are recycled.
 Options are \code{"ANY"} (default), \code{"without_sub_criteria"} or \code{"with_sub_criteria"}. See \code{Details}.}
 
-\item{reframe}{\code{[logical]}. Determines if the duplicate records in a \code{\link[=sub_criteria]{sub_criteria's}} are reframed (\code{TRUE}) or excluded (\code{FALSE}).}
+\item{reframe}{\code{[logical]}. Determines if the duplicate records in a \code{\link{sub_criteria}} are reframed (\code{TRUE}) or excluded (\code{FALSE}).}
 }
 \value{
 \code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
-Exclude duplicate records from the same day or period prior to using \code{\link{episodes}}.
+Excludes duplicate records from the same day or period prior before passing the analysis to \code{\link{episodes}}.
 Only duplicate records that will not affect the case definition are excluded.
 The resulting episode identifiers are recycled for the duplicate records.
 }
@@ -30,13 +30,13 @@ This leads to the same outcome but with the benefit of a shorter processing time
 Duplicate records from the same point or period in time are excluded from \bold{\code{episodes()}}.
 The resulting \code{\link[=epid-class]{epid}} object is then recycled for the duplicates.
 
-The \code{duplicates_recovered} argument determines which identifiers are recycled for the excluded duplicates.
-If \code{"without_sub_criteria"} is selected, only identifers created from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
+The \code{duplicates_recovered} argument determines which identifiers are recycled.
+If \code{"without_sub_criteria"} is selected, only identifiers created from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
 The opposite (\code{"Case"} and \code{"Recurrent"}) is the case if \code{"with_sub_criteria"} is selected.
 Excluded duplicates of \code{"Duplicate_C"} and \code{"Duplicate_R"} are always recycled.
 
 The \code{reframe} argument will either \code{\link{reframe}} or subset a \code{\link{sub_criteria}}.
-Both will require slightly different functions for \code{match_funcs} or \code{equal_funcs}. See \code{Examples}.
+Both will require slightly different functions for \code{match_funcs} or \code{equal_funcs}.
 }
 \examples{
 # With 10,000 duplicate records of 20 events,

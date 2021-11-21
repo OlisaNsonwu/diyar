@@ -52,15 +52,15 @@ episodes(
 
 \item{rolls_max}{\code{[integer]}. Maximum number of times the index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.}
 
-\item{case_overlap_methods}{\code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Case"} event. See (\code{\link{overlaps}}).}
+\item{case_overlap_methods}{\code{[character|integer]}. Accepted overlaps method for \code{"Case"} and \code{"Duplicate"} events. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).}
 
-\item{recurrence_overlap_methods}{\code{[character|integer]}. Ways \code{"Duplicate"} events overlap with the \code{"Recurrence"} event. See (\code{\link{overlaps}})}
+\item{recurrence_overlap_methods}{\code{[character|integer]}. Accepted overlaps method for \code{"Recurrent"} and \code{"Duplicate"} events. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).}
 
 \item{skip_if_b4_lengths}{\code{[logical]}. If \code{TRUE} (default), events before a lagged \code{case_length} or \code{recurrence_length} are skipped.}
 
 \item{data_source}{\code{[character]}. Data source identifier. Adds the list of data sources in each episode to the \code{\link[=epid-class]{epid}}. Useful when the data is from multiple sources.}
 
-\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
+\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
 \item{custom_sort}{\code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.}
 
@@ -77,21 +77,21 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{display}{\code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
-\item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Additional matching criteria for events of a \code{case_length}.}
+\item{case_sub_criteria}{\code{[\link{sub_criteria}]}. Additional matching criteria for events in a \code{case_length}.}
 
-\item{recurrence_sub_criteria}{\code{[\link{sub_criteria}]}. Additional matching criteria for events of a \code{recurrence_length}.}
+\item{recurrence_sub_criteria}{\code{[\link{sub_criteria}]}. Additional matching criteria for events in a \code{recurrence_length}.}
 
 \item{case_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched \code{case_lengths} required for an episode.}
 
 \item{recurrence_length_total}{\code{[integer|\link{number_line}]}. Minimum number of matched \code{recurrence_lengths} required for an episode.}
 
-\item{skip_unique_strata}{\code{[logical]}. If \code{TRUE} (default), events from a strata with a single record are skipped.}
+\item{skip_unique_strata}{\code{[logical]}. If \code{TRUE}, a strata with a single event are skipped.}
 }
 \value{
 \code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
-Link dated events (records) with similar attributes and which occur within specified durations of each other.
+Create temporal links between dated events.
 Each set of linked records are assigned a unique identifier with relevant group-level information.
 }
 \details{
@@ -100,7 +100,7 @@ are within specified durations of each other.
 In each iteration, an index event is selected and compared against every other event.
 
 Every event is linked to a unique group (episode; \code{\link[=epid-class]{epid}} object).
-These episodes represent occurences on interest as defined by the relationship between index events and other events in the episode.
+These episodes represent occurrences of interest as defined by the rules and conditions specified in the function's arguments.
 
 By default, this process occurs in ascending order; beginning with the earliest event and proceeding to the most recent one.
 This can be changed to a descending (\code{from_last}) or custom order (\code{custom_sort}).
@@ -108,7 +108,7 @@ Ties are always broken by the chronological order of events.
 
 In general, three type of episodes are possible;
 \itemize{
-\item \code{"fixed"} - An episodes where all events are within fixed durations of one index event.
+\item \code{"fixed"} - An episode where all events are within fixed durations of one index event.
 \item \code{"rolling"} - An episode where all events are within recurring durations of one index event.
 \item \code{"recursive"} - An episode where all events are within recurring durations of multiple index events.
 }

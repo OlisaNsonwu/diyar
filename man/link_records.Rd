@@ -78,13 +78,13 @@ prob_score_range(attribute, m_probability = 0.95, u_probability = NULL)
 Deterministic and probabilistic record linkage with partial or evaluated matches.
 }
 \details{
-\code{link_records()} and \code{links_wf_probabilistic()} are functions to implement probabilistic record linkage.
+\code{link_records()} and \code{links_wf_probabilistic()} are functions to implement deterministic, fuzzy or probabilistic record linkage.
 \code{link_records()} compares every record-pair in one instance,
 while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and so compares batches of record-pairs in iterations.
 
 \code{link_records()} is more thorough in the sense that it compares every combination of record-pairs.
 This makes it faster but is memory intensive, particularly if there's no \code{blocking_attribute}.
-In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes longer since it compares batches of record-pairs in iterations.
+In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes longer since it does it's checks in batches.
 
 The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 
@@ -107,6 +107,10 @@ For each record pair, a disagreement score for attribute \eqn{i} is calculated a
 \deqn{\log_{2}((1-m_{i})/(1-u_{i}))}{log_2 ((1-m_i) / (1-u_i))}
 
 where \eqn{m_{i}}{m_i} and \eqn{u_{i}}{u_i} are the \code{m} and \code{u}-probabilities for each value of attribute \eqn{i}.
+
+Note that each probability is calculated as a combined probability for the record pair.
+For example, if the values of the record-pair have \code{u}-probabilities of \code{0.1} and \code{0.2} respectively,
+then the \code{u}-probability for the pair will be \code{0.02}.
 
 Missing data (\code{NA}) are considered non-matches and assigned a \code{u}-probability of \code{0}.
 

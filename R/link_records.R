@@ -24,13 +24,13 @@
 #' @seealso \code{\link{links}}
 #'
 #' @details
-#' \code{link_records()} and \code{links_wf_probabilistic()} are functions to implement probabilistic record linkage.
+#' \code{link_records()} and \code{links_wf_probabilistic()} are functions to implement deterministic, fuzzy or probabilistic record linkage.
 #' \code{link_records()} compares every record-pair in one instance,
 #' while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and so compares batches of record-pairs in iterations.
 #'
 #' \code{link_records()} is more thorough in the sense that it compares every combination of record-pairs.
 #' This makes it faster but is memory intensive, particularly if there's no \code{blocking_attribute}.
-#' In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes longer since it compares batches of record-pairs in iterations.
+#' In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes longer since it does it's checks in batches.
 #'
 #' The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 #'
@@ -53,6 +53,10 @@
 #' \deqn{\log_{2}((1-m_{i})/(1-u_{i}))}{log_2 ((1-m_i) / (1-u_i))}
 #'
 #' where \eqn{m_{i}}{m_i} and \eqn{u_{i}}{u_i} are the \code{m} and \code{u}-probabilities for each value of attribute \eqn{i}.
+#'
+#' Note that each probability is calculated as a combined probability for the record pair.
+#' For example, if the values of the record-pair have \code{u}-probabilities of \code{0.1} and \code{0.2} respectively,
+#' then the \code{u}-probability for the pair will be \code{0.02}.
 #'
 #' Missing data (\code{NA}) are considered non-matches and assigned a \code{u}-probability of \code{0}.
 #'
@@ -179,11 +183,15 @@ link_records <- function(attribute,
                    paste0("i - `", attr_nm[lgk], "` was ignored!", collapse = "\n")), call. = FALSE)
   }
   if(all(lgk)){
-    stop("Linkage stopped since all attributes were ignored.", call. = FALSE)
+    stop("Linkage stopped because all attributes were ignored.", call. = FALSE)
+  }
+  if(!is.null(blocking_attribute)){
+    if(all(is.na(blocking_attribute))){
+      stop("Linkage stopped because all records have a missing (`NA`) `strata`.", call. = FALSE)
+    }
   }
   attribute <- attribute[!lgk]
   attr_nm <- names(attribute)
-
   probs_repo <- prep_prob_link_args(attribute = attribute,
                                     m_probability = m_probability,
                                     u_probability = u_probability)
@@ -194,19 +202,46 @@ link_records <- function(attribute,
 
   probs_repo$m_probability$x <- lapply(probs_repo$m_probability$x, mk_lazy_opt)
   probs_repo$u_probability$x <- lapply(probs_repo$u_probability$x, mk_lazy_opt)
+
+  blocking_attribute <- as.vector(blocking_attribute)
+  strata <- match(blocking_attribute, blocking_attribute[!duplicated(blocking_attribute)])
+  strata[is.na(blocking_attribute)] <- ((seq_len(rd_n) + max(strata))[is.na(blocking_attribute)])
+
   # Create record-pairs
-  rd_n <- length(attribute[[1]])
   if(isTRUE(ignore_same_source)){
     r_pairs <- make_pairs_wf_source(seq_len(rd_n),
-                                    strata = as.vector(blocking_attribute),
+                                    strata = strata,
                                     repeats_allowed = repeats_allowed,
                                     permutations_allowed = permutations_allowed,
                                     data_source = data_source)
   }else{
     r_pairs <- make_pairs(seq_len(rd_n),
-                          strata = as.vector(blocking_attribute),
+                          strata = strata,
                           repeats_allowed = repeats_allowed,
                           permutations_allowed = permutations_allowed)
+  }
+
+  if(length(r_pairs$x_pos) == 0){
+    pid_weights <- data.frame(sn_x = integer(0),
+                              sn_y = integer(0))
+    if(!is.null(data_source)){
+      pid_weights$source_x <-
+        pid_weights$source_y <- integer(0)
+    }
+    wts <- lapply(c(attr_nm, "weight"), function(x) numeric(0))
+    names(wts) <- paste0("cmp.", c(attr_nm, "weight"))
+    pid_weights <- c(pid_weights, wts)
+    if(isTRUE(probabilistic)){
+      wts <- lapply(c(attr_nm, "weight"), function(x) numeric(0))
+      names(wts) <- paste0("prb.", c(attr_nm, "weight"))
+      pid_weights <- c(pid_weights, wts)
+    }
+    pid_weights$record.match <- logical(0)
+    pid_weights <- as.data.frame(pid_weights)
+    pids <- list(pid = as.pid(seq_len(rd_n)),
+                 pid_weights = pid_weights)
+    rm(list = ls()[ls() != "pids"])
+    return(pids)
   }
   x <- lapply(attribute, function(k) k[r_pairs$x_pos])
   y <- lapply(attribute, function(k) k[r_pairs$y_pos])
@@ -252,7 +287,7 @@ link_records <- function(attribute,
   pids <- pid_weights[c("sn_x", "sn_y", "record.match")]
   pids <- pids[pids$record.match,]
 
-  pids <- make_ids(pids$sn_x, pids$sn_y, max(c(pid_weights[,1], pid_weights[,2])))
+  pids <- make_ids(pids$sn_x, pids$sn_y, rd_n)
   tots <- rle(sort(pids$group_id))
   pids <- methods::new("pid",
                        .Data = pids$group_id,

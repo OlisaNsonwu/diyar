@@ -19,6 +19,7 @@
 
 ## Changes
 
+-   Optimised `episodes_wf_splits()`
 -   Optimised `episodes()` and `links()`. Reduced processing times.
 -   Three new options for the `display` argument.
     `"progress_with_report"`, `"stats_with_report"` and

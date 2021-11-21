@@ -62,9 +62,9 @@ event_dt
 ```
 
 Here, we see the creation (or rather categorisation) of recurrent events `(R)`.
-These are recurrence of index events as opposed to their duplicates. For example, `ep3` initially ends on `2021-01-06`. However, for rolling and recursive episodes, the function takes the additional step of looking for other events within 4 days of `2021-01-06`. Records within this period are then categorised as recurrent events of the `2021-01-06` event, which itself is a duplicate of the `2021-01-01` event. This chaining process continues indefinitely until there are no more events within the period of recurrence or it's stop by the `rolls_max` argument.
+These are recurrence of index events as opposed to their duplicates. For example, `ep3` initially ends on `2021-01-04`. However, for rolling and recursive episodes, the function takes the additional step of looking for other events within 4 days of `2021-01-04`. Records within this period are then categorised as recurrent events of the `2021-01-04` event, which itself is a duplicate of the `2021-01-01` event. This chaining process continues indefinitely until there are no more events within the period of recurrence or it's stop by the `rolls_max` argument.
 
-Even though `ep1` has the same outcome (one episode) as `ep3` and `ep4`, they are very different case definitions.
+Even though `ep1` has the same outcome (one episode) as `ep3` and `ep4`, they are very different case definitions hence, the structure of their episodes are different.
 This is demonstrated below by using `schema()` to visualise the identifiers.
 
 ```{r warning=FALSE, fig.width=7, message=FALSE}
@@ -79,7 +79,7 @@ If the `from_last` argument is changed, the process will happen in the opposite 
 event_dt$ep5 <- episodes(event_dt$date, 3, episode_type = "rolling", from_last = TRUE)
 event_dt
 ```
-We can now see that the last record is now the index of the episode in `ep5`.
+We can now see that in `ep5` the last record is now the index of the episode.
 
 So far, we've discussed the different type of episodes and the direction of time in which they are tracked.
 The next important part of the tracking process is the selection of index events. 
@@ -210,7 +210,7 @@ schema(event_dt$ep10, seed = 2, show_labels = c("length_arrow"),
        custom_label = paste0(event_dt$attr_1, " in ", event_dt$attr_2))
 ```
 
-Alternatively, we can specify that BSI events or those that occurred in Ward 1 should not be linked to any episode.
+Alternatively, we can specify that BSI events or those that occurred in Ward 1 should not be linked to any episode. Note that they will be able to start episodes unless specified otherwise (`y`) as with `event_dt$ep10`.   
 ```{r warning=FALSE}
 match_funx3 <- function(x, y) !(x$attr_1 == "BSI" | x$attr_2 == "Ward 1")
 equal_funx <- function(x, y) TRUE

@@ -41,9 +41,9 @@ links(
 
 \item{shrink}{\code{[logical]}. If \code{TRUE}, forces a record-group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
 
-\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. See \code{vignette("links")}.}
+\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches.}
 
-\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See \code{vignette("links")}.}
+\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.}
 
 \item{tie_sort}{\code{[atomic]}. Preferential order for breaking tied matches within a stage.}
 }
@@ -51,7 +51,7 @@ links(
 \code{\link[=pid-class]{pid}}; \code{list}
 }
 \description{
-Match records in consecutive stages of different matching criteria.
+Match records in consecutive stages with different matching criteria.
 Each set of linked records are assigned a unique identifier with relevant group-level information.
 }
 \details{
@@ -80,14 +80,12 @@ For example;
 
 \code{\link{sub_criteria}} can be nested to achieve nested conditions.
 
-A \code{\link{sub_criteria}} can be linked to different \code{criteria}.
-
-Any unlinked \code{\link{sub_criteria}} will be ignored.
+A \code{\link{sub_criteria}} can be linked to different \code{criteria} but any unlinked \code{\link{sub_criteria}} will be ignored.
 
 By default, attributes in a \code{\link{sub_criteria}} are compared for an \code{\link{exact_match}}.
 However, user-defined functions are also permitted. Such functions must meet three requirements:
 \enumerate{
-\item It must have be able to compare the attribute.
+\item It must be able to compare the attributes.
 \item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
 \item It must return a \code{logical} object i.e.\code{TRUE} or \code{FALSE}.
 }

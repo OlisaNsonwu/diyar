@@ -35,6 +35,7 @@ make_pairs <- function(x, strata = NULL, repeats_allowed = TRUE, permutations_al
   pos <- seq_len(length(x))
   repo <- list()
   if(!is.null(strata)){
+    strata <- match(strata, strata[!duplicated(strata)])
     s_ord <- order(strata)
     x <- x[s_ord]
     strata <- strata[s_ord]
