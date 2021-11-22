@@ -426,6 +426,6 @@ overlap_method_codes <- function(methods){
     lgk
   })
   x2_cd <- unlist(x2_cd)
-  x2_cd <- x2_cd[match(x2, methods)]
+  x2_cd <- x2_cd[match(methods, x2)]
   return(x2_cd)
 }

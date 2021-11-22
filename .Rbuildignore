@@ -1,6 +1,7 @@
 ^figures$
 ^cheatsheet$
 ^archive$
+^testData$
 ^CRAN-RELEASE$
 ^cran-comments\.md$
 ^cobertura\.xml$
