@@ -26,8 +26,8 @@
     `"none_with_report"`. Creates a `d_report`; a status of the analysis
     over its run time.
 -   `eval_sub_criteria()`. Record-pairs are no longer created in the
-    function. Therefore, the `index_record` and `sn` have been replaced
-    with `x_pos` and `y_pos`.
+    function. Therefore, `index_record` and `sn` arguments have been
+    replaced with `x_pos` and `y_pos`.
 -   `link_records()` and `links_wf_probabilistic()`. The `cmp_threshold`
     argument has been renamed to `attr_threshold`.
 -   `show_labels` argument in `schema()`. Two new options - `"wind_nm"`
@@ -37,7 +37,7 @@
 
 -   Incorrect `wind_id` list in `episodes()` when `data_link` is used.
     Resolved.
--   Incorrect `link_id` `links()` when `recursive` is used. Resolved.
+-   Incorrect `link_id` in `links()` when `recursive` is used. Resolved.
 -   `iteration` not recorded in some situations with `episodes()`.
     Resolved.
 -   `skip_order` ends an open episode. Resolved.
