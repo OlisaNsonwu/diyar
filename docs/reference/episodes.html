@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Link events to chronological episodes. — episodes" />
-<meta property="og:description" content="Link dated events (records) with similar attributes and which occur within specified durations of each other.
+<meta property="og:description" content="Create temporal links between dated events.
 Each set of linked records are assigned a unique identifier with relevant group-level information." />
 
 
@@ -73,7 +73,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -142,7 +142,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </div>
 
     <div class="ref-description">
-    <p>Link dated events (records) with similar attributes and which occur within specified durations of each other.
+    <p>Create temporal links between dated events.
 Each set of linked records are assigned a unique identifier with relevant group-level information.</p>
     </div>
 
@@ -216,11 +216,11 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>case_overlap_methods</th>
-      <td><p><code>[character|integer]</code>. Ways <code>"Duplicate"</code> events overlap with the <code>"Case"</code> event. See (<code><a href='overlaps.html'>overlaps</a></code>).</p></td>
+      <td><p><code>[character|integer]</code>. Accepted overlaps method for <code>"Case"</code> and <code>"Duplicate"</code> events. Relevant when <code>date</code> is a period (<a href='number_line.html'>number_line</a>). See (<code><a href='overlaps.html'>overlaps</a></code>).</p></td>
     </tr>
     <tr>
       <th>recurrence_overlap_methods</th>
-      <td><p><code>[character|integer]</code>. Ways <code>"Duplicate"</code> events overlap with the <code>"Recurrence"</code> event. See (<code><a href='overlaps.html'>overlaps</a></code>)</p></td>
+      <td><p><code>[character|integer]</code>. Accepted overlaps method for <code>"Recurrent"</code> and <code>"Duplicate"</code> events. Relevant when <code>date</code> is a period (<a href='number_line.html'>number_line</a>). See (<code><a href='overlaps.html'>overlaps</a></code>).</p></td>
     </tr>
     <tr>
       <th>skip_if_b4_lengths</th>
@@ -232,7 +232,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>data_links</th>
-      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='pid-class.html'>pid</a></code>. A record-group without records from these <code>data_sources</code> will be <code><a href='delink.html'>unlinked</a></code>. See <code>Details</code>.</p></td>
+      <td><p><code>[list|character]</code>. A set of <code>data_sources</code> required in each <code><a href='epid-class.html'>epid</a></code>. A record-group without records from these <code>data_sources</code> will be <code><a href='delink.html'>unlinked</a></code>. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>custom_sort</th>
@@ -265,11 +265,11 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     </tr>
     <tr>
       <th>case_sub_criteria</th>
-      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Additional matching criteria for events of a <code>case_length</code>.</p></td>
+      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Additional matching criteria for events in a <code>case_length</code>.</p></td>
     </tr>
     <tr>
       <th>recurrence_sub_criteria</th>
-      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Additional matching criteria for events of a <code>recurrence_length</code>.</p></td>
+      <td><p><code>[<a href='sub_criteria.html'>sub_criteria</a>]</code>. Additional matching criteria for events in a <code>recurrence_length</code>.</p></td>
     </tr>
     <tr>
       <th>case_length_total</th>
@@ -281,7 +281,7 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
     </tr>
     <tr>
       <th>skip_unique_strata</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code> (default), events from a strata with a single record are skipped.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, a strata with a single event are skipped.</p></td>
     </tr>
     </table>
 
@@ -294,12 +294,12 @@ If <code>FALSE</code> (default), only <code>case events</code> will have a <code
 are within specified durations of each other.
 In each iteration, an index event is selected and compared against every other event.</p>
 <p>Every event is linked to a unique group (episode; <code><a href='epid-class.html'>epid</a></code> object).
-These episodes represent occurences on interest as defined by the relationship between index events and other events in the episode.</p>
+These episodes represent occurrences of interest as defined by the rules and conditions specified in the function's arguments.</p>
 <p>By default, this process occurs in ascending order; beginning with the earliest event and proceeding to the most recent one.
 This can be changed to a descending (<code>from_last</code>) or custom order (<code>custom_sort</code>).
 Ties are always broken by the chronological order of events.</p>
 <p>In general, three type of episodes are possible;</p><ul>
-<li><p><code>"fixed"</code> - An episodes where all events are within fixed durations of one index event.</p></li>
+<li><p><code>"fixed"</code> - An episode where all events are within fixed durations of one index event.</p></li>
 <li><p><code>"rolling"</code> - An episode where all events are within recurring durations of one index event.</p></li>
 <li><p><code>"recursive"</code> - An episode where all events are within recurring durations of multiple index events.</p></li>
 </ul>
@@ -334,13 +334,13 @@ Unnamed elements are assumed to be <code>"l"</code>.</p><ul>
 
 <span class='co'># Fixed episodes</span>
 <span class='co'># One 16-day (15-day difference) episode per patient</span>
-<span class='no'>db_1</span>$<span class='no'>epids_p</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>db_1</span>$<span class='no'>date</span>,
-                         <span class='kw'>strata</span> <span class='kw'>=</span> <span class='no'>db_1</span>$<span class='no'>patient_id</span>,
-                         <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
-                         <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>1</span>)
+<span class='no'>db_1</span>$<span class='no'>ep1</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>db_1</span>$<span class='no'>date</span>,
+                     <span class='kw'>strata</span> <span class='kw'>=</span> <span class='no'>db_1</span>$<span class='no'>patient_id</span>,
+                     <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
+                     <span class='kw'>episodes_max</span> <span class='kw'>=</span> <span class='fl'>1</span>)
 <span class='co'># Rolling episodes</span>
 <span class='co'># 16-day episodes with recurrence periods of 11 days</span>
-<span class='no'>db_1</span>$<span class='no'>rd_b</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>db_1</span>$<span class='no'>date</span>,
+<span class='no'>db_1</span>$<span class='no'>ep2</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>db_1</span>$<span class='no'>date</span>,
                      <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fl'>15</span>,
                      <span class='kw'>recurrence_length</span> <span class='kw'>=</span> <span class='fl'>10</span>,
                      <span class='kw'>episode_type</span> <span class='kw'>=</span> <span class='st'>"rolling"</span>)
@@ -349,9 +349,9 @@ Unnamed elements are assumed to be <code>"l"</code>.</p><ul>
 <span class='no'>db_2</span>$<span class='no'>admin_period</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='number_line.html'>number_line</a></span>(<span class='no'>db_2</span>$<span class='no'>admin_dt</span>,
                                  <span class='no'>db_2</span>$<span class='no'>discharge_dt</span>)
 <span class='co'># Episodes of hospital stays</span>
-<span class='no'>db_2</span>$<span class='no'>epids_i</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>db_2</span>$<span class='no'>admin_period</span>,
-                         <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fu'><a href='windows.html'>index_window</a></span>(<span class='no'>db_2</span>$<span class='no'>admin_period</span>),
-                         <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div></pre>
+<span class='no'>db_2</span>$<span class='no'>ep3</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes</span>(<span class='kw'>date</span> <span class='kw'>=</span> <span class='no'>db_2</span>$<span class='no'>admin_period</span>,
+                     <span class='kw'>case_length</span> <span class='kw'>=</span> <span class='fu'><a href='windows.html'>index_window</a></span>(<span class='no'>db_2</span>$<span class='no'>admin_period</span>),
+                     <span class='kw'>case_overlap_methods</span> <span class='kw'>=</span> <span class='st'>"inbetween"</span>)</div></pre>
   </div>
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <nav id="toc" data-toggle="toc" class="sticky-top">

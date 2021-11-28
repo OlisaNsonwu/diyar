@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Track episodes in a reduced dataset. — episodes_wf_splits" />
-<meta property="og:description" content="Exclude duplicate records from the same day or period prior to using episodes.
+<meta property="og:description" content="Excludes duplicate records from the same day or period prior before passing the analysis to episodes.
 Only duplicate records that will not affect the case definition are excluded.
 The resulting episode identifiers are recycled for the duplicate records." />
 
@@ -74,7 +74,7 @@ The resulting episode identifiers are recycled for the duplicate records." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -143,7 +143,7 @@ The resulting episode identifiers are recycled for the duplicate records." />
     </div>
 
     <div class="ref-description">
-    <p>Exclude duplicate records from the same day or period prior to using <code><a href='episodes.html'>episodes</a></code>.
+    <p>Excludes duplicate records from the same day or period prior before passing the analysis to <code><a href='episodes.html'>episodes</a></code>.
 Only duplicate records that will not affect the case definition are excluded.
 The resulting episode identifiers are recycled for the duplicate records.</p>
     </div>
@@ -164,7 +164,7 @@ Options are <code>"ANY"</code> (default), <code>"without_sub_criteria"</code> or
     </tr>
     <tr>
       <th>reframe</th>
-      <td><p><code>[logical]</code>. Determines if the duplicate records in a <code><a href='sub_criteria.html'>sub_criteria's</a></code> are reframed (<code>TRUE</code>) or excluded (<code>FALSE</code>).</p></td>
+      <td><p><code>[logical]</code>. Determines if the duplicate records in a <code><a href='sub_criteria.html'>sub_criteria</a></code> are reframed (<code>TRUE</code>) or excluded (<code>FALSE</code>).</p></td>
     </tr>
     </table>
 
@@ -178,12 +178,12 @@ the minimum number of records required to implement a case definition.
 This leads to the same outcome but with the benefit of a shorter processing time.</p>
 <p>Duplicate records from the same point or period in time are excluded from <b><code><a href='episodes.html'>episodes()</a></code></b>.
 The resulting <code><a href='epid-class.html'>epid</a></code> object is then recycled for the duplicates.</p>
-<p>The <code>duplicates_recovered</code> argument determines which identifiers are recycled for the excluded duplicates.
-If <code>"without_sub_criteria"</code> is selected, only identifers created from a matched <code><a href='sub_criteria.html'>sub_criteria</a></code> (<code>"Case_CR"</code> and <code>"Recurrent_CR"</code>) are recycled.
+<p>The <code>duplicates_recovered</code> argument determines which identifiers are recycled.
+If <code>"without_sub_criteria"</code> is selected, only identifiers created from a matched <code><a href='sub_criteria.html'>sub_criteria</a></code> (<code>"Case_CR"</code> and <code>"Recurrent_CR"</code>) are recycled.
 The opposite (<code>"Case"</code> and <code>"Recurrent"</code>) is the case if <code>"with_sub_criteria"</code> is selected.
 Excluded duplicates of <code>"Duplicate_C"</code> and <code>"Duplicate_R"</code> are always recycled.</p>
 <p>The <code>reframe</code> argument will either <code><a href='reframe.html'>reframe</a></code> or subset a <code><a href='sub_criteria.html'>sub_criteria</a></code>.
-Both will require slightly different functions for <code>match_funcs</code> or <code>equal_funcs</code>. See <code>Examples</code>.</p>
+Both will require slightly different functions for <code>match_funcs</code> or <code>equal_funcs</code>.</p>
     <h2 class="hasAnchor" id="see-also"><a class="anchor" href="#see-also"></a>See also</h2>
 
     <div class='dont-index'><p><code><a href='episodes.html'>episodes</a></code>; <code><a href='sub_criteria.html'>sub_criteria</a></code></p></div>
@@ -197,10 +197,10 @@ Both will require slightly different functions for <code>match_funcs</code> or <
 <span class='fu'><a href='https://rdrr.io/r/base/system.time.html'>system.time</a></span>(
   <span class='no'>ep1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episodes.html'>episodes</a></span>(<span class='no'>dates</span>, <span class='fl'>1</span>)
 )</div><div class='output co'>#&gt;    user  system elapsed 
-#&gt;    2.54    0.58    3.17 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/system.time.html'>system.time</a></span>(
+#&gt;    2.73    0.92    3.87 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/system.time.html'>system.time</a></span>(
   <span class='no'>ep2</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes_wf_splits</span>(<span class='no'>dates</span>, <span class='fl'>1</span>)
 )</div><div class='output co'>#&gt;    user  system elapsed 
-#&gt;    0.14    0.00    0.14 </div><div class='input'>
+#&gt;    0.22    0.02    0.24 </div><div class='input'>
 <span class='co'># Both leads to the same outcome.</span>
 <span class='fu'><a href='https://rdrr.io/r/base/all.html'>all</a></span>(<span class='no'>ep1</span> <span class='kw'>==</span> <span class='no'>ep2</span>)</div><div class='output co'>#&gt; [1] TRUE</div></pre>
   </div>

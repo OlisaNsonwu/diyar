@@ -72,7 +72,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -250,12 +250,12 @@
     <p><code><a href='pid-class.html'>pid</a></code>; <code>list</code></p>
     <h2 class="hasAnchor" id="details"><a class="anchor" href="#details"></a>Details</h2>
 
-    <p><code>link_records()</code> and <code>links_wf_probabilistic()</code> are functions to implement probabilistic record linkage.
+    <p><code>link_records()</code> and <code>links_wf_probabilistic()</code> are functions to implement deterministic, fuzzy or probabilistic record linkage.
 <code>link_records()</code> compares every record-pair in one instance,
 while <code>links_wf_probabilistic()</code> is a wrapper function of <code><a href='links.html'>links</a></code> and so compares batches of record-pairs in iterations.</p>
 <p><code>link_records()</code> is more thorough in the sense that it compares every combination of record-pairs.
 This makes it faster but is memory intensive, particularly if there's no <code>blocking_attribute</code>.
-In contrast, <code>links_wf_probabilistic()</code> is less memory intensive but takes longer since it compares batches of record-pairs in iterations.</p>
+In contrast, <code>links_wf_probabilistic()</code> is less memory intensive but takes longer since it does it's checks in batches.</p>
 <p>The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.</p>
 <p>In summary, record-pairs are created and categorised as matches and non-matches (<code>attr_threshold</code>) with user-defined functions (<code>cmp_func</code>).
 Two probabilities (<code>m</code> and <code>u</code>) are then estimated for each record-pair to score the matches and non-matches.
@@ -270,6 +270,9 @@ Record-pairs whose total score are above a certain threshold (<code>score_thresh
 <p>For each record pair, a disagreement score for attribute \(i\) is calculated as;</p>
 <p>$$\log_{2}((1-m_{i})/(1-u_{i}))$$</p>
 <p>where \(m_{i}\) and \(u_{i}\) are the <code>m</code> and <code>u</code>-probabilities for each value of attribute \(i\).</p>
+<p>Note that each probability is calculated as a combined probability for the record pair.
+For example, if the values of the record-pair have <code>u</code>-probabilities of <code>0.1</code> and <code>0.2</code> respectively,
+then the <code>u</code>-probability for the pair will be <code>0.02</code>.</p>
 <p>Missing data (<code>NA</code>) are considered non-matches and assigned a <code>u</code>-probability of <code>0</code>.</p>
 <p>By default, matches and non-matches for each <code>attribute</code> are determined as an <code><a href='predefined_tests.html'>exact_match</a></code> with a binary outcome.
 Alternatively, user-defined functions (<code>cmp_func</code>) are used to create similarity scores.
@@ -370,13 +373,13 @@ Additionally, <code>id_1</code> and <code>id_2</code> can be used to link specif
 #&gt; </div><div class='input'>
 <span class='co'># Probabilistic linkage</span>
 <span class='fu'>prob_score_range</span>(<span class='no'>dfr</span>)</div><div class='output co'>#&gt; $minimum_score
-#&gt; [1] -16.80229
+#&gt; [1] -13.31096
 #&gt; 
 #&gt; $mid_scorce
-#&gt; [1] -4.226915
+#&gt; [1] 1.692975
 #&gt; 
 #&gt; $maximum_score
-#&gt; [1] 8.348455
+#&gt; [1] 16.69691
 #&gt; </div><div class='input'><span class='fu'>link_records</span>(<span class='no'>dfr</span>, <span class='kw'>attr_threshold</span> <span class='kw'>=</span> <span class='fl'>1</span>, <span class='kw'>probabilistic</span> <span class='kw'>=</span> <span class='fl'>TRUE</span>, <span class='kw'>score_threshold</span> <span class='kw'>=</span> -<span class='fl'>16</span>)</div><div class='output co'>#&gt; $pid
 #&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)"
 #&gt; [5] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)"

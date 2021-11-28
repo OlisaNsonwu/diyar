@@ -71,7 +71,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -159,12 +159,16 @@
 <h2 class="hasAnchor">
 <a href="#changes" class="anchor"></a>Changes</h2>
 <ul>
+<li>Optimised <code><a href="../reference/episodes_wf_splits.html">episodes_wf_splits()</a></code>
+</li>
 <li>Optimised <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code>. Reduced processing times.</li>
 <li>Three new options for the <code>display</code> argument. <code>"progress_with_report"</code>, <code>"stats_with_report"</code> and <code>"none_with_report"</code>. Creates a <code>d_report</code>; a status of the analysis over its run time.</li>
 <li>
-<code><a href="../reference/eval_sub_criteria.html">eval_sub_criteria()</a></code>. Record-pairs are no longer created in the function. Therefore, the <code>index_record</code> and <code>sn</code> have been replaced with <code>x_pos</code> and <code>y_pos</code>.</li>
+<code><a href="../reference/eval_sub_criteria.html">eval_sub_criteria()</a></code>. Record-pairs are no longer created in the function. Therefore, <code>index_record</code> and <code>sn</code> arguments have been replaced with <code>x_pos</code> and <code>y_pos</code>.</li>
 <li>
 <code><a href="../reference/link_records.html">link_records()</a></code> and <code><a href="../reference/link_records.html">links_wf_probabilistic()</a></code>. The <code>cmp_threshold</code> argument has been renamed to <code>attr_threshold</code>.</li>
+<li>
+<code>show_labels</code> argument in <code><a href="../reference/schema.html">schema()</a></code>. Two new options - <code>"wind_nm"</code> and <code>"length"</code> to replace <code>"length_label"</code>.</li>
 </ul>
 </div>
 <div id="bug-fixes" class="section level2">
@@ -172,11 +176,15 @@
 <a href="#bug-fixes" class="anchor"></a>Bug fixes</h2>
 <ul>
 <li>Incorrect <code>wind_id</code> list in <code><a href="../reference/episodes.html">episodes()</a></code> when <code>data_link</code> is used. Resolved.</li>
-<li>Incorrect <code>link_id</code> <code><a href="../reference/links.html">links()</a></code> when <code>recursive</code> is used. Resolved.</li>
+<li>Incorrect <code>link_id</code> in <code><a href="../reference/links.html">links()</a></code> when <code>recursive</code> is used. Resolved.</li>
 <li>
 <code>iteration</code> not recorded in some situations with <code><a href="../reference/episodes.html">episodes()</a></code>. Resolved.</li>
 <li>
 <code>skip_order</code> ends an open episode. Resolved.</li>
+<li>
+<code>NA</code> in <code>dist_wind_index</code> and <code>dist_epid_index</code> when <code>sn</code> is supplied. Resolved.</li>
+<li>
+<code><a href="../reference/overlaps.html">overlap_method_codes()</a></code> - overlap method codes not recycled properly. Resolved.</li>
 </ul>
 </div>
 </div>

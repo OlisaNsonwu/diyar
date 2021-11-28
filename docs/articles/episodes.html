@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to epidemiological case definitions with diyar</h1>
             
-            <h4 class="date">15 November 2021</h4>
+            <h4 class="date">28 November 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/episodes.Rmd"><code>vignettes/episodes.Rmd</code></a></small>
       <div class="hidden name"><code>episodes.Rmd</code></div>
@@ -175,8 +175,8 @@
 <span class="co">#&gt; 9  2021-01-09    RTI Ward 3 E.1 (D) E.9 (C) E.1 (D) E.1 (D)</span>
 <span class="co">#&gt; 10 2021-01-10    BSI Ward 3 E.1 (D) E.9 (D) E.1 (D) E.1 (D)</span>
 <span class="co">#&gt; 11 2021-01-11    RTI Ward 2 E.1 (D) E.9 (D) E.1 (R) E.1 (R)</span></pre></body></html></div>
-<p>Here, we see the creation (or rather categorisation) of recurrent events <code>(R)</code>. These are recurrence of index events as opposed to their duplicates. For example, <code>ep3</code> initially ends on <code>2021-01-06</code>. However, for rolling and recursive episodes, the function takes the additional step of looking for other events within 4 days of <code>2021-01-06</code>. Records within this period are then categorised as recurrent events of the <code>2021-01-06</code> event, which itself is a duplicate of the <code>2021-01-01</code> event. This chaining process continues indefinitely until there are no more events within the period of recurrence or it’s stop by the <code>rolls_max</code> argument.</p>
-<p>Even though <code>ep1</code> has the same outcome (one episode) as <code>ep3</code> and <code>ep4</code>, they are very different case definitions. This is demonstrated below by using <code><a href="../reference/schema.html">schema()</a></code> to visualise the identifiers.</p>
+<p>Here, we see the creation (or rather categorisation) of recurrent events <code>(R)</code>. These are recurrence of index events as opposed to their duplicates. For example, <code>ep3</code> initially ends on <code>2021-01-04</code>. However, for rolling and recursive episodes, the function takes the additional step of looking for other events within 4 days of <code>2021-01-04</code>. Records within this period are then categorised as recurrent events of the <code>2021-01-04</code> event, which itself is a duplicate of the <code>2021-01-01</code> event. This chaining process continues indefinitely until there are no more events within the period of recurrence or it’s stop by the <code>rolls_max</code> argument.</p>
+<p>Even though <code>ep1</code> has the same outcome (one episode) as <code>ep3</code> and <code>ep4</code>, they are very different case definitions hence, the structure of their episodes are different. This is demonstrated below by using <code><a href="../reference/schema.html">schema()</a></code> to visualise the identifiers.</p>
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="fu"><a href="../reference/schema.html">schema</a></span>(<span class="no">event_dt</span>$<span class="no">ep1</span>, <span class="kw">seed</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">show_labels</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"case_nm"</span>, <span class="st">"length_arrow"</span>))</pre></body></html></div>
 <p><img src="episodes_files/figure-html/unnamed-chunk-6-1.png" width="672"></p>
 <div class="sourceCode" id="cb6"><html><body><pre class="r"><span class="fu"><a href="../reference/schema.html">schema</a></span>(<span class="no">event_dt</span>$<span class="no">ep3</span>, <span class="kw">seed</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">show_labels</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"case_nm"</span>, <span class="st">"length_arrow"</span>))</pre></body></html></div>
@@ -198,7 +198,7 @@
 <span class="co">#&gt; 9  2021-01-09    RTI Ward 3 E.1 (D) E.9 (C) E.1 (D) E.1 (D) E.11 (D)</span>
 <span class="co">#&gt; 10 2021-01-10    BSI Ward 3 E.1 (D) E.9 (D) E.1 (D) E.1 (D) E.11 (D)</span>
 <span class="co">#&gt; 11 2021-01-11    RTI Ward 2 E.1 (D) E.9 (D) E.1 (R) E.1 (R) E.11 (C)</span></pre></body></html></div>
-<p>We can now see that the last record is now the index of the episode in <code>ep5</code>.</p>
+<p>We can now see that in <code>ep5</code> the last record is now the index of the episode.</p>
 <p>So far, we’ve discussed the different type of episodes and the direction of time in which they are tracked. The next important part of the tracking process is the selection of index events. This determines which record is used as the reference point when checking for other events within its window of occurrence. By default, this will be the earliest record from the direction of the tracking process but this can be changed to a custom preference using the <code>custom_sort</code> argument.</p>
 <p>To demonstrate this, let’s preferentially use <code>"RTI"</code> infection events as index events for episodes.</p>
 <div class="sourceCode" id="cb9"><html><body><pre class="r"><span class="no">custom_pref</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/ifelse.html">ifelse</a></span>(<span class="no">event_dt</span>$<span class="no">attr_1</span> <span class="kw">==</span> <span class="st">"RTI"</span>, <span class="fl">1</span>, <span class="fl">2</span>)
@@ -342,7 +342,7 @@
 <div class="sourceCode" id="cb20"><html><body><pre class="r"><span class="fu"><a href="../reference/schema.html">schema</a></span>(<span class="no">event_dt</span>$<span class="no">ep10</span>, <span class="kw">seed</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">show_labels</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"length_arrow"</span>),
        <span class="kw">custom_label</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste0</a></span>(<span class="no">event_dt</span>$<span class="no">attr_1</span>, <span class="st">" in "</span>, <span class="no">event_dt</span>$<span class="no">attr_2</span>))</pre></body></html></div>
 <p><img src="episodes_files/figure-html/unnamed-chunk-16-1.png" width="672"></p>
-<p>Alternatively, we can specify that BSI events or those that occurred in Ward 1 should not be linked to any episode.</p>
+<p>Alternatively, we can specify that BSI events or those that occurred in Ward 1 should not be linked to any episode. Note that they will be able to start episodes unless specified otherwise (<code>y</code>) as with <code>event_dt$ep10</code>.</p>
 <div class="sourceCode" id="cb21"><html><body><pre class="r"><span class="no">match_funx3</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) !(<span class="no">x</span>$<span class="no">attr_1</span> <span class="kw">==</span> <span class="st">"BSI"</span> <span class="kw">|</span> <span class="no">x</span>$<span class="no">attr_2</span> <span class="kw">==</span> <span class="st">"Ward 1"</span>)
 <span class="no">equal_funx</span> <span class="kw">&lt;-</span> <span class="kw">function</span>(<span class="no">x</span>, <span class="no">y</span>) <span class="fl">TRUE</span>
 <span class="co"># Sub-criteria 1 - Matching source of infection OR patient location</span>

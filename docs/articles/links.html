@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to record linkage with diyar</h1>
             
-            <h4 class="date">15 November 2021</h4>
+            <h4 class="date">28 November 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/links.Rmd"><code>vignettes/links.Rmd</code></a></small>
       <div class="hidden name"><code>links.Rmd</code></div>
@@ -105,7 +105,7 @@
 
     
     
-<p>Data required for epidemiological investigations are usually stored in different databases. Consolidating these datasets is often the first step in these investigations. This vignette provides a brief introduction to the basics of record linkage as implemented by <code>diyar</code>.</p>
+<p>Data required for epidemiological investigations are usually stored in different databases. Consolidating these datasets is often the first step for these investigations. This vignette provides a brief introduction to the basics of record linkage as implemented by <code>diyar</code>.</p>
 <p>Let’s begin by reviewing <code>missing_staff_id</code> - a sample dataset containing incomplete staff information.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">missing_staff_id</span>)
 <span class="no">missing_staff_id</span>
@@ -131,8 +131,8 @@
 <span class="co">#&gt; 5     &lt;NA&gt;       Green P.5 (No hits) P.4 (CRI 001)</span>
 <span class="co">#&gt; 6     G.D.  Dark brown P.1 (CRI 001) P.6 (No hits)</span>
 <span class="co">#&gt; 7     G.D.       Brown P.1 (CRI 001) P.1 (CRI 001)</span></pre></body></html></div>
-<p>Unsurprisingly, the uniqueness of identifiers <code>p1</code> and <code>p2</code> correspond to the uniqueness of the <code>initials</code> and <code>hair_colour</code> respectively. Both strategies represent different outcomes. For example, <code>p1</code> identifies records 3 and 4 as the same person, while <code>p2</code> has it as records 4 and 5.</p>
-<p>To maximise coverage, <code><a href="../reference/links.html">links()</a></code> can also implement an ordered multistage deterministic approach to record linkage. For example, we can say that records with matching <code>initials</code> should be linked to each other, then other records with a matching <code>hair_colour</code> should then be added to the group.</p>
+<p>Unsurprisingly, the uniqueness of identifiers <code>p1</code> and <code>p2</code> correspond to the uniqueness of the <code>initials</code> and <code>hair_colour</code> respectively. In this case both strategies represent different outcomes. For example, <code>p1</code> identifies records 3 and 4 as the same person, while <code>p2</code> has it as records 4 and 5.</p>
+<p>To maximise coverage, <code><a href="../reference/links.html">links()</a></code> can implement an ordered multistage deterministic approach to record linkage. For example, we can say that records with matching <code>initials</code> should be linked to each other, then other records with a matching <code>hair_colour</code> should then be added to the group.</p>
 <div class="sourceCode" id="cb3"><html><body><pre class="r"><span class="no">missing_staff_id</span>$<span class="no">p3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span>(<span class="kw">criteria</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"initials"</span>, <span class="st">"hair_colour"</span>)]))
 <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"initials"</span>, <span class="st">"hair_colour"</span>, <span class="st">"p1"</span>, <span class="st">"p2"</span>, <span class="st">"p3"</span>)]
 <span class="co">#&gt;   initials hair_colour            p1            p2            p3</span>
@@ -143,10 +143,10 @@
 <span class="co">#&gt; 5     &lt;NA&gt;       Green P.5 (No hits) P.4 (CRI 001) P.3 (CRI 002)</span>
 <span class="co">#&gt; 6     G.D.  Dark brown P.1 (CRI 001) P.6 (No hits) P.1 (CRI 001)</span>
 <span class="co">#&gt; 7     G.D.       Brown P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></pre></body></html></div>
-<p>We see that <code>p3</code> now identifies records 3, 4 and 5 as the same person. The logic here is that since record 4 has the same <code>initial</code> as record 3 and also has the same <code>hair_colour</code> as record 5, all three are linked as records of the same entity. Record 4 is the link between records 3 and 5. If record 4 was not in this dataset, records 3 and 5 would not be considered part of the same entity. This is referred to as record expansion. There is no limit to the number of <code>criteria</code> that can used this way.</p>
+<p>We see that <code>p3</code> now identifies records 3, 4 and 5 as the same person. The logic here is that since record 4 has the same <code>initial</code> as record 3 and also has the same <code>hair_colour</code> as record 5, all three are linked together as records of the same entity. Records 3 and 5 are only considered part of the same entity because of their share link with record 4. If record 4 is removed from this dataset, records 3 and 5 will considered part of separate entities. This process is referred to as record expansion.</p>
 <p>During record expansion the following rules are implemented.</p>
 <ol style="list-style-type: decimal">
-<li>Records with unique or missing values for one attribute (or stage) will not be linked. Instead another attempt to match them is made at the next stage.</li>
+<li>Records with unique or missing values for one attribute (or stage) will not be linked. Instead there’s another attempt to match them at the next stage.</li>
 <li>Records linked at one stage will remain linked even if their attributes at the next stage are different i.e. earlier stages have priority.</li>
 <li>If a record can be linked to multiple groups i.e. conflicting matches, the additional ordered rules below are used to break ties;
 <ul>
@@ -180,7 +180,7 @@
 <span class="co">#&gt; 6  Dark brown             Ghana P.6 (No hits) P.6 (No hits)</span>
 <span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001)</span></pre></body></html></div>
 <p>There is no limit to the number of <code>sub_criteria</code> that can be specified but each <code>sub_criteria</code> must be paired to a <code>criteria</code>. Any unpaired <code>sub_criteria</code> will be ignored.</p>
-<p>As mentioned, a <code>sub_criteria</code> can be nested. For example, <code>scri_3</code> below is the equivalent of saying (matching hair colour <code>OR</code> branch office) <code>AND</code> (matching initials <code>OR</code> branch office).</p>
+<p>As mentioned, a <code>sub_criteria</code> can be nested. For example, <code>scri_3</code> below is the equivalent of saying (<code>scri_1</code>; matching hair colour <code>OR</code> branch office) <code>AND</code> (matching initials <code>OR</code> branch office).</p>
 <div class="sourceCode" id="cb5"><html><body><pre class="r"><span class="no">scri_3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">scri_1</span>,
                        <span class="fu"><a href="../reference/sub_criteria.html">sub_criteria</a></span>(<span class="no">missing_staff_id</span>$<span class="no">initials</span>,
                                     <span class="no">missing_staff_id</span>$<span class="no">branch_office</span>,
@@ -237,7 +237,7 @@
 <span class="co">#&gt; 6 P.1 (CRI 001)</span>
 <span class="co">#&gt; 7 P.1 (CRI 001)</span></pre></body></html></div>
 <p>A <code>sub_criteria</code> provides a lot flexibly in terms of how attributes are compared however, it can cost a lot in processing time. This is because <code><a href="../reference/links.html">links()</a></code> is an iterative function, comparing batches of record-pairs in iterations. This keeps memory usage down but at the cost of processing time. There are ways to mitigate this such as using the <code>recursive</code> and <code>check_duplicate</code> arguments.</p>
-<p>In contrast to this, <code><a href="../reference/link_records.html">link_records()</a></code> creates every possible record-pair of values for each attribute, which are then compared. This is often faster but at the costs more in memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no <code>blocking_attribute</code>. Below we see how <code><a href="../reference/link_records.html">link_records()</a></code> is used for the same fuzzy matching.</p>
+<p>In contrast to this, <code><a href="../reference/link_records.html">link_records()</a></code> creates every possible record-pair of values for each attribute, which are then compared. This is often faster but costs more in memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no <code>blocking_attribute</code>. Below we see how <code><a href="../reference/link_records.html">link_records()</a></code> is used for the same fuzzy matching.</p>
 <div class="sourceCode" id="cb7"><html><body><pre class="r"><span class="no">p8</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/link_records.html">link_records</a></span>(<span class="kw">attribute</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">missing_staff_id</span>$<span class="no">hair_colour</span>,
                                     <span class="no">missing_staff_id</span>$<span class="no">branch_office</span>),
                    <span class="kw">cmp_func</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">last_word_cmp</span>, <span class="no">last_word_cmp</span>),
@@ -270,8 +270,8 @@
 <span class="co">#&gt; 19    5    6         0         0          0        FALSE</span>
 <span class="co">#&gt; 20    5    7         0         0          0        FALSE</span>
 <span class="co">#&gt; 21    6    7         1         1          2         TRUE</span></pre></body></html></div>
-<p>It’s worth noting that <code><a href="../reference/link_records.html">link_records()</a></code> does not have the step-wise or nested matching features of <code><a href="../reference/links.html">links()</a></code> however, <code><a href="../reference/merge_identifiers.html">merge_ids()</a></code> can be used to achieve the same result by consolidating two <code>pid</code> objects in the same way <code><a href="../reference/links.html">links()</a></code> would.</p>
-<p>An advantage of <code><a href="../reference/link_records.html">link_records()</a></code> over <code><a href="../reference/links.html">links()</a></code> is it’s ability to implement a probabilistic approach to record linkage. It’s implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity. In summary, <code>m_probabilities</code> and <code>u_probabilities</code>, which are the probabilities of a true and false match respectively are used to calculate a final match score for each record-pair. Records below or above a certain <code>score_threshold</code> are considered matches or non-matches respectively. See <code><a href="../reference/link_records.html">help(link_records)</a></code> for a more detailed explanation of the method. Below we see the same analysis as above but as a probabilistic record linkage.</p>
+<p>It’s worth noting that <code><a href="../reference/link_records.html">link_records()</a></code> does not have the step-wise or nested matching features of <code><a href="../reference/links.html">links()</a></code> however, <code><a href="../reference/merge_identifiers.html">merge_ids()</a></code> can be used to achieve the same result by consolidating the result of multiple instances of <code><a href="../reference/link_records.html">link_records()</a></code> (<code>pid</code> objects) in the same way <code><a href="../reference/links.html">links()</a></code> would.</p>
+<p>The advantage of <code><a href="../reference/link_records.html">link_records()</a></code> over <code><a href="../reference/links.html">links()</a></code> is it’s ability to implement a probabilistic approach to record linkage. Its implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity. In summary, <code>m_probabilities</code> and <code>u_probabilities</code>, which are the probabilities of a true and false match respectively are used to calculate a final match score for each record-pair. Records below or above a certain <code>score_threshold</code> are considered matches or non-matches respectively. See <code><a href="../reference/link_records.html">help(link_records)</a></code> for a more detailed explanation of the method. Below we see the same analysis as above but as a probabilistic record linkage.</p>
 <div class="sourceCode" id="cb8"><html><body><pre class="r"><span class="no">p9</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/link_records.html">link_records</a></span>(<span class="kw">attribute</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">missing_staff_id</span>$<span class="no">hair_colour</span>,
                                     <span class="no">missing_staff_id</span>$<span class="no">branch_office</span>),
                    <span class="kw">cmp_func</span> <span class="kw">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="no">last_word_cmp</span>, <span class="no">last_word_cmp</span>),
@@ -390,7 +390,7 @@
 <span class="co">#&gt; 19     &lt;NA&gt;       Green        A       set_3 P.5 (CRI 002) P.17 (CRI 002)</span>
 <span class="co">#&gt; 20     G.D.  Dark brown        A       set_3 P.1 (CRI 001) P.15 (CRI 001)</span>
 <span class="co">#&gt; 21     G.D.       Brown        B       set_3 P.7 (CRI 001) P.15 (CRI 001)</span></pre></body></html></div>
-<p>The results are the different as per the linkage strategy. We can use <code>as.data.frame</code> or <code>as.list</code> to access the contents of each identifier inspect the difference.</p>
+<p>The results are different as per the different linkage strategy. We can use <code>as.data.frame</code> or <code>as.list</code> to access the contents of each identifier to inspect the difference.</p>
 <div class="sourceCode" id="cb11"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html">as.data.frame</a></span>(<span class="no">triplicate</span>$<span class="no">p1</span>)
 <span class="co">#&gt;    pid sn pid_cri link_id pid_total iteration       pid_dataset</span>
 <span class="co">#&gt; 1    1  1       1       1         6         1 set_1,set_2,set_3</span>

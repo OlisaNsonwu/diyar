@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>diyar at a glance</h1>
             
-            <h4 class="date">15 November 2021</h4>
+            <h4 class="date">28 November 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/overview.Rmd"><code>vignettes/overview.Rmd</code></a></small>
       <div class="hidden name"><code>overview.Rmd</code></div>
@@ -108,9 +108,9 @@
 <div id="oveview" class="section level1">
 <h1 class="hasAnchor">
 <a href="#oveview" class="anchor"></a>Oveview</h1>
-<p><code>diyar</code> is a data analytical package for linking entities (records) with shared characteristics. Linked entities are assigned to unique groups with identifiers. These identifiers are stored as an <code>S4</code> class with useful information about each group in their slots.</p>
+<p><code>diyar</code> is a data analytical package for linking records with shared characteristics. Linked records represent an entity, which depending on the context can range from unique patients or occurrences as defined by a case definition. Each entity is assigned to unique group with identifiers. These identifiers are stored as an <code>S4</code> class with useful information about each group in their slots.</p>
 <p>The package is capable of assessing and comparing an entity’s characteristics in several ways, making it useful in ordinarily complex analyses such as record linkage and contact or network analyses, or the application of case definitions.</p>
-<p>The main functions are <code><a href="../reference/links.html">links()</a></code> and <code><a href="../reference/link_records.html">link_records()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/partitions.html">partitions()</a></code>. These functions are very flexible in terms of what and how comparisons are done, as well as what are considered matches. Although each is best suited to certain use cases, their functionalities can sometimes overlap.</p>
+<p>The main functions are <code><a href="../reference/links.html">links()</a></code> and <code><a href="../reference/link_records.html">link_records()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/partitions.html">partitions()</a></code>. These functions are very flexible in terms of what and how they compare the record’s characteristics, as well as what are considered matches. Although each is best suited to certain use cases, their functionalities can sometimes overlap.</p>
 <ul>
 <li>
 <code><a href="../reference/links.html">links()</a></code> and <code>link_record()</code> - compare records without a temporal aspect to them. For example, record linkage</li>
@@ -128,7 +128,7 @@
 <div id="links" class="section level2">
 <h2 class="hasAnchor">
 <a href="#links" class="anchor"></a>links</h2>
-<p>Primarily used for multi-stage record linkage. Here, records are compared and linked based on different matching criteria over multiple stages. The priority of matches decreases with each stage, that is; a match at one stage (and thus criteria) is considered more relevant than a match at the next stage. As a result, changing the order of each stage or criteria is akin to a different linkage strategy and can lead to different outcomes. This is demonstrated below with the 2-setp linkages of the <code>missing_staff_id</code> sample dataset.</p>
+<p>Primarily used for multi-stage record linkage. Here, records are compared and linked based on different matching criteria over multiple stages. The priority of matches decreases with each stage, that is; a match at one stage (and thus criteria) is considered more relevant than a match at the next stage. As a result, changing the order of each stage or criteria is akin to a different linkage strategy and can lead to different outcomes. This is demonstrated below with 2-step linkages of the <code>missing_staff_id</code> sample dataset.</p>
 <div class="sourceCode" id="cb1"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">diyar</span>)
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">missing_staff_id</span>)
 <span class="no">dfr_stages</span> <span class="kw">&lt;-</span> <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"age"</span>, <span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>, <span class="st">"source_1"</span>)]
@@ -307,7 +307,7 @@
 <div id="other-useful-functions" class="section level1">
 <h1 class="hasAnchor">
 <a href="#other-useful-functions" class="anchor"></a>Other useful functions</h1>
-<p>There are other functions which support the above mentioned ones but are also useful for common analytical tasks. Some of these are shown below.</p>
+<p>There are other supporting functions which are useful for common analytical tasks. Some of these are shown below.</p>
 <div id="number_line" class="section level2">
 <h2 class="hasAnchor">
 <a href="#number_line" class="anchor"></a>number_line</h2>
@@ -389,9 +389,9 @@
 <div id="processing-time" class="section level1">
 <h1 class="hasAnchor">
 <a href="#processing-time" class="anchor"></a>Processing time</h1>
-<p><code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code> are iterative functions. Although both continue to be optimised, each iteration costs additional processing time. The main way to mitigate this is to reduce the number of iterations required to complete an analyses. To help with this, both functions have arguments which ensure that only the minimum number of records required to complete the process is used.</p>
+<p><code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code> are iterative functions. Although both continue to be optimised, each iteration costs additional processing time. The main way to mitigate this is to reduce the number of iterations required to complete an analysis. To help with this, both functions have arguments which ensure that only the minimum number of records required to complete the process is used.</p>
 <p>The flexibility of <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code> results in situations where the use of different arguments will lead to the same outcome. However, one combination will usually require fewer iterations to complete the same process. Therefore, a good grasp of the role of each argument is useful in knowing the most efficient combination of arguments to use.</p>
-<p>For some analyses, <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code> can be used interchangeably however, this tends to be less efficient. For example, identifiers <code>dfr_4$ep4</code> and <code>dfr_4$pd5</code> are essentially the same outcome; 2 groups with the same set of records in each. However, we can see below that <code><a href="../reference/episodes.html">episodes()</a></code> created <code>dfr_4$ep4</code> in 2 iterations compared to the 7 iterations it took <code><a href="../reference/links.html">links()</a></code> to create <code>dfr_4$ep4</code>.</p>
+<p>In some analyses, <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/links.html">links()</a></code> can be used interchangeably however, one is usually less efficient in each situation. For example, identifiers <code>dfr_4$ep4</code> and <code>dfr_4$pd5</code> are essentially the same outcome; 2 groups with the same set of records in each. However, we can see below that <code><a href="../reference/episodes.html">episodes()</a></code> created <code>dfr_4$ep4</code> in 2 iterations compared to the 7 iterations it took <code><a href="../reference/links.html">links()</a></code> to create <code>dfr_4$ep4</code>.</p>
 <div class="sourceCode" id="cb13"><html><body><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/summary.html">summary</a></span>(<span class="no">dfr_4</span>$<span class="no">ep4</span>)
 <span class="co">#&gt; Iterations:                     2</span>
 <span class="co">#&gt; Total records:                  11</span>
@@ -441,7 +441,7 @@
 
 <span class="fu"><a href="https://rdrr.io/r/base/all.html">all</a></span>(<span class="no">dfr_stages</span>$<span class="no">p4</span> <span class="kw">==</span> <span class="no">dfr_stages</span>$<span class="no">p4b</span>)
 <span class="co">#&gt; [1] TRUE</span></pre></body></html></div>
-<p>These time differences are negligible when dealing with relatively small datasets but become more apparent as the size increases.</p>
+<p>The time differences from these different iterations are negligible when dealing with relatively small datasets but become more apparent as the size increases.</p>
 </div>
   </div>
 

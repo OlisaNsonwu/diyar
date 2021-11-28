@@ -40,7 +40,7 @@
 
 
 <meta property="og:title" content="Multistage deterministic record linkage — links" />
-<meta property="og:description" content="Match records in consecutive stages of different matching criteria.
+<meta property="og:description" content="Match records in consecutive stages with different matching criteria.
 Each set of linked records are assigned a unique identifier with relevant group-level information." />
 
 
@@ -73,7 +73,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.3.1.9022</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
       </span>
     </div>
 
@@ -142,7 +142,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </div>
 
     <div class="ref-description">
-    <p>Match records in consecutive stages of different matching criteria.
+    <p>Match records in consecutive stages with different matching criteria.
 Each set of linked records are assigned a unique identifier with relevant group-level information.</p>
     </div>
 
@@ -207,11 +207,11 @@ Each set of linked records are assigned a unique identifier with relevant group-
     </tr>
     <tr>
       <th>recursive</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code>, within each iteration of the process, a match can spawn new matches. See <code><a href='../articles/links.html'>vignette("links")</a></code>.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, within each iteration of the process, a match can spawn new matches.</p></td>
     </tr>
     <tr>
       <th>check_duplicates</th>
-      <td><p><code>[logical]</code>. If <code>TRUE</code>, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. See <code><a href='../articles/links.html'>vignette("links")</a></code>.</p></td>
+      <td><p><code>[logical]</code>. If <code>TRUE</code>, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.</p></td>
     </tr>
     <tr>
       <th>tie_sort</th>
@@ -241,10 +241,10 @@ Each element's name must correspond to a stage. See below for an example of 3 <c
 <p>For example;</p>
 <p>$$list("cr1" = sub_criteria(...), "cr5" = sub_criteria(...), "cr13" = sub_criteria(...)).$$</p>
 <p><code><a href='sub_criteria.html'>sub_criteria</a></code> can be nested to achieve nested conditions.</p>
-<p>A <code><a href='sub_criteria.html'>sub_criteria</a></code> can be linked to different <code>criteria</code>.</p>
-<p>Any unlinked <code><a href='sub_criteria.html'>sub_criteria</a></code> will be ignored.</p>
+<p>A <code><a href='sub_criteria.html'>sub_criteria</a></code> can be linked to different <code>criteria</code> but any unlinked <code><a href='sub_criteria.html'>sub_criteria</a></code> will be ignored.</p>
 <p>By default, attributes in a <code><a href='sub_criteria.html'>sub_criteria</a></code> are compared for an <code><a href='predefined_tests.html'>exact_match</a></code>.
-However, user-defined funcitons are also permitted. Such functions must meet two requirements:</p><ol>
+However, user-defined functions are also permitted. Such functions must meet three requirements:</p><ol>
+<li><p>It must be able to compare the attributes.</p></li>
 <li><p>It must have two arguments named <code>`x`</code> and <code>`y`</code>, where <code>`y`</code> is the value for one observation being compared against all other observations (<code>`x`</code>).</p></li>
 <li><p>It must return a <code>logical</code> object i.e.<code>TRUE</code> or <code>FALSE</code>.</p></li>
 </ol>
