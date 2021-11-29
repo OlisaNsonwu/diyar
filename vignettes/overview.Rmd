@@ -23,7 +23,7 @@ theme <- "light" # dark vs light
 bd_line <- ifelse(theme == "dark", "white", "black")
 ```
 
-# Oveview
+# Overview
 `diyar` is a data analytical package for linking records with shared characteristics.
 Linked records represent an entity, which depending on the context can range from unique patients or occurrences as defined by a case definition. Each entity is assigned to unique group with identifiers.
 These identifiers are stored as an `S4` class with useful information about each group in their slots.
@@ -258,7 +258,7 @@ str(prs_3)
 ```
 
 ## combi
-`combi()` creats numeric codes for unique combination of vectors.
+`combi()` creates numeric codes for unique combination of vectors.
 This aims to be a faster alternative to `paste0` when it's more relevant to know a unique combination instead of the exact combination.
 ```{r warning=FALSE}
 cmbi_dfr <- dfr_stages[c(1, 2)]
