@@ -1242,7 +1242,7 @@ make_batch_pairs <- function(strata, index_record, sn){
   lgk <- which(!duplicated(strata, fromLast = TRUE))
 
   pos_repo <- list(sn = sn)
-  pos_repo$x_pos <- seq_len(length(sn))[sn]
+  pos_repo$x_pos <- sn
   pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
   pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
   return(pos_repo)

@@ -1,5 +1,15 @@
 
-# Version 0.3.1.9000
+# Version 0.4.1.9000
+
+## New features
+
+## Changes
+
+## Bug fixes
+
+`make_batch_pairs()` (internal) created invalid record pairs. Resolved.
+
+# Version 0.4.0
 
 ## New features
 
@@ -35,9 +45,9 @@
 
 ## Bug fixes
 
--   Incorrect `wind_id` list in `episodes()` when `data_link` is used.
+-   Incorrect `wind_id` list in `episodes(..., data_link = "XX")` in .
     Resolved.
--   Incorrect `link_id` in `links()` when `recursive` is used. Resolved.
+-   Incorrect `link_id` in `links(..., recursive = TRUE)`. Resolved.
 -   `iteration` not recorded in some situations with `episodes()`.
     Resolved.
 -   `skip_order` ends an open episode. Resolved.
