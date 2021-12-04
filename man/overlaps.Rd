@@ -135,9 +135,6 @@ across(a, e)
 x_across_y(a, e)
 y_across_x(a, e)
 
-y_across_x(a, b)
-y_across_x(a, e)
-
 chain(c, d)
 chain(a, c)
 
