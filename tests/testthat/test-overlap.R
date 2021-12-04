@@ -26,14 +26,14 @@ test_that("test overlap functions", {
 
 
 test_that("test overlap method function", {
-  expect_equal(overlap_method(number_line(-100, 100), number_line(50, 200)), "across")
-  expect_equal(overlap_method(number_line(-100, 50), number_line(50, 200)), "chain")
+  expect_equal(overlap_method(number_line(-100, 100), number_line(50, 200)), "y_across_x")
+  expect_equal(overlap_method(number_line(-100, 50), number_line(50, 200)), "x_chain_y")
   expect_equal(overlap_method(number_line(-100, 50), number_line(-100, 200)), "aligns_start")
   expect_equal(overlap_method(number_line(-100, 50), number_line(200, 50)), "aligns_end")
   expect_equal(overlap_method(number_line(-100, 50), number_line(200, -100)), "aligns_start")
   expect_equal(overlap_method(number_line(-100, -100), number_line(200, -100)), "aligns_start")
   expect_equal(overlap_method(number_line(-1121, -100), number_line(200, -100)), "aligns_end")
-  expect_equal(overlap_method(number_line(-1121, 1100), number_line(-100, 100)), "inbetween")
+  expect_equal(overlap_method(number_line(-1121, 1100), number_line(-100, 100)), "y_inbetween_x")
   expect_equal(overlap_method(number_line(-1121, 1100), number_line(-100, 1100)), "aligns_end")
 })
 
@@ -80,10 +80,10 @@ test_that("test compress function", {
 })
 
 test_that("test set overlap functions", {
-  expect_equal(exclude_overlap_method(""), match("across|aligns_end|aligns_start|chain|exact|inbetween|reverse", overlap_methods$options))
-  expect_equal(exclude_overlap_method("chain"), match("across|aligns_end|aligns_start|exact|inbetween|reverse", overlap_methods$options))
-  expect_equal(exclude_overlap_method(c("chain","aligns_end")), match("across|aligns_start|exact|inbetween|reverse", overlap_methods$options))
-  expect_equal(include_overlap_method(""), match("none", overlap_methods$options))
-  expect_equal(include_overlap_method("chain"), match("chain", overlap_methods$options))
-  expect_equal(include_overlap_method(c("chain","aligns_end")), match("aligns_end|chain", overlap_methods$options))
+  expect_equal(exclude_overlap_method(""), overlap_method_codes("x_across_y|y_across_x|aligns_end|aligns_start|x_chain_y|y_chain_x|exact|x_inbetween_y|y_inbetween_x|reverse"))
+  expect_equal(exclude_overlap_method("chain"), overlap_method_codes("across|aligns_end|aligns_start|exact|inbetween|reverse"))
+  expect_equal(exclude_overlap_method(c("chain","aligns_end")), overlap_method_codes("across|aligns_start|exact|inbetween|reverse"))
+  expect_equal(include_overlap_method(""), overlap_method_codes("none"))
+  expect_equal(include_overlap_method("chain"), overlap_method_codes("chain"))
+  expect_equal(include_overlap_method(c("chain","aligns_end")), overlap_method_codes("aligns_end|chain"))
 })

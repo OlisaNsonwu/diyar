@@ -4,7 +4,7 @@
 \alias{listr}
 \title{Grammatical lists.}
 \usage{
-listr(x, sep = ", ", conj = " and", lim = Inf)
+listr(x, sep = ", ", conj = " and ", lim = Inf)
 }
 \arguments{
 \item{x}{\code{atomic} vector.}

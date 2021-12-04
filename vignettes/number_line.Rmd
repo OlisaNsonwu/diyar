@@ -109,7 +109,7 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
  # 
  # nl2 <- c(exact, reverse, inbetween, across, chain, aligns_start, aligns_end)
  # strata <- sort(rep(seq_len(length(nl2)/2), 2))
- # nl_ep <- episodes(nl2, strata = strata, case_length = index_window(nl2))
+ # nl_ep <- episodes(nl2, strata = strata, case_length = index_window(nl2), custom_sort = seq_len(length(nl2)))
  # plt1 <- schema(nl_ep[1:12], seed = 2, show_labels = c("date", "case_overlap_methods"),
  #                theme = "light")
  # plt2 <- schema(nl_ep[13:24], seed = 2, show_labels = c("date", "case_overlap_methods"),

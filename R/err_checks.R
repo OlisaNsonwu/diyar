@@ -352,7 +352,7 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
 
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
     return(paste0("Length of each `", arg_nm, "` and each attribute of `", cri_nm, "` must be the same or equal to 1:\n",
-                  "i - Expecting ", listr(unique(c(1, err)), conj = " or"), ".\n",
+                  "i - Expecting ", listr(unique(c(1, err)), conj = " or "), ".\n",
                   "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(fmt(sort(err))), ".\n",
                   "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of attribute(s) in `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(fmt(sort(err2))), "."))
   }else{
@@ -431,7 +431,7 @@ err_episode_unit_1 <- function(episode_unit){
       errs <- listr(opts)
     }
     errs <-  paste0("Invalid values for `episode_unit`:\n",
-                    "i - Vaild values are ", listr(paste0("\"", names(diyar::episode_unit), "\""), conj = " or"), ".\n",
+                    "i - Vaild values are ", listr(paste0("\"", names(diyar::episode_unit), "\""), conj = " or "), ".\n",
                     "X - You've supplied ", errs, ".")
 
     return(errs)
@@ -531,8 +531,8 @@ err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
 
   if(length(err) > 0){
     err <- paste0("Invalid option for `", overlap_methods_nm, "`\n",
-                  "i - Valid options are integers; 1-", length(overlap_methods$options),".\n",
-                  "i - Valid options are \"overlap\", \"exact\", \"reverse\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\n",
+                  "i - Valid options are integers; 1-", length(diyar::overlap_methods$options),".\n",
+                  "i - Valid options are ", paste0("\"",names(diyar::overlap_methods$methods),"\"", collapse = ", "),".\n",
                   "i - Syntax 1 ~ 100.\n",
                   "i - Syntax 2 ~ \"aligns_end|exact...\".\n",
                   "i - Syntax 3 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\n",
@@ -588,7 +588,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
   if(length(err) > 0){
     err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
                   ifelse(ref_nm == "", "", paste0("i - Length must be ", ifelse(1 %in% ref_len,"1 or ", ""), "the same as `", ref_nm, "`.\n")),
-                  "i - Expecting a length of ", listr(fmt(unique(ref_len)), conj = " or"), ".\n",
+                  "i - Expecting a length of ", listr(fmt(unique(ref_len)), conj = " or "), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, fmt(length(err))), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", fmt(err), ".", collapse = "\n"))
     return(err)
   }
@@ -606,7 +606,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
   err <- unlist(lapply(arg, function(x){
     x <- class(x)
     if(!any(x %in% obj_types)){
-      x <- listr(paste0("`", x[!x %in% obj_types], "`"), conj = " or")
+      x <- listr(paste0("`", x[!x %in% obj_types], "`"), conj = " or ")
     }else{
       x <- NA_character_
     }
@@ -618,7 +618,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
   if(length(err) > 0){
     obj_types <- ifelse(obj_types == "logical", "logical (`TRUE` or `FALSE`)", obj_types)
     err <- paste0("Invalid object type for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`.\n",
-                  "i - Valid object types are ", listr(paste0("`", obj_types, "`"), conj = " or"), ".\n",
+                  "i - Valid object types are ", listr(paste0("`", obj_types, "`"), conj = " or "), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "You've supplied a ", err, " object.", collapse = "\n"))
     return(err)
   }else{
@@ -1235,7 +1235,7 @@ err_invalid_opts <- function(arg_vals, arg_nm, valid_opts){
   errs <- invalid_opts(arg_vals, valid_opts)
   if(length(errs) > 0){
     errs <-  paste0("Invalid values for `", arg_nm, "`:\n",
-                    "i - Vaild values are ", listr(paste0("\"", valid_opts, "\""), conj = " or"), ".\n",
+                    "i - Vaild values are ", listr(paste0("\"", valid_opts, "\""), conj = " or "), ".\n",
                     "X - You've supplied ", errs, ".")
     return(errs)
   }else{
@@ -1459,7 +1459,7 @@ err_spec_vals <- function(x, var, vals){
       errs <- listr(opts)
     }
     errs <-  paste0("Invalid values for `",var, "`:\n",
-                    "i - Vaild values are ", listr(paste0("\"", vals, "\""), conj = " or"), ".\n",
+                    "i - Vaild values are ", listr(paste0("\"", vals, "\""), conj = " or "), ".\n",
                     "X - You've supplied ", errs, ".")
 
     return(errs)

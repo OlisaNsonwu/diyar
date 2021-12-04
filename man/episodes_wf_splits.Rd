@@ -10,7 +10,7 @@ episodes_wf_splits(..., duplicates_recovered = "ANY", reframe = FALSE)
 \item{...}{Arguments passed to \code{\link{episodes}}.}
 
 \item{duplicates_recovered}{\code{[character]}. Determines which duplicate records are recycled.
-Options are \code{"ANY"} (default), \code{"without_sub_criteria"} or \code{"with_sub_criteria"}. See \code{Details}.}
+Options are \code{"ANY"} (default), \code{"without_sub_criteria"}, \code{"with_sub_criteria"} or \code{"ALL"}. See \code{Details}.}
 
 \item{reframe}{\code{[logical]}. Determines if the duplicate records in a \code{\link{sub_criteria}} are reframed (\code{TRUE}) or excluded (\code{FALSE}).}
 }

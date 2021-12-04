@@ -3,11 +3,26 @@
 
 ## New features
 
+New function - `overlap_method_names()`. Overlap methods for a
+corresponding overlap method codes.
+
 ## Changes
+
+-   `"chain"` overlap method split into `"x_chain_y"` and `"y_chain_x"`.
+    `"chain"` will continue to be supported as a keyword for
+    `"x_chain_y" OR "y_chain_x"` method
+-   `"across"` overlap method split into `"x_across_y"` and
+    `"y_across_x"`. `"across"` will continue to be supported as a
+    keyword for `"x_across_y" OR "y_across_x"` methods
+-   `"inbetween"` overlap method split into `"x_inbetween_y"` and
+    `"y_inbetween_x"`. `"inbetween"` will continue to be supported as a
+    keyword for `"x_inbetween_y" OR "y_inbetween_x"` methods
+-   Optimised `overlaps()`.
 
 ## Bug fixes
 
-`make_batch_pairs()` (internal) created invalid record pairs. Resolved.
+-   `make_batch_pairs()` (internal) created invalid record pairs.
+    Resolved.
 
 # Version 0.4.0
 

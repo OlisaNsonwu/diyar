@@ -6,14 +6,21 @@
 \alias{exact}
 \alias{reverse}
 \alias{across}
+\alias{x_across_y}
+\alias{y_across_x}
 \alias{chain}
+\alias{x_chain_y}
+\alias{y_chain_x}
 \alias{aligns_start}
 \alias{aligns_end}
 \alias{inbetween}
+\alias{x_inbetween_y}
+\alias{y_inbetween_x}
 \alias{overlap_method}
 \alias{include_overlap_method}
 \alias{exclude_overlap_method}
 \alias{overlap_method_codes}
+\alias{overlap_method_names}
 \title{Overlapping number line objects}
 \usage{
 overlaps(x, y, methods = 8)
@@ -26,13 +33,25 @@ reverse(x, y)
 
 across(x, y)
 
+x_across_y(x, y)
+
+y_across_x(x, y)
+
 chain(x, y)
+
+x_chain_y(x, y)
+
+y_chain_x(x, y)
 
 aligns_start(x, y)
 
 aligns_end(x, y)
 
 inbetween(x, y)
+
+x_inbetween_y(x, y)
+
+y_inbetween_x(x, y)
 
 overlap_method(x, y)
 
@@ -41,6 +60,8 @@ include_overlap_method(methods)
 exclude_overlap_method(methods)
 
 overlap_method_codes(methods)
+
+overlap_method_names(methods)
 }
 \arguments{
 \item{x}{\code{[\link{number_line}]}}
@@ -64,16 +85,19 @@ Identify overlapping \code{number_line} objects
 \bold{\code{reverse()}} - Swapped left and right points.
 
 \bold{\code{inbetween()}} - start and end point of one \code{number_line} object is within the start and end point of another.
+Split into \bold{\code{x_inbetween_y()}} and \bold{\code{y_inbetween_x()}}.
 
 \bold{\code{across()}} - start or end point of one \code{number_line} object is in between the start and end point of another.
+Split into \bold{\code{x_across_y()}} and \bold{\code{y_across_x()}}.
 
 \bold{\code{chain()}} - endpoint of one \code{number_line} object is the same as the start point of another.
+Split into \bold{\code{x_chain_y()}} and \bold{\code{y_chain_x()}}.
 
 \bold{\code{aligns_start()}} - identical start points only.
 
 \bold{\code{aligns_end()}} - identical end point only.
 
-\bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" methods of overlap.
+\bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" overlap methods.
 
 \bold{\code{overlaps()}} - overlap by a specified combination of the methods.
 
@@ -107,11 +131,21 @@ exact(a, a)
 reverse(e, e)
 reverse(e, f)
 
-across(a, b)
 across(a, e)
+x_across_y(a, e)
+y_across_x(a, e)
+
+y_across_x(a, b)
+y_across_x(a, e)
 
 chain(c, d)
 chain(a, c)
+
+x_chain_y(c, d)
+x_chain_y(a, c)
+
+y_chain_x(c, d)
+y_chain_x(a, c)
 
 aligns_start(c, d)
 aligns_start(a, c)
@@ -121,6 +155,12 @@ aligns_end(a, c)
 
 inbetween(a, g)
 inbetween(b, a)
+
+x_inbetween_y(a, g)
+x_inbetween_y(b, a)
+
+y_inbetween_x(a, g)
+y_inbetween_x(b, a)
 
 overlap_method(a, c)
 overlap_method(d, c)
@@ -135,6 +175,9 @@ exclude_overlap_method(c("across", "chain"))
 
 overlap_method_codes("across")
 overlap_method_codes("across|chain|exact")
+
+overlap_method_names(100)
+overlap_method_names(561)
 }
 \seealso{
 \code{\link{number_line}};  \code{\link{set_operations}}

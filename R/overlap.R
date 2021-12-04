@@ -18,16 +18,19 @@
 #' \bold{\code{reverse()}} - Swapped left and right points.
 #'
 #' \bold{\code{inbetween()}} - start and end point of one \code{number_line} object is within the start and end point of another.
+#' Split into \bold{\code{x_inbetween_y()}} and \bold{\code{y_inbetween_x()}}.
 #'
 #' \bold{\code{across()}} - start or end point of one \code{number_line} object is in between the start and end point of another.
+#' Split into \bold{\code{x_across_y()}} and \bold{\code{y_across_x()}}.
 #'
 #' \bold{\code{chain()}} - endpoint of one \code{number_line} object is the same as the start point of another.
+#' Split into \bold{\code{x_chain_y()}} and \bold{\code{y_chain_x()}}.
 #'
 #' \bold{\code{aligns_start()}} - identical start points only.
 #'
 #' \bold{\code{aligns_end()}} - identical end point only.
 #'
-#' \bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" methods of overlap.
+#' \bold{\code{overlap()}} - any kind of overlap. A convenient \code{method} for "ANY" and "ALL" overlap methods.
 #'
 #' \bold{\code{overlaps()}} - overlap by a specified combination of the methods.
 #'
@@ -87,68 +90,172 @@ overlaps <- function(x, y, methods = 8){
     methods <- overlap_method_codes(methods)
   }
 
+  ov_lgk <- overlap(x, y)
   lgk_2 <- rep(FALSE, length(x))
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["overlap"]] & lgk_2 %in% c(FALSE, NA))
-  if(length(mth_lgk) > 0){
-    lgk_2[mth_lgk] <- overlap(x[mth_lgk], y[mth_lgk])
-  }
 
+  # None
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["none"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     !ov_lgk)
+  lgk_2[mth_lgk] <- TRUE
   if(all(lgk_2 == TRUE & !is.na(lgk_2))) {
     rm(list = ls()[ls() != "lgk_2"])
     return(lgk_2)
   }
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["across"]] & lgk_2 %in% c(FALSE, NA))
+  # Overlap
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["overlap"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
+  lgk_2[mth_lgk] <- TRUE
+
+  if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+    rm(list = ls()[ls() != "lgk_2"])
+    return(lgk_2)
+  }
+  # across
+  # mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["across"]] &
+  #                    lgk_2 %in% c(FALSE, NA) &
+  #                    ov_lgk)
+  # if(length(mth_lgk) > 0){
+  #   lgk_2[mth_lgk] <- across(x[mth_lgk], y[mth_lgk])
+  #   if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+  #     rm(list = ls()[ls() != "lgk_2"])
+  #     return(lgk_2)
+  #   }
+  # }
+  # x_across_y
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_across_y"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
   if(length(mth_lgk) > 0){
-    lgk_2[mth_lgk] <- across(x[mth_lgk], y[mth_lgk])
+    lgk_2[mth_lgk] <- x_across_y(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  if(all(lgk_2 == TRUE & !is.na(lgk_2))) {
-    rm(list = ls()[ls() != "lgk_2"])
-    return(lgk_2)
+  # y_across_x
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_across_x"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- y_across_x(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["exact"]] & lgk_2 %in% c(FALSE, NA))
+  # exact
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["exact"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
   if(length(mth_lgk) > 0){
     lgk_2[mth_lgk] <- exact(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  if(all(lgk_2 == TRUE & !is.na(lgk_2))) {
-    rm(list = ls()[ls() != "lgk_2"])
-    return(lgk_2)
-  }
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["inbetween"]] & lgk_2 %in% c(FALSE, NA))
+  # inbetween
+  # mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["inbetween"]] &
+  #                    lgk_2 %in% c(FALSE, NA) &
+  #                    ov_lgk)
+  # if(length(mth_lgk) > 0){
+  #   lgk_2[mth_lgk] <- inbetween(x[mth_lgk], y[mth_lgk])
+  #   if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+  #     rm(list = ls()[ls() != "lgk_2"])
+  #     return(lgk_2)
+  #   }
+  # }
+  # x_inbetween_y
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_inbetween_y"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
   if(length(mth_lgk) > 0){
-    lgk_2[mth_lgk] <- inbetween(x[mth_lgk], y[mth_lgk])
+    lgk_2[mth_lgk] <- x_inbetween_y(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  if(all(lgk_2 == TRUE & !is.na(lgk_2))) {
-    rm(list = ls()[ls() != "lgk_2"])
-    return(lgk_2)
+  # y_inbetween_x
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_inbetween_x"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- y_inbetween_x(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["aligns_start"]] & lgk_2 %in% c(FALSE, NA))
+  # aligns_start
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["aligns_start"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
   if(length(mth_lgk) > 0){
     lgk_2[mth_lgk] <- aligns_start(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  if(all(lgk_2 == TRUE & !is.na(lgk_2))) {
-    rm(list = ls()[ls() != "lgk_2"])
-    return(lgk_2)
-  }
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["aligns_end"]] & lgk_2 %in% c(FALSE, NA))
+  # aligns_end
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["aligns_end"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
   if(length(mth_lgk) > 0){
     lgk_2[mth_lgk] <- aligns_end(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  if(all(lgk_2 == TRUE & !is.na(lgk_2))) {
-    rm(list = ls()[ls() != "lgk_2"])
-    return(lgk_2)
-  }
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["chain"]] & lgk_2 %in% c(FALSE, NA))
+  # chain
+  # mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["chain"]] &
+  #                    lgk_2 %in% c(FALSE, NA) &
+  #                    ov_lgk)
+  # if(length(mth_lgk) > 0){
+  #   lgk_2[mth_lgk] <- chain(x[mth_lgk], y[mth_lgk])
+  #   if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+  #     rm(list = ls()[ls() != "lgk_2"])
+  #     return(lgk_2)
+  #   }
+  # }
+  # x_chain_y
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_chain_y"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
   if(length(mth_lgk) > 0){
-    lgk_2[mth_lgk] <- chain(x[mth_lgk], y[mth_lgk])
+    lgk_2[mth_lgk] <- x_chain_y(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  if(all(lgk_2 == TRUE & !is.na(lgk_2))) {
-    rm(list = ls()[ls() != "lgk_2"])
-    return(lgk_2)
+  # y_chain_x
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_chain_x"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
+  if(length(mth_lgk) > 0){
+    lgk_2[mth_lgk] <- y_chain_x(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["reverse"]] & lgk_2 %in% c(FALSE, NA))
+  # reverse
+  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["reverse"]] &
+                     lgk_2 %in% c(FALSE, NA) &
+                     ov_lgk)
   if(length(mth_lgk) > 0){
     lgk_2[mth_lgk] <- reverse(x[mth_lgk], y[mth_lgk])
+    if(all((lgk_2 == TRUE & !is.na(lgk_2)) | (!ov_lgk & !lgk_2))){
+      rm(list = ls()[ls() != "lgk_2"])
+      return(lgk_2)
+    }
   }
+
   rm(list = ls()[ls() != "lgk_2"])
   return(lgk_2)
 }
@@ -217,10 +324,27 @@ reverse <- function(x, y){
 #' @rdname overlaps
 #' @examples
 #'
-#' across(a, b)
 #' across(a, e)
+#' x_across_y(a, e)
+#' y_across_x(a, e)
 #' @export
 across <- function(x, y){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0) return(logical())
+
+  r <- x_across_y(x, y) | y_across_x(x, y)
+  return(r)
+}
+
+#' @rdname overlaps
+#' @export
+x_across_y <- function(x, y){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
 
@@ -235,8 +359,30 @@ across <- function(x, y){
   ed_x <- end_point(x)
   ed_y <- end_point(y)
 
-  r <- ((sp_x > sp_y & sp_x < ed_y) & ((ed_x < sp_y) | (ed_x > ed_y))) |
-    ((sp_y > sp_x & sp_y < ed_x) & ((ed_y < sp_x) | (ed_y > ed_x)))
+  r <- ((sp_x > sp_y & sp_x < ed_y) & ((ed_x < sp_y) | (ed_x > ed_y)))
+
+  rm(sp_x, sp_y, ed_x, ed_y)
+  return(r)
+}
+
+#' @rdname overlaps
+#' @export
+y_across_x <- function(x, y){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0) return(logical())
+
+  sp_x <- start_point(x)
+  sp_y <- start_point(y)
+  ed_x <- end_point(x)
+  ed_y <- end_point(y)
+
+  r <- ((sp_y > sp_x & sp_y < ed_x) & ((ed_y < sp_x) | (ed_y > ed_x)))
 
   rm(sp_x, sp_y, ed_x, ed_y)
   return(r)
@@ -257,8 +403,48 @@ chain <- function(x, y){
   if(err != F) stop(err, call. = F)
   if(length(x) == 0 & length(y) == 0) return(logical())
 
-  r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0) |
-    ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
+  r <- x_chain_y(x, y) | y_chain_x(x, y)
+
+  return(r)
+}
+
+#' @rdname overlaps
+#' @examples
+#'
+#' x_chain_y(c, d)
+#' x_chain_y(a, c)
+#' @export
+x_chain_y <- function(x, y){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0) return(logical())
+
+  r <- ((x@start + x@.Data) == y@start & x@.Data != 0 & y@.Data != 0)
+  r[which(!is.finite(r) | x@.Data * y@.Data < 0 | is.na(x@.Data * y@.Data))] <- FALSE
+
+  return(r)
+}
+
+#' @rdname overlaps
+#' @examples
+#'
+#' y_chain_x(c, d)
+#' y_chain_x(a, c)
+#' @export
+y_chain_x <- function(x, y){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0) return(logical())
+
+  r <- ((y@start + y@.Data) == x@start & x@.Data != 0 & y@.Data != 0)
   r[which(!is.finite(r) | x@.Data * y@.Data < 0 | is.na(x@.Data * y@.Data))] <- FALSE
 
   return(r)
@@ -327,10 +513,46 @@ inbetween <- function(x, y){
   if(err != F) stop(err, call. = F)
   if(length(x) == 0 & length(y) == 0) return(logical())
 
-  r <- ((x@start > y@start & x@start < y@start + y@.Data) & (x@start + x@.Data > y@start & x@start + x@.Data < y@start + y@.Data)) |
-    ((y@start > x@start & y@start < x@start + x@.Data) & (y@start + y@.Data > x@start & y@start + y@.Data < x@start + x@.Data)) |
-    ((x@start < y@start & x@start > y@start + y@.Data) & (x@start + x@.Data < y@start & x@start + x@.Data > y@start + y@.Data)) |
-    ((y@start < x@start & y@start > x@start + x@.Data) & (y@start + y@.Data < x@start & y@start + y@.Data > x@start + x@.Data))
+  r <- x_inbetween_y(x, y) | y_inbetween_x(x, y)
+  return(r)
+}
+
+#' @rdname overlaps
+#' @examples
+#'
+#' x_inbetween_y(a, g)
+#' x_inbetween_y(b, a)
+#' @export
+x_inbetween_y <- function(x, y){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0) return(logical())
+
+  r <- ((x@start > y@start & x@start < y@start + y@.Data) & (x@start + x@.Data > y@start & x@start + x@.Data < y@start + y@.Data))
+
+  return(r)
+}
+
+#' @rdname overlaps
+#' @examples
+#'
+#' y_inbetween_x(a, g)
+#' y_inbetween_x(b, a)
+#' @export
+y_inbetween_x <- function(x, y){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
+  if(missing(y)) stop("argument `y` is missing, with no default", call. = F)
+  err <- err_object_types(x, "x", "number_line")
+  if(err != F) stop(err, call. = F)
+  err <- err_object_types(y, "y", "number_line")
+  if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0) return(logical())
+
+  r <- ((y@start > x@start & y@start < x@start + x@.Data) & (y@start + y@.Data > x@start & y@start + y@.Data < x@start + x@.Data))
 
   return(r)
 }
@@ -353,10 +575,14 @@ overlap_method <- function(x, y){
   if(length(x) == 0 & length(y) == 0) return(character())
 
   m <- rep("none", max(c(length(x), length(y))))
-  lgk <- which(across(x, y) & m == "none")
-  m[lgk] <- "across"
-  lgk <- which(inbetween(x, y) & m == "none")
-  m[lgk] <- "inbetween"
+  lgk <- which(x_across_y(x, y) & m == "none")
+  m[lgk] <- "x_across_y"
+  lgk <- which(y_across_x(x, y) & m == "none")
+  m[lgk] <- "y_across_x"
+  lgk <- which(x_inbetween_y(x, y) & m == "none")
+  m[lgk] <- "x_inbetween_y"
+  lgk <- which(y_inbetween_x(x, y) & m == "none")
+  m[lgk] <- "y_inbetween_x"
   lgk <- which(exact(x, y) & m == "none")
   m[lgk] <- "exact"
   lgk <- which(reverse(x, y) & m == "none")
@@ -365,8 +591,10 @@ overlap_method <- function(x, y){
   m[lgk] <- "aligns_start"
   lgk <- which(aligns_end(x, y) & m == "none")
   m[lgk] <- "aligns_end"
-  lgk <- which(chain(x, y) & m == "none")
-  m[lgk] <- "chain"
+  lgk <- which(x_chain_y(x, y) & m == "none")
+  m[lgk] <- "x_chain_y"
+  lgk <- which(y_chain_x(x, y) & m == "none")
+  m[lgk] <- "y_chain_x"
 
   m
 }
@@ -380,7 +608,24 @@ overlap_method <- function(x, y){
 include_overlap_method <- function(methods){
   err <- err_object_types(methods, "methods", "character")
   if(err != F) stop(err, call. = F)
-  lst <- c("overlap", "none", "exact", "across", "chain", "aligns_start", "aligns_end", "inbetween", "reverse")
+  lst <- c("overlap", "none", "exact",
+           "x_across_y", "y_across_x",
+           "x_chain_y", "y_chain_x",
+           "aligns_start", "aligns_end",
+           "x_inbetween_y", "y_inbetween_x",
+           "reverse")
+  if(any(methods == "across")){
+    methods <- methods[methods != "across"]
+    methods <- c(methods, "x_across_y", "y_across_x")
+  }
+  if(any(methods == "chain")){
+    methods <- methods[methods != "chain"]
+    methods <- c(methods, "x_chain_y", "y_chain_x")
+  }
+  if(any(methods == "inbetween")){
+    methods <- methods[methods != "inbetween"]
+    methods <- c(methods, "x_inbetween_y", "y_inbetween_x")
+  }
   methods <- tolower(methods[!duplicated(methods)])
   methods <- methods[methods %in% lst]
   if(any(methods == "overlap")){
@@ -403,7 +648,23 @@ exclude_overlap_method <- function(methods){
   err <- err_object_types(methods, "methods", "character")
   if(err != F) stop(err, call. = F)
 
-  lst <- c("exact", "across", "chain", "aligns_start", "aligns_end", "inbetween", "reverse")
+  lst <- c("exact", "x_across_y", "y_across_x",
+           "x_chain_y", "y_chain_x",
+           "aligns_start", "aligns_end",
+           "x_inbetween_y", "y_inbetween_x",
+           "reverse")
+  if(any(methods == "across")){
+    methods <- methods[methods != "across"]
+    methods <- c(methods, "x_across_y", "y_across_x")
+  }
+  if(any(methods == "chain")){
+    methods <- methods[methods != "chain"]
+    methods <- c(methods, "x_chain_y", "y_chain_x")
+  }
+  if(any(methods == "inbetween")){
+    methods <- methods[methods != "inbetween"]
+    methods <- c(methods, "x_inbetween_y", "y_inbetween_x")
+  }
   methods <- lst[!lst %in% methods]
   methods <- paste0(sort(methods), collapse = "|")
   overlap_method_codes(methods)
@@ -420,6 +681,25 @@ overlap_method_codes <- function(methods){
   x2_cd <-  lapply(x2, function(x){
     lgk <- sapply(strsplit(as.vector(x), "\\|"), function(x){
       x <- x[x %in% names(diyar::overlap_methods$methods)]
+      if(any(x == "overlap")){
+        return(match("overlap", diyar::overlap_methods$options))
+      }
+      if(any(x == "none")){
+        return(match("none", diyar::overlap_methods$options))
+      }
+      if(any(x == "across")){
+        x <- x[x != "across"]
+        x <- c(x, "x_across_y", "y_across_x")
+      }
+      if(any(x == "chain")){
+        x <- x[x != "chain"]
+        x <- c(x, "x_chain_y", "y_chain_x")
+      }
+      if(any(x == "inbetween")){
+        x <- x[x != "inbetween"]
+        x <- c(x, "x_inbetween_y", "y_inbetween_x")
+      }
+      x <- x[!duplicated(x)]
       x <- paste0(sort(x), collapse = "|")
       match(x, diyar::overlap_methods$options)
     })
@@ -428,4 +708,17 @@ overlap_method_codes <- function(methods){
   x2_cd <- unlist(x2_cd)
   x2_cd <- x2_cd[match(methods, x2)]
   return(x2_cd)
+}
+
+#' @rdname overlaps
+#' @examples
+#'
+#' overlap_method_names(100)
+#' overlap_method_names(561)
+#' @export
+overlap_method_names <- function(methods){
+  nm <- rep(NA_character_, length(methods))
+  lgk <- methods %in% unlist(diyar::overlap_methods$methods, use.names = FALSE)
+  nm[lgk] <- diyar::overlap_methods$options[methods[lgk]]
+  return(nm)
 }

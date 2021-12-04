@@ -693,9 +693,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         tag != 2
     })
     if(length(cr) == 1){
-      vr <- cr[[1]]
+      vr <- cr[[1]] & ep_checks[[1]]
     }else{
-      vr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE))
+      vr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE)) & as.logical(Rfast::rowMaxs(sapply(ep_checks, function(x) as.numeric(x)), value = TRUE))
     }
 
     cr <- lapply(1:length(ep_checks), function(i){
@@ -718,6 +718,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       cr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE))
     }
 
+    # browser()
     # Implement `case_sub_criteria`
     checks_lgk <- rep(FALSE, length(date))
     if(class(case_sub_criteria) == "sub_criteria"){
@@ -733,16 +734,17 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           checks_lgk[cr & !cri_2] <- eval_sub_criteria(x = case_sub_criteria,
                                                        x_pos = pos_repo$x_pos,
                                                        y_pos = pos_repo$y_pos)[[1]]
-          checks_lgk[ref_rd] <- 1L
+          # checks_lgk[ref_rd] <- 1L
+          checks_lgk
           rm(pos_repo)
         }
         checks_lgk
       })
 
       if(length(c_sub_cri) == 1){
-        c_sub_cri <- as.logical(c_sub_cri[[1]])
+        c_sub_cri <- as.logical(c_sub_cri[[1]]) & vr
       }else{
-        c_sub_cri <- as.logical(Rfast::rowMaxs(sapply(c_sub_cri, function(x) as.numeric(x)), value = TRUE))
+        c_sub_cri <- as.logical(Rfast::rowMaxs(sapply(c_sub_cri, function(x) as.numeric(x)), value = TRUE)) & vr
       }
       cr[!c_sub_cri & cr & !ref_rd & tr_tag %in% c(0, -2)] <- FALSE
     }else{
@@ -790,9 +792,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       })
 
       if(length(cr2) == 1){
-        vr2 <- cr2[[1]]
+        vr2 <- cr2[[1]] & rc_checks[[1]]
       }else{
-        vr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE))
+        vr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE)) & as.logical(Rfast::rowMaxs(sapply(rc_checks, function(x) as.numeric(x)), value = TRUE))
       }
 
       cr2 <- lapply(1:length(rc_checks), function(i){
@@ -834,17 +836,17 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             checks_lgk[cr2 & !cri_2] <- eval_sub_criteria(x = recurrence_sub_criteria,
                                                           x_pos = pos_repo$x_pos,
                                                           y_pos = pos_repo$y_pos)[[1]]
-            checks_lgk[ref_rd & cr2 & !cri_2] <- 1L
-
+            # checks_lgk[ref_rd & cr2 & !cri_2] <- 1L
+            checks_lgk
           }
           rm(pos_repo)
           checks_lgk
         })
 
         if(length(r_sub_cri) == 1){
-          r_sub_cri <- as.logical(r_sub_cri[[1]])
+          r_sub_cri <- as.logical(r_sub_cri[[1]]) & vr2
         }else{
-          r_sub_cri <- as.logical(Rfast::rowMaxs(sapply(r_sub_cri, function(x) as.numeric(x)), value = TRUE))
+          r_sub_cri <- as.logical(Rfast::rowMaxs(sapply(r_sub_cri, function(x) as.numeric(x)), value = TRUE)) & vr2
         }
         cr2[!r_sub_cri & cr2 & !ref_rd & tr_tag %in% c(-1)] <- FALSE
       }else{
@@ -1319,7 +1321,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #'
 #' @param ... Arguments passed to \code{\link{episodes}}.
 #' @param duplicates_recovered \code{[character]}. Determines which duplicate records are recycled.
-#' Options are \code{"ANY"} (default), \code{"without_sub_criteria"} or \code{"with_sub_criteria"}. See \code{Details}.
+#' Options are \code{"ANY"} (default), \code{"without_sub_criteria"}, \code{"with_sub_criteria"} or \code{"ALL"}. See \code{Details}.
 #' @param reframe \code{[logical]}. Determines if the duplicate records in a \code{\link{sub_criteria}} are reframed (\code{TRUE}) or excluded (\code{FALSE}).
 #'
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
