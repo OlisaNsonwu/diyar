@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>diyar at a glance</h1>
             
-            <h4 class="date">28 November 2021</h4>
+            <h4 class="date">04 December 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/overview.Rmd"><code>vignettes/overview.Rmd</code></a></small>
       <div class="hidden name"><code>overview.Rmd</code></div>
@@ -105,9 +105,9 @@
 
     
     
-<div id="oveview" class="section level1">
+<div id="overview" class="section level1">
 <h1 class="hasAnchor">
-<a href="#oveview" class="anchor"></a>Oveview</h1>
+<a href="#overview" class="anchor"></a>Overview</h1>
 <p><code>diyar</code> is a data analytical package for linking records with shared characteristics. Linked records represent an entity, which depending on the context can range from unique patients or occurrences as defined by a case definition. Each entity is assigned to unique group with identifiers. These identifiers are stored as an <code>S4</code> class with useful information about each group in their slots.</p>
 <p>The package is capable of assessing and comparing an entity’s characteristics in several ways, making it useful in ordinarily complex analyses such as record linkage and contact or network analyses, or the application of case definitions.</p>
 <p>The main functions are <code><a href="../reference/links.html">links()</a></code> and <code><a href="../reference/link_records.html">link_records()</a></code>, <code><a href="../reference/episodes.html">episodes()</a></code> and <code><a href="../reference/partitions.html">partitions()</a></code>. These functions are very flexible in terms of what and how they compare the record’s characteristics, as well as what are considered matches. Although each is best suited to certain use cases, their functionalities can sometimes overlap.</p>
@@ -371,7 +371,7 @@
 <div id="combi" class="section level2">
 <h2 class="hasAnchor">
 <a href="#combi" class="anchor"></a>combi</h2>
-<p><code><a href="../reference/combi.html">combi()</a></code> creats numeric codes for unique combination of vectors. This aims to be a faster alternative to <code>paste0</code> when it’s more relevant to know a unique combination instead of the exact combination.</p>
+<p><code><a href="../reference/combi.html">combi()</a></code> creates numeric codes for unique combination of vectors. This aims to be a faster alternative to <code>paste0</code> when it’s more relevant to know a unique combination instead of the exact combination.</p>
 <div class="sourceCode" id="cb12"><html><body><pre class="r"><span class="no">cmbi_dfr</span> <span class="kw">&lt;-</span> <span class="no">dfr_stages</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">2</span>)]
 <span class="no">cmbi_dfr</span>$<span class="no">combi_nm</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/paste.html">paste</a></span>(<span class="no">cmbi_dfr</span><span class="kw">[[</span><span class="fl">1</span>]], <span class="no">cmbi_dfr</span><span class="kw">[[</span><span class="fl">2</span>]])
 <span class="no">cmbi_dfr</span>$<span class="no">combi_cd</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/combi.html">combi</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="no">cmbi_dfr</span>))

@@ -70,7 +70,7 @@ nl3; nl4
 #> [1] "1 -> 20"
 #> [1] "3 -> 6"
 overlap_method(nl3, nl4)
-#> [1] "inbetween"
+#> [1] "y_inbetween_x"
 intersect_number_lines(nl3, nl4)
 #> [1] "3 -> 6"
 subtract_number_lines(nl3, nl4)
@@ -103,14 +103,17 @@ dfr <- missing_staff_id[c("staff_id",  "initials", "hair_colour", "branch_office
 p1 <- link_records(as.list(dfr), score_threshold = -4.2)
 p1$pid
 #> [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"
-#> [5] "P.5 (No hits)" "P.6 (No hits)" "P.1 (CRI 001)"
+#> [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.1 (CRI 001)"
 subset(p1$pid_weights, record.match)
-#>   sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
-#> 6    1    7            0            1               1                 1
-#>   cmp.weight prb.staff_id prb.initials prb.hair_colour prb.branch_office
-#> 6          3    -4.321928     1.148392        1.733354          1.733354
-#>   prb.weight record.match
-#> 6  0.2931724         TRUE
+#>    sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
+#> 6     1    7            0            1               1                 1
+#> 21    6    7            1            1               0                 0
+#>    cmp.weight prb.staff_id prb.initials prb.hair_colour prb.branch_office
+#> 6           3    -3.358454     1.074391        1.659354          1.659354
+#> 21          2     1.659354     1.074391       -3.298333         -3.298333
+#>    prb.weight record.match
+#> 6    1.034645         TRUE
+#> 21  -3.862921         TRUE
 ```
 
 `links_wf_probabilistic()` is a wrapper function of `links()` and an
@@ -121,16 +124,19 @@ slower in comparison.
 p2 <- links_wf_probabilistic(as.list(dfr), score_threshold = -4.2, recursive = TRUE)
 p2$pid
 #> [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"
-#> [5] "P.5 (No hits)" "P.6 (No hits)" "P.1 (CRI 001)"
+#> [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.1 (CRI 001)"
 subset(p2$pid_weights, record.match)
 #>   sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office
 #> 1    1    1            0            1               1                 1
+#> 6    6    7            1            1               0                 0
 #> 7    7    1            0            1               1                 1
 #>   cmp.weight prb.staff_id prb.initials prb.hair_colour prb.branch_office
 #> 1          3    -4.321928     1.148392        1.733354          1.733354
+#> 6          2     1.733354     1.148392       -3.298333         -3.298333
 #> 7          3    -3.836501     1.148392        1.733354          1.733354
 #>   prb.weight record.match
 #> 1  0.2931724         TRUE
+#> 6 -3.7149198         TRUE
 #> 7  0.7785993         TRUE
 ```
 
@@ -169,7 +175,8 @@ partitions(dates, length.out = 3, separate = TRUE, group_stats = TRUE)
 #> [7] "PN.5 2020-01-05 -> 2020-01-07 (D)"
 ```
 
-Find out more [here!](https://olisansonwu.github.io/diyar/index.html)
+Find out more
+[here!](https://olisansonwu.github.io/diyar/articles/overview.html)
 
 ## Bugs and issues
 

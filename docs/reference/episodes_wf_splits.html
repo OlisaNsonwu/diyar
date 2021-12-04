@@ -74,7 +74,7 @@ The resulting episode identifiers are recycled for the duplicate records." />
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -160,7 +160,7 @@ The resulting episode identifiers are recycled for the duplicate records.</p>
     <tr>
       <th>duplicates_recovered</th>
       <td><p><code>[character]</code>. Determines which duplicate records are recycled.
-Options are <code>"ANY"</code> (default), <code>"without_sub_criteria"</code> or <code>"with_sub_criteria"</code>. See <code>Details</code>.</p></td>
+Options are <code>"ANY"</code> (default), <code>"without_sub_criteria"</code>, <code>"with_sub_criteria"</code> or <code>"ALL"</code>. See <code>Details</code>.</p></td>
     </tr>
     <tr>
       <th>reframe</th>
@@ -197,10 +197,10 @@ Both will require slightly different functions for <code>match_funcs</code> or <
 <span class='fu'><a href='https://rdrr.io/r/base/system.time.html'>system.time</a></span>(
   <span class='no'>ep1</span> <span class='kw'>&lt;-</span> <span class='fu'><a href='episodes.html'>episodes</a></span>(<span class='no'>dates</span>, <span class='fl'>1</span>)
 )</div><div class='output co'>#&gt;    user  system elapsed 
-#&gt;    2.73    0.92    3.87 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/system.time.html'>system.time</a></span>(
+#&gt;    2.42    0.72    3.20 </div><div class='input'><span class='fu'><a href='https://rdrr.io/r/base/system.time.html'>system.time</a></span>(
   <span class='no'>ep2</span> <span class='kw'>&lt;-</span> <span class='fu'>episodes_wf_splits</span>(<span class='no'>dates</span>, <span class='fl'>1</span>)
 )</div><div class='output co'>#&gt;    user  system elapsed 
-#&gt;    0.22    0.02    0.24 </div><div class='input'>
+#&gt;    0.10    0.00    0.16 </div><div class='input'>
 <span class='co'># Both leads to the same outcome.</span>
 <span class='fu'><a href='https://rdrr.io/r/base/all.html'>all</a></span>(<span class='no'>ep1</span> <span class='kw'>==</span> <span class='no'>ep2</span>)</div><div class='output co'>#&gt; [1] TRUE</div></pre>
   </div>

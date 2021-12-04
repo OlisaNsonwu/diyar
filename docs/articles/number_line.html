@@ -31,7 +31,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
       </span>
     </div>
 
@@ -96,7 +96,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>number_line and overlaps</h1>
             
-            <h4 class="date">28 November 2021</h4>
+            <h4 class="date">04 December 2021</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/master/vignettes/number_line.Rmd"><code>vignettes/number_line.Rmd</code></a></small>
       <div class="hidden name"><code>number_line.Rmd</code></div>
@@ -158,44 +158,44 @@
 <p>There are convenience functions to reverse, shrink, expand or shift a <code>number_line</code> along the number line.</p>
 <div class="sourceCode" id="cb2"><html><body><pre class="r"><span class="no">nl_c</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">number_line</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"04/04/2019"</span>, <span class="st">"%d/%M/%Y"</span>), <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"07/04/2019"</span>, <span class="st">"%d/%M/%Y"</span>))
 <span class="no">nl_c</span>
-<span class="co">#&gt; [1] "2019-11-04 -&gt; 2019-11-07"</span>
+<span class="co">#&gt; [1] "2019-12-04 -&gt; 2019-12-07"</span>
 
 <span class="co"># Expand the `number_line` by 2 days from both ends </span>
 <span class="no">nl_d</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>); <span class="no">nl_d</span>
-<span class="co">#&gt; [1] "2019-11-02 -&gt; 2019-11-09"</span>
+<span class="co">#&gt; [1] "2019-12-02 -&gt; 2019-12-09"</span>
 
 <span class="co"># Expand the `number_line` by 2 days from the lower end only</span>
 <span class="no">nl_e</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>, <span class="st">"start"</span>); <span class="no">nl_e</span>
-<span class="co">#&gt; [1] "2019-11-02 -&gt; 2019-11-07"</span>
+<span class="co">#&gt; [1] "2019-12-02 -&gt; 2019-12-07"</span>
 
 <span class="co"># Shrink the `number_line` by 2 days from the upper end only</span>
 <span class="no">nl_f</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>, <span class="st">"end"</span>); <span class="no">nl_f</span>
-<span class="co">#&gt; [1] "2019-11-04 -&gt; 2019-11-05"</span>
+<span class="co">#&gt; [1] "2019-12-04 -&gt; 2019-12-05"</span>
 
 <span class="co"># Shrink the `number_line` by 2 days from both ends</span>
 <span class="no">nl_g</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">expand_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>); <span class="no">nl_g</span>
-<span class="co">#&gt; [1] "2019-11-06 &lt;- 2019-11-05"</span>
+<span class="co">#&gt; [1] "2019-12-06 &lt;- 2019-12-05"</span>
 
 <span class="co"># Reverse the direction of the `number_line`</span>
 <span class="no">nl_h</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">reverse_number_line</a></span>(<span class="no">nl_c</span>); <span class="no">nl_h</span>
-<span class="co">#&gt; [1] "2019-11-07 &lt;- 2019-11-04"</span>
+<span class="co">#&gt; [1] "2019-12-07 &lt;- 2019-12-04"</span>
 
 <span class="co"># Shift the `number_line` towards the negative end of the number line by 2 days </span>
 <span class="no">nl_i</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">shift_number_line</a></span>(<span class="no">nl_c</span>, -<span class="fl">2</span>); <span class="no">nl_i</span>
-<span class="co">#&gt; [1] "2019-11-02 -&gt; 2019-11-05"</span>
+<span class="co">#&gt; [1] "2019-12-02 -&gt; 2019-12-05"</span>
 
 <span class="co"># Shift the `number_line` towards the positive end of the number line by 2 days </span>
 <span class="no">nl_j</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">shift_number_line</a></span>(<span class="no">nl_c</span>, <span class="fl">2</span>); <span class="no">nl_j</span>
-<span class="co">#&gt; [1] "2019-11-06 -&gt; 2019-11-09"</span>
+<span class="co">#&gt; [1] "2019-12-06 -&gt; 2019-12-09"</span>
 
 <span class="co"># Change the left part of the `number_line` to a negative value</span>
 <span class="no">nl_k</span> <span class="kw">&lt;-</span> <span class="fu"><a href="../reference/number_line.html">invert_number_line</a></span>(<span class="no">nl_c</span>, <span class="st">"left"</span>); <span class="no">nl_k</span>
-<span class="co">#&gt; [1] "-18204 -&gt; 18207"</span>
+<span class="co">#&gt; [1] "-18234 -&gt; 18237"</span>
 
 <span class="co"># Split a `number_line`</span>
 <span class="no">nl_l</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="no">nl_c</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">3</span>); <span class="no">nl_l</span>
-<span class="co">#&gt; [1] "2019-11-04 -&gt; 2019-11-05" "2019-11-05 -&gt; 2019-11-06"</span>
-<span class="co">#&gt; [3] "2019-11-06 -&gt; 2019-11-07"</span></pre></body></html></div>
+<span class="co">#&gt; [1] "2019-12-04 -&gt; 2019-12-05" "2019-12-05 -&gt; 2019-12-06"</span>
+<span class="co">#&gt; [3] "2019-12-06 -&gt; 2019-12-07"</span></pre></body></html></div>
 </div>
 <div id="overlaps" class="section level2">
 <h2 class="hasAnchor">

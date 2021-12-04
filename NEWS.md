@@ -18,6 +18,8 @@ corresponding overlap method codes.
     `"y_inbetween_x"`. `"inbetween"` will continue to be supported as a
     keyword for `"x_inbetween_y" OR "y_inbetween_x"` methods
 -   Optimised `overlaps()`.
+-   Changed overlap method codes. Please review any previously specified
+    codes with `overlap_method_names()`.
 
 ## Bug fixes
 
