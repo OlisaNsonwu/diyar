@@ -364,12 +364,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   # Skip events without the required `skip_order`
-  if(all(is.infinite(skip_order))){
-    lgk <- custom_sort <= skip_order
+  if(any(is.finite(skip_order))){
+    lgk <- order(cri, custom_sort)
+    t_cri <- cri[lgk]
+    t_csort <- custom_sort[lgk]
+    t_csort <- t_csort[!duplicated(t_cri)]
+    t_cri <- t_cri[!duplicated(t_cri)]
+
+    min_custom_sort <- t_csort[match(cri, t_cri)]
+    lgk <- min_custom_sort <= skip_order
     lgk <- !cri %in% cri[lgk]
     tag[lgk] <- 2L
     case_nm[lgk] <- -1L
     iteration[lgk] <- 0L
+    rm(min_custom_sort, t_cri, t_csort)
   }
 
   # Flag a strata with only one event as a case
