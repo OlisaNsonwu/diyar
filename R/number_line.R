@@ -113,7 +113,9 @@ left_point <- function(x){
   err <- err_object_types(x, "x", "number_line")
   if(err != FALSE) stop(err, call. = FALSE)
   if(length(x) == 0) return(number_line())
-  number_line(r =right_point(x),  l=value, id=x@id, gid=x@gid)
+  x@.Data <- as.numeric(x@start +x@.Data) - as.numeric(value)
+  x@start <- (as.numeric(x@start) * 0) + value
+  x
 }
 
 #' @rdname number_line
@@ -131,7 +133,8 @@ right_point <- function(x){
   err <- err_object_types(x, "x", "number_line")
   if(err != FALSE) stop(err, call. = FALSE)
   if(length(x) == 0) return(number_line())
-  number_line(r=value,  l=x@start, id=x@id, gid=x@gid)
+  x@.Data <- as.numeric(value) - as.numeric(x@start)
+  x
 }
 
 #' @rdname number_line
@@ -140,8 +143,11 @@ start_point <- function(x){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
   err <- err_object_types(x, "x", "number_line")
   if(err != FALSE) stop(err, call. = FALSE)
-  x <- reverse_number_line(x,"decreasing")
-  x@start
+  y <- x@start
+  indx <- which(x@.Data < 0)
+  y[indx] <- x@start[indx] + x@.Data[indx]
+  rm(x, indx)
+  return(y)
 }
 
 #' @rdname number_line
@@ -149,11 +155,13 @@ start_point <- function(x){
 "start_point<-" <- function(x, value) {
   err <- err_object_types(x, "x", "number_line")
   if(err != FALSE) stop(err, call. = FALSE)
-  l <- x@start; r <- value
-  l[x@.Data >= 0] <- value[x@.Data >= 0]
-  r[x@.Data >= 0] <- (x@start + x@.Data)[x@.Data >= 0]
 
-  number_line(l=l, r=r, id=x@id, gid=x@gid)
+  value <- mk_lazy_opt(value)
+  lgk <- x@.Data < 0
+  x@.Data[!lgk] <- as.numeric(x@start[!lgk] + x@.Data[!lgk]) - value[!lgk]
+  x@start[!lgk] <- (as.numeric(x@start[!lgk]) * 0) + value[!lgk]
+  x@.Data[lgk] <- as.numeric(value[lgk]) - as.numeric(x@start[lgk])
+  x
 }
 
 #' @rdname number_line
@@ -162,8 +170,11 @@ end_point <- function(x){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
   err <- err_object_types(x, "x", "number_line")
   if(err != FALSE) stop(err, call. = FALSE)
-  x <- reverse_number_line(x,"decreasing")
-  x@start + x@.Data
+  y <- x@start + x@.Data
+  indx <- which(x@.Data < 0)
+  y[indx] <- x@start[indx]
+  rm(x, indx)
+  return(y)
 }
 
 #' @rdname number_line
@@ -172,11 +183,12 @@ end_point <- function(x){
   err <- err_object_types(x, "x", "number_line")
   if(err != FALSE) stop(err, call. = FALSE)
 
-  l <- value; r <- (x@start + x@.Data)
-  l[x@.Data >= 0] <- x@start[x@.Data >= 0]
-  r[x@.Data >= 0] <- value[x@.Data >= 0]
-
-  number_line(l=l, r=r, id=x@id, gid=x@gid)
+  value <- mk_lazy_opt(value)
+  lgk <- x@.Data < 0
+  x@.Data[lgk] <- as.numeric(x@start[lgk] + x@.Data[lgk]) - value[lgk]
+  x@start[lgk] <- (as.numeric(x@start[lgk]) * 0) + value[lgk]
+  x@.Data[!lgk] <- as.numeric(value[!lgk]) - as.numeric(x@start[!lgk])
+  x
 }
 
 #' @rdname number_line
@@ -219,21 +231,18 @@ reverse_number_line <- function(x, direction = "both"){
   direction <- tolower(direction)
   fnt <- is.finite(as.numeric(x@start)) & is.finite(as.numeric(x@.Data))
 
-  x[direction=="increasing" & x@.Data>0 & fnt == T] <- number_line(l= x@start[direction=="increasing" & x@.Data>0 & fnt == T] + x@.Data[direction=="increasing" & x@.Data>0 & fnt == T],
-                                                                   r= x@start[direction=="increasing" & x@.Data>0 & fnt == T],
-                                                                   id=x@id[direction=="increasing" & x@.Data>0 & fnt == T],
-                                                                   gid=x@gid[direction=="increasing" & x@.Data>0 & fnt == T])
+  y <- x
+  indx <- which(((direction == "increasing" & y@.Data > 0) | (direction == "both")) &
+                  fnt)
+  left_point(x[indx]) <- right_point(y[indx])
+  right_point(x[indx]) <- left_point(y[indx])
+  indx <- which(direction %in% c("decreasing", "both") &
+                  y@.Data < 0 &
+                  fnt)
+  left_point(x[indx]) <- right_point(y[indx])
+  right_point(x[indx]) <- left_point(y[indx])
 
-  x[direction=="decreasing" & x@.Data<0 & fnt == T] <- number_line(l= x@start[direction=="decreasing" & x@.Data<0 & fnt == T] + x@.Data[direction=="decreasing" & x@.Data<0 & fnt == T],
-                                                                   r= x@start[direction=="decreasing" & x@.Data<0 & fnt == T],
-                                                                   id= x@id[direction=="decreasing" & x@.Data<0 & fnt == T],
-                                                                   gid= x@gid[direction=="decreasing" & x@.Data<0 & fnt == T])
-
-  x[direction == "both" & x@.Data !=0 & fnt == T] <- number_line(l= x@start[direction == "both" & x@.Data !=0 & fnt == T] + x@.Data[direction == "both" & x@.Data !=0 & fnt == T],
-                                                                 r= x@start[direction == "both" & x@.Data !=0 & fnt == T],
-                                                                 id= x@id[direction == "both" & x@.Data !=0 & fnt == T],
-                                                                 gid= x@gid[direction == "both" & x@.Data !=0 & fnt == T])
-
+  rm(indx, y)
   return(x)
 }
 
@@ -261,7 +270,7 @@ shift_number_line <- function(x, by = 1){
   if(err != FALSE) stop(err, call. = FALSE)
 
   by[!is.finite(by)] <- NA_real_
-  n <- ifelse(is.finite(x@start) & is.finite(x@.Data),1,0)
+  n <- is.finite(x@start) & is.finite(x@.Data)
   by <- by * n
 
   x@start <- x@start + by
@@ -346,17 +355,22 @@ invert_number_line <- function(x, point = "both"){
   if(err != FALSE) stop(err, call. = FALSE)
 
   point <- tolower(point)
+  if(length(point) == 1){
+    point <- rep(point, length(x))
+  }
 
-  x <- number_line(l=as.numeric(x@start), r=as.numeric(x@start)+x@.Data, id=x@id, gid=x@gid)
-  left_point(x[point=="left"]) <- -x@start[point=="left"]
-  right_point(x[point=="right"]) <- -(x@start[point=="right"] + x@.Data[point=="right"])
-  start_point(x[point == "start"]) <- -start_point(x[point == "start"])
-  end_point(x[point == "end"]) <- -end_point(x[point == "end"])
-  left_point(x[point == "both"]) <- -x@start[point == "both"]; right_point(x[point == "both"]) <- -(x@start[point == "both"] + x@.Data[point == "both"])
+  x@start <- as.numeric(as.numeric(x@start))
+  indx <- which(point %in% c("left", "both"))
+  left_point(x[indx]) <- -x@start[indx]
+  indx <- which(point %in% c("right", "both"))
+  right_point(x[indx]) <- -(x@start[indx] + x@.Data[indx])
+  indx <- which(point == "start")
+  start_point(x[indx]) <- -start_point(x[indx])
+  indx <- which(point == "end")
+  end_point(x[indx]) <- -end_point(x[indx])
 
   return(x)
 }
-
 # @details
 # \bold{\code{compress_number_line()}} - \code{"compress"} or \code{"collapse"} overlapping \code{number_line} into a new \code{number_line} that covers the \code{start} and \code{end} points of the originals.
 # This results in duplicate \code{number_line} with the \code{start} and \code{end} points of the newly expanded \code{number_line}

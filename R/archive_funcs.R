@@ -1582,3 +1582,48 @@ make_ids_archive <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
   rm(list = ls()[!ls() %in% c("sn", "link_id", "group_id", "matched")])
   return(list(sn = sn, link_id = link_id, group_id = group_id, linked = matched))
 }
+
+expand_number_line_v2_archive <- function(x, by = 1, point = "both"){
+  if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
+  err <- err_object_types(x, "x", "number_line")
+  if(err != FALSE) stop(err, call. = FALSE)
+  if(length(x) == 0) return(x)
+  err <- err_match_ref_len(by, "x", c(1, length(x)), "by")
+  if(err != FALSE) stop(err, call. = FALSE)
+  err <- err_match_ref_len(point, "x", c(1, length(x)), "point")
+  if(err != FALSE) stop(err, call. = FALSE)
+  err <- err_object_types(by, "by", c("numeric", "integer"))
+  if(err != FALSE) stop(err, call. = FALSE)
+  err <- err_missing_check(by, "by")
+  if(err != FALSE) stop(err, call. = FALSE)
+  err <- err_object_types(point, "point", "character")
+  if(err != FALSE) stop(err, call. = FALSE)
+  err <- err_invalid_opts(point, "point", c("both","start","end","left","right"))
+  if(err != FALSE) stop(err, call. = FALSE)
+
+  point <- tolower(point)
+  if(length(point) == 1){
+    point <- rep(point, length(x))
+  }
+  by[!is.finite(by)] <- NA_real_
+  by <- mk_lazy_opt(by)
+
+  if(any(point == "left")){
+    indx <- which(point == "left")
+    left_point(x[indx]) <- left_point(x[indx]) - by[indx]
+  }
+  if(any(point == "right")){
+    indx <- which(point == "right")
+    right_point(x[indx]) <- right_point(x[indx]) + by[indx]
+  }
+  if(any(point %in% c("both", "start"))){
+    indx <- which(point %in% c("both", "start"))
+    start_point(x[indx]) <- start_point(x[indx]) - by[indx]
+  }
+  if(any(point %in% c("both", "end"))){
+    indx <- which(point %in% c("both", "end"))
+    end_point(x[indx]) <- end_point(x[indx]) + by[indx]
+  }
+
+  return(x)
+}
