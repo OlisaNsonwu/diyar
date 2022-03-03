@@ -428,10 +428,10 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
         ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y), linetype = "dashed", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$wind_nm_l == "Recurrence length" & case_l_ar$epid_total > 1 & case_l_ar$nl_s != case_l_ar$nl_e,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open")) +
         ggplot2::geom_segment(ggplot2::aes(x = .data$pt_end, y = .data$y, xend = .data$start, yend = .data$y), linetype = "dotted", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$epid_total > 1 & case_l_ar$start != 0 & case_l_ar$end != 0,])
     }
-    if("wind_nm" %in% show_labels){
+    if("length" %in% show_labels){
       f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$epid_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
     }
-    if("length" %in% show_labels){
+    if("wind_nm" %in% show_labels){
       f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_t), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$epid_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
     }
     f <- f +

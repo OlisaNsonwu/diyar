@@ -50,14 +50,14 @@ seq(nl, length.out = 3)
 overlap.
 
 ``` r
-overlap_method(nl, nl); reverse(nl, nl)
+overlap_method(nl, nl); exact(nl, nl)
 #> [1] "exact"
-#> [1] FALSE
-nl2 <- reverse_number_line(nl); nl2
-#> [1] "10 <- 1"
-overlap_method(nl, nl2); reverse(nl, nl2)
-#> [1] "reverse"
 #> [1] TRUE
+nl2 <- number_line(10, 15); nl2
+#> [1] "10 -> 15"
+overlap_method(nl, nl2); exact(nl, nl2)
+#> [1] "x_chain_y"
+#> [1] FALSE
 ```
 
 Set operations such as `union_number_lines()` are also possible for

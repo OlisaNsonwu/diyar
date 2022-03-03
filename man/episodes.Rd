@@ -42,29 +42,29 @@ episodes(
 
 \item{recurrence_length}{\code{[integer|\link{number_line}]}. Duration from an event distinguishing a \code{"Recurrent"} event from its index event.}
 
-\item{episode_unit}{\code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.}
+\item{episode_unit}{\code{[character]}. Time unit for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.}
 
 \item{strata}{\code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}.}
 
 \item{sn}{\code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=epid-class]{epid}} identifiers.}
 
-\item{episodes_max}{\code{[integer]}. The maximum number of episodes permitted within each \code{strata}.}
+\item{episodes_max}{\code{[integer]}. Maximum number of episodes permitted within each \code{strata}.}
 
-\item{rolls_max}{\code{[integer]}. Maximum number of times the index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.}
+\item{rolls_max}{\code{[integer]}. Maximum number of times an index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.}
 
-\item{case_overlap_methods}{\code{[character|integer]}. Accepted overlaps method for \code{"Case"} and \code{"Duplicate"} events. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).}
+\item{case_overlap_methods}{\code{[character|integer]}. Accepted ways \code{"Case"} and \code{"Duplicate"} events must overlap. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).}
 
-\item{recurrence_overlap_methods}{\code{[character|integer]}. Accepted overlaps method for \code{"Recurrent"} and \code{"Duplicate"} events. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).}
+\item{recurrence_overlap_methods}{\code{[character|integer]}. Accepted ways \code{"Recurrent"} and \code{"Duplicate"} events must overlap. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).}
 
 \item{skip_if_b4_lengths}{\code{[logical]}. If \code{TRUE} (default), events before a lagged \code{case_length} or \code{recurrence_length} are skipped.}
 
 \item{data_source}{\code{[character]}. Data source identifier. Adds the list of data sources in each episode to the \code{\link[=epid-class]{epid}}. Useful when the data is from multiple sources.}
 
-\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
+\item{data_links}{\code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
 \item{custom_sort}{\code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.}
 
-\item{skip_order}{\code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.}
+\item{skip_order}{\code{[integer]}. Skip episodes with an index event that is greater than \code{"n"} sort order of \code{custom_sort}.}
 
 \item{reference_event}{\code{[character]}. Specifies which events are used as index events for a subsequent \code{case_length} or \code{recurrence_length}. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"} or \code{"first_event"}.}
 

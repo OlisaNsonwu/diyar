@@ -1,5 +1,6 @@
+library(diyar)
 load(file = "testData/epids_htest_1.RData")
-htest_ep <- diyar::episodes(date = number_line(epids_htest_1$period_start, epids_htest_1$period_end),
+htest_ep <- episodes(date = number_line(epids_htest_1$period_start, epids_htest_1$period_end),
                            strata = epids_htest_1$pid,
                            case_length = number_line(epids_htest_1$len_start, epids_htest_1$len_end),
                            group_stats = T,

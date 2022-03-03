@@ -9,13 +9,13 @@ test_that("test overlap functions", {
   expect_equal(across(number_line(-100, 50), number_line(50, 200)), FALSE)
   expect_equal(across(number_line(-100, 50), number_line(-100, 200)), FALSE)
   expect_equal(chain(number_line(-100, 50), number_line(50, 200)), TRUE)
-  expect_equal(chain(number_line(-100, 50), number_line(200, 50)), FALSE)
+  expect_equal(chain(number_line(-100, 50), number_line(200, 50)), TRUE)
   expect_equal(aligns_start(number_line(-100, 50), number_line(-100, 200)), TRUE)
   expect_equal(aligns_start(number_line(-100, 50), number_line(200, -100)), TRUE)
   expect_equal(aligns_start(number_line(-100, -100), number_line(200, -100)), TRUE)
 
   expect_equal(chain(number_line(-100, -100), number_line(200, -100)), FALSE)
-  expect_equal(aligns_end(number_line(-1121, -100), number_line(200, -100)), TRUE)
+  expect_equal(aligns_end(number_line(-1121, -100), number_line(200, -100)), FALSE)
   expect_equal(inbetween(number_line(-1121, 1100), number_line(-100, 100)), TRUE)
   expect_equal(inbetween(number_line(-1121, 1100), number_line(-100, 1100)), FALSE)
 
@@ -26,15 +26,15 @@ test_that("test overlap functions", {
 
 
 test_that("test overlap method function", {
-  expect_equal(overlap_method(number_line(-100, 100), number_line(50, 200)), "y_across_x")
+  expect_equal(overlap_method(number_line(-100, 100), number_line(50, 200)), "x_across_y")
   expect_equal(overlap_method(number_line(-100, 50), number_line(50, 200)), "x_chain_y")
-  expect_equal(overlap_method(number_line(-100, 50), number_line(-100, 200)), "aligns_start")
-  expect_equal(overlap_method(number_line(-100, 50), number_line(200, 50)), "aligns_end")
-  expect_equal(overlap_method(number_line(-100, 50), number_line(200, -100)), "aligns_start")
-  expect_equal(overlap_method(number_line(-100, -100), number_line(200, -100)), "aligns_start")
-  expect_equal(overlap_method(number_line(-1121, -100), number_line(200, -100)), "aligns_end")
+  expect_equal(overlap_method(number_line(-100, 50), number_line(-100, 200)), "x_aligns_start_y")
+  expect_equal(overlap_method(number_line(-100, 50), number_line(200, 50)), "x_chain_y")
+  expect_equal(overlap_method(number_line(-100, 50), number_line(200, -100)), "x_aligns_start_y")
+  expect_equal(overlap_method(number_line(-100, -100), number_line(200, -100)), "x_aligns_start_y")
+  expect_equal(overlap_method(number_line(-1121, -100), number_line(200, -100)), "x_chain_y")
   expect_equal(overlap_method(number_line(-1121, 1100), number_line(-100, 100)), "y_inbetween_x")
-  expect_equal(overlap_method(number_line(-1121, 1100), number_line(-100, 1100)), "aligns_end")
+  expect_equal(overlap_method(number_line(-1121, 1100), number_line(-100, 1100)), "x_aligns_end_y")
 })
 
 test_that("test that error and warning messages are returned correctly", {
@@ -86,4 +86,43 @@ test_that("test set overlap functions", {
   expect_equal(include_overlap_method(""), overlap_method_codes("none"))
   expect_equal(include_overlap_method("chain"), overlap_method_codes("chain"))
   expect_equal(include_overlap_method(c("chain","aligns_end")), overlap_method_codes("aligns_end|chain"))
+})
+
+nl <- diyar::number_line
+
+test_that("test overlap method function", {
+  expect_equal(overlap_method(x = nl(1, 2), y = nl(1, 5)), "x_aligns_start_y")
+  expect_equal(overlap_method(x = nl(1, 2), y = nl(5, 1)), "x_aligns_start_y")
+  expect_equal(overlap_method(x = nl(2, 1), y = nl(5, 1)), "x_aligns_start_y")
+
+  expect_equal(overlap_method(y = nl(1, 2), x = nl(1, 5)), "y_aligns_start_x")
+  expect_equal(overlap_method(y = nl(1, 2), x = nl(5, 1)), "y_aligns_start_x")
+  expect_equal(overlap_method(y = nl(2, 1), x = nl(5, 1)), "y_aligns_start_x")
+
+  expect_equal(overlap_method(x = nl(1, 2), y = nl(2, 5)), "x_chain_y")
+  expect_equal(overlap_method(x = nl(1, 2), y = nl(5, 2)), "x_chain_y")
+  expect_equal(overlap_method(x = nl(2, 1), y = nl(5, 2)), "x_chain_y")
+
+  expect_equal(overlap_method(y = nl(1, 2), x = nl(2, 5)), "y_chain_x")
+  expect_equal(overlap_method(y = nl(1, 2), x = nl(5, 2)), "y_chain_x")
+  expect_equal(overlap_method(y = nl(2, 1), x = nl(5, 2)), "y_chain_x")
+
+  expect_equal(overlap_method(x = nl(1, 2), y = nl(1, 2)), "exact")
+  expect_equal(overlap_method(x = nl(2, 1), y = nl(1, 2)), "exact")
+
+  expect_equal(overlap_method(x = nl(1, 10), y = nl(3, 5)), "y_inbetween_x")
+  expect_equal(overlap_method(x = nl(10, 1), y = nl(5, 3)), "y_inbetween_x")
+  expect_equal(overlap_method(x = nl(10, 1), y = nl(3, 5)), "y_inbetween_x")
+
+  expect_equal(overlap_method(y = nl(1, 10), x = nl(3, 5)), "x_inbetween_y")
+  expect_equal(overlap_method(y = nl(10, 1), x = nl(5, 3)), "x_inbetween_y")
+  expect_equal(overlap_method(y = nl(10, 1), x = nl(3, 5)), "x_inbetween_y")
+
+  expect_equal(overlap_method(x = nl(1, 5), y = nl(3, 8)), "x_across_y")
+  expect_equal(overlap_method(x = nl(1, 5), y = nl(8, 3)), "x_across_y")
+  expect_equal(overlap_method(x = nl(5, 1), y = nl(8, 3)), "x_across_y")
+
+  expect_equal(overlap_method(y = nl(1, 5), x = nl(3, 8)), "y_across_x")
+  expect_equal(overlap_method(y = nl(1, 5), x = nl(8, 3)), "y_across_x")
+  expect_equal(overlap_method(y = nl(5, 1), x = nl(8, 3)), "y_across_x")
 })

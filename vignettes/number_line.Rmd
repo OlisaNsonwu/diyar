@@ -91,14 +91,12 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
 ```
 
 ## Overlaps
-`number_line` objects can overlap with each other. `diyar` recognises seven ways this can happen. These are `exact()`, `reverse()`, `inbetween()`, `across()`, `chain()`, `aligns_start()` and `aligns_end()`. The 7 methods are mutually exclusive. There are 2 convenience methods - `"none"` and `overlap()`, which are mutually inclusive with the other 7. See Figure 1.
+`number_line` objects can overlap with each other. `diyar` recognises seven ways this can happen. These are `exact()`, `inbetween()`, `across()`, `chain()`, `aligns_start()` and `aligns_end()`. The 6 methods are mutually exclusive. There are 2 convenience methods - `"none"` and `overlap()`, which are mutually inclusive with the other 6. See Figure 1.
 
 ```{r warning=FALSE, include=FALSE}
  # exact <- c(number_line(1, 2), number_line(1, 2),
  #            number_line(2, 1), number_line(2, 1),
  #            number_line(1, 1), number_line(1, 1))
- # reverse <- c(number_line(4, 3), number_line(3, 4),
- #              number_line(3, 4), number_line(4, 3))
  # inbetween <- c(number_line(5, 8), number_line(6, 7),
  #                number_line(6, 7), number_line(5, 8),
  #                number_line(5, 8), as.number_line(6))
@@ -107,12 +105,12 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
  # aligns_start <- c(number_line(18, 20), number_line(18, 19))
  # aligns_end <- c(number_line(18, 20), number_line(19, 20))
  # 
- # nl2 <- c(exact, reverse, inbetween, across, chain, aligns_start, aligns_end)
+ # nl2 <- c(exact, inbetween, across, chain, aligns_start, aligns_end)
  # strata <- sort(rep(seq_len(length(nl2)/2), 2))
  # nl_ep <- episodes(nl2, strata = strata, case_length = index_window(nl2), custom_sort = seq_len(length(nl2)))
  # plt1 <- schema(nl_ep[1:12], seed = 2, show_labels = c("date", "case_overlap_methods"),
  #                theme = "light")
- # plt2 <- schema(nl_ep[13:24], seed = 2, show_labels = c("date", "case_overlap_methods"),
+ # plt2 <- schema(nl_ep[13:20], seed = 2, show_labels = c("date", "case_overlap_methods"),
  #                theme = "light")
  # f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "white")),
  #                plt2 + theme(plot.background = element_rect(color = "white")))

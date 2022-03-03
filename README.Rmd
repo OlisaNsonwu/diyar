@@ -44,9 +44,9 @@ seq(nl, length.out = 3)
 
 `overlap()` and related functions test how `number_line` objects overlap.
 ```{r message = FALSE, warning = FALSE}
-overlap_method(nl, nl); reverse(nl, nl)
-nl2 <- reverse_number_line(nl); nl2
-overlap_method(nl, nl2); reverse(nl, nl2)
+overlap_method(nl, nl); exact(nl, nl)
+nl2 <- number_line(10, 15); nl2
+overlap_method(nl, nl2); exact(nl, nl2)
 ```  
 Set operations such as `union_number_lines()` are also possible for pairs of `number_line` objects. 
 ```{r message = FALSE, warning = FALSE}

@@ -362,7 +362,7 @@ overlaps_err <- function(opts){
     opts <- tolower(opts)
     opts_cd <- overlap_method_codes(opts)
   }else if(class(opts) %in% c("numeric", "integer")){
-    opts_cd <- match(opts, seq_len(length(diyar::overlap_methods$options)))
+    opts_cd <- match(opts, diyar::overlap_methods$options$cd)
   }
 
   opts <- opts[is.na(opts_cd)]
@@ -695,9 +695,7 @@ opt_level <- function(opt, mth, tr_mth){
     tr_mth
   }else if(opt == "b"){
     lgk <- mth != tr_mth
-    mth[lgk] <- overlap_method_codes(paste0((diyar::overlap_methods$options[mth[lgk]]),
-                                            "|",
-                                            (diyar::overlap_methods$options[tr_mth[lgk]])))
+    mth[lgk] <- overlap_method_codes(paste0(overlap_method_names(mth[lgk]), "|", overlap_method_names(tr_mth[lgk])))
     mth
   }else{
     mth

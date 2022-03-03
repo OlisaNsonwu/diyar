@@ -531,12 +531,12 @@ err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
 
   if(length(err) > 0){
     err <- paste0("Invalid option for `", overlap_methods_nm, "`\n",
-                  "i - Valid options are integers; 1-", length(diyar::overlap_methods$options),".\n",
-                  "i - Valid options are ", paste0("\"",names(diyar::overlap_methods$methods),"\"", collapse = ", "),".\n",
-                  "i - Syntax 1 ~ 100.\n",
-                  "i - Syntax 2 ~ \"aligns_end|exact...\".\n",
-                  "i - Syntax 3 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\n",
-                  "i - Syntax 4 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\n",
+                  "i - Valid options can be values in `diyar::overlap_methods$options$cd`.\n",
+                  "i - Valid options can be values in `names(diyar::overlap_methods$methods)`.\n",
+                  "i - Syntax 1 ~ `100`.\n",
+                  "i - Syntax 2 ~ `\"aligns_end|exact...\"`.\n",
+                  "i - Syntax 3 ~ `include_overlap_method(c(\"aligns_end\", \"exact\"))`.\n",
+                  "i - Syntax 4 ~ `exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")`).\n",
                   paste0("X - `", overlap_methods_nm, " ", names(err),   "`: You've supplied ", err, ".", collapse = "\n"))
     return(err)
   }else{
@@ -1591,7 +1591,8 @@ err_schema_epid_0 <- function(x,
   err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
-  err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "length_arrow", "length_label", "case_overlap_methods", "recurrence_overlap_methods"))
+  err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "epid", "date", "case_nm", "wind_nm", "length",
+                                                     "length_arrow", "case_overlap_methods","recurrence_overlap_methods"))
   if(err != FALSE) return(err[1])
 
   err <- err_spec_vals(theme, "theme", c("dark", "light"))

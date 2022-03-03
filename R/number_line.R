@@ -27,7 +27,8 @@
 #' number_line(-100, 100)
 #'
 #' # Also compatible with other numeric based object classes
-#' number_line(dttm("15/05/2019 13:15:07"), dttm("15/05/2019 15:17:10"))
+#' number_line(as.POSIXct("2019-05-15 13:15:07", tz = "UTC"),
+#'             as.POSIXct("2019-05-15 15:17:10", tz = "UTC"))
 #'
 #' @export
 number_line <- function(l, r, id = NULL, gid = NULL){
@@ -62,8 +63,8 @@ number_line <- function(l, r, id = NULL, gid = NULL){
 
 #' @rdname number_line
 #' @examples
-#' # Coerce applicable object classes to `number_line` objects
-#' as.number_line(5.1); as.number_line(date("21/10/2019"))
+#' # Coerce compatible object classes to `number_line` objects
+#' as.number_line(5.1); as.number_line(as.Date("2019-10-21"))
 #'
 #' @export
 as.number_line <- function(x){
@@ -87,7 +88,7 @@ as.number_line <- function(x){
 #' @rdname number_line
 #' @examples
 #' # A test for number_line objects
-#' a <- number_line(date("25/04/2019"), date("01/01/2019"))
+#' a <- number_line(as.Date("2019-04-25"), date("2019-01-01"))
 #' is.number_line(a)
 #'
 #' @export
@@ -211,7 +212,7 @@ number_line_width <- function(x){
 #' \code{number_line} with non-finite \code{start} or \code{end} points (i.e. \code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
 #' @examples
 #' # Reverse number_line objects
-#' reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
+#' reverse_number_line(number_line(as.Date("2019-04-25"), as.Date("2019-01-01")))
 #' reverse_number_line(number_line(200, -100), "increasing")
 #' reverse_number_line(number_line(200, -100), "decreasing")
 #'
@@ -232,13 +233,9 @@ reverse_number_line <- function(x, direction = "both"){
   fnt <- is.finite(as.numeric(x@start)) & is.finite(as.numeric(x@.Data))
 
   y <- x
-  indx <- which(((direction == "increasing" & y@.Data > 0) | (direction == "both")) &
-                  fnt)
-  left_point(x[indx]) <- right_point(y[indx])
-  right_point(x[indx]) <- left_point(y[indx])
-  indx <- which(direction %in% c("decreasing", "both") &
-                  y@.Data < 0 &
-                  fnt)
+  indx <- which(((direction %in% c("decreasing", "both") & y@.Data < 0) |
+                  (direction %in% c("increasing", "both") & y@.Data > 0)) & fnt)
+
   left_point(x[indx]) <- right_point(y[indx])
   right_point(x[indx]) <- left_point(y[indx])
 

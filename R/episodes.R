@@ -8,23 +8,23 @@
 #' @param strata \code{[atomic]}. Subsets of the dataset. Episodes are created separately for each \code{strata}.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
 #' @param case_length \code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"Case"} from another.
-#' @param episodes_max \code{[integer]}. The maximum number of episodes permitted within each \code{strata}.
+#' @param episodes_max \code{[integer]}. Maximum number of episodes permitted within each \code{strata}.
 #' @param episode_type \code{[character]}. Options are \code{"fixed"} (default), \code{"rolling"} or \code{"recursive"}. See \code{Details}.
 #' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from an event distinguishing a \code{"Recurrent"} event from its index event.
-#' @param episode_unit \code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
-#' @param rolls_max \code{[integer]}. Maximum number of times the index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
+#' @param episode_unit \code{[character]}. Time unit for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
+#' @param rolls_max \code{[integer]}. Maximum number of times an index event recurs. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
 #' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each episode to the \code{\link[=epid-class]{epid}}. Useful when the data is from multiple sources.
 #' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
-#' @param case_overlap_methods \code{[character|integer]}. Accepted overlaps method for \code{"Case"} and \code{"Duplicate"} events. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).
-#' @param recurrence_overlap_methods \code{[character|integer]}. Accepted overlaps method for \code{"Recurrent"} and \code{"Duplicate"} events. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).
+#' @param case_overlap_methods \code{[character|integer]}. Accepted ways \code{"Case"} and \code{"Duplicate"} events must overlap. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).
+#' @param recurrence_overlap_methods \code{[character|integer]}. Accepted ways \code{"Recurrent"} and \code{"Duplicate"} events must overlap. Relevant when \code{date} is a period (\link{number_line}). See (\code{\link{overlaps}}).
 #' @param custom_sort \code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.
 #' @param display \code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
 #' @param reference_event \code{[character]}. Specifies which events are used as index events for a subsequent \code{case_length} or \code{recurrence_length}. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"} or \code{"first_event"}.
 #' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, both \code{"Case"} and \code{"Recurrent"} events will have a \code{case_length}.
 #' If \code{FALSE} (default), only \code{case events} will have a \code{case window}. Only used if \code{episode_type} is \code{"rolling"} or \code{"recursive"}.
-#' @param skip_order \code{[integer]}. \code{"nth"} level of \code{custom_sort}. Episodes with index events beyond this level of preference are skipped.
-#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
+#' @param skip_order \code{[integer]}. Skip episodes with an index event that is greater than \code{"n"} sort order of \code{custom_sort}.
+#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
 #' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), events before a lagged \code{case_length} or \code{recurrence_length} are skipped.
 #' @param skip_unique_strata \code{[logical]}. If \code{TRUE}, a strata with a single event are skipped.
 #' @param case_sub_criteria \code{[\link{sub_criteria}]}. Additional matching criteria for events in a \code{case_length}.
@@ -846,8 +846,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                                           y_pos = pos_repo$y_pos)[[1]]
             # checks_lgk[ref_rd & cr2 & !cri_2] <- 1L
             checks_lgk
+            rm(pos_repo)
           }
-          rm(pos_repo)
           checks_lgk
         })
 

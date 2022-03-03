@@ -119,20 +119,21 @@ dttm <- function(x) as.POSIXct(x, "UTC", format = "\%d/\%m/\%Y \%H:\%M:\%S")
 number_line(-100, 100)
 
 # Also compatible with other numeric based object classes
-number_line(dttm("15/05/2019 13:15:07"), dttm("15/05/2019 15:17:10"))
+number_line(as.POSIXct("2019-05-15 13:15:07", tz = "UTC"),
+            as.POSIXct("2019-05-15 15:17:10", tz = "UTC"))
 
-# Coerce applicable object classes to `number_line` objects
-as.number_line(5.1); as.number_line(date("21/10/2019"))
+# Coerce compatible object classes to `number_line` objects
+as.number_line(5.1); as.number_line(as.Date("2019-10-21"))
 
 # A test for number_line objects
-a <- number_line(date("25/04/2019"), date("01/01/2019"))
+a <- number_line(as.Date("2019-04-25"), date("2019-01-01"))
 is.number_line(a)
 
 # Structure of a number_line object
 left_point(a); right_point(a); start_point(a); end_point(a)
 
 # Reverse number_line objects
-reverse_number_line(number_line(date("25/04/2019"), date("01/01/2019")))
+reverse_number_line(number_line(as.Date("2019-04-25"), as.Date("2019-01-01")))
 reverse_number_line(number_line(200, -100), "increasing")
 reverse_number_line(number_line(200, -100), "decreasing")
 
