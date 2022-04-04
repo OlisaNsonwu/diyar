@@ -230,7 +230,10 @@ err_sub_criteria_9 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
 
 err_sub_criteria_8 <- function(x, cri_nm = "sub_criteria"){
   err <- err_object_types(x, cri_nm, c("sub_criteria", "list"))
-  if(!isFALSE(err)) return(err)else{
+  if(!isFALSE(err)) {
+    return(err)
+  }
+  else{
     return(FALSE)
   }
 }
@@ -334,22 +337,11 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
     sub_criteria <- list(sub_criteria)
   }
   err <- as.numeric(lapply(ref_arg, length))
-  # err2 <- unlist(lapply(sub_criteria, function(x){
-  #   lapply(x, function(x){
-  #     if(class(x[[1]]) == "list"){
-  #       lapply(x[[1]], function(y) length(y))
-  #     }else{
-  #       length(x[[1]])
-  #     }
-  #      })
-  # }), use.names = FALSE)
   err <- err[!duplicated(err)]
-  # err2 <- err2[!duplicated(err2)]
 
   err2 <- lapply(sub_criteria, attr_eval)
   err2 <- unlist(err2, use.names = FALSE)
   err2 <- sort(err2[!duplicated(err2)])
-
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
     return(paste0("Length of each `", arg_nm, "` and each attribute of `", cri_nm, "` must be the same or equal to 1:\n",
                   "i - Expecting ", listr(unique(c(1, err)), conj = " or "), ".\n",
@@ -596,7 +588,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
   return(FALSE)
 }
 
-err_object_types <- function(arg, arg_nm, obj_types){
+xx_err_object_types <- function(arg, arg_nm, obj_types){
   if(!all(class(arg) == "list") | (all(class(arg) == "list") & !"list" %in% obj_types)){
     arg <- list(arg)
     multi_opts <- F
@@ -623,6 +615,38 @@ err_object_types <- function(arg, arg_nm, obj_types){
     return(err)
   }else{
     return(FALSE)
+  }
+}
+
+err_object_types <- function(arg, arg_nm, obj_types){
+
+  if(all(class(arg) == "list")){
+    lapply(arg, function(x){
+      err_object_types(x, arg_nm, obj_types)
+    })
+  }else{
+    x <- class(arg)
+    if(!any(x %in% obj_types)){
+      err <- listr(paste0("`", x[!x %in% obj_types], "`"), conj = " or ")
+    }else{
+      err <- NA_character_
+    }
+    err <- err[!is.na(err)]
+
+    if(length(err) > 0){
+      valid_opts <- listr(paste0("`", obj_types[!obj_types %in% "list"], "`"), conj = " or ")
+      valid_opts <- ifelse("list" %in% obj_types,
+                           paste0(valid_opts, ", or `list` with ", valid_opts, " elements"),
+                           valid_opts)
+
+
+      err <- paste0("Invalid object type for `", arg_nm, "`.\n",
+                    "i - Valid object types are: ", valid_opts, ".\n",
+                    paste0("X - You've supplied a/an ", err, " object.", collapse = "\n"))
+      return(err)
+    }else{
+      return(FALSE)
+    }
   }
 }
 
@@ -1135,6 +1159,7 @@ err_links_checks_0 <- function(criteria,
     expand = expand,
     shrink = shrink,
     recursive = recursive,
+    sub_criteria = sub_criteria,
     check_duplicates = check_duplicates)
 
 
@@ -1145,6 +1170,7 @@ err_links_checks_0 <- function(criteria,
                        expand = "logical",
                        group_stats = "logical",
                        recursive = "logical",
+                       sub_criteria = c("list", "sub_criteria", "NULL"),
                        # tie_sort = "logical",
                        check_duplicates = "logical")
 
@@ -1853,8 +1879,7 @@ err_links_wf_probablistic_0 <- function(attribute,
 
   err <- unlist(lapply(attribute, is.atomic), use.names = FALSE)
   if(length(which(!err)) > 0){
-    err <- paste0("`attribute` must be an `atomic` object or `d_attribute` objects:\n",
-                  paste0("X - Attribute - ", which(!err), " is `", err[which(!err)], "`.", collapse = "\n"))
+    err <- paste0("`attribute` must be an `atomic` object or `d_attribute` with `atomic` elements:\n")
     return(err)
   }
 

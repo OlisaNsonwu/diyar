@@ -88,6 +88,7 @@
 #'
 #' @examples
 #' # Deterministic linkage
+#' data(missing_staff_id)
 #' dfr <- missing_staff_id[c(2, 4, 5, 6)]
 #'
 #' link_records(dfr, attr_threshold = 1, probabilistic = FALSE, score_threshold = 2)

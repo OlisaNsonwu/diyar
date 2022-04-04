@@ -83,18 +83,20 @@
 #'
 #' # Multistage matches
 #' # Relevance of matches: `forename` > `surname`
-#' data(staff_records); staff_records
-#' links(criteria = list(staff_records$forename, staff_records$surname),
-#'       data_source = staff_records$sex)
+#' data(staff_records)
+#' dfr_1 <- staff_records
+#' links(criteria = list(dfr_1$forename, dfr_1$surname),
+#'       data_source = dfr_1$sex)
 #'
 #' # Relevance of matches:
 #' # `staff_id` > `age` (AND (`initials`, `hair_colour` OR `branch_office`))
-#' data(missing_staff_id); missing_staff_id
-#' links(criteria = list(missing_staff_id$staff_id, missing_staff_id$age),
-#'       sub_criteria = list(cr2 = sub_criteria(missing_staff_id$initials,
-#'                                           missing_staff_id$hair_colour,
-#'                                           missing_staff_id$branch_office)),
-#'       data_source = missing_staff_id$source_1)
+#' data(missing_staff_id)
+#' dfr_2 <- missing_staff_id
+#' links(criteria = list(dfr_2$staff_id, dfr_2$age),
+#'       sub_criteria = list(cr2 = sub_criteria(dfr_2$initials,
+#'                                              dfr_2$hair_colour,
+#'                                              dfr_2$branch_office)),
+#'       data_source = dfr_2$source_1)
 #'
 #' # Group expansion
 #' match_cri <- list(c(1,NA,NA,1,NA,NA),

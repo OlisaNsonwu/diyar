@@ -318,6 +318,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   }else{
     breaks2 <- breaks[0]
     labels2 <- labels[0]
+    x <- x[plt_df$finite]
     plt_df <- plt_df[plt_df$finite,]
   }
 

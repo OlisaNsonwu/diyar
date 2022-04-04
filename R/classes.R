@@ -505,10 +505,10 @@ setMethod("rep", signature(x = "epid"), function(x, ...) {
                dist_wind_index = rep(x@dist_wind_index, ...),
                wind_nm = rep(x@wind_nm, ...),
                case_nm = rep(x@case_nm, ...),
-               epid_interval = rep(x@epid_interval, ...),
-               epid_length = rep(x@epid_length, ...),
+               epid_interval = suppressWarnings(rep(x@epid_interval, ...)),
+               epid_length = suppressWarnings(rep(x@epid_length, ...)),
                epid_total = rep(x@epid_total, ...),
-               epid_dataset = rep(x@epid_dataset, ...),
+               epid_dataset = suppressWarnings(rep(x@epid_dataset, ...)),
                iteration = rep(x@iteration, ...))
 })
 
@@ -838,7 +838,7 @@ setMethod("rep", signature(x = "pane"), function(x, ...) {
                pane_interval = rep(x@pane_interval, ...),
                pane_length = rep(x@pane_length, ...),
                pane_total = rep(x@pane_total, ...),
-               pane_dataset = rep(x@pane_dataset, ...))
+               pane_dataset = suppressWarnings(rep(x@pane_dataset, ...)))
 })
 
 #' @aliases [,pane-method
@@ -1104,7 +1104,7 @@ setMethod("rep", signature(x = "pid"), function(x, ...) {
                sn = rep(x@sn, ...),
                pid_total = rep(x@pid_total, ...),
                link_id = rep(x@link_id, ...),
-               pid_dataset = rep(x@pid_dataset, ...),
+               pid_dataset = suppressWarnings(rep(x@pid_dataset, ...)),
                pid_cri = rep(x@pid_cri, ...),
                iteration = rep(x@iteration, ...))
 })

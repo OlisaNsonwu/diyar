@@ -37,12 +37,17 @@ make_pairs <- function(x, strata = NULL, repeats_allowed = TRUE, permutations_al
   if(!is.null(strata)){
     strata <- match(strata, strata[!duplicated(strata)])
     s_ord <- order(strata)
+
     x <- x[s_ord]
     strata <- strata[s_ord]
+    sn <- pos[s_ord]
+
     rl <- rle(strata)
   }else{
     rl <- list(lengths = length(x), values = 1)
+    sn <- pos
   }
+
   ord <- sequence(rl$lengths)
   repo$x_pos <- sequence(ord)
   repo$y_pos <- rep(ord, ord)
@@ -70,17 +75,18 @@ make_pairs <- function(x, strata = NULL, repeats_allowed = TRUE, permutations_al
 
   repo$x_val <- x[repo$x_pos]
   repo$y_val <- x[repo$y_pos]
+
+  repo$x_pos <- sn[repo$x_pos]
+  repo$y_pos <- sn[repo$y_pos]
   repo$y_max_pos <- NULL
 
-  if(isTRUE(permutations_allowed) | isFALSE(repeats_allowed)){
+  if(isTRUE(permutations_allowed)){
     lgk <- which(repo$x_pos != repo$y_pos)
-    if(isTRUE(permutations_allowed)){
-      repo <- list(x_pos = c(repo$x_pos[lgk], repo$y_pos),
-                   y_pos = c(repo$y_pos[lgk], repo$x_pos),
-                   x_val = c(repo$x_val[lgk], repo$y_val),
-                   y_val = c(repo$y_val[lgk], repo$x_val)
-      )
-    }
+    repo <- list(x_pos = c(repo$x_pos[lgk], repo$y_pos),
+                 y_pos = c(repo$y_pos[lgk], repo$x_pos),
+                 x_val = c(repo$x_val[lgk], repo$y_val),
+                 y_val = c(repo$y_val[lgk], repo$x_val)
+    )
   }
 
   if(isFALSE(repeats_allowed)){
@@ -124,23 +130,26 @@ make_pairs_wf_source <- function(..., data_source = NULL){
     stop("`data_source` must be `NULL` or have the same lenght as `x`", call. = FALSE)
   }
 
-  r_sets <- split(opt_lst$x, data_source)
+  r_sets <- split(seq_len(length(opt_lst$x)), data_source)
   repo <- make_pairs(seq_len(length(r_sets)),
                      permutations_allowed = opt_lst$repeats_allowed,
-                     repeats_allowed = opt_lst$permutations_allowed)
+                     # repeats_allowed = opt_lst$permutations_allowed
+                     repeats_allowed = FALSE
+                     )
 
   repo <- lapply(seq_len(length(repo[[1]])), function(i){
     xi <- repo$x_pos[[i]]
     yi <- repo$y_pos[[i]]
 
-    x_pos <- unlist(rep(r_sets[xi], length(r_sets[yi][[1]])), use.names = FALSE)
-    y_pos <- unlist(rep(r_sets[yi], length(r_sets[xi][[1]])), use.names = FALSE)
+    x_pos <- rep(r_sets[[xi]], length(r_sets[yi][[1]]), use.names = FALSE)
+    y_pos <- rep(r_sets[[yi]], length(r_sets[xi][[1]]), use.names = FALSE)
 
     if(length(r_sets[[xi]]) < length(r_sets[[yi]])){
       x_pos <- sort(x_pos)
     }else{
       y_pos <- sort(y_pos)
     }
+
     list(x_pos = x_pos, y_pos = y_pos)
   })
 
