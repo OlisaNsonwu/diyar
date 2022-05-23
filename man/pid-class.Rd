@@ -13,7 +13,6 @@
 \alias{as.list.pid}
 \alias{show,pid-method}
 \alias{rep,pid-method}
-\alias{[,pid,ANY,ANY,ANY-method}
 \alias{[,pid-method}
 \alias{[[,pid-method}
 \alias{c,pid-method}
@@ -39,7 +38,7 @@ as.pid(x, ...)
 
 \S4method{rep}{pid}(x, ...)
 
-\S4method{[}{pid,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
+\S4method{[}{pid}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{pid}(x, i, j, ..., exact = TRUE)
 

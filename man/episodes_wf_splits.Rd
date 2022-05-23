@@ -2,7 +2,7 @@
 % Please edit documentation in R/episodes.R
 \name{episodes_wf_splits}
 \alias{episodes_wf_splits}
-\title{Track episodes in a reduced dataset.}
+\title{Link events to chronological episodes.}
 \usage{
 episodes_wf_splits(..., duplicates_recovered = "ANY", reframe = FALSE)
 }
@@ -18,21 +18,19 @@ Options are \code{"ANY"} (default), \code{"without_sub_criteria"}, \code{"with_s
 \code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
-Excludes duplicate records from the same day or period prior before passing the analysis to \code{\link{episodes}}.
-Only duplicate records that will not affect the case definition are excluded.
-The resulting episode identifiers are recycled for the duplicate records.
+\code{episodes_wf_splits} is a wrapper function of \code{\link{episodes}}.
+It's designed to be more efficient with larger datasets.
+Duplicate records which do not affect the case definition are excluded prior to episode tracking.
+The resulting episode identifiers are then recycled for the duplicate records.
 }
 \details{
-\bold{\code{episodes_wf_splits()}} is a wrapper function of \bold{\code{episodes()}} which reduces or re-frames the dataset to
-the minimum number of records required to implement a case definition.
+\bold{\code{episodes_wf_splits()}} reduces or re-frames a dataset to
+the minimum datasets required to implement a case definition.
 This leads to the same outcome but with the benefit of a shorter processing time.
 
-Duplicate records from the same point or period in time are excluded from \bold{\code{episodes()}}.
-The resulting \code{\link[=epid-class]{epid}} object is then recycled for the duplicates.
-
 The \code{duplicates_recovered} argument determines which identifiers are recycled.
-If \code{"without_sub_criteria"} is selected, only identifiers created from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
-The opposite (\code{"Case"} and \code{"Recurrent"}) is the case if \code{"with_sub_criteria"} is selected.
+Selecting the \code{"with_sub_criteria"} option will force only identifiers created resulting from a matched \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
+However, if \code{"without_sub_criteria"} is selected then only identifiers created that do not result from a matched \code{\link{sub_criteria}} (\code{"Case"} and \code{"Recurrent"}) are recycled
 Excluded duplicates of \code{"Duplicate_C"} and \code{"Duplicate_R"} are always recycled.
 
 The \code{reframe} argument will either \code{\link{reframe}} or subset a \code{\link{sub_criteria}}.
@@ -45,10 +43,10 @@ dates <- seq(from = as.Date("2019-04-01"), to = as.Date("2019-04-20"), by = 1)
 dates <- rep(dates, 10000)
 
 system.time(
-  ep1 <- episodes(dates, 1)
+  ep1 <- episodes(dates, 1, display = "progress")
 )
 system.time(
-  ep2 <- episodes_wf_splits(dates, 1)
+  ep2 <- episodes_wf_splits(dates, 1, display = "progress")
 )
 
 # Both leads to the same outcome.

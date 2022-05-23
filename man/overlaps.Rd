@@ -92,14 +92,14 @@ Identify overlapping \code{\link{number_line}} objects
 There are 6 mutually exclusive types of overlap;
 \itemize{
 \item \bold{\code{exact()}} - identical \code{\link{start_point}} and \code{\link{end_point}} points.
-\item \bold{\code{inbetween()}} - Both the \code{\link{start_point}} and \code{\link{end_point}} of one \code{\link{number_line}} object are within the \code{\link{start_point}} and \code{\link{end_point}} of another.
+\item \bold{\code{inbetween()}} - Both \code{\link{start_point}} and \code{\link{end_point}} of one \code{\link{number_line}} object are within the \code{\link{start_point}} and \code{\link{end_point}} of another.
 \item \bold{\code{across()}} - Only the \code{\link{start_point}} or \code{\link{end_point}} of one \code{\link{number_line}} object is in between the \code{\link{start_point}} and \code{\link{end_point}} of another.
 \item \bold{\code{chain()}} - \code{\link{end_point}} of one \code{\link{number_line}} object is identical to the \code{\link{start_point}} of another.
 \item \bold{\code{aligns_start()}} - identical \code{\link{start_point}} only.
 \item \bold{\code{aligns_end()}} - identical \code{\link{end_point}} only.
 }
 
-Except \bold{\code{exact()}}, each type of overlap has two variation;
+Except \bold{\code{exact()}}, each type of overlap has two variations;
 \itemize{
 \item \bold{\code{x_`method`_y()}} - \code{\link{number_line}}-\code{x} starts before \code{\link{number_line}}-\code{y}.
 \item \bold{\code{y_`method`_x()}} - \code{\link{number_line}}-\code{y} starts before \code{\link{number_line}}-\code{x}.
@@ -115,7 +115,7 @@ Selecting multiple types of overlap;
 \itemize{
 \item \bold{\code{overlaps()}} - select specific type(s) of overlap.
 \item \bold{\code{overlap_method()}} - return the type of overlap for a pair of \code{\link{number_line}} objects.
-\item \bold{\code{overlap_method_codes()}} - return the corresponding overlap code for a specific type(s) of overlap.
+\item \bold{\code{overlap_method_codes()}} - return the corresponding overlap method code for a specific type(s) of overlap.
 \item \bold{\code{overlap_method_names()}} - return the corresponding type(s) of overlap for a specific overlap code.
 \item \bold{\code{include_overlap_method()}} - return a \bold{\code{character(1)}} value for specified type(s) of overlap.
 \item \bold{\code{exclude_overlap_method()}} - return a \bold{\code{character(1)}} value for all type(s) of overlap except those specified.

@@ -245,10 +245,10 @@ err_data_links_1 <- function(data_source, data_links){
   ms_lst <- unique(dl_lst[!dl_lst %in% c(ds_lst,"ANY")])
 
   if(is.list(data_links) & !is.null(data_source)){
-    nms <- names(data_links); names(nms) <- 1:length(nms)
+    nms <- names(data_links);
+    names(nms) <- 1:length(nms)
     nms <- nms[!tolower(nms) %in% c("l","g","") ]
     nms
-
     invalid_opts <- ifelse(length(nms) > 2,
                            paste0(paste0("\"", head(nms, 2), "\"", " in [",head(names(nms),2),"]", collapse = ", "), " ..."),
                            paste0(listr(paste0("\"", nms, "\"", " in [", names(nms),"]")), "."))
@@ -258,8 +258,8 @@ err_data_links_1 <- function(data_source, data_links){
                    "i - Each element in `data_link` (list) must be named \"l\" (links) or \"g\" (groups).\n",
                    "i - Syntax 1 - `data_links` <- list(l = c(\"DS1\", \"DS2\"), g = c(\"DS3\", \"DS4\"))\n",
                    "i - Syntax 2 - `data_links` <- c(\"l\" = \"DS5\")\n",
-                   "i - \"l\" - Only return episodes with records from \"DS1\" AND \"DS2\" `data_source`.`\n",
-                   "i - \"g\" - Only return episodes with records from \"DS3\" OR  \"DS4\" `data_source`.`\n",
+                   "i - \"l\" - Only return record-groups with records from \"DS1\" AND \"DS2\" `data_source`.`\n",
+                   "i - \"g\" - Only return record-groups with records from \"DS3\" OR  \"DS4\" `data_source`.`\n",
                    paste0("X - You've supplied ", invalid_opts))
 
     if(length(nms)>0) errs else F
@@ -621,9 +621,9 @@ xx_err_object_types <- function(arg, arg_nm, obj_types){
 err_object_types <- function(arg, arg_nm, obj_types){
 
   if(all(class(arg) == "list")){
-    lapply(arg, function(x){
+    unlist(lapply(arg, function(x){
       err_object_types(x, arg_nm, obj_types)
-    })
+    }), use.names = FALSE)
   }else{
     x <- class(arg)
     if(!any(x %in% obj_types)){
@@ -1225,7 +1225,7 @@ err_links_checks_0 <- function(criteria,
 
   if(class(sub_criteria) != "NULL"){
     err <- err_sub_criteria_8(sub_criteria)
-    if(err != FALSE) return(err[1])
+    if(any(err != FALSE)) return((err[err != FALSE])[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
     if(err != FALSE) return(err)
   }
@@ -1851,7 +1851,7 @@ err_links_wf_probablistic_0 <- function(attribute,
 
   args_classes <- list(
                        # attribute = c("list", "data.frame", "matrix", "d_attribute"),
-                       attr_threshold = c("list", "numeric", "integer"),
+                       attr_threshold = c("list", "numeric", "integer", "number_line"),
                        probabilistic = "logical",
                        m_probability = c("list", "numeric", "integer"),
                        u_probability = c("list", "numeric", "integer", "NULL"),

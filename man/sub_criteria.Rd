@@ -23,16 +23,16 @@ attrs(..., .obj = NULL)
 
 \item{operator}{\code{[character]}. Options are \code{"and"} or \code{"or"}.}
 
-\item{.obj}{\code{[data.frame|list]}. Attributes}
+\item{.obj}{\code{[data.frame|list]}. Attributes.}
 }
 \value{
 \code{\link{sub_criteria}}
 }
 \description{
-Additional matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
+Nested matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
 }
 \details{
-\bold{\code{sub_criteria()}} - The mechanism for providing matching criteria to an iteration of \bold{\code{links}} or \bold{\code{episodes}}.
+\bold{\code{sub_criteria()}} - The mechanism for providing nested matching criteria to an iteration of \bold{\code{links}} or \bold{\code{episodes}}.
 It creates a \code{sub_criteria} class object which contains the attributes to be compared,
 logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 another set of logical tests to determine identical records.

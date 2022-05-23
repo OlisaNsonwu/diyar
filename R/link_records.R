@@ -1,7 +1,8 @@
 #' @name link_records
 #' @title Record linkage
 #'
-#' @description Deterministic and probabilistic record linkage with partial or evaluated matches.
+#' @description Deterministic and probabilistic record linkage.
+#' Assign unique identifiers to records based on partial, nested or calculated probabilities.
 #'
 #' @param blocking_attribute \code{[atomic]}. Subsets of the dataset.
 #' @param attribute \code{[atomic|list|data.frame|matrix|d_attribute]}. Attributes to compare.
@@ -24,13 +25,13 @@
 #' @seealso \code{\link{links}}
 #'
 #' @details
-#' \code{link_records()} and \code{links_wf_probabilistic()} are functions to implement deterministic, fuzzy or probabilistic record linkage.
-#' \code{link_records()} compares every record-pair in one instance,
-#' while \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} and so compares batches of record-pairs in iterations.
+#' \code{link_records()} and \code{links_wf_probabilistic()} are functions to implement deterministic, partial/fuzzy or probabilistic record linkage.
+#' Unlike \code{\link{links}}, \code{link_records()} compares all record-pairs in one instance rather than in iterations.
+#' \code{links_wf_probabilistic()} is a wrapper function of \code{\link{links}} with a specific \code{\link{sub_criteria}} to achieve to achieve probabilistic record linkage.
 #'
 #' \code{link_records()} is more thorough in the sense that it compares every combination of record-pairs.
-#' This makes it faster but is memory intensive, particularly if there's no \code{blocking_attribute}.
-#' In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes longer since it does it's checks in batches.
+#' This makes it faster but memory intensive, particularly if there's no \code{blocking_attribute}.
+#' In contrast, \code{links_wf_probabilistic()} is less memory intensive but takes longer since comparisons are done in batches.
 #'
 #' The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 #'
@@ -87,38 +88,84 @@
 #' @aliases link_records
 #'
 #' @examples
-#' # Deterministic linkage
-#' data(missing_staff_id)
-#' dfr <- missing_staff_id[c(2, 4, 5, 6)]
+#' data(patient_records)
+#' # Weighted (probabilistic) comparison of forename, middlename and surname
+#' criteria_1 <- as.list(patient_records[c("forename", "middlename", "surname")])
 #'
-#' link_records(dfr, attr_threshold = 1, probabilistic = FALSE, score_threshold = 2)
-#' links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = FALSE,
-#'                        score_threshold = 2, recursive = TRUE)
+#' # Possible scores when m-probability is 0.95
+#' prob_scores <- prob_score_range(attribute = criteria_1,
+#'                                 m_probability = 0.95,
+#'                                 u_probability = NULL)
+#' \dontrun{
+#' # Probablistic record linkage with 'link_records()'
+#' pids_1a <- link_records(attribute = criteria_1,
+#'                         cmp_func = exact_match,
+#'                         attr_threshold = 1,
+#'                         probabilistic = TRUE,
+#'                         m_probability = 0.95,
+#'                         score_threshold = prob_scores$mid_scorce,
+#'                         display = "stats")
 #'
-#' # Probabilistic linkage
-#' prob_score_range(dfr)
-#' link_records(dfr, attr_threshold = 1, probabilistic = TRUE, score_threshold = -16)
-#' links_wf_probabilistic(dfr, attr_threshold = 1, probabilistic = TRUE,
-#'                        score_threshold = -16, recursive = TRUE)
+#' # Equivalent with 'links_wf_probabilistic()'
+#' pids_1b <- links_wf_probabilistic(attribute = criteria_1,
+#'                                   cmp_func = exact_match,
+#'                                   attr_threshold = 1,
+#'                                   probabilistic = TRUE,
+#'                                   m_probability = 0.95,
+#'                                   score_threshold = prob_scores$mid_scorce,
+#'                                   display = "progress",
+#'                                   recursive = TRUE,
+#'                                   check_duplicates = TRUE)
 #'
-#' # Using string comparators
-#' # For example, matching last word in `hair_colour` and `branch_office`
-#' last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
-#' last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
+#' # Less thorough but faster equivalent with `links_wf_probabilistic()`
+#' pids_1c <- links_wf_probabilistic(attribute = criteria_1,
+#'                                   cmp_func = exact_match,
+#'                                   attr_threshold = 1,
+#'                                   probabilistic = TRUE,
+#'                                   m_probability = 0.95,
+#'                                   score_threshold = prob_scores$mid_scorce,
+#'                                   display = "progress",
+#'                                   recursive = FALSE,
+#'                                   check_duplicates = FALSE)
 #'
-#' link_records(dfr, attr_threshold = 1,
-#'              cmp_func = c(diyar::exact_match,
-#'                           diyar::exact_match,
-#'                           last_word_cmp,
-#'                           last_word_cmp),
-#'              score_threshold = -4)
-#' links_wf_probabilistic(dfr, attr_threshold = 1,
-#'                     cmp_func = c(diyar::exact_match,
-#'                                  diyar::exact_match,
-#'                                  last_word_cmp,
-#'                                  last_word_cmp),
-#'                     score_threshold = -4,
-#'                     recursive = TRUE)
+#' # Each implementation can lead to different results
+#' summary(pids_1a$pid)
+#' summary(pids_1b$pid)
+#' summary(pids_1c$pid)
+#' }
+#'
+#' # Weighted (non-probabilistic) comparison of forename, middlename and age difference
+#' criteria_2 <- as.list(patient_records[c("forename", "middlename", "dateofbirth")])
+#' age_diff <- function(x, y){
+#'   diff <- abs(as.numeric(x) - as.numeric(y))
+#'   wgt <-  diff %in% 0:(365 * 10) & !is.na(diff)
+#'   wgt
+#' }
+#'
+#' pids_2a <- link_records(attribute = criteria_2,
+#'                         blocking_attribute = patient_records$surname,
+#'                         cmp_func = c(exact_match, exact_match, age_diff),
+#'                         score_threshold = number_line(3, 5),
+#'                         probabilistic = FALSE,
+#'                         display = "stats")
+#'
+#' # Larger weights can be assigned to particular attributes through `cmp_func`
+#' # For example, a smaller age difference can contribute a higher score (e.g 0 to 3)
+#' age_diff_2 <- function(x, y){
+#'   diff <- as.numeric(abs(x - y))
+#'   wgt <-  diff %in% 0:(365 * 10) & !is.na(diff)
+#'   wgt[wgt] <- match(as.numeric(cut(diff[wgt], 3)), 3:1)
+#'   wgt
+#' }
+#' pids_2b <- link_records(attribute = criteria_2,
+#'                         blocking_attribute = patient_records$surname,
+#'                         cmp_func = c(exact_match, exact_match, age_diff_2),
+#'                         score_threshold = number_line(3, 5),
+#'                         probabilistic = FALSE,
+#'                         display = "stats")
+#'
+#' head(pids_2a$pid_weights, 10)
+#' head(pids_2b$pid_weights, 10)
 #'
 #' @export
 link_records <- function(attribute,
@@ -253,7 +300,7 @@ link_records <- function(attribute,
   rp_n <- length(x[[1]])
 
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Pairs created", current_tot = length(x[[1]]))
+    rp_data <- di_report(tm_ia, "Pairs created", current_tot = length(x[[1]]))
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -272,12 +319,13 @@ link_records <- function(attribute,
                            cmp_func = thresh_repo$cmp_func,
                            probabilistic = probabilistic)
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Weights calculated", current_tot = length(x[[1]]))
+    rp_data <- di_report(tm_ia, "Weights calculated", current_tot = length(x[[1]]))
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
+  tm_ia <- Sys.time()
   # Output
   if(!is.null(data_source)){
     pid_weights <- cbind(data.frame(r_pairs$x_pos, r_pairs$y_pos,
@@ -307,18 +355,26 @@ link_records <- function(attribute,
     pids@pid_dataset <- encode(rst$ds)
   }
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "`pid` created", current_tot = length(x[[1]]), current_tagged = nrow(pid_weights[pid_weights$record.match,]))
+    rp_data <- di_report(tm_ia, "`pid` created", current_tot = length(x[[1]]), current_tagged = nrow(pid_weights[pid_weights$record.match,]))
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
+
   pids <- list(pid = pids,
                pid_weights = pid_weights)
+
+  tm_z <- Sys.time()
+  tms <- difftime(tm_z, tm_a)
+  tms <- fmt(tms, "difftime")
+
   if(display %in% c("none_with_report", "progress_with_report", "stats_with_report")){
     pids$report <- as.list(do.call("rbind", lapply(report, as.data.frame)))
     class(pids$report) <- "d_report"
   }
+
+  if(display != "none") cat("Records linked in ", tms, "!\n", sep = "")
   rm(list = ls()[ls() != "pids"])
   return(pids)
 }

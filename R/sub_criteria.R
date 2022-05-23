@@ -2,9 +2,9 @@
 #' @aliases sub_criteria
 #' @title Sub-criteria
 #'
-#' @description Additional matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
+#' @description Nested matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
 #' @param ... \code{[atomic]}. Attributes.
-#' @param .obj \code{[data.frame|list]}. Attributes
+#' @param .obj \code{[data.frame|list]}. Attributes.
 #' @param match_funcs \code{[function]}. User defined logical test for matches.
 #' @param equal_funcs \code{[function]}. User defined logical test for identical record sets (all attributes of the same record).
 #' @param operator \code{[character]}. Options are \code{"and"} or \code{"or"}.
@@ -14,7 +14,7 @@
 #' @return \code{\link{sub_criteria}}
 #'
 #' @details
-#' \bold{\code{sub_criteria()}} - The mechanism for providing matching criteria to an iteration of \bold{\code{links}} or \bold{\code{episodes}}.
+#' \bold{\code{sub_criteria()}} - The mechanism for providing nested matching criteria to an iteration of \bold{\code{links}} or \bold{\code{episodes}}.
 #' It creates a \code{sub_criteria} class object which contains the attributes to be compared,
 #' logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 #' another set of logical tests to determine identical records.

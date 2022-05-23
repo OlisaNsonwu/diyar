@@ -20,9 +20,9 @@ eval_sub_criteria(x, ...)
 
 \item{...}{Arguments passed to methods.}
 
-\item{x_pos}{\code{[integer]}. Index of one half of a record pair}
+\item{x_pos}{\code{[integer]}. Index of one half of a record pair.}
 
-\item{y_pos}{\code{[integer]}. Index of one half of a record pair}
+\item{y_pos}{\code{[integer]}. Index of one half of a record pair.}
 
 \item{check_duplicates}{\code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.}
 }

@@ -6,7 +6,7 @@
 \alias{schema.epid}
 \alias{schema.pane}
 \alias{schema.pid}
-\title{Schema diagram for linked records in \code{diyar}}
+\title{Schema diagram for group identifiers}
 \usage{
 schema(x, ...)
 

@@ -1,8 +1,9 @@
 #' @name episode_group
-#' @title Link events to chronological episodes.
+#' @title Group dated events into episodes.
 #'
-#' @description Link dated events (records) which have similar attributes and occur within specified durations of each other.
-#' Each set of linked records are assigned a unique identifier with relevant group-level information.
+#' @description Assign unique identifiers to dated events based on case definitions.
+#'
+#' \strong{These functions are no longer supported. Please use \code{\link{episodes}} instead}.
 #'
 #' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
@@ -22,15 +23,43 @@
 #' @param x \code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}.
 #' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
 #' @param ... Arguments passed to \code{episodes}.
-#' @return
+#' @details
+#' \strong{These functions are no longer supported. Please use \code{\link{episodes}} instead}.
 #'
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
 #' @seealso
 #' \code{\link{episodes}}
 #'
+#' @examples
+#' data(infections)
+#' data(hospital_admissions)
+#'
+#' # One 16-day (15-day difference) fixed episode per type of infection
+#' fixed_episodes(date = infections$date,
+#'                strata = infections$infection,
+#'                case_length = 15,
+#'                episodes_max = 1)
+#'
+#' # Multiple 16-day episodes with an 11-day recurrence period
+#' rolling_episodes(date = infections$date,
+#'                  case_length = 15,
+#'                  recurrence_length = 10)
+#'
+#' # Overlapping episodes of hospital stays
+#' hospital_admissions$admin_period <-
+#'   number_line(hospital_admissions$admin_dt,
+#'               hospital_admissions$discharge_dt)
+#' hospital_admissions$epi_length <-
+#'   index_window(hospital_admissions$admin_period)
+#'
+#' episode_group(hospital_admissions,
+#'               date = admin_period,
+#'               case_length = epi_length,
+#'               case_overlap_methods = "inbetween")
+#'
 #' @details
-#' These functions are superseded. Moving forward, please use \code{\link{episodes}}.
+#' \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}} are superseded by \code{\link{episodes}}.
 #'
 #' @aliases episode_group
 #' @export
@@ -134,6 +163,10 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
   if(isFALSE(to_s4)){
     epids <- to_df(epids)
   }
+  # Warn
+  warning(paste0("`fixed_episodes()` has been retired!:\n",
+                 "i - Please use `episodes()` instead.\n",
+                 "i - Your values were passed to `episodes()`."), call. = FALSE)
   rm(list = ls()[ls() != "epids"])
   return(epids)
 }
@@ -236,6 +269,9 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
   if(isTRUE(deduplicate)) {
     epids <- epids[!epids@case_nm %in% c(2L, 3L)]
   }
+  warning(paste0("`rolling_episodes()` has been retired!:\n",
+                 "i - Please use `episodes()` instead.\n",
+                 "i - Your values were passed to `episodes()`."), call. = FALSE)
   rm(list = ls()[ls() != "epids"])
   return(epids)
 }

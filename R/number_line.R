@@ -3,17 +3,17 @@
 #' @description A range of \code{numeric} values.
 #'
 #' @details
-#' A \code{number_line} represents a range of numbers on a number line.
-#' It is made up of a \code{start} and \code{end} point which are the lower and upper ends of the range respectively.
+#' A \code{number_line} object represents a range of numbers.
+#' It is made up of a \code{start} and \code{end} point as the lower and upper ends of the range respectively.
 #' The location of the \code{start} point - \code{left} or \code{right},
-#' determines whether it is an \code{"increasing"} or \code{"decreasing"} range.
+#' determines whether it is an \code{"increasing"} or \code{"decreasing"} \code{number_line}.
 #' This is the \code{direction} of the \code{number_line}.
 #'
 #' @seealso
 #' \code{\link{overlaps}}; \code{\link{set_operations}}; \code{\link{episodes}}; \code{\link{links}}
 #'
-#' @param l \code{[numeric based]}. Left point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object.
-#' @param r \code{[numeric based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object.
+#' @param l \code{[numeric-based]}. Left point of the \code{number_line}.
+#' @param r \code{[numeric-based]}. Right point of the \code{number_line}. Must be able to be coerced to a \code{numeric} object.
 #' @param id \code{[integer]}. Unique element identifier. Optional.
 #' @param gid \code{[integer]}. Unique group identifier. Optional.
 #'
@@ -21,9 +21,6 @@
 #'
 #' @aliases number_line
 #' @examples
-#' date <- function(x) as.Date(x, "%d/%m/%Y")
-#' dttm <- function(x) as.POSIXct(x, "UTC", format = "%d/%m/%Y %H:%M:%S")
-#'
 #' number_line(-100, 100)
 #'
 #' # Also compatible with other numeric based object classes
@@ -88,7 +85,7 @@ as.number_line <- function(x){
 #' @rdname number_line
 #' @examples
 #' # A test for number_line objects
-#' a <- number_line(as.Date("2019-04-25"), date("2019-01-01"))
+#' a <- number_line(as.Date("2019-04-25"), as.Date("2019-01-01"))
 #' is.number_line(a)
 #'
 #' @export
@@ -203,10 +200,10 @@ number_line_width <- function(x){
 
 #' @rdname number_line
 #' @param x \code{[number_line]}
-#' @param direction \code{[character]}. Type of \code{"number_line"} objects to be reversed.
+#' @param direction \code{[character]}. Type of \code{number_line} reverse.
 #' Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).
 #' @details
-#' \bold{\code{reverse_number_line()}} - reverses the direction of a \code{number_line}.
+#' \bold{\code{reverse_number_line()}} - reverse the direction of a \code{number_line}.
 #' A reversed \code{number_line} has its \code{left} and \code{right} points swapped.
 #' The \code{direction} argument specifies which type of \code{number_line} will be reversed.
 #' \code{number_line} with non-finite \code{start} or \code{end} points (i.e. \code{NA}, \code{NaN} and \code{Inf}) can't be reversed.
@@ -457,10 +454,10 @@ compress_number_line <- function(x, methods = 8, collapse = FALSE,
 }
 
 #' @rdname number_line
-#' @param by \code{[integer]}. Increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}
-#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}
-#' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split
-#' @param simplify \code{[logical]}. Split into \code{number_line} or sequence of finite numbers
+#' @param by \code{[integer]}. Increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}.
+#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}.
+#' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
+#' @param simplify \code{[logical]}. If \code{TRUE}, returns a sequence of finite numbers.
 #'
 #' @details
 #' \bold{\code{number_line_sequence()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).

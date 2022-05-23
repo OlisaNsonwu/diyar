@@ -9,8 +9,8 @@
 eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 
 #' @rdname eval_sub_criteria
-#' @param x_pos \code{[integer]}. Index of one half of a record pair
-#' @param y_pos \code{[integer]}. Index of one half of a record pair
+#' @param x_pos \code{[integer]}. Index of one half of a record pair.
+#' @param y_pos \code{[integer]}. Index of one half of a record pair.
 #' @param check_duplicates \code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.
 #'
 #' @examples
@@ -115,7 +115,7 @@ eval_sub_criteria.sub_criteria <- function(x,
     matches <- t(as.matrix(matches))
   }
   operator <- attr(x, "operator")
-  if(operator == "or"){
+  if(tolower(operator) == "or"){
     if(isFALSE(check_duplicates)){
       set_match <- rowSums(matches)
       m2 <- rowSums(matches) == ncol(matches)
@@ -126,7 +126,7 @@ eval_sub_criteria.sub_criteria <- function(x,
       set_match <- rowSums(matches)
     }
     set_match[set_match > 0] <- 1
-  }else if (operator == "and"){
+  }else if (tolower(operator) == "and"){
     set_match <- rowSums(matches) == ncol(matches)
     set_match <- as.numeric(set_match)
   }

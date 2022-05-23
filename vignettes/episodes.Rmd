@@ -125,7 +125,7 @@ event_dt$ep9 <- episodes(event_dt$date, list(number_line(-2, -1),
 ```{r warning=FALSE, fig.width=7}
 schema(event_dt$ep8, seed = 2, show_labels = c("length_arrow"), 
        custom_label = paste0(decode(event_dt$ep8@case_nm), " (", event_dt$attr_1, ")"))
-schema(event_dt$ep9, seed = 2, show_labels = c("length_arrow", "length_label"))
+schema(event_dt$ep9, seed = 2, show_labels = c("length_arrow", "length"))
 ```
 
 It's possible to track episodes among events with known start and end points, instead of those occurring at a single point in time. It is worth noting that the reference point for such events is their end point. Therefore, using a `case_length` of `1` when working with such events is interpreted as 2 days (1-day difference) after the end point of the interval. By default, other events that occur on or after the start point but before the end point of the index event will not be captured. If this is required, use `index_window()` to get the range required to capture such events, and supply it to the `case_length` or `recurrence_length` arguments. See the examples below.

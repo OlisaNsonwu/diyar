@@ -3,7 +3,7 @@
 \name{make_pairs}
 \alias{make_pairs}
 \alias{make_pairs_wf_source}
-\title{Record-pair combination.}
+\title{Record-pair combinations.}
 \usage{
 make_pairs(
   x,
@@ -28,10 +28,10 @@ make_pairs_wf_source(..., data_source = NULL)
 \item{data_source}{\code{[character]}. Data source identifier. Limits to record-pairs to those from different sources.}
 }
 \value{
-A \code{list} of indexes and values of record-pair combinations
+A \code{list} of indexes and values of record-pair combinations.
 }
 \description{
-Create record-pair combination of a vector's elements.
+Create record-pair combinations of a vector's elements.
 }
 \examples{
 make_pairs(month.abb[1:4])

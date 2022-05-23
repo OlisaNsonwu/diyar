@@ -5,7 +5,6 @@
 \alias{number_line-class}
 \alias{show,number_line-method}
 \alias{rep,number_line-method}
-\alias{[,number_line,ANY,ANY,ANY-method}
 \alias{[,number_line-method}
 \alias{[[,number_line-method}
 \alias{[<-,number_line,ANY,ANY,ANY-method}
@@ -27,7 +26,7 @@
 
 \S4method{rep}{number_line}(x, ...)
 
-\S4method{[}{number_line,ANY,ANY,ANY}(x, i, j, ..., drop = TRUE)
+\S4method{[}{number_line}(x, i, j, ..., drop = TRUE)
 
 \S4method{[[}{number_line}(x, i, j, ..., exact = TRUE)
 

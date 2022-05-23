@@ -1,6 +1,6 @@
 #' @name schema
 #' @aliases schema
-#' @title Schema diagram for linked records in \code{diyar}
+#' @title Schema diagram for group identifiers
 #'
 #' @description Create schema diagrams for \code{\link[=number_line-class]{number_line}}, \code{\link[=epid-class]{epid}}, \code{\link[=pid-class]{pid}} and \code{\link[=pane-class]{pane}} objects.
 #'

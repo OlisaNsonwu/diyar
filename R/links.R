@@ -1,41 +1,40 @@
 #' @name links
 #' @title Multistage deterministic record linkage
 #'
-#' @description Match records in consecutive stages with different matching criteria.
-#' Each set of linked records are assigned a unique identifier with relevant group-level information.
+#' @description Stepwise record linkage. Assign unique identifiers to records based on multiple stages of different matching criteria.
 #'
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Record-groups are created separately for each \code{strata}. See \code{Details}.
-#' @param criteria \code{[list|atomic]}. Attributes to compare. Each element of the list is a stage in the linkage process. See \code{Details}.
-#' @param sub_criteria \code{[list|\link{sub_criteria}]}. Additional matching criteria for each stage of the linkage process. See \code{\link{sub_criteria}}
+#' @param criteria \code{[list|atomic]}. Attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.
+#' @param sub_criteria \code{[list|\link{sub_criteria}]}. Nested matching criteria. These are additional matching criteria paired to a stage of the linkage process. See \code{\link{sub_criteria}}
 #' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.
-#' @param data_links \code{[list|character]}. A set of \code{data_sources} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
+#' @param data_links \code{[list|character]}. \code{data_source} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
 #' @param expand \code{[logical]}. If \code{TRUE}, allows a record-group to expand with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.
 #' @param shrink \code{[logical]}. If \code{TRUE}, forces a record-group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
 #' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches.
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.
-#' @param display \code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param tie_sort \code{[atomic]}. Preferential order for breaking tied matches within a stage.
+#' @param display \code{[character]}. Display or generate a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
+#' @param tie_sort \code{[atomic]}. Preferential order for breaking ties within a stage.
 #'
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
 #' @seealso \code{\link{link_records}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
 #'
 #' @details
-#' Match priority decreases with each subsequent stage of the linkage process
+#' The priority of matches decreases with each subsequent stage of the linkage process
 #' i.e. earlier stages (\code{criteria}) are considered superior.
-#' Therefore, it's important for each \code{criteria} to be listed in an order of decreasing relevance.
+#' Therefore, it's important that each \code{criteria} is listed in an order of decreasing relevance.
 #'
-#' Records with missing \code{criteria} (\code{NA}) are skipped at each stage, while
-#' records with missing \code{strata} (\code{NA}) are skipped from the entire linkage process.
+#' Records with missing \code{criteria} (\code{NA}) values are skipped at their respective stages, while
+#' records with missing \code{strata} (\code{NA}) are skipped at every stage.
 #'
 #' If a record is skipped, another attempt will be made to match the record at the next stage.
 #' If a record does not match any other record by the end of the linkage process (or it has a missing \code{strata}),
 #' it is assigned to a unique record-group.
 #'
-#' A \code{\link{sub_criteria}} can be used to request additional matching conditions for each stage of the linkage process.
-#' When used, only records with a matching \code{criteria} and \code{sub_criteria} are linked.
+#' A \code{\link{sub_criteria}} can be used to introduce nested (additional) matching conditions at each stage of the linkage process.
+#' This results in only records with a matching \code{criteria} and \code{sub_criteria} being linked.
 #'
 #' In \bold{\code{\link{links}}}, each \code{\link{sub_criteria}} must be linked to a \code{criteria}.
 #' This is done by adding a \code{\link{sub_criteria}} to a named element of a \code{list}.
@@ -46,9 +45,7 @@
 #'
 #' \deqn{list("cr1" = sub_criteria(...), "cr5" = sub_criteria(...), "cr13" = sub_criteria(...)).}
 #'
-#' \code{\link{sub_criteria}} can be nested to achieve nested conditions.
-#'
-#' A \code{\link{sub_criteria}} can be linked to different \code{criteria} but any unlinked \code{\link{sub_criteria}} will be ignored.
+#' \code{\link{sub_criteria}} objects themselves can be nested. Any unlinked \code{\link{sub_criteria}} will be ignored.
 #'
 #' By default, attributes in a \code{\link{sub_criteria}} are compared for an \code{\link{exact_match}}.
 #' However, user-defined functions are also permitted. Such functions must meet three requirements:
@@ -68,43 +65,69 @@
 #' See \code{vignette("links")} for more information.
 #'
 #' @examples
-#' # Exact match
-#' attr_1 <- c(1, 1, 1, NA, NA, NA, NA, NA)
-#' attr_2 <- c(NA, NA, 2, 2, 2, NA, NA, NA)
-#' links(criteria = list(attr_1, attr_2))
+#' data(patient_records)
+#' # An exact match on surname followed by an exact match on forename
+#' stages <- as.list(patient_records[c("surname", "forename")])
+#' pids_1 <- links(criteria = stages)
 #'
-#' # User-defined tests using `sub_criteria()`
-#' # Matching `sex` and a 20-year age range
-#' age <- c(30, 28, 40, 25, 25, 29, 27)
-#' sex <- c("M", "M", "M", "F", "M", "M", "F")
-#' f1 <- function(x, y) abs(y - x) %in% 0:20
-#' links(criteria = sex,
-#'       sub_criteria = list(cr1 = sub_criteria(age, match_funcs = f1)))
+#' # Reverse order
+#' pids_2 <- links(criteria = rev(stages))
 #'
-#' # Multistage matches
-#' # Relevance of matches: `forename` > `surname`
-#' data(staff_records)
-#' dfr_1 <- staff_records
-#' links(criteria = list(dfr_1$forename, dfr_1$surname),
-#'       data_source = dfr_1$sex)
+#' # Nested matches
+#' # Same sex OR year of birth
+#' nest_cond1 <- sub_criteria(format(patient_records$dateofbirth, "%Y"),
+#'                            patient_records$sex,
+#'                            operator = "or",
+#'                            match_funcs = c(exact_match, exact_match))
 #'
-#' # Relevance of matches:
-#' # `staff_id` > `age` (AND (`initials`, `hair_colour` OR `branch_office`))
-#' data(missing_staff_id)
-#' dfr_2 <- missing_staff_id
-#' links(criteria = list(dfr_2$staff_id, dfr_2$age),
-#'       sub_criteria = list(cr2 = sub_criteria(dfr_2$initials,
-#'                                              dfr_2$hair_colour,
-#'                                              dfr_2$branch_office)),
-#'       data_source = dfr_2$source_1)
+#' # Same middle name AND a 10 year age difference
+#' age_diff <- function(x, y){
+#'   diff <- abs(as.numeric(x) - as.numeric(y))
+#'   wgt <-  diff %in% 0:(365 * 10) & !is.na(diff)
+#'   wgt
+#' }
+#' nest_cond2 <- sub_criteria(patient_records$dateofbirth,
+#'                            patient_records$sex,
+#'                            operator = "and",
+#'                            match_funcs = c(age_diff, exact_match))
 #'
-#' # Group expansion
-#' match_cri <- list(c(1,NA,NA,1,NA,NA),
-#'                   c(1,1,1,2,2,2),
-#'                   c(3,3,3,2,2,2))
-#' links(criteria = match_cri, expand = TRUE)
-#' links(criteria = match_cri, expand = FALSE)
-#' links(criteria = match_cri, shrink = TRUE)
+#' # 'nest_cond1' OR 'nest_cond2'
+#' nest_cond3 <- sub_criteria(nest_cond1,
+#'                            nest_cond2,
+#'                            operator = "or")
+#'
+#' # Record linkage with nested conditions
+#' pids_3 <- links(criteria = stages,
+#'                 sub_criteria = list(cr1 = nest_cond1,
+#'                                     cr2 = nest_cond2),
+#'                 display = "progress")
+#'
+#' # Record linkage with multiple (two) layers of nested conditions
+#' pids_4 <- links(criteria = stages,
+#'                 sub_criteria = list(cr1 = nest_cond3,
+#'                                     cr2 = nest_cond3),
+#'                 display = "progress")
+#'
+#' # Record linkage without group expansion
+#' pids_5 <- links(criteria = stages,
+#'                 sub_criteria = list(cr1 = nest_cond1,
+#'                                     cr2 = nest_cond2),
+#'                 display = "progress",
+#'                 expand = FALSE)
+#'
+#' # Record linkage with shrinking record groups
+#' pids_6 <- links(criteria = stages,
+#'                 sub_criteria = list(cr1 = nest_cond1,
+#'                                     cr2 = nest_cond2),
+#'                 display = "progress",
+#'                 shrink = TRUE)
+#'
+#' summary(pids_1)
+#' summary(pids_2)
+#' summary(pids_3)
+#' summary(pids_4)
+#' summary(pids_5)
+#' summary(pids_6)
 #'
 #' @aliases links
 #' @export

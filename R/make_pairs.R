@@ -1,9 +1,9 @@
 #' @name make_pairs
 #' @aliases make_pairs
-#' @title Record-pair combination.
+#' @title Record-pair combinations.
 #'
 #' @description
-#' Create record-pair combination of a vector's elements.
+#' Create record-pair combinations of a vector's elements.
 #'
 #' @param x \code{[atomic]}.
 #' @param strata Subsets of \code{x}. A blocking attribute limiting the combinations created.
@@ -11,7 +11,7 @@
 #' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations are included.
 #' @param ... Arguments passed to \code{\link{make_pairs}}.
 #' @param data_source \code{[character]}. Data source identifier. Limits to record-pairs to those from different sources.
-#' @return A \code{list} of indexes and values of record-pair combinations
+#' @return A \code{list} of indexes and values of record-pair combinations.
 #'
 #' @seealso \code{\link{eval_sub_criteria}}
 #'
