@@ -1245,3 +1245,36 @@ make_batch_pairs <- function(strata, index_record, sn){
   pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
   return(pos_repo)
 }
+
+fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
+  left_indent <- paste0(rep(" ", 2 * depth_n), collapse = "")
+  operator_txt <- toupper(attr(x, "operator"))
+  operator_txt <- paste0(" ", operator_txt," ")
+
+  logic_txt <- lapply(x, function(x){
+    x <- x[[1]]
+    if(class(x) == "sub_criteria"){
+      paste0("\n", fmt_sub_criteria(x, depth_n + 1, show_levels))
+    }else{
+      if(is.atomic(x)){
+        paste0("match_func(", listr(trimws(format(x)), lim = 3, sep = ","), ")")
+      }else{
+        if(!is.null(names(x))){
+          paste0("match_func(", class(x), "; ", listr(paste0("`", names(x), "`"), lim = 2), ")")
+        }else{
+          paste0("match_func(", class(x), ")")
+        }
+      }
+    }
+  })
+
+  logic_txt <- unlist(logic_txt, use.names = FALSE)
+  logic_txt <- paste0(logic_txt, collapse = operator_txt)
+  depth_l <- ifelse(show_levels, paste0("Lv", depth_n), "")
+
+  logic_txt <- paste0(left_indent, "{", depth_l, "\n",
+                      left_indent, logic_txt, "\n",
+                      left_indent, "}")
+  logic_txt <- gsub("\\n *\\n", "\n", logic_txt)
+  logic_txt
+}

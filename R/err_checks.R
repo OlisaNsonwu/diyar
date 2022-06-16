@@ -323,7 +323,7 @@ err_criteria_2 <- function(criteria){
   err <- err[!duplicated(err)]
 
   if(!min(err) %in% c(1, max(err)) | min(err) == 0){
-    paste0("Length of each `criteria` must be the same or equal to 1:\n",
+    paste0("Length of each `criteria` must be the same and greater than 0 or equal to 1:\n",
            paste0("X - `criteria ", names(err),"` is ", fmt(err), ".", collapse = "\n"))
   }else{
     F
@@ -990,6 +990,13 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
   err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
+  if(length(date) == 0){
+    return(
+      paste0("Invalid length for `date`:\n",
+             "i - Length must be greater than 0.\n",
+             "X - Length is ", fmt(length(date)), ".\n")
+    )
+  }
   # Check for required object lengths
   len_lims <- c(1, length(date))
   args <- list(case_length = case_length,
