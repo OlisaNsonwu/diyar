@@ -215,7 +215,7 @@ head(pids_2b$pid_weights, 10)
 
 }
 \references{
-Fellegi, I. P., & Sunter, A. B. (1969). A Theory for Record Linkage. \emph{Journal of the Statistical Association}, 64(328), 1183–1210. https://doi.org/10.1080/01621459.1969.10501049
+Fellegi, I. P., & Sunter, A. B. (1969). A Theory for Record Linkage. \emph{Journal of the Statistical Association}, 64(328), 1183 - 1210. https://doi.org/10.1080/01621459.1969.10501049
 
 Asher, J., Resnick, D., Brite, J., Brackbill, R., & Cone, J. (2020). An Introduction to Probabilistic Record Linkage with a Focus on Linkage Processing for WTC Registries. \emph{International journal of environmental research and public health}, 17(18), 6937. https://doi.org/10.3390/ijerph17186937.
 }

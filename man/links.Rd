@@ -37,9 +37,9 @@ links(
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.}
 
-\item{expand}{\code{[logical]}. If \code{TRUE}, allows a record-group to expand with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.}
+\item{expand}{\code{[logical]}. If \code{TRUE}, a record-group gains new records if a match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.}
 
-\item{shrink}{\code{[logical]}. If \code{TRUE}, forces a record-group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
+\item{shrink}{\code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
 
 \item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches.}
 

@@ -5,6 +5,7 @@
 
 New function - `overlap_method_names()`. Overlap methods for a
 corresponding overlap method codes.
+`shrink` and `expand` arguments added to `merge_ids()`.
 
 ## Changes
 
@@ -23,8 +24,9 @@ corresponding overlap method codes.
 
 ## Bug fixes
 
--   `make_batch_pairs()` (internal) created invalid record pairs.
+-  `make_batch_pairs()` (internal) creates incorrect record pairs.
     Resolved.
+- `links()` - Incorrect behaviour of `shrink` argument. Resolved
 
 # Version 0.4.0
 

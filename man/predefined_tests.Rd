@@ -70,5 +70,4 @@ y_nl2 <- number_line(16, 10)
 range_match_legacy(x = x_nl, y = y_nl1)
 range_match_legacy(x = x_nl, y = y_nl2)
 
-
 }

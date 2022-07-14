@@ -1145,7 +1145,7 @@ err_links_checks_0 <- function(criteria,
                group_stats = group_stats,
                expand = expand,
                shrink = shrink,
-               criteria = criteria,
+               # criteria = criteria,
                recursive = recursive,
                check_duplicates = check_duplicates,
                tie_sort = tie_sort)
@@ -1895,7 +1895,7 @@ err_links_wf_probablistic_0 <- function(attribute,
     lens <- c(lens, length(blocking_attribute))
   }
   lens <- lens[!duplicated(lens)]
-  if(length(lens) != 1){
+  if(length(lens) != 1 & length(blocking_attribute) != 1){
     err <- paste0("Lengths of `blocking_attribute` and each attribute must be the same or equal to 1")
     return(err)
   }
@@ -1907,7 +1907,7 @@ err_links_wf_probablistic_0 <- function(attribute,
     return(err)
   }
 
-  lens <- seq_len(lens)
+  lens <- seq_len(max(lens))
   id_1 <- id_1[!duplicated(id_1)]
   id_2 <- id_2[!duplicated(id_2)]
   err_1 <- which(!as.integer(id_1) %in% lens)
@@ -2033,7 +2033,7 @@ err_make_pairs_1 <- function(x = 1, strata = NULL,
                repeats_allowed = repeats_allowed,
                permutations_allowed = permutations_allowed)
 
-  args_lens <- list(strata = c(0, length(x)),
+  args_lens <- list(strata = c(0, len_lims),
                repeats_allowed = 1,
                permutations_allowed = 1)
 

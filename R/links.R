@@ -10,8 +10,8 @@
 #' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.
 #' @param data_links \code{[list|character]}. \code{data_source} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
-#' @param expand \code{[logical]}. If \code{TRUE}, allows a record-group to expand with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.
-#' @param shrink \code{[logical]}. If \code{TRUE}, forces a record-group to shrink with each subsequent stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
+#' @param expand \code{[logical]}. If \code{TRUE}, a record-group gains new records if a match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.
+#' @param shrink \code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
 #' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches.
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.
 #' @param display \code{[character]}. Display or generate a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
@@ -145,6 +145,7 @@ links <- function(criteria,
                   check_duplicates = FALSE,
                   tie_sort = NULL){
   tm_a <- Sys.time()
+  mem_ia <- sum(gc()[, 1])
 
   if(class(sub_criteria) == "sub_criteria"){
     sub_criteria <- list(sub_criteria)
@@ -171,7 +172,9 @@ links <- function(criteria,
   err <- err_sn_1(sn = sn, ref_num = ds_len, ref_nm = "criteria")
   if(!isFALSE(err)) stop(err, call. = FALSE)
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Data validation", current_tot = ds_len)
+    rp_data <- di_report(tm_a, "Data validation",
+                         current_tot = ds_len,
+                         start_mem = mem_ia)
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -235,7 +238,9 @@ links <- function(criteria,
                     "tie_sort" = tie_sort)
 
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Data standardisation", current_tot = ds_len)
+    rp_data <- di_report(tm_ia, "Data standardisation",
+                         current_tot = ds_len,
+                         start_mem = mem_ia)
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -261,7 +266,12 @@ links <- function(criteria,
     }
     # Nested linkage
     if(shrink == TRUE){
-      cri <- combi(cri, pids_repo$pid)
+      tmp_pid <- pids_repo$pid
+      if(ite > 1){
+        tmp_pid[pids_repo$pid == 0] <- pids_repo$sn[pids_repo$pid == 0]
+      }
+      cri <- combi(cri, tmp_pid)
+      rm(tmp_pid)
     }
     # Encode current `criteria`
     if(all(!class(cri) %in% c("numeric","integer"))){
@@ -447,7 +457,10 @@ links <- function(criteria,
         pid_cri[which(pid_cri == mxp_cri | (pid_cri != mxp_cri & shrink))] <- i
 
         if(!display %in% c("none")){
-          rp_data <- di_report(tm_ia, ite, length(m_tag), criteria = i, current_tagged = length(which(m_tag == 2 & iteration == ite)))
+          rp_data <- di_report(tm_ia, ite, length(m_tag),
+                               criteria = i,
+                               current_tagged = length(which(m_tag == 2 & iteration == ite)),
+                               start_mem = mem_ia)
           report <- c(report, list(rp_data))
         }
         tm_ia <- Sys.time()
@@ -549,7 +562,10 @@ links <- function(criteria,
       assigned <- length(pids_repo$pid[skp_lgk][pids_repo$pid[skp_lgk] != sn_ref])
       if(length(curr_sub_cri) == 0){
         cat("\n")
-        rp_data <- di_report(tm_ia, ite - 1, length(skp_lgk), criteria = i, current_tagged = assigned)
+        rp_data <- di_report(tm_ia, ite - 1,
+                             length(skp_lgk), criteria = i,
+                             current_tagged = assigned,
+                             start_mem = mem_ia)
         report <- c(report, list(rp_data))
       }
       if(display %in% c("stats", "progress", "stats_with_report", "progress_with_report")){
@@ -612,7 +628,7 @@ links <- function(criteria,
     pids <- list(pid = pids, report = as.list(do.call("rbind", lapply(report, as.data.frame))))
     class(pids$report) <- "d_report"
   }
-  if(display != "none") cat("Records linked in ", tms, "!\n", sep = "")
+  if(!display %in% c("none", "none_with_report")) cat("Records linked in ", tms, "!\n", sep = "")
   rm(list = ls()[ls() != "pids"])
   return(pids)
 }

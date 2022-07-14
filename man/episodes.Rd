@@ -153,7 +153,6 @@ hospital_admissions$admin_period <-
 number_line(hospital_admissions$admin_dt,
             hospital_admissions$discharge_dt)
 episodes(date = hospital_admissions$admin_period,
-         case_length = index_window(hospital_admissions$admin_period),
          case_overlap_methods = "inbetween")
 
 }

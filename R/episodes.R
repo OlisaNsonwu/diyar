@@ -96,7 +96,6 @@
 #' number_line(hospital_admissions$admin_dt,
 #'             hospital_admissions$discharge_dt)
 #' episodes(date = hospital_admissions$admin_period,
-#'          case_length = index_window(hospital_admissions$admin_period),
 #'          case_overlap_methods = "inbetween")
 #'
 #' @aliases episodes
@@ -111,7 +110,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                      case_length_total = 1, recurrence_length_total = case_length_total,
                      skip_unique_strata = TRUE) {
   tm_a <- Sys.time()
-
+  mem_ia <- sum(gc()[, 1])
   # Validations
   errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
                                 display = display, episodes_max = episodes_max, from_last = from_last,
@@ -131,7 +130,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
   inp_n <- length(date)
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Data validation", inp_n)
+    rp_data <- di_report(tm_a, "Data validation", inp_n,
+                         start_mem = mem_ia)
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -327,7 +327,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(data_source) == 1) data_source <- rep(data_source, inp_n)
   }
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Data standardisation", inp_n,)
+    rp_data <- di_report(tm_ia, "Data standardisation", inp_n,
+                         start_mem = mem_ia)
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -450,7 +451,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Pre-tracking", inp_n, current_skipped = excluded)
+    rp_data <- di_report(tm_ia, "Pre-tracking", inp_n, current_skipped = excluded,
+                         start_mem = mem_ia)
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0("Pre-tracking\n",
@@ -632,7 +634,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       current_tagged <- length(tag[tag == 2])
       current_skipped <- length(tag[tag == 0]) + current_skipped
       if(!display %in% c("none")){
-        rp_data <- di_report(tm_ia, "Pre-tracking", current_tot, current_tagged, current_skipped)
+        rp_data <- di_report(tm_ia, "Pre-tracking", current_tot, current_tagged, current_skipped,
+                             start_mem = mem_ia)
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
           cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
@@ -968,7 +971,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       current_tagged <- length(tag[tag == 2])
       current_skipped <- length(tag[tag == 0]) + current_skipped
       if(!display %in% c("none")){
-        rp_data <- di_report(tm_ia, ite, current_tot, current_tagged, current_skipped)
+        rp_data <- di_report(tm_ia, ite, current_tot, current_tagged, current_skipped,
+                             start_mem = mem_ia)
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
           cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
@@ -1017,7 +1021,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[tag != 0 & iteration == 0] <- ite
     current_tagged <- length(tag[tag == 2])
     if(!display %in% c("none")){
-      rp_data <- di_report(tm_ia, ite, current_tot, current_tagged - current_skipped, current_skipped)
+      rp_data <- di_report(tm_ia, ite, current_tot, current_tagged - current_skipped, current_skipped,
+                           start_mem = mem_ia)
       report <- c(report, list(rp_data))
       if(display %in% c("stats_with_report", "stats")){
         cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
@@ -1110,7 +1115,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
     if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       if(!display %in% c("none")){
-        rp_data <- di_report(tm_ia, ite, NA_real_, NA_real_, length(tag[tag == 0]))
+        rp_data <- di_report(tm_ia, ite, NA_real_, NA_real_, length(tag[tag == 0]),
+                             start_mem = mem_ia)
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
           cat(paste0("Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
@@ -1470,7 +1476,8 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   })
   names(opt_lst) <- opt_lst_nms
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Remove duplicates", current_tot = length(rf_lgk), current_skipped = length(rf_lgk[rf_lgk]))
+    rp_data <- di_report(tm_a, "Remove duplicates", current_tot = length(rf_lgk), current_skipped = length(rf_lgk[rf_lgk]),
+                         start_mem = mem_ia)
     report_a <- rp_data
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0("Remove duplicates\n",
@@ -1527,7 +1534,8 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   wf_epid@epid_total <- tot$lengths[match(wf_epid@.Data, tot$values)]
   wf_epid@epid_total[is.na(wf_epid@epid_total)] <- 1L
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Return duplicates", current_tot = length(date), current_tagged = length(rf_lgk[rf_lgk]))
+    rp_data <- di_report(tm_a, "Return duplicates", current_tot = length(date), current_tagged = length(rf_lgk[rf_lgk]),
+                         start_mem = mem_ia)
     report_b <- rp_data
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0("\n\n",

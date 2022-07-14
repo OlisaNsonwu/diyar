@@ -11,7 +11,8 @@ knitr::opts_chunk$set(
 # Version 0.4.1
 
 ## New features
-New function - `overlap_method_names()`. Overlap methods for a corresponding overlap method codes.
++ New function - `overlap_method_names()`. Overlap methods for a corresponding overlap method codes.
++ Memory usage added to `*with_report` options for display.
 
 ## Changes
 + `"chain"` overlap method split into `"x_chain_y"` and `"y_chain_x"`. `"chain"` will continue to be supported as a keyword for `"x_chain_y" OR "y_chain_x"` method

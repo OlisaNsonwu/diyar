@@ -1163,12 +1163,13 @@ setMethod("c", signature(x = "pid"), function(x,...) {
 plot.d_report <- function(x, ...){
   . <- NULL
   t <- length(x$iteration)
-  x <- data.frame(x = c(x$iteration, x$iteration, x$iteration, x$iteration),
-                   y = c(as.numeric(x$duration), x$records_checked, x$records_tracked, x$records_skipped),
+  x <- data.frame(x = c(x$iteration, x$iteration, x$iteration, x$iteration, x$iteration),
+                   y = c(as.numeric(x$duration), x$records_checked, x$records_tracked, x$records_skipped, x$memory_used),
                    l = c(rep(paste0("duration (", attr(x$duration, "units"), ")"), t),
                          rep("records_checked", t), rep("records_assigned", t),
-                         rep("records_skipped", t)),
+                         rep("records_skipped", t), rep("memory_used (MB)", t)),
                    stringsAsFactors = FALSE)
+
   x$x_cd <- match(x$x, x$x)
   x_breaks <- x$x_cd[!duplicated(x$x)]
   x_labs <- x$x[!duplicated(x$x)]

@@ -926,14 +926,17 @@ dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
 }
 
 di_report <- function(start_time = 0L, iteration = NA, current_tot = 0L,
-                      current_tagged = 0L, current_skipped = 0L, criteria = 0L){
+                      current_tagged = 0L, current_skipped = 0L,
+                      criteria = 0L, start_mem = 0L){
   tms <- difftime(Sys.time(), start_time, units = "secs")
+  mem <- sum(gc()[, 1]) - start_mem
   x <- list(iteration = iteration,
             duration = tms,
             records_checked = as.integer(current_tot),
             records_tracked = as.integer(current_tagged),
             records_skipped = as.integer(current_skipped),
-            criteria = as.integer(criteria))
+            criteria = as.integer(criteria),
+            memory_used = mem/(1000 * 1024))
   return(x)
 }
 
@@ -1277,4 +1280,18 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
                       left_indent, "}")
   logic_txt <- gsub("\\n *\\n", "\n", logic_txt)
   logic_txt
+}
+
+roll_sum <- function(val, by = 1000000){
+  by <- abs(by)
+  p <- 1:length(val)
+  roll_seq <- function(pos){
+    if(pos >= by) {
+      pos <- ((pos-(by-1)):pos)
+    }else{
+      pos <- (1:pos)
+    }
+    sum(val[pos])
+  }
+  unlist(lapply(p, roll_seq))
 }

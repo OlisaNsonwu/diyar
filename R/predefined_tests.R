@@ -66,7 +66,6 @@ range_match_legacy <- function(x, y) {
 #' @param return_weights If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.
 #' @details
 #' \bold{\code{prob_link()}} - Test that a record-sets \code{x} and \code{y} are from the same entity based on calculated weights and probability scores.
-#' @examples
 #'
 #' @export
 prob_link <- function(x, y,
@@ -113,6 +112,7 @@ prob_link <- function(x, y,
     if(isTRUE(return_weights)) return(out_a) else return(lgk)
   }
   out_a$record.match <- NULL
+
   # If probability based, matches are based on scores derived from m- and u-probabilities
   pwts <- sapply(seq_len(attr_n), function(i){
     pwts <- rep(0, length(wts[[i]]))

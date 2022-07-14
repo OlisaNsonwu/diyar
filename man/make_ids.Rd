@@ -17,7 +17,7 @@ make_ids(x_pos, y_pos, id_length = max(x_pos, y_pos))
 \code{list}
 }
 \description{
-Create record-pair combination of a vector's elements.
+Convert an edge list to record identifiers.
 }
 \details{
 Record groups from non-recursive links have the lowest record ID (\code{sn}) in the set as their group ID.

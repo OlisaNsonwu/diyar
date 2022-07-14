@@ -51,8 +51,6 @@ partitions(
 \item{display}{\code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.}
 }
 \value{
-
-
 \code{\link[=pane-class]{pane}}
 }
 \description{

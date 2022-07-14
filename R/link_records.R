@@ -81,7 +81,7 @@
 
 
 #' @references
-#' Fellegi, I. P., & Sunter, A. B. (1969). A Theory for Record Linkage. \emph{Journal of the Statistical Association}, 64(328), 1183–1210. https://doi.org/10.1080/01621459.1969.10501049
+#' Fellegi, I. P., & Sunter, A. B. (1969). A Theory for Record Linkage. \emph{Journal of the Statistical Association}, 64(328), 1183 - 1210. https://doi.org/10.1080/01621459.1969.10501049
 #'
 #' Asher, J., Resnick, D., Brite, J., Brackbill, R., & Cone, J. (2020). An Introduction to Probabilistic Record Linkage with a Focus on Linkage Processing for WTC Registries. \emph{International journal of environmental research and public health}, 17(18), 6937. https://doi.org/10.3390/ijerph17186937.
 #'
@@ -182,6 +182,7 @@ link_records <- function(attribute,
                          ignore_same_source = TRUE,
                          display = "none"){
   tm_a <- Sys.time()
+  mem_ia <- sum(gc()[, 1])
   err <- err_links_wf_probablistic_0(attribute = attribute,
                                      blocking_attribute = blocking_attribute,
                                      cmp_func = cmp_func,
@@ -194,13 +195,15 @@ link_records <- function(attribute,
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Data validation", current_tot = length(attrs(attribute)[[1]]))
+    rp_data <- di_report(tm_a, "Data validation",
+                         current_tot = length(attrs(attribute)[[1]]),
+                         start_mem = mem_ia)
+    tm_ia <- Sys.time()
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
-  tm_ia <- Sys.time()
 
   if(class(attribute) %in% c("list", "data.frame")){
     attribute <- attrs(.obj = attribute)
@@ -300,13 +303,15 @@ link_records <- function(attribute,
   rp_n <- length(x[[1]])
 
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Pairs created", current_tot = length(x[[1]]))
+    rp_data <- di_report(tm_ia, "Pairs created",
+                         current_tot = length(x[[1]]),
+                         start_mem = mem_ia)
+    tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
-  tm_ia <- Sys.time()
   pid_weights <- prob_link(x = c(x,
                                  lapply(probs_repo$m_probability$x, function(k) k[r_pairs$x_pos]),
                                  lapply(probs_repo$u_probability$x, function(k) k[r_pairs$x_pos])),
@@ -319,13 +324,15 @@ link_records <- function(attribute,
                            cmp_func = thresh_repo$cmp_func,
                            probabilistic = probabilistic)
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Weights calculated", current_tot = length(x[[1]]))
+    rp_data <- di_report(tm_ia, "Weights calculated",
+                         current_tot = length(x[[1]]),
+                         start_mem = mem_ia)
+    tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
-  tm_ia <- Sys.time()
   # Output
   if(!is.null(data_source)){
     pid_weights <- cbind(data.frame(r_pairs$x_pos, r_pairs$y_pos,
@@ -355,7 +362,11 @@ link_records <- function(attribute,
     pids@pid_dataset <- encode(rst$ds)
   }
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "`pid` created", current_tot = length(x[[1]]), current_tagged = nrow(pid_weights[pid_weights$record.match,]))
+    rp_data <- di_report(tm_ia, "`pid` created",
+                         current_tot = length(x[[1]]),
+                         current_tagged = nrow(pid_weights[pid_weights$record.match,]),
+                         start_mem = mem_ia)
+    tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
@@ -374,7 +385,7 @@ link_records <- function(attribute,
     class(pids$report) <- "d_report"
   }
 
-  if(display != "none") cat("Records linked in ", tms, "!\n", sep = "")
+  if(!display %in% c("none", "none_with_report")) cat("Records linked in ", tms, "!\n", sep = "")
   rm(list = ls()[ls() != "pids"])
   return(pids)
 }
@@ -480,9 +491,25 @@ links_wf_probabilistic <- function(attribute,
   # Re-calculate weights for linked records
   if(!is.null(id_1) & !is.null(id_2)){
     pids <- NULL
-    x <- c(attribute, probs_repo$m_probability, probs_repo$u_probability)
-    y <- lapply(x, function(k) k[id_2])
-    x <- lapply(x, function(k) k[id_1])
+    x <- c(attribute, probs_repo$m_probability$x, probs_repo$u_probability$x)
+    y <- lapply(x, function(k){
+      if(is.list(k)){
+        lapply(k, function(y){
+          y[id_2]
+        })
+      }else{
+        k[id_2]
+      }
+    })
+    x <- lapply(x, function(k){
+      if(is.list(k)){
+        lapply(k, function(y){
+          y[id_1]
+        })
+      }else{
+        k[id_1]
+      }
+    })
     thresh_lgk <- integer()
   }else{
     pids <- links(criteria = "place_holder",

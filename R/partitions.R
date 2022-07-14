@@ -18,8 +18,6 @@
 #' @param length.out \code{[integer]}. Number of splits.
 #' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
 #' @param display \code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.
-#' @return
-#'
 #' @return \code{\link[=pane-class]{pane}}
 #'
 #' @seealso

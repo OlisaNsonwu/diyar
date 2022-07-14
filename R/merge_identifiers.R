@@ -6,27 +6,50 @@
 #' Consolidate two group identifiers.
 #'
 #' @details
-#' Groups in \code{id1} are expanded by groups \code{id2}.
+#' Groups in \code{id1} are expanded or shrunk by groups in \code{id2}.
 #'
-#' @param id1 \code{[\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.
-#' @param id2 \code{[\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.
+#' A unique group with only one record is considered a non-matching record.
+#'
+#' Note that the \code{expand} and \code{shrink} features are not interchangeable.
+#' The outcome when \code{shrink} is \code{TRUE} is not the same when \code{expand} is \code{FALSE}.
+#' See \code{Examples}.
+#'
+#' @param id1 \code{[integer|\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.
+#' @param id2 \code{[integer|\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.
 #' @param ... Other arguments
 #' @param tie_sort \code{[atomic]}. Preferential order for breaking tied matches.
+#' @param expand \code{[logical]}. If \code{TRUE}, \code{id1} gains new records if \code{id2} indicates a match. \emph{Not interchangeable with \code{shrink}}.
+#' @param shrink \code{[logical]}. If \code{TRUE}, \code{id1} loses existing records \code{id2} does not indicate a match. \emph{Not interchangeable with \code{expand}}.
 #'
-#' @seealso \code{\link{links}}; \code{\link{link_records}}; \code{\link{episodes}}; \code{\link{partitions}}
+#' @seealso \code{\link{links}}; \code{\link{link_records}}
 #'
 #' @examples
+#' id1 <- rep(1, 5)
+#' id2 <- c(2, 2, 3, 3, 3)
+#' merge_ids(id1, id2, shrink = TRUE)
+#'
+#' id1 <- c(rep(1, 3), 6, 7)
+#' id2 <- c(2,2,3,3,3)
+#' merge_ids(id1, id2, shrink = TRUE)
+#' merge_ids(id1, id2, expand = FALSE)
+#'
+#' id1 <- rep(1, 5)
+#' id2 <- c(1:3, 4, 4)
+#' merge_ids(id1, id2, shrink = TRUE)
+#' merge_ids(id1, id2, expand= FALSE)
+#'
 #' data(missing_staff_id)
 #' dfr <- missing_staff_id
 #' id1 <- links(dfr[[5]])
 #' id2 <- links(dfr[[6]])
-#' id1; id2; merge_ids(id1, id2)
+#' merge_ids(id1, id2)
 #' @export
 merge_ids <- function(...) UseMethod("merge_ids")
 
 #' @rdname merge_identifiers
 #' @export
-merge_ids.default <- function(id1, id2, tie_sort = NULL, ...){
+merge_ids.default <- function(id1, id2, tie_sort = NULL,
+                               expand = TRUE, shrink = FALSE, ...){
   err <- err_atomic_vectors(id1, "id1")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_atomic_vectors(id2, "id2")
@@ -35,124 +58,103 @@ merge_ids.default <- function(id1, id2, tie_sort = NULL, ...){
   if(err != FALSE) stop(err, call. = FALSE)
 
   sn1 <- seq_len(length(id1))
-  sn2 <- seq_len(length(id2))
-
-  id1 <- match(id1, id1[!duplicated(id1)])
-  id2 <- match(id2, id2[!duplicated(id2)])
-
   pr_match <- !(!duplicated(id1, fromLast = TRUE) & !duplicated(id1, fromLast = FALSE))
-  if(is.null(tie_sort)){
-    ord <- order(id2, -pr_match, sn1)
+
+  if(isTRUE(shrink)){
+    new_id <- combi(id1, id2)
+    if(is.null(tie_sort)){
+      ord <- order(new_id, sn1)
+    }else{
+      ord <- order(new_id, tie_sort, sn1)
+    }
+    repo <- list(id1 = id1, sn1 = sn1, new_id = new_id, pr_match = pr_match,
+                 cr_match = !(!duplicated(new_id, fromLast = TRUE) & !duplicated(new_id, fromLast = FALSE)))
+    repo <- lapply(repo, function(x) x[ord])
+
+    repo$new_id <- repo$id1 + ((repo$cr_match + 1)/10)
+    lgk <- !repo$cr_match & repo$pr_match
+    repo$new_id[lgk] <- id1[lgk]
+    repo$new_id <- repo$sn1[match(repo$new_id, repo$new_id)]
   }else{
-    ord <- order(id2, -pr_match, tie_sort, sn1)
+    if(isTRUE(expand)){
+      pr_match_ord <- -pr_match
+    }else{
+      pr_match_ord <- pr_match
+    }
+    if(is.null(tie_sort)){
+      ord <- order(id2, pr_match_ord, sn1)
+    }else{
+      ord <- order(id2, pr_match_ord, tie_sort, sn1)
+    }
+    repo <- list(pr_match = pr_match, id1 = id1, id2 = id2, sn1 = sn1)
+    repo <- lapply(repo, function(x) x[ord])
+    if(isTRUE(expand)){
+      repo$tr_pr_match <- repo$pr_match[match(repo$id2, repo$id2)]
+      repo$tr_id1 <- repo$id1[match(repo$id2, repo$id2)]
+    }else{
+      repo$tr_pr_match <- rep(TRUE, length(repo[[1]]))
+      repo$tr_id1 <- repo$sn1[match(repo$id2, repo$id2)]
+    }
+    repo$new_id <- repo$id1
+    lgk <- repo$tr_pr_match & !repo$pr_match
+    repo$new_id[lgk] <- repo$tr_id1[lgk]
   }
-
-  repo <- list(pr_match = pr_match,
-               id1 = id1, id2 = id2)
-
-  repo <- lapply(repo, function(x) x[ord])
-  repo$tr_pr_match <- repo$pr_match[match(repo$id2, repo$id2)]
-  repo$tr_id1 <- repo$id1[match(repo$id2, repo$id2)]
-  repo$new_id <- repo$id1
-  lgk <- repo$tr_pr_match & !repo$pr_match
-  repo$new_id[lgk] <- repo$tr_id1[lgk]
-
-  repo <- repo$new_id
-  repo <- repo[order(sn1[ord])]
-
+  repo <- repo$new_id[order(repo$sn1)]
   return(repo)
 }
 
 #' @rdname merge_identifiers
 #' @export
-merge_ids.pid <- function(id1, id2, tie_sort = NULL, ...){
+merge_ids.pid <- function(id1, id2, tie_sort = NULL,
+                           expand = TRUE, shrink = FALSE, ...){
   err <- err_object_types(id2, "id2", "pid")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_match_ref_len(id2, "id1", length(id1), "id2")
   if(err != FALSE) stop(err, call. = FALSE)
 
-  mp1 <- list(seq_len(length(id1)),
-              id1@sn)
-  mp2 <- list(seq_len(length(id2)),
-              id2@sn)
-
-  id1@sn <- mp1[[1]]
-  id1@link_id <- mp1[[1]][match(id1@link_id, mp1[[2]])]
-  id1@.Data <- mp1[[1]][match(id1@.Data, mp1[[2]])]
-
-  id2@sn <- mp2[[1]]
-  id2@link_id <- mp2[[1]][match(id2@link_id, mp2[[2]])]
-  id2@.Data <- mp2[[1]][match(id2@.Data, mp2[[2]])]
-
-  pr_match <- !id1@pid_cri %in% c(-1:0)
   if(is.null(tie_sort)){
-    ord <- order(id2@.Data, -pr_match, id1@pid_cri, id1@iteration, id1@sn)
+    tie_sort <- custom_sort(id1@.Data, id1@pid_cri, id1@iteration, id1@sn)
   }else{
-    ord <- order(id2@.Data, -pr_match, id1@pid_cri, id1@iteration, tie_sort, id1@sn)
+    tie_sort <- custom_sort(id1@.Data, id1@pid_cri, id1@iteration, tie_sort, id1@sn)
   }
 
-  repo <- list(pr_match = pr_match,
-               id1 = id1, id2 = id2)
-
-  repo <- lapply(repo, function(x) x[ord])
-  repo$tr_pr_match <- repo$pr_match[match(repo$id2, repo$id2)]
-  repo$tr_id1 <- repo$id1[match(repo$id2, repo$id2)]
-  repo$new_id <- repo$id1
-
-  new_cri <- max(repo$id1@pid_cri)
-  new_cri <- ifelse(new_cri == 0, 2L, new_cri + 1L)
-  new_iteration <- max(repo$id1@iteration) + 1L
-  lgk <- (repo$tr_pr_match & !repo$pr_match & !duplicated(repo$id1))
-  repo$new_id@link_id[lgk] <- repo$tr_id1@link_id[lgk]
-  lgk <- repo$tr_pr_match & !repo$pr_match
-  repo$new_id@.Data[lgk] <- repo$tr_id1@.Data[lgk]
-  repo$new_id@pid_cri[lgk] <- new_cri
-  repo$new_id@iteration[lgk] <- new_iteration
-
-  new_cri <- max(repo$id1@pid_cri)
-  new_cri <- ifelse(new_cri == 0, 1L, new_cri)
-  new_cri <- new_cri + max(repo$id2@pid_cri)
-  new_iteration <- max(repo$id1@iteration) + max(repo$id2@iteration) + 1L
-  lgk <- (!repo$tr_pr_match & !repo$id2@pid_cri %in% c(-1:0))
-  repo$new_id@link_id[lgk] <- repo$id2@link_id[lgk]
-  repo$new_id@.Data[lgk] <- repo$id2@.Data[lgk]
-  repo$new_id@pid_cri[lgk] <- new_cri
-  repo$new_id@iteration[lgk] <- new_iteration
-
-  repo$new_id@pid_dataset <- NA_character_
-  repo <- repo$new_id
-  repo <- repo[order(repo@sn)]
-
-  repo@sn <- mp1[[2]][match(repo@sn, mp1[[1]])]
-  repo@link_id <- mp1[[2]][match(repo@link_id, mp1[[1]])]
-  repo@.Data <- mp1[[2]][match(repo@.Data, mp1[[1]])]
-
-  tots <- rle(sort(repo@.Data))
-  repo@pid_total <- tots$lengths[match(repo@.Data, tots$values)]
-  return(repo)
+  new_pid <- id1
+  new_pid@.Data <- merge_ids.default(id1 = id1@.Data,
+                                     id2 = id2@.Data,
+                                     tie_sort = tie_sort)
+  new_pid@link_id <- merge_ids.default(id1 = id1@link_id,
+                                       id2 = id2@link_id,
+                                       tie_sort = tie_sort)
+  lgk <- id1@.Data != new_pid@.Data
+  new_pid@pid_cri[lgk] <- max(new_pid@pid_cri) + 1L
+  new_pid
 }
 
 #' @rdname merge_identifiers
 #' @export
-merge_ids.epid <- function(id1, id2, tie_sort = NULL, ...){
+merge_ids.epid <- function(id1, id2, tie_sort = NULL,
+                            expand = TRUE, shrink = FALSE, ...){
   err <- err_object_types(id2, "id2", "epid")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_match_ref_len(id2, "id1", length(id1), "id2")
   if(err != FALSE) stop(err, call. = FALSE)
 
   if(is.null(tie_sort)){
-    tie_sort <- custom_sort(id1@iteration, id1@sn)
+    tie_sort <- custom_sort(id1@.Data, id1@iteration, id1@sn)
   }else{
-    tie_sort <- custom_sort(id1@iteration, tie_sort, id1@sn)
+    tie_sort <- custom_sort(id1@.Data, id1@iteration, tie_sort, id1@sn)
   }
-  merge_ids.default(id1 = as.integer(id1),
-                    id2 = as.integer(id2),
-                    tie_sort = tie_sort)
+  new_epid <- merge_ids.default(id1 = id1@.Data,
+                                id2 = id2@.Data,
+                                tie_sort = tie_sort)
+  new_epid <- as.epid(new_epid)
+  new_epid
 }
 
 #' @rdname merge_identifiers
 #' @export
-merge_ids.pane <- function(id1, id2, tie_sort = NULL, ...){
+merge_ids.pane <- function(id1, id2, tie_sort = NULL,
+                            expand = TRUE, shrink = FALSE, ...){
   err <- err_object_types(id2, "id2", "pane")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_match_ref_len(id2, "id1", length(id1), "id2")
@@ -163,8 +165,8 @@ merge_ids.pane <- function(id1, id2, tie_sort = NULL, ...){
   }else{
     tie_sort <- custom_sort(id1@iteration, tie_sort, id1@sn)
   }
-  merge_ids.default(id1 = as.integer(id1),
-                    id2 = as.integer(id2),
+  merge_ids.default(id1 = id1@.Data,
+                    id2 = id2@.Data,
                     tie_sort = tie_sort)
 }
 

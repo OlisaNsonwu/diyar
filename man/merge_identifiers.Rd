@@ -11,36 +11,60 @@
 \usage{
 merge_ids(...)
 
-\method{merge_ids}{default}(id1, id2, tie_sort = NULL, ...)
+\method{merge_ids}{default}(id1, id2, tie_sort = NULL, expand = TRUE, shrink = FALSE, ...)
 
-\method{merge_ids}{pid}(id1, id2, tie_sort = NULL, ...)
+\method{merge_ids}{pid}(id1, id2, tie_sort = NULL, expand = TRUE, shrink = FALSE, ...)
 
-\method{merge_ids}{epid}(id1, id2, tie_sort = NULL, ...)
+\method{merge_ids}{epid}(id1, id2, tie_sort = NULL, expand = TRUE, shrink = FALSE, ...)
 
-\method{merge_ids}{pane}(id1, id2, tie_sort = NULL, ...)
+\method{merge_ids}{pane}(id1, id2, tie_sort = NULL, expand = TRUE, shrink = FALSE, ...)
 }
 \arguments{
 \item{...}{Other arguments}
 
-\item{id1}{\code{[\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.}
+\item{id1}{\code{[integer|\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.}
 
-\item{id2}{\code{[\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.}
+\item{id2}{\code{[integer|\link[=epid-class]{epid}|\link[=pid-class]{pid}|\link[=pane-class]{pane}]}.}
 
 \item{tie_sort}{\code{[atomic]}. Preferential order for breaking tied matches.}
+
+\item{expand}{\code{[logical]}. If \code{TRUE}, \code{id1} gains new records if \code{id2} indicates a match. \emph{Not interchangeable with \code{shrink}}.}
+
+\item{shrink}{\code{[logical]}. If \code{TRUE}, \code{id1} loses existing records \code{id2} does not indicate a match. \emph{Not interchangeable with \code{expand}}.}
 }
 \description{
 Consolidate two group identifiers.
 }
 \details{
-Groups in \code{id1} are expanded by groups \code{id2}.
+Groups in \code{id1} are expanded or shrunk by groups in \code{id2}.
+
+A unique group with only one record is considered a non-matching record.
+
+Note that the \code{expand} and \code{shrink} features are not interchangeable.
+The outcome when \code{shrink} is \code{TRUE} is not the same when \code{expand} is \code{FALSE}.
+See \code{Examples}.
 }
 \examples{
+id1 <- rep(1, 5)
+id2 <- c(2, 2, 3, 3, 3)
+merge_ids(id1, id2, shrink = TRUE)
+
+id1 <- c(rep(1, 3), 6, 7)
+id2 <- c(2,2,3,3,3)
+merge_ids(id1, id2, shrink = TRUE)
+merge_ids(id1, id2, expand = FALSE)
+
+id1 <- rep(1, 5)
+id2 <- c(1:3, 4, 4)
+merge_ids(id1, id2, shrink = TRUE)
+merge_ids(id1, id2, expand= FALSE)
+
 data(missing_staff_id)
 dfr <- missing_staff_id
 id1 <- links(dfr[[5]])
 id2 <- links(dfr[[6]])
-id1; id2; merge_ids(id1, id2)
+merge_ids(id1, id2)
 }
 \seealso{
-\code{\link{links}}; \code{\link{link_records}}; \code{\link{episodes}}; \code{\link{partitions}}
+\code{\link{links}}; \code{\link{link_records}}
 }

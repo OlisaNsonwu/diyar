@@ -2,9 +2,6 @@
 #' @aliases make_ids
 #' @title Convert an edge list to record identifiers.
 #'
-#' @description
-#' Create record-pair combination of a vector's elements.
-#'
 #' @param x_pos \code{[integer]}. Index of first half of a record-pair.
 #' @param y_pos \code{[integer]}. Index of second half of a record-pair.
 #' @param id_length Length of the record identifier.
