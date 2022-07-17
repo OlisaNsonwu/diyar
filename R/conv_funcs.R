@@ -925,18 +925,17 @@ dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
   y
 }
 
-di_report <- function(start_time = 0L, iteration = NA, current_tot = 0L,
+di_report <- function(duration = 0L, cumm_time = 0L, iteration = NA, current_tot = 0L,
                       current_tagged = 0L, current_skipped = 0L,
-                      criteria = 0L, start_mem = 0L){
-  tms <- difftime(Sys.time(), start_time, units = "secs")
-  mem <- sum(gc()[, 1]) - start_mem
+                      criteria = 0L, memory_used = 0L){
   x <- list(iteration = iteration,
-            duration = tms,
+            duration = duration,
+            cumm_time = cumm_time,
             records_checked = as.integer(current_tot),
             records_tracked = as.integer(current_tagged),
             records_skipped = as.integer(current_skipped),
             criteria = as.integer(criteria),
-            memory_used = mem/(1000 * 1024))
+            memory_used = as.numeric(memory_used)/(1000 * 1024))
   return(x)
 }
 

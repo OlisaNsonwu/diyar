@@ -33,7 +33,7 @@ links(
 
 \item{data_links}{\code{[list|character]}. \code{data_source} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
-\item{display}{\code{[character]}. Display or generate a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
+\item{display}{\code{[character]}. display or generate a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.}
 
@@ -119,7 +119,7 @@ age_diff <- function(x, y){
   wgt
 }
 nest_cond2 <- sub_criteria(patient_records$dateofbirth,
-                           patient_records$sex,
+                           patient_records$middlename,
                            operator = "and",
                            match_funcs = c(age_diff, exact_match))
 
@@ -132,27 +132,27 @@ nest_cond3 <- sub_criteria(nest_cond1,
 pids_3 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond1,
                                     cr2 = nest_cond2),
-                display = "progress")
+                web$display = "progress")
 
 # Record linkage with multiple (two) layers of nested conditions
 pids_4 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond3,
                                     cr2 = nest_cond3),
-                display = "progress")
+                web$display = "progress")
 
 # Record linkage without group expansion
 pids_5 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond1,
                                     cr2 = nest_cond2),
-                display = "progress",
-                expand = FALSE)
+                web$display = "progress",
+                web$expand = FALSE)
 
-# Record linkage with shrinking record groups
+# Record linkage with web$shrinking record groups
 pids_6 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond1,
                                     cr2 = nest_cond2),
-                display = "progress",
-                shrink = TRUE)
+                web$display = "progress",
+                web$shrink = TRUE)
 
 summary(pids_1)
 summary(pids_2)
