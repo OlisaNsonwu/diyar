@@ -1295,3 +1295,53 @@ roll_sum <- function(val, by = 1000000){
   }
   unlist(lapply(p, roll_seq))
 }
+
+unpack <- function(xx, depth = 1){
+  classes <- unlist(lapply(xx, class))
+  lgk <- classes == "list"
+  xx.1 <- xx[!lgk]
+  xx.2 <- unlist(xx[lgk], recursive = FALSE)
+  if(length(xx.1) > 0){
+    names(xx.1) <- paste0("var_", depth, ".", seq_len(length(xx.1)))
+  }
+  if(length(xx.2) > 0){
+    names(xx.2) <- paste0("var_", depth + 1, ".", seq_len(length(xx.2)))
+  }
+  xx <- c(xx.1, xx.2)
+  classes <- unlist(lapply(xx, class))
+  lgk <- classes == "list"
+  if(any(lgk)){
+    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
+    unpack(xx, depth = depth + 1)
+  }else{
+    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
+    xx
+  }
+
+}
+
+lgk_eval <- function(matches, check_duplicates){
+  if(tolower(operator) == "or"){
+    set_match <- rowSums(matches)
+    if(isFALSE(check_duplicates)){
+      m2 <- set_match == ncol(matches)
+      lgk <- which(seq_len(nrow(matches)) >= nrow(matches)/2)
+      set_match[lgk] <- m2[lgk]
+      rm(m2); rm(lgk)
+    }
+    set_match[set_match > 0] <- 1
+  }else if (tolower(operator) == "and"){
+    set_match <- rowSums(matches) == ncol(matches)
+    set_match <- as.numeric(set_match)
+  }
+
+  if(isFALSE(check_duplicates)){
+    set_match.rf <- set_match[((length(set_match)/2)+1):length(set_match)]
+    set_match <- set_match[1:(length(set_match)/2)]
+    x <- list(logical_test = set_match,
+              equal_test = set_match.rf)
+  }else{
+    x <- list(logical_test = set_match)
+  }
+  return(x)
+}

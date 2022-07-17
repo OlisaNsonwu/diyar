@@ -26,6 +26,7 @@ eval_sub_criteria(x, ...)
   x_pos = seq_len(max(attr_eval(x))),
   y_pos = rep(1L, length(x_pos)),
   check_duplicates = TRUE,
+  nest = TRUE,
   ...
 )
 }
