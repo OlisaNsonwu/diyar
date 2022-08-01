@@ -2,7 +2,7 @@
 % Please edit documentation in R/links.R
 \name{links}
 \alias{links}
-\title{Multistage deterministic record linkage}
+\title{Multistage deterministic record linkage.}
 \usage{
 links(
   criteria,
@@ -17,7 +17,11 @@ links(
   shrink = FALSE,
   recursive = FALSE,
   check_duplicates = FALSE,
-  tie_sort = NULL
+  tie_sort = NULL,
+  batched = TRUE,
+  repeats_allowed = FALSE,
+  permutations_allowed = FALSE,
+  ignore_same_source = FALSE
 )
 }
 \arguments{
@@ -46,6 +50,12 @@ links(
 \item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.}
 
 \item{tie_sort}{\code{[atomic]}. Preferential order for breaking ties within a stage.}
+
+\item{repeats_allowed}{\code{[logical]} If \code{TRUE}, repetition are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.}
+
+\item{permutations_allowed}{\code{[logical]} If \code{TRUE}, permutations are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.}
+
+\item{ignore_same_source}{\code{[logical]} If \code{TRUE}, only records from different \bold{\code{data_source}} are compared. Only used when \code{batched} is \code{TRUE}.}
 }
 \value{
 \code{\link[=pid-class]{pid}}; \code{list}
@@ -75,7 +85,7 @@ Each element's name must correspond to a stage. See below for an example of 3 \c
 
 For example;
 
-\deqn{list("cr1" = sub_criteria(...), "cr5" = sub_criteria(...), "cr13" = sub_criteria(...)).}
+\deqn{list(cr1 = sub\_criteria(...), cr5 = sub\_criteria(...), cr13 = sub\_criteria(...))}
 
 \code{\link{sub_criteria}} objects themselves can be nested. Any unlinked \code{\link{sub_criteria}} will be ignored.
 
@@ -132,27 +142,27 @@ nest_cond3 <- sub_criteria(nest_cond1,
 pids_3 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond1,
                                     cr2 = nest_cond2),
-                web$display = "progress")
+                display = "progress")
 
 # Record linkage with multiple (two) layers of nested conditions
 pids_4 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond3,
                                     cr2 = nest_cond3),
-                web$display = "progress")
+                display = "progress")
 
 # Record linkage without group expansion
 pids_5 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond1,
                                     cr2 = nest_cond2),
-                web$display = "progress",
-                web$expand = FALSE)
+                display = "progress",
+                expand = FALSE)
 
-# Record linkage with web$shrinking record groups
+# Record linkage with shrinking record groups
 pids_6 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nest_cond1,
                                     cr2 = nest_cond2),
-                web$display = "progress",
-                web$shrink = TRUE)
+                display = "progress",
+                shrink = TRUE)
 
 summary(pids_1)
 summary(pids_2)

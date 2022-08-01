@@ -339,7 +339,11 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err <- as.numeric(lapply(ref_arg, length))
   err <- err[!duplicated(err)]
 
-  err2 <- lapply(sub_criteria, attr_eval)
+  err2 <- lapply(sub_criteria, function(x){
+    attr_eval(x, identity, simplify = FALSE)
+  })
+  err2 <- unpack(err2)
+  err2 <- lapply(err2, length)
   err2 <- unlist(err2, use.names = FALSE)
   err2 <- sort(err2[!duplicated(err2)])
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
@@ -1847,25 +1851,25 @@ err_links_wf_probablistic_0 <- function(attribute,
 
   # Check for required object types
   args <- list(
-               # attribute = attribute,
-               attr_threshold = attr_threshold,
-               probabilistic = probabilistic,
-               m_probability = m_probability,
-               u_probability = u_probability,
-               score_threshold = score_threshold,
-               cmp_func = cmp_func,
-               id_1 = id_1, id_2 = id_2)
+    # attribute = attribute,
+    attr_threshold = attr_threshold,
+    probabilistic = probabilistic,
+    m_probability = m_probability,
+    u_probability = u_probability,
+    score_threshold = score_threshold,
+    cmp_func = cmp_func,
+    id_1 = id_1, id_2 = id_2)
 
   args_classes <- list(
-                       # attribute = c("list", "data.frame", "matrix", "d_attribute"),
-                       attr_threshold = c("list", "numeric", "integer", "number_line"),
-                       probabilistic = "logical",
-                       m_probability = c("list", "numeric", "integer"),
-                       u_probability = c("list", "numeric", "integer", "NULL"),
-                       score_threshold = c("list", "numeric", "integer", "number_line"),
-                       cmp_func = c("list", "function"),
-                       id_1 = c("NULL", "numeric", "integer"),
-                       id_2 = c("NULL", "numeric", "integer"))
+    # attribute = c("list", "data.frame", "matrix", "d_attribute"),
+    attr_threshold = c("list", "numeric", "integer", "number_line"),
+    probabilistic = "logical",
+    m_probability = c("list", "numeric", "integer"),
+    u_probability = c("list", "numeric", "integer", "NULL"),
+    score_threshold = c("list", "numeric", "integer", "number_line"),
+    cmp_func = c("list", "function"),
+    id_1 = c("NULL", "numeric", "integer"),
+    id_2 = c("NULL", "numeric", "integer"))
 
   err <- mapply(err_object_types,
                 args,
@@ -2034,8 +2038,8 @@ err_make_pairs_1 <- function(x = 1, strata = NULL,
                permutations_allowed = permutations_allowed)
 
   args_lens <- list(strata = c(0, len_lims),
-               repeats_allowed = 1,
-               permutations_allowed = 1)
+                    repeats_allowed = 1,
+                    permutations_allowed = 1)
 
   err <- mapply(err_match_ref_len,
                 args,

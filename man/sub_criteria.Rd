@@ -26,7 +26,6 @@ eval_sub_criteria(x, ...)
   x_pos = seq_len(max(attr_eval(x))),
   y_pos = rep(1L, length(x_pos)),
   check_duplicates = TRUE,
-  nest = TRUE,
   ...
 )
 }
@@ -53,7 +52,7 @@ Arguments passed to methods for \code{eval_sub_criteria()}}
 \code{\link{sub_criteria}}
 }
 \description{
-Nested matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
+Nested matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
 }
 \details{
 \bold{\code{sub_criteria()}} - Creates a \code{sub_criteria} object - a nested criteria evaluated at each iteration of \bold{\code{links}} or \bold{\code{episodes}}.
@@ -61,7 +60,7 @@ A \code{sub_criteria} object contains attributes to be compared,
 logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 another set of logical tests to determine identical records.
 
-\bold{\code{attrs()}} - Create as \code{d_attribute} object - a collection of objects that can be passed as a single attribute to \bold{\code{sub_criteria()}}.
+\bold{\code{attrs()}} - Create a \code{d_attribute} object - a collection of atomic objects that can be passed to \bold{\code{sub_criteria()}} as a single attribute.
 
 \bold{\code{eval_sub_criteria()}} - Evaluates a \code{sub_criteria} object.
 

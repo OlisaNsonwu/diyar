@@ -6,6 +6,9 @@
 \alias{range_match}
 \alias{range_match_legacy}
 \alias{prob_link}
+\alias{prob_link_v2}
+\alias{true}
+\alias{false}
 \title{Predefined logical tests in \bold{\code{diyar}}}
 \usage{
 exact_match(x, y)
@@ -23,6 +26,12 @@ prob_link(
   probabilistic,
   return_weights
 )
+
+prob_link_v2(x, y, cmp_func, attr_threshold, score_threshold, probabilistic)
+
+true(x, y)
+
+false(x, y)
 }
 \arguments{
 \item{x}{Value of an attribute(s) to be compare against.}

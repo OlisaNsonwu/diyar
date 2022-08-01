@@ -32,25 +32,22 @@ make_pairs <- function(x, strata = NULL, repeats_allowed = TRUE, permutations_al
       strata <- NULL
     }
   }
-  pos <- seq_len(length(x))
+  sn <- pos <- seq_len(length(x))
   repo <- list()
   if(!is.null(strata)){
     strata <- match(strata, strata[!duplicated(strata)])
     s_ord <- order(strata)
-
-    x <- x[s_ord]
     strata <- strata[s_ord]
-    sn <- pos[s_ord]
-
+    sn <- sn[s_ord]
     rl <- rle(strata)
   }else{
     rl <- list(lengths = length(x), values = 1)
-    sn <- pos
   }
+  # sn <- pos
 
   ord <- sequence(rl$lengths)
-  repo$x_pos <- sequence(ord)
-  repo$y_pos <- rep(ord, ord)
+  repo$x_pos_bk <- repo$x_pos <- sequence(ord)
+  repo$y_pos_bk <- repo$y_pos <- rep(ord, ord)
 
   pts <- rl$lengths[!duplicated(rl$lengths)]
   pts_val <- unlist(lapply(pts, function(x){
@@ -66,18 +63,20 @@ make_pairs <- function(x, strata = NULL, repeats_allowed = TRUE, permutations_al
   }else{
     lgk <- length(x)
   }
+
   if(!is.null(strata)){
     repo$y_max_pos <- rep(pos[lgk], pts_val[match(rl$lengths, pts)])
-    ref <- (repo$y_max_pos + 1L)
-    repo$y_pos <- ref - repo$y_pos
-    repo$x_pos <- ref - repo$x_pos
+    repo$reps <- rep(pts_val[match(rl$lengths, pts)], pts_val[match(rl$lengths, pts)])
+    repo$ref <- (repo$y_max_pos + 1L)
+    repo$y_pos <- repo$ref - repo$y_pos
+    repo$x_pos <- repo$ref - repo$x_pos
   }
-
-  repo$x_val <- x[repo$x_pos]
-  repo$y_val <- x[repo$y_pos]
 
   repo$x_pos <- sn[repo$x_pos]
   repo$y_pos <- sn[repo$y_pos]
+
+  repo$x_val <- x[repo$x_pos]
+  repo$y_val <- x[repo$y_pos]
   repo$y_max_pos <- NULL
 
   if(isTRUE(permutations_allowed)){

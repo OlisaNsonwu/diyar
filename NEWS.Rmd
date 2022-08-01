@@ -8,6 +8,31 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+# Version 0.4.1.9000
+
+## New features
++ New argument in `merge_ids()` - `shrink` and `expand`.
++ New S3 method for class 'd_report' - `plot`.
++ New function - `true()`. Predefined logical tests for use with `sub_criteria()`.
++ New function - `false()`. Predefined logical tests for use with `sub_criteria()`.
++ New argument in `links()`- `batched`. XXXXXX.
++ New argument in `links()`- `repeats_allowed`. XXXXXX.
++ New argument in `links()`- `permutations_allowed`. XXXXXX.
++ New argument in `links()`- `ignore_same_source`. XXXXXX.
++ New argument in `sub_criteria()`- `nested`. XXXXXX.
+
+## Changes
++ `sub_criteria` - Output of `match_func` and `equal_func` can now be any atomic object.
++ `links` - When `shrink` is `TRUE`, records in a record-group must meet every listed match `criteria` and `sub_criteria`.
+
+## Bug fixes
++ `episodes()` - Incorrect results in some instances with `skip_order`. Resolved.
++ `make_ids()` - Does not capture the complete record-group when matches are recursive. Resolved.
++ `make_pairs()` - Incorrect record-pairs in some instances. Resolved.
++ `eval_sub_criteria()` - When output of `match_func` is length one, it's not recycled. Resolved.
++ `reverse_number_line()` - Incorrect results in some instances. Resolved.
++  `links()`- Incorrect `iteration` (`pids` slot) for non-matches. Resolved.
+
 # Version 0.4.1
 
 ## New features

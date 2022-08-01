@@ -2,7 +2,7 @@
 #' @aliases sub_criteria
 #' @title Nested linkage criteria
 #'
-#' @description Nested matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}.
+#' @description Nested matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
 #' @param ... \code{[atomic]} Attributes passed to or \code{eval_sub_criteria()} or \code{eval_sub_criteria()}
 #'
 #' Arguments passed to methods for \code{eval_sub_criteria()}
@@ -25,7 +25,7 @@
 #' logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 #' another set of logical tests to determine identical records.
 #'
-#' \bold{\code{attrs()}} - Create as \code{d_attribute} object - a collection of objects that can be passed as a single attribute to \bold{\code{sub_criteria()}}.
+#' \bold{\code{attrs()}} - Create a \code{d_attribute} object - a collection of atomic objects that can be passed to \bold{\code{sub_criteria()}} as a single attribute.
 #'
 #' \bold{\code{eval_sub_criteria()}} - Evaluates a \code{sub_criteria} object.
 #'
@@ -156,8 +156,8 @@ eval_sub_criteria.sub_criteria <- function(x,
                                            x_pos = seq_len(max(attr_eval(x))),
                                            y_pos = rep(1L, length(x_pos)),
                                            check_duplicates = TRUE,
-                                           nest = TRUE,
                                            ...){
+  nest <- TRUE
   curr_ds_len <- length(y_pos)
   matches <- lapply(1:length(x), function(j){
     a <- x[[j]]
@@ -166,9 +166,10 @@ eval_sub_criteria.sub_criteria <- function(x,
     if(all(class(x) == "sub_criteria")){
       x <- eval_sub_criteria(x = x, x_pos = x_pos, y_pos = y_pos,
                              check_duplicates = check_duplicates)
+
       if(isTRUE(nest)){
-        if(isTRUE(check_duplicates)){
-          return(as.logical(x$logical_test + x$equal_test))
+        if(isFALSE(check_duplicates)){
+          return(as.numeric(as.logical(c(x$logical_test, x$equal_test))))
         }else{
           return(x$logical_test)
         }
@@ -178,9 +179,8 @@ eval_sub_criteria.sub_criteria <- function(x,
     }
 
     if(all(class(x) == "d_attribute")){
-      x <- lapply(x, function(x) if(length(x) == 1) rep(x, curr_ds_len) else x)
-      y <- lapply(x, function(x) x[y_pos])
-      x <- lapply(x, function(x) x[x_pos])
+      y <- rc_dv(x, func = function(x) mk_lazy_opt(x)[y_pos])
+      x <- rc_dv(x, func = function(x) mk_lazy_opt(x)[x_pos])
     }else{
       if(length(x) == 1) x <- rep(x, curr_ds_len)
       y <- x[y_pos]
@@ -198,13 +198,15 @@ eval_sub_criteria.sub_criteria <- function(x,
       err <- paste0("Unable to evaluate `match_funcs`:\n",
                     "i - Each function in `match_funcs` must have the following syntax and output.\n",
                     "i - Syntax ~ `function(x, y, ...)`.\n",
-                    "i - Output ~ `TRUE` or `FALSE` if `nest` is `TRUE`.\n",
+                    "i - Output ~ `TRUE` or `FALSE`.\n",
+                    # "i - Output ~ `TRUE` or `FALSE` if `nest` is `TRUE`.\n",
                     "X - Issue with `match_funcs`: ", err, ".")
       stop(err, call. = F)
     }
 
     out1 <- lgk
     out1[is.na(lgk)] <- 0
+    if(length(out1) == 1) out1 <- rep(out1, curr_ds_len)
     if(!length(out1) %in% c(1, curr_ds_len)){
       err <- paste0("Output length of `match_funcs` must be 1 or the same as `criteria`:\n",
                     "i - Unexpected length for `match_funcs`:\n",
@@ -226,7 +228,8 @@ eval_sub_criteria.sub_criteria <- function(x,
         err <- paste0("Unable to evaluate `equal_funcs`:\n",
                       "i - Each function in `equal_funcs` must have the following syntax and output.\n",
                       "i - Syntax ~ `function(x, y, ...)`.\n",
-                      "i - Output ~ `TRUE` or `FALSE` if `nest` is `TRUE`.\n",
+                      "i - Output ~ `TRUE` or `FALSE`.\n",
+                      # "i - Output ~ `TRUE` or `FALSE` if `nest` is `TRUE`.\n",
                       "X - Issue with `equal_funcs`: ", err, ".")
         stop(err, call. = F)
       }

@@ -195,9 +195,9 @@ link_records <- function(attribute,
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_a, "Data validation",
+    rp_data <- di_report(duration = tm_a, iteration = "Data validation",
                          current_tot = length(attrs(attribute)[[1]]),
-                         start_mem = mem_ia)
+                         memory_used = mem_ia)
     tm_ia <- Sys.time()
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
@@ -263,7 +263,7 @@ link_records <- function(attribute,
   }
 
   # Create record-pairs
-  if(isTRUE(ignore_same_source)){
+  if(isTRUE(ignore_same_source) & !is.null(data_source)){
     r_pairs <- make_pairs_wf_source(seq_len(rd_n),
                                     strata = strata,
                                     repeats_allowed = repeats_allowed,
@@ -303,15 +303,16 @@ link_records <- function(attribute,
   rp_n <- length(x[[1]])
 
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Pairs created",
+    rp_data <- di_report(duration = tm_ia, iteration = "Pairs created",
                          current_tot = length(x[[1]]),
-                         start_mem = mem_ia)
+                         memory_used = mem_ia)
     tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
     }
   }
+
   pid_weights <- prob_link(x = c(x,
                                  lapply(probs_repo$m_probability$x, function(k) k[r_pairs$x_pos]),
                                  lapply(probs_repo$u_probability$x, function(k) k[r_pairs$x_pos])),
@@ -324,9 +325,9 @@ link_records <- function(attribute,
                            cmp_func = thresh_repo$cmp_func,
                            probabilistic = probabilistic)
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "Weights calculated",
+    rp_data <- di_report(duration = tm_ia, iteration =  "Weights calculated",
                          current_tot = length(x[[1]]),
-                         start_mem = mem_ia)
+                         memory_used = mem_ia)
     tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
@@ -362,10 +363,10 @@ link_records <- function(attribute,
     pids@pid_dataset <- encode(rst$ds)
   }
   if(!display %in% c("none")){
-    rp_data <- di_report(tm_ia, "`pid` created",
+    rp_data <- di_report(duration = tm_ia, iteration = "`pid` created",
                          current_tot = length(x[[1]]),
                          current_tagged = nrow(pid_weights[pid_weights$record.match,]),
-                         start_mem = mem_ia)
+                         memory_used = mem_ia)
     tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){

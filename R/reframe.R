@@ -27,9 +27,7 @@ reframe.sub_criteria <- function(x, func = identity, ...){
     if(all(class(attr) == "sub_criteria")){
       x[[i]][[1]] <- reframe.sub_criteria(attr, func = func)
     }else if(all(class(attr) == "d_attribute")){
-      attr <- lapply(attr, function(x){
-        func(x)
-      })
+      attr <- rc_dv(x = attr, func = func)
       class(attr) <- "d_attribute"
       x[[i]][[1]] <- attr
     }else{

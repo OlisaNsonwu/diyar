@@ -1160,8 +1160,10 @@ setMethod("c", signature(x = "pid"), function(x,...) {
 #' @title d_report
 #' @aliases d_report
 #' @export
-plot.d_report <- function(x, ...){
+plot.d_report <- function(x, ..., metric = c("cumulative_duration", "duration", "max_memory",
+                                             "records_checked", "records_skipped", "records_assigned")){
   . <- NULL
+  metric_lst <- paste0("^", metric, collapse = "|")
   t <- length(x$iteration)
   x <- data.frame(x = c(x$iteration, x$iteration, x$iteration,
                         x$iteration, x$iteration, x$iteration),
@@ -1170,8 +1172,9 @@ plot.d_report <- function(x, ...){
                    l = c(rep(paste0("duration (", attr(x$duration, "units"), ")"), t),
                          rep(paste0("cumulative_duration (", attr(x$cumm_time, "units"), ")"), t),
                          rep("records_checked", t), rep("records_assigned", t),
-                         rep("records_skipped", t), rep("memory_used (MB)", t)),
+                         rep("records_skipped", t), rep("max_memory (MB)", t)),
                    stringsAsFactors = FALSE)
+  x <- x[grepl(metric_lst, x$l),]
 
   x$x_cd <- match(x$x, x$x)
   x_breaks <- x$x_cd[!duplicated(x$x)]

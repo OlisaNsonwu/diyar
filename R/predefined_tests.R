@@ -3,8 +3,8 @@
 #' @title Predefined logical tests in \bold{\code{diyar}}
 #' @description A collection of predefined logical tests used with \bold{\code{\link{sub_criteria}}} objects.
 #'
-#' @param x Value of an attribute(s) to be compare against.
-#' @param y Value of an attribute(s) to be compare by.
+#' @param x Value of an attribute(s) to be compared against.
+#' @param y Value of an attribute(s) to be compared by.
 #'
 #' @details
 #' \bold{\code{exact_match()}} - test that  \code{x == y}
@@ -133,6 +133,12 @@ prob_link <- function(x, y,
     # disagreements
     pwts_b <- log2((1 - curr_mprob)/(1 - curr_uprob))
 
+    if(length(pwts_a) == 1){
+      pwts_a <- rep(pwts_a, length(curr_match))
+    }
+    if(length(pwts_b) == 1){
+      pwts_b <- rep(pwts_b, length(curr_match))
+    }
     pwts <- pwts_a
     pwts[!curr_match] <- pwts_b[!curr_match]
     pwts
@@ -157,3 +163,171 @@ prob_link <- function(x, y,
     return(lgk)
   }
 }
+
+#' @rdname predefined_tests
+#' @export
+prob_link_v2 <- function(x, y,
+                      cmp_func,
+                      attr_threshold,
+                      score_threshold,
+                      probabilistic){
+  return_weights <- FALSE
+  # Data validation
+  err <- list(x = class(x), y = class(y))
+  err <- lapply(err, function(x){
+    if(all(x %in% c("list", "d_attribute"))){
+      return(NA_character_)
+    }else{
+      listr(x)
+    }
+  })
+  err <- unlist(err)
+  err <- err[!is.na(err)]
+  if(length(err) > 0){
+    err <- paste0("Invalid object type for `x` or `y`:\n",
+                  "i - `x` and `y` must be a `d_attribute` or `list` object.\n",
+                  paste0("X - `", names(err),"` ", "is a `", err ,"` object.", collapse = "\n"))
+    stop(err, call. = TRUE)
+  }
+
+  vars <- c("attribute")
+  if(isTRUE(probabilistic)){
+    vars <- c(vars, "m_probability", "u_probability")
+  }
+
+  err <- vars[!vars %in% names(x)]
+  if(length(err) > 0){
+    err <- paste0("i - If `probabilistic` is `FALSE`, `x` and `y` must have three elements named \"attribute\".\n",
+                  "i - If `probabilistic` is `TRUE`, `x` and `y` must have one element named \"attribute\", \"m_probability\" and \"u_probability\".\n",
+                  paste0("X - \"", err,"\" ", "not found.", collapse = "\n"))
+    stop(err, call. = TRUE)
+    }
+
+  x <- x[vars]
+
+  attr_n <- length(x$attribute)
+  attr_nm <- names(x$attribute)
+
+  if(is.null(attr_nm)){
+    attr_nm <-
+      names(x$attribute) <-
+      paste0("var_", seq_len(attr_n))
+  }
+
+  if(isTRUE(probabilistic)){
+    names(x$u_probability) <-
+      names(x$m_probability) <- attr_nm
+  }
+
+  err <- unlist(rc_dv(x, func = is.atomic), use.names = TRUE)
+  err <- err[!err]
+  if(length(err) > 0){
+    err <- paste0("Each element of ", paste0("`.$", vars, "`", collapse = ","), " must be an atomic vector:\n",
+           paste0("X - ", "`", names(err) , "` is not an atomic vector", collapse = "\n"))
+    stop(err, call. = TRUE)
+  }
+
+  thresh_repo <- prep_cmps_thresh(attr_nm = attr_nm,
+                                  cmp_func = cmp_func,
+                                  attr_threshold = attr_threshold,
+                                  score_threshold = score_threshold)
+  cmp_func <- thresh_repo$cmp_func
+  attr_threshold <- thresh_repo$attr_threshold
+  score_threshold <- thresh_repo$score_threshold
+
+  # Weights from a string comparator
+  wts <- lapply(seq_len(attr_n), function(i){
+    curr_func <- cmp_func[[i]]
+    wts <- curr_func(x$attribute[[i]],
+                     y$attribute[[i]])
+    wts[is.na(wts)] <- 0
+    wts
+  })
+
+  out_2 <- sapply(wts, identity)
+
+  if(is.null(nrow(out_2))){
+    sum_wt <- sum(out_2)
+  }else{
+    sum_wt <- rowSums(out_2)
+  }
+
+  # If weight based, matches are assigned based on the results of the comparators
+  if(isFALSE(probabilistic)){
+    lgk <- (sum_wt >= as.numeric(score_threshold@start) & sum_wt <= as.numeric(right_point(score_threshold)))
+  }else{
+    lgk <- rep(NA_real_, length(sum_wt))
+  }
+
+  if(is.null(ncol(out_2))){
+    out_2 <- t(out_2)
+  }
+
+  out_a <- cbind(as.data.frame(out_2), sum_wt, lgk)
+  colnames(out_a) <- c(paste0("cmp.", attr_nm), "cmp.weight", "record.match")
+
+  if(isFALSE(probabilistic)){
+    if(isTRUE(return_weights)) return(out_a) else return(lgk)
+  }
+  out_a$record.match <- NULL
+
+  # If probability based, matches are based on scores derived from m- and u-probabilities
+  pwts <- sapply(seq_len(attr_n), function(i){
+    pwts <- rep(0, length(wts[[i]]))
+    # Agreement/disagreement based on string comparators
+    curr_match <- (wts[[i]])
+    curr_match <- (curr_match >= as.numeric(attr_threshold[i]@start) & curr_match <= as.numeric(right_point(attr_threshold[i])))
+    curr_match <- curr_match & !is.na(curr_match)
+
+    curr_uprob <- x$u_probability[[i]]
+    curr_mprob <- x$m_probability[[i]]
+
+    lgk <- which(x$attribute[[i]] != y$attribute[[i]] &
+                   !is.na(x$attribute[[i]]) &
+                   !is.na(y$attribute[[i]]))
+    curr_uprob[lgk] <- curr_uprob[lgk] * (y$u_probability[[i]])[lgk]
+    curr_mprob[lgk] <- curr_mprob[lgk] * (y$m_probability[[i]])[lgk]
+
+    # agreements
+    pwts_a <- log2(curr_mprob/curr_uprob)
+    # disagreements
+    pwts_b <- log2((1 - curr_mprob)/(1 - curr_uprob))
+
+    if(length(pwts_a) == 1){
+      pwts_a <- rep(pwts_a, length(curr_match))
+    }
+    if(length(pwts_b) == 1){
+      pwts_b <- rep(pwts_b, length(curr_match))
+    }
+    pwts <- pwts_a
+    pwts[!curr_match] <- pwts_b[!curr_match]
+    pwts
+  })
+
+  if(is.null(nrow(pwts))){
+    sum_wt <- sum(pwts)
+  }else{
+    sum_wt <- rowSums(pwts)
+  }
+  lgk <- (sum_wt >= as.numeric(score_threshold@start) & sum_wt <= as.numeric(right_point(score_threshold)))
+  if(isTRUE(return_weights)){
+    if(is.null(ncol(pwts))){
+      pwts <- t(pwts)
+    }
+    out_b <- cbind(as.data.frame(pwts), sum_wt, as.logical(lgk))
+    colnames(out_b) <- c(paste0("prb.", attr_nm),
+                         "prb.weight",
+                         "record.match")
+    return(cbind(out_a, out_b))
+  }else{
+    return(lgk)
+  }
+}
+
+#' @rdname predefined_tests
+#' @export
+true <- function(x, y) TRUE
+
+#' @rdname predefined_tests
+#' @export
+false <- function(x, y) FALSE

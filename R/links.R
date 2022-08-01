@@ -1,5 +1,5 @@
 #' @name links
-#' @title Multistage deterministic record linkage
+#' @title Multistage deterministic record linkage.
 #'
 #' @description Stepwise record linkage. Assign unique identifiers to records based on multiple stages of different matching criteria.
 #'
@@ -16,7 +16,9 @@
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.
 #' @param display \code{[character]}. display or generate a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
 #' @param tie_sort \code{[atomic]}. Preferential order for breaking ties within a stage.
-#'
+#' @param repeats_allowed \code{[logical]} If \code{TRUE}, repetition are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.
+#' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.
+#' @param ignore_same_source \code{[logical]} If \code{TRUE}, only records from different \bold{\code{data_source}} are compared. Only used when \code{batched} is \code{TRUE}.
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
 #' @seealso \code{\link{link_records}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
@@ -43,7 +45,7 @@
 #'
 #' For example;
 #'
-#' \deqn{list("cr1" = sub_criteria(...), "cr5" = sub_criteria(...), "cr13" = sub_criteria(...)).}
+#' \deqn{list(cr1 = sub\_criteria(...), cr5 = sub\_criteria(...), cr13 = sub\_criteria(...))}
 #'
 #' \code{\link{sub_criteria}} objects themselves can be nested. Any unlinked \code{\link{sub_criteria}} will be ignored.
 #'
@@ -100,27 +102,27 @@
 #' pids_3 <- links(criteria = stages,
 #'                 sub_criteria = list(cr1 = nest_cond1,
 #'                                     cr2 = nest_cond2),
-#'                 web$display = "progress")
+#'                 display = "progress")
 #'
 #' # Record linkage with multiple (two) layers of nested conditions
 #' pids_4 <- links(criteria = stages,
 #'                 sub_criteria = list(cr1 = nest_cond3,
 #'                                     cr2 = nest_cond3),
-#'                 web$display = "progress")
+#'                 display = "progress")
 #'
 #' # Record linkage without group expansion
 #' pids_5 <- links(criteria = stages,
 #'                 sub_criteria = list(cr1 = nest_cond1,
 #'                                     cr2 = nest_cond2),
-#'                 web$display = "progress",
-#'                 web$expand = FALSE)
+#'                 display = "progress",
+#'                 expand = FALSE)
 #'
-#' # Record linkage with web$shrinking record groups
+#' # Record linkage with shrinking record groups
 #' pids_6 <- links(criteria = stages,
 #'                 sub_criteria = list(cr1 = nest_cond1,
 #'                                     cr2 = nest_cond2),
-#'                 web$display = "progress",
-#'                 web$shrink = TRUE)
+#'                 display = "progress",
+#'                 shrink = TRUE)
 #'
 #' summary(pids_1)
 #' summary(pids_2)
@@ -143,7 +145,11 @@ links <- function(criteria,
                   shrink = FALSE,
                   recursive = FALSE,
                   check_duplicates = FALSE,
-                  tie_sort = NULL){
+                  tie_sort = NULL,
+                  batched = TRUE,
+                  repeats_allowed = FALSE,
+                  permutations_allowed = FALSE,
+                  ignore_same_source = FALSE){
 
   web <- list(
     criteria = criteria,
@@ -159,9 +165,24 @@ links <- function(criteria,
     recursive = recursive,
     check_duplicates = check_duplicates,
     tie_sort = tie_sort,
+    batched = batched,
+    repeats_allowed = repeats_allowed,
+    permutations_allowed = permutations_allowed,
+    ignore_same_source = ignore_same_source,
     tm_a = Sys.time()
   )
 
+  criteria <- sub_criteria <- sn <-
+    strata <- data_source <- data_links <-
+    display <- group_stats <- expand <-
+    shrink <- recursive <- check_duplicates <-
+    tie_sort <- batched <- repeats_allowed <-
+    permutations_allowed <- ignore_same_source <- NULL
+
+  if(isFALSE(web$batched)){
+    web$check_duplicates <- TRUE
+    web$recursive <- FALSE
+  }
   if(class(web$sub_criteria) == "sub_criteria"){
     web$sub_criteria <- list(web$sub_criteria)
   }
@@ -181,15 +202,20 @@ links <- function(criteria,
   web$display <- tolower(web$display)
 
   # Maximum no. of records from all criteria
-  web$ds_len <- c(as.numeric(lapply(web$criteria, length)),
-              as.numeric(unlist(lapply(web$sub_criteria, attr_eval), use.names = FALSE)))
+  web$ds_len <- as.numeric(lapply(web$criteria, length))
+  if(!is.null(web$sub_criteria)){
+    web$ds_len <- c(
+      unlist(rc_dv(lapply(web$sub_criteria, function(x){
+        attr_eval(x, func = identity, simplify = FALSE)
+        }), func = length), use.names = FALSE), web$ds_len)
+  }
   web$ds_len <- max(web$ds_len)
   web$err <- err_sn_1(sn = web$sn, ref_num = web$ds_len, ref_nm = "criteria")
   if(!isFALSE(web$err)) stop(web$err, call. = FALSE)
   if(!web$display %in% c("none")){
     web$rp_data <- di_report(
-      Sys.time() - web$tm_a,
-      Sys.time() - web$tm_a,
+      duration = Sys.time() - web$tm_a,
+      cumm_time = Sys.time() - web$tm_a,
       "Data validation",
       current_tot = web$ds_len,
       memory_used =  object.size(web))
@@ -248,18 +274,22 @@ links <- function(criteria,
   web$n_seq <- seq_len(web$ds_len)
 
   web$pids_repo <- list("pid" = web$pid,
-                    "tag" = web$tag,
-                    "pid_cri" = web$pid_cri,
-                    "link_id" = web$link_id,
-                    "sn" = web$sn,
-                    "pr_sn" = web$pr_sn,
-                    "iteration" = web$iteration,
-                    "tie_sort" = web$tie_sort)
+                        "tag" = web$tag,
+                        "pid_cri" = web$pid_cri,
+                        "link_id" = web$link_id,
+                        "sn" = web$sn,
+                        "pr_sn" = web$pr_sn,
+                        "iteration" = web$iteration,
+                        "tie_sort" = web$tie_sort)
+
+  if(!is.null(web$data_source)){
+    web$pids_repo$data_source <- web$data_source
+  }
 
   if(!web$display %in% c("none")){
     web$rp_data <- di_report(
-      Sys.time() - web$tm_a,
-      Sys.time() - web$tm_ia,
+      cumm_time = Sys.time() - web$tm_a,
+      duration = Sys.time() - web$tm_ia,
       "Data standardisation",
       current_tot = web$ds_len,
       memory_used =  object.size(web))
@@ -277,7 +307,7 @@ links <- function(criteria,
       cat(paste0("`Criteria ", i,"`.\n"))
     }
     # Current stage
-    web$cri <- web$criteria[[i]]
+    web$cri_l <- web$cri <- web$criteria[[i]]
     # Standardise `criteria` input
     if (length(web$cri) == 1) web$cri <- rep(web$cri, web$ds_len)
     # Identify records to be skipped
@@ -329,20 +359,26 @@ links <- function(criteria,
     }
 
     web$curr_sub_cri <- web$sub_criteria[which(names(web$sub_criteria) == paste0("cr", i))]
+
+    web$cri <- web$cri[web$skp_lgk]
+    web$cri_l <- web$cri_l[web$skp_lgk]
+    web$pid_cri <- web$pids_repo$pid_cri[web$skp_lgk]
+    web$tag <- web$pids_repo$tag[web$skp_lgk]
+    web$sn <- web$pids_repo$sn[web$skp_lgk]
+    web$pr_sn <- web$pids_repo$pr_sn[web$skp_lgk]
+    web$link_id <- web$pids_repo$link_id[web$skp_lgk]
+    web$pid <- web$pids_repo$pid[web$skp_lgk]
+    web$iteration <- web$pids_repo$iteration[web$skp_lgk]
+    web$tie_sort <- web$pids_repo$tie_sort[web$skp_lgk]
+    if(!is.null(web$data_source)){
+      web$data_source <- web$pids_repo$data_source[web$skp_lgk]
+    }
+
     # Stages without a `sub_criteria` are compared as `exact` matches
     if(length(web$curr_sub_cri) == 0){
-      web$cri <- web$cri[web$skp_lgk]
-      web$pid_cri <- web$pids_repo$pid_cri[web$skp_lgk]
-      web$tag <- web$pids_repo$tag[web$skp_lgk]
-      web$sn <- web$pids_repo$sn[web$skp_lgk]
-      web$pr_sn <- web$pids_repo$pr_sn[web$skp_lgk]
-      web$link_id <- web$pids_repo$link_id[web$skp_lgk]
-      web$pid <- web$pids_repo$pid[web$skp_lgk]
-      web$iteration <- web$pids_repo$iteration[web$skp_lgk]
-      web$tie_sort <- web$pids_repo$tie_sort[web$skp_lgk]
       web$cs_len <- length(web$cri)
 
-      web$pp <- inherit(web$tag, web$cri, web$pid_cri, web$tie_sort, web$sn, pr_sn, web$expand, web$pid, web$link_id, sn_ref = web$sn_ref)
+      web$pp <- inherit(web$tag, web$cri, web$pid_cri, web$tie_sort, web$sn, web$pr_sn, web$expand, web$pid, web$link_id, sn_ref = web$sn_ref)
       web$pp$tag[!web$pp$pid %in% c(web$sn_ref, NA)] <- 1L
       web$iteration[which(web$pp$pid != web$sn_ref & web$iteration == 0)] <- ite
 
@@ -356,16 +392,8 @@ links <- function(criteria,
     }else{
       # Stages with a `sub_criteria` are evaluated here
       # Only records with non-missing values are checked
-      web$cri <- web$cri[web$skp_lgk]
-      web$pid_cri <- web$pids_repo$pid_cri[web$skp_lgk]
-      web$tag <- web$pids_repo$tag[web$skp_lgk]
-      web$sn <- web$pids_repo$sn[web$skp_lgk]
-      web$pr_sn <- web$pids_repo$pr_sn[web$skp_lgk]
-      web$pid <- web$pids_repo$pid[web$skp_lgk]
-      web$link_id <- web$pids_repo$link_id[web$skp_lgk]
-      web$iteration <- web$pids_repo$iteration[web$skp_lgk]
-      web$tie_sort <- web$pids_repo$tie_sort[web$skp_lgk]
-      web$curr_sub_cri[[1]] <- reframe(web$curr_sub_cri[[1]], func = function(x) x[web$skp_lgk])
+      web$curr_sub_cri[[1]] <- reframe(web$curr_sub_cri[[1]],
+                                       func = function(x) mk_lazy_opt(x)[web$skp_lgk])
 
       # Flags
       web$cs_len <- length(web$cri)
@@ -376,10 +404,12 @@ links <- function(criteria,
       if(web$display %in% c("stats_with_report", "stats", "progress_with_report", "progress")){
         cat("Checking `sub_criteria`\n")
       }
+
       while (web$min_pid == web$sn_ref) {
         web$sort_ord <- order(web$cri, web$m_tag, web$pid_cri, web$tie_sort, web$sn, decreasing = TRUE)
         web$tag <- web$tag[web$sort_ord]
         web$cri <- web$cri[web$sort_ord]
+        web$cri_l <- web$cri_l[web$sort_ord]
         web$pid <- web$pid[web$sort_ord]
         web$tag <- web$tag[web$sort_ord]
         web$m_tag <- web$m_tag[web$sort_ord]
@@ -389,41 +419,95 @@ links <- function(criteria,
         web$link_id <- web$link_id[web$sort_ord]
         web$iteration <- web$iteration[web$sort_ord]
         web$tie_sort <- web$tie_sort[web$sort_ord]
+        if(!is.null(web$data_source)){
+          web$data_source <- web$data_source[web$sort_ord]
+        }
         web$h_ri <- seq_len(length(web$cri))
 
-        # Reference records
-        web$lgk <- which(!duplicated(web$cri, fromLast = TRUE))
-        web$rep_lgk <- match(web$cri, web$cri[web$lgk])
-        web$tr_link_id <- (web$link_id[web$lgk])[web$rep_lgk]
-        web$tr_pid_cri <- (web$pid_cri[web$lgk])[web$rep_lgk]
-        web$tr_pid <- (web$pid[web$lgk])[web$rep_lgk]
-        web$tr_sn <- (web$sn[web$lgk])[web$rep_lgk]
-        web$ref_rd <- web$tr_sn == web$sn
+        web$indx <- order(order(web$pr_sn))
 
-        web$pos_repo <- make_batch_pairs(strata = web$cri, index_record = web$ref_rd, sn = order(order(web$pr_sn)))
+        if(isTRUE(web$batched)){
+          # Reference records
+          web$lgk <- which(!duplicated(web$cri, fromLast = TRUE))
+          web$rep_lgk <- match(web$cri, web$cri[web$lgk])
+          web$tr_link_id <- (web$link_id[web$lgk])[web$rep_lgk]
+          web$tr_pid_cri <- (web$pid_cri[web$lgk])[web$rep_lgk]
+          web$tr_pid <- (web$pid[web$lgk])[web$rep_lgk]
+          web$tr_sn <- (web$sn[web$lgk])[web$rep_lgk]
+          web$ref_rd <- web$tr_sn == web$sn
+
+          web$pos_repo <- make_batch_pairs(strata = web$cri,
+                                           index_record = web$ref_rd,
+                                           sn = web$indx,
+                                           data_source = web$data_source)
+          names(web$pos_repo)[2] <- "x_val"
+          names(web$pos_repo)[3] <- "y_val"
+
+        }else{
+          if(isTRUE(web$ignore_same_source) & !is.null(web$data_source)){
+            web$pos_repo <- make_pairs_wf_source(seq_len(web$ds_len),
+                                                 strata = web$cri,
+                                                 repeats_allowed = web$repeats_allowed,
+                                                 permutations_allowed = web$permutations_allowed,
+                                                 data_source = web$data_source)
+          }else{
+            web$pos_repo <- make_pairs(strata = web$cri,
+                                       x = web$indx,
+                                       repeats_allowed = web$repeats_allowed,
+                                       permutations_allowed = web$permutations_allowed)
+          }
+        }
+
         # Check the `sub_criteria`
         web$sub_cri_match <- eval_sub_criteria(x = web$curr_sub_cri[[1]],
-                                           x_pos = web$pos_repo$x_pos,
-                                           y_pos = web$pos_repo$y_pos,
-                                           check_duplicates = web$check_duplicates)
-        web$sub_cri_match <- lapply(web$sub_cri_match, function(x){
-         x[web$ref_rd] <- 1
-         x
-        })
-        web$pos_repo <- NULL
-        if(isFALSE(web$check_duplicates)){
-          web$equals_ref_rd <- web$sub_cri_match[[2]] | web$ref_rd
-        }
-        web$sub_cri_match <- web$sub_cri_match[[1]] | web$ref_rd
+                                               x_pos = web$pos_repo$x_val,
+                                               y_pos = web$pos_repo$y_val,
+                                               check_duplicates = web$check_duplicates)
 
-        # web$snapshot of pid before linking records in current criteria
+        if(isTRUE(web$batched)){
+          web$sub_cri_match <- lapply(web$sub_cri_match, function(x){
+            x[web$ref_rd] <- 1
+            x
+          })
+          if(isFALSE(web$check_duplicates)){
+            web$equals_ref_rd <- web$sub_cri_match[[2]] | web$ref_rd
+          }
+          web$sub_cri_match <- web$sub_cri_match[[1]] | web$ref_rd
+
+        }else{
+          web$lgk <- as.logical(web$sub_cri_match$logical_test)
+          web$tmp_ids <- make_ids(
+            x_pos = web$pos_repo$x_val[web$lgk],
+            y_pos = web$pos_repo$y_val[web$lgk],
+            id_length = max(web$indx)
+          )
+
+          web$tmp_ids <- lapply(web$tmp_ids, function(x){
+            x[web$indx]
+          })
+          web$sub_cri_match <- as.logical(web$tmp_ids$linked)
+          web$tmp_ids <- lapply(web$tmp_ids[c("sn", "link_id", "group_id")], function(x){
+            web$pr_sn[match(x, web$indx)]
+          })
+
+          web$rep_lgk <- match(web$tmp_ids$group_id, web$pr_sn)
+          web$tr_link_id <- web$link_id[web$rep_lgk]
+          web$tr_pid_cri <- web$pid_cri[web$rep_lgk]
+          web$tr_pid <- web$pid[web$rep_lgk]
+          web$tr_sn <- web$sn[web$rep_lgk]
+          web$ref_rd <- web$tr_sn == web$sn
+        }
+        web$rec_pairs_mem <- object.size(web$pos_repo)
+        web$pos_repo <- NULL
+
+        # snapshot of pid before linking records in current criteria
         web$f_pid <- web$pid
         # Records inherit pid if they match with previously tagged records
-        # If web$recursive, records with existing pids are overwritten if they match another tagged at the same stage (Situation A)
-        web$rep_lgk <- which(web$sub_cri_match > 0 &
-                           (web$pid == web$sn_ref | (web$pid != web$sn_ref & web$tr_pid_cri == web$pid_cri & web$recursive)) &
-                           !web$tr_pid %in% c(web$sn_ref, NA) &
-                           ((web$tr_pid_cri == web$pid_cri & !web$expand) | (web$expand)))
+        # If recursive, records with existing pids are overwritten if they match another tagged at the same stage (Situation A)
+        web$rep_lgk <- which((web$sub_cri_match > 0 | (web$sub_cri_match == 0 & !web$batched)) &
+                               (web$pid == web$sn_ref | (web$pid != web$sn_ref & web$tr_pid_cri == web$pid_cri & web$recursive)) &
+                               !web$tr_pid %in% c(web$sn_ref, NA) &
+                               ((web$tr_pid_cri == web$pid_cri & !web$expand) | (web$expand)))
 
         web$pid[web$rep_lgk] <- web$tr_pid[web$rep_lgk]
         web$lgk <- which(web$h_ri %in% web$rep_lgk & web$link_id == web$sn_ref)
@@ -433,12 +517,12 @@ links <- function(criteria,
         # Records are assigned new pids if they do not match previously tagged records
         web$rep_lgk_2 <- which((((web$pid == web$sn_ref | (web$pid != web$sn_ref & web$tr_pid_cri == web$pid_cri & web$recursive)) &
                                    web$tr_pid == web$sn_ref &
-                               !is.na(web$tr_pid))) &
-                                 web$sub_cri_match > 0)
+                                   !is.na(web$tr_pid))) &
+                                 (web$sub_cri_match > 0 | (web$sub_cri_match == 0 & !web$batched)))
         web$pid[web$rep_lgk_2] <- web$tr_sn[web$rep_lgk_2]
         web$link_id[web$rep_lgk_2] <- web$tr_sn[web$rep_lgk_2]
 
-        # If not web$recursive, all matches are closed (m_tag == 2)
+        # If not recursive, all matches are closed (m_tag == 2)
         # Otherwise, new members of a group (m_tag == -1) are checked against other records
         web$rep_lgk_2 <-  which(web$h_ri %in% which(web$m_tag == 0) & web$h_ri %in% c(web$rep_lgk, web$rep_lgk_2))
         web$m_tag[which(web$h_ri %in% web$rep_lgk_2 & web$recursive)] <- -1L
@@ -452,7 +536,7 @@ links <- function(criteria,
           web$pid[web$lgk] <- web$sn[web$lgk]
         }
 
-        # If web$recursive, records with pids from "Situation A" but not part of the current matches are updated with the new pid
+        # If recursive, records with pids from "Situation A" but not part of the current matches are updated with the new pid
         if(isTRUE(web$recursive)){
           web$rec_lgk <- which(web$pid != web$sn_ref & web$f_pid != web$sn_ref & web$pid != web$f_pid & web$tr_pid_cri == web$pid_cri)
           web$rec_o <- web$f_pid[web$rec_lgk]
@@ -480,17 +564,17 @@ links <- function(criteria,
 
         if(!web$display %in% c("none")){
           web$rp_data <- di_report(
-            Sys.time() - web$tm_a,
-            Sys.time() - web$tm_ia,
+            cumm_time = Sys.time() - web$tm_a,
+            duration = Sys.time() - web$tm_ia,
             ite, length(web$m_tag),
             criteria = i,
             current_tagged = length(which(web$m_tag == 2 & web$iteration == ite)),
-            memory_used =  object.size(web))
+            memory_used =  object.size(web) + web$rec_pairs_mem)
           web$report <- c(web$report, list(web$rp_data))
         }
         web$tm_ia <- Sys.time()
 
-        # If not web$recursive, exclude linked records.
+        # If not recursive, exclude linked records.
         if(isFALSE(web$recursive)){
           web$inc_lgk <- which(web$m_tag == 2)
           web$exc_lgk <- which(web$m_tag != 2)
@@ -505,9 +589,11 @@ links <- function(criteria,
           web$pids_repo$tie_sort[web$pr_sn[web$inc_lgk]] <- web$tie_sort[web$inc_lgk]
 
           if(length(web$cri[web$exc_lgk]) == 0){
+            ite <- ite + 1L
             next
           }
           web$cri <- web$cri[web$exc_lgk]
+          web$cri_l <- web$cri_l[web$exc_lgk]
           web$pid <- web$pid[web$exc_lgk]
           web$tag <- web$tag[web$exc_lgk]
           web$pid_cri <- web$pid_cri[web$exc_lgk]
@@ -534,6 +620,7 @@ links <- function(criteria,
                                     fmt(difftime(Sys.time(), web$tm_ia), "difftime"),
                                     ")"))
         }
+
         web$tm_ia <- Sys.time()
         ite <- ite + 1L
       }
@@ -566,6 +653,7 @@ links <- function(criteria,
     }else{
       web$restore_lgk <- integer()
     }
+
     # Unlink pids with a single record for another attempt in the next stage
     web$tag_h <- rep(0, length(web$pids_repo$tag))
     web$pids_repo$tag <- web$tag_h
@@ -578,7 +666,7 @@ links <- function(criteria,
     # Flag records linked at current stage
     web$pids_repo$tag <- web$tag_h
     web$pids_repo$tag[which(web$pids_repo$pid != web$sn_ref)] <- 1L
-    web$pids_repo$iteration[which(web$pids_repo$tag == 0 & web$pids_repo$iteration != 0)] <- 0L
+    # web$pids_repo$iteration[which(web$pids_repo$tag == 0 & web$pids_repo$iteration != 0)] <- 0L
 
     if(!web$display %in% c("none")){
       web$current_tot <- length(web$skp_lgk)
@@ -586,12 +674,12 @@ links <- function(criteria,
       if(length(web$curr_sub_cri) == 0){
         cat("\n")
         web$rp_data <- di_report(
-          Sys.time() - web$tm_a,
-          Sys.time() - web$tm_ia,
+          cumm_time = Sys.time() - web$tm_a,
+          duration = Sys.time() - web$tm_ia,
           ite - 1,
           length(skp_lgk), criteria = i,
           current_tagged = web$assigned,
-          memory_used =  object.size(web))
+          memory_used =  object.size(web) + web$rec_pairs_mem)
         web$report <- c(web$report, list(web$rp_data))
       }
       if(web$display %in% c("stats", "progress", "stats_with_report", "progress_with_report")){
@@ -622,11 +710,11 @@ links <- function(criteria,
   web$pid[web$pid == web$sn_ref] <- web$sn[web$pid == web$sn_ref]
 
   web$pids <- methods::new("pid",
-                       .Data = web$pid,
-                       sn = web$sn,
-                       pid_cri = web$pid_cri,
-                       link_id = web$link_id,
-                       iteration = web$iteration)
+                           .Data = web$pid,
+                           sn = web$sn,
+                           pid_cri = web$pid_cri,
+                           link_id = web$link_id,
+                           iteration = web$iteration)
 
   web$r <- rle(sort(web$pid))
   web$pids@pid_total <- web$r$lengths[match(web$pid, web$r$values)]

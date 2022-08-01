@@ -1229,7 +1229,7 @@ prep_cmps_thresh <- function(attr_nm,
               score_threshold = score_threshold))
 }
 
-make_batch_pairs <- function(strata, index_record, sn){
+make_batch_pairs <- function(strata, index_record, sn, data_source = NULL){
   curr_ds_len <- length(strata)
   strata <- strata
   sc_ord <- order(strata, -index_record, decreasing = TRUE)
@@ -1245,6 +1245,11 @@ make_batch_pairs <- function(strata, index_record, sn){
   pos_repo$x_pos <- sn
   pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
   pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
+
+  if(!is.null(data_source)){
+    lgk <- data_source[pos_repo$x_pos] != data_source[pos_repo$y_pos]
+    pos_repo <- lapply(pos_repo, function(x) x[lgk])
+  }
   return(pos_repo)
 }
 
@@ -1259,7 +1264,7 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
       paste0("\n", fmt_sub_criteria(x, depth_n + 1, show_levels))
     }else{
       if(is.atomic(x)){
-        paste0("match_func(", listr(trimws(format(x)), lim = 3, sep = ","), ")")
+        paste0("match_func(", listr(trimws(format(x)), lim = 2, sep = ","), ")")
       }else{
         if(!is.null(names(x))){
           paste0("match_func(", class(x), "; ", listr(paste0("`", names(x), "`"), lim = 2), ")")
@@ -1271,7 +1276,18 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   })
 
   logic_txt <- unlist(logic_txt, use.names = FALSE)
-  logic_txt <- paste0(logic_txt, collapse = operator_txt)
+  if(ceiling(length(logic_txt)/2) == 1){
+    logic_txt_row <- rep(1, length(logic_txt))
+  }else{
+    logic_txt_row <- as.numeric(cut(seq_len(length(logic_txt)), ceiling(length(logic_txt)/2)))
+  }
+
+  logic_txt <- split(logic_txt, logic_txt_row)
+  logic_txt <- lapply(logic_txt, function(x){
+    paste0(x, collapse = operator_txt)
+  })
+  logic_txt <- unlist(logic_txt, use.names = FALSE)
+  logic_txt <- paste0(logic_txt, collapse = paste0("\n", left_indent))
   depth_l <- ifelse(show_levels, paste0("Lv", depth_n), "")
 
   logic_txt <- paste0(left_indent, "{", depth_l, "\n",
@@ -1343,4 +1359,16 @@ lgk_eval <- function(matches, check_duplicates){
     x <- list(logical_test = set_match)
   }
   return(x)
+}
+
+rc_dv <- function(x, func = func, depth = 1, tgt_depth = Inf){
+  if(all(class(x) %in% c("d_attribute", "list")) & depth <= tgt_depth){
+    lapply(x, function(x) rc_dv(x = x, func = func,
+                                depth = depth + 1,
+                                tgt_depth = tgt_depth))
+  }else if (is.atomic(x)){
+    func(x)
+  }else{
+
+  }
 }
