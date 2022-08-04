@@ -49,18 +49,21 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
   lst <- list(x.f_bk = x.f, y.f_bk = y.f, x.f = x.f, y.f = y.f, y3 = y.f)
 
   dv <- function(lst){
-    lst <- as.data.frame(lst)
-
-    lst <-  suppressWarnings(dplyr::ungroup(dplyr::mutate(dplyr::group_by(lst, x.f), y3 = min(y3))))
+    min_ord <- order(lst$x.f, lst$y3)
+    min_ord <- lapply(lst[c("x.f", "y3")], function(x) x[min_ord])
+    lst$y3 <- min_ord$y3[match(lst$x.f, min_ord$x.f)]
     lst$y2a <- lst$y3[match(lst$y.f_bk, lst$x.f)]
     lst$lgk <- !is.na(lst$y2a) & lst$y2a < lst$y3
     lst$y3[lst$lgk] <- lst$y2a[lst$lgk]
 
-    lst <-  dplyr::ungroup(dplyr::mutate(dplyr::group_by(lst, y.f_bk), y3 = min(y3)))
+    min_ord <- order(lst$y.f_bk, lst$y3)
+    min_ord <- lapply(lst[c("y.f_bk", "y3")], function(x) x[min_ord])
+    lst$y3 <- min_ord$y3[match(lst$y.f_bk, min_ord$y.f_bk)]
     lst$y2b <- lst$y3[match(lst$x.f, lst$y.f_bk)]
     lst$lgk <- !is.na(lst$y2b) & lst$y2b < lst$y3
     lst$y3[lst$lgk] <- lst$y2b[lst$lgk]
 
+    rm(min_ord)
     if(all(lst$y.f == lst$y3)){
       return(lst)
     }else{

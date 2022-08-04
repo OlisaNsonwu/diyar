@@ -3,9 +3,55 @@
 
 ## New features
 
-New function - `overlap_method_names()`. Overlap methods for a
-corresponding overlap method codes.
-`shrink` and `expand` arguments added to `merge_ids()`.
+-   New argument in `merge_ids()` - `shrink` and `expand`.
+-   New S3 method for class ‘d_report’ - `plot`.
+-   New function - `true()`. Predefined logical test for use with
+    `sub_criteria()`.
+-   New function - `false()`. Predefined logical test for use with
+    `sub_criteria()`.
+-   New argument in `links()`- `batched`. XXXXXX.
+-   New argument in `links()`- `repeats_allowed`. XXXXXX.
+-   New argument in `links()`- `permutations_allowed`. XXXXXX.
+-   New argument in `links()`- `ignore_same_source`. XXXXXX.
+
+## Changes
+
+-   `sub_criteria()` - Output of `match_func` and `equal_func` can now
+    be any atomic object.
+-   `links()` - When `shrink` is `TRUE`, records in a record-group must
+    meet every listed match `criteria` and `sub_criteria`. For example,
+    if `pid_cri` is 3, then the record must have meet the first three
+    match criteria.
+-   `links()` - `pid@iteration` now tracks when a record was dealt with
+    instead of when it was assigned to a record-group. For example, a
+    record can be closed (matched or not matched) at iteration 1 but
+    assigned to a record-group at iteration 5.
+-   `make_ids()` - Output now includes `x_strata` and `y_strata` when
+    applicable.
+-   `make_pairs()` - `x.*` and `y.*` values in the output are now
+    swapped.
+
+## Bug fixes
+
+-   `episodes()` - Incorrect results in some instances with
+    `skip_order`. Resolved.
+-   `make_ids()` - Does not capture all records in that should be in a
+    record-group when matches are recursive. Resolved.
+-   `make_pairs()` - Incorrect record-pairs in some instances. Resolved.
+-   `eval_sub_criteria()` - When output of `match_func` is length one,
+    it’s not recycled. Resolved.
+-   `reverse_number_line()` - Incorrect results in some instances.
+    Resolved.
+-   `links()`- Incorrect `iteration` (`pids` slot) for non-matches.
+    Resolved.
+
+# Version 0.4.1
+
+## New features
+
+-   New function - `overlap_method_names()`. Overlap methods for a
+    corresponding overlap method codes.
+-   Memory usage added to `*with_report` options for display.
 
 ## Changes
 
@@ -19,14 +65,13 @@ corresponding overlap method codes.
     `"y_inbetween_x"`. `"inbetween"` will continue to be supported as a
     keyword for `"x_inbetween_y" OR "y_inbetween_x"` methods
 -   Optimised `overlaps()`.
--   Changed overlap method codes. Please review any previously specified
-    codes with `overlap_method_names()`.
+-   Some overlap method codes have changed. Please review any previously
+    specified codes with `overlap_method_names()`.
 
 ## Bug fixes
 
--  `make_batch_pairs()` (internal) creates incorrect record pairs.
+-   `make_batch_pairs()` (internal) created invalid record pairs.
     Resolved.
-- `links()` - Incorrect behaviour of `shrink` argument. Resolved
 
 # Version 0.4.0
 
@@ -133,7 +178,7 @@ corresponding overlap method codes.
 -   `episodes()` and `links()`. Speed improvements.
 -   Default time zone for an `epid_interval` or `pane_interval` with
     `POSIXct` objects is now “GMT”.
--   `number_line_sequence()` - splits number\_line objects. Also
+-   `number_line_sequence()` - splits number_line objects. Also
     available as a `seq` method.
 -   `epid_total`, `pid_total` and `pane_total` slots are populated by
     default. No need to used `group_stats` to get these.

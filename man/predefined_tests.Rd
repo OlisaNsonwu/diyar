@@ -34,9 +34,9 @@ true(x, y)
 false(x, y)
 }
 \arguments{
-\item{x}{Value of an attribute(s) to be compare against.}
+\item{x}{Attribute(s) to be compared against.}
 
-\item{y}{Value of an attribute(s) to be compare by.}
+\item{y}{Attribute(s) to be compared by.}
 
 \item{range}{Difference between \code{y} and \code{x}.}
 

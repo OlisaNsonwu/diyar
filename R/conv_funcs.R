@@ -1229,7 +1229,7 @@ prep_cmps_thresh <- function(attr_nm,
               score_threshold = score_threshold))
 }
 
-make_batch_pairs <- function(strata, index_record, sn, data_source = NULL){
+make_batch_pairs <- function(strata, index_record, sn, ignore_same_source, data_source = NULL){
   curr_ds_len <- length(strata)
   strata <- strata
   sc_ord <- order(strata, -index_record, decreasing = TRUE)
@@ -1246,7 +1246,7 @@ make_batch_pairs <- function(strata, index_record, sn, data_source = NULL){
   pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
   pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
 
-  if(!is.null(data_source)){
+  if(!is.null(data_source) & isTRUE(ignore_same_source)){
     lgk <- data_source[pos_repo$x_pos] != data_source[pos_repo$y_pos]
     pos_repo <- lapply(pos_repo, function(x) x[lgk])
   }
@@ -1259,19 +1259,27 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   operator_txt <- paste0(" ", operator_txt," ")
 
   logic_txt <- lapply(x, function(x){
+    mf_nm <- names(x[2])
+    if(mf_nm == ""){
+      mf_nm <- "match_func"
+    }
+    at_nm <- names(x[1])
     x <- x[[1]]
     if(class(x) == "sub_criteria"){
       paste0("\n", fmt_sub_criteria(x, depth_n + 1, show_levels))
     }else{
-      if(is.atomic(x)){
-        paste0("match_func(", listr(trimws(format(x)), lim = 2, sep = ","), ")")
+      if(at_nm != ""){
+
+      }else if(is.atomic(x)){
+        at_nm <- listr(trimws(format(x)), lim = 2, sep = ",")
       }else{
         if(!is.null(names(x))){
-          paste0("match_func(", class(x), "; ", listr(paste0("`", names(x), "`"), lim = 2), ")")
+          at_nm <- paste0(class(x), "; ", listr(paste0("`", names(x), "`")), lim = 2)
         }else{
-          paste0("match_func(", class(x), ")")
+          at_nm <- class(x)
         }
       }
+      paste0(mf_nm, "(", at_nm, ")")
     }
   })
 

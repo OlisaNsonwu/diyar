@@ -2,7 +2,7 @@
 % Please edit documentation in R/links.R
 \name{links}
 \alias{links}
-\title{Multistage deterministic record linkage.}
+\title{Multistage and nested record linkage.}
 \usage{
 links(
   criteria,
@@ -27,7 +27,7 @@ links(
 \arguments{
 \item{criteria}{\code{[list|atomic]}. Attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.}
 
-\item{sub_criteria}{\code{[list|\link{sub_criteria}]}. Nested matching criteria. These are additional matching criteria paired to a stage of the linkage process. See \code{\link{sub_criteria}}}
+\item{sub_criteria}{\code{[list|\link{sub_criteria}]}. Match criteria. Must be paired to a stage of the linkage process (\code{criteria}). See \code{\link{sub_criteria}}}
 
 \item{sn}{\code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.}
 
@@ -37,7 +37,7 @@ links(
 
 \item{data_links}{\code{[list|character]}. \code{data_source} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
-\item{display}{\code{[character]}. display or generate a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
+\item{display}{\code{[character]}. display a status updated or generate a status report. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
 \item{group_stats}{\code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.}
 
@@ -45,57 +45,52 @@ links(
 
 \item{shrink}{\code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
 
-\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches.}
+\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{FALSE}.}
 
-\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.}
+\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{FALSE}.}
 
-\item{tie_sort}{\code{[atomic]}. Preferential order for breaking ties within a stage.}
+\item{tie_sort}{\code{[atomic]}. Preferential order for breaking ties within a iteration.}
 
-\item{repeats_allowed}{\code{[logical]} If \code{TRUE}, repetition are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.}
+\item{repeats_allowed}{\code{[logical]} If \code{TRUE}, record-pairs with repeat values are created and compared. Ignored when \code{batched} is \code{TRUE}.}
 
-\item{permutations_allowed}{\code{[logical]} If \code{TRUE}, permutations are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.}
+\item{permutations_allowed}{\code{[logical]} If \code{TRUE}, permutations of record-pairs are created and compared. Ignored when \code{batched} is \code{TRUE}.}
 
-\item{ignore_same_source}{\code{[logical]} If \code{TRUE}, only records from different \bold{\code{data_source}} are compared. Only used when \code{batched} is \code{TRUE}.}
+\item{ignore_same_source}{\code{[logical]} If \code{TRUE}, only records-pairs with a different \bold{\code{data_source}} are created and compared.}
 }
 \value{
 \code{\link[=pid-class]{pid}}; \code{list}
 }
 \description{
-Stepwise record linkage. Assign unique identifiers to records based on multiple stages of different matching criteria.
+Assign unique identifiers to records based on multiple stages of different match criteria.
 }
 \details{
 The priority of matches decreases with each subsequent stage of the linkage process
 i.e. earlier stages (\code{criteria}) are considered superior.
 Therefore, it's important that each \code{criteria} is listed in an order of decreasing relevance.
 
-Records with missing \code{criteria} (\code{NA}) values are skipped at their respective stages, while
+Records with missing \code{criteria} (\code{NA} values) are skipped at their respective stage, while
 records with missing \code{strata} (\code{NA}) are skipped at every stage.
 
 If a record is skipped, another attempt will be made to match the record at the next stage.
 If a record does not match any other record by the end of the linkage process (or it has a missing \code{strata}),
 it is assigned to a unique record-group.
 
-A \code{\link{sub_criteria}} can be used to introduce nested (additional) matching conditions at each stage of the linkage process.
+A \code{\link{sub_criteria}} can be used to introduce additional and/or nested matching conditions at each stage of the linkage process.
 This results in only records with a matching \code{criteria} and \code{sub_criteria} being linked.
 
 In \bold{\code{\link{links}}}, each \code{\link{sub_criteria}} must be linked to a \code{criteria}.
 This is done by adding a \code{\link{sub_criteria}} to a named element of a \code{list}.
-Each element's name must correspond to a stage. See below for an example of 3 \code{sub_criteria} linked to
-\code{criteria} \code{1}, \code{5} and \code{13}.
-
-For example;
+Each element's name must correspond to a stage. For example, the list for 3 \code{sub_criteria} linked to
+\code{criteria} \code{1}, \code{5} and \code{13} will be;
 
 \deqn{list(cr1 = sub\_criteria(...), cr5 = sub\_criteria(...), cr13 = sub\_criteria(...))}
 
-\code{\link{sub_criteria}} objects themselves can be nested. Any unlinked \code{\link{sub_criteria}} will be ignored.
+Any unlinked \code{\link{sub_criteria}} will be ignored.
+
+\code{\link{sub_criteria}} objects themselves can be nested.
 
 By default, attributes in a \code{\link{sub_criteria}} are compared for an \code{\link{exact_match}}.
-However, user-defined functions are also permitted. Such functions must meet three requirements:
-\enumerate{
-\item It must be able to compare the attributes.
-\item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
-\item It must return a \code{logical} object i.e.\code{TRUE} or \code{FALSE}.
-}
+However, user-defined functions are also permitted.
 
 Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
 Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
@@ -112,15 +107,14 @@ data(patient_records)
 stages <- as.list(patient_records[c("surname", "forename")])
 pids_1 <- links(criteria = stages)
 
-# Reverse order
+# An exact match on forename followed by an exact match on surname
 pids_2 <- links(criteria = rev(stages))
 
 # Nested matches
 # Same sex OR year of birth
-nest_cond1 <- sub_criteria(format(patient_records$dateofbirth, "\%Y"),
+multi_cond1 <- sub_criteria(format(patient_records$dateofbirth, "\%Y"),
                            patient_records$sex,
-                           operator = "or",
-                           match_funcs = c(exact_match, exact_match))
+                           operator = "or")
 
 # Same middle name AND a 10 year age difference
 age_diff <- function(x, y){
@@ -128,39 +122,39 @@ age_diff <- function(x, y){
   wgt <-  diff \%in\% 0:(365 * 10) & !is.na(diff)
   wgt
 }
-nest_cond2 <- sub_criteria(patient_records$dateofbirth,
+multi_cond1 <- sub_criteria(patient_records$dateofbirth,
                            patient_records$middlename,
                            operator = "and",
                            match_funcs = c(age_diff, exact_match))
 
-# 'nest_cond1' OR 'nest_cond2'
-nest_cond3 <- sub_criteria(nest_cond1,
-                           nest_cond2,
-                           operator = "or")
+# 'multi_cond1' OR 'multi_cond2'
+nested_cond1 <- sub_criteria(multi_cond1,
+                             multi_cond2,
+                             operator = "or")
 
 # Record linkage with nested conditions
 pids_3 <- links(criteria = stages,
-                sub_criteria = list(cr1 = nest_cond1,
-                                    cr2 = nest_cond2),
+                sub_criteria = list(cr1 = multi_cond1,
+                                    cr2 = multi_cond2),
                 display = "progress")
 
 # Record linkage with multiple (two) layers of nested conditions
 pids_4 <- links(criteria = stages,
-                sub_criteria = list(cr1 = nest_cond3,
-                                    cr2 = nest_cond3),
+                sub_criteria = list(cr1 = nested_cond1,
+                                    cr2 = nested_cond1),
                 display = "progress")
 
 # Record linkage without group expansion
 pids_5 <- links(criteria = stages,
-                sub_criteria = list(cr1 = nest_cond1,
-                                    cr2 = nest_cond2),
+                sub_criteria = list(cr1 = multi_cond1,
+                                    cr2 = multi_cond2),
                 display = "progress",
                 expand = FALSE)
 
 # Record linkage with shrinking record groups
 pids_6 <- links(criteria = stages,
-                sub_criteria = list(cr1 = nest_cond1,
-                                    cr2 = nest_cond2),
+                sub_criteria = list(cr1 = multi_cond1,
+                                    cr2 = multi_cond2),
                 display = "progress",
                 shrink = TRUE)
 

@@ -1,24 +1,24 @@
 #' @name links
-#' @title Multistage deterministic record linkage.
+#' @title Multistage and nested record linkage.
 #'
-#' @description Stepwise record linkage. Assign unique identifiers to records based on multiple stages of different matching criteria.
+#' @description Assign unique identifiers to records based on multiple stages of different match criteria.
 #'
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Record-groups are created separately for each \code{strata}. See \code{Details}.
 #' @param criteria \code{[list|atomic]}. Attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.
-#' @param sub_criteria \code{[list|\link{sub_criteria}]}. Nested matching criteria. These are additional matching criteria paired to a stage of the linkage process. See \code{\link{sub_criteria}}
+#' @param sub_criteria \code{[list|\link{sub_criteria}]}. Match criteria. Must be paired to a stage of the linkage process (\code{criteria}). See \code{\link{sub_criteria}}
 #' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.
 #' @param group_stats \code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.
 #' @param data_links \code{[list|character]}. \code{data_source} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
 #' @param expand \code{[logical]}. If \code{TRUE}, a record-group gains new records if a match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.
 #' @param shrink \code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
-#' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches.
-#' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values.
-#' @param display \code{[character]}. display or generate a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param tie_sort \code{[atomic]}. Preferential order for breaking ties within a stage.
-#' @param repeats_allowed \code{[logical]} If \code{TRUE}, repetition are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.
-#' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations are included when creating record-pairs. Only used when \code{batched} is \code{TRUE}.
-#' @param ignore_same_source \code{[logical]} If \code{TRUE}, only records from different \bold{\code{data_source}} are compared. Only used when \code{batched} is \code{TRUE}.
+#' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{FALSE}.
+#' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{FALSE}.
+#' @param display \code{[character]}. display a status updated or generate a status report. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
+#' @param tie_sort \code{[atomic]}. Preferential order for breaking ties within a iteration.
+#' @param repeats_allowed \code{[logical]} If \code{TRUE}, record-pairs with repeat values are created and compared. Ignored when \code{batched} is \code{TRUE}.
+#' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations of record-pairs are created and compared. Ignored when \code{batched} is \code{TRUE}.
+#' @param ignore_same_source \code{[logical]} If \code{TRUE}, only records-pairs with a different \bold{\code{data_source}} are created and compared.
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
 #' @seealso \code{\link{link_records}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
@@ -28,34 +28,29 @@
 #' i.e. earlier stages (\code{criteria}) are considered superior.
 #' Therefore, it's important that each \code{criteria} is listed in an order of decreasing relevance.
 #'
-#' Records with missing \code{criteria} (\code{NA}) values are skipped at their respective stages, while
+#' Records with missing \code{criteria} (\code{NA} values) are skipped at their respective stage, while
 #' records with missing \code{strata} (\code{NA}) are skipped at every stage.
 #'
 #' If a record is skipped, another attempt will be made to match the record at the next stage.
 #' If a record does not match any other record by the end of the linkage process (or it has a missing \code{strata}),
 #' it is assigned to a unique record-group.
 #'
-#' A \code{\link{sub_criteria}} can be used to introduce nested (additional) matching conditions at each stage of the linkage process.
+#' A \code{\link{sub_criteria}} can be used to introduce additional and/or nested matching conditions at each stage of the linkage process.
 #' This results in only records with a matching \code{criteria} and \code{sub_criteria} being linked.
 #'
 #' In \bold{\code{\link{links}}}, each \code{\link{sub_criteria}} must be linked to a \code{criteria}.
 #' This is done by adding a \code{\link{sub_criteria}} to a named element of a \code{list}.
-#' Each element's name must correspond to a stage. See below for an example of 3 \code{sub_criteria} linked to
-#' \code{criteria} \code{1}, \code{5} and \code{13}.
-#'
-#' For example;
+#' Each element's name must correspond to a stage. For example, the list for 3 \code{sub_criteria} linked to
+#' \code{criteria} \code{1}, \code{5} and \code{13} will be;
 #'
 #' \deqn{list(cr1 = sub\_criteria(...), cr5 = sub\_criteria(...), cr13 = sub\_criteria(...))}
 #'
-#' \code{\link{sub_criteria}} objects themselves can be nested. Any unlinked \code{\link{sub_criteria}} will be ignored.
+#' Any unlinked \code{\link{sub_criteria}} will be ignored.
+#'
+#' \code{\link{sub_criteria}} objects themselves can be nested.
 #'
 #' By default, attributes in a \code{\link{sub_criteria}} are compared for an \code{\link{exact_match}}.
-#' However, user-defined functions are also permitted. Such functions must meet three requirements:
-#' \enumerate{
-#' \item It must be able to compare the attributes.
-#' \item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
-#' \item It must return a \code{logical} object i.e.\code{TRUE} or \code{FALSE}.
-#' }
+#' However, user-defined functions are also permitted.
 #'
 #' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
 #' Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
@@ -72,15 +67,14 @@
 #' stages <- as.list(patient_records[c("surname", "forename")])
 #' pids_1 <- links(criteria = stages)
 #'
-#' # Reverse order
+#' # An exact match on forename followed by an exact match on surname
 #' pids_2 <- links(criteria = rev(stages))
 #'
 #' # Nested matches
 #' # Same sex OR year of birth
-#' nest_cond1 <- sub_criteria(format(patient_records$dateofbirth, "%Y"),
+#' multi_cond1 <- sub_criteria(format(patient_records$dateofbirth, "%Y"),
 #'                            patient_records$sex,
-#'                            operator = "or",
-#'                            match_funcs = c(exact_match, exact_match))
+#'                            operator = "or")
 #'
 #' # Same middle name AND a 10 year age difference
 #' age_diff <- function(x, y){
@@ -88,39 +82,39 @@
 #'   wgt <-  diff %in% 0:(365 * 10) & !is.na(diff)
 #'   wgt
 #' }
-#' nest_cond2 <- sub_criteria(patient_records$dateofbirth,
+#' multi_cond1 <- sub_criteria(patient_records$dateofbirth,
 #'                            patient_records$middlename,
 #'                            operator = "and",
 #'                            match_funcs = c(age_diff, exact_match))
 #'
-#' # 'nest_cond1' OR 'nest_cond2'
-#' nest_cond3 <- sub_criteria(nest_cond1,
-#'                            nest_cond2,
-#'                            operator = "or")
+#' # 'multi_cond1' OR 'multi_cond2'
+#' nested_cond1 <- sub_criteria(multi_cond1,
+#'                              multi_cond2,
+#'                              operator = "or")
 #'
 #' # Record linkage with nested conditions
 #' pids_3 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = nest_cond1,
-#'                                     cr2 = nest_cond2),
+#'                 sub_criteria = list(cr1 = multi_cond1,
+#'                                     cr2 = multi_cond2),
 #'                 display = "progress")
 #'
 #' # Record linkage with multiple (two) layers of nested conditions
 #' pids_4 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = nest_cond3,
-#'                                     cr2 = nest_cond3),
+#'                 sub_criteria = list(cr1 = nested_cond1,
+#'                                     cr2 = nested_cond1),
 #'                 display = "progress")
 #'
 #' # Record linkage without group expansion
 #' pids_5 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = nest_cond1,
-#'                                     cr2 = nest_cond2),
+#'                 sub_criteria = list(cr1 = multi_cond1,
+#'                                     cr2 = multi_cond2),
 #'                 display = "progress",
 #'                 expand = FALSE)
 #'
 #' # Record linkage with shrinking record groups
 #' pids_6 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = nest_cond1,
-#'                                     cr2 = nest_cond2),
+#'                 sub_criteria = list(cr1 = multi_cond1,
+#'                                     cr2 = multi_cond2),
 #'                 display = "progress",
 #'                 shrink = TRUE)
 #'
@@ -179,10 +173,6 @@ links <- function(criteria,
     tie_sort <- batched <- repeats_allowed <-
     permutations_allowed <- ignore_same_source <- NULL
 
-  if(isFALSE(web$batched)){
-    web$check_duplicates <- TRUE
-    web$recursive <- FALSE
-  }
   if(class(web$sub_criteria) == "sub_criteria"){
     web$sub_criteria <- list(web$sub_criteria)
   }
@@ -190,7 +180,9 @@ links <- function(criteria,
   web$err <- err_links_checks_0(web$criteria, web$sub_criteria,
                                 web$sn, web$strata, web$data_source, web$data_links,
                                 web$display, web$group_stats, web$expand, web$shrink,
-                                web$recursive, web$check_duplicates, web$tie_sort)
+                                web$recursive, web$check_duplicates, web$tie_sort,
+                                web$repeats_allowed, web$permutations_allowed, web$ignore_same_source,
+                                web$batched)
 
   if(!isFALSE(web$err)) stop(web$err, call. = FALSE)
 
@@ -198,7 +190,7 @@ links <- function(criteria,
 
   if(isTRUE(web$shrink)) web$expand <- !web$shrink
 
-  # `web$display`
+  # display
   web$display <- tolower(web$display)
 
   # Maximum no. of records from all criteria
@@ -232,11 +224,11 @@ links <- function(criteria,
   }
 
   # Standardise inputs
-  # `web$strata`
+  # strata
   if(!is.null(web$strata)) {
     class(web$strata) <- "d_lazy_opts"
   }
-  # `web$sn`
+  # sn
   web$pr_sn <- seq_len(web$ds_len)
   if(class(web$sn) == "NULL"){
     web$sn <- web$pr_sn
@@ -254,13 +246,18 @@ links <- function(criteria,
   }
 
   class(web$tie_sort) <- "d_lazy_opts"
-  # `web$data_links`
+  # data_links
   web$dl_lst <- unlist(web$data_links, use.names = FALSE)
   if(!all(class(web$data_links) == "list")){
     web$data_links <- list(l = web$data_links)
   }
   if(is.null(names(web$data_links))) names(web$data_links) <- rep("l", length(web$data_links))
   names(web$data_links) <- ifelse(names(web$data_links) == "", "l", names(web$data_links))
+
+  # batched
+  if(length(web$batched) == 1 & length(criteria) > 1){
+    web$batched <- rep(web$batched, length(criteria))
+  }
 
   # Place holders for group-level options
   web$tag <- rep(0L, web$ds_len)
@@ -306,6 +303,13 @@ links <- function(criteria,
     if(web$display %in% c("progress", "stats", "progress_with_report", "stats_with_report")){
       cat(paste0("`Criteria ", i,"`.\n"))
     }
+    if(isFALSE(web$batched[i])){
+      web$check_duplicates <- TRUE
+      web$recursive <- FALSE
+    }
+
+    # Restart iteration
+    web$pids_repo$iteration[which(web$pids_repo$tag == 0 & web$pids_repo$iteration != 0)] <- 0L
     # Current stage
     web$cri_l <- web$cri <- web$criteria[[i]]
     # Standardise `criteria` input
@@ -377,16 +381,23 @@ links <- function(criteria,
     # Stages without a `sub_criteria` are compared as `exact` matches
     if(length(web$curr_sub_cri) == 0){
       web$cs_len <- length(web$cri)
+      web$pp <- inherit(web$tag, web$cri, web$pid_cri,
+                        web$tie_sort, web$sn, web$pr_sn,
+                        web$expand, web$pid, web$link_id,
+                        sn_ref = web$sn_ref)
 
-      web$pp <- inherit(web$tag, web$cri, web$pid_cri, web$tie_sort, web$sn, web$pr_sn, web$expand, web$pid, web$link_id, sn_ref = web$sn_ref)
-      web$pp$tag[!web$pp$pid %in% c(web$sn_ref, NA)] <- 1L
-      web$iteration[which(web$pp$pid != web$sn_ref & web$iteration == 0)] <- ite
+      if(isTRUE(web$ignore_same_source) & !is.null(web$data_source)){
+        web$lgk <- web$data_source[web$pp$pr_sn] != web$data_source[web$pp$pid]
+        web$pp <- lapply(web$pp, function(x) x[web$lgk])
+      }
+      web$lgk <- !web$pp$pid %in% c(web$sn_ref, NA)
+      web$pp$tag[web$lgk] <- 1L
 
       web$pids_repo$pid[web$pp$pr_sn] <- web$pp$pid
       web$pids_repo$tag[web$pp$pr_sn] <- web$pp$tag
-      web$pids_repo$pid_cri[web$pp$pr_sn][which(web$pids_repo$pid_cri[web$pp$pr_sn] == web$mxp_cri | (web$pids_repo$pid_cri[web$pp$pr_sn] != web$mxp_cri & web$shrink))] <- i
+      web$pids_repo$pid_cri[which(web$pids_repo$pid_cri[web$pp$pr_sn] == web$mxp_cri | (web$pids_repo$pid_cri[web$pp$pr_sn] != web$mxp_cri & web$shrink))] <- i
       web$pids_repo$link_id[web$pp$pr_sn] <- web$pp$link_id
-      web$pids_repo$iteration[web$pp$pr_sn] <- web$iteration
+      web$pids_repo$iteration[web$pids_repo$pid != web$sn_ref & web$pids_repo$iteration == 0] <- ite
       ite <- ite + 1L
       web$pp <- NULL
     }else{
@@ -426,7 +437,7 @@ links <- function(criteria,
 
         web$indx <- order(order(web$pr_sn))
 
-        if(isTRUE(web$batched)){
+        if(isTRUE(web$batched[i])){
           # Reference records
           web$lgk <- which(!duplicated(web$cri, fromLast = TRUE))
           web$rep_lgk <- match(web$cri, web$cri[web$lgk])
@@ -439,6 +450,7 @@ links <- function(criteria,
           web$pos_repo <- make_batch_pairs(strata = web$cri,
                                            index_record = web$ref_rd,
                                            sn = web$indx,
+                                           ignore_same_source = web$ignore_same_source,
                                            data_source = web$data_source)
           names(web$pos_repo)[2] <- "x_val"
           names(web$pos_repo)[3] <- "y_val"
@@ -464,7 +476,19 @@ links <- function(criteria,
                                                y_pos = web$pos_repo$y_val,
                                                check_duplicates = web$check_duplicates)
 
-        if(isTRUE(web$batched)){
+        if(isTRUE(web$batched[i])){
+          if(isTRUE(web$ignore_same_source) & !is.null(web$data_source)){
+            web$same_source_indx <- match(web$sn, web$pos_repo$x_val)
+            web$sub_cri_match <- lapply(web$sub_cri_match, function(x){
+              x <- x[web$same_source_indx]
+              x[is.na(x)] <- 0L
+              x
+            })
+            web$same_source_indx <- is.na(web$same_source_indx)
+          }else{
+            web$same_source_indx <- FALSE
+          }
+
           web$sub_cri_match <- lapply(web$sub_cri_match, function(x){
             x[web$ref_rd] <- 1
             x
@@ -504,7 +528,7 @@ links <- function(criteria,
         web$f_pid <- web$pid
         # Records inherit pid if they match with previously tagged records
         # If recursive, records with existing pids are overwritten if they match another tagged at the same stage (Situation A)
-        web$rep_lgk <- which((web$sub_cri_match > 0 | (web$sub_cri_match == 0 & !web$batched)) &
+        web$rep_lgk <- which((web$sub_cri_match > 0 | (web$sub_cri_match == 0 & !web$batched[i])) &
                                (web$pid == web$sn_ref | (web$pid != web$sn_ref & web$tr_pid_cri == web$pid_cri & web$recursive)) &
                                !web$tr_pid %in% c(web$sn_ref, NA) &
                                ((web$tr_pid_cri == web$pid_cri & !web$expand) | (web$expand)))
@@ -518,7 +542,7 @@ links <- function(criteria,
         web$rep_lgk_2 <- which((((web$pid == web$sn_ref | (web$pid != web$sn_ref & web$tr_pid_cri == web$pid_cri & web$recursive)) &
                                    web$tr_pid == web$sn_ref &
                                    !is.na(web$tr_pid))) &
-                                 (web$sub_cri_match > 0 | (web$sub_cri_match == 0 & !web$batched)))
+                                 (web$sub_cri_match > 0 | (web$sub_cri_match == 0 & !web$batched[i])))
         web$pid[web$rep_lgk_2] <- web$tr_sn[web$rep_lgk_2]
         web$link_id[web$rep_lgk_2] <- web$tr_sn[web$rep_lgk_2]
 
@@ -535,6 +559,12 @@ links <- function(criteria,
           web$lgk <- which(web$pid == web$sn_ref & web$equals_ref_rd > 0)
           web$pid[web$lgk] <- web$sn[web$lgk]
         }
+
+        # Close record-pairs from the same source
+        # web$lgk <- web$same_source_indx & !web$recursive
+        web$lgk <- web$same_source_indx
+        web$m_tag[web$lgk] <- 2L
+        web$pid[web$lgk] <- web$sn[web$lgk]
 
         # If recursive, records with pids from "Situation A" but not part of the current matches are updated with the new pid
         if(isTRUE(web$recursive)){
@@ -559,7 +589,7 @@ links <- function(criteria,
           web$min_m_tag <- min(web$m_tag)
         }
 
-        web$iteration[which(web$pid != web$sn_ref & web$iteration == 0)] <- ite
+        web$iteration[which(web$m_tag == 2 & web$iteration == 0)] <- ite
         web$pid_cri[which(web$pid_cri == web$mxp_cri | (web$pid_cri != web$mxp_cri & web$shrink))] <- i
 
         if(!web$display %in% c("none")){
@@ -666,7 +696,6 @@ links <- function(criteria,
     # Flag records linked at current stage
     web$pids_repo$tag <- web$tag_h
     web$pids_repo$tag[which(web$pids_repo$pid != web$sn_ref)] <- 1L
-    # web$pids_repo$iteration[which(web$pids_repo$tag == 0 & web$pids_repo$iteration != 0)] <- 0L
 
     if(!web$display %in% c("none")){
       web$current_tot <- length(web$skp_lgk)
@@ -695,7 +724,7 @@ links <- function(criteria,
   # Skipped and unmatched records
   web$pids_repo$iteration[web$pids_repo$iteration == 0] <- ite - 1L
   if(class(web$strata) != "NULL"){
-    web$pids_repo$pid_cri[which(web$pids_repo$pid == web$sn_ref & is.na(web$strata) & pids_repo$pid_cri == web$mxp_cri)] <- -1L
+    web$pids_repo$pid_cri[which(web$pids_repo$pid == web$sn_ref & is.na(web$strata) & web$pids_repo$pid_cri == web$mxp_cri)] <- -1L
   }
 
   web$pids_repo$pid -> web$pid

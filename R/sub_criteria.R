@@ -1,8 +1,8 @@
 #' @name sub_criteria
 #' @aliases sub_criteria
-#' @title Nested linkage criteria
+#' @title Match criteria
 #'
-#' @description Nested matching criteria for each iteration of \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
+#' @description Match criteria for record linkage with \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
 #' @param ... \code{[atomic]} Attributes passed to or \code{eval_sub_criteria()} or \code{eval_sub_criteria()}
 #'
 #' Arguments passed to methods for \code{eval_sub_criteria()}
@@ -20,7 +20,7 @@
 #' @return \code{\link{sub_criteria}}
 #'
 #' @details
-#' \bold{\code{sub_criteria()}} - Creates a \code{sub_criteria} object - a nested criteria evaluated at each iteration of \bold{\code{links}} or \bold{\code{episodes}}.
+#' \bold{\code{sub_criteria()}} - Create a match criteria as a \code{sub_criteria} object.
 #' A \code{sub_criteria} object contains attributes to be compared,
 #' logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 #' another set of logical tests to determine identical records.
@@ -32,7 +32,16 @@
 #' At each iteration of \code{\link{links}} or \code{\link{episodes}}, record-pairs are created from each attribute of the \code{sub_criteria} object.
 #' \code{eval_sub_criteria()} evaluates each record-pair using the \code{match_funcs} and \code{equal_funcs} functions of the \code{sub_criteria} object.
 #' See \bold{\code{\link{predefined_tests}}} for examples of \code{match_funcs} and \code{equal_funcs}.
-#' \code{attrs()} is useful when the criteria requires an interaction between the multiple attributes. For example, attribute 1 + attribute 2 > attribute 3.
+#'
+#' User-defined functions are also permitted for \code{match_funcs} and \code{equal_funcs}.
+#' Such functions must meet three requirements:
+#' \enumerate{
+#' \item It must be able to compare the attributes.
+#' \item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
+#' \item It must return a \code{logical} object i.e. \code{TRUE} or \code{FALSE}.
+#' }
+#'
+#' \code{attrs()} is useful when the match criteria requires an interaction between the multiple attributes. For example, attribute 1 + attribute 2 > attribute 3.
 #'
 #' Every attribute, including those in \code{attrs()}, must have the same length or a length of 1.
 #'
@@ -89,8 +98,8 @@
 #'
 #' @export
 sub_criteria <- function(...,
-                         match_funcs = diyar::exact_match,
-                         equal_funcs = diyar::exact_match,
+                         match_funcs = c("exact" = diyar::exact_match),
+                         equal_funcs = c("exact" = diyar::exact_match),
                          operator = "or"){
 
   err <- err_sub_criteria_0(...,
@@ -111,8 +120,10 @@ sub_criteria <- function(...,
     equal_funcs <- unlist(equal_funcs)
   }
 
-  x <- function(x, y, z) list(x, y, z)
-  sub_cris <- mapply(x, list(...), match_funcs, equal_funcs, SIMPLIFY = F)
+  attr <- list(...)
+  sub_cris <- lapply(1:length(attr), function(i){
+    c(attr[i], match_funcs[i], equal_funcs[i])
+  })
 
   class(sub_cris) <- "sub_criteria"
   attr(sub_cris, "operator") <- operator
@@ -157,6 +168,13 @@ eval_sub_criteria.sub_criteria <- function(x,
                                            y_pos = rep(1L, length(x_pos)),
                                            check_duplicates = TRUE,
                                            ...){
+  if(length(x_pos) == 0 & length(y_pos) == 0){
+    x <- list(logical_test = integer())
+    if(isFALSE(check_duplicates)){
+      x$equal_test <- integer()
+    }
+    return(x)
+  }
   nest <- TRUE
   curr_ds_len <- length(y_pos)
   matches <- lapply(1:length(x), function(j){

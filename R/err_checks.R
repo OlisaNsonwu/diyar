@@ -348,7 +348,7 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err2 <- sort(err2[!duplicated(err2)])
   if(any(!c(err, err2) %in% c(1, max(c(err, err2))))){
     return(paste0("Length of each `", arg_nm, "` and each attribute of `", cri_nm, "` must be the same or equal to 1:\n",
-                  "i - Expecting ", listr(unique(c(1, err)), conj = " or "), ".\n",
+                  # "i - Expecting ", listr(unique(c(1, err)), conj = " or "), ".\n",
                   "X - ", ifelse(length(err) == 1, "Length", "Lengths")," of `", arg_nm, "` ", ifelse(length(err) == 1, "is", "are"), " ", listr(fmt(sort(err))), ".\n",
                   "X - ", ifelse(length(err2) == 1, "Length", "Lengths")," of attribute(s) in `", cri_nm, "` ", ifelse(length(err2) == 1, "is", "are"), " ", listr(fmt(sort(err2))), "."))
   }else{
@@ -583,7 +583,7 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
 
   if(length(err) > 0){
     err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
-                  ifelse(ref_nm == "", "", paste0("i - Length must be ", ifelse(1 %in% ref_len,"1 or ", ""), "the same as `", ref_nm, "`.\n")),
+                  ifelse(ref_nm == "", "", paste0("i - Length must be ", ifelse(1 %in% ref_len,"1 or ", ""), " ", ref_nm, ".\n")),
                   "i - Expecting a length of ", listr(fmt(unique(ref_len)), conj = " or "), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, fmt(length(err))), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", fmt(err), ".", collapse = "\n"))
     return(err)
@@ -592,34 +592,40 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
   return(FALSE)
 }
 
-xx_err_object_types <- function(arg, arg_nm, obj_types){
-  if(!all(class(arg) == "list") | (all(class(arg) == "list") & !"list" %in% obj_types)){
+err_match_ref_len_2 <- function(arg, ref_nm, ref_len, arg_nm, multi_opts = FALSE){
+  if(all(class(arg) == "list")){
+    unlist(lapply(arg, function(x){
+      err_match_ref_len_2(x, ref_nm, ref_len, arg_nm, multi_opts = TRUE)
+    }), use.names = FALSE)
+  }
+  else{
+    err <- length(arg)
+    err <- ifelse(!err %in% c(ref_len), err, NA_real_)
+    if(length(err) > 0) names(err) <- 1:length(err)
+    err <- err[!is.na(err)]
+
+    if(length(err) > 0){
+      err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
+                    paste0("i - Length must be ", ifelse(1 %in% ref_len,"1", ""), ref_nm, ".\n"),
+                    ifelse(ref_nm == "",
+                           "",
+                           paste0("i - Expecting a length of ", listr(fmt(unique(ref_len)), conj = " or "), ".\n")),
+                    paste0("X - ", ifelse(rep(multi_opts, fmt(length(err))), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", fmt(err), ".", collapse = "\n"))
+      return(err)
+    }else{
+      return(FALSE)
+    }
+  }
+
+  if(!all(class(arg) == "list")){
     arg <- list(arg)
     multi_opts <- F
   }else{
     multi_opts <- T
   }
-  err <- unlist(lapply(arg, function(x){
-    x <- class(x)
-    if(!any(x %in% obj_types)){
-      x <- listr(paste0("`", x[!x %in% obj_types], "`"), conj = " or ")
-    }else{
-      x <- NA_character_
-    }
-    x
-  }), use.names = FALSE)
-  if(length(err) > 0) names(err) <- 1:length(err)
-  err <- err[!is.na(err)]
 
-  if(length(err) > 0){
-    obj_types <- ifelse(obj_types == "logical", "logical (`TRUE` or `FALSE`)", obj_types)
-    err <- paste0("Invalid object type for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`.\n",
-                  "i - Valid object types are ", listr(paste0("`", obj_types, "`"), conj = " or "), ".\n",
-                  paste0("X - ", ifelse(rep(multi_opts, length(err)), paste0(" `", arg_nm, " ", names(err), "`: "), ""), "You've supplied a ", err, " object.", collapse = "\n"))
-    return(err)
-  }else{
-    return(FALSE)
-  }
+
+  return(FALSE)
 }
 
 err_object_types <- function(arg, arg_nm, obj_types){
@@ -638,21 +644,59 @@ err_object_types <- function(arg, arg_nm, obj_types){
     err <- err[!is.na(err)]
 
     if(length(err) > 0){
-      valid_opts <- listr(paste0("`", obj_types[!obj_types %in% "list"], "`"), conj = " or ")
-      valid_opts <- ifelse("list" %in% obj_types,
-                           paste0(valid_opts, ", or `list` with ", valid_opts, " elements"),
-                           valid_opts)
-
+      obj_types <- ifelse(obj_types == "logical", "logical (TRUE or FALSE)", obj_types)
+      obj_types <- paste0("`", obj_types, "`")
+      if("`list`" %in% obj_types){
+        obj_types <- obj_types[!obj_types %in% "`list`"]
+        obj_types <- c(obj_types,
+                        paste0("a `list` with ", listr(paste0(obj_types), conj = " or "), " elements"))
+      }
+      valid_opts <- listr(paste0(obj_types), conj = " or ")
 
       err <- paste0("Invalid object type for `", arg_nm, "`.\n",
-                    "i - Valid object types are: ", valid_opts, ".\n",
-                    paste0("X - You've supplied a/an ", err, " object.", collapse = "\n"))
+                    "i - Valid object types ", ifelse(length(valid_opts) > 1, "are", "is"),  ": ", valid_opts, ".\n",
+                    paste0("X - You've supplied: ", err, collapse = "\n"))
       return(err)
     }else{
       return(FALSE)
     }
   }
 }
+
+err_object_types_2 <- function(arg, arg_nm, obj_types){
+  if("list" %in% obj_types & all(class(arg) == "list")){
+    unlist(lapply(arg, function(x){
+      err_object_types_2(x, arg_nm, obj_types)
+    }), use.names = FALSE)
+  }else if("atomic" %in% obj_types){
+    unlist(err_atomic_vectors_2(arg, arg_nm), use.names = FALSE)
+  }else{
+    x <- class(arg)
+    if(!any(x %in% obj_types)){
+      err <- listr(paste0("`", x[!x %in% obj_types], "`"), conj = " or ")
+    }else{
+      err <- NA_character_
+    }
+    err <- err[!is.na(err)]
+    if(length(err) > 0){
+      obj_types <- ifelse(obj_types == "logical", "logical (TRUE or FALSE)", obj_types)
+      obj_types <- paste0("`", obj_types, "`")
+      if("`list`" %in% obj_types){
+        obj_types <- obj_types[!obj_types %in% "`list`"]
+        obj_types <- c(obj_types,
+                       paste0("a `list` with ", listr(paste0(obj_types), conj = " or "), " elements"))
+      }
+      valid_opts <- listr(paste0(obj_types), conj = " or ")
+
+      err <- paste0("Invalid object type for `", arg_nm, "`.\n",
+                    "i - Valid object type ", ifelse(length(valid_opts) > 1, "are", "is"),  ": ", valid_opts, ".\n",
+                    paste0("X - You've supplied: ", err, collapse = "\n"))
+      return(err)
+    }else{
+      return(FALSE)
+      }
+    }
+  }
 
 err_episodes_checks_1 <- function(date,
                                   case_length,
@@ -1139,31 +1183,14 @@ err_links_checks_0 <- function(criteria,
                                shrink,
                                recursive,
                                check_duplicates,
-                               tie_sort){
-
-  # Check for non-atomic vectors
-  args <- list(strata = strata,
-               data_source = data_source,
-               data_links = data_links,
-               display = display,
-               group_stats = group_stats,
-               expand = expand,
-               shrink = shrink,
-               # criteria = criteria,
-               recursive = recursive,
-               check_duplicates = check_duplicates,
-               tie_sort = tie_sort)
-
-  err <- mapply(err_atomic_vectors,
-                args,
-                as.list(names(args)))
-  err <- unlist(err, use.names = FALSE)
-  err <- err[err != FALSE]
-  if(length(err) > 0) return(err[1])
+                               tie_sort,
+                               repeats_allowed,
+                               permutations_allowed,
+                               ignore_same_source,
+                               batched){
 
   # Check for required object types
-  args <- list(#strata = strata,
-    # tie_sort = tie_sort,
+  args <- list(
     data_source = data_source,
     display = display,
     group_stats = group_stats,
@@ -1171,8 +1198,14 @@ err_links_checks_0 <- function(criteria,
     shrink = shrink,
     recursive = recursive,
     sub_criteria = sub_criteria,
-    check_duplicates = check_duplicates)
-
+    criteria = criteria,
+    tie_sort = tie_sort,
+    strata = strata,
+    check_duplicates = check_duplicates,
+    repeats_allowed = repeats_allowed,
+    permutations_allowed = permutations_allowed,
+    ignore_same_source = ignore_same_source,
+    batched = batched)
 
   args_classes <- list(display = "character",
                        data_source = c("character", "NULL"),
@@ -1182,10 +1215,16 @@ err_links_checks_0 <- function(criteria,
                        group_stats = "logical",
                        recursive = "logical",
                        sub_criteria = c("list", "sub_criteria", "NULL"),
-                       # tie_sort = "logical",
-                       check_duplicates = "logical")
+                       criteria = c("list", "atomic"),
+                       tie_sort = "atomic",
+                       strata = "atomic",
+                       check_duplicates = "logical",
+                       repeats_allowed = "logical",
+                       permutations_allowed = "logical",
+                       ignore_same_source = "logical",
+                       batched = "logical")
 
-  err <- mapply(err_object_types,
+  err <- mapply(err_object_types_2,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
@@ -1206,7 +1245,11 @@ err_links_checks_0 <- function(criteria,
                shrink = shrink,
                recursive = recursive,
                check_duplicates = check_duplicates,
-               tie_sort = tie_sort)
+               tie_sort = tie_sort,
+               repeats_allowed = repeats_allowed,
+               permutations_allowed = permutations_allowed,
+               ignore_same_source = ignore_same_source,
+               batched = batched)
 
   args_lens <- list(data_source = c(0, len_lims),
                     display = 1,
@@ -1215,11 +1258,20 @@ err_links_checks_0 <- function(criteria,
                     shrink = 1,
                     recursive = 1,
                     check_duplicates = 1,
-                    tie_sort = c(0, len_lims))
+                    tie_sort = c(0, len_lims),
+                    repeats_allowed = 1,
+                    permutations_allowed = 1,
+                    ignore_same_source = 1,
+                    batched = c(1, length(criteria)))
 
-  err <- mapply(err_match_ref_len,
+  err <- mapply(err_match_ref_len_2,
                 args,
-                rep(as.list("criteria/sub_criteria"), length(args_lens)),
+                c(as.list(" or the same length as each attribute in the match crtieria"),
+                  rep(as.list(""), 6),
+                  as.list(" or the same length as each attribute in the match crtieria"),
+                  rep(as.list(""), 3),
+                  as.list(" or the same number of stages in the linkage")
+                  ),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -1244,7 +1296,9 @@ err_links_checks_0 <- function(criteria,
   if(err != FALSE) return(err)
   err <- err_criteria_2(criteria)
   if(err != FALSE) return(err)
-  err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
+  err <- err_spec_vals(display, "display", c("none", "progress", "stats",
+                                             "none_with_report", "progress_with_report",
+                                             "stats_with_report"))
   if(err != FALSE) return(err)
   return(FALSE)
 }
@@ -1263,6 +1317,15 @@ err_atomic_vectors <- function(arg, arg_nm){
   if(length(err) > 0){
     err <- paste0(ifelse(multi_opts, "Input for ", ""), "`", arg_nm, "` must be an `atomic` vector.`\n")
     return(err)
+  }else{
+    return(FALSE)
+  }
+}
+
+err_atomic_vectors_2 <- function(arg, arg_nm){
+  err <- is.atomic(arg)
+  if(isFALSE(err)){
+    return(paste0("`", arg_nm, "` must be an `atomic` vector.`\n"))
   }else{
     return(FALSE)
   }

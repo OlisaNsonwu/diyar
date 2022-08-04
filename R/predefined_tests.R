@@ -3,8 +3,8 @@
 #' @title Predefined logical tests in \bold{\code{diyar}}
 #' @description A collection of predefined logical tests used with \bold{\code{\link{sub_criteria}}} objects.
 #'
-#' @param x Value of an attribute(s) to be compared against.
-#' @param y Value of an attribute(s) to be compared by.
+#' @param x Attribute(s) to be compared against.
+#' @param y Attribute(s) to be compared by.
 #'
 #' @details
 #' \bold{\code{exact_match()}} - test that  \code{x == y}
