@@ -1,5 +1,5 @@
 #' @name links
-#' @title Multistage and nested record linkage.
+#' @title Multistage and nested record linkage
 #'
 #' @description Assign unique identifiers to records based on multiple stages of different match criteria.
 #'
