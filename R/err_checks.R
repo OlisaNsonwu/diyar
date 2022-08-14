@@ -950,36 +950,6 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                                   case_length_total = 1, recurrence_length_total = case_length_total,
                                   skip_unique_strata = TRUE, skip_checks = NULL, ...){
 
-  # Check for non-atomic vectors
-  args <- list(date = date,
-               case_length = case_length,
-               recurrence_length = recurrence_length,
-               episode_type = episode_type,
-               episode_unit= episode_unit,
-               case_overlap_methods = case_overlap_methods,
-               recurrence_overlap_methods = recurrence_overlap_methods,
-               display = display,
-               strata = strata,
-               custom_sort = custom_sort,
-               episodes_max = episodes_max,
-               rolls_max = rolls_max,
-               data_source = data_source,
-               data_links = data_links,
-               skip_order = skip_order,
-               skip_if_b4_lengths = skip_if_b4_lengths,
-               skip_unique_strata = skip_unique_strata,
-               reference_event = reference_event,
-               case_for_recurrence = case_for_recurrence,
-               case_length_total = case_length_total,
-               recurrence_length_total = recurrence_length_total)
-
-  err <- mapply(err_atomic_vectors,
-                args,
-                as.list(names(args)))
-  err <- unlist(err, use.names = FALSE)
-  err <- err[err != FALSE]
-  if(length(err) > 0) return(err[1])
-
   # Check for required object types
   args <- list(date = date,
                case_length = case_length,
@@ -1005,7 +975,6 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                recurrence_sub_criteria = recurrence_sub_criteria,
                skip_unique_strata = skip_unique_strata)
 
-
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
                        case_overlap_methods = c("list", "numeric", "integer", "character"),
@@ -1016,7 +985,7 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                        recurrence_length = c("list", "integer", "numeric", "number_line"),
                        episodes_max = c("numeric", "integer"),
                        rolls_max = c("numeric", "integer"),
-                       #data_source = c("character", "NULL"),
+                       data_source = c("atomic"),
                        data_links = c("list", "character"),
                        skip_order = c("numeric", "integer"),
                        skip_if_b4_lengths = "logical",
@@ -1030,7 +999,7 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                        recurrence_sub_criteria = c("sub_criteria", "NULL"),
                        skip_unique_strata = "logical")
 
-  err <- mapply(err_object_types,
+  err <- mapply(err_object_types_2,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])

@@ -130,11 +130,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   inp_n <- length(date)
   if(!display %in% c("none")){
     rp_data <- di_report(duration = Sys.time() - tm_a,
+                         cumm_time = Sys.time() - tm_a,
                          iteration = "Data validation",
                          current_tot = inp_n)
     report <- list(rp_data)
+    ite_msg_repo <- character()
     if(display %in% c("stats_with_report", "stats")){
-      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
+      ite_msg <- paste0(rp_data[[1]], ": ", fmt(rp_data$duration, "difftime"), "\n")
+      ite_msg_repo <- c(ite_msg_repo, ite_msg)
+      cat(ite_msg)
     }
   }
   tm_ia <- Sys.time()
@@ -328,11 +332,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
   if(!display %in% c("none")){
     rp_data <- di_report(duration = Sys.time() - tm_ia,
+                         cumm_time = Sys.time() - tm_a,
                          iteration = "Data standardisation",
                          current_tot = inp_n)
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
-      cat(paste0(rp_data[[1]], ": ", fmt(rp_data[[2]], "difftime"), "\n"))
+      ite_msg <- paste0(rp_data[[1]], ": ", fmt(rp_data$duration, "difftime"), "\n")
+      ite_msg_repo <- c(ite_msg_repo, ite_msg)
+      cat(ite_msg)
     }
   }
   tm_ia <- Sys.time()
@@ -453,16 +460,19 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   if(!display %in% c("none")){
     rp_data <- di_report(duration = Sys.time() - tm_ia,
+                         cumm_time = Sys.time() - tm_a,
                          iteration = "Pre-tracking",
                          current_tot = inp_n,
                          current_skipped = excluded)
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
-      cat(paste0("Pre-tracking\n",
-                 "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                 "Skipped: ", fmt(rp_data[[5]]), " record(s)","\n",
-                 "Time: ", fmt(rp_data[[2]], "difftime"),
-                 "\n\n"))
+      ite_msg <- paste0("Pre-tracking\n",
+                        "Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                        "Skipped: ", fmt(rp_data$records_skipped), " record(s)","\n",
+                        "Time: ", fmt(rp_data$duration, "difftime"),
+                        "\n\n")
+      ite_msg_repo <- c(ite_msg_repo, ite_msg)
+      cat(ite_msg)
     }
   }
   tm_ia <- Sys.time()
@@ -638,22 +648,25 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       current_skipped <- length(tag[tag == 0]) + current_skipped
       if(!display %in% c("none")){
         rp_data <- di_report(duration = Sys.time() - tm_ia,
+                             cumm_time = Sys.time() - tm_a,
                              iteration = "Pre-tracking",
                              current_tot = current_tot,
                              current_tagged = current_tagged,
                              current_skipped = current_skipped)
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
-          cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                     "Assigned: ", fmt(rp_data[[4]]), " record(s)\n",
-                     "Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
-                     "Time: ", fmt(rp_data[[2]], "difftime"),
-                     "\n\n"))
+          ite_msg <- paste0("Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                            "Assigned: ", fmt(rp_data$records_tracked), " record(s)\n",
+                            "Skipped: ", fmt(rp_data$records_skipped), " record(s)\n",
+                            "Time: ", fmt(rp_data$duration, "difftime"),
+                            "\n\n")
+          ite_msg_repo <- c(ite_msg_repo, ite_msg)
+          cat(ite_msg)
         }else if (display %in% c("progress_with_report", "progress")) {
-          progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", fmt(rp_data[[2]], "difftime"), ")"))
+          progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", fmt(rp_data$duration, "difftime"), ")"))
         }
-        tm_ia <- Sys.time()
       }
+      tm_ia <- Sys.time()
       break
     }
 
@@ -975,24 +988,28 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       current_tagged <- length(tag[tag == 2])
       current_skipped <- length(tag[tag == 0]) + current_skipped
+
       if(!display %in% c("none")){
         rp_data <- di_report(duration = Sys.time() - tm_ia,
+                             cumm_time = Sys.time() - tm_a,
                              iteration = ite,
                              current_tot = current_tot,
                              current_tagged = current_tagged,
                              current_skipped = current_skipped)
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
-          cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                     "Assigned: ", fmt(rp_data[[4]]), " record(s)\n",
-                     "Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
-                     "Time: ", fmt(rp_data[[2]], "difftime"),
-                     "\n\n"))
+          ite_msg <- paste0("Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                            "Assigned: ", fmt(rp_data$records_tracked), " record(s)\n",
+                            "Skipped: ", fmt(rp_data$records_skipped), " record(s)\n",
+                            "Time: ", fmt(rp_data$duration, "difftime"),
+                            "\n\n")
+          ite_msg_repo <- c(ite_msg_repo, ite_msg)
+          cat(ite_msg)
         }else if (display %in% c("progress_with_report", "progress")) {
-          progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", fmt(rp_data[[2]], "difftime"), ")"))
+          progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", fmt(rp_data$duration, "difftime"), ")"))
         }
-        tm_ia <- Sys.time()
       }
+      tm_ia <- Sys.time()
       iteration[iteration == 0] <- ite
       break
     }
@@ -1027,24 +1044,29 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       current_skipped <- current_skipped + length(lgk[lgk])
     }
     iteration[tag != 0 & iteration == 0] <- ite
-    current_tagged <- length(tag[tag == 2])
+    current_tagged <- length(tag[tag == 2 & case_nm != -1 & !is.na(case_nm)])
+    current_skipped <- length(tag[case_nm == -1 & !is.na(case_nm)])
+
     if(!display %in% c("none")){
       rp_data <- di_report(duration = Sys.time() - tm_ia,
+                           cumm_time = Sys.time() - tm_a,
                            iteration = ite,
                            current_tot = current_tot,
-                           current_tagged = current_tagged - current_skipped,
+                           current_tagged = current_tagged,
                            current_skipped = current_skipped)
       report <- c(report, list(rp_data))
       if(display %in% c("stats_with_report", "stats")){
-        cat(paste0("Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                   "Assigned: ", fmt(rp_data[[4]]), " record(s)\n",
-                   "Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
-                   "Time: ", fmt(rp_data[[2]], "difftime"),
+        ite_msg <- paste0("Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                          "Assigned: ", fmt(rp_data$records_tracked), " record(s)\n",
+                          "Skipped: ", fmt(rp_data$records_skipped), " record(s)\n",
+                          "Time: ", fmt(rp_data$duration, "difftime"),
 
-                   "\n\n"))
+                          "\n\n")
+        ite_msg_repo <- c(ite_msg_repo, ite_msg)
+        cat(ite_msg)
       }
-      tm_ia <- Sys.time()
     }
+    # tm_ia <- Sys.time()
 
     # Subset out all linked records
     tag_lgk <- which(tag == 2)
@@ -1114,7 +1136,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       ld_recurrence_length_total <- ld_recurrence_length_total[ntag_lgk]
     }
     date <- date[ntag_lgk]
-    ite <- ite + 1L
+    # print(paste0("Ite ", ite ,": ", tm_ia, " -> ", Sys.time()))
+
     if (display %in% c("progress_with_report", "progress")) {
       progress_bar(length(epids_repo$tag[epids_repo$tag == 2]),
                    inp_n, 100,
@@ -1122,25 +1145,29 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                 fmt(ite), " (",
                                 fmt(difftime(Sys.time(), tm_ia), "difftime"),
                                 ")"))
-      tm_ia <- Sys.time()
     }
+    tm_ia <- Sys.time()
     if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       if(!display %in% c("none")){
         rp_data <- di_report(duration = Sys.time() - tm_ia,
+                             cumm_time = Sys.time() - tm_a,
                              iteration = ite,
                              current_skipped = length(tag[tag == 0]))
         report <- c(report, list(rp_data))
         if(display %in% c("stats_with_report", "stats")){
-          cat(paste0("Skipped: ", fmt(rp_data[[5]]), " record(s)\n",
-                     "Time: ", fmt(rp_data[[2]], "difftime"),
-                     "\n\n"))
+          ite_msg <-paste0("Skipped: ", fmt(rp_data$records_skipped), " record(s)\n",
+                           "Time: ", fmt(rp_data$duration, "difftime"),
+                           "\n\n")
+          ite_msg_repo <- c(ite_msg_repo, ite_msg)
+          cat(ite_msg)
         }else if (display %in% c("progress_with_report", "progress")) {
-          progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", fmt(rp_data[[2]], "difftime"), ")"))
+          progress_bar(inp_n, inp_n, 100, msg = paste0("Iteration ", fmt(ite), " (", fmt(rp_data$duration, "difftime"), ")"))
         }
         tm_ia <- Sys.time()
       }
       break
     }
+    ite <- ite + 1L
   }
   if(!display %in% c("none_with_report", "none")) cat("\n")
 
@@ -1495,9 +1522,9 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
     report_a <- rp_data
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0("Remove duplicates\n",
-                 "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                 "Skipped: ", fmt(rp_data[[5]]), " record(s)","\n",
-                 "Time: ", fmt(rp_data[[2]], "difftime"),
+                 "Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                 "Skipped: ", fmt(rp_data$records_skipped), " record(s)","\n",
+                 "Time: ", fmt(rp_data$duration, "difftime"),
                  "\n\n"))
     }
   }
@@ -1556,9 +1583,9 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
     if(display %in% c("stats_with_report", "stats")){
       cat(paste0("\n\n",
                  "Return duplicates\n",
-                 "Checked: ", fmt(rp_data[[3]]), " record(s)\n",
-                 "Assigned: ", fmt(rp_data[[4]]), " record(s)","\n",
-                 "Time: ", fmt(rp_data[[2]], "difftime"),
+                 "Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                 "Assigned: ", fmt(rp_data$records_tracked), " record(s)","\n",
+                 "Time: ", fmt(rp_data$duration, "difftime"),
                  "\n\n"))
     }
   }

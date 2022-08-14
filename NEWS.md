@@ -33,6 +33,8 @@
 
 ## Bug fixes
 
+-   `summary.epid()` - Incorrect count for ‘`by episode type`’.
+    Resolved.
 -   `episodes()` - Incorrect results in some instances with
     `skip_order`. Resolved.
 -   `make_ids()` - Does not capture all records in that should be in a
@@ -44,7 +46,8 @@
     Resolved.
 -   `links()`- Incorrect `iteration` (`pids` slot) for non-matches.
     Resolved.
--   `links()`- Timing for each iteration was incorrect. Resolved.
+-   `links()` and `episodes()` - Timing for each iteration was
+    incorrect. Resolved.
 
 # Version 0.4.1
 
