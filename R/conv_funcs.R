@@ -987,7 +987,8 @@ inherit <- function(tag, cri, pid_cri, tie_sort, sn, pr_sn, expand, pid, link_id
     link_id = link_id,
     tag = tag,
     pid_cri = pid_cri,
-    pr_sn = pr_sn
+    pr_sn = pr_sn,
+    sn = sn
   ))
 }
 
@@ -1229,7 +1230,7 @@ prep_cmps_thresh <- function(attr_nm,
               score_threshold = score_threshold))
 }
 
-make_batch_pairs <- function(strata, index_record, sn, ignore_same_source, data_source = NULL){
+make_batch_pairs <- function(strata, index_record, sn, ignore_same_source = FALSE, data_source = NULL){
   curr_ds_len <- length(strata)
   strata <- strata
   sc_ord <- order(strata, -index_record, decreasing = TRUE)

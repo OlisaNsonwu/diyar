@@ -129,7 +129,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
   inp_n <- length(date)
   if(!display %in% c("none")){
-    rp_data <- di_report(duration = tm_a,
+    rp_data <- di_report(duration = Sys.time() - tm_a,
                          iteration = "Data validation",
                          current_tot = inp_n)
     report <- list(rp_data)
@@ -327,7 +327,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(data_source) == 1) data_source <- rep(data_source, inp_n)
   }
   if(!display %in% c("none")){
-    rp_data <- di_report(duration = tm_ia,
+    rp_data <- di_report(duration = Sys.time() - tm_ia,
                          iteration = "Data standardisation",
                          current_tot = inp_n)
     report <- c(report, list(rp_data))
@@ -452,7 +452,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   if(!display %in% c("none")){
-    rp_data <- di_report(duration = tm_ia,
+    rp_data <- di_report(duration = Sys.time() - tm_ia,
                          iteration = "Pre-tracking",
                          current_tot = inp_n,
                          current_skipped = excluded)
@@ -637,7 +637,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       current_tagged <- length(tag[tag == 2])
       current_skipped <- length(tag[tag == 0]) + current_skipped
       if(!display %in% c("none")){
-        rp_data <- di_report(duration = tm_ia,
+        rp_data <- di_report(duration = Sys.time() - tm_ia,
                              iteration = "Pre-tracking",
                              current_tot = current_tot,
                              current_tagged = current_tagged,
@@ -729,7 +729,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       cr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE))
     }
 
-    # browser()
     # Implement `case_sub_criteria`
     checks_lgk <- rep(FALSE, length(date))
     if(class(case_sub_criteria) == "sub_criteria"){
@@ -977,7 +976,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       current_tagged <- length(tag[tag == 2])
       current_skipped <- length(tag[tag == 0]) + current_skipped
       if(!display %in% c("none")){
-        rp_data <- di_report(duration = tm_ia,
+        rp_data <- di_report(duration = Sys.time() - tm_ia,
                              iteration = ite,
                              current_tot = current_tot,
                              current_tagged = current_tagged,
@@ -1030,7 +1029,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     iteration[tag != 0 & iteration == 0] <- ite
     current_tagged <- length(tag[tag == 2])
     if(!display %in% c("none")){
-      rp_data <- di_report(duration = tm_ia,
+      rp_data <- di_report(duration = Sys.time() - tm_ia,
                            iteration = ite,
                            current_tot = current_tot,
                            current_tagged = current_tagged - current_skipped,
@@ -1127,7 +1126,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
     if(suppressWarnings(min(tag)) == 2 | length(tag) < 1){
       if(!display %in% c("none")){
-        rp_data <- di_report(duration = tm_ia,
+        rp_data <- di_report(duration = Sys.time() - tm_ia,
                              iteration = ite,
                              current_skipped = length(tag[tag == 0]))
         report <- c(report, list(rp_data))
@@ -1489,7 +1488,7 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   })
   names(opt_lst) <- opt_lst_nms
   if(!display %in% c("none")){
-    rp_data <- di_report(duration = tm_a,
+    rp_data <- di_report(duration = Sys.time() - tm_a,
                          iteration = "Remove duplicates",
                          current_tot = length(rf_lgk),
                          current_skipped = length(rf_lgk[rf_lgk]))
@@ -1549,7 +1548,7 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   wf_epid@epid_total <- tot$lengths[match(wf_epid@.Data, tot$values)]
   wf_epid@epid_total[is.na(wf_epid@epid_total)] <- 1L
   if(!display %in% c("none")){
-    rp_data <- di_report(duration = tm_a,
+    rp_data <- di_report(duration = Sys.time() - tm_a,
                          iteration = "Return duplicates",
                          current_tot = length(date),
                          current_tagged = length(rf_lgk[rf_lgk]))

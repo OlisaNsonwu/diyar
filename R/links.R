@@ -387,15 +387,16 @@ links <- function(criteria,
                         sn_ref = web$sn_ref)
 
       if(isTRUE(web$ignore_same_source) & !is.null(web$data_source)){
-        web$lgk <- web$data_source[web$pp$pr_sn] != web$data_source[web$pp$pid]
+        web$lgk <- web$data_source[web$pp$sn] != web$data_source[web$pp$pid]
         web$pp <- lapply(web$pp, function(x) x[web$lgk])
       }
       web$lgk <- !web$pp$pid %in% c(web$sn_ref, NA)
       web$pp$tag[web$lgk] <- 1L
 
+      web$pp$pid_cri[(web$pp$pid_cri == web$mxp_cri | (web$pp$pid_cri != web$mxp_cri & web$shrink))] <- i
       web$pids_repo$pid[web$pp$pr_sn] <- web$pp$pid
       web$pids_repo$tag[web$pp$pr_sn] <- web$pp$tag
-      web$pids_repo$pid_cri[which(web$pids_repo$pid_cri[web$pp$pr_sn] == web$mxp_cri | (web$pids_repo$pid_cri[web$pp$pr_sn] != web$mxp_cri & web$shrink))] <- i
+      web$pids_repo$pid_cri[web$pp$pr_sn] <- web$pp$pid_cri
       web$pids_repo$link_id[web$pp$pr_sn] <- web$pp$link_id
       web$pids_repo$iteration[web$pids_repo$pid != web$sn_ref & web$pids_repo$iteration == 0] <- ite
       ite <- ite + 1L
@@ -592,18 +593,6 @@ links <- function(criteria,
         web$iteration[which(web$m_tag == 2 & web$iteration == 0)] <- ite
         web$pid_cri[which(web$pid_cri == web$mxp_cri | (web$pid_cri != web$mxp_cri & web$shrink))] <- i
 
-        if(!web$display %in% c("none")){
-          web$rp_data <- di_report(
-            cumm_time = Sys.time() - web$tm_a,
-            duration = Sys.time() - web$tm_ia,
-            ite, length(web$m_tag),
-            criteria = i,
-            current_tagged = length(which(web$m_tag == 2 & web$iteration == ite)),
-            memory_used =  object.size(web) + web$rec_pairs_mem)
-          web$report <- c(web$report, list(web$rp_data))
-        }
-        web$tm_ia <- Sys.time()
-
         # If not recursive, exclude linked records.
         if(isFALSE(web$recursive)){
           web$inc_lgk <- which(web$m_tag == 2)
@@ -619,6 +608,13 @@ links <- function(criteria,
           web$pids_repo$tie_sort[web$pr_sn[web$inc_lgk]] <- web$tie_sort[web$inc_lgk]
 
           if(length(web$cri[web$exc_lgk]) == 0){
+            if(web$display %in% c("stats_with_report", "stats", "progress_with_report", "progress")){
+              progress_bar(web$cs_len, web$cs_len, 100,
+                           msg = paste0("Iteration ",
+                                        fmt(ite), " (",
+                                        fmt(difftime(Sys.time(), web$tm_ia), "difftime"),
+                                        ")"))
+            }
             ite <- ite + 1L
             next
           }
@@ -642,6 +638,16 @@ links <- function(criteria,
           web$pids_repo$link_id[web$pr_sn] <- web$link_id
           web$pids_repo$iteration[web$pr_sn] <- web$iteration
         }
+        if(!web$display %in% c("none")){
+          web$rp_data <- di_report(
+            cumm_time = Sys.time() - web$tm_a,
+            duration = Sys.time() - web$tm_ia,
+            ite, length(web$m_tag),
+            criteria = i,
+            current_tagged = length(which(web$m_tag == 2 & web$iteration == ite)),
+            memory_used =  object.size(web) + web$rec_pairs_mem)
+          web$report <- c(web$report, list(web$rp_data))
+        }
         if(web$display %in% c("stats_with_report", "stats", "progress_with_report", "progress")){
           progress_bar(length(web$pids_repo$pid[web$skp_lgk][web$pids_repo$pid[web$skp_lgk] != web$sn_ref]),
                        web$cs_len, 100,
@@ -650,7 +656,6 @@ links <- function(criteria,
                                     fmt(difftime(Sys.time(), web$tm_ia), "difftime"),
                                     ")"))
         }
-
         web$tm_ia <- Sys.time()
         ite <- ite + 1L
       }
@@ -706,9 +711,9 @@ links <- function(criteria,
           cumm_time = Sys.time() - web$tm_a,
           duration = Sys.time() - web$tm_ia,
           ite - 1,
-          length(skp_lgk), criteria = i,
+          length(web$skp_lgk), criteria = i,
           current_tagged = web$assigned,
-          memory_used =  object.size(web) + web$rec_pairs_mem)
+          memory_used =  object.size(web))
         web$report <- c(web$report, list(web$rp_data))
       }
       if(web$display %in% c("stats", "progress", "stats_with_report", "progress_with_report")){

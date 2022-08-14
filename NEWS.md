@@ -13,6 +13,8 @@
 -   New argument in `links()`- `repeats_allowed`. XXXXXX.
 -   New argument in `links()`- `permutations_allowed`. XXXXXX.
 -   New argument in `links()`- `ignore_same_source`. XXXXXX.
+-   New function - `sets()`. XXXXXXX.
+-   New function - `make_sets()`. XXXXXXX.
 
 ## Changes
 
@@ -26,8 +28,6 @@
     instead of when it was assigned to a record-group. For example, a
     record can be closed (matched or not matched) at iteration 1 but
     assigned to a record-group at iteration 5.
--   `make_ids()` - Output now includes `x_strata` and `y_strata` when
-    applicable.
 -   `make_pairs()` - `x.*` and `y.*` values in the output are now
     swapped.
 
@@ -44,6 +44,7 @@
     Resolved.
 -   `links()`- Incorrect `iteration` (`pids` slot) for non-matches.
     Resolved.
+-   `links()`- Timing for each iteration was incorrect. Resolved.
 
 # Version 0.4.1
 
