@@ -1275,7 +1275,7 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
         at_nm <- listr(trimws(format(x)), lim = 2, sep = ",")
       }else{
         if(!is.null(names(x))){
-          at_nm <- paste0(class(x), "; ", listr(paste0("`", names(x), "`")), lim = 2)
+          at_nm <- paste0(class(x), "; ", listr(paste0("`", names(x), "`"), lim = 2))
         }else{
           at_nm <- class(x)
         }

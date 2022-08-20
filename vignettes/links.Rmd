@@ -138,22 +138,22 @@ missing_staff_id[c("hair_colour", "branch_office", "p4", "p5", "p6", "p7")]
 
 A `sub_criteria` provides a lot flexibly in terms of how attributes are compared however, it can cost a lot in processing time. This is because `links()` is an iterative function, comparing batches of record-pairs in iterations. This keeps memory usage down but at the cost of processing time. There are ways to mitigate this such as using the `recursive` and `check_duplicate` arguments. 
 
-In contrast to this, `link_records()` creates every possible record-pair of values for each attribute, which are then compared.
-This is often faster but costs more in memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no `blocking_attribute`. Below we see how `link_records()` is used for the same fuzzy matching.
+In contrast to this, `links_wf_probabilistic()` creates every possible record-pair of values for each attribute, which are then compared.
+This is often faster but costs more in memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no `blocking_attribute`. Below we see how `links_wf_probabilistic()` is used for the same fuzzy matching.
 
 ```{r warning = FALSE}
-p8 <- link_records(attribute = list(missing_staff_id$hair_colour, 
+p8 <- links_wf_probabilistic(attribute = list(missing_staff_id$hair_colour, 
                                     missing_staff_id$branch_office), 
                    cmp_func = c(last_word_cmp, last_word_cmp), 
                    probabilistic = FALSE)
 p8
 ```
 
-It's worth noting that `link_records()` does not have the step-wise or nested matching features of `links()` however, `merge_ids()` can be used to achieve the same result by consolidating the result of multiple instances of `link_records()` (`pid` objects) in the same way `links()` would.
+It's worth noting that `links_wf_probabilistic()` does not have the step-wise or nested matching features of `links()` however, `merge_ids()` can be used to achieve the same result by consolidating the result of multiple instances of `links_wf_probabilistic()` (`pid` objects) in the same way `links()` would.
 
-The advantage of `link_records()` over `links()` is it's ability to implement a probabilistic approach to record linkage. Its implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity. In summary, `m_probabilities` and `u_probabilities`, which are the probabilities of a true and false match respectively are used to calculate a final match score for each record-pair. Records below or above a certain `score_threshold` are considered matches or non-matches respectively. See `help(link_records)` for a more detailed explanation of the method. Below we see the same analysis as above but as a probabilistic record linkage.
+The advantage of `links_wf_probabilistic()` over `links()` is it's ability to implement a probabilistic approach to record linkage. Its implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity. In summary, `m_probabilities` and `u_probabilities`, which are the probabilities of a true and false match respectively are used to calculate a final match score for each record-pair. Records below or above a certain `score_threshold` are considered matches or non-matches respectively. See `help(links_wf_probabilistic)` for a more detailed explanation of the method. Below we see the same analysis as above but as a probabilistic record linkage.
 ```{r warning = FALSE}
-p9 <- link_records(attribute = list(missing_staff_id$hair_colour, 
+p9 <- links_wf_probabilistic(attribute = list(missing_staff_id$hair_colour, 
                                     missing_staff_id$branch_office), 
                    cmp_func = c(last_word_cmp, last_word_cmp), 
                    probabilistic = TRUE)
@@ -172,7 +172,7 @@ p10 <- links_wf_probabilistic(attribute = list(missing_staff_id$hair_colour,
 p10
 ```
 
-`links()` and `link_records()` can perform record linkage across multiple datasets in one instance. To achieve this, values from the different datasets should be passed to the functions as single atomic vectors. The corresponding identifier for each dataset should then be passed to the `data_source` argument. The `strata` argument is a related feature which provides a blocking attribute, limiting the linkage process to subsets of the dataset. See a demonstration of these below.
+`links()` and `links_wf_probabilistic()` can perform record linkage across multiple datasets in one instance. To achieve this, values from the different datasets should be passed to the functions as single atomic vectors. The corresponding identifier for each dataset should then be passed to the `data_source` argument. The `strata` argument is a related feature which provides a blocking attribute, limiting the linkage process to subsets of the dataset. See a demonstration of these below.
 
 ```{r warning = FALSE}
 triplicate <- rbind(missing_staff_id[c(4:5, 7)],

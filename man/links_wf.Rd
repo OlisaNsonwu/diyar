@@ -10,7 +10,7 @@
 \usage{
 links_sv_probabilistic(
   attribute,
-  criteria = NULL,
+  blocking_attribute = NULL,
   cmp_func = diyar::exact_match,
   attr_threshold = 1,
   probabilistic = TRUE,
@@ -43,6 +43,8 @@ prob_score_range(attribute, m_probability = 0.95, u_probability = NULL)
 \arguments{
 \item{attribute}{\code{[atomic|list|data.frame|matrix|d_attribute]}. Attributes to compare.}
 
+\item{blocking_attribute}{\code{[atomic]}. Passed to \bold{\code{criteria}} in \bold{\code{\link{links}}}.}
+
 \item{cmp_func}{\code{[list|function]}. String comparators for each \code{attribute}. See \code{Details}.}
 
 \item{attr_threshold}{\code{[list|numeric|\link{number_line}]}. Weight-thresholds for each \code{cmp_func}. See \code{Details}.}
@@ -55,17 +57,15 @@ prob_score_range(attribute, m_probability = 0.95, u_probability = NULL)
 
 \item{score_threshold}{\code{[numeric|\link{number_line}]}. Score-threshold for linked records. See \code{Details}.}
 
-\item{repeats_allowed}{\code{[logical]} See \bold{\code{repeats_allowed}} in \bold{\code{\link{links}}}.}
+\item{repeats_allowed}{\code{[logical]} Passed to \bold{\code{repeats_allowed}} in \bold{\code{\link{links}}}.}
 
-\item{permutations_allowed}{\code{[logical]} See \bold{\code{permutations_allowed}} in \bold{\code{\link{links}}}.}
+\item{permutations_allowed}{\code{[logical]} Passed to \bold{\code{permutations_allowed}} in \bold{\code{\link{links}}}.}
 
-\item{data_source}{\code{[character]}. See \bold{\code{data_source}} in \bold{\code{\link{links}}}.}
+\item{data_source}{\code{[character]}. Passed to \bold{\code{data_source}} in \bold{\code{\link{links}}}.}
 
-\item{ignore_same_source}{\code{[logical]} See \bold{\code{ignore_same_source}} in \bold{\code{\link{links}}}.}
+\item{ignore_same_source}{\code{[logical]} Passed to \bold{\code{ignore_same_source}} in \bold{\code{\link{links}}}.}
 
-\item{display}{\code{[character]}. See \bold{\code{display}} in \bold{\code{\link{links}}}.}
-
-\item{blocking_attribute}{\code{[atomic]}. See \bold{\code{criteria}} in \bold{\code{\link{links}}}.}
+\item{display}{\code{[character]}. Passed to \bold{\code{display}} in \bold{\code{\link{links}}}.}
 
 \item{id_1}{\code{[list|numeric]}. Record id or index of one half of a record-pair.}
 
