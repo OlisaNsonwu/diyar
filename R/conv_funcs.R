@@ -1293,9 +1293,11 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
 
   logic_txt <- split(logic_txt, logic_txt_row)
   logic_txt <- lapply(seq_len(length(logic_txt)), function(i){
-    paste0(logic_txt[[i]],
-           ifelse(i == length(logic_txt), "", operator_txt),
-           collapse = "")
+    if(i == length(logic_txt)){
+      paste0(logic_txt[[i]], collapse = operator_txt)
+    }else{
+      paste0(logic_txt[[i]], operator_txt, collapse = "")
+    }
   })
   logic_txt <- unlist(logic_txt, use.names = FALSE)
   logic_txt <- paste0(logic_txt, collapse = paste0("\n", left_indent))
