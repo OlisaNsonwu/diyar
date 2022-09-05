@@ -701,22 +701,20 @@ links <- function(criteria,
     # Flag records linked at current stage
     web$pids_repo$tag <- web$tag_h
     web$pids_repo$tag[which(web$pids_repo$pid != web$sn_ref)] <- 1L
-
     if(!web$display %in% c("none")){
       web$current_tot <- length(web$skp_lgk)
       web$assigned <- length(web$pids_repo$pid[web$skp_lgk][web$pids_repo$pid[web$skp_lgk] != web$sn_ref])
-      if(length(web$curr_sub_cri) == 0){
-        cat("\n")
-        web$rp_data <- di_report(
-          cumm_time = Sys.time() - web$tm_a,
-          duration = Sys.time() - web$tm_ia,
-          ite - 1,
-          length(web$skp_lgk), criteria = i,
-          current_tagged = web$assigned,
-          memory_used =  object.size(web))
-        web$report <- c(web$report, list(web$rp_data))
-      }
+      web$rp_data <- di_report(
+        cumm_time = Sys.time() - web$tm_a,
+        duration = Sys.time() - web$tm_ia,
+        ite - 1,
+        length(web$skp_lgk), criteria = i,
+        current_tagged = web$assigned,
+        memory_used =  object.size(web))
+      web$report <- c(web$report, list(web$rp_data))
+
       if(web$display %in% c("stats", "progress", "stats_with_report", "progress_with_report")){
+        cat("\n")
         cat(paste0("Total: ", fmt(web$ds_len), " record(s).\n",
                    "Checked: ", fmt(web$current_tot), " record(s).\n",
                    "Linked: ", fmt(web$assigned)," record(s).\n\n"))
