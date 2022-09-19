@@ -363,8 +363,10 @@ links_wf_probabilistic <- function(attribute,
                                    u_probability = NULL,
                                    score_threshold = 1,
                                    id_1 = NULL, id_2 = NULL,
+                                   return_weights = FALSE,
                                    ...){
 
+  args <- list(...)
   err <- err_links_wf_probablistic_0(attribute = attribute,
                                      blocking_attribute = blocking_attribute,
                                      cmp_func = cmp_func,
@@ -426,12 +428,19 @@ links_wf_probabilistic <- function(attribute,
 
   # Weight or probabilistic matching
   prob_link_wf <- function(x, y){
-    prob_link(x, y,
-              attr_threshold = thresh_repo$attr_threshold,
-              score_threshold = thresh_repo$score_threshold,
-              return_weights = FALSE,
-              probabilistic = probabilistic,
-              cmp_func = thresh_repo$cmp_func)
+    wgt <- prob_link(x, y,
+                     attr_threshold = thresh_repo$attr_threshold,
+                     score_threshold = thresh_repo$score_threshold,
+                     return_weights = return_weights,
+                     probabilistic = probabilistic,
+                     cmp_func = thresh_repo$cmp_func)
+    if(isFALSE(return_weights)){
+      return(as.logical(wgt))
+    }else{
+      return(list(as.logical(wgt[,which(colnames(wgt) == "record.match")]),
+                  wgt))
+    }
+
   }
 
   # Identify identical records to skip repeat checks
@@ -450,66 +459,27 @@ links_wf_probabilistic <- function(attribute,
   }
 
   # Re-calculate weights for linked records
-  if(!is.null(id_1) & !is.null(id_2)){
-    pids <- NULL
-    x <- c(attribute, probs_repo$m_probability$x, probs_repo$u_probability$x)
-    y <- lapply(x, function(k){
-      if(is.list(k)){
-        lapply(k, function(y){
-          y[id_2]
-        })
-      }else{
-        k[id_2]
-      }
-    })
-    x <- lapply(x, function(k){
-      if(is.list(k)){
-        lapply(k, function(y){
-          y[id_1]
-        })
-      }else{
-        k[id_1]
-      }
-    })
-    thresh_lgk <- integer()
+  if(any(names(args) == "sn")){
+    sn <- args$sn
   }else{
-    x <- list(attribute = attribute,
-              m_probability = probs_repo$m_probability$x,
-              u_probability = probs_repo$u_probability$x)
-    pids <- links(criteria = "place_holder",
-                  strata = blocking_attribute,
-                  sub_criteria = list("cr1" = sub_criteria(attrs(.obj = x),
-                                                           match_funcs = prob_link_wf,
-                                                           equal_funcs = same_rec_func)),
-                  ...)
-
-    y <- lapply(x, function(k){
-      lapply(k, function(kk){
-        kk[match(pids@link_id, pids@sn)]
-      })
-    })
-    id_1 <- pids@sn
-    id_2 <- pids@link_id
-    thresh_lgk <- which(pids@pid_cri %in% -1:0)
+    sn <- seq_len(rd_n)
   }
-
-  pid_weights <- prob_link(x, y,
-                           attr_threshold = thresh_repo$attr_threshold,
-                           score_threshold = thresh_repo$score_threshold,
-                           return_weights = TRUE,
-                           cmp_func = thresh_repo$cmp_func,
-                           probabilistic = probabilistic)
-  # Mask unlinked records
-  pid_weights[thresh_lgk,] <- NA
-  pid_weights <- cbind(data.frame(id_1, id_2, stringsAsFactors = FALSE), pid_weights)
-  colnames(pid_weights)[1:2] <- c("sn_x","sn_y")
+  x <- list(attribute = attribute,
+            m_probability = probs_repo$m_probability$x,
+            u_probability = probs_repo$u_probability$x,
+            sn = list(sn))
+  pids <- links(criteria = "place_holder",
+                strata = blocking_attribute,
+                sub_criteria = list("cr1" = sub_criteria(attrs(.obj = x),
+                                                         match_funcs = prob_link_wf,
+                                                         equal_funcs = false)),
+                ...)
 
   # Output
-  pids <- list(pid = pids,
-               pid_weights = pid_weights)
   rm(list = ls()[ls() != "pids"])
   return(pids)
 }
+
 
 #' @rdname links_wf
 #' @export

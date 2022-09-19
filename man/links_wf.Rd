@@ -35,6 +35,7 @@ links_wf_probabilistic(
   score_threshold = 1,
   id_1 = NULL,
   id_2 = NULL,
+  return_weights = FALSE,
   ...
 )
 

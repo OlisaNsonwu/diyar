@@ -269,7 +269,7 @@ make_pairs_wf_source <- function(..., data_source = NULL){
     stop("`data_source` must be `NULL` or have the same lenght as `x`", call. = FALSE)
   }
 
-  r_sets <- split(seq_len(length(opt_lst$x)), data_source)
+  r_sets <- split(length(opt_lst$x):1, data_source)
   repo <- make_pairs(seq_len(length(r_sets)),
                      permutations_allowed = opt_lst$repeats_allowed,
                      # repeats_allowed = opt_lst$permutations_allowed

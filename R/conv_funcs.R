@@ -1261,7 +1261,9 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
 
   logic_txt <- lapply(x, function(x){
     mf_nm <- names(x[2])
-    if(mf_nm == ""){
+    if(length(mf_nm) == 0){
+      mf_nm <- "match_func"
+    }else if(mf_nm == ""){
       mf_nm <- "match_func"
     }
     at_nm <- names(x[1])
@@ -1284,6 +1286,16 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
     }
   })
 
+  if(isTRUE(show_levels)){
+    logic_txt <- lapply(1:length(logic_txt), function(i){
+      if(grepl("^\\n", logic_txt[[i]])){
+        paste0("\n", left_indent, "Lv.", depth_n, ".", i, "-", logic_txt[[i]])
+        gsub(" \\{\\n ", paste0(" Lv.", depth_n, ".", i, "-", "{\n "), logic_txt[[i]])
+      }else{
+        paste0("Lv.", depth_n, ".", i, "-", logic_txt[[i]])
+      }
+    })
+  }
   logic_txt <- unlist(logic_txt, use.names = FALSE)
   if(ceiling(length(logic_txt)/2) == 1){
     logic_txt_row <- rep(1, length(logic_txt))
@@ -1301,7 +1313,7 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   })
   logic_txt <- unlist(logic_txt, use.names = FALSE)
   logic_txt <- paste0(logic_txt, collapse = paste0("\n", left_indent))
-  depth_l <- ifelse(show_levels, paste0("Lv", depth_n), "")
+  depth_l <- ifelse(F, paste0("Lv", depth_n), "")
 
   logic_txt <- paste0(left_indent, "{", depth_l, "\n",
                       left_indent, logic_txt, "\n",
@@ -1345,33 +1357,6 @@ unpack <- function(xx, depth = 1){
     # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
     xx
   }
-
-}
-
-lgk_eval <- function(matches, check_duplicates){
-  if(tolower(operator) == "or"){
-    set_match <- rowSums(matches)
-    if(isFALSE(check_duplicates)){
-      m2 <- set_match == ncol(matches)
-      lgk <- which(seq_len(nrow(matches)) >= nrow(matches)/2)
-      set_match[lgk] <- m2[lgk]
-      rm(m2); rm(lgk)
-    }
-    set_match[set_match > 0] <- 1
-  }else if (tolower(operator) == "and"){
-    set_match <- rowSums(matches) == ncol(matches)
-    set_match <- as.numeric(set_match)
-  }
-
-  if(isFALSE(check_duplicates)){
-    set_match.rf <- set_match[((length(set_match)/2)+1):length(set_match)]
-    set_match <- set_match[1:(length(set_match)/2)]
-    x <- list(logical_test = set_match,
-              equal_test = set_match.rf)
-  }else{
-    x <- list(logical_test = set_match)
-  }
-  return(x)
 }
 
 rc_dv <- function(x, func = func, depth = 1, tgt_depth = Inf){

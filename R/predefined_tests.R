@@ -116,15 +116,15 @@ prob_link <- function(x, y,
     stop(err, call. = TRUE)
   }
 
-  vars <- c("attribute")
+  vars <- c("attribute", "sn")
   if(isTRUE(probabilistic)){
     vars <- c(vars, "m_probability", "u_probability")
   }
 
   err <- vars[!vars %in% names(x)]
   if(length(err) > 0){
-    err <- paste0("i - If `probabilistic` is `FALSE`, `x` and `y` must have three elements named \"attribute\".\n",
-                  "i - If `probabilistic` is `TRUE`, `x` and `y` must have one element named \"attribute\", \"m_probability\" and \"u_probability\".\n",
+    err <- paste0("i - If `probabilistic` is `FALSE`, `x` and `y` must have two elements named \"sn\" and \"attribute\".\n",
+                  "i - If `probabilistic` is `TRUE`, `x` and `y` must have four element named \"sn\", \"attribute\", \"m_probability\" and \"u_probability\".\n",
                   paste0("X - \"", err,"\" ", "not found.", collapse = "\n"))
     stop(err, call. = TRUE)
   }
@@ -161,7 +161,7 @@ prob_link <- function(x, y,
   attr_threshold <- thresh_repo$attr_threshold
   score_threshold <- thresh_repo$score_threshold
 
-  # Weights from a string comparator
+  # Weights
   wts <- lapply(seq_len(attr_n), function(i){
     curr_func <- cmp_func[[i]]
     wts <- curr_func(x$attribute[[i]],
@@ -189,14 +189,18 @@ prob_link <- function(x, y,
     out_2 <- t(out_2)
   }
 
-  out_a <- cbind(as.data.frame(out_2), sum_wt, lgk)
-  colnames(out_a) <- c(paste0("cmp.", attr_nm), "cmp.weight", "record.match")
+  out_a <- cbind(out_2, sum_wt, lgk)
+  out_a <- cbind(
+    sapply(c(x$sn, y$sn), function(x) {class(x) <- NULL; x}),
+    out_a
+  )
+  colnames(out_a) <- c("sn_x", "sn_y", paste0("cmp.", attr_nm), "cmp.weight", "record.match")
 
   if(isFALSE(probabilistic)){
     if(isTRUE(return_weights)) return(out_a) else return(lgk)
   }
-  out_a$record.match <- NULL
-
+  # remove 'record.match'
+  out_a <- out_a[,1:(ncol(out_a)-1)]
   # If probability based, matches are based on scores derived from m- and u-probabilities
   pwts <- sapply(seq_len(attr_n), function(i){
     pwts <- rep(0, length(wts[[i]]))
@@ -207,7 +211,6 @@ prob_link <- function(x, y,
 
     curr_uprob <- x$u_probability[[i]]
     curr_mprob <- x$m_probability[[i]]
-
     lgk <- which(x$attribute[[i]] != y$attribute[[i]] &
                    !is.na(x$attribute[[i]]) &
                    !is.na(y$attribute[[i]]))
@@ -240,7 +243,7 @@ prob_link <- function(x, y,
     if(is.null(ncol(pwts))){
       pwts <- t(pwts)
     }
-    out_b <- cbind(as.data.frame(pwts), sum_wt, as.logical(lgk))
+    out_b <- cbind(pwts, sum_wt, as.logical(lgk))
     colnames(out_b) <- c(paste0("prb.", attr_nm),
                          "prb.weight",
                          "record.match")

@@ -56,3 +56,16 @@ merge_ids.epid <- function(id1, id2, tie_sort, ...){
   repo@.Data <- mp1[[2]][match(repo@.Data, mp1[[1]])]
   return(repo)
 }
+
+# To use 'search_and_unpack', every element in 'l' must be named
+# and the last element at the bottom of the recursion
+# must match `tgt_nm_regx`
+search_and_unpack <- function(l, tgt_nm_regx = "^mf\\."){
+  lgk <- unlist(lapply(l, names), use.names = FALSE)
+  lgk <- any(grepl(tgt_nm_regx, lgk))
+  if(isTRUE(lgk)){
+    unlist(l, recursive = FALSE)
+  }else{
+    lapply(l, search_and_unpack)
+  }
+}

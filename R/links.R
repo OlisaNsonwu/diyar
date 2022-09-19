@@ -163,7 +163,8 @@ links <- function(criteria,
     repeats_allowed = repeats_allowed,
     permutations_allowed = permutations_allowed,
     ignore_same_source = ignore_same_source,
-    tm_a = Sys.time()
+    tm_a = Sys.time(),
+    export = list()
   )
 
   criteria <- sub_criteria <- sn <-
@@ -477,6 +478,13 @@ links <- function(criteria,
                                                y_pos = web$pos_repo$y_val,
                                                check_duplicates = web$check_duplicates)
 
+        web$export.nm <- names(web$sub_cri_match)
+        web$export.nm <- web$export.nm[!grepl("^logical|^equal", web$export.nm)]
+        if(length(web$export.nm) > 0){
+          web$export[[paste0("iteration.", ite)]] <- web$sub_cri_match[web$export.nm]
+          web$sub_cri_match[web$export.nm] <- NULL
+        }
+
         if(isTRUE(web$batched[i])){
           if(isTRUE(web$ignore_same_source) & !is.null(web$data_source)){
             web$same_source_indx <- match(web$sn, web$pos_repo$x_val)
@@ -775,6 +783,13 @@ links <- function(criteria,
     class(web$pids$report) <- "d_report"
   }
   if(!web$display %in% c("none", "none_with_report")) cat("Records linked in ", web$tms, "!\n", sep = "")
+  if(length(web$export) > 0){
+    if(all(class(web$pids) == "list")){
+      web$pids <- c(web$pids, web["export"])
+    }else{
+      web$pids <- list(pid = web$pids, export = web$export)
+    }
+  }
   web <- web$pids
   return(web)
 }

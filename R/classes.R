@@ -1209,7 +1209,7 @@ as.data.frame.d_report <- function(x, ...){
 
 
 `[.d_lazy_opts` <- function(x, i, ..., drop = TRUE) {
-  if(length(x) == 1){
+  if(length(x) == 1 & length(i) > 0){
     return(x)
   }else{
     x <- as.vector(x)
@@ -1220,9 +1220,9 @@ as.data.frame.d_report <- function(x, ...){
 }
 
 `[<-.d_lazy_opts` <- function(x, i, j, ..., value) {
-  if(length(x) == 1){
-    i <- 1
-  }
+  # if(length(x) == 1){
+  #   i <- 1
+  # }
   x <- as.vector(x)
   x[i] <- value
   class(x) <- "d_lazy_opts"

@@ -13,6 +13,9 @@
 -   New argument in `links()`- `repeats_allowed`. XXXXXX.
 -   New argument in `links()`- `permutations_allowed`. XXXXXX.
 -   New argument in `links()`- `ignore_same_source`. XXXXXX.
+-   New argument in `links_wf_probabilistic()`- `return_weights`.
+    XXXXXX.
+-   New argument in `eval_sub_criteria()`- `depth`. XXXXXX.
 -   New function - `sets()`. XXXXXXX.
 -   New function - `make_sets()`. XXXXXXX.
 
@@ -30,6 +33,9 @@
     assigned to a record-group at iteration 5.
 -   `make_pairs()` - `x.*` and `y.*` values in the output are now
     swapped.
+-   `match_func` and `equal_func` of `sub_criteria` can now return a
+    `list` where the first element is a logical object. Subsequent
+    elements of the `list` are exported by `eval_sub_criteria()`
 
 ## Bug fixes
 

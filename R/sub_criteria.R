@@ -14,6 +14,7 @@
 #' @param x_pos \code{[integer]}. Index of one half of a record pair.
 #' @param y_pos \code{[integer]}. Index of one half of a record pair.
 #' @param check_duplicates \code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.
+#' @param  \code{[integer]}. First order of recursion.
 #' @seealso
 #' \code{\link{predefined_tests}}; \code{\link{links}}; \code{\link{episodes}}; \code{\link{eval_sub_criteria}}
 #'
@@ -29,11 +30,11 @@
 #'
 #' \bold{\code{eval_sub_criteria()}} - Evaluates a \code{sub_criteria} object.
 #'
-#' At each iteration of \code{\link{links}} or \code{\link{episodes}}, record-pairs are created from each attribute of the \code{sub_criteria} object.
-#' \code{eval_sub_criteria()} evaluates each record-pair using the \code{match_funcs} and \code{equal_funcs} functions of the \code{sub_criteria} object.
+#' At each iteration of \code{\link{links}} or \code{\link{episodes}}, record-pairs are created from each attribute of a \code{sub_criteria} object.
+#' \code{eval_sub_criteria()} evaluates each record-pair using the \code{match_funcs} and \code{equal_funcs} functions of a \code{sub_criteria} object.
 #' See \bold{\code{\link{predefined_tests}}} for examples of \code{match_funcs} and \code{equal_funcs}.
 #'
-#' User-defined functions are also permitted for \code{match_funcs} and \code{equal_funcs}.
+#' User-defined functions are also permitted as \code{match_funcs} and \code{equal_funcs}.
 #' Such functions must meet three requirements:
 #' \enumerate{
 #' \item It must be able to compare the attributes.
@@ -50,35 +51,35 @@
 #' attr_1 <- c(30, 28, 40, 25, 25, 29, 27)
 #' attr_2 <- c("M", "F", "U", "M", "F", "U", "M")
 #'
-#' # Creating a nested criteria
+#' # A match criteria
 #' ## Example 1 - A maximum difference of 10 in attribute 1
 #' s_cri1 <- sub_criteria(attr_1, match_funcs = range_match)
 #' s_cri1
 #'
-#' # Evaluating the nested criteria
-#' ## .. at the 1st iteration of linkage
+#' # Evaluate the match criteria
+#' ## Compare the first element of 'attr_1' against all other elements
 #' eval_sub_criteria(s_cri1)
-#' ## .. at the 2nd iteration of linkage
+#' ## Compare the second element of 'attr_1' against all other elements
 #' x_pos_val <- seq_len(max(attr_eval(s_cri1)))
 #' eval_sub_criteria(s_cri1,
 #'                   x_pos = x_pos_val,
 #'                   y_pos = rep(2, length(x_pos_val)))
 #'
-#' ## Example 2 - `s_cri1` AND an exact match on attribue 2
+#' ## Example 2 - `s_cri1` AND an exact match on attribute 2
 #' s_cri2 <- sub_criteria(
 #'   s_cri1,
 #'   sub_criteria(attr_2, match_funcs = exact_match),
 #'   operator = "and")
 #' s_cri2
 #'
-#' ## Example 3 - `s_cri1` OR an exact match on attribue 2
+#' ## Example 3 - `s_cri1` OR an exact match on attribute 2
 #' s_cri3 <- sub_criteria(
 #'   s_cri1,
 #'   sub_criteria(attr_2, match_funcs = exact_match),
 #'   operator = "or")
 #' s_cri3
 #'
-#' # Evaluating the nested criteria
+#' # Evaluate the match criteria
 #' eval_sub_criteria(s_cri2)
 #' eval_sub_criteria(s_cri3)
 #'
@@ -86,13 +87,13 @@
 #' AND_func <- function(x, y) range_match(x$a1, y$a1) & x$a2 == y$a2
 #' OR_func <- function(x, y) range_match(x$a1, y$a1) | x$a2 == y$a2
 #'
-#' ## Creating the nested criteria
+#' ## Create a match criteria
 #' s_cri2b <- sub_criteria(attrs(.obj = list(a1 = attr_1, a2 = attr_2)),
 #'                         match_funcs = AND_func)
 #' s_cri3b <- sub_criteria(attrs(.obj = list(a1 = attr_1, a2 = attr_2)),
 #'                         match_funcs = OR_func)
 #'
-#' # Evaluate the nested criteria
+#' # Evaluate the match criteria
 #' eval_sub_criteria(s_cri2b)
 #' eval_sub_criteria(s_cri3b)
 #'
@@ -167,6 +168,7 @@ eval_sub_criteria.sub_criteria <- function(x,
                                            x_pos = seq_len(max(attr_eval(x))),
                                            y_pos = rep(1L, length(x_pos)),
                                            check_duplicates = TRUE,
+                                           depth = 0,
                                            ...){
   if(length(x_pos) == 0 & length(y_pos) == 0){
     x <- list(logical_test = integer())
@@ -175,7 +177,6 @@ eval_sub_criteria.sub_criteria <- function(x,
     }
     return(x)
   }
-  nest <- TRUE
   curr_ds_len <- length(y_pos)
   matches <- lapply(1:length(x), function(j){
     a <- x[[j]]
@@ -183,19 +184,14 @@ eval_sub_criteria.sub_criteria <- function(x,
     f1 <- a[[2]]
     if(all(class(x) == "sub_criteria")){
       x <- eval_sub_criteria(x = x, x_pos = x_pos, y_pos = y_pos,
-                             check_duplicates = check_duplicates)
-
-      if(isTRUE(nest)){
-        if(isFALSE(check_duplicates)){
-          return(as.numeric(as.logical(c(x$logical_test, x$equal_test))))
-        }else{
-          return(x$logical_test)
-        }
-      }else{
-        return(x)
+                             check_duplicates = check_duplicates,
+                             depth = depth + 1)
+      if(isFALSE(check_duplicates)){
+        x$logical_test <- as.numeric(as.logical(c(x$logical_test, x$equal_test)))
+        x$equal_test <- NULL
       }
+      return(x)
     }
-
     if(all(class(x) == "d_attribute")){
       y <- rc_dv(x, func = function(x) mk_lazy_opt(x)[y_pos])
       x <- rc_dv(x, func = function(x) mk_lazy_opt(x)[x_pos])
@@ -206,9 +202,16 @@ eval_sub_criteria.sub_criteria <- function(x,
     }
 
     lgk <- try(f1(x, y), silent = TRUE)
-    if(class(lgk) == "try-error" | (isTRUE(nest) & all(class(lgk) != "logical"))){
-      if(class(lgk) == "try-error"){
-        err <- attr(lgk, "condition")$message
+    request_info <- !is.atomic(lgk)
+    if(isTRUE(request_info)){
+      out1_match <- lgk[[1]]
+      out1_export <- lgk[-1]
+    }else{
+      out1_match <- lgk
+    }
+    if(class(out1_match) == "try-error" | all(class(out1_match) != "logical")){
+      if(class(out1_match) == "try-error"){
+        err <- attr(out1_match, "condition")$message
       }else{
         err <- "Output is not a `logical` object"
       }
@@ -217,28 +220,36 @@ eval_sub_criteria.sub_criteria <- function(x,
                     "i - Each function in `match_funcs` must have the following syntax and output.\n",
                     "i - Syntax ~ `function(x, y, ...)`.\n",
                     "i - Output ~ `TRUE` or `FALSE`.\n",
-                    # "i - Output ~ `TRUE` or `FALSE` if `nest` is `TRUE`.\n",
                     "X - Issue with `match_funcs`: ", err, ".")
       stop(err, call. = F)
     }
-
-    out1 <- lgk
-    out1[is.na(lgk)] <- 0
-    if(length(out1) == 1) out1 <- rep(out1, curr_ds_len)
-    if(!length(out1) %in% c(1, curr_ds_len)){
+    out1_match[is.na(out1_match)] <- 0
+    if(length(out1_match) == 1) out1_match <- rep(out1_match, curr_ds_len)
+    if(!length(out1_match) %in% c(1, curr_ds_len)){
       err <- paste0("Output length of `match_funcs` must be 1 or the same as `criteria`:\n",
                     "i - Unexpected length for `match_funcs`:\n",
                     "i - Expecting a length of 1 of ", curr_ds_len, ".\n",
-                    "X - Length is ", length(out1), ".")
+                    "X - Length is ", length(out1_match), ".")
       stop(err, call. = F)
+    }
+    ouput <- list(logical_test = out1_match)
+    if(isTRUE(request_info)){
+      ouput[paste0("mf.", depth, ".", j)] <- out1_export
     }
 
     if(isFALSE(check_duplicates)){
       f2 <- a[[3]]
       lgk <- try(f2(x, y), silent = T)
-      if(class(lgk) == "try-error" | (isTRUE(nest) & all(class(lgk) != "logical"))){
-        if(class(lgk) == "try-error"){
-          err <- attr(lgk, "condition")$message
+      request_info <- !is.atomic(lgk)
+      if(isTRUE(request_info)){
+        out2_match <- lgk[[1]]
+        out2_export <- lgk[-1]
+      }else{
+        out2_match <- lgk
+      }
+      if(class(out2_match) == "try-error" | all(class(out2_match) != "logical")){
+        if(class(out2_match) == "try-error"){
+          err <- attr(out2_match, "condition")$message
         }else{
           err <- "Output is not a `logical` object"
         }
@@ -247,46 +258,32 @@ eval_sub_criteria.sub_criteria <- function(x,
                       "i - Each function in `equal_funcs` must have the following syntax and output.\n",
                       "i - Syntax ~ `function(x, y, ...)`.\n",
                       "i - Output ~ `TRUE` or `FALSE`.\n",
-                      # "i - Output ~ `TRUE` or `FALSE` if `nest` is `TRUE`.\n",
                       "X - Issue with `equal_funcs`: ", err, ".")
         stop(err, call. = F)
       }
-      lgk <- as.numeric(lgk)
-      out2 <- lgk
-      out2[is.na(lgk)] <- 0
-      if(length(out2) == 1) out2 <- rep(out2, curr_ds_len)
-      if(!length(out2) %in% c(1,curr_ds_len)){
+      out2_match[is.na(out2_match)] <- 0
+      if(length(out2_match) == 1) out2_match <- rep(out2_match, curr_ds_len)
+      if(!length(out2_match) %in% c(1,curr_ds_len)){
         err <- paste0("Output length of `equal_funcs` must be 1 or the same as `criteria`:\n",
                       "i - Unexpected length for `equal_funcs`:\n",
                       "i - Expecting a length of 1 of ", curr_ds_len, ".\n",
-                      "X - Length is ", length(out2), ".")
+                      "X - Length is ", length(out2_match), ".")
         stop(err, call. = F)
       }
-      out1 <- c(out1, out2)
+      ouput$logical_test <- c(out1_match, out2_match)
+      if(isTRUE(request_info)){
+        ouput[paste0("ef.", depth, ".", j)] <- out2_export
+      }
+
     }
-    return(out1)
+    return(ouput)
   })
+  matches_info <- lapply(matches, function(x){
+    x[-1]
+  })
+  matches_info <- unlist(matches_info, recursive = FALSE)
+  matches <- sapply(matches, function(x) x$logical_test)
 
-  if(isFALSE(nest)){
-    matches <- unpack(matches)
-    if(isFALSE(check_duplicates)){
-      matches <- lapply(matches, function(x){
-        x <- split(x, cut(seq_len(length(x)), 2))
-        names(x) <- c("-logical_test","-equal_test")
-        x
-      })
-
-      matches <- unlist(matches, recursive = FALSE, use.names = TRUE)
-      str <- gsub("^.*-", "", names(matches))
-      names(matches) <- gsub(".-.*$", "", names(matches))
-      matches <- split(matches, factor(str, levels = c("logical_test", "equal_test")))
-      return(matches)
-    }else{
-      return(matches)
-    }
-  }
-
-  matches <- sapply(matches, identity)
   if(isFALSE(is.matrix(matches))){
     matches <- t(as.matrix(matches))
   }
@@ -306,12 +303,14 @@ eval_sub_criteria.sub_criteria <- function(x,
     set_match <- as.numeric(set_match)
   }
 
+  x <- list(logical_test = set_match)
   if(isFALSE(check_duplicates)){
-    x <- split(set_match, cut(seq_len(length(set_match)), 2))
-    names(x) <- c("logical_test","equal_test")
-  }else{
-    x <- list(logical_test = set_match)
+      x <- split(x$logical_test,
+                 cut(seq_len(length(x$logical_test)), 2))
+      names(x) <- c("logical_test","equal_test")
   }
+  # x <- c(x$logical_test, x["matches_info"])
+  x <- c(x, matches_info)
   rm(list = ls()[ls() != "x"])
   return(x)
 }
