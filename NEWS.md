@@ -5,6 +5,7 @@
 
 -   New argument in `merge_ids()` - `shrink` and `expand`.
 -   New S3 method for class ‘d_report’ - `plot`.
+-   New S3 method for class ‘sub_criteria’ - `format`.
 -   New function - `true()`. Predefined logical test for use with
     `sub_criteria()`.
 -   New function - `false()`. Predefined logical test for use with

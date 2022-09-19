@@ -10,6 +10,7 @@
 #' @param match_funcs \code{[function]}. User defined logical test for matches.
 #' @param equal_funcs \code{[function]}. User defined logical test for identical record sets (all attributes of the same record).
 #' @param operator \code{[character]}. Options are \code{"and"} or \code{"or"}.
+#' @param show_levels \code{[logical]}. If \code{TRUE}, show recursive depth for each logic statement of the match criteria.
 
 #' @param x_pos \code{[integer]}. Index of one half of a record pair.
 #' @param y_pos \code{[integer]}. Index of one half of a record pair.
@@ -159,7 +160,18 @@ eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 #' @rdname sub_criteria
 #' @export
 print.sub_criteria <- function(object, ...){
-  cat(fmt_sub_criteria(object), "\n")
+  format(object)
+}
+
+#' @rdname sub_criteria
+#' @export
+format.sub_criteria <- function(object, show_levels =  FALSE, ...){
+  if(isTRUE(show_levels)){
+    cat(paste0("logical_test-", fmt_sub_criteria(object, show_levels = show_levels), "\n"))
+  }else{
+    cat(paste0(fmt_sub_criteria(object, show_levels = show_levels), "\n"))
+  }
+
 }
 
 #' @rdname sub_criteria
@@ -182,15 +194,22 @@ eval_sub_criteria.sub_criteria <- function(x,
     a <- x[[j]]
     x <- a[[1]]
     f1 <- a[[2]]
+    request_info <-
+      inherit_info <- FALSE
     if(all(class(x) == "sub_criteria")){
-      x <- eval_sub_criteria(x = x, x_pos = x_pos, y_pos = y_pos,
+      xx <- eval_sub_criteria(x = x, x_pos = x_pos, y_pos = y_pos,
                              check_duplicates = check_duplicates,
                              depth = depth + 1)
       if(isFALSE(check_duplicates)){
-        x$logical_test <- as.numeric(as.logical(c(x$logical_test, x$equal_test)))
-        x$equal_test <- NULL
+        xx$logical_test <- as.numeric(as.logical(c(xx$logical_test, xx$equal_test)))
+        xx$equal_test <- NULL
       }
-      return(x)
+      if(FALSE){
+        return(xx)
+      }else{
+        x <- xx$logical_test
+        inherit_info <- any(grepl("^mf|^ef", names(xx)))
+      }
     }
     if(all(class(x) == "d_attribute")){
       y <- rc_dv(x, func = function(x) mk_lazy_opt(x)[y_pos])
@@ -232,9 +251,15 @@ eval_sub_criteria.sub_criteria <- function(x,
                     "X - Length is ", length(out1_match), ".")
       stop(err, call. = F)
     }
-    ouput <- list(logical_test = out1_match)
+    output <- list(logical_test = out1_match)
+    if(isTRUE(inherit_info)){
+      output <- c(
+        output,
+        xx[names(xx)[grepl("^mf|^ef", names(xx))]]
+      )
+    }
     if(isTRUE(request_info)){
-      ouput[paste0("mf.", depth, ".", j)] <- out1_export
+      output[paste0("mf.", depth, ".", j)] <- out1_export
     }
 
     if(isFALSE(check_duplicates)){
@@ -270,13 +295,13 @@ eval_sub_criteria.sub_criteria <- function(x,
                       "X - Length is ", length(out2_match), ".")
         stop(err, call. = F)
       }
-      ouput$logical_test <- c(out1_match, out2_match)
+      output$logical_test <- c(out1_match, out2_match)
       if(isTRUE(request_info)){
-        ouput[paste0("ef.", depth, ".", j)] <- out2_export
+        output[paste0("ef.", depth, ".", j)] <- out2_export
       }
 
     }
-    return(ouput)
+    return(output)
   })
   matches_info <- lapply(matches, function(x){
     x[-1]

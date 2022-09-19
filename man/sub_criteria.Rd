@@ -5,6 +5,7 @@
 \alias{attrs}
 \alias{eval_sub_criteria}
 \alias{print.sub_criteria}
+\alias{format.sub_criteria}
 \alias{eval_sub_criteria.sub_criteria}
 \title{Match criteria}
 \usage{
@@ -20,6 +21,8 @@ attrs(..., .obj = NULL)
 eval_sub_criteria(x, ...)
 
 \method{print}{sub_criteria}(object, ...)
+
+\method{format}{sub_criteria}(object, show_levels = FALSE, ...)
 
 \method{eval_sub_criteria}{sub_criteria}(
   x,
@@ -42,6 +45,8 @@ Arguments passed to methods for \code{eval_sub_criteria()}}
 \item{operator}{\code{[character]}. Options are \code{"and"} or \code{"or"}.}
 
 \item{.obj}{\code{[data.frame|list]}. Attributes.}
+
+\item{show_levels}{\code{[logical]}. If \code{TRUE}, show recursive depth for each logic statement of the match criteria.}
 
 \item{x_pos}{\code{[integer]}. Index of one half of a record pair.}
 
