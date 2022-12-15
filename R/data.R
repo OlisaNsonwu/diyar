@@ -99,3 +99,10 @@
 #' @examples
 #' data(overlap_methods)
 "overlap_methods"
+
+#' @rdname patient_list
+#' @usage data(patient_records)
+#' @format data.frame
+#' @examples
+#' data(patient_records)
+"patient_records"

@@ -5,7 +5,7 @@
 err_sub_criteria_1 <- function(...){
   args <- list(...)
   err <- lapply(args, function(x){
-    if(is.atomic(x) | all(class(x) %in% c("d_attribute", "sub_criteria"))){
+    if(is.atomic(x) | inherits(x, c("d_attribute", "sub_criteria"))){
       NA_character_
     }else{
       class(x)
@@ -28,7 +28,7 @@ err_sub_criteria_1 <- function(...){
 
 err_sub_criteria_2 <- function(funcs, funcs_l){
   try_txt <- try(lapply(funcs, function(x){}), silent = T)
-  if(class(try_txt) == "try-error"){
+  if(inherits(try_txt, "try-error")){
     paste0("Unable to evaluate `",funcs_l,"`.:\n",
            "Issue - \"",attr(try_txt, "condition")$message, "\"")
 
@@ -70,15 +70,15 @@ err_sub_criteria_6.0 <- function(sub_cris, funcs_l = "match_funcs", funcs_pos = 
       l2 <- l1[[j]]
       func <- l2[[funcs_pos]]
       vec <- l2[[1]]
-      if(class(vec) == "list"){
+      if(inherits(vec, "list")){
         vec <- lapply(vec, function(x) x[1:5])
       }else{
         vec <- vec[1:5]
       }
       try_txt <- try(func(x = vec, y = vec), silent = T)
-      if(class(try_txt) == "try-error"){
+      if(inherits(try_txt, "try-error")){
         attr(try_txt, "condition")$message
-      }else if(class(try_txt) != "logical"){
+      }else if(!inherits(try_txt, "logical")){
         "Output is not a `logical` object"
       }else{
         NA
@@ -112,9 +112,9 @@ err_sub_criteria_6.1 <- function(sub_cris, funcs_l, cri_nm = "sub_criteria"){
       func <- l2[[2]]
       vec <- l2[[1]]
       try_txt <- try(func(x = vec), silent = T)
-      if(class(try_txt) == "try-error"){
+      if(inherits(try_txt, "try-error")){
         attr(try_txt, "condition")$message
-      }else if(class(try_txt) != "logical"){
+      }else if(!inherits(try_txt, "logical")){
         "Output is not a `logical` object"
       }else{
         NA
@@ -144,7 +144,7 @@ err_sub_criteria_5.0 <- function(sub_cris, funcs_l = "match_funcs", funcs_pos = 
   f1 <- function(l1){
     sb_attr <- l1[[1]]
     func <- l1[[funcs_pos]]
-    if(class(sb_attr) == "sub_criteria"){
+    if(inherits(sb_attr, "sub_criteria")){
       f1(sb_attr[[1]])
     }else{
       all(c("x", "y") %in% methods::formalArgs(func))
@@ -170,7 +170,7 @@ err_sub_criteria_7 <- function(sub_cris, funcs_l = "match_funcs", funcs_pos = 2,
       l2 <- l1[[j]]
       func <- l2[[funcs_pos]]
       vec <- l2[[1]]
-      if(class(vec) == "list"){
+      if(inherits(vec, "list")){
         vec <- lapply(vec, function(x) x[1:5])
       }else{
         vec <- vec[1:5]
@@ -296,7 +296,9 @@ err_data_links_2 <- function(data_source, data_links){
 }
 
 err_criteria_1 <- function(criteria){
-  if(class(criteria) != "list") criteria <- list(criteria)
+  if(!inherits(criteria, "list")){
+    criteria <- list(criteria)
+  }
 
   err <- lapply(criteria, function(x){
     ifelse(is.atomic(x), NA_character_, class(x))
@@ -315,7 +317,9 @@ err_criteria_1 <- function(criteria){
 }
 
 err_criteria_2 <- function(criteria){
-  if(class(criteria) != "list") criteria <- list(criteria)
+  if(!inherits(criteria, "list")){
+    criteria <- list(criteria)
+  }
 
   err <- lapply(criteria, length)
   err <- unlist(err, use.names = FALSE)
@@ -331,9 +335,11 @@ err_criteria_2 <- function(criteria){
 }
 
 err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_nm = "sub_criteria"){
-  if(class(ref_arg) != "list") ref_arg <- list(ref_arg)
+  if(!inherits(ref_arg, "list")){
+    ref_arg <- list(ref_arg)
+  }
 
-  if(class(sub_criteria) == "sub_criteria"){
+  if(inherits(sub_criteria, "sub_criteria")){
     sub_criteria <- list(sub_criteria)
   }
   err <- as.numeric(lapply(ref_arg, length))
@@ -362,7 +368,7 @@ err_sub_criteria_3dot_1 <- function(...){
   err <- sort(err[!duplicated(err)])
   err2 <- err[err != 1]
 
-  if(length(err2) != 1 | all(err2 == 0)){
+  if(length(err2) > 1){
     paste0("Different lengths for each attribute (`...`) of a `sub_criteria`:\n",
            "i - Each attribute in (`...`) must have the same length or a length of 1.\n",
            "i - This includes recursive evaluations of `d_attribute` and `sub_criteria` objects.\n",
@@ -373,7 +379,7 @@ err_sub_criteria_3dot_1 <- function(...){
 }
 
 err_sn_1 <- function(sn, ref_nm, ref_num){
-  if(!any(class(sn) %in% c("numeric", "integer", "NULL"))){
+  if(!inherits(sn, c("numeric", "integer", "NULL"))){
     err <- paste0("Invalid object type for `sn`:\n",
                   "i - Valid object type is `integer`.\n",
                   "i - `numeric` objects are coerced to `integer` objects.\n",
@@ -382,7 +388,7 @@ err_sn_1 <- function(sn, ref_nm, ref_num){
     return(err)
   }
 
-  if(class(sn) != "NULL"){
+  if(!inherits(sn, "NULL")){
     if(length(sn) != ref_num){
       err <- paste0("Length of `sn` must be the same as `", ref_nm, "`:\n",
                     "i - Expecting a length of ", fmt(ref_num), ".\n",
@@ -518,7 +524,7 @@ err_lnt_out_1 <- function(length.out){
 }
 
 err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
-  if(all(class(overlap_methods) != "list")){
+  if(!(inherits(overlap_methods, "list"))){
     overlap_methods <- list(overlap_methods)
   }
 
@@ -544,9 +550,12 @@ err_overlap_methods_1 <- function(overlap_methods, overlap_methods_nm){
 err_overlap_methods_2 <- function(overlap_methods, lengths, overlap_methods_nm, lengths_nm){
   # overlap_methods - Check if there are more overlap methods than there are lengths
 
-  if(class(lengths) != "list") lengths <- list(lengths)
-  if(class(overlap_methods) != "list") overlap_methods <- list(overlap_methods)
-
+  if(!inherits(lengths, "list")){
+    lengths <- list(lengths)
+  }
+  if(!inherits(overlap_methods, "list")){
+    overlap_methods <- list(overlap_methods)
+  }
   if(!length(overlap_methods) %in% c(1, length(lengths))){
     errs <- paste0("`", overlap_methods_nm, "` must have one element or the same number in `", lengths_nm ,"`:\n",
                    "X - `", overlap_methods_nm, "` has ", length(overlap_methods)," ", ifelse(length(overlap_methods) == 1, "element", "elements"), "\n",
@@ -569,7 +578,7 @@ err_missing_check <- function(x, arg_nm, lim =10){
 }
 
 err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
-  if(!all(class(arg) == "list")){
+  if(!inherits(arg, "list")){
     arg <- list(arg)
     multi_opts <- F
   }else{
@@ -584,17 +593,16 @@ err_match_ref_len <- function(arg, ref_nm, ref_len, arg_nm){
 
   if(length(err) > 0){
     err <- paste0("Invalid length for ", ifelse(multi_opts, "elements in ", ""), "`", arg_nm, "`:\n",
-                  ifelse(ref_nm == "", "", paste0("i - Length must be ", ifelse(1 %in% ref_len,"1 or ", ""), " ", ref_nm, ".\n")),
+                  ifelse(ref_nm == "", "", paste0("i - Length must be ", ifelse(1 %in% ref_len,"1 or", ""), " the same as `", ref_nm, "`.\n")),
                   "i - Expecting a length of ", listr(fmt(unique(ref_len)), conj = " or "), ".\n",
                   paste0("X - ", ifelse(rep(multi_opts, fmt(length(err))), paste0("`", arg_nm, " ", names(err), "`: "), ""), "Length is ", fmt(err), ".", collapse = "\n"))
     return(err)
   }
-
   return(FALSE)
 }
 
 err_match_ref_len_2 <- function(arg, ref_nm, ref_len, arg_nm, multi_opts = FALSE){
-  if(all(class(arg) == "list")){
+  if(inherits(arg, "list")){
     unlist(lapply(arg, function(x){
       err_match_ref_len_2(x, ref_nm, ref_len, arg_nm, multi_opts = TRUE)
     }), use.names = FALSE)
@@ -618,7 +626,7 @@ err_match_ref_len_2 <- function(arg, ref_nm, ref_len, arg_nm, multi_opts = FALSE
     }
   }
 
-  if(!all(class(arg) == "list")){
+  if(!inherits(arg, "list")){
     arg <- list(arg)
     multi_opts <- F
   }else{
@@ -631,7 +639,7 @@ err_match_ref_len_2 <- function(arg, ref_nm, ref_len, arg_nm, multi_opts = FALSE
 
 err_object_types <- function(arg, arg_nm, obj_types){
 
-  if(all(class(arg) == "list")){
+  if(inherits(arg, "list")){
     unlist(lapply(arg, function(x){
       err_object_types(x, arg_nm, obj_types)
     }), use.names = FALSE)
@@ -650,13 +658,12 @@ err_object_types <- function(arg, arg_nm, obj_types){
       if("`list`" %in% obj_types){
         obj_types <- obj_types[!obj_types %in% "`list`"]
         obj_types <- c(obj_types,
-                        paste0("a `list` with ", listr(paste0(obj_types), conj = " or "), " elements"))
+                       paste0("a `list` with ", listr(paste0(obj_types), conj = " or "), " elements"))
       }
       valid_opts <- listr(paste0(obj_types), conj = " or ")
-
       err <- paste0("Invalid object type for `", arg_nm, "`.\n",
-                    "i - Valid object types ", ifelse(length(valid_opts) > 1, "are", "is"),  ": ", valid_opts, ".\n",
-                    paste0("X - You've supplied: ", err, collapse = "\n"))
+                    "i - Valid object type", ifelse(length(obj_types) > 1, "s are", " is"),  " ", valid_opts, ".\n",
+                    paste0("X - You've supplied a ", err, " object.", collapse = "\n"))
       return(err)
     }else{
       return(FALSE)
@@ -665,7 +672,7 @@ err_object_types <- function(arg, arg_nm, obj_types){
 }
 
 err_object_types_2 <- function(arg, arg_nm, obj_types){
-  if("list" %in% obj_types & all(class(arg) == "list")){
+  if("list" %in% obj_types & inherits(arg, "list")){
     unlist(lapply(arg, function(x){
       err_object_types_2(x, arg_nm, obj_types)
     }), use.names = FALSE)
@@ -695,9 +702,9 @@ err_object_types_2 <- function(arg, arg_nm, obj_types){
       return(err)
     }else{
       return(FALSE)
-      }
     }
   }
+}
 
 err_episodes_checks_1 <- function(date,
                                   case_length,
@@ -1120,14 +1127,14 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
     err <- err_strata_level_args(episodes_max, strata, "episodes_max")
     if(err != FALSE) return(err)
   }
-  if(class(case_sub_criteria) != "NULL"){
+  if(!inherits(case_sub_criteria, "NULL")){
     err <- err_sub_criteria_8(case_sub_criteria, cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(date, case_sub_criteria, "date", cri_nm = "case_sub_criteria")
     if(err != FALSE) return(err)
   }
 
-  if(class(recurrence_sub_criteria) != "NULL"){
+  if(!inherits(recurrence_sub_criteria, "NULL")){
     err <- err_sub_criteria_8(recurrence_sub_criteria, cri_nm = "recurrence_sub_criteria")
     if(err != FALSE) return(err[1])
     err <- err_sub_criteria_10(date, recurrence_sub_criteria, "date", cri_nm = "recurrence_sub_criteria")
@@ -1192,7 +1199,8 @@ err_links_checks_0 <- function(criteria,
                        repeats_allowed = "logical",
                        permutations_allowed = "logical",
                        ignore_same_source = "logical",
-                       batched = "logical")
+                       # batched = "logical",
+                       batched = "character")
 
   err <- mapply(err_object_types_2,
                 args,
@@ -1203,7 +1211,9 @@ err_links_checks_0 <- function(criteria,
   if(length(err) > 0) return(err[1])
 
   # Check for required object lengths
-  if(class(criteria) != "list") criteria <- list(criteria)
+  if(!inherits(criteria, "list")){
+    criteria <- list(criteria)
+  }
   len_lims <- c(1, length(criteria[[1]]))
   if(!is.null(sub_criteria)){
     len_lims <- max(c(len_lims, unlist(lapply(sub_criteria, attr_eval), use.names = FALSE)))
@@ -1241,7 +1251,7 @@ err_links_checks_0 <- function(criteria,
                   as.list(" or the same length as each attribute in the match crtieria"),
                   rep(as.list(""), 3),
                   as.list(" or the same number of stages in the linkage")
-                  ),
+                ),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -1254,9 +1264,11 @@ err_links_checks_0 <- function(criteria,
   err <- err_data_links_2(data_source = data_source, data_links = data_links)
   if(err != FALSE) return(err)
 
-  if(class(criteria) != "list") criteria <- list(criteria)
+  if(!inherits(criteria, "list")){
+    criteria <- list(criteria)
+  }
 
-  if(class(sub_criteria) != "NULL"){
+  if(!inherits(sub_criteria, "NULL")){
     err <- err_sub_criteria_8(sub_criteria)
     if(any(err != FALSE)) return((err[err != FALSE])[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
@@ -1274,7 +1286,7 @@ err_links_checks_0 <- function(criteria,
 }
 
 err_atomic_vectors <- function(arg, arg_nm){
-  if(!all(class(arg) == "list")){
+  if(!inherits(arg, "list")){
     arg <- list(arg)
     multi_opts <- F
   }else{
@@ -1317,7 +1329,9 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
   one_val <- arg[!duplicated(arg)]
   one_val <- length(arg) == 1
   if(one_val != T){
-    if(class(strata) == "NULL") strata <- "NULL"
+    if(inherits(strata, "NULL")){
+      strata <- "NULL"
+    }
     sp <- split(arg, strata)
     opts <- lapply(sp, function(x){
       x <- x[!duplicated(x)]
@@ -1843,7 +1857,9 @@ err_schema_pid_0 <- function(x,
 
 
 err_sub_criteria_funcs <- function(..., funcs, funcs_l){
-  if(class(funcs) != "list") funcs <- list(funcs)
+  if(!inherits(funcs, "list")){
+    funcs <- list(funcs)
+  }
 
   err <- err_sub_criteria_2(funcs = funcs, funcs_l = funcs_l)
   if(!isFALSE(err)) return(err)
@@ -1912,11 +1928,12 @@ err_links_wf_probablistic_0 <- function(attribute,
   err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
-  if(class(attribute) %in% c("list", "data.frame")){
+  if(inherits(attribute, c("list", "data.frame"))){
     attribute <- attrs(.obj = attribute)
-  }else if(class(attribute) %in% c("matrix")){
+  }else if(inherits(attribute, c("matrix"))){
     attribute <- attrs(.obj = as.data.frame(attribute))
-  }else if(class(attribute) %in% c("d_attribute")){
+  }else if(inherits(attribute, c("d_attribute"))){
+
   }else{
     attribute <- attrs(attribute)
   }
@@ -1971,7 +1988,8 @@ err_links_wf_probablistic_0 <- function(attribute,
     return(err)
   }
 
-  if(all(class(m_probability) != "list")){
+
+  if(!inherits(m_probability, "list")){
     m_probability <- as.list(m_probability)
   }
   err <- lapply(m_probability, function(x) !all(x >= 0 & x <= 1))
@@ -1983,7 +2001,7 @@ err_links_wf_probablistic_0 <- function(attribute,
   }
 
   if(!is.null(u_probability)){
-    if(all(class(u_probability) != "list")){
+    if(!inherits(u_probability, "list")){
       u_probability <- as.list(u_probability)
     }
     err <- lapply(u_probability, function(x) !all(x >= 0 & x <= 1))

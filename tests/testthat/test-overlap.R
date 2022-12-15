@@ -38,26 +38,26 @@ test_that("test overlap method function", {
 })
 
 test_that("test that error and warning messages are returned correctly", {
-  expect_error(overlaps(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
-  expect_error(overlaps(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(overlaps(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(overlaps(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
 
-  expect_error(across(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
-  expect_error(across(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(across(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(across(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
 
-  expect_error(inbetween(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
-  expect_error(inbetween(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(inbetween(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(inbetween(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
 
-  expect_error(aligns_start(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
-  expect_error(aligns_start(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(aligns_start(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(aligns_start(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
 
-  expect_error(aligns_end(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
-  expect_error(aligns_end(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(aligns_end(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(aligns_end(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
 
-  expect_error(chain(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
-  expect_error(chain(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(chain(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(chain(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
 
-  expect_error(overlap_method(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
-  expect_error(overlap_method(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object types are `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(overlap_method(1, number_line(50, 200)), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+  expect_error(overlap_method(number_line(50, 200), 1), "Invalid object type for `y`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
 
   # expect_error(overlaps(number_line(-100, 100), number_line(50, 200), "overlaping"), "`method` must be either 'overlap', 'exact', 'across', 'chain', 'aligns_start', 'aligns_end', 'inbetween' or 'none'")
   # expect_error(overlaps(number_line(-100, 100), number_line(50, 200), 2), "'method' must be a character object")
@@ -80,9 +80,9 @@ test_that("test compress function", {
 })
 
 test_that("test set overlap functions", {
-  expect_equal(exclude_overlap_method(""), overlap_method_codes("x_across_y|y_across_x|aligns_end|aligns_start|x_chain_y|y_chain_x|exact|x_inbetween_y|y_inbetween_x|reverse"))
-  expect_equal(exclude_overlap_method("chain"), overlap_method_codes("across|aligns_end|aligns_start|exact|inbetween|reverse"))
-  expect_equal(exclude_overlap_method(c("chain","aligns_end")), overlap_method_codes("across|aligns_start|exact|inbetween|reverse"))
+  expect_equal(exclude_overlap_method(""), overlap_method_codes("x_across_y|y_across_x|aligns_end|aligns_start|x_chain_y|y_chain_x|exact|x_inbetween_y|y_inbetween_x|y_aligns_start_x"))
+  expect_equal(exclude_overlap_method("chain"), overlap_method_codes("across|aligns_end|aligns_start|exact|inbetween"))
+  expect_equal(exclude_overlap_method(c("chain","aligns_end")), overlap_method_codes("across|aligns_start|exact|inbetween"))
   expect_equal(include_overlap_method(""), overlap_method_codes("none"))
   expect_equal(include_overlap_method("chain"), overlap_method_codes("chain"))
   expect_equal(include_overlap_method(c("chain","aligns_end")), overlap_method_codes("aligns_end|chain"))

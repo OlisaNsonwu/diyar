@@ -6,6 +6,7 @@
 #' @param ... \code{[atomic]} Attributes passed to or \code{eval_sub_criteria()} or \code{eval_sub_criteria()}
 #'
 #' Arguments passed to methods for \code{eval_sub_criteria()}
+#' @param x \code{[sub_criteria]}. Attributes.
 #' @param .obj \code{[data.frame|list]}. Attributes.
 #' @param match_funcs \code{[function]}. User defined logical test for matches.
 #' @param equal_funcs \code{[function]}. User defined logical test for identical record sets (all attributes of the same record).
@@ -15,7 +16,7 @@
 #' @param x_pos \code{[integer]}. Index of one half of a record pair.
 #' @param y_pos \code{[integer]}. Index of one half of a record pair.
 #' @param check_duplicates \code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.
-#' @param  \code{[integer]}. First order of recursion.
+#' @param depth \code{[integer]}. First order of recursion.
 #' @seealso
 #' \code{\link{predefined_tests}}; \code{\link{links}}; \code{\link{episodes}}; \code{\link{eval_sub_criteria}}
 #'
@@ -159,19 +160,18 @@ eval_sub_criteria <- function(x, ...) UseMethod("eval_sub_criteria")
 
 #' @rdname sub_criteria
 #' @export
-print.sub_criteria <- function(object, ...){
-  format(object)
+print.sub_criteria <- function(x, ...){
+  format(x)
 }
 
 #' @rdname sub_criteria
 #' @export
-format.sub_criteria <- function(object, show_levels =  FALSE, ...){
+format.sub_criteria <- function(x, show_levels =  FALSE, ...){
   if(isTRUE(show_levels)){
-    cat(paste0("logical_test-", fmt_sub_criteria(object, show_levels = show_levels), "\n"))
+    cat(paste0("logical_test-", fmt_sub_criteria(x, show_levels = show_levels), "\n"))
   }else{
-    cat(paste0(fmt_sub_criteria(object, show_levels = show_levels), "\n"))
+    cat(paste0(fmt_sub_criteria(x, show_levels = show_levels), "\n"))
   }
-
 }
 
 #' @rdname sub_criteria
@@ -194,6 +194,7 @@ eval_sub_criteria.sub_criteria <- function(x,
     a <- x[[j]]
     x <- a[[1]]
     f1 <- a[[2]]
+
     request_info <-
       inherit_info <- FALSE
     if(all(class(x) == "sub_criteria")){
@@ -204,7 +205,7 @@ eval_sub_criteria.sub_criteria <- function(x,
         xx$logical_test <- as.numeric(as.logical(c(xx$logical_test, xx$equal_test)))
         xx$equal_test <- NULL
       }
-      if(FALSE){
+      if(TRUE){
         return(xx)
       }else{
         x <- xx$logical_test
@@ -212,14 +213,21 @@ eval_sub_criteria.sub_criteria <- function(x,
       }
     }
     if(all(class(x) == "d_attribute")){
-      y <- rc_dv(x, func = function(x) mk_lazy_opt(x)[y_pos])
-      x <- rc_dv(x, func = function(x) mk_lazy_opt(x)[x_pos])
+      y <- rc_dv(x, func = function(x){
+        if(length(x) <= 1) x else x[y_pos]
+      })
+      x <- rc_dv(x, func = function(x){
+        if(length(x) <= 1) x else x[x_pos]
+      })
     }else{
       if(length(x) == 1) x <- rep(x, curr_ds_len)
       y <- x[y_pos]
       x <- x[x_pos]
     }
 
+    if(is.numeric(x)){
+      # browser()
+    }
     lgk <- try(f1(x, y), silent = TRUE)
     request_info <- !is.atomic(lgk)
     if(isTRUE(request_info)){
@@ -228,8 +236,8 @@ eval_sub_criteria.sub_criteria <- function(x,
     }else{
       out1_match <- lgk
     }
-    if(class(out1_match) == "try-error" | all(class(out1_match) != "logical")){
-      if(class(out1_match) == "try-error"){
+    if(inherits(out1_match, "try-error") | !inherits(out1_match, "logical")){
+      if(inherits(out1_match, "try-error")){
         err <- attr(out1_match, "condition")$message
       }else{
         err <- "Output is not a `logical` object"
@@ -272,8 +280,8 @@ eval_sub_criteria.sub_criteria <- function(x,
       }else{
         out2_match <- lgk
       }
-      if(class(out2_match) == "try-error" | all(class(out2_match) != "logical")){
-        if(class(out2_match) == "try-error"){
+      if(inherits(out2_match, "try-error") | !inherits(out2_match, "logical")){
+        if(inherits(out2_match, "try-error")){
           err <- attr(out2_match, "condition")$message
         }else{
           err <- "Output is not a `logical` object"
@@ -303,6 +311,7 @@ eval_sub_criteria.sub_criteria <- function(x,
     }
     return(output)
   })
+  # browser()
   matches_info <- lapply(matches, function(x){
     x[-1]
   })
@@ -318,7 +327,7 @@ eval_sub_criteria.sub_criteria <- function(x,
     set_match <- rowSums(matches)
     if(isFALSE(check_duplicates)){
       m2 <- set_match == ncol(matches)
-      lgk <- which(seq_len(nrow(matches)) >= nrow(matches)/2)
+      lgk <- which(seq_len(nrow(matches)) > nrow(matches)/2)
       set_match[lgk] <- m2[lgk]
       rm(m2); rm(lgk)
     }

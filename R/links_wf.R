@@ -20,6 +20,7 @@
 #' @param ignore_same_source \code{[logical]} Passed to \bold{\code{ignore_same_source}} in \bold{\code{\link{links}}}.
 #' @param data_source \code{[character]}. Passed to \bold{\code{data_source}} in \bold{\code{\link{links}}}.
 #' @param display \code{[character]}. Passed to \bold{\code{display}} in \bold{\code{\link{links}}}.
+#' @param return_weights If \code{TRUE}, returns the match-weights and score-thresholds for record pairs.
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
 #' @seealso \code{\link{links}}
@@ -276,10 +277,12 @@ links_sv_probabilistic <- function(attribute,
 
   pid_weights <- prob_link(x = attrs(.obj = list(attribute = x,
                                                  m_probability = lapply(probs_repo$m_probability$x, function(k) k[r_pairs$x_pos]),
-                                                 u_probability = lapply(probs_repo$u_probability$x, function(k) k[r_pairs$x_pos]))),
+                                                 u_probability = lapply(probs_repo$u_probability$x, function(k) k[r_pairs$x_pos]),
+                                                 sn = list(seq_len(length(x[[1]]))[r_pairs$x_pos]))),
                            y = attrs(.obj = list(attribute = y,
                                                  m_probability = lapply(probs_repo$m_probability$x, function(k) k[r_pairs$y_pos]),
-                                                 u_probability = lapply(probs_repo$u_probability$x, function(k) k[r_pairs$y_pos]))),
+                                                 u_probability = lapply(probs_repo$u_probability$x, function(k) k[r_pairs$y_pos]),
+                                                 sn = list(seq_len(length(x[[1]]))[r_pairs$y_pos]))),
                            attr_threshold = thresh_repo$attr_threshold,
                            score_threshold = thresh_repo$score_threshold,
                            return_weights = TRUE,
@@ -307,7 +310,7 @@ links_sv_probabilistic <- function(attribute,
   }
 
   pids <- pid_weights[c("sn_x", "sn_y", "record.match")]
-  pids <- pids[pids$record.match,]
+  pids <- pids[as.logical(pids$record.match),]
 
   pids <- make_ids(pids$sn_x, pids$sn_y, rd_n)
   tots <- rle(sort(pids$group_id))
@@ -468,11 +471,12 @@ links_wf_probabilistic <- function(attribute,
             m_probability = probs_repo$m_probability$x,
             u_probability = probs_repo$u_probability$x,
             sn = list(sn))
+  links_wf_sub_cri <- sub_criteria(attrs(.obj = x),
+                                   match_funcs = prob_link_wf,
+                                   equal_funcs = false)
   pids <- links(criteria = "place_holder",
                 strata = blocking_attribute,
-                sub_criteria = list("cr1" = sub_criteria(attrs(.obj = x),
-                                                         match_funcs = prob_link_wf,
-                                                         equal_funcs = false)),
+                sub_criteria = list("cr1" = links_wf_sub_cri),
                 ...)
 
   # Output

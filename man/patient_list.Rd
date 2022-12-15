@@ -15,6 +15,7 @@
 \alias{Opes}
 \alias{episode_unit}
 \alias{overlap_methods}
+\alias{patient_records}
 \title{Datasets in \code{diyar} package}
 \format{
 data.frame
@@ -42,6 +43,8 @@ data.frame
 list
 
 list
+
+data.frame
 }
 \usage{
 data(staff_records)
@@ -69,6 +72,8 @@ data(Opes)
 data(episode_unit)
 
 data(overlap_methods)
+
+data(patient_records)
 }
 \description{
 Datasets in \code{diyar} package
@@ -106,5 +111,6 @@ data(hourly_data)
 data(Opes)
 data(episode_unit)
 data(overlap_methods)
+data(patient_records)
 }
 \keyword{datasets}

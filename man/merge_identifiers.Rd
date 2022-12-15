@@ -66,5 +66,5 @@ id2 <- links(dfr[[6]])
 merge_ids(id1, id2)
 }
 \seealso{
-\code{\link{links}}; \code{\link{link_records}}
+\code{\link{links}}; \code{\link{links_sv_probabilistic}}
 }

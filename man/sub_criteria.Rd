@@ -20,9 +20,9 @@ attrs(..., .obj = NULL)
 
 eval_sub_criteria(x, ...)
 
-\method{print}{sub_criteria}(object, ...)
+\method{print}{sub_criteria}(x, ...)
 
-\method{format}{sub_criteria}(object, show_levels = FALSE, ...)
+\method{format}{sub_criteria}(x, show_levels = FALSE, ...)
 
 \method{eval_sub_criteria}{sub_criteria}(
   x,
@@ -46,6 +46,8 @@ Arguments passed to methods for \code{eval_sub_criteria()}}
 
 \item{.obj}{\code{[data.frame|list]}. Attributes.}
 
+\item{x}{\code{[sub_criteria]}. Attributes.}
+
 \item{show_levels}{\code{[logical]}. If \code{TRUE}, show recursive depth for each logic statement of the match criteria.}
 
 \item{x_pos}{\code{[integer]}. Index of one half of a record pair.}
@@ -54,7 +56,7 @@ Arguments passed to methods for \code{eval_sub_criteria()}}
 
 \item{check_duplicates}{\code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.}
 
-\item{\code{[integer]}.}{First order of recursion.}
+\item{depth}{\code{[integer]}. First order of recursion.}
 }
 \value{
 \code{\link{sub_criteria}}

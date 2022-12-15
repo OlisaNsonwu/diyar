@@ -13,13 +13,13 @@
 #' @return A \code{list} of a vector's elements and corresponding indexes.
 #'
 #' @details
-#' \code{\bold{set()}} - Create \code{r}-set combinations or permutations of \code{n} observations.
+#' \bold{\code{set()}} - Create \code{r}-set combinations or permutations of \code{n} observations.
 #'
-#' \code{\bold{make_set()}} - Create \code{r}-set combinations or permutations of vector \code{x}.
+#' \bold{\code{make_set()}} - Create \code{r}-set combinations or permutations of vector \code{x}.
 #'
-#' \code{\bold{make_pairs()}} - Create \code{2}-set combinations or permutations of vector \code{x}.
+#' \bold{\code{make_pairs()}} - Create \code{2}-set combinations or permutations of vector \code{x}.
 #'
-#' \code{\bold{make_pairs_wf_source()}} - Create \code{2}-set combinations or permutations of vector \code{x} that are from different sources (\code{data_source}).
+#' \bold{\code{make_pairs_wf_source()}} - Create \code{2}-set combinations or permutations of vector \code{x} that are from different sources (\code{data_source}).
 #'
 #' @seealso \code{\link{eval_sub_criteria}}
 #'

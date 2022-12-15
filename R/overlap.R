@@ -92,36 +92,38 @@ overlaps <- function(x, y, methods = 8){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = F)
   err <- err_object_types(x, "x", c("number_line", "numeric", "integer"))
   if(err != F) stop(err, call. = F)
-  if(length(x) == 0 & length(y) == 0) return(logical())
-
-  if(length(x) == 1 & length(y) != 1){
-    x <- rep(x, length(y))
-  }else if(length(y) == 1 & length(x) != 1){
-    y <- rep(y, length(x))
-  }else{
-    err <- err_match_ref_len(x, "y", c(1, length(y)), "x")
-    if(err != F) stop(err, call. = F)
-
-    err <- err_match_ref_len(y, "x", c(1, length(x)), "y")
-    if(err != F) stop(err, call. = F)
+  if(length(x) == 0 & length(y) == 0){
+    return(logical())
   }
 
-  if(length(methods) == 1 & length(x) != 1){
-    methods <- rep(methods, length(x))
-  }else{
-    err <- err_match_ref_len(methods, "x", c(1, length(x)), "methods")
-    if(err != F) stop(err, call. = F)
-  }
+  # if(length(x) == 1 & length(y) != 1){
+  #   x <- rep(x, length(y))
+  # }else if(length(y) == 1 & length(x) != 1){
+  #   y <- rep(y, length(x))
+  # }else{
+  #   err <- err_match_ref_len(x, "y", c(1, length(y)), "x")
+  #   if(err != F) stop(err, call. = F)
+  #
+  #   err <- err_match_ref_len(y, "x", c(1, length(x)), "y")
+  #   if(err != F) stop(err, call. = F)
+  # }
+  #
+  # if(length(methods) == 1 & length(x) != 1){
+  #   methods <- rep(methods, length(x))
+  # }else{
+  #   err <- err_match_ref_len(methods, "x", c(1, length(x)), "methods")
+  #   if(err != F) stop(err, call. = F)
+  # }
 
   err <- err_overlap_methods_1(overlap_methods = methods, "methods")
   if(err != F) stop(err, call. = F)
 
-  if(class(methods) == "character"){
+  if(inherits(methods, "character")){
     methods <- overlap_method_codes(methods)
   }
 
   ov_lgk <- overlap(x, y)
-  lgk_2 <- rep(FALSE, length(x))
+  lgk_2 <- rep(FALSE, length(ov_lgk))
 
   # None
   mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["none"]] &
@@ -680,7 +682,7 @@ exclude_overlap_method <- function(methods){
 
   lst <- c("exact", "x_across_y", "y_across_x",
            "x_chain_y", "y_chain_x",
-           "x_aligns_start_x", "x_aligns_start_y",
+           "x_aligns_start_y", "y_aligns_start_x",
            "x_aligns_end_y", "y_aligns_end_x",
            "x_inbetween_y", "y_inbetween_x")
   if(any(methods == "across")){
@@ -694,6 +696,14 @@ exclude_overlap_method <- function(methods){
   if(any(methods == "inbetween")){
     methods <- methods[methods != "inbetween"]
     methods <- c(methods, "x_inbetween_y", "y_inbetween_x")
+  }
+  if(any(methods == "aligns_start")){
+    methods <- methods[methods != "aligns_start"]
+    methods <- c(methods, "x_aligns_start_y", "y_aligns_start_x")
+  }
+  if(any(methods == "aligns_end")){
+    methods <- methods[methods != "aligns_end"]
+    methods <- c(methods, "x_aligns_end_y", "y_aligns_end_x")
   }
   methods <- lst[!lst %in% methods]
   methods <- paste0(sort(methods), collapse = "|")

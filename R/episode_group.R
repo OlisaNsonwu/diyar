@@ -74,8 +74,9 @@ episode_group <- function(df, ..., episode_type = "fixed"){
   }
 
   out <- bridge_episode_group(df = df, args = args, episode_type = episode_type)
-  if(out$err_cd == FALSE) stop(out$err_nm, call. = FALSE)
-
+  if(out$err_cd == FALSE){
+    stop(out$err_nm, call. = FALSE)
+  }
   # Warn
   warning(paste0("`episode_group()` has been retired!:\n",
                  "i - Please use `episodes()` instead.\n",
@@ -118,7 +119,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                    "i - Please use `date` instead.\n",
                    "i - Your values were passed to `date`."), call. = FALSE)
   }
-  if(class(display) == "logical"){
+  if(inherits(display, "logical")){
     display <- ifelse(display == FALSE, "none", "stats")
   }
   err <- err_episodes_checks_1(date = date,
@@ -217,7 +218,7 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
                    "i - Please use `date` instead.\n",
                    "i - Your values were passed to `date`."), call. = FALSE)
   }
-  if(class(display) == "logical"){
+  if(inherits(display, "logical")){
     display <- ifelse(display == FALSE, "none", "stats")
   }
   err <- err_episodes_checks_1(date = date,

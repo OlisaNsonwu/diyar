@@ -21,7 +21,7 @@
 #' @param expand \code{[logical]}. If \code{TRUE}, \code{id1} gains new records if \code{id2} indicates a match. \emph{Not interchangeable with \code{shrink}}.
 #' @param shrink \code{[logical]}. If \code{TRUE}, \code{id1} loses existing records \code{id2} does not indicate a match. \emph{Not interchangeable with \code{expand}}.
 #'
-#' @seealso \code{\link{links}}; \code{\link{link_records}}
+#' @seealso \code{\link{links}}; \code{\link{links_sv_probabilistic}}
 #'
 #' @examples
 #' id1 <- rep(1, 5)
@@ -49,7 +49,7 @@ merge_ids <- function(...) UseMethod("merge_ids")
 #' @rdname merge_identifiers
 #' @export
 merge_ids.default <- function(id1, id2, tie_sort = NULL,
-                               expand = TRUE, shrink = FALSE, ...){
+                              expand = TRUE, shrink = FALSE, ...){
   err <- err_atomic_vectors(id1, "id1")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_atomic_vectors(id2, "id2")
@@ -95,8 +95,10 @@ merge_ids.default <- function(id1, id2, tie_sort = NULL,
       repo$tr_pr_match <- rep(TRUE, length(repo[[1]]))
       repo$tr_id1 <- repo$sn1[match(repo$id2, repo$id2)]
     }
+    repo$cr_match <- !(!duplicated(repo$id2, fromLast = TRUE) & !duplicated(repo$id2, fromLast = FALSE))
     repo$new_id <- repo$id1
-    lgk <- repo$tr_pr_match & !repo$pr_match
+    lgk <- (repo$tr_pr_match & !repo$pr_match) |
+      (!repo$tr_pr_match & repo$cr_match)
     repo$new_id[lgk] <- repo$tr_id1[lgk]
   }
   repo <- repo$new_id[order(repo$sn1)]
@@ -106,7 +108,7 @@ merge_ids.default <- function(id1, id2, tie_sort = NULL,
 #' @rdname merge_identifiers
 #' @export
 merge_ids.pid <- function(id1, id2, tie_sort = NULL,
-                           expand = TRUE, shrink = FALSE, ...){
+                          expand = TRUE, shrink = FALSE, ...){
   err <- err_object_types(id2, "id2", "pid")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_match_ref_len(id2, "id1", length(id1), "id2")
@@ -126,14 +128,21 @@ merge_ids.pid <- function(id1, id2, tie_sort = NULL,
                                        id2 = id2@link_id,
                                        tie_sort = tie_sort)
   lgk <- id1@.Data != new_pid@.Data
-  new_pid@pid_cri[lgk] <- max(new_pid@pid_cri) + 1L
+  lgk <- new_pid@.Data %in% new_pid@.Data[lgk]
+  mx_cri <- max(id1@pid_cri)
+  mx_cri <- ifelse(mx_cri == 0, 1L, mx_cri)
+  new_pid@pid_cri[
+    (lgk & new_pid@pid_cri == 0)
+  ] <-  mx_cri + 1L
+
+  new_pid@pid_total <- id_total(new_pid@.Data)
   new_pid
 }
 
 #' @rdname merge_identifiers
 #' @export
 merge_ids.epid <- function(id1, id2, tie_sort = NULL,
-                            expand = TRUE, shrink = FALSE, ...){
+                           expand = TRUE, shrink = FALSE, ...){
   err <- err_object_types(id2, "id2", "epid")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_match_ref_len(id2, "id1", length(id1), "id2")
@@ -154,7 +163,7 @@ merge_ids.epid <- function(id1, id2, tie_sort = NULL,
 #' @rdname merge_identifiers
 #' @export
 merge_ids.pane <- function(id1, id2, tie_sort = NULL,
-                            expand = TRUE, shrink = FALSE, ...){
+                           expand = TRUE, shrink = FALSE, ...){
   err <- err_object_types(id2, "id2", "pane")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_match_ref_len(id2, "id1", length(id1), "id2")

@@ -72,6 +72,8 @@ prob_score_range(attribute, m_probability = 0.95, u_probability = NULL)
 
 \item{id_2}{\code{[list|numeric]}. Record id or index of one half of a record-pair.}
 
+\item{return_weights}{If \code{TRUE}, returns the match-weights and score-thresholds for record pairs.}
+
 \item{...}{Arguments passed to \bold{\code{links}}}
 }
 \value{

@@ -22,6 +22,8 @@
 \item{x}{\code{[d_report]}.}
 
 \item{...}{Arguments passed to other methods}
+
+\item{metric}{Report information}
 }
 \description{
 d_report

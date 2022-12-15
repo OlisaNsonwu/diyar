@@ -63,7 +63,7 @@ range_match_legacy <- function(x, y) {
 #' @param attr_threshold Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.
 #' @param probabilistic If \code{TRUE}, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See \code{\link{links_wf_probabilistic}}.
 #' @param score_threshold Score threshold determining matched or linked records. See \code{\link{links_wf_probabilistic}}.
-#' @param return_weights If \code{TRUE}, returns the match-weights and score-thresholds for record pairs. See \code{\link{links_wf_probabilistic}}.
+#' @param return_weights If \code{TRUE}, returns the match-weights and score-thresholds for record pairs.
 #' @details
 #' \bold{\code{prob_link()}} - Test that a record-pair relate to the same entity based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 #'
@@ -191,7 +191,8 @@ prob_link <- function(x, y,
 
   out_a <- cbind(out_2, sum_wt, lgk)
   out_a <- cbind(
-    sapply(c(x$sn, y$sn), function(x) {class(x) <- NULL; x}),
+    as.matrix(x$sn[[1]]),
+    as.matrix(y$sn[[1]]),
     out_a
   )
   colnames(out_a) <- c("sn_x", "sn_y", paste0("cmp.", attr_nm), "cmp.weight", "record.match")
@@ -203,6 +204,7 @@ prob_link <- function(x, y,
   out_a <- out_a[,1:(ncol(out_a)-1)]
   # If probability based, matches are based on scores derived from m- and u-probabilities
   pwts <- sapply(seq_len(attr_n), function(i){
+    # browser()
     pwts <- rep(0, length(wts[[i]]))
     # Agreement/disagreement based on string comparators
     curr_match <- (wts[[i]])

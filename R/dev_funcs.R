@@ -69,3 +69,34 @@ search_and_unpack <- function(l, tgt_nm_regx = "^mf\\."){
     lapply(l, search_and_unpack)
   }
 }
+
+rbind_wf_matrix <- function(m1, m2){
+  if(ncol(m2) > ncol(m1)){
+    ncol_diff <- ncol(m2) - ncol(m1)
+    m1 <- cbind(m1, matrix(rep(NA_real_, nrow(m1) * ncol_diff), ncol = ncol_diff))
+  }else if(ncol(m1) > ncol(m2)){
+    ncol_diff <- ncol(m1) - ncol(m2)
+    m2 <- cbind(m2, matrix(rep(NA_real_, nrow(m2) * ncol_diff), ncol = ncol_diff))
+  }
+  rbind(m1, m2)
+}
+
+roll_sum <- function(val, by = 1000000){
+  by <- abs(by)
+  p <- 1:length(val)
+  roll_seq <- function(pos){
+    if(pos >= by) {
+      pos <- ((pos-(by-1)):pos)
+    }else{
+      pos <- (1:pos)
+    }
+    sum(val[pos])
+  }
+  unlist(lapply(p, roll_seq))
+}
+
+id_total <- function(x){
+  rr <- rle(sort(x))
+  x <- rr$lengths[match(x, rr$values)]
+  x
+}

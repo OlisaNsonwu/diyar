@@ -103,7 +103,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   ep_l <- length_to_range(lengths = case_length,
                           date = int,
                           from_last = x@options$from_last,
-                          episode_unit = as.vector(episode_unit))
+                          episode_unit = as.vector(episode_unit))$range
   any_rolling <- any(x@wind_nm == 1)
   if(any_rolling){
     recurrence_length <- x@options$recurrence_length
@@ -118,7 +118,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     rc_l <- length_to_range(lengths = recurrence_length,
                             date = int,
                             from_last = x@options$from_last,
-                            episode_unit = as.vector(episode_unit))
+                            episode_unit = as.vector(episode_unit))$range
   }else{
     rc_l <- NULL
   }

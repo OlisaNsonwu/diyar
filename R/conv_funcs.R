@@ -219,7 +219,7 @@ check_links <- function(cri, data_source, data_links){
     tmp[cri %in% cri1] <- x
     rm(cri1)
     tmp
-    })
+  })
 
   cmb_cd <- combi(datatset)
   cmb_cd_idx <- which(!duplicated(cmb_cd))
@@ -250,7 +250,7 @@ check_links <- function(cri, data_source, data_links){
 
   datatset_p <- unlist(lapply(datatset_p, function(x) {
     paste0(x[!is.na(x)], collapse = ",")
-    }), use.names = FALSE)
+  }), use.names = FALSE)
 
   return(
     list(
@@ -265,10 +265,15 @@ prep_lengths <- function(length, overlap_methods, int,
                          #from_last,
                          include_index_period = F){
   length <- length
-  if(class(length) != "list") length <- list(length)
-  if(class(overlap_methods) != "list") overlap_methods <- list(overlap_methods)
-
-  if(length(overlap_methods)==1) overlap_methods <- rep(overlap_methods, length(length))
+  if(!inherits(length, "list")){
+    length <- list(length)
+  }
+  if(!inherits(overlap_methods, "list")){
+    overlap_methods <- list(overlap_methods)
+  }
+  if(length(overlap_methods) == 1){
+    overlap_methods <- rep(overlap_methods, length(length))
+  }
 
   length <- sep_bdr_nl(length)
   r <- rle(names(length))
@@ -357,11 +362,11 @@ overlaps_err_retired <- function(opts){
 }
 
 overlaps_err <- function(opts){
-  # opts <- as.vector(opts)
-  if(class(opts) == "character"){
+  opts <- as.vector(opts)
+  if(inherits(opts, "character")){
     opts <- tolower(opts)
     opts_cd <- overlap_method_codes(opts)
-  }else if(class(opts) %in% c("numeric", "integer")){
+  }else if(inherits(opts, c("numeric", "integer"))){
     opts_cd <- match(opts, diyar::overlap_methods$options$cd)
   }
 
@@ -431,7 +436,7 @@ combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
   all_pos <- unlist(unlist(all_pos, recursive = F), recursive = F)
   all_pos <- lapply(all_pos, function(y){x[y]})
 
-  if(all(class(FUN) == "NULL")){
+  if(inherits(FUN, "NULL")){
     func <- function(x, ...) x
   }else{
     func <- function(x, ...) FUN(x, ...)
@@ -654,23 +659,22 @@ scale_size <- function(size_lims, count_upper_lim, pts_n, decreasing = TRUE){
   }
 }
 
-length_to_range <- function(lengths, date, from_last, episode_unit){
-  if(!all(class(lengths) == "list")){
-    len <- list(lengths)
+length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_lengths = FALSE){
+  if(!inherits(lengths, "list")){
+    lengths <- list(range = list(lengths))
   }else{
-    len <- lengths
+    lengths <- list(range = lengths)
   }
 
-  len <- lapply(len, function(x){
-    if(class(x) != "number_line"){
+  lengths$range <- lapply(lengths$range, function(x){
+    if(!inherits(x, "number_line")){
       x <- number_line(0, x)
     }
     return(x)
   })
 
   if(any(from_last == T)) {
-    len <- lapply(len, function(x){
-
+    lengths$range <- lapply(lengths$range, function(x){
       if(length(x) < length(from_last)){
         x <- rep(x, length(date))
       }
@@ -680,14 +684,33 @@ length_to_range <- function(lengths, date, from_last, episode_unit){
     })
   }
 
-  len <- lapply(len, function(x){
-    # if(length(x) == 1){
-    #   x <- rep(x, length(date))
-    # }
-    x <- epid_windows(date, x, names(diyar::episode_unit)[episode_unit])
+  if(any(skip_if_b4_lengths == T)) {
+    lengths$coverage <- lapply(lengths$range, function(x){
+      matrix(c(left_point(x), right_point(x)), ncol = 2)
+    })
+    lengths$coverage <- do.call("cbind", lengths$coverage)
+    lengths$coverage <- number_line(
+      row_wise(lengths$coverage, type = "min"),
+      row_wise(lengths$coverage, type = "max")
+    )
+    lgk <- (lengths$coverage@start * lengths$coverage@.Data) > 0
+    left_point(lengths$coverage[lgk]) <- 0
+    lengths$coverage <- epid_windows(
+      date = date,
+      lengths = lengths$coverage,
+      episode_unit = names(diyar::episode_unit)[episode_unit]
+    )
+  }
+
+  lengths$range <- lapply(lengths$range, function(x){
+    x <- epid_windows(
+      date = date,
+      lengths = x,
+      episode_unit = names(diyar::episode_unit)[episode_unit]
+    )
     return(x)
   })
-  return(len)
+  return(lengths)
 }
 
 opt_level <- function(opt, mth, tr_mth){
@@ -711,14 +734,21 @@ pane_checks <- function(dates, windows){
   if(length(dates) == 1){
     checks <- t(checks)
   }
-  ep_checks <- Rfast::rowMaxs(checks, value = TRUE)
+  ep_checks <- row_wise(checks, type = "max", value = TRUE)
   as.integer(ep_checks)
 }
 
 check_skips <- function(lgk, cri, cr, tr_ep_l, vr, tr_date, date, case_nm){
   if(length(lgk[lgk]) > 0){
-    ep_l_min_a <- Rfast::rowMinsMaxs(sapply(tr_ep_l, function(x) start_point(x[lgk])))
-    ep_l_min_z <- Rfast::rowMinsMaxs(sapply(tr_ep_l, function(x) end_point(x[lgk])))
+    ep_l_min_a <- rbind(
+      row_wise(sapply(tr_ep_l, function(x) start_point(x[lgk])), type = "min"),
+      row_wise(sapply(tr_ep_l, function(x) start_point(x[lgk])), type = "max")
+    )
+
+    ep_l_min_z <- rbind(
+      row_wise(sapply(tr_ep_l, function(x) end_point(x[lgk])), type = "min"),
+      row_wise(sapply(tr_ep_l, function(x) end_point(x[lgk])), type = "max")
+    )
     ep_l_bounds_a <- start_point(tr_date[lgk])
     ep_l_bounds_z <- end_point(tr_date[lgk])
 
@@ -801,11 +831,11 @@ f_rbind <- function(..., deparse.level = 1){
 #' attr_eval(x, func = max, simplify = FALSE)
 #' attr_eval(sub_criteria(x, x), func = max, simplify = FALSE)
 attr_eval <- function(x, func = length, simplify = TRUE){
-  if(all(class(x) == "sub_criteria")){
+  if(inherits(x, "sub_criteria")){
     x <- lapply(x, function(x){
       attr_eval(x[[1]], func = func, simplify = simplify)
     })
-  }else if(all(class(x) == "d_attribute")){
+  }else if(inherits(x, "d_attribute")){
     x <- lapply(x, func)
   }else if(is.atomic(x)){
     x <- func(x)
@@ -817,9 +847,9 @@ attr_eval <- function(x, func = length, simplify = TRUE){
 sp_scri <- function(b, lgk){
   for (i in seq_len(length(b))) {
     attr <- (b[[i]][[1]])
-    if(all(class(attr) == "sub_criteria")){
+    if(inherits(attr, "sub_criteria")){
       b[[i]][[1]] <- sp_scri(attr, lgk)
-    }else if(all(class(attr) == "d_attribute")){
+    }else if(inherits(attr, "d_attribute")){
       attr <- lapply(attr, function(x){
         x[lgk]
       })
@@ -835,9 +865,9 @@ sp_scri <- function(b, lgk){
 rf_scri <- function(b, strata){
   for (i in seq_len(length(b))) {
     attr <- (b[[i]][[1]])
-    if(all(class(attr) == "sub_criteria")){
+    if(inherits(attr, "sub_criteria")){
       b[[i]][[1]] <- sp_scri(attr, strata)
-    }else if(all(class(attr) == "d_attribute")){
+    }else if(inherits(attr, "d_attribute")){
       attr <- lapply(attr, function(x){
         x <- split(x, strata)[strata[!duplicated(strata)]]
         names(x) <- NULL
@@ -874,7 +904,7 @@ combi <- function(...){
   # ... must be vectors
   combi <- list(...)
   is_list <- unlist(lapply(combi, function(x){
-    all(class(x) == "list")
+    inherits(x, "list")
   }), use.names = FALSE)
   combi <- c(unlist(combi[is_list], recursive = FALSE),
              combi[!is_list])
@@ -954,6 +984,7 @@ inherit <- function(tag, cri, pid_cri, tie_sort, sn, pr_sn, expand, pid, link_id
   sn <- sn[sort_ord]
   pr_sn <- pr_sn[sort_ord]
   pid <- pid[sort_ord]
+  pid_cri <- pid_cri[sort_ord]
   tag <- tag[sort_ord]
   link_id <- link_id[sort_ord]
   if(!is.null(old_link_id)){
@@ -998,23 +1029,23 @@ mk_lazy_opt <- function(x){
 }
 
 prep_prob_link_args_xx <- function(attribute,
-                                blocking_attribute,
-                                cmp_func,
-                                attr_threshold,
-                                probabilistic,
-                                m_probability,
-                                score_threshold,
-                                u_probability,
-                                repeats_allowed = FALSE,
-                                permutations_allowed = FALSE,
-                                method = "make_pairs",
-                                ignore_same_source,
-                                data_source){
-  if(class(attribute) %in% c("list", "data.frame")){
+                                   blocking_attribute,
+                                   cmp_func,
+                                   attr_threshold,
+                                   probabilistic,
+                                   m_probability,
+                                   score_threshold,
+                                   u_probability,
+                                   repeats_allowed = FALSE,
+                                   permutations_allowed = FALSE,
+                                   method = "make_pairs",
+                                   ignore_same_source,
+                                   data_source){
+  if(inherits(attribute, c("list", "data.frame"))){
     attribute <- attrs(.obj = attribute)
-  }else if(class(attribute) %in% c("matrix")){
+  }else if(inherits(attribute, c("matrix"))){
     attribute <- attrs(.obj = as.data.frame(attribute))
-  }else if(class(attribute) %in% c("d_attribute")){
+  }else if(inherits(attribute, c("d_attribute"))){
   }else{
     attribute <- attrs(attribute)
   }
@@ -1061,7 +1092,7 @@ prep_prob_link_args_xx <- function(attribute,
   }
 
   # String comparator for each attribute
-  if(class(cmp_func) != "list"){
+  if(!inherits(cmp_func, c("list"))){
     cmp_func <- list(cmp_func)
   }
   if(length(cmp_func) == 1 & length(attribute) > 1){
@@ -1072,10 +1103,10 @@ prep_prob_link_args_xx <- function(attribute,
     # Create record-pairs
     if(isTRUE(ignore_same_source)){
       r_pairs <- make_pairs_wf_source(seq_len(rd_n),
-                            strata = as.vector(blocking_attribute),
-                            repeats_allowed = repeats_allowed,
-                            permutations_allowed = permutations_allowed,
-                            data_source = data_source)
+                                      strata = as.vector(blocking_attribute),
+                                      repeats_allowed = repeats_allowed,
+                                      permutations_allowed = permutations_allowed,
+                                      data_source = data_source)
     }else{
       r_pairs <- make_pairs(seq_len(rd_n),
                             strata = as.vector(blocking_attribute),
@@ -1115,7 +1146,7 @@ prep_prob_link_args_xx <- function(attribute,
     }
 
     # m-probabilities
-    if(class(m_probability) != "list"){
+    if(!inherits(m_probability, c("list"))){
       m_probability <- list(m_probability)
     }
     if(length(m_probability) == 1 & length(attribute) > 1){
@@ -1170,7 +1201,7 @@ prep_prob_link_args <- function(attribute,
       p[is.na(x_cd)] <- 0
       p
     })
-  }else if(class(u_probability) != "list"){
+  }else if(!inherits(u_probability, c("list"))){
     u_probability <- list(x = list(u_probability))
   }
   attr_nm <- names(attribute)
@@ -1180,7 +1211,7 @@ prep_prob_link_args <- function(attribute,
   }
 
   # m-probabilities
-  if(class(m_probability) != "list"){
+  if(!inherits(m_probability, c("list"))){
     m_probability <- list(x = list(m_probability))
   }
   if(length(m_probability$x) == 1 & length(attr_nm) > 1){
@@ -1215,7 +1246,7 @@ prep_cmps_thresh <- function(attr_nm,
   }
 
   # String comparator for each attribute
-  if(class(cmp_func) != "list"){
+  if(!inherits(cmp_func, c("list"))){
     cmp_func <- list(cmp_func)
   }
   if(length(cmp_func) == 1 & length(attr_nm) > 1){
@@ -1230,27 +1261,84 @@ prep_cmps_thresh <- function(attr_nm,
               score_threshold = score_threshold))
 }
 
-make_batch_pairs <- function(strata, index_record, sn, ignore_same_source = FALSE, data_source = NULL){
+make_batch_pairs <- function(strata, assign_ord, index_record, sn, ignore_same_source = FALSE, data_source = NULL, look_back = FALSE){
+  includes_multi_index <- any(index_record == -1)
   curr_ds_len <- length(strata)
   strata <- strata
-  sc_ord <- order(strata, -index_record, decreasing = TRUE)
-  rc_sc_ord <- order(sc_ord)
+
+  if(isTRUE(includes_multi_index) & isFALSE(look_back)){
+    sc_ord <- order(strata, -(index_record != 0), assign_ord, decreasing = FALSE)
+    assign_ord <- assign_ord[sc_ord]
+  }else{
+    sc_ord <- order(strata, -index_record, decreasing = FALSE)
+  }
 
   sn <- sn[sc_ord]
   strata <- strata[sc_ord]
+  index_record <- index_record[sc_ord]
+  rc_sc_ord <- order(sc_ord)
 
   rrr <- rle(strata)
-  lgk <- which(!duplicated(strata, fromLast = TRUE))
+  lgk <- which(!duplicated(strata, fromLast = FALSE))
 
   pos_repo <- list(sn = sn)
   pos_repo$x_pos <- sn
   pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
-  pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
+
+  pos_repo$index_ord <- rep(1L, length(pos_repo[[1]]))
+  if(isTRUE(includes_multi_index)){
+    pos_repo$y_tot <- rep(rrr$lengths, rrr$lengths)
+    if(isFALSE(look_back)){
+      # browser()
+      # pos_repo$y_ord <- sequence(rrr$lengths)
+
+      temporal_ord <- order(strata, abs(assign_ord), decreasing = FALSE)
+      # tmp_strata <- strata[temporal_ord]
+      # rrrr <- rle(strata)
+      # rrrr <- sequence(rrr$lengths)[temporal_ord]
+      # temporal_ord <- temporal_ord[order(temporal_ord)]
+      pos_repo$y_ord <- sequence(rrr$lengths)[temporal_ord]
+
+    }
+    pos_repo$y_ref <- rep(lgk, rrr$lengths)
+    indx <- which(pos_repo$x_pos %in% sn[index_record == -1])
+    tmp_pos <- pos_repo[-1]
+
+    tmp_pos$x_pos <- tmp_pos$x_pos[indx]
+    tmp_pos$y_pos <- tmp_pos$y_pos[indx]
+    tmp_pos$y_tot <- tmp_pos$y_tot[indx]
+
+    if(isFALSE(look_back)){
+      tmp_pos$y_ord <- tmp_pos$y_ord[indx]
+    }
+    tmp_pos$y_ref <- tmp_pos$y_ref[indx]
+    tmp_pos$index_ord <- tmp_pos$index_ord[indx]
+
+    rrr <- rle(tmp_pos$y_pos)
+    tmp_pos$index_ord <- sequence(rrr$lengths) + 1L
+
+    if(isFALSE(look_back)){
+      tmp_pos$y_tot <- (tmp_pos$y_tot - tmp_pos$y_ord) + 1
+      tmp_pos$y_ref <- (tmp_pos$y_ref + tmp_pos$y_ord) - 1
+    }
+
+    tmp_pos$y_pos <- pos_repo$sn[temporal_ord][rep(tmp_pos$y_ref, tmp_pos$y_tot) + sequence(tmp_pos$y_tot, from = 0)]
+    tmp_pos$x_pos <- rep(tmp_pos$x_pos, tmp_pos$y_tot)
+    tmp_pos$index_ord <- rep(tmp_pos$index_ord, tmp_pos$y_tot)
+
+    pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
+    pos_repo$x_pos <-
+      pos_repo$sn <- c(pos_repo$x_pos, tmp_pos$y_pos)
+    pos_repo$y_pos <- c(pos_repo$y_pos, tmp_pos$x_pos)
+    pos_repo$index_ord <- c(pos_repo$index_ord, tmp_pos$index_ord)
+    tmp_pos <- pos_repo$y_ord <- pos_repo$y_ref <- pos_repo$y_tot <- NULL
+  }
 
   if(!is.null(data_source) & isTRUE(ignore_same_source)){
-    lgk <- data_source[pos_repo$x_pos] != data_source[pos_repo$y_pos]
+    lgk <- which(data_source[pos_repo$x_pos] != data_source[pos_repo$y_pos])
     pos_repo <- lapply(pos_repo, function(x) x[lgk])
   }
+  rm(list = ls()[ls() != "pos_repo"])
   return(pos_repo)
 }
 
@@ -1259,27 +1347,30 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   operator_txt <- toupper(attr(x, "operator"))
   operator_txt <- paste0(" ", operator_txt," ")
 
-  logic_txt <- lapply(x, function(x){
-    mf_nm <- names(x[2])
+  logic_txt <- lapply(x, function(el){
+    mf_nm <- names(el[2])
     if(length(mf_nm) == 0){
       mf_nm <- "match_func"
     }else if(mf_nm == ""){
       mf_nm <- "match_func"
     }
-    at_nm <- names(x[1])
-    x <- x[[1]]
-    if(class(x) == "sub_criteria"){
-      paste0("\n", fmt_sub_criteria(x, depth_n + 1, show_levels))
+    at_nm <- names(el[1])
+    if(length(at_nm) == 0){
+      at_nm <- ""
+    }
+    el <- el[[1]]
+    if(inherits(el, c("sub_criteria"))){
+      paste0("\n", fmt_sub_criteria(el, depth_n + 1, show_levels))
     }else{
       if(at_nm != ""){
 
-      }else if(is.atomic(x)){
-        at_nm <- listr(trimws(format(x)), lim = 2, sep = ",")
+      }else if(is.atomic(el)){
+        at_nm <- listr(trimws(format(el)), lim = 2, sep = ",")
       }else{
-        if(!is.null(names(x))){
-          at_nm <- paste0(class(x), "; ", listr(paste0("`", names(x), "`"), lim = 2))
+        if(!is.null(names(el))){
+          at_nm <- paste0(class(el), "; ", listr(paste0("`", names(el), "`"), lim = 2))
         }else{
-          at_nm <- class(x)
+          at_nm <- class(el)
         }
       }
       paste0(mf_nm, "(", at_nm, ")")
@@ -1322,20 +1413,6 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   logic_txt
 }
 
-roll_sum <- function(val, by = 1000000){
-  by <- abs(by)
-  p <- 1:length(val)
-  roll_seq <- function(pos){
-    if(pos >= by) {
-      pos <- ((pos-(by-1)):pos)
-    }else{
-      pos <- (1:pos)
-    }
-    sum(val[pos])
-  }
-  unlist(lapply(p, roll_seq))
-}
-
 unpack <- function(xx, depth = 1){
   classes <- unlist(lapply(xx, class))
   lgk <- classes == "list"
@@ -1360,7 +1437,7 @@ unpack <- function(xx, depth = 1){
 }
 
 rc_dv <- function(x, func = func, depth = 1, tgt_depth = Inf){
-  if(all(class(x) %in% c("d_attribute", "list")) & depth <= tgt_depth){
+  if(inherits(x, c("d_attribute", "list")) & depth <= tgt_depth){
     lapply(x, function(x) rc_dv(x = x, func = func,
                                 depth = depth + 1,
                                 tgt_depth = tgt_depth))
@@ -1369,4 +1446,57 @@ rc_dv <- function(x, func = func, depth = 1, tgt_depth = Inf){
   }else{
 
   }
+}
+
+nl_bind <- function(...){
+  return(c(...))
+}
+
+index_multiples <- function(x, multiples, repeats){
+  # browser()
+  y <- seq(0, multiples * (repeats - 1), by = multiples)
+  y <- rep(x, repeats) + rep(y, rep(length(x), repeats))
+  rm(x, repeats, multiples)
+  return(y)
+}
+
+length_hits <- function(ep_checks, strata, current_tot, range.n){
+  hits <- ceiling(seq_len(length(ep_checks)) / current_tot)
+  hits <- hits[ep_checks]
+  tmp_strata <- rep(strata, range.n)[ep_checks]
+  if(range.n <= 308){
+    hits <- hits / 10 ^ (floor(hits/10) + 1)
+    hits <- tmp_strata + hits
+  }else{
+    hits <- combi(hits, tmp_strata)
+  }
+  hits <- tmp_strata[!duplicated(hits)]
+  hits <- rle(sort(hits))
+  hits <- hits$lengths[match(strata, hits$values)]
+  return(hits)
+}
+
+is_even <- function(x){
+  as.logical(x %% 2)
+}
+
+row_wise <- function(x, value = TRUE, type = "max"){
+  type <- ifelse(type == "max", 1, -1)
+  if(is.null(ncol(x))){
+    x <- t(x)
+  }
+  y <- ((max.col(x * type) - 1) * nrow(x)) + seq_len(nrow(x))
+  if(isTRUE(value)){
+    y <- x[y]
+  }
+  return(y)
+}
+
+group_stats <- function(strata, start_date, end_date){
+  dts_a <- lapply(split(as.numeric(start_date), strata), min)
+  dts_z <- lapply(split(as.numeric(end_date), strata), max)
+
+  interval <- number_line(as.numeric(dts_a), as.numeric(dts_z))
+  interval <- interval[match(strata, as.numeric(names(dts_a)))]
+  return(interval)
 }

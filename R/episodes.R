@@ -34,7 +34,7 @@
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
 #' @seealso
-#' \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{link_records}}; \code{\link{schema}}
+#' \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}}; \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}}; \code{\link[=windows]{epid_window}}; \code{\link{partitions}}; \code{\link{links}}; \code{\link{overlaps}}; \code{\link{number_line}}; \code{\link{links_sv_probabilistic}}; \code{\link{schema}}
 #'
 #' @details
 #' \bold{\code{episodes()}} links dated records (events) that
@@ -158,9 +158,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   options_lst = list(date = date,
-                     strata = if(class(strata) == "NULL") NULL else encode(strata),
-                     case_length = if(class(case_length) != "list") list(case_length) else case_length,
-                     recurrence_length = if(class(recurrence_length) != "list") list(recurrence_length) else recurrence_length,
+                     strata = if(inherits(strata,"NULL")) NULL else encode(strata),
+                     case_length = if(!inherits(case_length,"list")) list(case_length) else case_length,
+                     recurrence_length = if(!inherits(recurrence_length,"list")) list(recurrence_length) else recurrence_length,
                      episode_unit = episode_unit,
                      from_last = from_last)
 
@@ -171,7 +171,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   display <- tolower(display)
   # `data_links`
   dl_lst <- unlist(data_links, use.names = FALSE)
-  if(!all(class(data_links) == "list")){
+  if(!inherits(data_links, "list")){
     data_links <- list(l = data_links)
   }
   if(is.null(names(data_links))) names(data_links) <- rep("l", length(data_links))
@@ -184,7 +184,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   # `date`
   date <- as.number_line(date)
-  is_dt <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
+  is_dt <- ifelse(!inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
   if(isTRUE(is_dt)){
     date <- number_line(
       l = as.POSIXct(date@start),
@@ -194,7 +194,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   epid_unit[!is_dt] <- 1L
   # `case_overlap_methods`
-  if(!all(class(case_overlap_methods) == "list")){
+  if(!inherits(case_overlap_methods,"list")){
     case_overlap_methods <- list(case_overlap_methods)
   }else{
     case_overlap_methods <- case_overlap_methods
@@ -203,7 +203,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   ep_l <- length_to_range(lengths = case_length,
                           date = date,
                           from_last = from_last,
-                          episode_unit = epid_unit)
+                          episode_unit = epid_unit)$range
 
   # `case_length_total`
   if(is.number_line(case_length_total)){
@@ -218,7 +218,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     # `case_for_recurrence`
     any_case_for_rec <- any(case_for_recurrence == TRUE)
     # `recurrence_overlap_methods`
-    if(!all(class(recurrence_overlap_methods) == "list")){
+    if(!inherits(recurrence_overlap_methods,"list")){
       recurrence_overlap_methods <- list(recurrence_overlap_methods)
     }else{
       recurrence_overlap_methods <- recurrence_overlap_methods
@@ -227,7 +227,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     rc_l <- length_to_range(lengths = recurrence_length,
                             date = date,
                             from_last = from_last,
-                            episode_unit = epid_unit)
+                            episode_unit = epid_unit)$range
     # `recurrence_length_total`
     if(is.number_line(recurrence_length_total)){
       recurrence_length_total[recurrence_length_total@.Data < 0] <- reverse_number_line(recurrence_length_total[recurrence_length_total@.Data < 0], "decreasing")
@@ -238,7 +238,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   # `reference_event`
-  if(class(reference_event) == "logical"){
+  if(inherits(reference_event, "logical")){
     reference_event[reference_event] <- "last_record"
     reference_event[reference_event != "last_record"] <- "first_record"
   }
@@ -296,7 +296,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   # User-defined order of case-assignment
   if(!is.null(custom_sort)) {
-    if(any(!class(custom_sort) %in% c("numeric", "integer", "double"))){
+    if(!inherits(custom_sort, c("numeric", "integer", "double"))){
       custom_sort <- as.integer(as.factor(custom_sort))
     }
     if(length(custom_sort) == 1){
@@ -706,7 +706,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         if(length(date) == 1){
           curr_result_lgk <- t(curr_result_lgk)
         }
-        checks_lgk[curr_check_lgk] <-  Rfast::rowMaxs(curr_result_lgk, value = TRUE)
+        checks_lgk[curr_check_lgk] <-  row_wise(curr_result_lgk, type = "max", value = TRUE)
       }
       as.integer(checks_lgk)
     })
@@ -719,7 +719,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(cr) == 1){
       vr <- cr[[1]] & ep_checks[[1]]
     }else{
-      vr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE)) & as.logical(Rfast::rowMaxs(sapply(ep_checks, function(x) as.numeric(x)), value = TRUE))
+      vr <- as.logical(row_wise(sapply(cr, function(x) as.numeric(x)), type = "max")) &
+        as.logical(row_wise(sapply(ep_checks, function(x) as.numeric(x)), type = "max"))
     }
 
     cr <- lapply(1:length(ep_checks), function(i){
@@ -739,12 +740,12 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     if(length(cr) == 1){
       cr <- cr[[1]]
     }else{
-      cr <- as.logical(Rfast::rowMaxs(sapply(cr, function(x) as.numeric(x)), value = TRUE))
+      cr <- as.logical(row_wise(sapply(cr, function(x) as.numeric(x)), type = "max"))
     }
 
     # Implement `case_sub_criteria`
     checks_lgk <- rep(FALSE, length(date))
-    if(class(case_sub_criteria) == "sub_criteria"){
+    if(inherits(case_sub_criteria, "sub_criteria")){
       c_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
         cri_2 <- cri + (cr/10)
         cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE) & skip_unique_strata
@@ -767,7 +768,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(length(c_sub_cri) == 1){
         c_sub_cri <- as.logical(c_sub_cri[[1]]) & vr
       }else{
-        c_sub_cri <- as.logical(Rfast::rowMaxs(sapply(c_sub_cri, function(x) as.numeric(x)), value = TRUE)) & vr
+        c_sub_cri <- as.logical(row_wise(sapply(c_sub_cri, function(x) as.numeric(x)), type = "max")) &
+          vr
       }
       cr[!c_sub_cri & cr & !ref_rd & tr_tag %in% c(0, -2)] <- FALSE
     }else{
@@ -800,7 +802,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           if(length(date) == 1){
             curr_result_lgk <- t(curr_result_lgk)
           }
-          checks_lgk[curr_check_lgk] <-  Rfast::rowMaxs(curr_result_lgk, value = TRUE)
+          checks_lgk[curr_check_lgk] <-  row_wise(curr_result_lgk, type = "max", value = TRUE)
         }
 
         as.integer(checks_lgk)
@@ -817,7 +819,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(length(cr2) == 1){
         vr2 <- cr2[[1]] & rc_checks[[1]]
       }else{
-        vr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE)) & as.logical(Rfast::rowMaxs(sapply(rc_checks, function(x) as.numeric(x)), value = TRUE))
+        vr2 <- as.logical(row_wise(sapply(cr2, function(x) as.numeric(x)), type = "max")) &
+          as.logical(row_wise(sapply(rc_checks, function(x) as.numeric(x)), type = "max"))
       }
 
       cr2 <- lapply(1:length(rc_checks), function(i){
@@ -843,10 +846,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(length(cr2) == 1){
         cr2 <- cr2[[1]]
       }else{
-        cr2 <- as.logical(Rfast::rowMaxs(sapply(cr2, function(x) as.numeric(x)), value = TRUE))
+        cr2 <- as.logical(row_wise(sapply(cr2, function(x) as.numeric(x)), type = "max"))
       }
 
-      if(class(recurrence_sub_criteria) == "sub_criteria"){
+      if(inherits(recurrence_sub_criteria, "sub_criteria")){
         r_sub_cri <- lapply(1:max(cri_indx_ord[ref_rd]), function(i){
           cri_2 <- cri + (cr2/10)
           cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE) & skip_unique_strata
@@ -869,7 +872,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         if(length(r_sub_cri) == 1){
           r_sub_cri <- as.logical(r_sub_cri[[1]]) & vr2
         }else{
-          r_sub_cri <- as.logical(Rfast::rowMaxs(sapply(r_sub_cri, function(x) as.numeric(x)), value = TRUE)) & vr2
+          r_sub_cri <- as.logical(row_wise(sapply(r_sub_cri, function(x) as.numeric(x)), type = "max")) &
+            vr2
         }
         cr2[!r_sub_cri & cr2 & !ref_rd & tr_tag %in% c(-1)] <- FALSE
       }else{
@@ -1016,6 +1020,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # Events in between `case_length`s and `recurrence_length`s
     if(isTRUE(any_skip_b4_len)){
+      if(ite == 4){
+        # browser()
+      }
       lgk <- ld_skip_if_b4_lengths & tag != 2 & tr_tag %in% c(0, -2)
       lgk <- check_skips(lgk = lgk,
                          cri = cri,
@@ -1268,10 +1275,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   retrieve_pos <- match(1:length(date), stat_pos)
 
-  if(class(case_length) != "list"){
+  if(!inherits(case_length, "list")){
     case_length <- list(case_length)
   }
-  if(class(recurrence_length) != "list"){
+  if(!inherits(recurrence_length, "list")){
     recurrence_length <- list(recurrence_length)
   }
   # `epid` object
@@ -1438,22 +1445,22 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
 
   combi_opt_lst <- opt_lst[names(opt_lst) != "sn"]
   check_lens <- function(x){
-    if(all(class(x) == "sub_criteria")){
+    if(inherits(x, "sub_criteria")){
       max(attr_eval(x))
-    }else if(all(class(x) == "list")){
+    }else if(inherits(x, "list")){
       max(as.numeric(lapply(x, length)))
     }else {
       length(x)
-      }
+    }
   }
   args_len <- unlist(lapply(combi_opt_lst, check_lens), use.names = FALSE)
   combi_opt_lst <- combi_opt_lst[args_len > 1]
 
   if(length(combi_opt_lst) != 0){
     combi_opt_lst <- lapply(combi_opt_lst, function(x){
-      if(all(class(x) == "sub_criteria")){
+      if(inherits(x, "sub_criteria")){
         attr_eval(x, func = identity, simplify = FALSE)
-      }else if(all(class(x) == "list")){
+      }else if(inherits(x, "list")){
         x
       }else{
         list(x)
@@ -1462,14 +1469,14 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
 
     combi_opt_lst <- unlist(combi_opt_lst, recursive = FALSE, use.names = FALSE)
     combi_opt_lst <- lapply(combi_opt_lst, function(x){
-      if(all(class(x) == "number_line")){
+      if(inherits(x, "number_line")){
         list(x@start, x@.Data)
       }else{
         x
       }
     })
     # sub_criteria with d_attributes/number_line objects
-    lgk <- unlist(lapply(combi_opt_lst, function(x) all(class(x) == "list")), use.names = FALSE)
+    lgk <- unlist(lapply(combi_opt_lst, function(x) inherits(x, "list")), use.names = FALSE)
     combi_opt_lst <- c(combi_opt_lst[!lgk],
                        unlist(combi_opt_lst[lgk], recursive = FALSE, use.names = FALSE))
 
@@ -1482,7 +1489,7 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
 
   opt_lst_nms <- names(opt_lst)
   opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
-    if(all(class(opt_lst[[i]]) == "name")) {
+    if(inherits(opt_lst[[i]], "name")) {
       return(
         opt_lst[[as.character(opt_lst[[i]])]]
       )
@@ -1493,13 +1500,13 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
     }
   })
   opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
-    if(all(class(opt_lst[[i]]) == "sub_criteria")) {
+    if(inherits(opt_lst[[i]], "sub_criteria")) {
       if(reframe){
         return(reframe(opt_lst[[i]], func = function(x) split(x, cmbi_cd)))
       }else{
         return(reframe(opt_lst[[i]], func = function(x) x[!rf_lgk]))
       }
-    }else if(all(class(opt_lst[[i]]) == "list")){
+    }else if(inherits(opt_lst[[i]], "list")){
       return(lapply(opt_lst[[i]], function(x){
         if(length(x) == 1){
           x
@@ -1636,10 +1643,10 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
 #' @export
 epid_windows <- function(date, lengths, episode_unit = "days"){
   date <- as.number_line(date)
-  if(class(lengths) != "number_line"){
+  if(!inherits(lengths, "number_line")){
     lengths <- number_line(0, as.numeric(lengths))
   }
-  is_dt <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
+  is_dt <- ifelse(!inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
   if(isTRUE(is_dt)){
     date <- number_line(
       l = as.POSIXct(date@start, tz = "GMT"),
@@ -1664,14 +1671,14 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
 epid_lengths <- function(date, windows, episode_unit = "days"){
   date <- as.number_line(date)
   windows <- as.number_line(windows)
-  is_dt1 <- ifelse(!any(class(date@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
+  is_dt1 <- ifelse(!inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
   if(isTRUE(is_dt1)){
     date <- number_line(
       l = as.POSIXct(date@start, tz = "GMT"),
       r = as.POSIXct(right_point(date), tz = "GMT")
     )
   }
-  is_dt2 <- ifelse(!any(class(windows@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
+  is_dt2 <- ifelse(!inherits(windows@start, c("Date","POSIXct","POSIXt","POSIXlt")), FALSE, TRUE)
   if(isTRUE(is_dt2)){
     windows <- number_line(
       l = as.POSIXct(windows@start, tz = "GMT"),

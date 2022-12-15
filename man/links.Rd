@@ -18,7 +18,7 @@ links(
   recursive = FALSE,
   check_duplicates = FALSE,
   tie_sort = NULL,
-  batched = TRUE,
+  batched = "yes",
   repeats_allowed = FALSE,
   permutations_allowed = FALSE,
   ignore_same_source = FALSE
@@ -35,7 +35,7 @@ links(
 
 \item{data_source}{\code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.}
 
-\item{data_links}{\code{[list|character]}. \code{data_source} required in each \code{\link[=epid-class]{epid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
+\item{data_links}{\code{[list|character]}. \code{data_source} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
 \item{display}{\code{[character]}. display a status updated or generate a status report. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
@@ -50,6 +50,8 @@ links(
 \item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{FALSE}.}
 
 \item{tie_sort}{\code{[atomic]}. Preferential order for breaking ties within a iteration.}
+
+\item{batched}{\code{[logical]} Determines if record-pairs are created and compared in batches. Options are \code{"yes"} or \code{"no"}.}
 
 \item{repeats_allowed}{\code{[logical]} If \code{TRUE}, record-pairs with repeat values are created and compared. Ignored when \code{batched} is \code{TRUE}.}
 
@@ -122,7 +124,7 @@ age_diff <- function(x, y){
   wgt <-  diff \%in\% 0:(365 * 10) & !is.na(diff)
   wgt
 }
-multi_cond1 <- sub_criteria(patient_records$dateofbirth,
+multi_cond2 <- sub_criteria(patient_records$dateofbirth,
                            patient_records$middlename,
                            operator = "and",
                            match_funcs = c(age_diff, exact_match))
@@ -135,27 +137,23 @@ nested_cond1 <- sub_criteria(multi_cond1,
 # Record linkage with nested conditions
 pids_3 <- links(criteria = stages,
                 sub_criteria = list(cr1 = multi_cond1,
-                                    cr2 = multi_cond2),
-                display = "progress")
+                                    cr2 = multi_cond2))
 
 # Record linkage with multiple (two) layers of nested conditions
 pids_4 <- links(criteria = stages,
                 sub_criteria = list(cr1 = nested_cond1,
-                                    cr2 = nested_cond1),
-                display = "progress")
+                                    cr2 = nested_cond1))
 
 # Record linkage without group expansion
 pids_5 <- links(criteria = stages,
                 sub_criteria = list(cr1 = multi_cond1,
                                     cr2 = multi_cond2),
-                display = "progress",
                 expand = FALSE)
 
 # Record linkage with shrinking record groups
 pids_6 <- links(criteria = stages,
                 sub_criteria = list(cr1 = multi_cond1,
                                     cr2 = multi_cond2),
-                display = "progress",
                 shrink = TRUE)
 
 summary(pids_1)
@@ -167,5 +165,5 @@ summary(pids_6)
 
 }
 \seealso{
-\code{\link{link_records}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
+\code{\link{links_sv_probabilistic}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
 }

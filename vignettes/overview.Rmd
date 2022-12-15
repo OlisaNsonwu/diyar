@@ -30,7 +30,7 @@ These identifiers are stored as an `S4` class with useful information about each
 
 The package is capable of assessing and comparing an entity's characteristics in several ways, making it useful in ordinarily complex analyses such as record linkage and contact or network analyses, or the application of case definitions. 
 
-The main functions are `links()` and `link_records()`, `episodes()` and `partitions()`.
+The main functions are `links()` and `links_sv_probabilistic()`, `episodes()` and `partitions()`.
 These functions are very flexible in terms of what and how they compare the record's characteristics, as well as what are considered matches.
 Although each is best suited to certain use cases, their functionalities can sometimes overlap.
 
@@ -90,7 +90,7 @@ dfr_stages$p5 <- links(list("place_holder", dfr_stages$age),
 dfr_stages
 ```
 
-## link_records
+## links_sv_probabilistic
 Is primarily used for probabilistic record linkage.
 Record-pairs are generated and compared for matches.
 Matches can be weighted to allow for imperfect matches.
@@ -103,7 +103,7 @@ dfr_5 <- missing_staff_id[c(2, 4, 5, 6)]
 last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
 last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
 
-p6a <- link_records(dfr_5, attr_threshold = 1,
+p6a <- links_sv_probabilistic(dfr_5, attr_threshold = 1,
                            cmp_func = c(exact_match, exact_match,
                                         last_word_cmp, last_word_cmp),
                            score_threshold = -4)
@@ -111,14 +111,14 @@ p6a <- link_records(dfr_5, attr_threshold = 1,
 p6a$pid
 
 # Weights
-subset(p6a$pid_weights, record.match)
+subset(p6a$pid_weights, as.logical(record.match))
 ```
 The required number of record-pairs doubles exponentially as the size of the dataset increases. 
 This becomes memory intensive with very large datasets.
 Arguments such as `blocking_attribute`, `repeats_allowed`, `permutations_allowed ` and `data_source` are used to limit the amount of record-pairs created. 
 
 ## links_wf_probabilistic
-Also primarily used for probabilistic record linkage. `links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `link_records()`. It's less memory intensive but can be slower in comparison.
+Also primarily used for probabilistic record linkage. `links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `links_sv_probabilistic()`. It's less memory intensive but can be slower in comparison.
 ```{r warning=FALSE}
 p6b <- links_wf_probabilistic(dfr_5, attr_threshold = 1,
                               cmp_func = c(exact_match, exact_match,
@@ -126,10 +126,7 @@ p6b <- links_wf_probabilistic(dfr_5, attr_threshold = 1,
                               score_threshold = -4,
                               recursive = TRUE)
 # Group identifiers
-p6b$pid
-
-# Weights
-subset(p6b$pid_weights, record.match)
+p6b
 ```
 Here, a final selection is made at each iteration. Therefore, an acceptable `score_threshold` is required in advance. To help with this, `prob_score_range()` can be used to return the range of scores attainable for a given set of attributes and, `m` and `u`-probabilities. Additionally, `id_1` and `id_2` can be used to compare specific records-pairs, aiding the review of potential scores.
 
