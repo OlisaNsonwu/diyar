@@ -59,7 +59,7 @@ left_point(nl_a)
 There are convenience functions to reverse, shrink, expand or shift a `number_line` along the number line.
 
 ```{r message = FALSE, warning = FALSE}
-nl_c <- number_line(as.Date("04/04/2019", "%d/%M/%Y"), as.Date("07/04/2019", "%d/%M/%Y"))
+nl_c <- number_line(as.Date("2019-04-04"), as.Date("2019-4-07"))
 nl_c
 
 # Expand the `number_line` by 2 days from both ends 
@@ -109,25 +109,24 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
 # aligns_end <- c(number_line(18, 20), number_line(19, 20),
 #                 number_line(19, 20), number_line(18, 20))
 # 
-# exact_sort <- rep(c("x", "y"), length(exact)/2)
-# inbetween_sort <- rep(c("x", "y"), length(inbetween)/2)
-# across_sort <- rep(c("x", "y"), length(across)/2)
-# chain_sort <- rep(c("x", "y"), length(chain)/2)
-# aligns_start_sort <- rep(c("x", "y"), length(aligns_start)/2)
-# aligns_end_sort <- rep(c("x", "y"), length(aligns_end)/2)
 # 
-# nl2 <- c(exact, inbetween, across, chain, aligns_start, aligns_end)
-# strata <- sort(rep(seq_len(length(nl2)/2), 2))
-# c_sort <- c(exact_sort, inbetween_sort, across_sort, chain_sort, aligns_start_sort, aligns_end_sort)
-# nl_label <- paste0(ifelse(nl_ep@sn == nl_ep@.Data,"y: ", "x: "), " (", format(nl2), ")")
-# nl_label <- paste0(ifelse(nl_ep@sn == nl_ep@.Data,"y: ", "x: "))
-# nl_ep <- episodes(nl2, strata = strata, case_length = index_window(nl2), custom_sort = c_sort)
-# plt1 <- schema(nl_ep[1:12], seed = 2, show_labels = c("case_overlap_methods", "date"),
-#                theme = "light", custom_label = nl_label[1:12])
-# plt2 <- schema(nl_ep[13:20], seed = 2, show_labels = c("case_overlap_methods", "date"),
-#                theme = "light", custom_label = nl_label[13:20])
-# f <- plot_grid(plt1 + theme(plot.background = element_rect(color = "white")),
-#                plt2 + theme(plot.background = element_rect(color = "white")))
+# library(cowplot)
+# library(ggplot2)
+# schema <- function(...){
+#   diyar::schema(..., theme = "dark") +
+#     theme(plot.background = element_rect(color = "black"))
+# }
+# f <- plot_grid(
+#   plot_grid(schema(exact[1:2]), schema(exact[3:4]), schema(exact[5:6]), ncol = 1),
+#   plot_grid(schema(inbetween[1:2]), schema(inbetween[3:4]), schema(inbetween[5:6]), ncol = 1),
+#   plot_grid(schema(across[1:2]), schema(across[3:4]), ncol = 1),
+#   
+#   plot_grid(schema(chain[1:2]), schema(chain[3:4]), ncol = 1),
+#   plot_grid(schema(aligns_start[1:2]), schema(aligns_start[3:4]), ncol = 1),
+#   plot_grid(schema(aligns_end[1:2]), schema(aligns_end[3:4]), ncol = 1),
+#   nrow = 1, label_colour = rgb(0, 0, 0)
+# )
+# 
 # ggsave(dpi = 100, plot = f, filename = "fig_n1.png", width = 15, height = 9, units = "in")
 ```
 
