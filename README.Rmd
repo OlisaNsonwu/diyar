@@ -13,10 +13,7 @@ knitr::opts_chunk$set(
 [![CRAN version](http://www.r-pkg.org/badges/version/diyar)](https://cran.r-project.org/package=diyar)
 [![CRAN RStudio mirror downloads](https://cranlogs.r-pkg.org/badges/diyar)](https://www.r-pkg.org/pkg/diyar)
 [![Coverage status](https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg)](https://codecov.io/github/OlisaNsonwu/diyar?branch=master)
-<!-- [![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar) -->
-
-## Overview
-Record linkage and distinguishing between index, duplicate and recurrent events are common tasks in epidemiological analyses and other fields of research, particularly as part of a case definition. Implementing these in `R` can be complex and challenging. The `diyar` package provides a convenient and flexible way of doing these in `R`.
+[![Travis build status](https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master)](https://travis-ci.org/OlisaNsonwu/diyar)
 
 ## Installation
 ```{r eval = FALSE}
@@ -28,72 +25,131 @@ install.packages("devtools")
 devtools::install_github("OlisaNsonwu/diyar")
 ```
 
-<!-- ## Usage -->
+## Overview
+`diyar` is an `R` package for linking records with shared characteristics.
+The linked records represent an entity, which depending on the context of the analysis can represent unique patients, 
+infection episodes, overlapping periods of care, clusters or other occurrences as defined by a case definition. 
+Each entity is assigned an uniquely identifiable number.
+This makes it useful in ordinarily complex analyses such as record linkage,  
+contact or network analyses e.t.c. 
 
-<!-- <img src = "fig_r1_light.png" width = "1000" height="580"> -->
+The main functions `links()`, `episodes()` and `partitions()`.
+They are flexible in terms of what and how they compare records, as well as what are considered matches. 
+Their functionality can sometimes overlap however, each is better suited to particular use cases: 
 
-### Number line
-Use `number_line()` to create `number_line` objects - a range of numeric values. These can be split or manipulated in several ways. 
+  + `links()` - link records with no relevance to an index record. For example, deterministic record linkage
+  + `episodes()` - link records in relation to an index record. For example, contact and network analysis.  
+  + `partitions()` - link records in relation to a fixed interval.
 
-```{r message = FALSE, warning = FALSE}
+## links()
+**Key features;**
+
+  + multi-stage record linkage. Here, multiple linkage criteria are assessed in a specified order of priority.
+
+```{r warning = FALSE}
 library(diyar)
-nl <- number_line(1, 10); nl
-invert_number_line(nl)
-seq(nl, length.out = 3)
-```
-
-`overlap()` and related functions test how `number_line` objects overlap.
-```{r message = FALSE, warning = FALSE}
-overlap_method(nl, nl); exact(nl, nl)
-nl2 <- number_line(10, 15); nl2
-overlap_method(nl, nl2); exact(nl, nl2)
-```  
-Set operations such as `union_number_lines()` are also possible for pairs of `number_line` objects. 
-```{r message = FALSE, warning = FALSE}
-nl3 <- number_line(1, 20)
-nl4 <- number_line(3, 6)
-nl3; nl4
-overlap_method(nl3, nl4)
-intersect_number_lines(nl3, nl4)
-subtract_number_lines(nl3, nl4)
-```  
-### Record linkage
-Use `links()` to create a unique identifier for matching records based on a multistage deterministic approach to record linkage.
-```{r message = FALSE, warning = FALSE}
-attr_1 <- c(1, 1, 1, NA, NA, NA, NA, NA)
-attr_2 <- c(NA, NA, 2, 2, 2, NA, NA, NA)
-links(list(attr_1, attr_2))
-```  
-Use `link_records()` to implement both deterministic and probabilistic record linkage by comparing every possible record-pair. 
-```{r message = FALSE, warning = FALSE}
 data(missing_staff_id)
-dfr <- missing_staff_id[c("staff_id",  "initials", "hair_colour", "branch_office")]
-p1 <- link_records(as.list(dfr), score_threshold = -4.2)
-p1$pid
-subset(p1$pid_weights, record.match)
+dfr_stages <- missing_staff_id[c("age", "hair_colour", "branch_office")]
+priority_order_1 <- c("hair_colour", "branch_office")
+priority_order_2 <- c("branch_office", "hair_colour")
+
+dfr_stages$id.1 <- links(criteria = as.list(dfr_stages[priority_order_1]))
+dfr_stages$id.2 <- links(criteria = as.list(dfr_stages[priority_order_2]))
 ```
-`links_wf_probabilistic()` is a wrapper function of `links()` and an alternative to `link_records()`. It's less memory intensive but can be slower in comparison.
-```{r message = FALSE, warning = FALSE}
-p2 <- links_wf_probabilistic(as.list(dfr), score_threshold = -4.2, recursive = TRUE)
-p2$pid
-subset(p2$pid_weights, record.match)
-``` 
+  + create and use complex rules for record matching. This is done with a `sub_criteria()`.
+```{r warning = FALSE}
+sub.cri.1 <- sub_criteria(
+  hair.color = dfr_stages$hair_colour,
+  age = dfr_stages$age,
+  match_funcs = c(
+    "exact" = exact_match,
+    "age.range" = range_match)
+)
+last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
+last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
+not_equal <- function(x, y) x != y
+sub.cri.2 <- sub_criteria(
+  dfr_stages$branch_office, 
+  dfr_stages$age,
+  match_funcs = c(
+    "last.word" = last_word_cmp,
+    "not.equal" = not_equal)
+)
+sub.cri.3 <- sub_criteria(sub.cri.1, sub.cri.2, operator = "and")
+sub.cri.1
+sub.cri.2
+sub.cri.3
+dfr_stages$id.3 <- links(
+  criteria = "place_holder",
+  sub_criteria = list("cr1" = sub.cri.3)
+)
+dfr_stages
+```
+There are variations of `links()` like `links_wf_probabilistic()` and `links_sv_probabilistic()` for specific use cases such as probabilistic record linkage.
 
-### Case definitions
-Use `episodes()` to create a unique identifier for related events based on a case definition.
-```{r message = FALSE, warning = FALSE}
-dates <- seq(as.Date("2020-01-01"), as.Date("2020-01-07"), by = 1)
-episodes(dates, case_length = 2, group_stats = TRUE)
-episodes(dates, case_length = 2, episode_type = "rolling", group_stats = TRUE)
-``` 
+## episodes()
+**Key features;**
 
-Use `partitions()` to create a unique identifier for events within the same period or numerical interval.
-```{r message = FALSE, warning = FALSE}
-partitions(dates, by = 2, separate = TRUE, group_stats = TRUE)
-partitions(dates, length.out = 3, separate = TRUE, group_stats = TRUE)
-``` 
+  + link records within a specified period from an index record.
+```{r warning = FALSE}
+dfr_2 <- data.frame(date = as.Date("2020-01-01") + c(1:5, 10:15, 20:25))
+dfr_2$id.1 <- episodes(
+  date = dfr_2$date, case_length = 2,
+  episodes_max = 1)
+```
+  + change the index record.
+```{r warning = FALSE}
+dfr_2$pref <- c(rep(2, 8), 1, rep(2, 8))
+dfr_2$id.2 <- episodes(
+  date = dfr_2$date, case_length = number_line(-2, 2),
+  episodes_max = 1, 
+  custom_sort = dfr_2$pref)
+```
+  + add a recurrence period 
+```{r warning = FALSE}
+dfr_2$id.3 <- episodes(
+  date = dfr_2$date, case_length = number_line(-2, 2), 
+  episode_type = "rolling", recurrence_length = 1,
+  episodes_max = 1, rolls_max = 1)
+```  
++ link overlaping periods
+```{r warning = FALSE}
+dfr_2$period <- number_line(dfr_2$date, dfr_2$date + 5)
+dfr_2$id.4 <- episodes(
+  date = dfr_2$period, case_length = index_window(dfr_2$period),
+  episodes_max = 1, rolls_max = 2)
+dfr_2
+```
 
-Find out more [here!](https://olisansonwu.github.io/diyar/articles/overview.html)
+There are variations of `episodes()` like `episodes_wf_splits()` for specific use cases such as more efficient handling of duplicate records.
 
+## partitions()
+**Key features;**
+
+  + link all records within a specific periods in time 
+```{r warining = FALSE}
+dfr_3 <- dfr_2["date"]
+dfr_3$id.1 <- partitions(
+  date = dfr_3$date, 
+  window = number_line(as.Date(c("2020-01-10", "2020-01-17")), 
+                       as.Date(c("2020-01-12", "2020-01-24")))
+  )
+```
+  + link all records within a splits of an interval 
+```{r warining = FALSE}
+dfr_3$id.2 <- partitions(date = dfr_3$date, by = 3, separate = TRUE) 
+dfr_3$id.3 <- partitions(date = dfr_3$date, length.out = 3, separate = TRUE)
+dfr_3
+```
+
+Other useful functions include in the `diyar` package include `combi()` and `sets()`.
+
+Find out more!
+  
+  + [number_line and overlaps](https://olisansonwu.github.io/diyar/articles/number_line.html)
+  + [Introduction to epidemiological case definitions with diyar](https://olisansonwu.github.io/diyar/articles/episodes.html)
+  + [Introduction to record linkage with diyar](https://olisansonwu.github.io/diyar/articles/links.html)
+  + [Divvy up events with partitions](https://olisansonwu.github.io/diyar/articles/panes.html)
+  
 ## Bugs and issues
 Please report any bug or issues with using this package [here](https://github.com/OlisaNsonwu/diyar/issues).
