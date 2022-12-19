@@ -153,11 +153,10 @@ then the <code>u</code>-probability for the pair will be <code>0.02</code>.</p>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">`exact_match`</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> function (x, y) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x == y &amp; !is.na(x) &amp; !is.na(y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> function(x, y) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   x == y &amp; !is.na(x) &amp; !is.na(y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000001b078274f88&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000001760337c210&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:diyar&gt;</span>
 <span class="r-in"><span><span class="fu">exact_match</span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
@@ -165,13 +164,11 @@ then the <code>u</code>-probability for the pair will be <code>0.02</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">`range_match`</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> function (x, y, range = 10) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     x &lt;- as.numeric(x)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     y &lt;- as.numeric(y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> function(x, y, range = 10){</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   x &lt;- as.numeric(x); y &lt;- as.numeric(y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000001b07dc84938&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x0000017605b6a968&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:diyar&gt;</span>
 <span class="r-in"><span><span class="fu">range_match</span><span class="op">(</span>x <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="fl">16</span>, range <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
@@ -179,21 +176,17 @@ then the <code>u</code>-probability for the pair will be <code>0.02</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">`range_match_legacy`</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> function (x, y) </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     lg &lt;- overlap(as.number_line(x@gid), x)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     lg[is.na(lg)] &lt;- F</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     if (any(!lg)) {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         rng_i &lt;- paste(head(which(!lg), 5), collapse = ", ", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             sep = "")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         rng_v &lt;- as.character(substitute(x))[!as.character(substitute(x)) %in% </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             c("$", "df2")]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>         stop(paste0("Range matching error: Actual value (gid) is out of range in ", </span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>             "[", rng_i, "]"))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     overlap(as.number_line(x@gid), y)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> function(x, y) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   lg &lt;- overlap(as.number_line(x@gid), x)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   lg[is.na(lg)] &lt;- F</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   if(any(!lg)) {</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     rng_i &lt;- paste(head(which(!lg), 5), collapse = ", ", sep="")</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     rng_v &lt;- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   }</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   overlap(as.number_line(x@gid), y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000001b07e31e7e0&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000001760556ece8&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:diyar&gt;</span>
 <span class="r-in"><span><span class="va">x_nl</span> <span class="op">&lt;-</span> <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">16</span>, gid <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">y_nl1</span> <span class="op">&lt;-</span> <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">10</span><span class="op">)</span></span></span>
