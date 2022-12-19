@@ -37,10 +37,10 @@ The \code{reframe} argument will either \code{\link{reframe}} or subset a \code{
 Both will require slightly different functions for \code{match_funcs} or \code{equal_funcs}.
 }
 \examples{
-# With 5,000 duplicate records of 20 events,
+# With 2,000 duplicate records of 20 events,
 # `episodes_wf_splits()` will take less time than `episodes()`
 dates <- seq(from = as.Date("2019-04-01"), to = as.Date("2019-04-20"), by = 1)
-dates <- rep(dates, 5000)
+dates <- rep(dates, 2000)
 
 system.time(
   ep1 <- episodes(dates, 1)
