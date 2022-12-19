@@ -112,7 +112,7 @@ dfr_2$id.3 <- episodes(
   episode_type = "rolling", recurrence_length = 1,
   episodes_max = 1, rolls_max = 1)
 ```  
-+ link overlaping periods
++ link overlapping periods
 ```{r warning = FALSE}
 dfr_2$period <- number_line(dfr_2$date, dfr_2$date + 5)
 dfr_2$id.4 <- episodes(

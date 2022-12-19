@@ -93,11 +93,10 @@ sub.cri.2 <- sub_criteria(
 )
 links(
   criteria = "place_holder", 
-  sub_criteria = list("cr1" = sub.cri.2), 
-  recursive = TRUE)
+  sub_criteria = list("cr1" = sub.cri.2))
 #> $pid
-#> [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)"
-#> [5] "P.1 (CRI 001)"
+#> [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"
+#> [5] "P.5 (No hits)"
 #> 
 #> $export
 #> $export$cri.1
@@ -114,31 +113,15 @@ links(
 #> $export$cri.1$iteration.2
 #> $export$cri.1$iteration.2$mf.0.1
 #>   x_val y_val diff is_match
-#> 1     1     2   -1     TRUE
-#> 2     5     2    3    FALSE
-#> 3     4     2    2    FALSE
-#> 4     3     2    1     TRUE
-#> 5     2     2    0     TRUE
+#> 1     5     3    2    FALSE
+#> 2     4     3    1     TRUE
+#> 3     3     3    0     TRUE
 #> 
 #> 
 #> $export$cri.1$iteration.3
 #> $export$cri.1$iteration.3$mf.0.1
 #>   x_val y_val diff is_match
-#> 1     2     3   -1     TRUE
-#> 2     1     3   -2     TRUE
-#> 3     5     3    2    FALSE
-#> 4     4     3    1     TRUE
-#> 5     3     3    0     TRUE
-#> 
-#> 
-#> $export$cri.1$iteration.4
-#> $export$cri.1$iteration.4$mf.0.1
-#>   x_val y_val diff is_match
-#> 1     3     4   -1     TRUE
-#> 2     2     4   -2     TRUE
-#> 3     1     4   -3     TRUE
-#> 4     5     4    1     TRUE
-#> 5     4     4    0     TRUE
+#> 1     5     5    0     TRUE
 ```
 
 ## Bug fixes
