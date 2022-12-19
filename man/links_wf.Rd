@@ -108,7 +108,7 @@ prob_scores <- prob_score_range(attribute = criteria_1,
                                 m_probability = 0.95,
                                 u_probability = NULL)
 \dontrun{
-# Probablistic record linkage with 'links_sv_probabilistic()'
+# Probabilistic record linkage with 'links_sv_probabilistic()'
 pids_1a <- links_sv_probabilistic(attribute = criteria_1,
                         cmp_func = exact_match,
                         attr_threshold = 1,

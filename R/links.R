@@ -114,14 +114,6 @@
 #'                 sub_criteria = list(cr1 = multi_cond1,
 #'                                     cr2 = multi_cond2),
 #'                 shrink = TRUE)
-#'
-#' summary(pids_1)
-#' summary(pids_2)
-#' summary(pids_3)
-#' summary(pids_4)
-#' summary(pids_5)
-#' summary(pids_6)
-#'
 #' @aliases links
 #' @export
 links <- function(criteria,

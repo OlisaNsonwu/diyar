@@ -1393,16 +1393,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 #' Both will require slightly different functions for \code{match_funcs} or \code{equal_funcs}.
 #'
 #' @examples
-#' # With 10,000 duplicate records of 20 events,
+#' # With 5,000 duplicate records of 20 events,
 #' # `episodes_wf_splits()` will take less time than `episodes()`
 #' dates <- seq(from = as.Date("2019-04-01"), to = as.Date("2019-04-20"), by = 1)
-#' dates <- rep(dates, 10000)
+#' dates <- rep(dates, 5000)
 #'
 #' system.time(
-#'   ep1 <- episodes(dates, 1, display = "progress")
+#'   ep1 <- episodes(dates, 1)
 #' )
 #' system.time(
-#'   ep2 <- episodes_wf_splits(dates, 1, display = "progress")
+#'   ep2 <- episodes_wf_splits(dates, 1)
 #' )
 #'
 #' # Both leads to the same outcome.
