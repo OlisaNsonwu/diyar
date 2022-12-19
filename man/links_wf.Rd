@@ -86,14 +86,14 @@ Assign unique identifiers to records based on partial, nested or calculated prob
 \details{
 \bold{\code{links_wf_probabilistic()}} - A wrapper function of \code{\link{links}} with a
 with a specific \code{\link{sub_criteria}} and to achieve to achieve probabilistic record linkage
-It excludes functionalities for the nested and mutli-stage linkage.
+It excludes functionalities for the nested and multi-stage linkage.
  \code{links_wf_probabilistic()} requires a \code{score_threshold} in advance.
 To help with this, \code{prob_score_range()} can be used to return the range of scores attainable for a given set of \code{attribute}, \code{m} and \code{u}-probabilities.
 Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs, aiding the review of potential scores.
 
 
 \bold{\code{links_sv_probabilistic()}} - A simpler version of \code{\link{links}}.
-It excludes functionalities for the batched, nested and mutli-stage linkage.
+It excludes functionalities for the batched, nested and multi-stage linkage.
 \code{links_sv_probabilistic()} requires a \code{score_threshold} in advance,
 however, since it exports the match weights, the \code{score_threshold}
 can be changed after the analysis.

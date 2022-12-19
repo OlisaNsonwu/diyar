@@ -111,8 +111,8 @@ sub_criteria <- function(...,
                             operator = operator)
   if(!isFALSE(err)) stop(err, call. = FALSE)
 
-  if(class(match_funcs) != "list") match_funcs <- list(match_funcs)
-  if(class(equal_funcs) != "list") equal_funcs <- list(equal_funcs)
+  if(!inherits(match_funcs, "list")) match_funcs <- list(match_funcs)
+  if(!inherits(equal_funcs, "list")) equal_funcs <- list(equal_funcs)
 
   if(length(match_funcs) == 1){
     match_funcs <- rep(list(match_funcs), length(list(...)))
@@ -195,7 +195,7 @@ eval_sub_criteria.sub_criteria <- function(x,
     x <- a[[1]]
     f1 <- a[[2]]
 
-    if(all(class(x) == "sub_criteria")){
+    if(inherits(x,"sub_criteria")){
       xx <- eval_sub_criteria(x = x, x_pos = x_pos, y_pos = y_pos,
                              check_duplicates = check_duplicates,
                              depth = depth + 1)
@@ -209,7 +209,7 @@ eval_sub_criteria.sub_criteria <- function(x,
       }
       return(xx)
     }else{
-      if(all(class(x) == "d_attribute")){
+      if(inherits(x,"d_attribute")){
         y <- rc_dv(x, func = function(x){
           if(length(x) <= 1) x else x[y_pos]
         })
