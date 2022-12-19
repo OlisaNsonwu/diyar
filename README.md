@@ -228,14 +228,11 @@ and `sets()`.
 
 Find out more!
 
--   [number_line and
-    overlaps](https://olisansonwu.github.io/diyar/articles/number_line.html)
+-   [number_line and overlaps](articles/number_line.html)
 -   [Introduction to epidemiological case definitions with
-    diyar](https://olisansonwu.github.io/diyar/articles/episodes.html)
--   [Introduction to record linkage with
-    diyar](https://olisansonwu.github.io/diyar/articles/links.html)
--   [Divvy up events with
-    partitions](https://olisansonwu.github.io/diyar/articles/panes.html)
+    diyar](articles/episodes.html)
+-   [Introduction to record linkage with diyar](articles/links.html)
+-   [Divvy up events with partitions](articles/panes.html)
 
 ## Bugs and issues
 

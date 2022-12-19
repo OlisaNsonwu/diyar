@@ -1342,18 +1342,18 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
 
   attr_n <- length(x)
 
-  if(FALSE){
-    if(isTRUE(show_levels)){
-      depth_attr_n_nm <- paste0("diyar.recurs.depth.", depth_n)
-      if(!exists(depth_attr_n_nm, 0, envir = .GlobalEnv)){
-        assign(depth_attr_n_nm, 0, envir = .GlobalEnv)
-      }else{
-        assign(
-          depth_attr_n_nm,
-          get(depth_attr_n_nm, envir = .GlobalEnv) + attr_n, envir = .GlobalEnv)
-      }
-    }
-  }
+  # if(FALSE){
+  #   if(isTRUE(show_levels)){
+  #     depth_attr_n_nm <- paste0("diyar.recurs.depth.", depth_n)
+  #     if(!exists(depth_attr_n_nm, 0, envir = .GlobalEnv)){
+  #       assign(depth_attr_n_nm, 0, envir = .GlobalEnv)
+  #     }else{
+  #       assign(
+  #         depth_attr_n_nm,
+  #         get(depth_attr_n_nm, envir = .GlobalEnv) + attr_n, envir = .GlobalEnv)
+  #     }
+  #   }
+  # }
 
   logic_txt <- lapply(x, function(vv){
     mf_nm <- names(vv[2])
@@ -1368,7 +1368,7 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
     }
     vv <- vv[[1]]
     if(inherits(vv, c("sub_criteria"))){
-      paste0("\n", Recall(vv, depth_n + 1, show_levels))
+      paste0("\n", fmt_sub_criteria(vv, depth_n + 1, show_levels))
     }else{
       if(at_nm != ""){
 

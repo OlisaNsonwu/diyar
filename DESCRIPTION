@@ -1,7 +1,7 @@
 Package: diyar
 Type: Package
 Title: Record Linkage and Epidemiological Case Definitions in R
-Date: 2021-12-04
+Date: 2022-12-19
 Version: 0.4.1.9018
 URL: https://olisansonwu.github.io/diyar/index.html 
 BugReports: https://github.com/OlisaNsonwu/diyar/issues

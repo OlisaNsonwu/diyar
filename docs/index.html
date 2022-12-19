@@ -24,6 +24,8 @@
 <![endif]-->
 </head>
 <body data-spy="scroll" data-target="#toc">
+    
+
     <div class="container template-home">
       <header><div class="navbar navbar-default navbar-fixed-top" role="navigation">
   <div class="container">
@@ -36,23 +38,17 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="Released version">0.4.1</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.1.9018</span>
       </span>
     </div>
 
     <div id="navbar" class="navbar-collapse collapse">
       <ul class="nav navbar-nav">
 <li>
-  <a href="index.html">
-    <span class="fas fa-home fa-lg"></span>
-     
-  </a>
-</li>
-<li>
   <a href="reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -68,9 +64,6 @@
       <a href="articles/number_line.html">number_line and overlaps</a>
     </li>
     <li>
-      <a href="articles/overview.html">diyar at a glance</a>
-    </li>
-    <li>
       <a href="articles/panes.html">Divvy up events with partitions</a>
     </li>
   </ul>
@@ -81,7 +74,7 @@
       </ul>
 <ul class="nav navbar-nav navbar-right">
 <li>
-  <a href="https://github.com/OlisaNsonwu/diyar/">
+  <a href="https://github.com/OlisaNsonwu/diyar/" class="external-link">
     <span class="fab fa-github fa-lg"></span>
      
   </a>
@@ -98,188 +91,267 @@
 
       </header><div class="row">
   <div class="contents col-md-9">
-<div id="diyar" class="section level1">
-<div class="page-header"><h1 class="hasAnchor">
-<a href="#diyar" class="anchor"></a>diyar</h1></div>
-
-<div id="overview" class="section level2">
-<h2 class="hasAnchor">
-<a href="#overview" class="anchor"></a>Overview</h2>
-<p>Record linkage and distinguishing between index, duplicate and recurrent events are common tasks in epidemiological analyses and other fields of research, particularly as part of a case definition. Implementing these in <code>R</code> can be complex and challenging. The <code>diyar</code> package provides a convenient and flexible way of doing these in <code>R</code>.</p>
+<div class="section level1">
+<div class="page-header"><h1 id="diyar">diyar<a class="anchor" aria-label="anchor" href="#diyar"></a>
+</h1></div>
+<p><a href="https://cran.r-project.org/package=diyar" class="external-link"><img src="http://www.r-pkg.org/badges/version/diyar" alt="CRAN version"></a> <a href="https://www.r-pkg.org/pkg/diyar" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/diyar" alt="CRAN RStudio mirror downloads"></a> <a href="https://codecov.io/github/OlisaNsonwu/diyar?branch=master" class="external-link"><img src="https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg" alt="Coverage status"></a> <a href="https://travis-ci.org/OlisaNsonwu/diyar" class="external-link"><img src="https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master" alt="Travis build status"></a></p>
+<div class="section level2">
+<h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
+</h2>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="co"># Install the latest CRAN release </span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"diyar"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="co"># Or, install the development version from GitHub</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html" class="external-link">install.packages</a></span><span class="op">(</span><span class="st">"devtools"</span><span class="op">)</span></span>
+<span><span class="fu">devtools</span><span class="fu">::</span><span class="fu"><a href="https://remotes.r-lib.org/reference/install_github.html" class="external-link">install_github</a></span><span class="op">(</span><span class="st">"OlisaNsonwu/diyar"</span><span class="op">)</span></span></code></pre></div>
 </div>
-<div id="installation" class="section level2">
-<h2 class="hasAnchor">
-<a href="#installation" class="anchor"></a>Installation</h2>
-<div class="sourceCode" id="cb1"><pre class="r"><span class="co"># Install the latest CRAN release </span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"diyar"</span>)
-
-<span class="co"># Or, install the development version from GitHub</span>
-<span class="fu"><a href="https://rdrr.io/r/utils/install.packages.html">install.packages</a></span>(<span class="st">"devtools"</span>)
-<span class="kw pkg">devtools</span><span class="kw ns">::</span><span class="fu"><a href="https://devtools.r-lib.org/reference/remote-reexports.html">install_github</a></span>(<span class="st">"OlisaNsonwu/diyar"</span>)</pre></div>
-<!-- ## Usage -->
-<!-- <img src = "fig_r1_light.png" width = "1000" height="580"> -->
-<div id="number-line" class="section level3">
-<h3 class="hasAnchor">
-<a href="#number-line" class="anchor"></a>Number line</h3>
-<p>Use <code><a href="reference/number_line.html">number_line()</a></code> to create <code>number_line</code> objects - a range of numeric values. These can be split or manipulated in several ways.</p>
-<div class="sourceCode" id="cb2"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/base/library.html">library</a></span>(<span class="no">diyar</span>)
-<span class="no">nl</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span>(<span class="fl">1</span>, <span class="fl">10</span>); <span class="no">nl</span>
-<span class="co">#&gt; [1] "1 -&gt; 10"</span>
-<span class="fu"><a href="reference/number_line.html">invert_number_line</a></span>(<span class="no">nl</span>)
-<span class="co">#&gt; [1] "-1 &lt;- -10"</span>
-<span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="no">nl</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">3</span>)
-<span class="co">#&gt; [1] "1 -&gt; 4"  "4 -&gt; 7"  "7 -&gt; 10"</span></pre></div>
-<p><code><a href="reference/overlaps.html">overlap()</a></code> and related functions test how <code>number_line</code> objects overlap.</p>
-<div class="sourceCode" id="cb3"><pre class="r"><span class="fu"><a href="reference/overlaps.html">overlap_method</a></span>(<span class="no">nl</span>, <span class="no">nl</span>); <span class="fu"><a href="reference/overlaps.html">reverse</a></span>(<span class="no">nl</span>, <span class="no">nl</span>)
-<span class="co">#&gt; [1] "exact"</span>
-<span class="co">#&gt; [1] FALSE</span>
-<span class="no">nl2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">reverse_number_line</a></span>(<span class="no">nl</span>); <span class="no">nl2</span>
-<span class="co">#&gt; [1] "10 &lt;- 1"</span>
-<span class="fu"><a href="reference/overlaps.html">overlap_method</a></span>(<span class="no">nl</span>, <span class="no">nl2</span>); <span class="fu"><a href="reference/overlaps.html">reverse</a></span>(<span class="no">nl</span>, <span class="no">nl2</span>)
-<span class="co">#&gt; [1] "reverse"</span>
-<span class="co">#&gt; [1] TRUE</span></pre></div>
-<p>Set operations such as <code><a href="reference/set_operations.html">union_number_lines()</a></code> are also possible for pairs of <code>number_line</code> objects.</p>
-<div class="sourceCode" id="cb4"><pre class="r"><span class="no">nl3</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span>(<span class="fl">1</span>, <span class="fl">20</span>)
-<span class="no">nl4</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span>(<span class="fl">3</span>, <span class="fl">6</span>)
-<span class="no">nl3</span>; <span class="no">nl4</span>
-<span class="co">#&gt; [1] "1 -&gt; 20"</span>
-<span class="co">#&gt; [1] "3 -&gt; 6"</span>
-<span class="fu"><a href="reference/overlaps.html">overlap_method</a></span>(<span class="no">nl3</span>, <span class="no">nl4</span>)
-<span class="co">#&gt; [1] "y_inbetween_x"</span>
-<span class="fu"><a href="reference/set_operations.html">intersect_number_lines</a></span>(<span class="no">nl3</span>, <span class="no">nl4</span>)
-<span class="co">#&gt; [1] "3 -&gt; 6"</span>
-<span class="fu"><a href="reference/set_operations.html">subtract_number_lines</a></span>(<span class="no">nl3</span>, <span class="no">nl4</span>)
-<span class="co">#&gt; $n1</span>
-<span class="co">#&gt; [1] "1 -&gt; 3"</span>
-<span class="co">#&gt; </span>
-<span class="co">#&gt; $n2</span>
-<span class="co">#&gt; [1] "6 -&gt; 20"</span></pre></div>
+<div class="section level2">
+<h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
+</h2>
+<p><code>diyar</code> is an <code>R</code> package for linking records with shared characteristics. The linked records represent an entity, which depending on the context of the analysis can represent unique patients, infection episodes, overlapping periods of care, clusters or other occurrences as defined by a case definition. Each entity is assigned an uniquely identifiable number. This makes it useful in ordinarily complex analyses such as record linkage,<br>
+contact or network analyses e.t.c.</p>
+<p>The main functions <code><a href="reference/links.html">links()</a></code>, <code><a href="reference/episodes.html">episodes()</a></code> and <code><a href="reference/partitions.html">partitions()</a></code>. They are flexible in terms of what and how they compare records, as well as what are considered matches. Their functionality can sometimes overlap however, each is better suited to particular use cases:</p>
+<ul>
+<li>
+<code><a href="reference/links.html">links()</a></code> - link records with no relevance to an index record. For example, deterministic record linkage</li>
+<li>
+<code><a href="reference/episodes.html">episodes()</a></code> - link records in relation to an index record. For example, contact and network analysis.<br>
+</li>
+<li>
+<code><a href="reference/partitions.html">partitions()</a></code> - link records in relation to a fixed interval.</li>
+</ul>
 </div>
-<div id="record-linkage" class="section level3">
-<h3 class="hasAnchor">
-<a href="#record-linkage" class="anchor"></a>Record linkage</h3>
-<p>Use <code><a href="reference/links.html">links()</a></code> to create a unique identifier for matching records based on a multistage deterministic approach to record linkage.</p>
-<div class="sourceCode" id="cb5"><pre class="r"><span class="no">attr_1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>)
-<span class="no">attr_2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">NA</span>, <span class="fl">NA</span>, <span class="fl">NA</span>)
-<span class="fu"><a href="reference/links.html">links</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">list</a></span>(<span class="no">attr_1</span>, <span class="no">attr_2</span>))
-<span class="co">#&gt; [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 002)"</span>
-<span class="co">#&gt; [5] "P.1 (CRI 002)" "P.6 (No hits)" "P.7 (No hits)" "P.8 (No hits)"</span></pre></div>
-<p>Use <code><a href="reference/link_records.html">link_records()</a></code> to implement both deterministic and probabilistic record linkage by comparing every possible record-pair.</p>
-<div class="sourceCode" id="cb6"><pre class="r"><span class="fu"><a href="https://rdrr.io/r/utils/data.html">data</a></span>(<span class="no">missing_staff_id</span>)
-<span class="no">dfr</span> <span class="kw">&lt;-</span> <span class="no">missing_staff_id</span>[<span class="fu"><a href="https://rdrr.io/r/base/c.html">c</a></span>(<span class="st">"staff_id"</span>,  <span class="st">"initials"</span>, <span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>)]
-<span class="no">p1</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/link_records.html">link_records</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="no">dfr</span>), <span class="kw">score_threshold</span> <span class="kw">=</span> -<span class="fl">4.2</span>)
-<span class="no">p1</span>$<span class="no">pid</span>
-<span class="co">#&gt; [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"</span>
-<span class="co">#&gt; [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.1 (CRI 001)"</span>
-<span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">p1</span>$<span class="no">pid_weights</span>, <span class="no">record.match</span>)
-<span class="co">#&gt;    sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office</span>
-<span class="co">#&gt; 6     1    7            0            1               1                 1</span>
-<span class="co">#&gt; 21    6    7            1            1               0                 0</span>
-<span class="co">#&gt;    cmp.weight prb.staff_id prb.initials prb.hair_colour prb.branch_office</span>
-<span class="co">#&gt; 6           3    -3.358454     1.074391        1.659354          1.659354</span>
-<span class="co">#&gt; 21          2     1.659354     1.074391       -3.298333         -3.298333</span>
-<span class="co">#&gt;    prb.weight record.match</span>
-<span class="co">#&gt; 6    1.034645         TRUE</span>
-<span class="co">#&gt; 21  -3.862921         TRUE</span></pre></div>
-<p><code><a href="reference/link_records.html">links_wf_probabilistic()</a></code> is a wrapper function of <code><a href="reference/links.html">links()</a></code> and an alternative to <code><a href="reference/link_records.html">link_records()</a></code>. It’s less memory intensive but can be slower in comparison.</p>
-<div class="sourceCode" id="cb7"><pre class="r"><span class="no">p2</span> <span class="kw">&lt;-</span> <span class="fu"><a href="reference/link_records.html">links_wf_probabilistic</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/list.html">as.list</a></span>(<span class="no">dfr</span>), <span class="kw">score_threshold</span> <span class="kw">=</span> -<span class="fl">4.2</span>, <span class="kw">recursive</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="no">p2</span>$<span class="no">pid</span>
-<span class="co">#&gt; [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"</span>
-<span class="co">#&gt; [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.1 (CRI 001)"</span>
-<span class="fu"><a href="https://rdrr.io/r/base/subset.html">subset</a></span>(<span class="no">p2</span>$<span class="no">pid_weights</span>, <span class="no">record.match</span>)
-<span class="co">#&gt;   sn_x sn_y cmp.staff_id cmp.initials cmp.hair_colour cmp.branch_office</span>
-<span class="co">#&gt; 1    1    1            0            1               1                 1</span>
-<span class="co">#&gt; 6    6    7            1            1               0                 0</span>
-<span class="co">#&gt; 7    7    1            0            1               1                 1</span>
-<span class="co">#&gt;   cmp.weight prb.staff_id prb.initials prb.hair_colour prb.branch_office</span>
-<span class="co">#&gt; 1          3    -4.321928     1.148392        1.733354          1.733354</span>
-<span class="co">#&gt; 6          2     1.733354     1.148392       -3.298333         -3.298333</span>
-<span class="co">#&gt; 7          3    -3.836501     1.148392        1.733354          1.733354</span>
-<span class="co">#&gt;   prb.weight record.match</span>
-<span class="co">#&gt; 1  0.2931724         TRUE</span>
-<span class="co">#&gt; 6 -3.7149198         TRUE</span>
-<span class="co">#&gt; 7  0.7785993         TRUE</span></pre></div>
+<div class="section level2">
+<h2 id="links">links()<a class="anchor" aria-label="anchor" href="#links"></a>
+</h2>
+<p><strong>Key features;</strong></p>
+<ul>
+<li>multi-stage record linkage. Here, multiple linkage criteria are assessed in a specified order of priority.</li>
+</ul>
+<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="va"><a href="https://olisansonwu.github.io/diyar/index.html" class="external-link">diyar</a></span><span class="op">)</span></span>
+<span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">missing_staff_id</span><span class="op">)</span></span>
+<span><span class="va">dfr_stages</span> <span class="op">&lt;-</span> <span class="va">missing_staff_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"age"</span>, <span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span><span class="op">)</span><span class="op">]</span></span>
+<span><span class="va">priority_order_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span><span class="op">)</span></span>
+<span><span class="va">priority_order_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"branch_office"</span>, <span class="st">"hair_colour"</span><span class="op">)</span></span>
+<span></span>
+<span><span class="va">dfr_stages</span><span class="op">$</span><span class="va">id.1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/links.html">links</a></span><span class="op">(</span>criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">dfr_stages</span><span class="op">[</span><span class="va">priority_order_1</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dfr_stages</span><span class="op">$</span><span class="va">id.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/links.html">links</a></span><span class="op">(</span>criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">dfr_stages</span><span class="op">[</span><span class="va">priority_order_2</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>create and use complex rules for record matching. This is done with a <code><a href="reference/sub_criteria.html">sub_criteria()</a></code>.</li>
+</ul>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">sub.cri.1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sub_criteria.html">sub_criteria</a></span><span class="op">(</span></span>
+<span>  hair.color <span class="op">=</span> <span class="va">dfr_stages</span><span class="op">$</span><span class="va">hair_colour</span>,</span>
+<span>  age <span class="op">=</span> <span class="va">dfr_stages</span><span class="op">$</span><span class="va">age</span>,</span>
+<span>  match_funcs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"exact"</span> <span class="op">=</span> <span class="va">exact_match</span>,</span>
+<span>    <span class="st">"age.range"</span> <span class="op">=</span> <span class="va">range_match</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">last_word_wf</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/base/chartr.html" class="external-link">tolower</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/grep.html" class="external-link">gsub</a></span><span class="op">(</span><span class="st">"^.* "</span>, <span class="st">""</span>, <span class="va">x</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">last_word_cmp</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="fu">last_word_wf</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">==</span> <span class="fu">last_word_wf</span><span class="op">(</span><span class="va">y</span><span class="op">)</span></span>
+<span><span class="va">not_equal</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span> <span class="va">x</span> <span class="op">!=</span> <span class="va">y</span></span>
+<span><span class="va">sub.cri.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sub_criteria.html">sub_criteria</a></span><span class="op">(</span></span>
+<span>  <span class="va">dfr_stages</span><span class="op">$</span><span class="va">branch_office</span>, </span>
+<span>  <span class="va">dfr_stages</span><span class="op">$</span><span class="va">age</span>,</span>
+<span>  match_funcs <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span></span>
+<span>    <span class="st">"last.word"</span> <span class="op">=</span> <span class="va">last_word_cmp</span>,</span>
+<span>    <span class="st">"not.equal"</span> <span class="op">=</span> <span class="va">not_equal</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">sub.cri.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/sub_criteria.html">sub_criteria</a></span><span class="op">(</span><span class="va">sub.cri.1</span>, <span class="va">sub.cri.2</span>, operator <span class="op">=</span> <span class="st">"and"</span><span class="op">)</span></span>
+<span><span class="va">sub.cri.1</span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt; exact(hair.color) OR age.range(age)</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="va">sub.cri.2</span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt; last.word(Republic of Ghana,France ...) OR not.equal(30,30 ...)</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="va">sub.cri.3</span></span>
+<span><span class="co">#&gt; {</span></span>
+<span><span class="co">#&gt;   {</span></span>
+<span><span class="co">#&gt;   exact(hair.color) OR age.range(age)</span></span>
+<span><span class="co">#&gt;   } AND </span></span>
+<span><span class="co">#&gt;   {</span></span>
+<span><span class="co">#&gt;   last.word(Republic of Ghana,France ...) OR not.equal(30,30 ...)</span></span>
+<span><span class="co">#&gt;   }</span></span>
+<span><span class="co">#&gt; }</span></span>
+<span><span class="va">dfr_stages</span><span class="op">$</span><span class="va">id.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/links.html">links</a></span><span class="op">(</span></span>
+<span>  criteria <span class="op">=</span> <span class="st">"place_holder"</span>,</span>
+<span>  sub_criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="st">"cr1"</span> <span class="op">=</span> <span class="va">sub.cri.3</span><span class="op">)</span></span>
+<span><span class="op">)</span></span>
+<span><span class="va">dfr_stages</span></span>
+<span><span class="co">#&gt;   age hair_colour     branch_office          id.1          id.2          id.3</span></span>
+<span><span class="co">#&gt; 1  30       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span>
+<span><span class="co">#&gt; 2  30        Teal            France P.4 (CRI 002) P.2 (CRI 001) P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 3  30        &lt;NA&gt;              &lt;NA&gt; P.3 (No hits) P.3 (No hits) P.3 (No hits)</span></span>
+<span><span class="co">#&gt; 4  30       Green              &lt;NA&gt; P.4 (CRI 001) P.2 (CRI 002) P.4 (No hits)</span></span>
+<span><span class="co">#&gt; 5  30       Green            France P.4 (CRI 001) P.2 (CRI 001) P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 6  30  Dark brown             Ghana P.6 (No hits) P.6 (No hits) P.1 (CRI 001)</span></span>
+<span><span class="co">#&gt; 7  30       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span></code></pre></div>
+<p>There are variations of <code><a href="reference/links.html">links()</a></code> like <code><a href="reference/links_wf.html">links_wf_probabilistic()</a></code> and <code><a href="reference/links_wf.html">links_sv_probabilistic()</a></code> for specific use cases such as probabilistic record linkage.</p>
 </div>
-<div id="case-definitions" class="section level3">
-<h3 class="hasAnchor">
-<a href="#case-definitions" class="anchor"></a>Case definitions</h3>
-<p>Use <code><a href="reference/episodes.html">episodes()</a></code> to create a unique identifier for related events based on a case definition.</p>
-<div class="sourceCode" id="cb8"><pre class="r"><span class="no">dates</span> <span class="kw">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/seq.html">seq</a></span>(<span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"2020-01-01"</span>), <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html">as.Date</a></span>(<span class="st">"2020-01-07"</span>), <span class="kw">by</span> <span class="kw">=</span> <span class="fl">1</span>)
-<span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="no">dates</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; [1] "E.1 2020-01-01 -&gt; 2020-01-03 (C)" "E.1 2020-01-01 -&gt; 2020-01-03 (D)"</span>
-<span class="co">#&gt; [3] "E.1 2020-01-01 -&gt; 2020-01-03 (D)" "E.4 2020-01-04 -&gt; 2020-01-06 (C)"</span>
-<span class="co">#&gt; [5] "E.4 2020-01-04 -&gt; 2020-01-06 (D)" "E.4 2020-01-04 -&gt; 2020-01-06 (D)"</span>
-<span class="co">#&gt; [7] "E.7 2020-01-07 == 2020-01-07 (C)"</span>
-<span class="fu"><a href="reference/episodes.html">episodes</a></span>(<span class="no">dates</span>, <span class="kw">case_length</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">episode_type</span> <span class="kw">=</span> <span class="st">"rolling"</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; [1] "E.1 2020-01-01 -&gt; 2020-01-07 (C)" "E.1 2020-01-01 -&gt; 2020-01-07 (D)"</span>
-<span class="co">#&gt; [3] "E.1 2020-01-01 -&gt; 2020-01-07 (D)" "E.1 2020-01-01 -&gt; 2020-01-07 (R)"</span>
-<span class="co">#&gt; [5] "E.1 2020-01-01 -&gt; 2020-01-07 (D)" "E.1 2020-01-01 -&gt; 2020-01-07 (R)"</span>
-<span class="co">#&gt; [7] "E.1 2020-01-01 -&gt; 2020-01-07 (D)"</span></pre></div>
-<p>Use <code><a href="reference/partitions.html">partitions()</a></code> to create a unique identifier for events within the same period or numerical interval.</p>
-<div class="sourceCode" id="cb9"><pre class="r"><span class="fu"><a href="reference/partitions.html">partitions</a></span>(<span class="no">dates</span>, <span class="kw">by</span> <span class="kw">=</span> <span class="fl">2</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; [1] "PN.1 2020-01-01 -&gt; 2020-01-02 (I)" "PN.1 2020-01-01 -&gt; 2020-01-02 (D)"</span>
-<span class="co">#&gt; [3] "PN.3 2020-01-03 -&gt; 2020-01-04 (I)" "PN.3 2020-01-03 -&gt; 2020-01-04 (D)"</span>
-<span class="co">#&gt; [5] "PN.5 2020-01-05 -&gt; 2020-01-07 (I)" "PN.5 2020-01-05 -&gt; 2020-01-07 (D)"</span>
-<span class="co">#&gt; [7] "PN.5 2020-01-05 -&gt; 2020-01-07 (D)"</span>
-<span class="fu"><a href="reference/partitions.html">partitions</a></span>(<span class="no">dates</span>, <span class="kw">length.out</span> <span class="kw">=</span> <span class="fl">3</span>, <span class="kw">separate</span> <span class="kw">=</span> <span class="fl">TRUE</span>, <span class="kw">group_stats</span> <span class="kw">=</span> <span class="fl">TRUE</span>)
-<span class="co">#&gt; [1] "PN.1 2020-01-01 -&gt; 2020-01-02 (I)" "PN.1 2020-01-01 -&gt; 2020-01-02 (D)"</span>
-<span class="co">#&gt; [3] "PN.3 2020-01-03 -&gt; 2020-01-04 (I)" "PN.3 2020-01-03 -&gt; 2020-01-04 (D)"</span>
-<span class="co">#&gt; [5] "PN.5 2020-01-05 -&gt; 2020-01-07 (I)" "PN.5 2020-01-05 -&gt; 2020-01-07 (D)"</span>
-<span class="co">#&gt; [7] "PN.5 2020-01-05 -&gt; 2020-01-07 (D)"</span></pre></div>
-<p>Find out more <a href="https://olisansonwu.github.io/diyar/articles/overview.html">here!</a></p>
+<div class="section level2">
+<h2 id="episodes">episodes()<a class="anchor" aria-label="anchor" href="#episodes"></a>
+</h2>
+<p><strong>Key features;</strong></p>
+<ul>
+<li>link records within a specified period from an index record.</li>
+</ul>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dfr_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>date <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="st">"2020-01-01"</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">:</span><span class="fl">15</span>, <span class="fl">20</span><span class="op">:</span><span class="fl">25</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dfr_2</span><span class="op">$</span><span class="va">id.1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/episodes.html">episodes</a></span><span class="op">(</span></span>
+<span>  date <span class="op">=</span> <span class="va">dfr_2</span><span class="op">$</span><span class="va">date</span>, case_length <span class="op">=</span> <span class="fl">2</span>,</span>
+<span>  episodes_max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>change the index record.</li>
+</ul>
+<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dfr_2</span><span class="op">$</span><span class="va">pref</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">8</span><span class="op">)</span>, <span class="fl">1</span>, <span class="fu"><a href="https://rdrr.io/r/base/rep.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span>
+<span><span class="va">dfr_2</span><span class="op">$</span><span class="va">id.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/episodes.html">episodes</a></span><span class="op">(</span></span>
+<span>  date <span class="op">=</span> <span class="va">dfr_2</span><span class="op">$</span><span class="va">date</span>, case_length <span class="op">=</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>,</span>
+<span>  episodes_max <span class="op">=</span> <span class="fl">1</span>, </span>
+<span>  custom_sort <span class="op">=</span> <span class="va">dfr_2</span><span class="op">$</span><span class="va">pref</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>add a recurrence period</li>
+</ul>
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dfr_2</span><span class="op">$</span><span class="va">id.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/episodes.html">episodes</a></span><span class="op">(</span></span>
+<span>  date <span class="op">=</span> <span class="va">dfr_2</span><span class="op">$</span><span class="va">date</span>, case_length <span class="op">=</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span><span class="op">(</span><span class="op">-</span><span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span>, </span>
+<span>  episode_type <span class="op">=</span> <span class="st">"rolling"</span>, recurrence_length <span class="op">=</span> <span class="fl">1</span>,</span>
+<span>  episodes_max <span class="op">=</span> <span class="fl">1</span>, rolls_max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
+<ul>
+<li>link overlaping periods</li>
+</ul>
+<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span><span class="op">(</span><span class="va">dfr_2</span><span class="op">$</span><span class="va">date</span>, <span class="va">dfr_2</span><span class="op">$</span><span class="va">date</span> <span class="op">+</span> <span class="fl">5</span><span class="op">)</span></span>
+<span><span class="va">dfr_2</span><span class="op">$</span><span class="va">id.4</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/episodes.html">episodes</a></span><span class="op">(</span></span>
+<span>  date <span class="op">=</span> <span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span>, case_length <span class="op">=</span> <span class="fu"><a href="reference/windows.html">index_window</a></span><span class="op">(</span><span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span><span class="op">)</span>,</span>
+<span>  episodes_max <span class="op">=</span> <span class="fl">1</span>, rolls_max <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span><span class="va">dfr_2</span></span>
+<span><span class="co">#&gt;          date     id.1 pref     id.2     id.3                   period     id.4</span></span>
+<span><span class="co">#&gt; 1  2020-01-02 E.01 (C)    2 E.01 (S) E.01 (C) 2020-01-02 -&gt; 2020-01-07 E.01 (C)</span></span>
+<span><span class="co">#&gt; 2  2020-01-03 E.01 (D)    2 E.02 (S) E.01 (D) 2020-01-03 -&gt; 2020-01-08 E.01 (D)</span></span>
+<span><span class="co">#&gt; 3  2020-01-04 E.01 (D)    2 E.03 (S) E.01 (D) 2020-01-04 -&gt; 2020-01-09 E.01 (D)</span></span>
+<span><span class="co">#&gt; 4  2020-01-05 E.04 (S)    2 E.04 (S) E.01 (R) 2020-01-05 -&gt; 2020-01-10 E.01 (D)</span></span>
+<span><span class="co">#&gt; 5  2020-01-06 E.05 (S)    2 E.05 (S) E.05 (S) 2020-01-06 -&gt; 2020-01-11 E.01 (D)</span></span>
+<span><span class="co">#&gt; 6  2020-01-11 E.06 (S)    2 E.06 (S) E.06 (S) 2020-01-11 -&gt; 2020-01-16 E.06 (S)</span></span>
+<span><span class="co">#&gt; 7  2020-01-12 E.07 (S)    2 E.09 (D) E.07 (S) 2020-01-12 -&gt; 2020-01-17 E.07 (S)</span></span>
+<span><span class="co">#&gt; 8  2020-01-13 E.08 (S)    2 E.09 (D) E.08 (S) 2020-01-13 -&gt; 2020-01-18 E.08 (S)</span></span>
+<span><span class="co">#&gt; 9  2020-01-14 E.09 (S)    1 E.09 (C) E.09 (S) 2020-01-14 -&gt; 2020-01-19 E.09 (S)</span></span>
+<span><span class="co">#&gt; 10 2020-01-15 E.10 (S)    2 E.09 (D) E.10 (S) 2020-01-15 -&gt; 2020-01-20 E.10 (S)</span></span>
+<span><span class="co">#&gt; 11 2020-01-16 E.11 (S)    2 E.09 (D) E.11 (S) 2020-01-16 -&gt; 2020-01-21 E.11 (S)</span></span>
+<span><span class="co">#&gt; 12 2020-01-21 E.12 (S)    2 E.12 (S) E.12 (S) 2020-01-21 -&gt; 2020-01-26 E.12 (S)</span></span>
+<span><span class="co">#&gt; 13 2020-01-22 E.13 (S)    2 E.13 (S) E.13 (S) 2020-01-22 -&gt; 2020-01-27 E.13 (S)</span></span>
+<span><span class="co">#&gt; 14 2020-01-23 E.14 (S)    2 E.14 (S) E.14 (S) 2020-01-23 -&gt; 2020-01-28 E.14 (S)</span></span>
+<span><span class="co">#&gt; 15 2020-01-24 E.15 (S)    2 E.15 (S) E.15 (S) 2020-01-24 -&gt; 2020-01-29 E.15 (S)</span></span>
+<span><span class="co">#&gt; 16 2020-01-25 E.16 (S)    2 E.16 (S) E.16 (S) 2020-01-25 -&gt; 2020-01-30 E.16 (S)</span></span>
+<span><span class="co">#&gt; 17 2020-01-26 E.17 (S)    2 E.17 (S) E.17 (S) 2020-01-26 -&gt; 2020-01-31 E.17 (S)</span></span></code></pre></div>
+<p>There are variations of <code><a href="reference/episodes.html">episodes()</a></code> like <code><a href="reference/episodes_wf_splits.html">episodes_wf_splits()</a></code> for specific use cases such as more efficient handling of duplicate records.</p>
 </div>
+<div class="section level2">
+<h2 id="partitions">partitions()<a class="anchor" aria-label="anchor" href="#partitions"></a>
+</h2>
+<p><strong>Key features;</strong></p>
+<ul>
+<li>link all records within a specific periods in time</li>
+</ul>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dfr_3</span> <span class="op">&lt;-</span> <span class="va">dfr_2</span><span class="op">[</span><span class="st">"date"</span><span class="op">]</span></span>
+<span><span class="va">dfr_3</span><span class="op">$</span><span class="va">id.1</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partitions.html">partitions</a></span><span class="op">(</span></span>
+<span>  date <span class="op">=</span> <span class="va">dfr_3</span><span class="op">$</span><span class="va">date</span>, </span>
+<span>  window <span class="op">=</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-10"</span>, <span class="st">"2020-01-17"</span><span class="op">)</span><span class="op">)</span>, </span>
+<span>                       <span class="fu"><a href="https://rdrr.io/r/base/as.Date.html" class="external-link">as.Date</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"2020-01-12"</span>, <span class="st">"2020-01-24"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span>
+<span>  <span class="op">)</span></span></code></pre></div>
+<ul>
+<li>link all records within a splits of an interval</li>
+</ul>
+<div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span><span class="va">dfr_3</span><span class="op">$</span><span class="va">id.2</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partitions.html">partitions</a></span><span class="op">(</span>date <span class="op">=</span> <span class="va">dfr_3</span><span class="op">$</span><span class="va">date</span>, by <span class="op">=</span> <span class="fl">3</span>, separate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span> </span>
+<span><span class="va">dfr_3</span><span class="op">$</span><span class="va">id.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partitions.html">partitions</a></span><span class="op">(</span>date <span class="op">=</span> <span class="va">dfr_3</span><span class="op">$</span><span class="va">date</span>, length.out <span class="op">=</span> <span class="fl">3</span>, separate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
+<span><span class="va">dfr_3</span></span>
+<span><span class="co">#&gt;          date      id.1      id.2      id.3</span></span>
+<span><span class="co">#&gt; 1  2020-01-02 PN.01 (S) PN.01 (I) PN.01 (I)</span></span>
+<span><span class="co">#&gt; 2  2020-01-03 PN.02 (S) PN.01 (D) PN.01 (D)</span></span>
+<span><span class="co">#&gt; 3  2020-01-04 PN.03 (S) PN.01 (D) PN.01 (D)</span></span>
+<span><span class="co">#&gt; 4  2020-01-05 PN.04 (S) PN.04 (I) PN.01 (D)</span></span>
+<span><span class="co">#&gt; 5  2020-01-06 PN.05 (S) PN.04 (D) PN.01 (D)</span></span>
+<span><span class="co">#&gt; 6  2020-01-11 PN.06 (I) PN.06 (I) PN.06 (I)</span></span>
+<span><span class="co">#&gt; 7  2020-01-12 PN.06 (D) PN.06 (D) PN.06 (D)</span></span>
+<span><span class="co">#&gt; 8  2020-01-13 PN.08 (S) PN.06 (D) PN.06 (D)</span></span>
+<span><span class="co">#&gt; 9  2020-01-14 PN.09 (S) PN.09 (I) PN.06 (D)</span></span>
+<span><span class="co">#&gt; 10 2020-01-15 PN.10 (S) PN.09 (D) PN.06 (D)</span></span>
+<span><span class="co">#&gt; 11 2020-01-16 PN.11 (S) PN.09 (D) PN.06 (D)</span></span>
+<span><span class="co">#&gt; 12 2020-01-21 PN.06 (D) PN.12 (I) PN.12 (I)</span></span>
+<span><span class="co">#&gt; 13 2020-01-22 PN.06 (D) PN.12 (D) PN.12 (D)</span></span>
+<span><span class="co">#&gt; 14 2020-01-23 PN.06 (D) PN.14 (I) PN.12 (D)</span></span>
+<span><span class="co">#&gt; 15 2020-01-24 PN.06 (D) PN.14 (D) PN.12 (D)</span></span>
+<span><span class="co">#&gt; 16 2020-01-25 PN.16 (S) PN.14 (D) PN.12 (D)</span></span>
+<span><span class="co">#&gt; 17 2020-01-26 PN.17 (S) PN.14 (D) PN.12 (D)</span></span></code></pre></div>
+<p>Other useful functions include in the <code>diyar</code> package include <code><a href="reference/combi.html">combi()</a></code> and <code><a href="reference/make_pairs.html">sets()</a></code>.</p>
+<p>Find out more!</p>
+<ul>
+<li><a href="articles/number_line.html">number_line and overlaps</a></li>
+<li><a href="articles/episodes.html">Introduction to epidemiological case definitions with diyar</a></li>
+<li><a href="articles/links.html">Introduction to record linkage with diyar</a></li>
+<li><a href="articles/panes.html">Divvy up events with partitions</a></li>
+</ul>
 </div>
-<div id="bugs-and-issues" class="section level2">
-<h2 class="hasAnchor">
-<a href="#bugs-and-issues" class="anchor"></a>Bugs and issues</h2>
-<p>Please report any bug or issues with using this package <a href="https://github.com/OlisaNsonwu/diyar/issues">here</a>.</p>
+<div class="section level2">
+<h2 id="bugs-and-issues">Bugs and issues<a class="anchor" aria-label="anchor" href="#bugs-and-issues"></a>
+</h2>
+<p>Please report any bug or issues with using this package <a href="https://github.com/OlisaNsonwu/diyar/issues" class="external-link">here</a>.</p>
 </div>
 </div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
     <div class="links">
-<h2>Links</h2>
+<h2 data-toc-skip>Links</h2>
 <ul class="list-unstyled">
-<li>Download from CRAN at <br><a href="https://cloud.r-project.org/package=diyar">https://​cloud.r-project.org/​package=diyar</a>
-</li>
-<li>Browse source code at <br><a href="https://github.com/OlisaNsonwu/diyar/">https://​github.com/​OlisaNsonwu/​diyar/​</a>
-</li>
-<li>Report a bug at <br><a href="https://github.com/OlisaNsonwu/diyar/issues">https://​github.com/​OlisaNsonwu/​diyar/​issues</a>
-</li>
+<li><a href="https://cloud.r-project.org/package=diyar" class="external-link">View on CRAN</a></li>
+<li><a href="https://github.com/OlisaNsonwu/diyar/" class="external-link">Browse source code</a></li>
+<li><a href="https://github.com/OlisaNsonwu/diyar/issues" class="external-link">Report a bug</a></li>
 </ul>
 </div>
+
 <div class="license">
-<h2>License</h2>
+<h2 data-toc-skip>License</h2>
 <ul class="list-unstyled">
-<li><a href="https://www.r-project.org/Licenses/GPL-3">GPL-3</a></li>
+<li><a href="https://www.r-project.org/Licenses/GPL-3" class="external-link">GPL-3</a></li>
 </ul>
 </div>
+
+
+<div class="citation">
+<h2 data-toc-skip>Citation</h2>
+<ul class="list-unstyled">
+<li><a href="authors.html#citation">Citing diyar</a></li>
+</ul>
+</div>
+
 <div class="developers">
-<h2>Developers</h2>
+<h2 data-toc-skip>Developers</h2>
 <ul class="list-unstyled">
 <li>Olisaeloka Nsonwu <br><small class="roles"> Maintainer </small>  </li>
 </ul>
 </div>
 
-  <div class="dev-status">
-<h2>Dev status</h2>
-<ul class="list-unstyled">
-<li><a href="https://cran.r-project.org/package=diyar"><img src="http://www.r-pkg.org/badges/version/diyar" alt="CRAN version"></a></li>
-<li><a href="https://www.r-pkg.org/pkg/diyar"><img src="https://cranlogs.r-pkg.org/badges/diyar" alt="CRAN RStudio mirror downloads"></a></li>
-<li><a href="https://codecov.io/github/OlisaNsonwu/diyar?branch=master"><img src="https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg" alt="Coverage status"></a></li>
-</ul>
-</div>
-</div>
+
+
+  </div>
 </div>
 
 
       <footer><div class="copyright">
-  <p>Developed by Olisaeloka Nsonwu.</p>
+  <p></p>
+<p>Developed by Olisaeloka Nsonwu.</p>
 </div>
 
 <div class="pkgdown">
-  <p>Site built with <a href="https://pkgdown.r-lib.org/">pkgdown</a> 1.5.1.</p>
+  <p></p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.7.</p>
 </div>
 
       </footer>
@@ -287,6 +359,8 @@
 
   
 
+
+  
 
   </body>
 </html>
