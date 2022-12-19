@@ -1289,14 +1289,7 @@ make_batch_pairs <- function(strata, assign_ord, index_record, sn, ignore_same_s
   if(isTRUE(includes_multi_index)){
     pos_repo$y_tot <- rep(rrr$lengths, rrr$lengths)
     if(isFALSE(look_back)){
-      # browser()
-      # pos_repo$y_ord <- sequence(rrr$lengths)
-
       temporal_ord <- order(strata, abs(assign_ord), decreasing = FALSE)
-      # tmp_strata <- strata[temporal_ord]
-      # rrrr <- rle(strata)
-      # rrrr <- sequence(rrr$lengths)[temporal_ord]
-      # temporal_ord <- temporal_ord[order(temporal_ord)]
       pos_repo$y_ord <- sequence(rrr$lengths)[temporal_ord]
 
     }
@@ -1347,30 +1340,45 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   operator_txt <- toupper(attr(x, "operator"))
   operator_txt <- paste0(" ", operator_txt," ")
 
-  logic_txt <- lapply(x, function(el){
-    mf_nm <- names(el[2])
+  attr_n <- length(x)
+
+  if(FALSE){
+    if(isTRUE(show_levels)){
+      depth_attr_n_nm <- paste0("diyar.recurs.depth.", depth_n)
+      if(!exists(depth_attr_n_nm, 0, envir = .GlobalEnv)){
+        assign(depth_attr_n_nm, 0, envir = .GlobalEnv)
+      }else{
+        assign(
+          depth_attr_n_nm,
+          get(depth_attr_n_nm, envir = .GlobalEnv) + attr_n, envir = .GlobalEnv)
+      }
+    }
+  }
+
+  logic_txt <- lapply(x, function(vv){
+    mf_nm <- names(vv[2])
     if(length(mf_nm) == 0){
       mf_nm <- "match_func"
     }else if(mf_nm == ""){
       mf_nm <- "match_func"
     }
-    at_nm <- names(el[1])
+    at_nm <- names(vv[1])
     if(length(at_nm) == 0){
       at_nm <- ""
     }
-    el <- el[[1]]
-    if(inherits(el, c("sub_criteria"))){
-      paste0("\n", fmt_sub_criteria(el, depth_n + 1, show_levels))
+    vv <- vv[[1]]
+    if(inherits(vv, c("sub_criteria"))){
+      paste0("\n", Recall(vv, depth_n + 1, show_levels))
     }else{
       if(at_nm != ""){
 
-      }else if(is.atomic(el)){
-        at_nm <- listr(trimws(format(el)), lim = 2, sep = ",")
+      }else if(is.atomic(vv)){
+        at_nm <- listr(trimws(format(vv)), lim = 2, sep = ",")
       }else{
-        if(!is.null(names(el))){
-          at_nm <- paste0(class(el), "; ", listr(paste0("`", names(el), "`"), lim = 2))
+        if(!is.null(names(vv))){
+          at_nm <- paste0(class(vv), "; ", listr(paste0("`", names(vv), "`"), lim = 2))
         }else{
-          at_nm <- class(el)
+          at_nm <- class(vv)
         }
       }
       paste0(mf_nm, "(", at_nm, ")")
@@ -1379,11 +1387,16 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
 
   if(isTRUE(show_levels)){
     logic_txt <- lapply(1:length(logic_txt), function(i){
-      if(grepl("^\\n", logic_txt[[i]])){
-        paste0("\n", left_indent, "Lv.", depth_n, ".", i, "-", logic_txt[[i]])
-        gsub(" \\{\\n ", paste0(" Lv.", depth_n, ".", i, "-", "{\n "), logic_txt[[i]])
+      if(FALSE){
+        i2 <- get(depth_attr_n_nm, envir = .GlobalEnv) + i
       }else{
-        paste0("Lv.", depth_n, ".", i, "-", logic_txt[[i]])
+        i2 <- i
+      }
+      if(grepl("^\\n", logic_txt[[i]])){
+        paste0("\n", left_indent, "Lv.", depth_n, ".", i2, "-", logic_txt[[i]])
+        gsub(" \\{\\n ", paste0(" Lv.", depth_n, ".", i2, "-", "{\n "), logic_txt[[i]])
+      }else{
+        paste0("Lv.", depth_n, ".", i2, "-", logic_txt[[i]])
       }
     })
   }

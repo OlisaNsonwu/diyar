@@ -450,8 +450,6 @@ links <- function(criteria,
         web$h_ri <- seq_len(length(web$cri))
 
         web$indx <- order(order(web$pr_sn))
-
-        # browser()
         if(isTRUE(tolower(web$batched[i]) == "yes")){
           # Reference records
           web$lgk <- which(!duplicated(web$cri, fromLast = TRUE))
@@ -498,7 +496,7 @@ links <- function(criteria,
         web$export.nm <- names(web$sub_cri_match)
         web$export.nm <- web$export.nm[!grepl("^logical|^equal", web$export.nm)]
         if(length(web$export.nm) > 0){
-          web$export[[paste0("iteration.", ite)]] <- web$sub_cri_match[web$export.nm]
+          web$export[[paste0("cri.", i)]][[paste0("iteration.", ite)]] <- web$sub_cri_match[web$export.nm]
           web$sub_cri_match[web$export.nm] <- NULL
         }
 
@@ -619,9 +617,6 @@ links <- function(criteria,
         web$pid_cri[which(web$pid_cri == web$mxp_cri | (web$pid_cri != web$mxp_cri & web$shrink))] <- i
 
         # If not recursive, exclude linked records.
-        if(ite == 3){
-          # debugonce(prob_link)
-        }
         if(isFALSE(web$recursive)){
           web$inc_lgk <- which(web$m_tag == 2)
           web$exc_lgk <- which(web$m_tag != 2)
@@ -780,7 +775,6 @@ links <- function(criteria,
   web$r <- rle(sort(web$pid))
   web$pids@pid_total <- web$r$lengths[match(web$pid, web$r$values)]
 
-  # browser()
   if(!is.null(web$data_source)){
     # Data links
     web$rst <- check_links(web$pids@.Data, web$pids_repo$data_source, web$data_links)

@@ -96,25 +96,6 @@ overlaps <- function(x, y, methods = 8){
     return(logical())
   }
 
-  # if(length(x) == 1 & length(y) != 1){
-  #   x <- rep(x, length(y))
-  # }else if(length(y) == 1 & length(x) != 1){
-  #   y <- rep(y, length(x))
-  # }else{
-  #   err <- err_match_ref_len(x, "y", c(1, length(y)), "x")
-  #   if(err != F) stop(err, call. = F)
-  #
-  #   err <- err_match_ref_len(y, "x", c(1, length(x)), "y")
-  #   if(err != F) stop(err, call. = F)
-  # }
-  #
-  # if(length(methods) == 1 & length(x) != 1){
-  #   methods <- rep(methods, length(x))
-  # }else{
-  #   err <- err_match_ref_len(methods, "x", c(1, length(x)), "methods")
-  #   if(err != F) stop(err, call. = F)
-  # }
-
   err <- err_overlap_methods_1(overlap_methods = methods, "methods")
   if(err != F) stop(err, call. = F)
 

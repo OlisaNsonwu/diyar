@@ -16,27 +16,56 @@ knitr::opts_chunk$set(
 + New S3 method for class 'sub_criteria' - `format`.
 + New function - `true()`. Predefined logical test for use with `sub_criteria()`.
 + New function - `false()`. Predefined logical test for use with `sub_criteria()`.
-+ New argument in `links()`- `batched`. XXXXXX.
-+ New argument in `links()`- `repeats_allowed`. XXXXXX.
-+ New argument in `links()`- `permutations_allowed`. XXXXXX.
-+ New argument in `links()`- `ignore_same_source`. XXXXXX.
-+ New argument in `links_wf_probabilistic()`- `return_weights`. XXXXXX.
-+ New argument in `eval_sub_criteria()`- `depth`. XXXXXX.
-+ New function - `sets()`. XXXXXXX.
-+ New function - `make_sets()`. XXXXXXX.
++ New argument in `links()`- `batched`. Specify if all record pairs are created or compared at once (`"no"`) or in batches (`"yes"`).  
++ New argument in `links()`- `repeats_allowed`. Specify if record-pairs with duplicate elements should be created. 
++ New argument in `links()`- `permutations_allowed`. Specify if permutations of the same record-pair should be created.
++ New argument in `links()`- `ignore_same_source`. Specify if record-pairs from different datasets should be created.
+<!-- + New argument in `links_wf_probabilistic()`- `return_weights`. XXXXXX. -->
++ New argument in `eval_sub_criteria()`- `depth`. First order of recursion.
++ New function - `sets()` and `make_sets()`. Create permutations of record-sets.
 
 ## Changes
-+ `sub_criteria()` - Output of `match_func` and `equal_func` can now be any atomic object.
-+ `links()` - When `shrink` is `TRUE`, records in a record-group must meet every listed match `criteria` and `sub_criteria`. For example, if `pid_cri` is 3, then the record must have meet
-the first three match criteria.
++ `links()` - When `shrink` is `TRUE`, records in a record-group must meet every listed match `criteria` and `sub_criteria`. For example, if `pid_cri` is 3, then the record must have meet matched another on the the first three match criteria.
 + `links()` - `pid@iteration` now tracks when a record was dealt with instead of when it was assigned to a record-group. For example, a record can be closed (matched or not matched) at iteration 1 but assigned to a record-group at iteration 5.
 + `make_pairs()` - `x.*` and `y.*` values in the output are now swapped.
-+ `match_func` and `equal_func` of `sub_criteria` can now return a `list` where the first element is a logical object. Subsequent elements of the `list` are exported by `eval_sub_criteria()`
++ `sub_criteria` can now export any data created by `match_func`. To do this, `match_func` must export a `list`, where the first element is a logical object. See an example below.
+```{r warning = FALSE}
+library(diyar)
+val <- rep(month.abb[1:5], 2); val
+match_and_export <- function(x, y){
+  output <- list(x == y, 
+                 data.frame(x_val = x, y_val = y, is_match = x == y))
+  return(output)
+}
+sub.cri.1 <- sub_criteria(
+  val, match_funcs = list(match.export = match_and_export)
+)
+
+format(sub.cri.1, show_levels = TRUE)
+eval_sub_criteria(sub.cri.1)
+```
++ `links` can now export any data created within a `sub_criteria`. To do this, the `sub_criteria` must be created as described above. See an example below
+```{r warning = FALSE}
+val <- 1:5
+diff_one_and_export <- function(x, y){
+  diff <- x - y
+  is_match <- diff <= 1
+  output <- list(is_match, 
+                 data.frame(x_val = x, y_val = y, diff = diff,  is_match = is_match))
+  return(output)
+}
+sub.cri.2 <- sub_criteria(
+  val, match_funcs = list(diff.export = diff_one_and_export)
+)
+links(
+  criteria = "place_holder", 
+  sub_criteria = list("cr1" = sub.cri.2))
+```
 
 ## Bug fixes
 + `summary.epid()` - Incorrect count for '`by episode type`'. Resolved.
 + `episodes()` - Incorrect results in some instances with `skip_order`. Resolved.
-+ `make_ids()` - Does not capture all records in that should be in a record-group when matches are recursive. Resolved.
++ `make_ids()` - Did not capture all records in that should be in a record-group when matches are recursive. Resolved.
 + `make_pairs()` - Incorrect record-pairs in some instances. Resolved.
 + `eval_sub_criteria()` - When output of `match_func` is length one, it's not recycled. Resolved.
 + `reverse_number_line()` - Incorrect results in some instances. Resolved.

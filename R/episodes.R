@@ -1020,9 +1020,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # Events in between `case_length`s and `recurrence_length`s
     if(isTRUE(any_skip_b4_len)){
-      if(ite == 4){
-        # browser()
-      }
       lgk <- ld_skip_if_b4_lengths & tag != 2 & tr_tag %in% c(0, -2)
       lgk <- check_skips(lgk = lgk,
                          cri = cri,
@@ -1143,8 +1140,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       ld_recurrence_length_total <- ld_recurrence_length_total[ntag_lgk]
     }
     date <- date[ntag_lgk]
-    # print(paste0("Ite ", ite ,": ", tm_ia, " -> ", Sys.time()))
-
     if (display %in% c("progress_with_report", "progress")) {
       progress_bar(length(epids_repo$tag[epids_repo$tag == 2]),
                    inp_n, 100,
