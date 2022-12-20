@@ -25,17 +25,16 @@ devtools::install_github("OlisaNsonwu/diyar")
 
 `diyar` is an `R` package for linking records with shared
 characteristics. The linked records represent an entity, which depending
-on the context of the analysis can represent unique patients, infection
+on the context of the analysis can be unique patients, infection
 episodes, overlapping periods of care, clusters or other occurrences as
-defined by a case definition. Each entity is assigned an uniquely
-identifiable number. This makes it useful in ordinarily complex analyses
-such as record linkage,  
+defined by a case definition. This makes it useful in ordinarily complex
+analyses such as record linkage,  
 contact or network analyses e.t.c.
 
-The main functions `links()`, `episodes()` and `partitions()`. They are
-flexible in terms of what and how they compare records, as well as what
-are considered matches. Their functionality can sometimes overlap
-however, each is better suited to particular use cases:
+The main functions are `links()`, `episodes()` and `partitions()`. They
+are flexible in regards to how they compare records, as well as what are
+considered matches. Their functionality can sometimes overlap however,
+each is better suited to particular use cases:
 
 -   `links()` - link records with no relevance to an index record. For
     example, deterministic record linkage
@@ -151,13 +150,13 @@ dfr_2$id.3 <- episodes(
   episodes_max = 1, rolls_max = 1)
 ```
 
--   link overlaping periods
+-   link overlapping periods
 
 ``` r
 dfr_2$period <- number_line(dfr_2$date, dfr_2$date + 5)
 dfr_2$id.4 <- episodes(
   date = dfr_2$period, case_length = index_window(dfr_2$period),
-  episodes_max = 1, rolls_max = 2)
+  episodes_max = 1)
 dfr_2
 #>          date     id.1 pref     id.2     id.3                   period     id.4
 #> 1  2020-01-02 E.01 (C)    2 E.01 (S) E.01 (C) 2020-01-02 -> 2020-01-07 E.01 (C)
@@ -223,16 +222,16 @@ dfr_3
 #> 17 2020-01-26 PN.17 (S) PN.14 (D) PN.12 (D)
 ```
 
-Other useful functions include in the `diyar` package include `combi()`
-and `sets()`.
+Other useful functions include in the `diyar` package are `combi()` and
+`sets()`.
 
 Find out more!
 
--   [number_line and overlaps](articles/number_line.html)
--   [Introduction to epidemiological case definitions with
-    diyar](articles/episodes.html)
--   [Introduction to record linkage with diyar](articles/links.html)
--   [Divvy up events with partitions](articles/panes.html)
+-   number_line and overlaps - `vignette("number_line")`
+-   Introduction to epidemiological case definitions with diyar -
+    `vignette("episodes")`
+-   Introduction to record linkage with diyar - `vignette("links")`
+-   Divvy up events with partitions - `vignette("panes")`
 
 ## Bugs and issues
 

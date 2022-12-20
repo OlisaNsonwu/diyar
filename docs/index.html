@@ -109,9 +109,9 @@
 <div class="section level2">
 <h2 id="overview">Overview<a class="anchor" aria-label="anchor" href="#overview"></a>
 </h2>
-<p><code>diyar</code> is an <code>R</code> package for linking records with shared characteristics. The linked records represent an entity, which depending on the context of the analysis can represent unique patients, infection episodes, overlapping periods of care, clusters or other occurrences as defined by a case definition. Each entity is assigned an uniquely identifiable number. This makes it useful in ordinarily complex analyses such as record linkage,<br>
+<p><code>diyar</code> is an <code>R</code> package for linking records with shared characteristics. The linked records represent an entity, which depending on the context of the analysis can be unique patients, infection episodes, overlapping periods of care, clusters or other occurrences as defined by a case definition. This makes it useful in ordinarily complex analyses such as record linkage,<br>
 contact or network analyses e.t.c.</p>
-<p>The main functions <code><a href="reference/links.html">links()</a></code>, <code><a href="reference/episodes.html">episodes()</a></code> and <code><a href="reference/partitions.html">partitions()</a></code>. They are flexible in terms of what and how they compare records, as well as what are considered matches. Their functionality can sometimes overlap however, each is better suited to particular use cases:</p>
+<p>The main functions are <code><a href="reference/links.html">links()</a></code>, <code><a href="reference/episodes.html">episodes()</a></code> and <code><a href="reference/partitions.html">partitions()</a></code>. They are flexible in regards to how they compare records, as well as what are considered matches. Their functionality can sometimes overlap however, each is better suited to particular use cases:</p>
 <ul>
 <li>
 <code><a href="reference/links.html">links()</a></code> - link records with no relevance to an index record. For example, deterministic record linkage</li>
@@ -222,13 +222,13 @@ contact or network analyses e.t.c.</p>
 <span>  episode_type <span class="op">=</span> <span class="st">"rolling"</span>, recurrence_length <span class="op">=</span> <span class="fl">1</span>,</span>
 <span>  episodes_max <span class="op">=</span> <span class="fl">1</span>, rolls_max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></code></pre></div>
 <ul>
-<li>link overlaping periods</li>
+<li>link overlapping periods</li>
 </ul>
 <div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/number_line.html">number_line</a></span><span class="op">(</span><span class="va">dfr_2</span><span class="op">$</span><span class="va">date</span>, <span class="va">dfr_2</span><span class="op">$</span><span class="va">date</span> <span class="op">+</span> <span class="fl">5</span><span class="op">)</span></span>
 <span><span class="va">dfr_2</span><span class="op">$</span><span class="va">id.4</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/episodes.html">episodes</a></span><span class="op">(</span></span>
 <span>  date <span class="op">=</span> <span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span>, case_length <span class="op">=</span> <span class="fu"><a href="reference/windows.html">index_window</a></span><span class="op">(</span><span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span><span class="op">)</span>,</span>
-<span>  episodes_max <span class="op">=</span> <span class="fl">1</span>, rolls_max <span class="op">=</span> <span class="fl">2</span><span class="op">)</span></span>
+<span>  episodes_max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">dfr_2</span></span>
 <span><span class="co">#&gt;          date     id.1 pref     id.2     id.3                   period     id.4</span></span>
 <span><span class="co">#&gt; 1  2020-01-02 E.01 (C)    2 E.01 (S) E.01 (C) 2020-01-02 -&gt; 2020-01-07 E.01 (C)</span></span>
@@ -289,13 +289,17 @@ contact or network analyses e.t.c.</p>
 <span><span class="co">#&gt; 15 2020-01-24 PN.06 (D) PN.14 (D) PN.12 (D)</span></span>
 <span><span class="co">#&gt; 16 2020-01-25 PN.16 (S) PN.14 (D) PN.12 (D)</span></span>
 <span><span class="co">#&gt; 17 2020-01-26 PN.17 (S) PN.14 (D) PN.12 (D)</span></span></code></pre></div>
-<p>Other useful functions include in the <code>diyar</code> package include <code><a href="reference/combi.html">combi()</a></code> and <code><a href="reference/make_pairs.html">sets()</a></code>.</p>
+<p>Other useful functions include in the <code>diyar</code> package are <code><a href="reference/combi.html">combi()</a></code> and <code><a href="reference/make_pairs.html">sets()</a></code>.</p>
 <p>Find out more!</p>
 <ul>
-<li><a href="articles/number_line.html">number_line and overlaps</a></li>
-<li><a href="articles/episodes.html">Introduction to epidemiological case definitions with diyar</a></li>
-<li><a href="articles/links.html">Introduction to record linkage with diyar</a></li>
-<li><a href="articles/panes.html">Divvy up events with partitions</a></li>
+<li>number_line and overlaps - <code><a href="articles/number_line.html">vignette("number_line")</a></code>
+</li>
+<li>Introduction to epidemiological case definitions with diyar - <code><a href="articles/episodes.html">vignette("episodes")</a></code>
+</li>
+<li>Introduction to record linkage with diyar - <code><a href="articles/links.html">vignette("links")</a></code>
+</li>
+<li>Divvy up events with partitions - <code><a href="articles/panes.html">vignette("panes")</a></code>
+</li>
 </ul>
 </div>
 <div class="section level2">
