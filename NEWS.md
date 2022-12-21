@@ -1,5 +1,13 @@
 
-# Version 0.4.1.9000
+# Version 0.4.2.9000
+
+## New features
+
+## Changes
+
+## Bug fixes
+
+# Version 0.4.2
 
 ## New features
 
