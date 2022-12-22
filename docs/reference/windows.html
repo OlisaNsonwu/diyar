@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
       </span>
     </div>
 
@@ -120,13 +120,13 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># Which `window` will a given `length` cover?</span></span></span>
 <span class="r-in"><span><span class="va">date</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/Sys.time.html" class="external-link">Sys.Date</a></span><span class="op">(</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">epid_windows</span><span class="op">(</span><span class="va">date</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-20 -&gt; 2022-12-30"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-22 -&gt; 2023-01-01"</span>
 <span class="r-in"><span><span class="fu">epid_windows</span><span class="op">(</span><span class="va">date</span>, <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-25 -&gt; 2022-12-30"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-27 -&gt; 2023-01-01"</span>
 <span class="r-in"><span><span class="fu">epid_windows</span><span class="op">(</span><span class="va">date</span>, <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="op">-</span><span class="fl">5</span>, <span class="fl">10</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-15 -&gt; 2022-12-30"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-17 -&gt; 2023-01-01"</span>
 <span class="r-in"><span><span class="fu">epid_windows</span><span class="op">(</span><span class="va">date</span>, <span class="op">-</span><span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-20 &lt;- 2022-12-15"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "2022-12-22 &lt;- 2022-12-17"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Which `length` is required to cover a given `window`?</span></span></span>

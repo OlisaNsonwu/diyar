@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.2</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
       </span>
     </div>
 
@@ -67,9 +67,23 @@
     </div>
 
     <div class="section level2">
-<h2 class="page-header" data-toc-text="0.4.1.9000" id="version-0419000">Version 0.4.1.9000<a class="anchor" aria-label="anchor" href="#version-0419000"></a></h2>
+<h2 class="page-header" data-toc-text="0.4.3" id="version-043">Version 0.4.3<a class="anchor" aria-label="anchor" href="#version-043"></a></h2>
 <div class="section level3">
-<h3 id="new-features-0-4-1-9000">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-1-9000"></a></h3>
+<h3 id="new-features-0-4-3">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-3"></a></h3>
+</div>
+<div class="section level3">
+<h3 id="changes-0-4-3">Changes<a class="anchor" aria-label="anchor" href="#changes-0-4-3"></a></h3>
+</div>
+<div class="section level3">
+<h3 id="bug-fixes-0-4-3">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-3"></a></h3>
+<ul><li>
+<code>case_sub_criteria</code> and <code>recurrence_sub_criteria</code> in <code><a href="../reference/episodes.html">episodes()</a></code> led to incorrect results. Resolved.</li>
+</ul></div>
+</div>
+    <div class="section level2">
+<h2 class="page-header" data-toc-text="0.4.2" id="version-042">Version 0.4.2<small>2022-12-20</small><a class="anchor" aria-label="anchor" href="#version-042"></a></h2>
+<div class="section level3">
+<h3 id="new-features-0-4-2">New features<a class="anchor" aria-label="anchor" href="#new-features-0-4-2"></a></h3>
 <ul><li>New argument in <code><a href="../reference/merge_identifiers.html">merge_ids()</a></code> - <code>shrink</code> and <code>expand</code>.</li>
 <li>New S3 method for class ‘d_report’ - <code>plot</code>.</li>
 <li>New S3 method for class ‘sub_criteria’ - <code>format</code>.</li>
@@ -84,7 +98,7 @@
 <li>New function - <code><a href="../reference/make_pairs.html">sets()</a></code> and <code><a href="../reference/make_pairs.html">make_sets()</a></code>. Create permutations of record-sets.</li>
 </ul></div>
 <div class="section level3">
-<h3 id="changes-0-4-1-9000">Changes<a class="anchor" aria-label="anchor" href="#changes-0-4-1-9000"></a></h3>
+<h3 id="changes-0-4-2">Changes<a class="anchor" aria-label="anchor" href="#changes-0-4-2"></a></h3>
 <ul><li>
 <code><a href="../reference/links.html">links()</a></code> - When <code>shrink</code> is <code>TRUE</code>, records in a record-group must meet every listed match <code>criteria</code> and <code>sub_criteria</code>. For example, if <code>pid_cri</code> is 3, then the record must have meet matched another on the the first three match criteria.</li>
 <li>
@@ -175,7 +189,7 @@
 <span><span class="co">#&gt; 1     5     5    0     TRUE</span></span></code></pre></div>
 </div>
 <div class="section level3">
-<h3 id="bug-fixes-0-4-1-9000">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-1-9000"></a></h3>
+<h3 id="bug-fixes-0-4-2">Bug fixes<a class="anchor" aria-label="anchor" href="#bug-fixes-0-4-2"></a></h3>
 <ul><li>
 <code><a href="../reference/epid-class.html">summary.epid()</a></code> - Incorrect count for ‘<code>by episode type</code>’. Resolved.</li>
 <li>
