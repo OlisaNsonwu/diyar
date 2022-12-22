@@ -1,11 +1,14 @@
 
-# Version 0.4.2.9000
+# Version 0.4.3
 
 ## New features
 
 ## Changes
 
 ## Bug fixes
+
+-   `case_sub_criteria` and `recurrence_sub_criteria` in `episodes()`
+    led to incorrect results. Resolved.
 
 # Version 0.4.2
 
