@@ -754,10 +754,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           pos_repo <- make_batch_pairs(strata = cri[cr & !cri_2],
                                        index_record = ref_rd[cr & !cri_2],
                                        sn = order(order(date@id))[cr & !cri_2])
+
           # Check the `sub_criteria`
-          checks_lgk[cr & !cri_2] <- eval_sub_criteria(x = case_sub_criteria,
-                                                       x_pos = pos_repo$x_pos,
-                                                       y_pos = pos_repo$y_pos)[[1]]
+          lgk <- eval_sub_criteria(x = case_sub_criteria,
+                                   x_pos = pos_repo$x_pos,
+                                   y_pos = pos_repo$y_pos)[[1]]
+          # temp external fix
+          tmp_s_ord <- match(order(order(date@id))[cr & !cri_2], pos_repo$sn)
+          lgk <- lgk[tmp_s_ord]
+          checks_lgk[cr & !cri_2] <- lgk
           # checks_lgk[ref_rd] <- 1L
           checks_lgk
           rm(pos_repo)
@@ -859,9 +864,13 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                          index_record = ref_rd[cr2 & !cri_2],
                                          sn = order(order(date@id))[cr2 & !cri_2])
             # Check the `sub_criteria`
-            checks_lgk[cr2 & !cri_2] <- eval_sub_criteria(x = recurrence_sub_criteria,
-                                                          x_pos = pos_repo$x_pos,
-                                                          y_pos = pos_repo$y_pos)[[1]]
+            lgk <- eval_sub_criteria(x = recurrence_sub_criteria,
+                                     x_pos = pos_repo$x_pos,
+                                     y_pos = pos_repo$y_pos)[[1]]
+            # temp external fix
+            tmp_s_ord <- match(order(order(date@id))[cr & !cri_2], pos_repo$sn)
+            lgk <- lgk[tmp_s_ord]
+            checks_lgk[cr2 & !cri_2] <- lgk
             # checks_lgk[ref_rd & cr2 & !cri_2] <- 1L
             checks_lgk
             rm(pos_repo)
