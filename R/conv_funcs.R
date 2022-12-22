@@ -212,7 +212,7 @@ check_links_retired <- function(cri, data_source, data_links){
 
 check_links <- function(cri, data_source, data_links){
   dsc <- sort(data_source[!duplicated(data_source)])
-  tmp <- rep(NA, length(data_source))
+  tmp <- rep(NA_character_, length(data_source))
   datatset <- lapply(dsc, function(x){
     cri1 <- cri[x == data_source]
     cri1 <- cri1[!duplicated(cri1)]
@@ -227,20 +227,19 @@ check_links <- function(cri, data_source, data_links){
     x <- x[cmb_cd_idx]
   })
   names(datatset_p) <- paste0("X", seq_len(length(datatset_p)))
-  datatset_p <- as.matrix(as.data.frame(datatset_p))
-  datatset_p <- lapply(seq_len(nrow(datatset_p)), function(i){
-    unlist(datatset_p[i,], use.names = FALSE)
-  })
+  datatset_p <- sapply(datatset_p, identity)
+  if(isFALSE(is.matrix(datatset_p))){
+    datatset_p <- t(as.matrix(datatset_p))
+  }
+
+  cmp_func <- list(l = all, g = all)
+  cmp_func <- cmp_func[match(names(data_links), names(cmp_func))]
+
   hits <- sapply(1:length(data_links), function(i){
-    if(tolower(names(data_links[i])) == "l"){
-      unlist(lapply(datatset_p, function(x){
-        all(data_links[[i]] %in% x)
-      }), use.names = FALSE)
-    }else if (tolower(names(data_links[i])) == "g"){
-      unlist(lapply(datatset_p, function(x){
-        any(data_links[[i]] %in% x)
-      }), use.names = FALSE)
-    }
+    x <- lapply(seq_len(nrow(datatset_p)), function(j){
+      cmp_func[[i]](data_links[[i]] %in% datatset_p[j,])
+    })
+    unlist(x, use.names = FALSE)
   })
   if(is.vector(hits) & length(hits) > 1){
     hits <- hits > 0
@@ -248,9 +247,11 @@ check_links <- function(cri, data_source, data_links){
     hits <- rowSums(hits) > 0
   }
 
-  datatset_p <- unlist(lapply(datatset_p, function(x) {
+  datatset_p <- lapply(seq_len(nrow(datatset_p)), function(j) {
+    x <- datatset_p[j,]
     paste0(x[!is.na(x)], collapse = ",")
-  }), use.names = FALSE)
+  })
+  datatset_p <- unlist(datatset_p, use.names = FALSE)
 
   return(
     list(
