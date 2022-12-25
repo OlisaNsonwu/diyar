@@ -15,6 +15,7 @@ knitr::opts_chunk$set(
 ## Changes
 
 ## Bug fixes
++ `links()` end prematurely and therefore misses some matches when `recursive` is `TRUE`. Resolved.
 
 # Version 0.4.3
 

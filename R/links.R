@@ -422,7 +422,7 @@ links <- function(criteria,
         cat("Checking `sub_criteria`\n")
       }
 
-      while (web$min_pid == web$sn_ref) {
+      while (web$min_pid == web$sn_ref | any(web$m_tag == -1)) {
         web$sort_ord <- order(web$cri, web$m_tag, web$pid_cri, web$tie_sort, web$sn, decreasing = TRUE)
         web$tag <- web$tag[web$sort_ord]
         web$cri <- web$cri[web$sort_ord]
