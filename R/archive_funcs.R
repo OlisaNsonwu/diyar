@@ -1627,3 +1627,155 @@ expand_number_line_v2_archive <- function(x, by = 1, point = "both"){
 
   return(x)
 }
+
+make_pairs_legacy <- function(x, strata = NULL, repeats_allowed = TRUE, permutations_allowed = FALSE){
+  # Validations
+  errs <- err_make_pairs_1(x = x, strata = strata,
+                           repeats_allowed = repeats_allowed,
+                           permutations_allowed = permutations_allowed)
+  if(!isFALSE(errs)) stop(errs, call. = FALSE)
+
+  if(!is.null(strata)){
+    if(length(strata[!duplicated(strata)]) == 1){
+      strata <- NULL
+    }
+  }
+  sn <- pos <- seq_len(length(x))
+  repo <- list()
+  if(!is.null(strata)){
+    strata <- match(strata, strata[!duplicated(strata)])
+    s_ord <- order(strata)
+    strata <- strata[s_ord]
+    sn <- sn[s_ord]
+    rl <- rle(strata)
+  }else{
+    rl <- list(lengths = length(x), values = 1)
+  }
+
+  ord <- sequence(rl$lengths)
+  repo$x_pos <- rep(ord, ord)
+  repo$y_pos <- sequence(ord)
+
+  pts <- rl$lengths[!duplicated(rl$lengths)]
+  pts_val <- unlist(lapply(pts, function(x){
+    if(x == 1){
+      x
+    }else{
+      permute_num(x)
+    }
+  }), use.names = FALSE)
+  pts_val <- as.integer(pts_val)
+  if(!is.null(strata)){
+    lgk <- which(!duplicated(strata, fromLast = TRUE))
+  }else{
+    lgk <- length(x)
+  }
+
+  if(!is.null(strata)){
+    repo$y_max_pos <- rep(pos[lgk], pts_val[match(rl$lengths, pts)])
+    repo$reps <- rep(pts_val[match(rl$lengths, pts)], pts_val[match(rl$lengths, pts)])
+    repo$ref <- (repo$y_max_pos + 1L)
+    repo$y_pos <- repo$ref - repo$y_pos
+    repo$x_pos <- repo$ref - repo$x_pos
+  }
+
+  repo$x_pos <- sn[repo$x_pos]
+  repo$y_pos <- sn[repo$y_pos]
+
+  repo$x_val <- x[repo$x_pos]
+  repo$y_val <- x[repo$y_pos]
+  repo$ref <- repo$reps <- repo$y_max_pos <- NULL
+
+  if(isFALSE(repeats_allowed)){
+    lgk <- which(repo$x_pos != repo$y_pos)
+    repo <- lapply(repo, function(x) x[lgk])
+  }
+
+  if(isTRUE(permutations_allowed)){
+    lgk <- which(repo$x_pos != repo$y_pos)
+    repo <- list(x_pos = c(repo$x_pos[lgk], repo$y_pos),
+                 y_pos = c(repo$y_pos[lgk], repo$x_pos),
+                 x_val = c(repo$x_val[lgk], repo$y_val),
+                 y_val = c(repo$y_val[lgk], repo$x_val))
+  }
+
+  s_ord <- order(repo$y_pos, repo$x_pos)
+  repo <- lapply(repo, function(x) x[s_ord])
+
+  rm(list = ls()[ls() != "repo"])
+  return(repo)
+}
+
+make_pairs_batch_legacy <- function(strata, assign_ord, index_record, sn, ignore_same_source = FALSE, data_source = NULL, look_back = FALSE){
+  includes_multi_index <- any(index_record == -1)
+  curr_ds_len <- length(strata)
+  strata <- strata
+
+  if(isTRUE(includes_multi_index) & isFALSE(look_back)){
+    sc_ord <- order(strata, -(index_record != 0), assign_ord, decreasing = FALSE)
+    assign_ord <- assign_ord[sc_ord]
+  }else{
+    sc_ord <- order(strata, -index_record, decreasing = FALSE)
+  }
+
+  sn <- sn[sc_ord]
+  strata <- strata[sc_ord]
+  index_record <- index_record[sc_ord]
+  rc_sc_ord <- order(sc_ord)
+
+  rrr <- rle(strata)
+  lgk <- which(!duplicated(strata, fromLast = FALSE))
+
+  pos_repo <- list(sn = sn)
+  pos_repo$x_pos <- sn
+  pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
+
+  pos_repo$index_ord <- rep(1L, length(pos_repo[[1]]))
+  if(isTRUE(includes_multi_index)){
+    pos_repo$y_tot <- rep(rrr$lengths, rrr$lengths)
+    if(isFALSE(look_back)){
+      temporal_ord <- order(strata, abs(assign_ord), decreasing = FALSE)
+      pos_repo$y_ord <- sequence(rrr$lengths)[temporal_ord]
+
+    }
+    pos_repo$y_ref <- rep(lgk, rrr$lengths)
+    indx <- which(pos_repo$x_pos %in% sn[index_record == -1])
+    tmp_pos <- pos_repo[-1]
+
+    tmp_pos$x_pos <- tmp_pos$x_pos[indx]
+    tmp_pos$y_pos <- tmp_pos$y_pos[indx]
+    tmp_pos$y_tot <- tmp_pos$y_tot[indx]
+
+    if(isFALSE(look_back)){
+      tmp_pos$y_ord <- tmp_pos$y_ord[indx]
+    }
+    tmp_pos$y_ref <- tmp_pos$y_ref[indx]
+    tmp_pos$index_ord <- tmp_pos$index_ord[indx]
+
+    rrr <- rle(tmp_pos$y_pos)
+    tmp_pos$index_ord <- sequence(rrr$lengths) + 1L
+
+    if(isFALSE(look_back)){
+      tmp_pos$y_tot <- (tmp_pos$y_tot - tmp_pos$y_ord) + 1
+      tmp_pos$y_ref <- (tmp_pos$y_ref + tmp_pos$y_ord) - 1
+    }
+
+    tmp_pos$y_pos <- pos_repo$sn[temporal_ord][rep(tmp_pos$y_ref, tmp_pos$y_tot) + sequence(tmp_pos$y_tot, from = 0)]
+    tmp_pos$x_pos <- rep(tmp_pos$x_pos, tmp_pos$y_tot)
+    tmp_pos$index_ord <- rep(tmp_pos$index_ord, tmp_pos$y_tot)
+
+    pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
+    pos_repo$x_pos <-
+      pos_repo$sn <- c(pos_repo$x_pos, tmp_pos$y_pos)
+    pos_repo$y_pos <- c(pos_repo$y_pos, tmp_pos$x_pos)
+    pos_repo$index_ord <- c(pos_repo$index_ord, tmp_pos$index_ord)
+    tmp_pos <- pos_repo$y_ord <- pos_repo$y_ref <- pos_repo$y_tot <- NULL
+  }
+
+  if(!is.null(data_source) & isTRUE(ignore_same_source)){
+    lgk <- which(data_source[pos_repo$x_pos] != data_source[pos_repo$y_pos])
+    pos_repo <- lapply(pos_repo, function(x) x[lgk])
+  }
+  rm(list = ls()[ls() != "pos_repo"])
+  return(pos_repo)
+}

@@ -4,21 +4,12 @@
 \alias{make_pairs}
 \alias{sets}
 \alias{make_sets}
-\alias{make_sets_v2}
 \alias{make_pairs_wf_source}
 \title{Combinations and permutations of record-sets.}
 \usage{
 sets(n, r, permutations_allowed = TRUE, repeats_allowed = TRUE)
 
 make_sets(
-  x,
-  r,
-  strata = NULL,
-  permutations_allowed = TRUE,
-  repeats_allowed = TRUE
-)
-
-make_sets_v2(
   x,
   r,
   strata = NULL,

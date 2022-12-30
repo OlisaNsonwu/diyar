@@ -1262,78 +1262,77 @@ prep_cmps_thresh <- function(attr_nm,
               score_threshold = score_threshold))
 }
 
-make_batch_pairs <- function(strata, assign_ord, index_record, sn, ignore_same_source = FALSE, data_source = NULL, look_back = FALSE){
-  includes_multi_index <- any(index_record == -1)
-  curr_ds_len <- length(strata)
-  strata <- strata
+make_pairs_batched <- function(
+    x,
+    index_record = rep(TRUE, length(x)),
+    strata = index_record,
+    assign_ord = order(x),
+    ignore_same_source = FALSE,
+    data_source = NULL,
+    look_back = FALSE,
+    include_repeat = FALSE){
 
-  if(isTRUE(includes_multi_index) & isFALSE(look_back)){
-    sc_ord <- order(strata, -(index_record != 0), assign_ord, decreasing = FALSE)
-    assign_ord <- assign_ord[sc_ord]
+  tmp <- list(sn = order(strata, assign_ord))
+  tmp$pr_sn <- seq_len(length(tmp[[1]]))
+  tmp$strata <- strata[tmp$sn]
+  lgk <- which(!duplicated(tmp$strata, fromLast = FALSE))
+  rrr <- rle(tmp$strata)
+  class(rrr) <- NULL
+
+  tmp$strata_tot <- rep(rrr$lengths, rrr$lengths)
+  tmp$rec_ord <- sequence(rrr$lengths)
+  if(isFALSE(look_back)){
+    tmp$strata_a_ord <- tmp$rec_ord
+    tmp$strata_a_indx <- tmp$pr_sn
   }else{
-    sc_ord <- order(strata, -index_record, decreasing = FALSE)
+    tmp$strata_a_ord <- rep(1, length(tmp[[1]]))
+    tmp$strata_a_indx <- rep(lgk, rrr$lengths)
+  }
+  if(isFALSE(include_repeat)){
+    tmp$strata_tot <- tmp$strata_tot - 1
   }
 
-  sn <- sn[sc_ord]
-  strata <- strata[sc_ord]
-  index_record <- index_record[sc_ord]
-  rc_sc_ord <- order(sc_ord)
+  tmp$reference_record <- index_record[tmp$sn]
+  tmp_indexes <- lapply(tmp, function(x){
+    x[tmp$reference_record == 1]
+  })
+  tmp_indexes$strata_tot_new <- tmp_indexes$strata_tot - tmp_indexes$strata_a_ord + 1
 
-  rrr <- rle(strata)
-  lgk <- which(!duplicated(strata, fromLast = FALSE))
+  rrr <- rle(tmp_indexes$strata)
+  tmp_indexes$index_ord <- sequence(rrr$lengths)
 
-  pos_repo <- list(sn = sn)
-  pos_repo$x_pos <- sn
-  pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
-
-  pos_repo$index_ord <- rep(1L, length(pos_repo[[1]]))
-  if(isTRUE(includes_multi_index)){
-    pos_repo$y_tot <- rep(rrr$lengths, rrr$lengths)
-    if(isFALSE(look_back)){
-      temporal_ord <- order(strata, abs(assign_ord), decreasing = FALSE)
-      pos_repo$y_ord <- sequence(rrr$lengths)[temporal_ord]
-
+  tmp2 <- list()
+  tmp2$x_ord <- sequence(tmp_indexes$strata_tot_new)
+  if(isFALSE(include_repeat)){
+    if(isTRUE(look_back)){
+      tmp2$y_ord <- rep(tmp_indexes$rec_ord, tmp_indexes$strata_tot_new)
+      tmp2$y_tot <- rep(tmp_indexes$strata_tot_new, tmp_indexes$strata_tot_new)
+      tmp2$lgk <- tmp2$x_ord == tmp2$y_ord
+      tmp2$x_ord[tmp2$lgk] <- tmp2$y_tot[tmp2$lgk] + 1
+    }else{
+      tmp_indexes <- lapply(tmp_indexes, function(x){
+        x[!tmp_indexes$strata_tot_new == 0]
+      })
+      tmp_indexes$strata_a_indx <- tmp_indexes$strata_a_indx + 1
     }
-    pos_repo$y_ref <- rep(lgk, rrr$lengths)
-    indx <- which(pos_repo$x_pos %in% sn[index_record == -1])
-    tmp_pos <- pos_repo[-1]
-
-    tmp_pos$x_pos <- tmp_pos$x_pos[indx]
-    tmp_pos$y_pos <- tmp_pos$y_pos[indx]
-    tmp_pos$y_tot <- tmp_pos$y_tot[indx]
-
-    if(isFALSE(look_back)){
-      tmp_pos$y_ord <- tmp_pos$y_ord[indx]
-    }
-    tmp_pos$y_ref <- tmp_pos$y_ref[indx]
-    tmp_pos$index_ord <- tmp_pos$index_ord[indx]
-
-    rrr <- rle(tmp_pos$y_pos)
-    tmp_pos$index_ord <- sequence(rrr$lengths) + 1L
-
-    if(isFALSE(look_back)){
-      tmp_pos$y_tot <- (tmp_pos$y_tot - tmp_pos$y_ord) + 1
-      tmp_pos$y_ref <- (tmp_pos$y_ref + tmp_pos$y_ord) - 1
-    }
-
-    tmp_pos$y_pos <- pos_repo$sn[temporal_ord][rep(tmp_pos$y_ref, tmp_pos$y_tot) + sequence(tmp_pos$y_tot, from = 0)]
-    tmp_pos$x_pos <- rep(tmp_pos$x_pos, tmp_pos$y_tot)
-    tmp_pos$index_ord <- rep(tmp_pos$index_ord, tmp_pos$y_tot)
-
-    pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
-    pos_repo$x_pos <-
-      pos_repo$sn <- c(pos_repo$x_pos, tmp_pos$y_pos)
-    pos_repo$y_pos <- c(pos_repo$y_pos, tmp_pos$x_pos)
-    pos_repo$index_ord <- c(pos_repo$index_ord, tmp_pos$index_ord)
-    tmp_pos <- pos_repo$y_ord <- pos_repo$y_ref <- pos_repo$y_tot <- NULL
   }
+  tmp2$x_pos <- tmp2$x_ord + rep(tmp_indexes$strata_a_indx, tmp_indexes$strata_tot_new) - 1
+  tmp2$y_pos <- rep(tmp_indexes$pr_sn, tmp_indexes$strata_tot_new)
+  tmp2$index_ord <- rep(tmp_indexes$index_ord, tmp_indexes$strata_tot_new)
 
+  tmp2 <- tmp2[c("x_pos", "y_pos", "index_ord")]
   if(!is.null(data_source) & isTRUE(ignore_same_source)){
-    lgk <- which(data_source[pos_repo$x_pos] != data_source[pos_repo$y_pos])
-    pos_repo <- lapply(pos_repo, function(x) x[lgk])
+    lgk <- which(data_source[tmp2$x_pos] != data_source[tmp2$y_pos])
+    tmp2 <- lapply(tmp2, function(x) x[lgk])
   }
-  rm(list = ls()[ls() != "pos_repo"])
-  return(pos_repo)
+  tmp2$x_pos <- tmp$sn[tmp2$x_pos]
+  tmp2$y_pos <- tmp$sn[tmp2$y_pos]
+
+  tmp2$x_val <- sn[tmp2$x_pos]
+  tmp2$y_val <- sn[tmp2$y_pos]
+
+  rm(list = ls()[ls() != "tmp2"])
+  return(tmp2)
 }
 
 fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){

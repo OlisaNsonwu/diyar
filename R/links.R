@@ -451,7 +451,7 @@ links <- function(criteria,
           web$tr_pid <- (web$pid[web$lgk])[web$rep_lgk]
           web$tr_sn <- (web$sn[web$lgk])[web$rep_lgk]
           web$ref_rd <- web$tr_sn == web$sn
-          web$pos_repo <- make_batch_pairs(strata = web$cri,
+          web$pos_repo <- make_pairs_batched(strata = web$cri,
                                            index_record = web$ref_rd,
                                            sn = web$indx,
                                            ignore_same_source = web$ignore_same_source,
