@@ -38,7 +38,7 @@ enq_vr <- function(x){
 # @rdname finite_check
 fmt <- function(x, fmt = "count"){
   if(fmt == "difftime"){
-    paste0(ifelse(round(x) == 0, "< 0.01", round(as.numeric(x), 2)), " ", attr(x, "units"))
+    paste0(ifelse(round(x) == 0, "< 1", round(as.numeric(x), 2)), " ", attr(x, "units"))
   }else if(fmt == "MB"){
     class(x) <- "object_size"
     format(x, fmt)
@@ -122,22 +122,25 @@ sep_bdr_nl <- function(x){
   return(b)
 }
 
-progress_bar <- function(n, d, max_width, msg){
+progress_bar <- function(n, d, max_width, msg = "",  prefix_msg = ""){
   prop_complete <- n/d
   mx_l <- max(nchar(c(n, d)))
   d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
   n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
   pct_l <- paste0(msg,"; ", n, " of ", d, " record(s) completed.")
 
-  status_width <- max_width - nchar(pct_l)
+  status_width <- max_width - (nchar(pct_l) + nchar(prefix_msg))
   bar_width <- floor(prop_complete*status_width)
   space_width <- status_width - bar_width
 
-  status <-paste0(paste0(rep("-", bar_width), collapse = ""),
-                  paste0(rep(" ", space_width), collapse = ""),
-                  pct_l,
-                  "\r")
-  cat(status, "\r",sep="")
+  status <-paste0(
+    prefix_msg,
+    paste0(rep("-", bar_width), collapse = ""),
+    # ">",
+    paste0(rep(" ", space_width), collapse = ""),
+    pct_l,
+    "\r")
+  status
 }
 
 progress_txt <- function(n, d, msg){
@@ -149,6 +152,12 @@ progress_txt <- function(n, d, msg){
 
   status <- paste0(pct_l,"\r")
   cat(status, "\r",sep="")
+}
+
+update_text <- function(tot_records, current_tot, current_tagged, indent_txt){
+  paste0(indent_txt, "Total: ", tot_records, " record(s).\n",
+         indent_txt, "Checked: ", current_tot, " record(s).\n",
+         indent_txt, "Linked: ", current_tagged," record(s).\n")
 }
 
 datasets_xx <- function(by, val, sep = ","){
@@ -1328,8 +1337,8 @@ make_pairs_batched <- function(
   tmp2$x_pos <- tmp$sn[tmp2$x_pos]
   tmp2$y_pos <- tmp$sn[tmp2$y_pos]
 
-  tmp2$x_val <- sn[tmp2$x_pos]
-  tmp2$y_val <- sn[tmp2$y_pos]
+  tmp2$x_val <- x[tmp2$x_pos]
+  tmp2$y_val <- x[tmp2$y_pos]
 
   rm(list = ls()[ls() != "tmp2"])
   return(tmp2)

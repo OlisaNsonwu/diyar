@@ -61,6 +61,7 @@ merge_ids.default <- function(id1, id2, tie_sort = NULL,
   pr_match <- !(!duplicated(id1, fromLast = TRUE) & !duplicated(id1, fromLast = FALSE))
 
   if(isTRUE(shrink)){
+    # id1[!pr_match] <- max(c(id1, id2)) + 1L
     new_id <- combi(id1, id2)
     if(is.null(tie_sort)){
       ord <- order(new_id, sn1)
