@@ -46,34 +46,13 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
   x.f <- x.f[lgk]
   y.f <- y.f[lgk]
 
-  lst <- list(x.f_bk = x.f, y.f_bk = y.f, x.f = x.f, y.f = y.f, y3 = y.f)
+  lst <- list(
+    x.f_bk = x.f,
+    y.f_bk = y.f,
+    x.f = x.f,
+    y.f = y.f,
+    y3 = y.f)
 
-  dv <- function(lst){
-    min_ord <- order(lst$x.f, lst$y3)
-    min_ord <- lapply(lst[c("x.f", "y3")], function(x) x[min_ord])
-    lst$y3 <- min_ord$y3[match(lst$x.f, min_ord$x.f)]
-    lst$y2a <- lst$y3[match(lst$y.f_bk, lst$x.f)]
-    lst$lgk <- !is.na(lst$y2a) & lst$y2a < lst$y3
-    lst$y3[lst$lgk] <- lst$y2a[lst$lgk]
-
-    min_ord <- order(lst$y.f_bk, lst$y3)
-    min_ord <- lapply(lst[c("y.f_bk", "y3")], function(x) x[min_ord])
-    lst$y3 <- min_ord$y3[match(lst$y.f_bk, min_ord$y.f_bk)]
-    lst$y2b <- lst$y3[match(lst$x.f, lst$y.f_bk)]
-    lst$lgk <- !is.na(lst$y2b) & lst$y2b < lst$y3
-    lst$y3[lst$lgk] <- lst$y2b[lst$lgk]
-
-    rm(min_ord)
-    if(all(lst$y.f == lst$y3)){
-      return(lst)
-    }else{
-      dv(list(x.f_bk = lst$x.f_bk,
-              y.f_bk = lst$y.f_bk,
-              x.f = lst$x.f,
-              y.f = lst$y3,
-              y3 = lst$y3))
-    }
-  }
   lst <- dv(lst)
 
   pos <- list(
@@ -85,10 +64,9 @@ make_ids <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
   sn <- seq_len(id_length)
   ids <- list(sn = sn,
               linked = NULL,
-              link_id = pos$link_id[match(sn, pos$x)],
               group_id = pos$group_id[match(sn, pos$x)])
 
-  ids$group_id[is.na(ids$group_id)] <- ids$link_id[is.na(ids$group_id)] <- ids$sn[is.na(ids$group_id)]
+  ids$group_id[is.na(ids$group_id)] <- ids$sn[is.na(ids$group_id)]
   ids$linked <- duplicated(ids$group_id, fromLast = TRUE) | duplicated(ids$group_id, fromLast = FALSE)
 
   rm(list = ls()[ls() != "ids"])

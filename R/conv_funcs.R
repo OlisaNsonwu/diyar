@@ -1237,3 +1237,29 @@ make_refs <- function(x_pos, y_pos, id_length = max(x_pos, y_pos), ref_ord = NUL
   link_id
 }
 
+dv <- function(lst){
+  min_ord <- order(lst$x.f, lst$y3)
+  min_ord <- lapply(lst[c("x.f", "y3")], function(x) x[min_ord])
+  lst$y3 <- min_ord$y3[match(lst$x.f, min_ord$x.f)]
+  lst$y2a <- lst$y3[match(lst$y.f_bk, lst$x.f)]
+  lst$lgk <- !is.na(lst$y2a) & lst$y2a < lst$y3
+  lst$y3[lst$lgk] <- lst$y2a[lst$lgk]
+
+  min_ord <- order(lst$y.f_bk, lst$y3)
+  min_ord <- lapply(lst[c("y.f_bk", "y3")], function(x) x[min_ord])
+  lst$y3 <- min_ord$y3[match(lst$y.f_bk, min_ord$y.f_bk)]
+  lst$y2b <- lst$y3[match(lst$x.f, lst$y.f_bk)]
+  lst$lgk <- !is.na(lst$y2b) & lst$y2b < lst$y3
+  lst$y3[lst$lgk] <- lst$y2b[lst$lgk]
+
+  rm(min_ord)
+  if(all(lst$y.f == lst$y3)){
+    return(lst)
+  }else{
+    dv(list(x.f_bk = lst$x.f_bk,
+            y.f_bk = lst$y.f_bk,
+            x.f = lst$x.f,
+            y.f = lst$y3,
+            y3 = lst$y3))
+  }
+}

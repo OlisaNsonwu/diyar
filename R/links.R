@@ -866,11 +866,12 @@ links_dev <- function(criteria,
     stop(web$err, call. = FALSE)
   }
   #
+  web$options$batched <- lapply(web$options$batched, tolower)
+  web$options$display <- tolower(web$options$display)
+  #
   if(isTRUE(web$options$shrink)){
     web$options$expand <- !web$options$shrink
   }
-  web$options$display <- tolower(web$options$display)
-
   if(!inherits(web$match.cri$criteria, "list")){
     web$match.cri$criteria <- list(web$match.cri$criteria)
   }
@@ -955,12 +956,12 @@ links_dev <- function(criteria,
     web$tmp$sub.cri <- web$match.cri$sub_criteria[which(names(web$match.cri$sub_criteria) == paste0("cr", web$i))]
     web$options$is_nested <- length(web$tmp$sub.cri) > 0
     web$options$recursive <- ifelse(
-      tolower(web$options$batched[web$i]) %in% "no" |
+      web$options$batched[web$i] %in% "no" |
         isFALSE(web$options$is_nested),
       FALSE, web$options$recursive
     )
     web$options$check_duplicates <- ifelse(
-      tolower(web$options$batched[web$i]) %in% "no" |
+      web$options$batched[web$i] %in% "no" |
         isFALSE(web$options$is_nested),
       TRUE, web$options$check_duplicates
     )
@@ -1072,7 +1073,6 @@ links_dev <- function(criteria,
       }else if(web$options$batched[web$i] == "no" & isTRUE(web$options$is_nested)){
         web$tmp$index_cd[TRUE] <- TRUE
       }
-
       #
       web$tmp$batch_strata <- list(web$repo$cri[web$tmp$cu_set_indx])
       if(isFALSE(web$options$expand)){
@@ -1146,7 +1146,6 @@ links_dev <- function(criteria,
       web$rec.pairs$index_rd <- (web$rec.pairs$index_ord == 1 & web$rec.pairs$index_rd) | isFALSE(web$options$is_nested)
       #
       if(web$options$batched[web$i] == "no"){
-        browser()
         web$tmp$batched_pids <- make_ids(web$rec.pairs$x_pos[web$rec.pairs$rec.match$logical_test],
                                          web$rec.pairs$y_pos[web$rec.pairs$rec.match$logical_test],
                                          id_length = max(web$rec.pairs$x_pos))
@@ -1157,7 +1156,7 @@ links_dev <- function(criteria,
         web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pid[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
       }
 
-      if(isTRUE(web$option$recursive)){
+      if(isTRUE(web$options$recursive)){
         web$repo$ovr_lgk <- web$repo$pr_sn %in% web$rec.pairs$cu_pos[web$rec.pairs$e.match] &
           web$repo$iteration.linked
         # web$tmp$tgt_pid <- web$repo$bkp_pid
@@ -1177,7 +1176,7 @@ links_dev <- function(criteria,
 
       web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$e.match]][
         web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] != 2
-      ] <- ifelse(isTRUE(web$option$recursive), -1L, 2L)
+      ] <- ifelse(isTRUE(web$options$recursive), -1L, 2L)
 
       web$repo$iteration[web$rec.pairs$cu_pos[web$tmp$linked_lgk]][
         web$repo$tag[web$rec.pairs$cu_pos[web$tmp$linked_lgk]] == 2 &
