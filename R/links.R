@@ -950,7 +950,7 @@ links_dev <- function(criteria,
                        paste0(web$i, ": ", names(web$match.cri$criteria[web$i])),
                        web$i)
     if(grepl("^progress|^stats", web$options$display)){
-      cat(paste0("`Criteria ", web$i_nm,"`.\n"))
+      cat(paste0("`Criteria ", web$i_nm,"`.\n"), sep = "")
     }
     #
     web$tmp$sub.cri <- web$match.cri$sub_criteria[which(names(web$match.cri$sub_criteria) == paste0("cr", web$i))]
@@ -1170,10 +1170,12 @@ links_dev <- function(criteria,
       web$tmp$linked_lgk <- which(web$rec.pairs$e.match | web$rec.pairs$index_rd)
       web$repo$iteration.linked[web$rec.pairs$cu_pos[web$tmp$linked_lgk]] <- TRUE
       web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$index_rd]] <- 2L
+      if(isFALSE(web$options$repeats_allowed)){
+        web$repo$tag[web$rec.pairs$tr_pos[!web$rec.pairs$tr_pos %in% web$rec.pairs$cu_pos]] <- 2L
+      }
       if(isFALSE(web$options$check_duplicates)){
         web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$rec.match$equal_test]] <- 2L
       }
-
       web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$e.match]][
         web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] != 2
       ] <- ifelse(isTRUE(web$options$recursive), -1L, 2L)
@@ -1205,7 +1207,7 @@ links_dev <- function(criteria,
           prefix_msg = "  ")
         cat(
           web$msg,
-          "\r",sep="")
+          "\r", sep = "")
       }
       #
       if(grepl("report$", web$options$display)){
@@ -1291,7 +1293,7 @@ links_dev <- function(criteria,
       cat(
         "\n",
         web$msg,
-        "\n")
+        "\n", sep = "")
     }
     web$i <- web$i + 1L
   }
@@ -1324,11 +1326,14 @@ links_dev <- function(criteria,
     web$repo$pr_sn <- web$repo$sn[web$repo$pr_sn]
   }
   #
+  web$repo$wind_id <- as.list(as.data.frame(web$repo$wind_id))
+  names(web$repo$wind_id)<- paste0("link_id", seq_len(length(web$repo$wind_id)))
+
   web$pids <- methods::new("pid",
                            .Data = web$repo$pid,
                            sn = web$repo$pr_sn,
                            pid_cri = web$repo$pid_cri,
-                           link_id = 0L,
+                           link_id = web$repo$wind_id,
                            iteration = web$repo$iteration)
   #
   web$r <- rle(sort(web$pids@.Data))

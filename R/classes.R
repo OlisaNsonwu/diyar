@@ -920,7 +920,7 @@ setClass("pid",
          contains = "integer",
          representation(sn = "integer",
                         pid_cri = "integer",
-                        link_id = "integer",
+                        link_id = "list",
                         pid_dataset = "ANY",
                         pid_total = "integer",
                         iteration = "integer"))
@@ -943,7 +943,7 @@ as.pid <- function(x, ...){
                     .Data = x,
                     sn = seq_len(length(x)),
                     pid_cri = rep(1L, length(x)),
-                    link_id = x,
+                    link_id = list(link_id1 = x),
                     pid_total = tots$lengths[match(x, tots$values)],
                     pid_dataset = NULL,
                     iteration = rep(1L, length(x)))
@@ -1056,10 +1056,10 @@ as.data.frame.pid <- function(x, ...){
   y <- data.frame(pid = x@.Data,
                   sn = x@sn,
                   pid_cri = x@pid_cri,
-                  link_id = x@link_id,
                   pid_total = x@pid_total,
                   iteration = x@iteration,
                   ...)
+  y <- cbind(y, as.data.frame(x@link_id, ...))
   if(length(x@pid_dataset) != 0){
     y$pid_dataset <- as.vector(decode(x@pid_dataset))
   }else{
@@ -1074,10 +1074,10 @@ as.list.pid <- function(x, ...){
   y <- list(pid = x@.Data,
             sn = x@sn,
             pid_cri = x@pid_cri,
-            link_id = x@link_id,
             pid_total = x@pid_total,
             iteration = x@iteration,
             ...)
+  y <- c(y, x@link_id)
   if(length(x@pid_dataset) != 0){
     y$pid_dataset <- x@pid_dataset
   }else{
@@ -1099,7 +1099,7 @@ setMethod("rep", signature(x = "pid"), function(x, ...) {
   methods::new("pid", rep(x@.Data, ...),
                sn = rep(x@sn, ...),
                pid_total = rep(x@pid_total, ...),
-               link_id = rep(x@link_id, ...),
+               link_id = lapply(x@link_id, function(y) rep(y, ...)),
                pid_dataset = suppressWarnings(rep(x@pid_dataset, ...)),
                pid_cri = rep(x@pid_cri, ...),
                iteration = rep(x@iteration, ...))
@@ -1115,7 +1115,7 @@ setMethod("[", signature(x = "pid"),
             methods::new("pid", x@.Data[i],
                          pid_cri = x@pid_cri[i],
                          sn = x@sn[i],
-                         link_id = x@link_id[i],
+                         link_id = lapply(x@link_id, function(y) y[i]),
                          pid_total = x@pid_total[i],
                          pid_dataset = x@pid_dataset[i],
                          iteration = x@iteration[i])
@@ -1129,7 +1129,7 @@ setMethod("[[", signature(x = "pid"),
             methods::new("pid", x@.Data[i],
                          pid_cri = x@pid_cri[i],
                          sn = x@sn[i],
-                         link_id = x@link_id[i],
+                         link_id = lapply(x@link_id, function(y) y[i]),
                          pid_total = x@pid_total[i],
                          pid_dataset = x@pid_dataset[i],
                          iteration = x@iteration[i])
