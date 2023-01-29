@@ -50,6 +50,10 @@ merge_ids <- function(...) UseMethod("merge_ids")
 #' @export
 merge_ids.default <- function(id1, id2, tie_sort = NULL,
                               expand = TRUE, shrink = FALSE, ...){
+
+  #
+  overwrite <- FALSE
+
   err <- err_atomic_vectors(id1, "id1")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_atomic_vectors(id2, "id2")
@@ -98,7 +102,7 @@ merge_ids.default <- function(id1, id2, tie_sort = NULL,
     }
     repo$cr_match <- !(!duplicated(repo$id2, fromLast = TRUE) & !duplicated(repo$id2, fromLast = FALSE))
     repo$new_id <- repo$id1
-    lgk <- (repo$tr_pr_match & !repo$pr_match) |
+    lgk <- (repo$tr_pr_match & (!repo$pr_match | overwrite)) |
       (!repo$tr_pr_match & repo$cr_match)
     repo$new_id[lgk] <- repo$tr_id1[lgk]
   }

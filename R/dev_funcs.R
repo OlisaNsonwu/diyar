@@ -100,3 +100,93 @@ id_total <- function(x){
   x <- rr$lengths[match(x, rr$values)]
   x
 }
+
+make_ids_v2 <- function(x_pos, y_pos, id_length = max(x_pos, y_pos), ref_ord = NULL){
+  repo <- seq_len(length(x_pos))
+  repo <- list(
+    val = c(x_pos, y_pos),
+    # indx = c(repo, repo + max(repo)),
+    row.n = rep(repo, 2)
+  )
+
+  s_ord <- order(repo$val)
+  repo <- lapply(repo, function(x) x[s_ord])
+
+  refs <- make_refs_v2(x_pos = repo$val, y_pos = repo$row.n, ref_ord = repo$row.n)
+  col.n <- ncol(refs)
+
+  x = rep(as.integer(refs[,1]), col.n-1)
+  y = as.integer(refs[,2:col.n])
+  lgk <- is.na(x) & is.na(y)
+  x  <- x[!lgk]
+  y  <- y[!lgk]
+
+  y[is.na(y)] <-
+    x[is.na(x)] <- -1
+  g <- merge_ids(x, y, overwrite = TRUE)
+
+  repo <- list(
+    x_pos = x_pos,
+    y_pos = y_pos,
+    group_id = rep(NA, length(x_pos))
+  )
+
+  repo$group_id[x[x>0]] <- g[x>0]
+  repo$group_id[y[y>0]] <- g[y>0]
+  repo$group_id <- repo$x_pos[repo$group_id]
+  repo$group_id
+}
+
+unpack <- function(xx, depth = 1){
+  classes <- unlist(lapply(xx, class))
+  lgk <- classes == "list"
+  xx.1 <- xx[!lgk]
+  xx.2 <- unlist(xx[lgk], recursive = FALSE)
+  if(length(xx.1) > 0){
+    names(xx.1) <- paste0("var_", depth, ".", seq_len(length(xx.1)))
+  }
+  if(length(xx.2) > 0){
+    names(xx.2) <- paste0("var_", depth + 1, ".", seq_len(length(xx.2)))
+  }
+  xx <- c(xx.1, xx.2)
+  classes <- unlist(lapply(xx, class))
+  lgk <- classes == "list"
+  if(any(lgk)){
+    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
+    unpack(xx, depth = depth + 1)
+  }else{
+    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
+    xx
+  }
+}
+
+make_ids_v3 <- function(x_pos, y_pos, id_length = max(x_pos, y_pos)){
+  link_id <- make_refs_v2(x_pos, y_pos, id_length = max(x_pos, y_pos))
+
+  # x_pos <- c(x_pos, seq_len(id_length))
+  # y_pos <- c(y_pos, seq_len(id_length))
+  # browser()
+
+  pts <- c(x_pos, y_pos)
+  pts <- pts[!duplicated(pts)]
+
+  x = c(x_pos, pts)
+  y = c(y_pos, pts)
+  x2 <- c(x, y)
+  y2 <- c(y, x)
+
+  y1 <- merge_ids(x2, y2, overwrite = TRUE)
+  y2 <- merge_ids(y1, x2, overwrite = TRUE)
+
+  group_id <- sn <- seq_len(id_length)
+  # group_id[c(x_pos, y_pos)] <- c(rfs, rfs)
+  group_id[c(y_pos, x_pos, x_pos, y_pos)] <- c(rfs, rfs)
+  ids <- list(sn = sn,
+              linked = NULL,
+              link_id = link_id,
+              group_id = group_id)
+
+  ids$linked <- duplicated(ids$group_id, fromLast = TRUE) | duplicated(ids$group_id, fromLast = FALSE)
+  rm(list = ls()[ls() != "ids"])
+  ids
+}

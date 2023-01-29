@@ -1150,11 +1150,9 @@ links_dev <- function(criteria,
         web$tmp$batched_pids <- make_ids(web$rec.pairs$x_pos[web$rec.pairs$rec.match$logical_test],
                                          web$rec.pairs$y_pos[web$rec.pairs$rec.match$logical_test],
                                          id_length = max(web$rec.pairs$x_pos))
-
-        web$tmp$batched_pids$group_id2 <- web$tmp$cu_set_indx[web$tmp$batched_pids$group_id]
         web$repo$pid[
-          web$tmp$batched_pids$sn[web$tmp$batched_pids$linked]
-        ] <- web$tmp$batched_pids$group_id2[web$tmp$batched_pids$linked]
+          web$tmp$cu_set_indx[web$tmp$batched_pids$sn[web$tmp$batched_pids$linked]]
+        ] <- web$tmp$cu_set_indx[web$tmp$batched_pids$group_id[web$tmp$batched_pids$linked]]
       }else{
         web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pid[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
       }
