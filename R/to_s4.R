@@ -20,7 +20,7 @@ to_df <- function(s4, ...) as.data.frame(s4, ...)
 
    if(any(names(lst) == "epid")){
      s4 <- methods::new("epid", .Data=lst$epid)
-     s4@wind_id <- list(wind_id = lst[grepl("wind_id", names(lst))])
+     s4@wind_id <- lst[grepl("wind_id", names(lst))]
      s4@epid_interval <- number_line(l = lst$epid_start,
                                      r = lst$epid_end,
                                      id = lst$sn,
@@ -32,6 +32,7 @@ to_df <- function(s4, ...) as.data.frame(s4, ...)
                                      id = lst$sn)
    }else if(any(names(lst) == "pid")){
      s4 <- methods::new("pid", .Data=lst$pid)
+     s4@link_id <- lst[grepl("link_id", names(lst))]
    }else if(any(names(lst) == "gid")){
      s4 <- methods::new("number_line", .Data = as.numeric(lst$end) - as.numeric(lst$start))
    }

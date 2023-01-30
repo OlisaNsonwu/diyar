@@ -136,7 +136,8 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
-  x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) as.data.frame(as.number_line(y)))))
+  tmp.func <- function(x) as.data.frame(x, decode = FALSE)
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) tmp.func(as.number_line(y)))))
   return(x)
 })
 
@@ -328,7 +329,7 @@ summary.epid <- function(object, ...){
   summ$iterations <- max(object@iteration)
   summ$total_records <- length(object)
   summ$total_episodes <- length(object[object@case_nm == 0])
-  # browser()
+
   x <- object[order(-object@wind_nm)]
   x <- x[!duplicated(x@.Data)]
   x <- decode(x@wind_nm[x@case_nm != -1])
@@ -420,11 +421,16 @@ print.epid_summary <- function(x, ...){
 
 #' @rdname epid-class
 #' @export
-as.data.frame.epid <- function(x, ...){
+as.data.frame.epid <- function(x, ..., decode = TRUE){
+  if(isTRUE(decode)){
+    tmp.func <- function(x) decode(x)
+  }else{
+    tmp.func <- identity
+  }
   y <- data.frame(epid = x@.Data,
                   sn = x@sn,
-                  wind_nm = as.vector(decode(x@wind_nm)),
-                  case_nm = as.vector(decode(x@case_nm)),
+                  wind_nm = as.vector(tmp.func(x@wind_nm)),
+                  case_nm = as.vector(tmp.func(x@case_nm)),
                   dist_wind_index = x@dist_wind_index,
                   dist_epid_index = x@dist_epid_index,
                   epid_total = x@epid_total,
@@ -453,11 +459,16 @@ as.data.frame.epid <- function(x, ...){
 
 #' @rdname epid-class
 #' @export
-as.list.epid <- function(x, ...){
+as.list.epid <- function(x, ..., decode = TRUE){
+  if(isTRUE(decode)){
+    tmp.func <- function(x) decode(x)
+  }else{
+    tmp.func <- identity
+  }
   y <- list(epid = x@.Data,
             sn = x@sn,
-            wind_nm = x@wind_nm,
-            case_nm = x@case_nm,
+            wind_nm = decode(x@wind_nm),
+            case_nm = decode(x@case_nm),
             dist_wind_index = x@dist_wind_index,
             dist_epid_index = x@dist_epid_index,
             epid_total = x@epid_total,
@@ -567,14 +578,15 @@ setMethod("[[", signature(x = "epid"),
 
 #' @rdname epid-class
 setMethod("c", signature(x = "epid"), function(x,...) {
-  x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  tmp.func <- function(x) as.data.frame(x, decode = FALSE)
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), tmp.func)))
   for (vr in methods::slotNames(x)){
     if(length(methods::slot(x, vr)) > 0){
       if(all(is.na(methods::slot(x, vr)))){
         if(vr == "options"){
           methods::slot(x, vr) <- list()
         }else{
-          methods::slot(x, vr) <- NULL
+          methods::slot(x, vr) <- methods::slot(x, vr)[0]
         }
       }
     }
@@ -752,10 +764,15 @@ print.pane_summary <- function(x, ...){
 
 #' @rdname pane-class
 #' @export
-as.data.frame.pane <- function(x, ...){
+as.data.frame.pane <- function(x, ..., decode = TRUE){
+  if(isTRUE(decode)){
+    tmp.func <- function(x) decode(x)
+  }else{
+    tmp.func <- identity
+  }
   y <- data.frame(pane = x@.Data,
                   sn = x@sn,
-                  case_nm = as.vector(decode(x@case_nm)),
+                  case_nm = as.vector(tmp.func(x@case_nm)),
                   dist_pane_index = x@dist_pane_index,
                   window_matched = x@window_matched,
                   pane_total = x@pane_total,
@@ -883,7 +900,8 @@ setMethod("[[", signature(x = "pane"),
 
 #' @rdname pane-class
 setMethod("c", signature(x = "pane"), function(x,...) {
-  x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  tmp.func <- function(x) as.data.frame(x, decode = FALSE)
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), tmp.func)))
   for (vr in methods::slotNames(x)){
     if(length(methods::slot(x, vr)) > 0){
       if(all(is.na(methods::slot(x, vr)))){
@@ -1052,10 +1070,15 @@ print.pid_summary <- function(x, ...){
 
 #' @rdname pid-class
 #' @export
-as.data.frame.pid <- function(x, ...){
+as.data.frame.pid <- function(x, ..., decode = TRUE){
+  if(isTRUE(decode)){
+    tmp.func <- function(x) decode(x)
+  }else{
+    tmp.func <- identity
+  }
   y <- data.frame(pid = x@.Data,
                   sn = x@sn,
-                  pid_cri = x@pid_cri,
+                  pid_cri = as.vector(tmp.func(x@pid_cri)),
                   pid_total = x@pid_total,
                   iteration = x@iteration,
                   ...)
@@ -1137,7 +1160,8 @@ setMethod("[[", signature(x = "pid"),
 
 #' @rdname pid-class
 setMethod("c", signature(x = "pid"), function(x,...) {
-  x <- to_s4(do.call("rbind", lapply(list(x, ...), as.data.frame)))
+  tmp.func <- function(x) as.data.frame(x, decode = FALSE)
+  x <- to_s4(do.call("rbind", lapply(list(x, ...), tmp.func)))
   for (vr in methods::slotNames(x)){
     if(length(methods::slot(x, vr)) > 0){
       if(all(is.na(methods::slot(x, vr)))){

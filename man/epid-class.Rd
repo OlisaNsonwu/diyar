@@ -30,9 +30,9 @@ as.epid(x)
 
 \method{print}{epid_summary}(x, ...)
 
-\method{as.data.frame}{epid}(x, ...)
+\method{as.data.frame}{epid}(x, ..., decode = TRUE)
 
-\method{as.list}{epid}(x, ...)
+\method{as.list}{epid}(x, ..., decode = TRUE)
 
 \S4method{show}{epid}(object)
 

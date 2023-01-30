@@ -30,7 +30,7 @@ as.pid(x, ...)
 
 \method{print}{pid_summary}(x, ...)
 
-\method{as.data.frame}{pid}(x, ...)
+\method{as.data.frame}{pid}(x, ..., decode = TRUE)
 
 \method{as.list}{pid}(x, ...)
 

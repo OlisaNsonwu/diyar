@@ -30,7 +30,7 @@ as.pane(x)
 
 \method{print}{pane_summary}(x, ...)
 
-\method{as.data.frame}{pane}(x, ...)
+\method{as.data.frame}{pane}(x, ..., decode = TRUE)
 
 \method{as.list}{pane}(x, ...)
 
