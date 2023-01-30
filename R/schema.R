@@ -706,6 +706,14 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
   if(!is.null(seed)) set.seed(seed)
   # `Data to plot`pid` data
   pl_dt <- as.data.frame(x)
+
+  # Temp solution for >1 link_id
+  link_id <- sapply(x@link_id, identity)
+  link_id[is.na(link_id)] <- Inf
+  link_id <- row_wise(link_id, value = TRUE, type = "min")
+  pl_dt$link_id <- link_id
+  #
+
   if(!is.null(custom_label)){
     pl_dt$custom_label <- custom_label
   }

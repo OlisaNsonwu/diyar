@@ -1167,11 +1167,11 @@ links_dev <- function(criteria,
             web$tmp$tgt_pid[web$tmp$ovr_grp_indx],
             web$tmp$tgt_pid[web$repo$ovr_lgk])]
       }
+
       web$tmp$linked_lgk <- which(web$rec.pairs$e.match | web$rec.pairs$index_rd)
-      web$repo$iteration.linked[web$rec.pairs$cu_pos[web$tmp$linked_lgk]] <- TRUE
       web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$index_rd]] <- 2L
       if(isFALSE(web$options$repeats_allowed)){
-        web$repo$tag[web$rec.pairs$tr_pos[!web$rec.pairs$tr_pos %in% web$rec.pairs$cu_pos]] <- 2L
+        web$repo$tag[web$rec.pairs$tr_pos] <- 2L
       }
       if(isFALSE(web$options$check_duplicates)){
         web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$rec.match$equal_test]] <- 2L
@@ -1180,15 +1180,23 @@ links_dev <- function(criteria,
         web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] != 2
       ] <- ifelse(isTRUE(web$options$recursive), -1L, 2L)
 
-      web$repo$iteration[web$rec.pairs$cu_pos[web$tmp$linked_lgk]][
-        web$repo$tag[web$rec.pairs$cu_pos[web$tmp$linked_lgk]] == 2 &
-          web$repo$iteration[web$rec.pairs$cu_pos[web$tmp$linked_lgk]] == 0
+      if(isTRUE(web$options$permutations_allowed)){
+        web$tmp$tgt_indx <- web$rec.pairs$cu_pos[web$rec.pairs$rec.match$logical_test]
+      }else{
+        web$tmp$tgt_indx <- c(web$rec.pairs$cu_pos[web$rec.pairs$rec.match$logical_test],
+                              web$rec.pairs$tr_pos[web$rec.pairs$rec.match$logical_test])
+      }
+      web$repo$iteration[web$tmp$tgt_indx][
+        web$repo$tag[web$tmp$tgt_indx] == 2 &
+          web$repo$iteration[web$tmp$tgt_indx] == 0
       ] <- web$ite
 
-      web$repo$pid_cri[web$rec.pairs$cu_pos[web$tmp$linked_lgk]][
-        web$repo$tag[web$rec.pairs$cu_pos[web$tmp$linked_lgk]] == 2 &
-          web$repo$pid_cri[web$rec.pairs$cu_pos[web$tmp$linked_lgk]] == web$mxp_cri
+      web$repo$pid_cri[web$tmp$tgt_indx][
+        web$repo$tag[web$tmp$tgt_indx] == 2 &
+          web$repo$pid_cri[web$tmp$tgt_indx] == web$mxp_cri
       ] <- web$i
+
+      web$repo$iteration.linked[web$tmp$tgt_indx] <- TRUE
       #
       web$repo$bkp_pid <- web$repo$pid
       #
@@ -1326,6 +1334,7 @@ links_dev <- function(criteria,
     web$repo$pr_sn <- web$repo$sn[web$repo$pr_sn]
   }
   #
+  web$repo$wind_id <- matrix(web$repo$wind_id, ncol = web$counts$max_indexes)
   web$repo$wind_id <- as.list(as.data.frame(web$repo$wind_id))
   names(web$repo$wind_id)<- paste0("link_id", seq_len(length(web$repo$wind_id)))
 
