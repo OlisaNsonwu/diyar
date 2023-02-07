@@ -144,10 +144,33 @@ progress_txt <- function(n, d, msg){
   cat(status, "\r",sep="")
 }
 
-update_text <- function(tot_records, current_tot, current_tagged, indent_txt){
-  paste0(indent_txt, "Total: ", tot_records, " record(s).\n",
-         indent_txt, "Checked: ", current_tot, " record(s).\n",
-         indent_txt, "Linked: ", current_tagged," record(s).\n")
+update_text <- function(tot_records = NULL,
+                        current_tot = NULL,
+                        current_tagged = NULL,
+                        indent_txt = "",
+                        time = NULL,
+                        skipped = NULL,
+                        iteration = NULL){
+  update <- ""
+  if(!is.null(iteration)){
+    update <- paste0(update, indent_txt, "Iteration: ", iteration, ".\n")
+  }
+  if(!is.null(tot_records)){
+    update <- paste0(update, indent_txt, "Total: ", tot_records, " record(s).\n")
+  }
+  if(!is.null(current_tot)){
+    update <- paste0(update, indent_txt, "Checked: ", current_tot, " record(s).\n")
+  }
+  if(!is.null(skipped)){
+    update <- paste0(update, indent_txt, "Skipped: ", skipped, " record(s).\n")
+  }
+  if(!is.null(current_tagged)){
+    update <- paste0(update, indent_txt, "Linked: ", current_tagged, " record(s).\n")
+  }
+  if(!is.null(time)){
+    update <- paste0(update, indent_txt, "Time: ", time, ".\n")
+  }
+  return(update)
 }
 
 datasets <- function(by, val, sep = ","){
@@ -1262,4 +1285,71 @@ dv <- function(lst){
             y.f = lst$y3,
             y3 = lst$y3))
   }
+}
+
+unpack <- function(xx, depth = 1){
+  classes <- unlist(lapply(xx, class))
+  lgk <- classes == "list"
+  xx.1 <- xx[!lgk]
+  xx.2 <- unlist(xx[lgk], recursive = FALSE)
+  if(length(xx.1) > 0){
+    names(xx.1) <- paste0("var_", depth, ".", seq_len(length(xx.1)))
+  }
+  if(length(xx.2) > 0){
+    names(xx.2) <- paste0("var_", depth + 1, ".", seq_len(length(xx.2)))
+  }
+  xx <- c(xx.1, xx.2)
+  classes <- unlist(lapply(xx, class))
+  lgk <- classes == "list"
+  if(any(lgk)){
+    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
+    unpack(xx, depth = depth + 1)
+  }else{
+    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
+    xx
+  }
+}
+
+make_sets_v2 <- function (x, r, strata = NULL, permutations_allowed = TRUE, repeats_allowed = TRUE){
+  if (!is.null(strata)) {
+    strata <- match(strata, strata)
+    pos <- seq_len(length(x))
+    s_ord <- order(strata)
+    strata <- strata[s_ord]
+    pos <- pos[s_ord]
+    rl <- rle(strata)
+    n <- max(rl$lengths)
+  }
+  else {
+    n <- length(x)
+  }
+  repo <- sets(n = n, r = r, permutations_allowed = permutations_allowed,
+               repeats_allowed = repeats_allowed)
+  if (!is.null(strata)) {
+    sn <- seq_len(length(x))
+    rl$start_sn <- sn[!duplicated(strata)]
+    unq_lens <- rl$lengths[!duplicated(rl$lengths)]
+    repo <- lapply(unq_lens, function(x) {
+      exc_indx <- which(repo > x)
+      exc_indx <- exc_indx%%nrow(repo)
+      exc_indx[exc_indx == 0] <- nrow(repo)
+      x.repo <- repo[!seq_len(nrow(repo)) %in% exc_indx,
+      ]
+      x.repo
+    })
+    repo <- repo[match(rl$lengths, unq_lens)]
+    reps <- (unq_lens^2)
+    reps <- reps[match(rl$lengths, unq_lens)]
+    repo <- do.call("rbind", repo)
+    start_sn <- rep(rep(rl$start_sn, reps), r)
+    repo <- repo + (start_sn - 1)
+    repo <- pos[repo]
+    repo <- matrix(repo, ncol = r)
+  }
+  repo <- split(repo, rep(seq_len(r), rep(nrow(repo), r)))
+  repo <- c(repo, lapply(repo, function(i) x[i]))
+  names(repo) <- paste0("x", rep(1:r, 2), rep(c("_pos", "_val"),
+                                              rep(r, 2)))
+  rm(list = ls()[ls() != "repo"])
+  return(repo)
 }

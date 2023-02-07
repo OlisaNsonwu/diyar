@@ -51,7 +51,7 @@ links(
 
 \item{tie_sort}{\code{[atomic]}. Preferential order for breaking ties within a iteration.}
 
-\item{batched}{\code{[logical]} Determines if record-pairs are created and compared in batches. Options are \code{"yes"} or \code{"no"}.}
+\item{batched}{\code{[character]} Determines if record-pairs are created and compared in batches. Options are \code{"yes"}, \code{"no"} or \code{"semi"}.}
 
 \item{repeats_allowed}{\code{[logical]} If \code{TRUE}, record-pairs with repeat values are created and compared. Ignored when \code{batched} is \code{TRUE}.}
 

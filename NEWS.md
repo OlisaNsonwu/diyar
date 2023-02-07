@@ -5,7 +5,23 @@
 
 ## Changes
 
+-   Optimised `links()`. Each iteration now uses time and memory for
+    each .
+-   Updated argument in `links()`- `batched`. A new option - `["semi"]`.
+    With `["semi"]`, each match spawns additional record-pairs per
+    iteration instead of more iterations as with `["no"]`. This leads to
+    fewer iterations compared with `["yes"]` but with less memory usage
+    than `["no"]`.
+-   New argument in `as.data.frame.pid()`, `as.data.frame.epid()` and
+    `as.data.frame.pane()` - `decode`
+-   `link_id` slot in `pid` objects is now a `list`.
+-   In `links()`, records with missing values in a `sub_criteria` are
+    skipped at each iteration.
+
 ## Bug fixes
+
+-   When `recursive` was `TRUE`, `links()` ended prematurely and
+    therefore missed some matches. Resolved.
 
 # Version 0.4.3
 
@@ -74,7 +90,7 @@ sub.cri.1 <- sub_criteria(
 
 format(sub.cri.1, show_levels = TRUE)
 #> logical_test-{
-#> Lv.0.1-match.export(Jan,Feb ...)
+#> Lv.0.1-match.export(Jan and Feb)
 #> }
 eval_sub_criteria(sub.cri.1)
 #> $logical_test

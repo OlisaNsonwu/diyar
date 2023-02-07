@@ -362,6 +362,23 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   }
 }
 
+err_sub_criteria_10b <- function(sub_criteria){
+  nms <- names(sub_criteria)
+  nms <- nms[nms %in% nms[duplicated(nms)]]
+  nms <- rle(nms)
+  if(length(nms$lengths) > 0){
+    return(paste0("Multiple `sub_criteria` objects assinged to a `criteria`:\n",
+                  "i - Only one `sub_criteria` object can be assinged to a `criteria`.\n",
+                  "i - Instead, nest all match criteria in one `sub_criteria` object.\n",
+                  "i - Example ~ `sub_criteria(X, sub_criteria(Y), operator = \"and\")`.\n",
+                  paste0("X - ", nms$lengths, " `sub_criteria` object(s) assinged to Criteria-", gsub("^cr", "", nms$values), " (`", nms$values, "`)", collapse = "\n")
+                  )
+           )
+  }else{
+    F
+  }
+}
+
 err_sub_criteria_3dot_1 <- function(...){
   err <- lapply(list(...), attr_eval)
   err <- unlist(err, use.names = FALSE)
@@ -1272,6 +1289,8 @@ err_links_checks_0 <- function(criteria,
     err <- err_sub_criteria_8(sub_criteria)
     if(any(err != FALSE)) return((err[err != FALSE])[1])
     err <- err_sub_criteria_10(criteria, sub_criteria)
+    if(err != FALSE) return(err)
+    err <- err_sub_criteria_10b(sub_criteria)
     if(err != FALSE) return(err)
   }
   err <- err_criteria_1(criteria)
