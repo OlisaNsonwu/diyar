@@ -1123,7 +1123,7 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
       if(at_nm != ""){
 
       }else if(is.atomic(vv)){
-        at_nm <- listr(trimws(format(vv[1:2])), lim = 2, sep = ",")
+        at_nm <- listr(trimws(format(vv[1:4])), lim = 3, sep = ",")
       }else{
         if(!is.null(names(vv))){
           at_nm <- paste0(class(vv), "; ", listr(paste0("`", names(vv), "`"), lim = 2))
