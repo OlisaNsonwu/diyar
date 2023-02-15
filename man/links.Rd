@@ -15,7 +15,7 @@ links(
   group_stats = FALSE,
   expand = TRUE,
   shrink = FALSE,
-  recursive = FALSE,
+  recursive = "none",
   check_duplicates = FALSE,
   tie_sort = NULL,
   batched = "yes",

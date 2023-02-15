@@ -17,6 +17,12 @@
 -   `link_id` slot in `pid` objects is now a `list`.
 -   In `links()`, records with missing values in a `sub_criteria` are
     skipped at each iteration.
+-   Updated argument in `links()`- `recursive`. This is now takes any of
+    four options
+    `[c("linked.false", "linked.true", "unlinked", "none")]` .
+    `[c("linked.false", "linked.true", "unlinked")]` is the equivalent
+    of the old `[TRUE]` option, while `["none"]` is the equivalent of
+    the old `[FALSE]` option.
 
 ## Bug fixes
 
@@ -138,25 +144,17 @@ links(
 #> $export$cri.1$iteration.1
 #> $export$cri.1$iteration.1$mf.0.1
 #>   x_val y_val diff is_match
-#> 1     5     1    4    FALSE
-#> 2     4     1    3    FALSE
-#> 3     3     1    2    FALSE
-#> 4     2     1    1     TRUE
-#> 5     1     1    0     TRUE
+#> 1     2     1    1     TRUE
+#> 2     3     1    2    FALSE
+#> 3     4     1    3    FALSE
+#> 4     5     1    4    FALSE
 #> 
 #> 
 #> $export$cri.1$iteration.2
 #> $export$cri.1$iteration.2$mf.0.1
 #>   x_val y_val diff is_match
-#> 1     5     3    2    FALSE
-#> 2     4     3    1     TRUE
-#> 3     3     3    0     TRUE
-#> 
-#> 
-#> $export$cri.1$iteration.3
-#> $export$cri.1$iteration.3$mf.0.1
-#>   x_val y_val diff is_match
-#> 1     5     5    0     TRUE
+#> 1     4     3    1     TRUE
+#> 2     5     3    2    FALSE
 ```
 
 ## Bug fixes
