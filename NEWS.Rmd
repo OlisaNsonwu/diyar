@@ -11,6 +11,7 @@ knitr::opts_chunk$set(
 # Version 0.4.3.9000
 
 ## New features
++ New function - `links_wf_episodes()`. 
 
 ## Changes
 + Optimised `links()`. Each iteration now uses time and memory for each .
@@ -25,6 +26,8 @@ This leads to fewer iterations compared with `["yes"]` but with less memory usag
 
 ## Bug fixes
 + When `recursive` was `TRUE`, `links()` ended prematurely and therefore missed some matches. Resolved.
++ `recurrence_sub_criteria` in `episodes()` was not implemented correctly and lead to incorrect linkage result in some instances. Resolved.
++ `overlap_method()` was not implemented correctly and lead to incorrect result in some instances. Resolved.
 
 # Version 0.4.3
 

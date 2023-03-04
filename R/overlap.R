@@ -525,7 +525,7 @@ overlap_method <- function(x, y){
 
   m <- rep("none", max(c(length(x), length(y))))
 
-  m_lgk <- which(m == "none")
+  m_lgk <- TRUE
   lgk <- which(x_across_y(x[m_lgk], y[m_lgk]))
   m[m_lgk[lgk]] <- "x_across_y"
 
@@ -534,7 +534,7 @@ overlap_method <- function(x, y){
     rm(list = ls()[ls() != "m"])
     return(m)
   }
-  lgk <- which(y_across_x(x, y[m_lgk]))
+  lgk <- which(y_across_x(x[m_lgk], y[m_lgk]))
   m[m_lgk[lgk]] <- "y_across_x"
 
   m_lgk <- which(m == "none")

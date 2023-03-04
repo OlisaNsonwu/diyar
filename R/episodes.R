@@ -751,7 +751,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE) & skip_unique_strata
         if(length(cr[cr & !cri_2]) > 0){
           ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
-          pos_repo <- make_batch_pairs(strata = cri[cr & !cri_2],
+          pos_repo <- make_pairs_batch_legacy(strata = cri[cr & !cri_2],
                                        index_record = ref_rd[cr & !cri_2],
                                        sn = order(order(date@id))[cr & !cri_2])
 
@@ -860,7 +860,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           cri_2 <- !duplicated(cri_2, fromLast = TRUE) & !duplicated(cri_2, fromLast = FALSE) & skip_unique_strata
           if(length(cr2[cr2 & !cri_2]) > 0){
             ref_rd[ref_rd & cri_indx_ord != i] <- FALSE
-            pos_repo <- make_batch_pairs(strata = cri[cr2 & !cri_2],
+            pos_repo <- make_pairs_batch_legacy(strata = cri[cr2 & !cri_2],
                                          index_record = ref_rd[cr2 & !cri_2],
                                          sn = order(order(date@id))[cr2 & !cri_2])
             # Check the `sub_criteria`
@@ -868,7 +868,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                                      x_pos = pos_repo$x_pos,
                                      y_pos = pos_repo$y_pos)[[1]]
             # temp external fix
-            tmp_s_ord <- match(order(order(date@id))[cr & !cri_2], pos_repo$sn)
+            tmp_s_ord <- match(order(order(date@id))[cr2 & !cri_2], pos_repo$sn)
             lgk <- lgk[tmp_s_ord]
             checks_lgk[cr2 & !cri_2] <- lgk
             # checks_lgk[ref_rd & cr2 & !cri_2] <- 1L
@@ -1368,6 +1368,55 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   if(!display %in% c("none_with_report", "none")) cat("Episodes tracked in ", fmt(tms, "difftime"), "!\n", sep = "")
   rm(list = ls()[ls() != "epids"])
   return(epids)
+}
+
+#' @rdname  episodes
+#' @export
+links_wf_episodes <- function(date,
+                              case_length = Inf,
+                              episode_type = "fixed",
+                              strata = NULL,
+                              sn = NULL,
+                              display = "none"){
+  is_recurisve <-  episode_type != "fixed"
+  recurisve <- ifelse(is_recurisve, "unlinked",  "none")
+  check_duplicates <- !isTRUE(is_recurisve)
+  if(length(strata) == 0){
+    strata <- "p1"
+  }
+
+  f1 <- function(x, y, l = case_length){
+    (x - y) <= l
+  }
+
+  if(isTRUE(is_recurisve)){
+    f2 <- function(x, y, l = case_length){
+      lgk <- f1(x = x, y = y, l = l)
+      lgk[lgk] <- duplicated(y[lgk], fromLast = TRUE)
+      lgk
+    }
+  }else{
+    f2 <- exact_match
+  }
+
+  episodes.scri <- sub_criteria(
+    date = date,
+    match_funcs = c("f1" = f1),
+    equal_funcs = c("f2" = f2)
+  )
+
+  links(
+    sn = sn,
+    criteria = strata,
+    recursive = recurisve,
+    check_duplicates = check_duplicates,
+    sub_criteria = list(cr1 = episodes.scri),
+    tie_sort = date,
+    batched = "yes",
+    permutations_allowed = FALSE,
+    repeats_allowed = FALSE,
+    ignore_same_source = FALSE,
+    display = display)
 }
 
 #' @name episodes_wf_splits

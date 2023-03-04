@@ -2,6 +2,7 @@
 % Please edit documentation in R/episodes.R
 \name{episodes}
 \alias{episodes}
+\alias{links_wf_episodes}
 \title{Group dated events into episodes.}
 \usage{
 episodes(
@@ -31,6 +32,15 @@ episodes(
   case_length_total = 1,
   recurrence_length_total = case_length_total,
   skip_unique_strata = TRUE
+)
+
+links_wf_episodes(
+  date,
+  case_length = Inf,
+  episode_type = "fixed",
+  strata = NULL,
+  sn = NULL,
+  display = "none"
 )
 }
 \arguments{

@@ -195,6 +195,9 @@ links <- function(criteria,
     web$options$is_recursive <- any(c("linked.false", "linked.true", "unlinked") %in% web$options$recursive) & !"none" %in% web$options$recursive
   }
   #
+  if(!inherits(web$match.cri$criteria, "list")){
+    web$match.cri$criteria <- list(web$match.cri$criteria)
+  }
   web$n.row <- as.numeric(lapply(web$match.cri$criteria, length))
   if(!is.null(web$match.cri$sub_criteria)){
     web$n.row <- c(
@@ -418,8 +421,8 @@ links <- function(criteria,
     }
     web$tmp$ite_inc_indx <- web$tmp$cri_inc_indx
     while(suppressWarnings(min(web$repo$tag[web$tmp$ite_inc_indx])) != 2 & length(web$tmp$ite_inc_indx) > 0) {
-      if(web$ite == 9){
-        browser()
+      if(web$ite == 1){
+        # browser()
       }
       #
       web$tmp$ite_inc_indx <- web$tmp$ite_inc_indx[
