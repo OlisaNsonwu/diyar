@@ -56,8 +56,8 @@
 #' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
 #' Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 #' \itemize{
-#' \item If named \code{"l"}, only groups with records from every listed \code{data_source} will remain linked.
-#' \item If named \code{"g"}, only groups with records from any listed \code{data_source} will remain linked.
+#' \item If named \code{"l"}, groups without records from every listed \code{data_source} will be unlinked.
+#' \item If named \code{"g"}, groups without records from any listed \code{data_source} will be unlinked.
 #' }
 #'
 #' See \code{vignette("links")} for more information.

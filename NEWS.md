@@ -34,8 +34,9 @@
 -   `recurrence_sub_criteria` in `episodes()` was not implemented
     correctly and lead to incorrect linkage result in some instances.
     Resolved.
--   `overlap_method()` was not implemented correctly and lead to
-    incorrect result in some instances. Resolved.
+-   `overlap_method()` - logical tests recycled incorrectly. Resolved.
+-   `check_links` argument - Option `"g"` implemented as option `"l"`.
+    Resolved.
 
 # Version 0.4.3
 

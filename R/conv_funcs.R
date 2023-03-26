@@ -204,7 +204,7 @@ check_links <- function(cri, data_source, data_links){
     datatset_p <- t(as.matrix(datatset_p))
   }
 
-  cmp_func <- list(l = all, g = all)
+  cmp_func <- list(l = all, g = any)
   cmp_func <- cmp_func[match(names(data_links), names(cmp_func))]
 
   hits <- sapply(1:length(data_links), function(i){
@@ -1315,26 +1315,6 @@ group_stats <- function(strata, start_date, end_date){
   interval <- number_line(as.numeric(dts_a), as.numeric(dts_z))
   interval <- interval[match(strata, as.numeric(names(dts_a)))]
   return(interval)
-}
-
-make_refs <- function(x_pos, y_pos, id_length = max(x_pos, y_pos), ref_ord = NULL){
-  repo <- list(x = x_pos, y = y_pos)
-  if(!is.null(ref_ord)){
-    repo$ref_ord <- ref_ord
-  }
-  ord <- order(repo$x, repo$y)
-  repo <- lapply(repo, function(x) x[ord])
-  if(is.null(ref_ord)){
-    rrr <- rle(repo$x)
-    repo$ref_ord <- sequence(rrr$lengths)
-  }
-  mx_ord <- max(repo$ref_ord)
-  link_id <- rep(NA_real_, id_length * mx_ord)
-
-  repo$x.mi <- ((repo$ref_ord - 1) * id_length) + repo$x
-  link_id[repo$x.mi] <- repo$y
-  link_id <- matrix(link_id, nrow = id_length)
-  link_id
 }
 
 make_refs_V2 <- function(x_val, y_val, id_length = max(x_val, y_val), useAsPos = TRUE, na = NA_real_){
