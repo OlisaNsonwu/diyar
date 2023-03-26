@@ -3,6 +3,7 @@
 \name{episodes}
 \alias{episodes}
 \alias{links_wf_episodes}
+\alias{episodes_af_shift}
 \title{Group dated events into episodes.}
 \usage{
 episodes(
@@ -41,6 +42,13 @@ links_wf_episodes(
   strata = NULL,
   sn = NULL,
   display = "none"
+)
+
+episodes_af_shift(
+  date,
+  case_length = Inf,
+  strata = NULL,
+  episode_type = "fixed"
 )
 }
 \arguments{

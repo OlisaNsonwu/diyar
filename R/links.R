@@ -267,6 +267,7 @@ links <- function(criteria,
     cat("\n")
   }
   web$i <- web$ite <- web$itx <- web$counts$max_indexes <- 1L
+  # print(paste0("Before Loop: ", difftime(Sys.time(), tm_a)))
   while(web$i %in% seq_len(length(web$match.cri$criteria))){
     #
     web$i_nm <- ifelse(!is.null(names(web$match.cri$criteria[web$i])),
@@ -390,7 +391,7 @@ links <- function(criteria,
       web$tmp$cri_inc_indx.mm <- index_multiples(
         x = web$tmp$cri_inc_indx,
         multiples = web$n.row,
-        repeats = web$counts$max_indexes)
+        repeats = web$counts$max_indexes)$mm
       web$repo$wind_id[web$tmp$cri_inc_indx.mm] -> web$tmp$bkp_wind_id
       # Reset identifiers
       web$repo$pid[web$tmp$cri_inc_indx] <-
@@ -402,7 +403,7 @@ links <- function(criteria,
         index_multiples(
           x = web$tmp$cri_inc_indx,
           multiples = web$n.row,
-          repeats = web$counts$max_indexes)
+          repeats = web$counts$max_indexes)$mm
       ] <- NA_real_
     }
 
@@ -421,9 +422,6 @@ links <- function(criteria,
     }
     web$tmp$ite_inc_indx <- web$tmp$cri_inc_indx
     while(suppressWarnings(min(web$repo$tag[web$tmp$ite_inc_indx])) != 2 & length(web$tmp$ite_inc_indx) > 0) {
-      if(web$ite == 1){
-        # browser()
-      }
       #
       web$tmp$ite_inc_indx <- web$tmp$ite_inc_indx[
         web$repo$tag[web$tmp$ite_inc_indx] != 2 |
@@ -439,6 +437,7 @@ links <- function(criteria,
 
       web$tmp$ite_inc_indx <- web$tmp$ite_inc_indx[web$sort_ord]
       if(length(web$tmp$ite_inc_indx) <= 1){
+        web$ite <- web$ite + 1L
         break
       }
       web$tmp$index_cd <- !duplicated(web$repo$cri[web$tmp$ite_inc_indx], fromLast = FALSE)
@@ -669,6 +668,7 @@ links <- function(criteria,
       web$ite <- web$ite + 1L
       web$itx <- web$itx + 1L
     }
+    ta <- Sys.time()
     if(web$options$shrink){
       if(FALSE){
         # If sub-record-group has lost it's index
@@ -690,7 +690,7 @@ links <- function(criteria,
           web$tmp$tgt_indx.mm <- index_multiples(
             x = web$tmp$tgt_indx,
             multiples = web$n.row,
-            repeats = web$counts$max_indexes)
+            repeats = web$counts$max_indexes)$mm
           # ... flag those with links to records that did not change groups in the current since the last iteration
           web$l1 <- rep(web$tmp$tgt_indx, web$n.row)
           web$l2 <- web$repo$wind_id[web$tmp$tgt_indx.mm]
@@ -712,7 +712,7 @@ links <- function(criteria,
             index_multiples(
               x = web$reset_lgk,
               multiples = web$n.row,
-              repeats = web$counts$max_indexes)
+              repeats = web$counts$max_indexes)$mm
           ] <- NA_real_
         }
         if(length(web$tmp$tgt_indx) > 0){
@@ -724,7 +724,7 @@ links <- function(criteria,
         web$tmp$cri_exc_indx.mm <- index_multiples(
           x = web$tmp$cri_exc_indx,
           multiples = web$n.row,
-          repeats = web$counts$max_indexes)
+          repeats = web$counts$max_indexes)$mm
         web$repo$wind_id[web$tmp$cri_exc_indx.mm][
           web$repo$wind_id[web$tmp$cri_exc_indx.mm] %in% web$tmp$cri_inc_indx
         ] <- NA
@@ -741,7 +741,7 @@ links <- function(criteria,
         web$restore_indx.mm <- index_multiples(
           x = web$restore_lgk,
           multiples = length(web$tmp$bkp_pid),
-          repeats = length(web$tmp$cri_inc_indx.mm)/length(web$tmp$cri_inc_indx))
+          repeats = length(web$tmp$cri_inc_indx.mm)/length(web$tmp$cri_inc_indx))$mm
         web$repo$wind_id[web$tmp$cri_inc_indx.mm[web$restore_indx.mm]] <- web$tmp$bkp_wind_id[web$restore_indx.mm]
       }
       web$tmp$bkp_pid <- web$tmp$bkp_link_id <-
@@ -798,7 +798,7 @@ links <- function(criteria,
     index_multiples(
       x = which(web$tmp$lgk),
       multiples = web$n.row,
-      repeats = web$counts$max_indexes)
+      repeats = web$counts$max_indexes)$mm
   ] <- NA_real_
   #
   if(!is.null(web$repo$sn)){

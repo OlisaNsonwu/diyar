@@ -423,20 +423,22 @@ print.epid_summary <- function(x, ...){
 #' @export
 as.data.frame.epid <- function(x, ..., decode = TRUE){
   if(isTRUE(decode)){
-    tmp.func <- function(x) decode(x)
+    tmp.func <- function(x) as.vector(decode(x))
   }else{
     tmp.func <- identity
   }
   y <- data.frame(epid = x@.Data,
                   sn = x@sn,
-                  wind_nm = as.vector(tmp.func(x@wind_nm)),
-                  case_nm = as.vector(tmp.func(x@case_nm)),
+                  case_nm = tmp.func(x@case_nm),
                   dist_wind_index = x@dist_wind_index,
                   dist_epid_index = x@dist_epid_index,
                   epid_total = x@epid_total,
                   iteration = x@iteration,
                   ...)
-  y <- cbind(y, as.data.frame(x@wind_id, ...))
+  y <- cbind(y,
+             as.data.frame(x@wind_id, ...),
+             as.data.frame(lapply(x@wind_nm, tmp.func), ...)
+             )
   if(length(x@epid_interval@start) != 0){
     y$epid_start <- x@epid_interval@start
     y$epid_end <- right_point(x@epid_interval)
@@ -450,7 +452,7 @@ as.data.frame.epid <- function(x, ..., decode = TRUE){
     y$epid_length = NA_integer_
   }
   if(length(x@epid_dataset) != 0){
-    y$epid_dataset = as.vector(decode(x@epid_dataset))
+    y$epid_dataset = tmp.func(x@epid_dataset)
   }else{
     y$epid_dataset = NA_character_
   }
@@ -467,14 +469,13 @@ as.list.epid <- function(x, ..., decode = TRUE){
   }
   y <- list(epid = x@.Data,
             sn = x@sn,
-            wind_nm = decode(x@wind_nm),
-            case_nm = decode(x@case_nm),
+            case_nm = tmp.func(x@case_nm),
             dist_wind_index = x@dist_wind_index,
             dist_epid_index = x@dist_epid_index,
             epid_total = x@epid_total,
             iteration = x@iteration,
             ...)
-  y <- c(y, x@wind_id)
+  y <- c(y, x@wind_id, lapply(x@wind_nm, tmp.func))
   if(length(x@epid_interval@start) != 0){
     y$epid_start <- x@epid_interval@start
     y$epid_end <- right_point(x@epid_interval)
@@ -488,7 +489,7 @@ as.list.epid <- function(x, ..., decode = TRUE){
     y$epid_length <- rep(NA_integer_, length(x))
   }
   if(length(x@epid_dataset) != 0){
-    y$epid_dataset <- x@epid_dataset
+    y$epid_dataset <- tmp.func(x@epid_dataset)
   }else{
     y$epid_dataset <- rep(NA_character_, length(x))
   }
@@ -766,13 +767,13 @@ print.pane_summary <- function(x, ...){
 #' @export
 as.data.frame.pane <- function(x, ..., decode = TRUE){
   if(isTRUE(decode)){
-    tmp.func <- function(x) decode(x)
+    tmp.func <- function(x) as.vector(decode(x))
   }else{
     tmp.func <- identity
   }
   y <- data.frame(pane = x@.Data,
                   sn = x@sn,
-                  case_nm = as.vector(tmp.func(x@case_nm)),
+                  case_nm = tmp.func(x@case_nm),
                   dist_pane_index = x@dist_pane_index,
                   window_matched = x@window_matched,
                   pane_total = x@pane_total,
@@ -790,7 +791,7 @@ as.data.frame.pane <- function(x, ..., decode = TRUE){
     y$pane_length <- NA_integer_
   }
   if(length(x@pane_dataset) != 0){
-    y$pane_dataset <- decode(x@pane_dataset)
+    y$pane_dataset <- tmp.func(x@pane_dataset)
   }else{
     y$pane_dataset <- NA_character_
   }
@@ -803,10 +804,15 @@ as.data.frame.pane <- function(x, ..., decode = TRUE){
 
 #' @rdname pane-class
 #' @export
-as.list.pane <- function(x, ...){
+as.list.pane <- function(x, ..., decode = TRUE){
+  if(isTRUE(decode)){
+    tmp.func <- function(x) as.vector(decode(x))
+  }else{
+    tmp.func <- identity
+  }
   y <- list(pane = x@.Data,
             sn = x@sn,
-            case_nm = decode(x@case_nm),
+            case_nm = tmp.func(x@case_nm),
             dist_pane_index = x@dist_pane_index,
             dist_pane_index = x@dist_pane_index,
             window_matched = x@window_matched,
@@ -825,7 +831,7 @@ as.list.pane <- function(x, ...){
     y$pane_length <- rep(NA_integer_, length(x))
   }
   if(length(x@pane_dataset) != 0){
-    y$pane_dataset <- decode(x@pane_dataset)
+    y$pane_dataset <- tmp.func(x@pane_dataset)
   }else{
     y$pane_dataset <- rep(NA_character_, length(x))
   }
@@ -1072,19 +1078,19 @@ print.pid_summary <- function(x, ...){
 #' @export
 as.data.frame.pid <- function(x, ..., decode = TRUE){
   if(isTRUE(decode)){
-    tmp.func <- function(x) decode(x)
+    tmp.func <- function(x) as.vector(decode(x))
   }else{
     tmp.func <- identity
   }
   y <- data.frame(pid = x@.Data,
                   sn = x@sn,
-                  pid_cri = as.vector(tmp.func(x@pid_cri)),
+                  pid_cri = tmp.func(x@pid_cri),
                   pid_total = x@pid_total,
                   iteration = x@iteration,
                   ...)
   y <- cbind(y, as.data.frame(x@link_id, ...))
   if(length(x@pid_dataset) != 0){
-    y$pid_dataset <- as.vector(decode(x@pid_dataset))
+    y$pid_dataset <- tmp.func(x@pid_dataset)
   }else{
     y$pid_dataset <- NA_character_
   }
@@ -1093,16 +1099,21 @@ as.data.frame.pid <- function(x, ..., decode = TRUE){
 
 #' @rdname pid-class
 #' @export
-as.list.pid <- function(x, ...){
+as.list.pid <- function(x, ..., decode = TRUE){
+  if(isTRUE(decode)){
+    tmp.func <- function(x) as.vector(decode(x))
+  }else{
+    tmp.func <- identity
+  }
   y <- list(pid = x@.Data,
             sn = x@sn,
-            pid_cri = x@pid_cri,
+            pid_cri = tmp.func(x@pid_cri),
             pid_total = x@pid_total,
             iteration = x@iteration,
             ...)
   y <- c(y, x@link_id)
   if(length(x@pid_dataset) != 0){
-    y$pid_dataset <- x@pid_dataset
+    y$pid_dataset <- tmp.func(x@pid_dataset)
   }else{
     y$pid_dataset <- rep(NA_character_, length(x))
   }

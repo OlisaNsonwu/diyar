@@ -12,9 +12,10 @@ knitr::opts_chunk$set(
 
 ## New features
 + New function - `links_wf_episodes()`. 
++ New value for `wind_id` slot in `episodes()`
 
 ## Changes
-+ Optimised `links()`. Each iteration now uses time and memory for each .
++ Optimised `episodes()` and `links()`. Each iteration now uses less time and memory for each.
 + Updated argument in `links()`- `batched`. A new option - `["semi"]`.
 With `["semi"]`, each match spawns additional record-pairs per iteration instead of more iterations as with `["no"]`.
 This leads to fewer iterations compared with `["yes"]` but with less memory usage than `["no"]`.

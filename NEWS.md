@@ -4,11 +4,12 @@
 ## New features
 
 -   New function - `links_wf_episodes()`.
+-   New value for `wind_id` slot in `episodes()`
 
 ## Changes
 
--   Optimised `links()`. Each iteration now uses time and memory for
-    each .
+-   Optimised `episodes()` and `links()`. Each iteration now uses less
+    time and memory for each.
 -   Updated argument in `links()`- `batched`. A new option - `["semi"]`.
     With `["semi"]`, each match spawns additional record-pairs per
     iteration instead of more iterations as with `["no"]`. This leads to
@@ -103,7 +104,7 @@ sub.cri.1 <- sub_criteria(
 
 format(sub.cri.1, show_levels = TRUE)
 #> logical_test-{
-#> Lv.0.1-match.export(Jan and Feb)
+#> Lv.0.1-match.export(Jan,Feb,Mar ...)
 #> }
 eval_sub_criteria(sub.cri.1)
 #> $logical_test
@@ -151,25 +152,17 @@ links(
 #> $export$cri.1$iteration.1
 #> $export$cri.1$iteration.1$mf.0.1
 #>   x_val y_val diff is_match
-#> 1     5     1    4    FALSE
-#> 2     4     1    3    FALSE
-#> 3     3     1    2    FALSE
-#> 4     2     1    1     TRUE
-#> 5     1     1    0     TRUE
+#> 1     2     1    1     TRUE
+#> 2     3     1    2    FALSE
+#> 3     4     1    3    FALSE
+#> 4     5     1    4    FALSE
 #> 
 #> 
 #> $export$cri.1$iteration.2
 #> $export$cri.1$iteration.2$mf.0.1
 #>   x_val y_val diff is_match
-#> 1     5     3    2    FALSE
-#> 2     4     3    1     TRUE
-#> 3     3     3    0     TRUE
-#> 
-#> 
-#> $export$cri.1$iteration.3
-#> $export$cri.1$iteration.3$mf.0.1
-#>   x_val y_val diff is_match
-#> 1     5     5    0     TRUE
+#> 1     4     3    1     TRUE
+#> 2     5     3    2    FALSE
 ```
 
 ## Bug fixes

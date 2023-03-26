@@ -1268,9 +1268,12 @@ nl_bind <- function(...){
 
 index_multiples <- function(x, multiples, repeats){
   y <- seq(0, multiples * (repeats - 1), by = multiples)
-  y <- rep(x, repeats) + rep(y, rep(length(x), repeats))
-  rm(x, repeats, multiples)
-  return(y)
+  r <- list()
+  r$mi <- rep(x, repeats)
+  r$mm <- r$mi + rep(y, rep(length(x), repeats))
+  r$ord <- rep(seq_len(length(y)), rep(length(x), repeats))
+  rm(x, repeats, multiples, y)
+  return(r)
 }
 
 length_hits <- function(ep_checks, strata, current_tot, range.n){
@@ -1332,6 +1335,49 @@ make_refs <- function(x_pos, y_pos, id_length = max(x_pos, y_pos), ref_ord = NUL
   link_id[repo$x.mi] <- repo$y
   link_id <- matrix(link_id, nrow = id_length)
   link_id
+}
+
+make_refs_V2 <- function(x_val, y_val, id_length = max(x_val, y_val), useAsPos = TRUE, na = NA_real_){
+  if(length(x_val) == 0 & length(y_val) == 0){
+    x <- NA
+    y1 <- NA
+    return(cbind(x, y1))
+  }
+  repo <- list(x = x_val, y = y_val)
+  repo <- cbind(x_val, y_val)
+
+  ref_ord <- NULL
+  if(!is.null(ref_ord)){
+    repo$ref_ord <- ref_ord
+  }
+  repo <- repo[order(repo[,1], repo[,2]),]
+  if(is.null(ncol(repo))){
+    repo <- matrix(repo, ncol = 2)
+  }
+  x_val <- repo[,1][!duplicated(repo[,1])]
+  if(isFALSE(useAsPos)){
+    id_length <- length(x_val)
+  }else{
+    x_val <- seq_len(id_length)
+  }
+  if(is.null(ref_ord)){
+    rrr <- rle(repo[,1])
+    ref_ord <- sequence(rrr$lengths)
+    ref_sn <- rep(seq_len(length(rrr$lengths)), rrr$lengths)
+    repo <- cbind(repo, ref_sn, ref_ord)
+  }
+  mx_ord <- max(ref_ord)
+  link_id <- rep(na, id_length * mx_ord)
+
+  if(isTRUE(useAsPos)){
+    x.mi <- ((ref_ord - 1) * id_length) + repo[,1]
+  }else{
+    x.mi <- ((ref_ord - 1) * id_length) + repo[,3]
+  }
+  link_id[x.mi] <- y_val[repo[,2]]
+  link_id <- matrix(c(x_val, link_id), nrow = id_length)
+  colnames(link_id) <- c("x", paste0("y", 1:(ncol(link_id)-1)))
+  return(link_id)
 }
 
 dv <- function(lst){
@@ -1426,4 +1472,63 @@ make_sets_v2 <- function (x, r, strata = NULL, permutations_allowed = TRUE, repe
                                               rep(r, 2)))
   rm(list = ls()[ls() != "repo"])
   return(repo)
+}
+
+
+make_pairs_batched_wf_episodes <- function(
+    x, index_record, strata, assign_ord,
+    ignore_same_source, data_source, lgk){
+
+  a_indx <- which(lgk)
+  b_indx <- which(!lgk)
+  a <- make_pairs_batched(
+    strata = strata[a_indx],
+    x = x[a_indx],
+    index_record = index_record[a_indx],
+    assign_ord = assign_ord[a_indx],
+    include_repeat = TRUE,
+    look_back = TRUE
+  )
+
+  b <- make_pairs_batched(
+    strata = strata[b_indx],
+    x = x[b_indx],
+    index_record = index_record[b_indx],
+    assign_ord = assign_ord[b_indx],
+    include_repeat = TRUE,
+    look_back = FALSE
+  )
+
+  a$x_pos <- c(a$x_pos, b$x_pos)
+  a$y_pos <- c(a$y_pos, b$y_pos)
+  a$x_val <- c(a$x_val, b$x_val)
+  a$y_val <- c(a$y_val, b$y_val)
+  a$index_ord <- c(a$index_ord, b$index_ord)
+  b <- NULL
+
+  return(a)
+}
+
+
+mix_pos <- function(cu_pos.mi, tr_pos.mi, ld_pos.mi, cu_pos.ord, opt_levels){
+  rp <- list(
+    cu_pos.mi = cu_pos.mi, tr_pos.mi = tr_pos.mi,
+    ld_pos.mi = ld_pos.mi, cu_pos.ord = cu_pos.ord)
+  # default "r"
+  rp$nwPos <- rp$cu_pos.mi
+  for (lv in c("e", "w")){
+    if(!any(lv %in% opt_levels)){
+      next
+    }
+    nm <- lv
+    nm[nm == "e"] <- "ld_pos.mi"
+    nm[nm == "w"] <- "tr_pos.mi"
+    # nm[nm == "r"] <- "cu_pos.mi"
+    tmp.opts.lv <- seq_len(length(opt_levels))[opt_levels %in% lv]
+    indx <- which(rp$cu_pos.ord %in% tmp.opts.lv)
+    rp$nwPos[indx] <-
+      rp[[nm]][indx]
+  }
+
+  return(rp$nwPos)
 }

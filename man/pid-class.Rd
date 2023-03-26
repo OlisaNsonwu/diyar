@@ -32,7 +32,7 @@ as.pid(x, ...)
 
 \method{as.data.frame}{pid}(x, ..., decode = TRUE)
 
-\method{as.list}{pid}(x, ...)
+\method{as.list}{pid}(x, ..., decode = TRUE)
 
 \S4method{show}{pid}(object)
 

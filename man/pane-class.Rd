@@ -32,7 +32,7 @@ as.pane(x)
 
 \method{as.data.frame}{pane}(x, ..., decode = TRUE)
 
-\method{as.list}{pane}(x, ...)
+\method{as.list}{pane}(x, ..., decode = TRUE)
 
 \S4method{show}{pane}(object)
 
