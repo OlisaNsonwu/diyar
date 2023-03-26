@@ -142,8 +142,8 @@ Every event in each episode is categorised as one of the following;
 If \code{data_links} is supplied, every element of the list must be named \code{"l"} (links) or \code{"g"} (groups).
 Unnamed elements are assumed to be \code{"l"}.
 \itemize{
-\item If named \code{"l"}, only groups with records from every listed \code{data_source} will be unlinked.
-\item If named \code{"g"}, only groups with records from any listed \code{data_source} will be unlinked.
+\item If named \code{"l"}, groups without records from every listed \code{data_source} will be unlinked.
+\item If named \code{"g"}, groups without records from any listed \code{data_source} will be unlinked.
 }
 
 Records with a missing (\code{NA}) \code{strata} are excluded from the episode tracking process.
