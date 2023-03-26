@@ -297,9 +297,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
       return(x)
     })
-    if(length(recurrence_overlap_methods) == 1 & web$counts$recurrence_range.n != 1){
+    if(length(recurrence_overlap_methods) == 1 & web$counts$w.list.num != 1){
       recurrence_overlap_methods <-
-        rep(recurrence_overlap_methods, web$counts$recurrence_range.n)
+        rep(recurrence_overlap_methods, web$counts$w.list.num)
     }
     web$opt_levels$recurrence_overlap_methods <-
       names(recurrence_overlap_methods)
@@ -858,7 +858,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       # Implement `sub_criteria`
       if(web$controls$use_sub_cri){
         web$rec.pairs[[w.name]]$s.match <-
-          rep(FALSE, length(web$rec.pairs[[w.name]]$ep_checks))
+          rep(FALSE, web$counts$rec.pairs.wind)
         web$tmp$lgk <-
           web$rec.pairs[[w.name]]$tr_pos.mm[
             web$rec.pairs[[w.name]]$ep_checks
