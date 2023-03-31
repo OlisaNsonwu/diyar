@@ -259,8 +259,7 @@ links <- function(criteria,
       "Data Prep.",
       current_tot = web$n.row,
       memory_used =  utils::object.size(web[names(web)[names(web) != "report"]]))
-    # web$rp_data <- matrix(unlist(web$rp_data), nrow = 1)
-    web$report <- c(web$report, list(web$rp_data))
+    web$report[length(web$report) + 1] <- list(web$rp_data)
   }
   web$tm_ia <- Sys.time()
   if(!grepl("^none", web$options$display)){
@@ -662,7 +661,7 @@ links <- function(criteria,
           current_tagged = web$tmp$ite.linked.n,
           current_tot = web$n.row,
           memory_used =  utils::object.size(web[names(web)[names(web) != "report"]]))
-        web$report <- c(web$report, list(web$rp_data))
+        web$report[length(web$report) + 1] <- list(web$rp_data)
       }
       web$tm_ia <- Sys.time()
       web$ite <- web$ite + 1L
@@ -854,7 +853,7 @@ links <- function(criteria,
       "End",
       current_tot = web$n.row,
       memory_used =  utils::object.size(web[names(web)[names(web) != "report"]]))
-    web$report <- c(web$report, list(web$rp_data))
+    web$report[length(web$report) + 1] <- list(web$rp_data)
   }
   #
   if(grepl("report$", web$options$display)){
