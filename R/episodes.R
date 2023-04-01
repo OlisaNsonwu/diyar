@@ -405,6 +405,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   web$repo$case_length_total <- case_length_total
   web$repo$skip_if_b4_lengths <- skip_if_b4_lengths
   web$repo$episodes_max <- episodes_max
+  web$repo$from_last <- from_last
 
   web$repo$custom_sort <- custom_sort
   web$repo$skip_order <- skip_order
@@ -1306,7 +1307,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       end_date = right_point(web$epids@epid_interval)[web$tmp$lgk]
     )
 
-    web$tmp$lgk <- from_last[web$epids@.Data]
+    web$tmp$lgk <- web$repo$from_last[web$epids@.Data]
     web$epids@epid_interval[web$tmp$lgk] <- reverse_number_line(
       web$epids@epid_interval[web$tmp$lgk],
       direction = "increasing")
@@ -1326,7 +1327,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         units = diff_unit)
     }else{
       web$epids@epid_length <-
-        web$epids@epid_interval@start - right_point(web$epids@epid_interval)
+        right_point(web$epids@epid_interval) - web$epids@epid_interval@start
     }
   }
 
@@ -1426,13 +1427,17 @@ links_wf_episodes <- function(date,
 }
 
 #' @rdname  episodes
-episodes_af_shift <- function(date, case_length = Inf, strata = NULL, episode_type = "fixed"){
+episodes_af_shift <- function(date, case_length = Inf,
+                              strata = NULL, group_stats = FALSE,
+                              episode_type = "fixed"){
   web <- list()
+  web$controls$is_dt <- ifelse(
+    inherits(date, c("Date","POSIXct","POSIXt","POSIXlt")),
+    TRUE, FALSE)
   web$repo$pr_sn <- seq_len(length(date))
+  web$repo$group_stats <- mk_lazy_opt(group_stats)
   web$repo$date <- as.number_line(date)
-  is_dt <- ifelse(
-    inherits(web$repo$date@start, c("Date","POSIXct","POSIXt","POSIXlt")),
-    FALSE, TRUE)
+
   web$repo$date_a <- web$repo$date@start
   web$repo$date_z <- right_point(web$repo$date)
   web$repo$tmp.windowEnd <- web$repo$date_z + case_length
@@ -1472,7 +1477,6 @@ episodes_af_shift <- function(date, case_length = Inf, strata = NULL, episode_ty
   web$repo$group_id[order(web$repo$pr_sn)]
 
   web$repo$group_id
-  # browser()
   web$epids <- new("epid",
                    .Data=  web$repo$group_id,
                    sn = web$repo$pr_sn,
@@ -1490,13 +1494,13 @@ episodes_af_shift <- function(date, case_length = Inf, strata = NULL, episode_ty
       "Duplicate_R", "Case_CR", "Recurrent_CR")
   attr(web$epids@case_nm, "state") <- "encoded"
 
-  web$epids@wind_id$wind_nm <- rep(
+  web$epids@wind_nm$wind_nm1 <- rep(
     ifelse(episode_type == "rolling", 1L, 0L), length(web$repo$group_id)
   )
-  class(web$epids@wind_id$wind_nm) <- "d_label"
-  attr(web$epids@wind_id$wind_nm, "value") <- -1L : 1L
-  attr(web$epids@wind_id$wind_nm, "label") <- c("Skipped", "Case", "Recurrence")
-  attr(web$epids@wind_id$wind_nm, "state") <- "encoded"
+  class(web$epids@wind_nm$wind_nm1) <- "d_label"
+  attr(web$epids@wind_nm$wind_nm1, "value") <- -1L : 1L
+  attr(web$epids@wind_nm$wind_nm1, "label") <- c("Skipped", "Case", "Recurrence")
+  attr(web$epids@wind_nm$wind_nm1, "state") <- "encoded"
 
   web$tmp$rr <- rle(sort(web$epids@.Data))
   web$epids@epid_total <- web$tmp$rr$lengths[match(web$epids@.Data, web$tmp$rr$values)]
@@ -1510,7 +1514,7 @@ episodes_af_shift <- function(date, case_length = Inf, strata = NULL, episode_ty
       end_date = right_point(web$epids@epid_interval)[web$tmp$lgk]
     )
 
-    if(isTRUE(web$controls$is_dt)){
+    if(web$controls$is_dt){
       web$epids@epid_interval <- number_line(
         as.POSIXct(
           web$epids@epid_interval@start, tz = "GMT",
@@ -1522,10 +1526,10 @@ episodes_af_shift <- function(date, case_length = Inf, strata = NULL, episode_ty
       web$epids@epid_length <- difftime(
         right_point(web$epids@epid_interval),
         web$epids@epid_interval@start,
-        units = diff_unit)
+        units = "sec")
     }else{
       web$epids@epid_length <-
-        web$epids@epid_interval@start - right_point(web$epids@epid_interval)
+        right_point(web$epids@epid_interval) - web$epids@epid_interval@start
     }
   }
 

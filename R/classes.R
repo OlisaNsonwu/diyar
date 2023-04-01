@@ -330,14 +330,14 @@ summary.epid <- function(object, ...){
   summ$total_records <- length(object)
   summ$total_episodes <- length(object[object@case_nm == 0])
 
-  x <- object[order(-object@wind_nm)]
+  x <- object[order(-object@wind_nm$wind_nm1)]
   x <- x[!duplicated(x@.Data)]
-  x <- decode(x@wind_nm[x@case_nm != -1])
+  x <- decode(x@wind_nm$wind_nm1[x@case_nm != -1])
   x[x == "Case"] <- "Fixed"
   x[x == "Recurrence"] <- "Rolling"
   summ$episode_type <- dst_tab(x = x, order_by_label = c("Fixed", "Rolling"))
 
-  x <- object[object@wind_nm == 1]
+  x <- object[object@wind_nm$wind_nm1 == 1]
   x <- x[!duplicated(x@wind_id$wind_id1)]
   x <- x[order(x@.Data)]
   x <- rle(x@.Data)
