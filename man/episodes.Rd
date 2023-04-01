@@ -48,6 +48,7 @@ episodes_af_shift(
   date,
   case_length = Inf,
   strata = NULL,
+  group_stats = FALSE,
   episode_type = "fixed"
 )
 }
