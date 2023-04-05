@@ -24,6 +24,8 @@ This leads to fewer iterations compared with `["yes"]` but with less memory usag
 + In `links()`, records with missing values in a `sub_criteria` are skipped at each iteration.
 + Updated argument in `links()`- `recursive`. This is now takes any of four options `[c("linked.false", "linked.true", "unlinked", "none")]` .
 `[c("linked.false", "linked.true", "unlinked")]` is the equivalent of the old `[TRUE]` option, while `["none"]` is the equivalent of the old `[FALSE]` option.
++ New function - `make_episodes()`.
++ `as.epids()`
 
 ## Bug fixes
 + When `recursive` was `TRUE`, `links()` ended prematurely and therefore missed some matches. Resolved.

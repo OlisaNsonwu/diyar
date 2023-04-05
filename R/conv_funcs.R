@@ -1512,3 +1512,54 @@ mix_pos <- function(cu_pos.mi, tr_pos.mi, ld_pos.mi, cu_pos.ord, opt_levels){
 
   return(rp$nwPos)
 }
+
+S4_to_list <- function(x, decode = TRUE, .Data_type = "epid"){
+  decode_opt <- decode
+  rm(decode)
+  if(decode_opt){
+    tmp.func <- decode
+  }else{
+    tmp.func <- identity
+  }
+
+  slot.nm <- slotNames(x)
+  slot.val <- lapply(slot.nm, function(nm){
+    slot(x, nm)
+  })
+  names(slot.val) <- slot.nm
+  slot.val <- slot.val[slot.nm != "options"]
+  names(slot.val) -> slot.nm
+
+  lgk <- lapply(slot.val, function(x){
+    inherits(x, "list")
+  })
+  lgk <- as.logical(lgk)
+  if(any(lgk)){
+    slot.val <- c(slot.val[!lgk],
+                  unlist(slot.val[lgk], recursive = FALSE))
+  }
+
+  lgk <- lapply(slot.val, length) == 0
+  slot.val <- slot.val[!lgk]
+
+  names(slot.val) <- gsub("^wind_id\\.|^wind_nm\\.|^link_id\\." , "", names(slot.val))
+  names(slot.val)[grepl(".Data", names(slot.val))] <- .Data_type
+
+  names(slot.val) -> slot.nm
+  slot.val <- lapply(slot.val, function(x){
+    if(inherits(x, "d_label")){
+      tmp.func(x)
+    }else{
+      x
+    }
+  })
+
+  lgk <- grepl("interval$", slot.nm)
+  if(any(lgk)){
+    tmp.list <- list()
+    tmp.list[[paste0(.Data_type,"_start")]] <- slot.val[lgk][[1]]@start
+    tmp.list[[paste0(.Data_type,"_end")]] <- right_point(slot.val[lgk][[1]])
+    slot.val <- c(slot.val[!lgk], tmp.list)
+  }
+  return(slot.val)
+}

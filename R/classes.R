@@ -250,55 +250,20 @@ setClass("epid",
 #' is.epid(ep); is.epid(2)
 #'
 #' @export
-is.epid <- function(x) all(class(x) == "epid")
+is.epid <- function(x){
+  inherits(x, "epid")
+}
 
 #' @rdname epid-class
+#' @examples
+#' ep <- episodes(date = 1)
+#' is.epid(ep); is.epid(2)
+#'
 #' @export
-as.epid <- function(x){
-  x <- match(x, x[!duplicated(x)])
-  tots <- rle(sort(x))
-
-  x <- methods::new("epid",
-                    .Data = x,
-                    sn = seq_len(length(x)),
-                    wind_id = list(wind_id1 = x))
-
-  x@dist_epid_index <- x@dist_wind_index <-
-    x@case_nm <- x@wind_nm <-
-    rep(0L, length(x))
-  x@case_nm[duplicated(x@.Data)] <- 2L
-  x@wind_nm[duplicated(x@.Data)] <- 1L
-
-  class(x@case_nm) <- "d_label"
-  attr(x@case_nm, "value") <- -1L : 5L
-  attr(x@case_nm, "label") <- c("Skipped", "Case", "Recurrent", "Duplicate_C", "Duplicate_R", "Case_CR", "Recurrent_CR")
-  attr(x@case_nm, "state") <- "encoded"
-
-  class(x@wind_nm) <- "d_label"
-  attr(x@wind_nm, "value") <- -1L : 1L
-  attr(x@wind_nm, "label") <- c("Skipped", "Case", "Recurrence")
-  attr(x@wind_nm, "state") <- "encoded"
-
-  x@epid_total <- tots$lengths[match(x, tots$values)]
-  x@iteration <- rep(1L, length(x))
-
-  x@options <- list(date = x@.Data,
-                    strata = x@.Data,
-                    case_length = list(Inf),
-                    recurrence_length = list(Inf))
-
-  x@options$episode_unit <- "seconds"
-  x@options$episode_unit <- match(x@options$episode_unit, names(diyar::episode_unit))
-
-  class(x@options$episode_unit) <- "d_label"
-  attr(x@options$episode_unit, "value") <- as.vector(sort(x@options$episode_unit[!duplicated(x@options$episode_unit)]))
-  attr(x@options$episode_unit, "label") <- names(diyar::episode_unit)[attr(x@options$episode_unit, "value")]
-  attr(x@options$episode_unit, "state") <- "encoded"
-
-  x@options$from_last <- FALSE
-
-  return(x)
+as.epid <- function(x, ...){
+  make_episodes(y_pos = x, ...)
 }
+
 
 #' @rdname epid-class
 #' @export
@@ -422,78 +387,16 @@ print.epid_summary <- function(x, ...){
 #' @rdname epid-class
 #' @export
 as.data.frame.epid <- function(x, ..., decode = TRUE){
-  if(isTRUE(decode)){
-    tmp.func <- function(x) as.vector(decode(x))
-  }else{
-    tmp.func <- identity
-  }
-  y <- data.frame(epid = x@.Data,
-                  sn = x@sn,
-                  case_nm = tmp.func(x@case_nm),
-                  dist_wind_index = x@dist_wind_index,
-                  dist_epid_index = x@dist_epid_index,
-                  epid_total = x@epid_total,
-                  iteration = x@iteration,
-                  ...)
-  y <- cbind(y,
-             as.data.frame(x@wind_id, ...),
-             as.data.frame(lapply(x@wind_nm, tmp.func), ...)
-             )
-  if(length(x@epid_interval@start) != 0){
-    y$epid_start <- x@epid_interval@start
-    y$epid_end <- right_point(x@epid_interval)
-  }else{
-    y$epid_start <- NA_integer_
-    y$epid_end <- NA_integer_
-  }
-  if(length(x@epid_length) != 0){
-    y$epid_length = x@epid_length
-  }else{
-    y$epid_length = NA_integer_
-  }
-  if(length(x@epid_dataset) != 0){
-    y$epid_dataset = tmp.func(x@epid_dataset)
-  }else{
-    y$epid_dataset = NA_character_
-  }
-  return(y)
+  x <- as.list(x, decode = decode)
+  lgk <- as.logical(lapply(x, function(x) inherits(x, "d_label")))
+  x[lgk] <- lapply(x[lgk], as.vector)
+  as.data.frame(x, ...)
 }
 
 #' @rdname epid-class
 #' @export
 as.list.epid <- function(x, ..., decode = TRUE){
-  if(isTRUE(decode)){
-    tmp.func <- function(x) decode(x)
-  }else{
-    tmp.func <- identity
-  }
-  y <- list(epid = x@.Data,
-            sn = x@sn,
-            case_nm = tmp.func(x@case_nm),
-            dist_wind_index = x@dist_wind_index,
-            dist_epid_index = x@dist_epid_index,
-            epid_total = x@epid_total,
-            iteration = x@iteration,
-            ...)
-  y <- c(y, x@wind_id, lapply(x@wind_nm, tmp.func))
-  if(length(x@epid_interval@start) != 0){
-    y$epid_start <- x@epid_interval@start
-    y$epid_end <- right_point(x@epid_interval)
-  }else{
-    y$epid_start <- rep(NA_integer_, length(x))
-    y$epid_end <- rep(NA_integer_, length(x))
-  }
-  if(length(x@epid_length) != 0){
-    y$epid_length <- x@epid_length
-  }else{
-    y$epid_length <- rep(NA_integer_, length(x))
-  }
-  if(length(x@epid_dataset) != 0){
-    y$epid_dataset <- tmp.func(x@epid_dataset)
-  }else{
-    y$epid_dataset <- rep(NA_character_, length(x))
-  }
-  return(y)
+  as.list(S4_to_list(x, decode = decode, .Data_type = "epid"), ...)
 }
 
 #' @rdname epid-class
@@ -766,77 +669,16 @@ print.pane_summary <- function(x, ...){
 #' @rdname pane-class
 #' @export
 as.data.frame.pane <- function(x, ..., decode = TRUE){
-  if(isTRUE(decode)){
-    tmp.func <- function(x) as.vector(decode(x))
-  }else{
-    tmp.func <- identity
-  }
-  y <- data.frame(pane = x@.Data,
-                  sn = x@sn,
-                  case_nm = tmp.func(x@case_nm),
-                  dist_pane_index = x@dist_pane_index,
-                  window_matched = x@window_matched,
-                  pane_total = x@pane_total,
-                  ...)
-  if(length(x@pane_interval) != 0){
-    y$pane_start <- x@pane_interval@start
-    y$pane_end <- right_point(x@pane_interval)
-  }else{
-    y$pane_start <- NA_integer_
-    y$pane_end <- NA_integer_
-  }
-  if(length(x@pane_length) != 0){
-    y$pane_length <- x@pane_length
-  }else{
-    y$pane_length <- NA_integer_
-  }
-  if(length(x@pane_dataset) != 0){
-    y$pane_dataset <- tmp.func(x@pane_dataset)
-  }else{
-    y$pane_dataset <- NA_character_
-  }
-  window_list <- lapply(x@window_list[!duplicated(x@window_list)], function(x){
-    listr(format(number_line(round(x@start, 2), round(right_point(x), 2))), conj = ",")
-  })
-  y$window_list <- as.character(window_list[match(names(x@window_list), names(window_list))])
-  return(y)
+  x <- as.list(x, decode = decode)
+  lgk <- as.logical(lapply(x, function(x) inherits(x, "d_label")))
+  x[lgk] <- lapply(x[lgk], as.vector)
+  x
 }
 
 #' @rdname pane-class
 #' @export
 as.list.pane <- function(x, ..., decode = TRUE){
-  if(isTRUE(decode)){
-    tmp.func <- function(x) as.vector(decode(x))
-  }else{
-    tmp.func <- identity
-  }
-  y <- list(pane = x@.Data,
-            sn = x@sn,
-            case_nm = tmp.func(x@case_nm),
-            dist_pane_index = x@dist_pane_index,
-            dist_pane_index = x@dist_pane_index,
-            window_matched = x@window_matched,
-            pane_total = x@pane_total,
-            ...)
-  if(length(x@pane_interval) != 0){
-    y$pane_start <- x@pane_interval@start
-    y$pane_end <- right_point(x@pane_interval)
-  }else{
-    y$pane_start <- rep(NA_integer_, length(x))
-    y$pane_end <- rep(NA_integer_, length(x))
-  }
-  if(length(x@pane_length) != 0){
-    y$pane_length <- x@pane_length
-  }else{
-    y$pane_length <- rep(NA_integer_, length(x))
-  }
-  if(length(x@pane_dataset) != 0){
-    y$pane_dataset <- tmp.func(x@pane_dataset)
-  }else{
-    y$pane_dataset <- rep(NA_character_, length(x))
-  }
-  y$window_list <- x@window_list
-  return(y)
+  as.list(S4_to_list(x, decode = decode, .Data_type = "pane"), ...)
 }
 
 #' @rdname pane-class
@@ -1077,47 +919,16 @@ print.pid_summary <- function(x, ...){
 #' @rdname pid-class
 #' @export
 as.data.frame.pid <- function(x, ..., decode = TRUE){
-  if(isTRUE(decode)){
-    tmp.func <- function(x) as.vector(decode(x))
-  }else{
-    tmp.func <- identity
-  }
-  y <- data.frame(pid = x@.Data,
-                  sn = x@sn,
-                  pid_cri = tmp.func(x@pid_cri),
-                  pid_total = x@pid_total,
-                  iteration = x@iteration,
-                  ...)
-  y <- cbind(y, as.data.frame(x@link_id, ...))
-  if(length(x@pid_dataset) != 0){
-    y$pid_dataset <- tmp.func(x@pid_dataset)
-  }else{
-    y$pid_dataset <- NA_character_
-  }
-  return(y)
+  x <- as.list(x, decode = decode)
+  lgk <- as.logical(lapply(x, function(x) inherits(x, "d_label")))
+  x[lgk] <- lapply(x[lgk], as.vector)
+  x
 }
 
 #' @rdname pid-class
 #' @export
 as.list.pid <- function(x, ..., decode = TRUE){
-  if(isTRUE(decode)){
-    tmp.func <- function(x) as.vector(decode(x))
-  }else{
-    tmp.func <- identity
-  }
-  y <- list(pid = x@.Data,
-            sn = x@sn,
-            pid_cri = tmp.func(x@pid_cri),
-            pid_total = x@pid_total,
-            iteration = x@iteration,
-            ...)
-  y <- c(y, x@link_id)
-  if(length(x@pid_dataset) != 0){
-    y$pid_dataset <- tmp.func(x@pid_dataset)
-  }else{
-    y$pid_dataset <- rep(NA_character_, length(x))
-  }
-  return(y)
+  as.list(S4_to_list(x, decode = decode, .Data_type = "pid"), ...)
 }
 
 #' @rdname pid-class

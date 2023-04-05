@@ -20,7 +20,7 @@
 \usage{
 is.epid(x)
 
-as.epid(x)
+as.epid(x, ...)
 
 \method{format}{epid}(x, ...)
 
@@ -94,6 +94,9 @@ S4 objects storing the result of \code{\link{episodes}}.
 
 \examples{
 # A test for `epid` objects
+ep <- episodes(date = 1)
+is.epid(ep); is.epid(2)
+
 ep <- episodes(date = 1)
 is.epid(ep); is.epid(2)
 

@@ -4,6 +4,7 @@
 \alias{episodes}
 \alias{links_wf_episodes}
 \alias{episodes_af_shift}
+\alias{make_episodes}
 \title{Group dated events into episodes.}
 \usage{
 episodes(
@@ -50,6 +51,22 @@ episodes_af_shift(
   strata = NULL,
   group_stats = FALSE,
   episode_type = "fixed"
+)
+
+make_episodes(
+  x_pos,
+  y_pos,
+  x_val,
+  date,
+  case_nm,
+  wind_id,
+  wind_nm,
+  from_last,
+  data_source,
+  data_links,
+  iteration,
+  options,
+  epid_unit
 )
 }
 \arguments{
