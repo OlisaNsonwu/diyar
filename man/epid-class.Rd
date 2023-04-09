@@ -69,7 +69,7 @@ S4 objects storing the result of \code{\link{episodes}}.
 
 \item{\code{.Data}}{Unique \code{episode} identifier.}
 
-\item{\code{wind_id}}{Unique window identifier.}
+\item{\code{wind_id}}{Unique reference ID for each match.}
 
 \item{\code{wind_nm}}{Type of window i.e. "Case" or "Recurrence".}
 
@@ -87,7 +87,7 @@ S4 objects storing the result of \code{\link{episodes}}.
 
 \item{\code{epid_total}}{The number of records in each \code{episode}.}
 
-\item{\code{iteration}}{The iteration of the tracking process when a record was linked to its episode.}
+\item{\code{iteration}}{The iteration when a record was matched to it's group (\code{.Data}).}
 
 \item{\code{options}}{Some options passed to the instance of \code{\link{episodes}}.}
 }}

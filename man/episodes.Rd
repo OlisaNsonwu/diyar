@@ -4,7 +4,6 @@
 \alias{episodes}
 \alias{links_wf_episodes}
 \alias{episodes_af_shift}
-\alias{make_episodes}
 \title{Group dated events into episodes.}
 \usage{
 episodes(
@@ -52,25 +51,9 @@ episodes_af_shift(
   group_stats = FALSE,
   episode_type = "fixed"
 )
-
-make_episodes(
-  x_pos,
-  y_pos,
-  x_val,
-  date,
-  case_nm,
-  wind_id,
-  wind_nm,
-  from_last,
-  data_source,
-  data_links,
-  iteration,
-  options,
-  epid_unit
-)
 }
 \arguments{
-\item{date}{\code{[date|datetime|integer|\link{number_line}]}. Event date or period.}
+\item{date}{\code{[date|datetime|integer|\link{number_line}]}. Record date or period.}
 
 \item{case_length}{\code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"Case"} from another.}
 

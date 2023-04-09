@@ -209,7 +209,7 @@ as.data.frame.number_line <- function(x, ...){
 #'
 #' @slot sn Unique record identifier.
 #' @slot .Data Unique \code{episode} identifier.
-#' @slot wind_id Unique window identifier.
+#' @slot wind_id Unique reference ID for each match.
 #' @slot wind_nm Type of window i.e. "Case" or "Recurrence".
 #' @slot case_nm Record type in regards to case assignment.
 #' @slot dist_wind_index Unit difference between each record and its window's reference record.
@@ -218,7 +218,7 @@ as.data.frame.number_line <- function(x, ...){
 #' @slot epid_interval The start and end dates of each \code{episode}. A \code{\link{number_line}} object.
 #' @slot epid_length The duration or length of (\code{epid_interval}).
 #' @slot epid_total The number of records in each \code{episode}.
-#' @slot iteration The iteration of the tracking process when a record was linked to its episode.
+#' @slot iteration The iteration when a record was matched to it's group (\code{.Data}).
 #' @slot options Some options passed to the instance of \code{\link{episodes}}.
 #'
 #' @description
@@ -672,7 +672,7 @@ as.data.frame.pane <- function(x, ..., decode = TRUE){
   x <- as.list(x, decode = decode)
   lgk <- as.logical(lapply(x, function(x) inherits(x, "d_label")))
   x[lgk] <- lapply(x[lgk], as.vector)
-  x
+  as.data.frame(x, ...)
 }
 
 #' @rdname pane-class
@@ -772,11 +772,11 @@ setMethod("c", signature(x = "pane"), function(x,...) {
 #'
 #' @slot sn Unique record identifier.
 #' @slot .Data Unique group identifier.
-#' @slot link_id Unique record identifier for matching records.
-#' @slot pid_cri Matching criteria.
+#' @slot link_id Unique reference ID for each match.
+#' @slot pid_cri Match stage of the step-wise linkage.
 #' @slot pid_dataset Data sources in each group.
 #' @slot pid_total The number of records in each group.
-#' @slot iteration The iteration of the linkage process when a record was linked to its group.
+#' @slot iteration The iteration when a record was matched to it's group (\code{.Data}).
 #'
 #' @aliases pid-class
 #' @importFrom "methods" "new"
@@ -802,21 +802,9 @@ is.pid <- function(x) all(class(x) == "pid")
 
 #' @rdname pid-class
 #' @export
+#' @export
 as.pid <- function(x, ...){
-  x <- match(x, x[!duplicated(x)])
-  tots <- rle(sort(x))
-  x <- methods::new("pid",
-                    .Data = x,
-                    sn = seq_len(length(x)),
-                    pid_cri = rep(1L, length(x)),
-                    link_id = list(link_id1 = x),
-                    pid_total = tots$lengths[match(x, tots$values)],
-                    pid_dataset = NULL,
-                    iteration = rep(1L, length(x)))
-
-  x@pid_cri[!duplicated(x@.Data, fromLast = TRUE) &
-              !duplicated(x@.Data, fromLast = FALSE)] <- 0L
-  return(x)
+  make_pids(y_pos = x, ...)
 }
 
 #' @rdname pid-class
@@ -922,7 +910,7 @@ as.data.frame.pid <- function(x, ..., decode = TRUE){
   x <- as.list(x, decode = decode)
   lgk <- as.logical(lapply(x, function(x) inherits(x, "d_label")))
   x[lgk] <- lapply(x[lgk], as.vector)
-  x
+  as.data.frame(x, ...)
 }
 
 #' @rdname pid-class
@@ -1047,29 +1035,28 @@ as.data.frame.d_report <- function(x, ...){
   return(as.data.frame(as.list(x), ...))
 }
 
-
+#' @export
 `[.d_lazy_opts` <- function(x, i, ..., drop = TRUE) {
   x <- as.vector(x)
-  if(length(i) == 0 | length(x) == 0){
-    i <- 0
-  }else if(length(x) == 1){
-    i <- 1
+  x2 <- x[i]
+  if(length(x) == 1 & length(x2) != 0){
+    x2 <- x
   }
-  x <- x[i]
-  class(x) <- "d_lazy_opts"
-  return(x)
+  class(x2) <- "d_lazy_opts"
+  return(x2)
 }
 
-`[<-.d_lazy_opts` <- function(x, i, j, ..., value) {
-  x <- as.vector(x)
-  if(length(x) == 1 & length(value) == 1){
-    i <- 1
-  }else if(length(x) == 0 | length(value) == 0){
-    i <- 0
-  }else if(length(x) == 1 & length(value) > 1){
-    stop("Unexpected situation in `[<-.d_lazy_opts`")
-  }
-  x[i] <- value
-  class(x) <- "d_lazy_opts"
-  return(x)
-}
+# @export
+# `[<-.d_lazy_opts` <- function(x, i, j, ..., value) {
+#   x <- as.vector(x)
+#   if(length(x) == 1 & length(value) == 1){
+#     i <- 1
+#   }else if(length(x) == 0 | length(value) == 0){
+#     i <- 0
+#   }else if(length(x) == 1 & length(value) > 1){
+#     stop("Unexpected situation in `[<-.d_lazy_opts`")
+#   }
+#   x[i] <- value
+#   class(x) <- "d_lazy_opts"
+#   return(x)
+# }

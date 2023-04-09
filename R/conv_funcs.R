@@ -1563,3 +1563,12 @@ S4_to_list <- function(x, decode = TRUE, .Data_type = "epid"){
   }
   return(slot.val)
 }
+
+missing_wf.null <- function(x){
+  l <- FALSE
+  if(missing(x)){
+    return(TRUE)
+  }else{
+    is.null(x)
+  }
+}
