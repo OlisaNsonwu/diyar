@@ -32,14 +32,24 @@ make_episodes <- function(
     episode_unit){
 
   if(!missing_wf.null(date)){
-    is_dt <- inherits(date, c("Date","POSIXct","POSIXt","POSIXlt"))
-    date <- as.number_line(date)
+    if(inherits(date, "number_line")){
+      is_dt <- inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt"))
+    }else{
+      is_dt <- inherits(date, c("Date","POSIXct","POSIXt","POSIXlt"))
+      date <- as.number_line(date)
+    }
   }
 
   epids <- new("epid", .Data = as.integer(y_pos))
-
+  if(!missing_wf.null(x_val)){
+    epids@.Data <- as.integer(x_val)[epids@.Data]
+  }
   if(!missing_wf.null(x_pos)){
-    epids@sn <- x_pos
+    if(!missing_wf.null(x_val)){
+      epids@sn <- as.integer(x_val)
+    }else{
+      epids@sn <- as.integer(x_pos)
+    }
   }
 
   if(!missing_wf.null(iteration)){
@@ -60,6 +70,9 @@ make_episodes <- function(
   }
 
   if(!missing_wf.null(wind_id)){
+    if(!missing_wf.null(x_val)){
+      wind_id <- as.integer(x_val)[as.integer(wind_id)]
+    }
     wind_id <- matrix(wind_id, nrow = length(epids@.Data))
     ncol <- ncol(wind_id)
     epids@wind_id <- lapply(1:ncol, function(i){
@@ -119,7 +132,7 @@ make_episodes <- function(
       epids@dist_epid_index <-
         as.difftime(epids@dist_epid_index, units = diff_unit)
 
-      if(any(epid@wind_nm == 1)){
+      if(any(unlist(epids@wind_nm, use.names = FALSE) == 1)){
         epids@dist_wind_index <-
           epids@dist_wind_index / as.numeric(diyar::episode_unit[episode_unit])
         epids@dist_wind_index <-
@@ -131,6 +144,7 @@ make_episodes <- function(
 
     lgk <- which(epids@epid_total != 1)
     epids@epid_interval <- date
+    epids@epid_interval@start <- as.numeric(epids@epid_interval@start)
     epids@epid_interval[lgk] <- group_stats(
       strata = epids@.Data[lgk],
       start_date = epids@epid_interval@start[lgk],
@@ -171,7 +185,7 @@ make_episodes <- function(
         data_links)
       epids@epid_dataset <- rst$ds
 
-      if(!all(toupper(data_links) == "ANY")){
+      if(!all(toupper(unlist(data_links, use.names = FALSE)) == "ANY")){
         req_links <- rst$rq
         epidsepids <- suppressWarnings(delink(epids, !req_links))
         epids@epid_dataset[!req_links] <- data_source[!req_links]
@@ -192,10 +206,17 @@ make_pids <- function(x_pos,
                       data_source,
                       data_links,
                       iteration){
-  pids <- new("pid", .Data = as.integer(y_pos))
 
+  pids <- new("pid", .Data = as.integer(y_pos))
+  if(!missing_wf.null(x_val)){
+    pids@.Data <- as.integer(x_val)[pids@.Data]
+  }
   if(!missing_wf.null(x_pos)){
-    pids@sn <- x_pos
+    if(!missing_wf.null(x_val)){
+      pids@sn <- as.integer(x_val)
+    }else{
+      pids@sn <- as.integer(x_pos)
+    }
   }
   if(!missing_wf.null(iteration)){
     pids@iteration <- iteration
@@ -205,6 +226,9 @@ make_pids <- function(x_pos,
   }
 
   if(!missing_wf.null(link_id)){
+    if(!missing_wf.null(x_val)){
+      link_id <- as.integer(x_val)[as.integer(link_id)]
+    }
     link_id <- matrix(link_id, nrow = length(pids@.Data))
     ncol <- ncol(link_id)
     pids@link_id <- lapply(1:ncol, function(i){

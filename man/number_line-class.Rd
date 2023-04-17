@@ -40,7 +40,7 @@
 
 \method{unique}{number_line}(x, ...)
 
-\method{seq}{number_line}(x, ...)
+\method{seq}{number_line}(x, precision = NULL, fill = FALSE, ...)
 
 \method{sort}{number_line}(x, decreasing = FALSE, ...)
 

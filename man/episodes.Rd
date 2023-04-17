@@ -47,9 +47,12 @@ links_wf_episodes(
 episodes_af_shift(
   date,
   case_length = Inf,
+  sn = NULL,
   strata = NULL,
   group_stats = FALSE,
-  episode_type = "fixed"
+  episode_type = "fixed",
+  data_source = NULL,
+  data_links = "ANY"
 )
 }
 \arguments{

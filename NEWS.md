@@ -26,6 +26,12 @@
     `[c("linked.false", "linked.true", "unlinked")]` is the equivalent
     of the old `[TRUE]` option, while `["none"]` is the equivalent of
     the old `[FALSE]` option.
+-   `as.epids()` - `make_episodes()`.
+-   `partitions()` - `winodow` - Default is now `NULL`
+-   `number_line_sequence()` removed?
+-   `as.data.frame()` and `as.data.list()` only creates elements/fields
+    from non-empty fields
+-   `number_line()` - `id` and `gid` slots are now empty by default.
 
 ## Bug fixes
 
@@ -37,6 +43,7 @@
 -   `overlap_method()` - logical tests recycled incorrectly. Resolved.
 -   `check_links` argument - Option `"g"` implemented as option `"l"`.
     Resolved.
+-   `make_pairs_wf_source()`. Created incorrect pairs. Resolved.
 
 # Version 0.4.3
 

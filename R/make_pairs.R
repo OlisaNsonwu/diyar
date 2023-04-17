@@ -161,10 +161,9 @@ make_pairs_wf_source <- function(..., data_source = NULL){
     stop("`data_source` must be `NULL` or have the same lenght as `x`", call. = FALSE)
   }
 
-  r_sets <- split(length(opt_lst$x):1, data_source)
+  r_sets <- split(1:length(opt_lst$x), data_source)
   repo <- make_pairs(seq_len(length(r_sets)),
-                     permutations_allowed = opt_lst$repeats_allowed,
-                     # repeats_allowed = opt_lst$permutations_allowed
+                     permutations_allowed = opt_lst$permutations_allowed,
                      repeats_allowed = FALSE
   )
 
@@ -174,6 +173,7 @@ make_pairs_wf_source <- function(..., data_source = NULL){
 
     x_pos <- rep(r_sets[[xi]], length(r_sets[yi][[1]]), use.names = FALSE)
     y_pos <- rep(r_sets[[yi]], length(r_sets[xi][[1]]), use.names = FALSE)
+    index_ord <- rep(seq_len(length(r_sets[[xi]])), rep(length(r_sets[yi][[1]]), length(r_sets[[xi]]))  , use.names = FALSE)
 
     if(length(r_sets[[xi]]) < length(r_sets[[yi]])){
       x_pos <- sort(x_pos)
@@ -181,11 +181,13 @@ make_pairs_wf_source <- function(..., data_source = NULL){
       y_pos <- sort(y_pos)
     }
 
-    list(x_pos = x_pos, y_pos = y_pos)
+    list(x_pos = x_pos, y_pos = y_pos, index_ord = index_ord)
   })
 
   repo <- list(x_pos = unlist(lapply(repo, function(x) x$x_pos)),
-               y_pos = unlist(lapply(repo, function(x) x$y_pos)))
+               y_pos = unlist(lapply(repo, function(x) x$y_pos)),
+               index_ord = unlist(lapply(repo, function(x) x$index_ord))
+               )
 
   repo$x_val <- opt_lst$x[repo$x_pos]
   repo$y_val <- opt_lst$x[repo$y_pos]

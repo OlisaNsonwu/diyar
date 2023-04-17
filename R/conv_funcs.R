@@ -1330,7 +1330,10 @@ make_refs_V2 <- function(x_val, y_val, id_length = max(x_val, y_val), useAsPos =
   if(!is.null(ref_ord)){
     repo$ref_ord <- ref_ord
   }
-  repo <- repo[order(repo[,1], repo[,2]),]
+  if(isTRUE(useAsPos)){
+    repo <- repo[order(repo[,1], repo[,2]),]
+  }
+
   if(is.null(ncol(repo))){
     repo <- matrix(repo, ncol = 2)
   }
@@ -1351,10 +1354,12 @@ make_refs_V2 <- function(x_val, y_val, id_length = max(x_val, y_val), useAsPos =
 
   if(isTRUE(useAsPos)){
     x.mi <- ((ref_ord - 1) * id_length) + repo[,1]
+    link_id[x.mi] <- y_val[repo[,2]]
   }else{
     x.mi <- ((ref_ord - 1) * id_length) + repo[,3]
+    link_id[x.mi] <- repo[,2]
   }
-  link_id[x.mi] <- y_val[repo[,2]]
+
   link_id <- matrix(c(x_val, link_id), nrow = id_length)
   colnames(link_id) <- c("x", paste0("y", 1:(ncol(link_id)-1)))
   return(link_id)
@@ -1571,4 +1576,9 @@ missing_wf.null <- function(x){
   }else{
     is.null(x)
   }
+}
+
+round_to <- function(x, to, f = round){
+  r <- (as.numeric(x) %% to)
+  (x - r) + (f(r/to) * to)
 }

@@ -1083,9 +1083,15 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                     recurrence_length_total = len_lims,
                     skip_unique_strata = 1)
 
-  err <- mapply(err_match_ref_len,
+  err <- mapply(err_match_ref_len_2,
                 args,
-                rep(as.list("date"), length(args_lens)),
+                c(
+                  rep(as.list(" or the same length as `date`"), 4),
+                  as.list(""),
+                  rep(as.list(" or the same length as `date`"), 13),
+                  as.list("")
+                )
+                ,
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -1246,7 +1252,8 @@ err_links_checks_0 <- function(criteria,
                repeats_allowed = repeats_allowed,
                permutations_allowed = permutations_allowed,
                ignore_same_source = ignore_same_source,
-               batched = batched)
+               batched = batched,
+               strata = strata)
 
   args_lens <- list(data_source = c(0, len_lims),
                     display = 1,
@@ -1259,7 +1266,8 @@ err_links_checks_0 <- function(criteria,
                     repeats_allowed = 1,
                     permutations_allowed = 1,
                     ignore_same_source = 1,
-                    batched = c(1, length(criteria)))
+                    batched = c(1, length(criteria)),
+                    strata = c(0, len_lims))
 
   err <- mapply(err_match_ref_len_2,
                 args,
@@ -1267,7 +1275,7 @@ err_links_checks_0 <- function(criteria,
                   rep(as.list(""), 6),
                   as.list(" or the same length as each attribute in the match crtieria"),
                   rep(as.list(""), 3),
-                  as.list(" or the same number of stages in the linkage")
+                  rep(as.list(" or the same length as each attribute in the match crtieria"), 2)
                 ),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
@@ -1347,27 +1355,23 @@ err_invalid_opts <- function(arg_vals, arg_nm, valid_opts){
 err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
   one_val <- arg[!duplicated(arg)]
   one_val <- length(arg) == 1
-  if(one_val != T){
+  if(!one_val){
     if(inherits(strata, "NULL")){
       strata <- "NULL"
     }
     sp <- split(arg, strata)
     opts <- lapply(sp, function(x){
       x <- x[!duplicated(x)]
-      if(length(x) == 1){
-        NA
-      }else{
-        listr(paste0("\"", unlist(lapply(x, format), use.names = FALSE), "\""), lim = 3)
-      }
+      length(x)
     })
 
     opts <- unlist(opts, use.names = FALSE)
     names(opts) <- names(sp)
-    opts <- opts[!is.na(opts)]
+    opts <- opts[opts > 1]
 
     if(length(opts) > 0){
-      errs <- paste0("Unique values of `", arg_nm, "` required in each ", strata_l, ":\n",
-                     paste0("X - You've supplied ", listr(paste0(opts, " for ", "\"", names(opts), "\""), lim = 2) ,"."))
+      errs <- paste0("Unique values of `", arg_nm, "` required for every record of each ", strata_l, ":\n",
+                     paste0("X - Different values in records of `strata`: ", listr(paste0("\"", names(opts), "\""), lim = 3), "."))
       return(errs)
     }else{
       return(FALSE)
@@ -1377,65 +1381,47 @@ err_strata_level_args <- function(arg, strata, arg_nm, strata_l = "`strata`"){
   }
 }
 
-err_partitions_checks_0 <- function(date,
-                                    window,
-                                    windows_total ,
-                                    separate,
-                                    sn,
-                                    strata,
-                                    data_source,
-                                    data_links,
-                                    custom_sort,
-                                    group_stats,
-                                    by,
-                                    length.out,
-                                    fill,
-                                    display){
+err_partitions_checks_0 <- function(
+    date,
+    window,
+    windows_total ,
+    separate,
+    sn,
+    strata,
+    data_source,
+    data_links,
+    custom_sort,
+    group_stats,
+    by,
+    length.out,
+    fill,
+    display){
 
-
-  # Check for non-atomic vectors
-  args <- list(date = date,
-               window = window,
-               windows_total  = windows_total ,
-               separate = separate,
-               strata = strata,
-               custom_sort = custom_sort,
-               data_source = data_source,
-               data_links = data_links,
-               by = by,
-               length.out = length.out,
-               fill = fill,
-               group_stats = group_stats,
-               display = display)
-
-  err <- mapply(err_atomic_vectors,
-                args,
-                as.list(names(args)))
-  err <- unlist(err, use.names = FALSE)
-  err <- err[err != FALSE]
-  if(length(err) > 0) return(err[1])
 
   # Check for required object types
-  args <- list(date = date,
-               window = window,
-               windows_total  = windows_total ,
-               separate = separate,
-               #strata = strata,
-               #custom_sort = custom_sort,
-               #data_source = data_source,
-               data_links = data_links,
-               group_stats = group_stats,
-               by = by,
-               length.out = length.out,
-               fill = fill,
-               group_stats = group_stats,
-               display = display )
+  args <- list(
+    date = date,
+    window = window,
+    windows_total  = windows_total ,
+    separate = separate,
+    strata = strata,
+    custom_sort = custom_sort,
+    data_source = data_source,
+    data_links = data_links,
+    group_stats = group_stats,
+    by = by,
+    length.out = length.out,
+    fill = fill,
+    group_stats = group_stats,
+    display = display )
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-                       window = c("numeric", "integer", "number_line", "list"),
+                       window = c("numeric", "integer", "number_line", "list", "NULL"),
                        windows_total  = c("number_line", "numeric", "integer"),
                        separate = "logical",
-                       #data_source = c("character", "NULL"),
+                       strata = "atomic",
+                       custom_sort = "atomic",
+                       data_source = "atomic",
                        data_links = c("list", "character"),
                        group_stats = "logical",
                        by = c("numeric", "integer", "NULL"),
@@ -1444,7 +1430,7 @@ err_partitions_checks_0 <- function(date,
                        group_stats = "logical",
                        display = "character")
 
-  err <- mapply(err_object_types,
+  err <- mapply(err_object_types_2,
                 args,
                 as.list(names(args)),
                 args_classes[match(names(args), names(args_classes))])
@@ -1456,6 +1442,7 @@ err_partitions_checks_0 <- function(date,
   len_lims <- c(1, length(date))
   args <- list(separate = separate,
                strata = strata,
+               window = window,
                custom_sort = custom_sort,
                data_source = data_source,
                by = by,
@@ -1466,6 +1453,7 @@ err_partitions_checks_0 <- function(date,
 
   args_lens <- list(separate = 1,
                     strata = c(0, len_lims),
+                    window = c(0, len_lims),
                     custom_sort = c(0, len_lims),
                     data_source = c(0, len_lims),
                     by = c(0, len_lims),
@@ -1474,9 +1462,14 @@ err_partitions_checks_0 <- function(date,
                     group_stats = 1,
                     display = 1)
 
-  err <- mapply(err_match_ref_len,
+  err <- mapply(err_match_ref_len_2,
                 args,
-                rep(as.list("date"), length(args_lens)),
+                c(
+                  rep(as.list(""), 1),
+                  " or the same length as `date`",
+                  " or the same length as `date`",
+                  rep(as.list(""), 7)
+                ),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -1533,10 +1526,13 @@ err_partitions_checks_0 <- function(date,
   if(err != FALSE) return(err)
   err <- err_strata_level_args(windows_total , strata, "windows_total")
   if(err != FALSE) return(err)
-  if(is.number_line(window)){
-    window <- list(window)
+
+  if(!is.null(window)){
+    if(is.number_line(window)){
+      window <- list(window)
+    }
+    err <- err_strata_level_args(window , strata, "window")
   }
-  err <- err_strata_level_args(window , strata, "window")
   if(err != FALSE) return(err)
   err <- err_spec_vals(display, "display", c("none", "progress", "stats"))
   if(err != FALSE) return(err)

@@ -49,11 +49,10 @@ number_line <- function(l, r, id = NULL, gid = NULL){
   if(!(is.numeric(gid) | is.null(gid))) stop(paste0("`gid` must be `numeric`"), call. = FALSE)
   if(all(class(l) != class(r))) warning("`l` and `r` have different classes. They may need to be reconciled.", call. = FALSE)
 
-  nl <- suppressWarnings(methods::new("number_line",
-                                      .Data = as.numeric(ifelse(as.numeric(r) == as.numeric(l) & !is.na(r), 0, as.numeric(r) - as.numeric(l))),
-                                      start = l,
-                                      id = as.integer(id),
-                                      gid = as.integer(gid)))
+  nl <- methods::new("number_line")
+  nl@start <- l
+  nl@.Data <- as.numeric(r) - as.numeric(l)
+
   return(nl)
 }
 
@@ -74,9 +73,7 @@ as.number_line <- function(x){
   if(all(!is.number_line(x))){
     x <- methods::new("number_line",
                       .Data = rep(0, length(x)),
-                      start = x,
-                      id = 1:length(x),
-                      gid = 1:length(x))
+                      start = x)
   }
 
   return(x)

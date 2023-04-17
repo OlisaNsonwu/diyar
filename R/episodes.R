@@ -260,8 +260,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }else{
     case_length_total <- number_line(case_length_total, Inf)
   }
+
   web$controls$use_case_length_total <-
-    any(case_length_total@start != 1 & case_length_total@.Data != Inf)
+    any(!(case_length_total@start == 1 & case_length_total@.Data == Inf))
 
   web$controls$case$use_operators <-
     all(web$mm_opts$case_overlap_methods == 8) &
@@ -349,8 +350,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       recurrence_length_total <- number_line(recurrence_length_total, Inf)
     }
     web$controls$use_recurrence_length_total <-
-      any(recurrence_length_total@start != 1 &
-            recurrence_length_total@.Data != Inf)
+      any(!(recurrence_length_total@start == 1 &
+              recurrence_length_total@.Data == Inf))
 
     attr(recurrence_length_total, "opts") <- attr(recurrence_length, "opts") <-
       class(case_for_recurrence) <-
@@ -623,6 +624,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         ]
       ]
     if(length(web$sys.tmp$ite_pos) <= 1){
+      if(grepl("^progress", web$controls$display)){
+        web$msg <- progress_bar(
+          n = 1, d = 1, max_width = 100,
+          msg = paste0("Iteration ",
+                       fmt(ite), " (",
+                       fmt(difftime(Sys.time(), web$tm_ia), "difftime"),
+                       ")"),
+          prefix_msg = "  ")
+        cat(web$msg, "\r", sep = "")
+      }
       ite <- ite  + 1L
       break
     }
@@ -863,10 +874,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         # Number of records matched (Excludes self-matches)
         web$tmp$c_hits <- make_refs_V2(
           x = web$rec.pairs[[w.name]]$tr_pos.mi[web$rec.pairs[[w.name]]$ep_checks],
-          y = web$rec.pairs[[w.name]]$ep_checks[web$rec.pairs[[w.name]]$ep_checks],
+          y = !duplicated(web$rec.pairs[[w.name]]$tr_pos.ord[web$rec.pairs[[w.name]]$ep_checks]),
           useAsPos = FALSE,
           na = 0
         )
+
         web$tmp$nms <- colnames(web$tmp$c_hits)
         web$tmp$nms.y <- web$tmp$nms[grepl("^y", colnames(web$tmp$c_hits))]
         if(length(web$tmp$nms.y) > 1){
@@ -884,6 +896,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             web$tmp$c_hits[, "x"],
             web$tmp$c_hits[, web$tmp$nms.y])
         }
+
         colnames(web$tmp$c_hits) <- c("x", "sum")
         web$repo$c_hits[web$tmp$c_hits[, "x"]] <- web$tmp$c_hits[, "sum"]
         web$rec.pairs[[w.name]]$c_hits <-
@@ -934,11 +947,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       }
 
       # Check user-defined conditions
-      web$rec.pairs[[w.name]]$w.match <-
-        ((web$rec.pairs[[w.name]]$ep_checks) | web$rec.pairs[[w.name]]$ref_rd)
+      web$rec.pairs[[w.name]]$w.match <- web$rec.pairs[[w.name]]$ep_checks
 
       if(web$controls$use_sub_cri){
-        web$rec.pairs[[w.name]]$w.match &
+        web$rec.pairs[[w.name]]$w.match <-
+          web$rec.pairs[[w.name]]$w.match &
           web$rec.pairs[[w.name]]$s.match
       }
 
@@ -949,6 +962,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           web$rec.pairs[[w.name]]$c_hits >= web$tmp$required_len_tot@start &
           web$rec.pairs[[w.name]]$c_hits <= web$tmp$required_len_tot@start + web$tmp$required_len_tot@.Data
       }
+
+      web$rec.pairs[[w.name]]$w.match[
+        web$rec.pairs[[w.name]]$ref_rd
+        ] <- TRUE
 
       web$tmp$tgt_lgk <- any(duplicated(web$rec.pairs[[w.name]]$cu_pos[
         web$rec.pairs[[w.name]]$w.match]))
@@ -982,7 +999,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         web$tmp$pos <- ((web$tmp$nw_index_ord + web$repo$cur_refs[web$rec.pairs[[w.name]]$cu_pos[web$rec.pairs[[w.name]]$w.match]] - 1L) * web$counts$dataset.n) + web$rec.pairs[[w.name]]$cu_pos[web$rec.pairs[[w.name]]$w.match]
         web$repo$cur_refs <- web$repo$max_refs
       }else{
-        web$tmp$pos <- web$rec.pairs[[w.name]]$cu_pos.mm[web$rec.pairs[[w.name]]$w.match]
+        web$tmp$pos <- web$rec.pairs[[w.name]]$cu_pos[web$rec.pairs[[w.name]]$w.match]
       }
       # Index for the multiple window ids
       # Update window ids for matches
@@ -1299,9 +1316,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   web$repo$iteration[web$tmp$tgt_pos] <- ite - 1L
 
 
-  if(!web$controls$display %in% c("none_with_report", "none")){
+  if(!grepl("^none", web$controls$display)){
     cat("\n")
   }
+
   web$epids <- make_episodes(
     y_pos = web$repo$epid,
     date = (
@@ -1400,21 +1418,30 @@ links_wf_episodes <- function(date,
 }
 
 #' @rdname episodes
-episodes_af_shift <- function(date, case_length = Inf,
+episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
                               strata = NULL, group_stats = FALSE,
-                              episode_type = "fixed"){
+                              episode_type = "fixed", data_source = NULL,
+                              data_links = "ANY"){
   web <- list()
   web$controls$is_dt <- ifelse(
     inherits(date, c("Date","POSIXct","POSIXt","POSIXlt")),
     TRUE, FALSE)
   web$repo$pr_sn <- seq_len(length(date))
-  web$repo$group_stats <- mk_lazy_opt(group_stats)
+  web$repo$sn <- sn
   web$repo$date <- as.number_line(date)
+
+  if(!all(class(data_links) == "list")){
+    data_links <- list(l = data_links)
+  }
+  if(is.null(names(data_links))) names(data_links) <- rep("l", length(data_links))
+  names(data_links) <- ifelse(names(data_links) == "", "l", names(data_links))
+  data_links <- data_links
 
   web$repo$date_a <- web$repo$date@start
   web$repo$date_z <- right_point(web$repo$date)
   web$repo$tmp.windowEnd <- web$repo$date_z + case_length
   web$repo$strata <- strata
+
   if(length(web$repo$strata) > 1){
     web$repo$s_ord <- order(web$repo$strata, web$repo$date_a, web$repo$date_z)
   }else{
@@ -1436,75 +1463,59 @@ episodes_af_shift <- function(date, case_length = Inf,
   web$repo$Cummchange_lgk <- cumsum(web$repo$change_lgk)
 
   web$repo$epid <- web$repo$Cummchange_lgk + 1
-
   if(episode_type == "fixed"){
     web$epid <- links_wf_episodes(
       date = web$repo$date,
       strata = web$repo$epid,
       case_length = case_length
-    )@.Data
+    )
+    web$repo$iteration <- web$epid@iteration + 1L
+    web$epid <- web$epid@.Data
+  }else{
+    web$repo$iteration <- rep(1L, length(date))
   }
 
   web$indx <- which(!duplicated(web$repo$epid))
-  web$repo$group_id <- web$repo$pr_sn[web$indx][match(web$repo$epid, web$repo$epid[web$indx])]
-  web$repo$group_id[order(web$repo$pr_sn)]
+  web$repo$group_id <- web$repo$pr_sn[web$indx][
+    match(web$repo$epid, web$repo$epid[web$indx])
+    ]
 
-  web$repo$group_id
-  web$epids <- new("epid",
-                   .Data =  web$repo$group_id,
-                   sn = web$repo$pr_sn,
-                   iteration = rep(1L, length(web$repo$group_id)),
-                   wind_id = list(wind_id1 =  web$repo$group_id),
-                   options = list())
-  web$epids@case_nm <- !(web$repo$pr_sn %in% web$repo$group_id)
-  web$epids@case_nm[web$epids@case_nm] <-
-    ifelse(episode_type == "rolling", 2L, 3L)
+  web$repo <- web$repo[
+    c("pr_sn", "group_id", "iteration")]
+  web$s_ord <- order(web$repo$pr_sn)
+  web$repo <- lapply(web$repo, function(x){
+    x[web$s_ord]
+  })
 
-  class(web$epids@case_nm) <- "d_label"
-  attr(web$epids@case_nm, "value") <- -1L : 5L
-  attr(web$epids@case_nm, "label") <-
-    c("Skipped", "Case", "Recurrent", "Duplicate_C",
-      "Duplicate_R", "Case_CR", "Recurrent_CR")
-  attr(web$epids@case_nm, "state") <- "encoded"
+  date <- as.number_line(date)
+  web$repo$case_nm <- !(web$repo$pr_sn %in% web$repo$group_id)
+  web$repo$case_nm[web$repo$case_nm] <-
+    ifelse(episode_type == "rolling", 3L, 2L)
 
-  web$epids@wind_nm$wind_nm1 <- rep(
-    ifelse(episode_type == "rolling", 1L, 0L), length(web$repo$group_id)
+  web$repo$wind_nm <- rep(
+    ifelse(episode_type == "rolling", 1L, 0L),
+    length(web$repo$group_id)
   )
-  class(web$epids@wind_nm$wind_nm1) <- "d_label"
-  attr(web$epids@wind_nm$wind_nm1, "value") <- -1L : 1L
-  attr(web$epids@wind_nm$wind_nm1, "label") <- c("Skipped", "Case", "Recurrence")
-  attr(web$epids@wind_nm$wind_nm1, "state") <- "encoded"
 
-  web$tmp$rr <- rle(sort(web$epids@.Data))
-  web$epids@epid_total <- web$tmp$rr$lengths[match(web$epids@.Data, web$tmp$rr$values)]
 
-  if(isTRUE(web$repo$group_stats)){
-    web$tmp$lgk <- which(web$epids@epid_total != 1)
-    web$epids@epid_interval <- web$repo$date
-    web$epids@epid_interval[web$tmp$lgk] <- group_stats(
-      strata = web$epids@.Data[web$tmp$lgk],
-      start_date = web$epids@epid_interval@start[web$tmp$lgk],
-      end_date = right_point(web$epids@epid_interval)[web$tmp$lgk]
-    )
-
-    if(web$controls$is_dt){
-      web$epids@epid_interval <- number_line(
-        as.POSIXct(
-          web$epids@epid_interval@start, tz = "GMT",
-          origin = as.POSIXct("1970-01-01", "GMT")),
-        as.POSIXct(
-          right_point(web$epids@epid_interval), tz = "GMT",
-          origin = as.POSIXct("1970-01-01", "GMT"))
-      )
-      web$epids@epid_length <- difftime(
-        right_point(web$epids@epid_interval),
-        web$epids@epid_interval@start,
-        units = "sec")
-    }else{
-      web$epids@epid_length <-
-        right_point(web$epids@epid_interval) - web$epids@epid_interval@start
-    }
-  }
+  web$epids <- make_episodes(
+    y_pos = web$repo$group_id,
+    date = (
+      if(group_stats){
+        date
+      }else{
+        NULL
+      }),
+    x_pos = web$repo$pr_sn,
+    x_val = web$repo$sn,
+    iteration = web$repo$iteration,
+    wind_id = web$repo$group_id,
+    # options = options_lst,
+    case_nm = web$repo$case_nm,
+    wind_nm = web$repo$wind_nm,
+    # episode_unit = web$repo$episode_unit,
+    data_source = data_source,
+    data_links = data_links)
 
   web <- web$epids
   return(web)

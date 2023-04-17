@@ -48,10 +48,18 @@ setMethod("[", signature(x = "number_line"),
               i <- 1
               attr(x, "opts") <- NULL
             }
-            x@.Data <- x@.Data[i]
-            x@start <- x@start[i]
-            x@id <- x@id[i]
-            x@gid <- x@gid[i]
+            if(length(x@.Data) > 0){
+              x@.Data <- x@.Data[i]
+            }
+            if(length(x@start) > 0){
+              x@start <- x@start[i]
+            }
+            if(length(x@id) > 0){
+              x@id <- x@id[i]
+            }
+            if(length(x@gid) > 0){
+              x@gid <- x@gid[i]
+            }
             if(is_lazy_opt & length(x) == 1 & length(i) > 0){
               attr(x, "opts") <- "d_lazy_opts"
             }
@@ -69,10 +77,18 @@ setMethod("[[", signature(x = "number_line"),
               i <- 1
               attr(x, "opts") <- NULL
             }
-            x@.Data <- x@.Data[i]
-            x@start <- x@start[i]
-            x@id <- x@id[i]
-            x@gid <- x@gid[i]
+            if(length(x@.Data) > 0){
+              x@.Data <- x@.Data[i]
+            }
+            if(length(x@start) > 0){
+              x@start <- x@start[i]
+            }
+            if(length(x@id) > 0){
+              x@id <- x@id[i]
+            }
+            if(length(x@gid) > 0){
+              x@gid <- x@gid[i]
+            }
             if(is_lazy_opt & length(x) == 1 & length(i) > 0){
               attr(x, "opts") <- "d_lazy_opts"
             }
@@ -136,9 +152,16 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
-  tmp.func <- function(x) as.data.frame(x, decode = FALSE)
-  x <- to_s4(do.call("rbind", lapply(list(x, ...), function(y) tmp.func(as.number_line(y)))))
-  return(x)
+  tmp.func <- function(x) as.data.frame(S4_to_list(x, .Data_type = "diff"))
+  x <- do.call("rbind", lapply(list(x, ...), tmp.func))
+  y <- methods::new("number_line")
+  if(any(grepl("start", names(x)))){
+    y@start <- x$start
+  }
+  if(any(grepl("diff", names(x)))){
+    y@.Data <- x$diff
+  }
+  return(y)
 })
 
 #' @rdname number_line-class
@@ -150,9 +173,21 @@ unique.number_line <- function(x, ...){
 
 #' @rdname number_line-class
 #' @export
-seq.number_line <- function(x, ...){
-  x <- seq(from = x@start, to = right_point(x), ...)
-  x <- number_line(x[seq_len(length(x)-1)], r = x[-1])
+seq.number_line <- function(x, precision = NULL, fill = FALSE, ...){
+  y <- seq(from = start_point(x), to = end_point(x), ...)
+  l <- y[-length(y)]
+  r <- y[-1]
+
+  if(fill){
+    if(y[length(y)] != end_point(x)){
+      l <- c(l, y[length(y)])
+      r <- c(r, end_point(x))
+    }
+  }
+  if(!is.null(precision)){
+    l[-1] <- round_to(l[-1], to = precision, f = ceiling)
+  }
+  x <- number_line(l, r)
   return(x)
 }
 
@@ -186,7 +221,7 @@ format.number_line <- function(x, ...){
 #' @export
 as.list.number_line <- function(x, ...){
   x_df <- as.data.frame(x)
-  cmbi_cd <-  combi(x_df$start, x_df$end, x_df$id, x_df$gid)
+  cmbi_cd <-  combi(x_df$start, x_df$end)
   x_dups <- x[!duplicated(cmbi_cd)]
   y <- lapply(seq_len(length(x_dups)), function(j) x_dups[j])
   y <- y[match(cmbi_cd, cmbi_cd[!duplicated(cmbi_cd)])]
@@ -196,12 +231,9 @@ as.list.number_line <- function(x, ...){
 #' @rdname number_line-class
 #' @export
 as.data.frame.number_line <- function(x, ...){
-  y <- data.frame(start = x@start,
-                  end = x@start + x@.Data,
-                  id = x@id,
-                  gid = x@gid,
-                  ...)
-  return(y)
+  x <- as.data.frame(S4_to_list(x, .Data_type = "end"),  ...)
+  x$end <- x$start + x$end
+  x[c("start", "end", names(x)[!grepl("start|end", names(x))])]
 }
 
 #' @name epid-class

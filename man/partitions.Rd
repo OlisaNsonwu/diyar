@@ -6,7 +6,7 @@
 \usage{
 partitions(
   date,
-  window = number_line(0, Inf),
+  window = NULL,
   windows_total = 1,
   separate = FALSE,
   sn = NULL,
@@ -18,7 +18,8 @@ partitions(
   by = NULL,
   length.out = NULL,
   fill = TRUE,
-  display = "none"
+  display = "none",
+  precision = 1
 )
 }
 \arguments{
