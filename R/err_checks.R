@@ -380,7 +380,9 @@ err_sub_criteria_10b <- function(sub_criteria){
 }
 
 err_sub_criteria_3dot_1 <- function(...){
-  err <- lapply(list(...), attr_eval)
+  err <- lapply(list(...), function(x){
+    attr_eval(x, rc_dv)
+  })
   err <- unlist(err, use.names = FALSE)
   err <- sort(err[!duplicated(err)])
   err2 <- err[err != 1]
@@ -1262,7 +1264,11 @@ err_links_checks_0 <- function(criteria,
   }
   len_lims <- c(1, length(criteria[[1]]))
   if(!is.null(sub_criteria)){
-    len_lims <- max(c(len_lims, unlist(lapply(sub_criteria, attr_eval), use.names = FALSE)))
+    scri.attrs.len <- lapply(sub_criteria, function(x){
+      attr_eval(x, rc_dv)
+    })
+    scri.attrs.len <- unlist(scri.attrs.len, use.names = FALSE)
+    len_lims <- max(c(len_lims, scri.attrs.len))
   }
   args <- list(data_source = data_source,
                display = display,
@@ -1991,8 +1997,8 @@ err_links_wf_probablistic_0 <- function(attribute,
     err <- paste0("Lengths of `blocking_attribute` and each attribute must be the same or equal to 1")
     return(err)
   }
-
-  lens_2 <- unlist(lapply(list(id_1, id_2), attr_eval), use.names = FALSE)
+  # lens_2 <- unlist(lapply(list(id_1, id_2), attr_eval), use.names = FALSE)
+  lens_2 <- c(length(id_1), length(id_2))
   lens_2 <- lens_2[!duplicated(lens_2)]
   if(length(lens_2) != 1){
     err <- paste0("Lengths of `id_1` and `id_2` must be the same or equal to 1")

@@ -41,16 +41,6 @@ make_episodes <- function(
   }
 
   epids <- new("epid", .Data = as.integer(y_pos))
-  if(!missing_wf.null(x_val)){
-    epids@.Data <- as.integer(x_val)[epids@.Data]
-  }
-  if(!missing_wf.null(x_pos)){
-    if(!missing_wf.null(x_val)){
-      epids@sn <- as.integer(x_val)
-    }else{
-      epids@sn <- as.integer(x_pos)
-    }
-  }
 
   if(!missing_wf.null(iteration)){
     epids@iteration <- iteration
@@ -69,17 +59,6 @@ make_episodes <- function(
     attr(epids@case_nm, "state") <- "encoded"
   }
 
-  if(!missing_wf.null(wind_id)){
-    if(!missing_wf.null(x_val)){
-      wind_id <- as.integer(x_val)[as.integer(wind_id)]
-    }
-    wind_id <- matrix(wind_id, nrow = length(epids@.Data))
-    ncol <- ncol(wind_id)
-    epids@wind_id <- lapply(1:ncol, function(i){
-      wind_id[,i]
-    })
-    names(epids@wind_id) <- paste0("wind_id", 1:ncol)
-  }
   if(!missing_wf.null(wind_nm)){
     wind_nm <- matrix(wind_nm, nrow = length(epids@.Data))
     ncol <- ncol(wind_nm)
@@ -107,7 +86,7 @@ make_episodes <- function(
       ((as.numeric(index_date@start) + as.numeric(right_point(index_date))) * .5)
 
     if(!missing_wf.null(wind_id)){
-      index_date <- date[epids@wind_id$wind_id1]
+      index_date <- date[wind_id[1:length(x_pos)]]
       epids@dist_wind_index <- ((as.numeric(date@start) + as.numeric(right_point(date))) * .5) -
         ((as.numeric(index_date@start) + as.numeric(right_point(index_date))) * .5)
     }else{
@@ -196,6 +175,29 @@ make_episodes <- function(
     }
   }
 
+  if(!missing_wf.null(x_val)){
+    epids@.Data <- as.integer(x_val)[epids@.Data]
+  }
+  if(!missing_wf.null(x_pos)){
+    if(!missing_wf.null(x_val)){
+      epids@sn <- as.integer(x_val)
+    }else{
+      epids@sn <- as.integer(x_pos)
+    }
+  }
+
+  if(!missing_wf.null(wind_id)){
+    if(!missing_wf.null(x_val)){
+      wind_id <- as.integer(x_val)[as.integer(wind_id)]
+    }
+    wind_id <- matrix(wind_id, nrow = length(epids@.Data))
+    ncol <- ncol(wind_id)
+    epids@wind_id <- lapply(1:ncol, function(i){
+      wind_id[,i]
+    })
+    names(epids@wind_id) <- paste0("wind_id", 1:ncol)
+  }
+
   return(epids)
 }
 
@@ -208,37 +210,14 @@ make_pids <- function(x_pos,
                       data_source,
                       data_links,
                       iteration){
-
   pids <- new("pid", .Data = as.integer(y_pos))
-  if(!missing_wf.null(x_val)){
-    pids@.Data <- as.integer(x_val)[pids@.Data]
-  }
-  if(!missing_wf.null(x_pos)){
-    if(!missing_wf.null(x_val)){
-      pids@sn <- as.integer(x_val)
-    }else{
-      pids@sn <- as.integer(x_pos)
-    }
-  }
+
   if(!missing_wf.null(iteration)){
     pids@iteration <- iteration
   }
   if(!missing_wf.null(pid_cri)){
     pids@pid_cri <- pid_cri
   }
-
-  if(!missing_wf.null(link_id)){
-    if(!missing_wf.null(x_val)){
-      link_id <- as.integer(x_val)[as.integer(link_id)]
-    }
-    link_id <- matrix(link_id, nrow = length(pids@.Data))
-    ncol <- ncol(link_id)
-    pids@link_id <- lapply(1:ncol, function(i){
-      link_id[,i]
-    })
-    names(pids@link_id) <- paste0("link_id", 1:ncol)
-  }
-
   #
   r <- rle(sort(pids@.Data))
   pids@pid_total <- r$lengths[match(pids@.Data, r$values)]
@@ -249,15 +228,37 @@ make_pids <- function(x_pos,
         pids@.Data,
         data_source,
         data_links)
-      pids@epid_dataset <- rst$ds
+      pids@pid_dataset <- rst$ds
 
       if(!all(toupper(data_links) == "ANY")){
         req_links <- rst$rq
         pidspids <- suppressWarnings(delink(pids, !req_links))
-        pids@epid_dataset[!req_links] <- data_source[!req_links]
+        pids@pid_dataset[!req_links] <- data_source[!req_links]
       }
-      pids@epid_dataset <- encode(pids@epid_dataset)
+      pids@pid_dataset <- encode(pids@pid_dataset)
     }
+  }
+
+  if(!missing_wf.null(x_val)){
+    pids@.Data <- as.integer(x_val)[pids@.Data]
+  }
+  if(!missing_wf.null(x_pos)){
+    if(!missing_wf.null(x_val)){
+      pids@sn <- as.integer(x_val)
+    }else{
+      pids@sn <- as.integer(x_pos)
+    }
+  }
+  if(!missing_wf.null(link_id)){
+    if(!missing_wf.null(x_val)){
+      link_id <- as.integer(x_val)[as.integer(link_id)]
+    }
+    link_id <- matrix(link_id, nrow = length(pids@.Data))
+    ncol <- ncol(link_id)
+    pids@link_id <- lapply(1:ncol, function(i){
+      link_id[,i]
+    })
+    names(pids@link_id) <- paste0("link_id", 1:ncol)
   }
 
   return(pids)

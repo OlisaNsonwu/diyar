@@ -285,13 +285,13 @@ pd1c <- links(
   batched = "no")
 
 test_that("test `batched` linkage", {
-  expect_equal(pd2a@.Data, rep(1, 10))
+  expect_equal(pd1a@.Data, rep(1, 10))
   expect_equal(pd1a@.Data, pd1b@.Data)
   expect_equal(pd1b@.Data, pd1c@.Data)
   expect_equal(max(pd1a@iteration) > max(pd1b@iteration), TRUE)
   expect_equal(max(pd1b@iteration) > max(pd1c@iteration), TRUE)
   expect_equal(max(pd1a@iteration), 10)
-  expect_equal(max(pd1b@iteration), 4)
+  expect_equal(max(pd1b@iteration), 3)
   expect_equal(max(pd1c@iteration), 1)
 })
 

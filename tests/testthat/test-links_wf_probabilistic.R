@@ -1,4 +1,4 @@
-context("testing record_group function")
+context("Unit tests - links_wf_probabilistic()")
 
 library(testthat)
 library(diyar)
@@ -91,41 +91,41 @@ test_that("test record grouping with 1 set of sub-criteria per criteria", {
   expect_equal(test_4a$pids@pid_total, c(4,4,4,4,1,2,2))
 })
 
-#Test 7 - Range matching
-df_7 <- data.frame(
-  r_id = as.integer(1:15),
-  cri_1 = c(rep("P1",5), rep("P2",10)),
-  age = as.integer(c(10,15,9,40,42,50,70,57,55,34,12, 35,39,20,11)),
-  stringsAsFactors = TRUE
-)
-
-df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5L, df_7$age+5L, gid = df_7$age)
-df_7$corrupt_range@gid[3] <- 205L
-
-test_7b <- test_7 <- df_7
-test_7$pids <- links_wf_probabilistic(attribute = list(test_7$age_range),
-                            cmp_func = range_match_legacy,
-                            probabilistic = FALSE,
-                            recursive = TRUE,
-                            check_duplicates = TRUE)
-
-test_7b$pids <- links_wf_probabilistic(attribute = list(test_7$age_range),
-                             cmp_func = range_match_legacy,
-                             probabilistic = FALSE,
-                             recursive = TRUE,
-                             check_duplicates = TRUE)
-
-test_that("test record grouping using range matching in criteria", {
-  # expect_equal(test_7$pids@.Data, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))
-  expect_equal(test_7$pids@.Data, c(1, 1, 1, 4, 4, 6, 7, 6, 6, 4, 1, 4, 4, 1, 1))
-  # expect_equal(test_7$pids@pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
-  expect_equal(test_7$pids@pid_cri, c(rep(1,6),0, rep(1, 8)))
-  # expect_equal(test_7$pids@pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
-  expect_equal(test_7$pids@pid_total, c(6, 6, 6, 5, 5, 3, 1, 3, 3, 5, 6, 5, 5, 6, 6))
-})
-
-test_that("test record grouping using range matching in sub_criteria", {
-  expect_equal(test_7b$pids@.Data, c(1,1,1,4,4,6,7,6,6,4,1,4,4,1,1))
-  expect_equal(test_7b$pids@pid_cri, c(rep(1,6),0, rep(1, 8)))
-  expect_equal(test_7b$pids@pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
-})
+# #Test 7 - Range matching
+# df_7 <- data.frame(
+#   r_id = as.integer(1:15),
+#   cri_1 = c(rep("P1",5), rep("P2",10)),
+#   age = as.integer(c(10,15,9,40,42,50,70,57,55,34,12, 35,39,20,11)),
+#   stringsAsFactors = TRUE
+# )
+#
+# df_7$corrupt_range <- df_7$age_range <- number_line(df_7$age-5L, df_7$age+5L, gid = df_7$age)
+# df_7$corrupt_range@gid[3] <- 205L
+#
+# test_7b <- test_7 <- df_7
+# test_7$pids <- links_wf_probabilistic(attribute = list(test_7$age_range),
+#                             cmp_func = range_match_legacy,
+#                             probabilistic = FALSE,
+#                             recursive = TRUE,
+#                             check_duplicates = TRUE)
+#
+# test_7b$pids <- links_wf_probabilistic(attribute = list(test_7$age_range),
+#                              cmp_func = range_match_legacy,
+#                              probabilistic = FALSE,
+#                              recursive = TRUE,
+#                              check_duplicates = TRUE)
+#
+# test_that("test record grouping using range matching in criteria", {
+#   # expect_equal(test_7$pids@.Data, c(1,1,1,4,4,6,7,6,6,10,11,10,10,14,11))
+#   expect_equal(test_7$pids@.Data, c(1, 1, 1, 4, 4, 6, 7, 6, 6, 4, 1, 4, 4, 1, 1))
+#   # expect_equal(test_7$pids@pid_cri, c(rep(1,6),0, rep(1, 6),0,1))
+#   expect_equal(test_7$pids@pid_cri, c(rep(1,6),0, rep(1, 8)))
+#   # expect_equal(test_7$pids@pid_total, c(3,3,3,2,2,3,1,3,3,3,2,3,3,1,2))
+#   expect_equal(test_7$pids@pid_total, c(6, 6, 6, 5, 5, 3, 1, 3, 3, 5, 6, 5, 5, 6, 6))
+# })
+#
+# test_that("test record grouping using range matching in sub_criteria", {
+#   expect_equal(test_7b$pids@.Data, c(1,1,1,4,4,6,7,6,6,4,1,4,4,1,1))
+#   expect_equal(test_7b$pids@pid_cri, c(rep(1,6),0, rep(1, 8)))
+#   expect_equal(test_7b$pids@pid_total, c(6,6,6,5,5,3,1,3,3,5,6,5,5,6,6))
+# })

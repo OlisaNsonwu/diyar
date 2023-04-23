@@ -1,4 +1,4 @@
-context("testing record_group function")
+context("Unit tests - links_af_probabilistic()")
 
 library(testthat)
 library(diyar)

@@ -432,11 +432,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     class(episode_unit) <- class(skip_if_b4_lengths) <- "d_lazy_opts"
 
   pr_sn <- seq_len(web$counts$dataset.n)
-  if(!is.null(sn)) {
-    sn <- as.integer(sn)
-  }else{
-    sn <- pr_sn
-  }
 
   # System preference for case-assignment
   ord_a <- abs(
@@ -467,8 +462,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     }
   }
   web$tm_ia <- Sys.time()
+  web$repo$sn <- sn
   web$repo$pr_sn <-
-    web$repo$epid <- seq_len(web$counts$dataset.n)
+    web$repo$epid <- pr_sn
 
   web$repo$c_hits <- web$repo$ld_pos <- web$repo$wind_id <-
     web$repo$wind_nm <- web$repo$case_nm <- rep(NA_real_, web$counts$dataset.n)
@@ -573,6 +569,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   web$repo$case_nm[web$tmp$lgk & is.na(web$repo$case_nm)] <- 0L
   web$repo$wind_nm[web$tmp$lgk & is.na(web$repo$wind_nm)] <- 0L
   web$repo$iteration[web$tmp$lgk] <- 0L
+  web$tmp$lgk <- web$tmp$lgk & is.na(web$repo$wind_id)
+  web$repo$wind_id[web$tmp$lgk] <- web$repo$pr_sn[web$tmp$lgk]
   web$tmp <- NULL
 
   web$counts$max_indexes <- ite <- 1L
@@ -1442,6 +1440,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         NULL
       }),
     x_pos = web$repo$pr_sn,
+    x_val = web$repo$sn,
     iteration = web$repo$iteration,
     wind_id = web$repo$wind_id,
     options = options_lst,
@@ -1610,7 +1609,6 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     ifelse(episode_type == "rolling", 1L, 0L),
     length(web$repo$group_id)
   )
-
 
   web$epids <- make_episodes(
     y_pos = web$repo$group_id,
