@@ -597,7 +597,7 @@ length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_l
     return(x)
   })
 
-  if(any(from_last == T)) {
+  if(any(from_last)) {
     lengths$range <- lapply(lengths$range, function(x){
       if(length(x) < length(from_last)){
         x <- rep(x, length(date))

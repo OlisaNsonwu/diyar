@@ -1,4 +1,4 @@
-context("testing episode_group function")
+context("Unit tests - episodes()")
 
 library(testthat)
 library(diyar)

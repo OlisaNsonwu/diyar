@@ -1972,7 +1972,7 @@ epid_lengths <- function(date, windows, episode_unit = "days"){
 index_window <- function(date, from_last = FALSE){
   window <- as.number_line(date)
   window <- number_line(-window@.Data, 0)
-  window[from_last == TRUE] <- invert_number_line(window[from_last == TRUE])
+  window[from_last] <- invert_number_line(window[from_last])
   window
 }
 
