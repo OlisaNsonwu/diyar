@@ -1,22 +1,21 @@
-#' @name record_group
-#' @title Multistage deterministic record linkage
-#'
-#' @description Match records in consecutive stages with different matching conditions.
-#' Each set of linked records are assigned a unique identifier with relevant group-level information.
-#'
-#' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
-#' @param ... Arguments passed to \bold{\code{\link{links}}}.
-#' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
-#'
-#' @return \code{\link[=pid-class]{pid}}
-#'
-#' @seealso \code{\link{links}}
-#'
-#' @details
-#' \bold{\code{record_group()}} is superseded. Moving forward, please use \bold{\code{\link{links}}}.
-#'
-#' @aliases record_group
-#' @export
+# @name record_group
+# @title Multistage deterministic record linkage
+#
+# @description Match records in consecutive stages with different matching conditions.
+# Each set of linked records are assigned a unique identifier with relevant group-level information.
+#
+# @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
+# @param ... Arguments passed to \bold{\code{\link{links}}}.
+# @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=pid-class]{pid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+#
+# @return \code{\link[=pid-class]{pid}}
+#
+# @seealso \code{\link{links}}
+#
+# @details
+# \bold{\code{record_group()}} is superseded. Moving forward, please use \bold{\code{\link{links}}}.
+#
+# @aliases record_group
 record_group <- function(df, ..., to_s4 = TRUE){
   args <- as.list(substitute(...()))
   if (length(names(args)[names(args) == ""] > 0)){

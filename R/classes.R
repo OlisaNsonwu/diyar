@@ -152,7 +152,12 @@ setMethod("$<-", signature(x = "number_line"), function(x, name, value) {
 
 #' @rdname number_line-class
 setMethod("c", signature(x = "number_line"), function(x,...) {
-  tmp.func <- function(x) as.data.frame(S4_to_list(x, .Data_type = "diff"))
+  tmp.func <- function(x){
+    if(!inherits(x, "number_line")){
+      x <- as.number_line(x)
+    }
+    as.data.frame(S4_to_list(x, .Data_type = "diff"))
+  }
   x <- do.call("rbind", lapply(list(x, ...), tmp.func))
   y <- methods::new("number_line")
   if(any(grepl("start", names(x)))){

@@ -1122,6 +1122,29 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
   err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
+  # Check for required object lengths
+  len_lims <- c(1, length(date))
+  args <- list(case_length = case_length,
+               recurrence_length = recurrence_length,
+               case_overlap_methods = case_overlap_methods,
+               recurrence_overlap_methods = recurrence_overlap_methods,
+               data_links = data_links)
+
+  args_opt_lv <- list(case_length = c("", "r", "e", "w"),
+                    recurrence_length = c("", "r", "e", "w"),
+                    case_overlap_methods = c("", "r", "e", "w"),
+                    recurrence_overlap_methods = c("", "r", "e", "w"),
+                    data_links = c("", "l", "g"))
+
+  err <- mapply(err_option_level,
+                args,
+                args_opt_lv[match(names(args), names(args_opt_lv))],
+                as.list(names(args)))
+  err <- unlist(err, use.names = FALSE)
+  err <- err[err != FALSE]
+  if(length(err) > 0) return(err[1])
+
+
   err <- err_data_links_1(data_source = data_source, data_links = data_links)
   if(err != FALSE) return(err)
   err <- err_data_links_2(data_source = data_source, data_links = data_links)
@@ -2130,3 +2153,23 @@ err_make_pairs_1 <- function(x = 1, strata = NULL,
   return(FALSE)
 }
 
+err_option_level <- function(x,  valid_opts = c("", "r", "e", "w"), arg_nm = "case_length"){
+  if(inherits(x, "list") & !is.null(names(x))){
+    opts <- names(x)
+    opts <- opts[!opts %in% valid_opts]
+
+    if(length(opts) > 0){
+      err_title <- paste0("Invalid option level for `", arg_nm, "`:\n")
+      errs <- paste0(err_title,
+                     "i - valid option levels are: ", listr(paste0("\"",valid_opts,"\"")), ".\n",
+                     "i - Syntax ~ ", paste0("`(... ", arg_nm, " = list(\"w\" = c(\"14\",\"14\",\"28\",\"29\")))`"),"\n",
+                     "i - Syntax ~ ", paste0("`(... ", arg_nm, " = list(\"w\" = c(\"14\",\"14\",\"28\",\"29\")))`"),"\n",
+                     paste0("X - You've supplied ", listr(paste0("\"",opts,"\""), lim = 3)))
+      return(errs)
+    }else{
+      FALSE
+    }
+  }else{
+    FALSE
+  }
+}

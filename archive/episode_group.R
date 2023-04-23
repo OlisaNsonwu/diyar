@@ -1,68 +1,67 @@
-#' @name episode_group
-#' @title Group dated events into episodes.
-#'
-#' @description Assign unique identifiers to dated events based on case definitions.
-#'
-#' \strong{These functions are no longer supported. Please use \code{\link{episodes}} instead}.
-#'
-#' @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
-#' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
-#' @param case_length \code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"case"} from another.
-#' This is the case window.
-#' @param episode_type \code{[character]}. Options are \code{"fixed"} (default), \code{"rolling"} or \code{"recursive"}. See \code{Details}.
-#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event. This is the recurrence window.
-#' @param episode_unit \code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
-#' @param overlap_method \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.
-#' @param overlap_methods \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
-#' @param case_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
-#' @param recurrence_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
-#' @param bi_direction \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
-#' @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param include_index_period \code{[logical]}. Deprecated. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
-#' @param deduplicate \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.
-#' @param x \code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}.
-#' @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
-#' @param ... Arguments passed to \code{episodes}.
-#' @details
-#' \strong{These functions are no longer supported. Please use \code{\link{episodes}} instead}.
-#'
-#' @return \code{\link[=epid-class]{epid}}; \code{list}
-#'
-#' @seealso
-#' \code{\link{episodes}}
-#'
-#' @examples
-#' data(infections)
-#' data(hospital_admissions)
-#'
-#' # One 16-day (15-day difference) fixed episode per type of infection
-#' fixed_episodes(date = infections$date,
-#'                strata = infections$infection,
-#'                case_length = 15,
-#'                episodes_max = 1)
-#'
-#' # Multiple 16-day episodes with an 11-day recurrence period
-#' rolling_episodes(date = infections$date,
-#'                  case_length = 15,
-#'                  recurrence_length = 10)
-#'
-#' # Overlapping episodes of hospital stays
-#' hospital_admissions$admin_period <-
-#'   number_line(hospital_admissions$admin_dt,
-#'               hospital_admissions$discharge_dt)
-#' hospital_admissions$epi_length <-
-#'   index_window(hospital_admissions$admin_period)
-#'
-#' episode_group(hospital_admissions,
-#'               date = admin_period,
-#'               case_length = epi_length,
-#'               case_overlap_methods = "inbetween")
-#'
-#' @details
-#' \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}} are superseded by \code{\link{episodes}}.
-#'
-#' @aliases episode_group
-#' @export
+# @name episode_group
+# @title Group dated events into episodes.
+#
+# @description Assign unique identifiers to dated events based on case definitions.
+#
+# \strong{These functions are no longer supported. Please use \code{\link{episodes}} instead}.
+#
+# @param df \code{[data.frame]}. Deprecated. One or more datasets appended together. See \code{Details}.
+# @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
+# @param case_length \code{[integer|\link{number_line}]}. Duration from index event distinguishing one \code{"case"} from another.
+# This is the case window.
+# @param episode_type \code{[character]}. Options are \code{"fixed"} (default), \code{"rolling"} or \code{"recursive"}. See \code{Details}.
+# @param recurrence_length \code{[integer|\link{number_line}]}. Duration from the last \code{"duplicate"} event distinguishing a \code{"recurrent"} event from its index event. This is the recurrence window.
+# @param episode_unit \code{[character]}. Time units for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
+# @param overlap_method \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking event. All event are checked by the same set of \code{overlap_method}.
+# @param overlap_methods \code{[character]}. Deprecated. Please use \code{case_overlap_methods} or \code{recurrence_overlap_methods}. Methods of overlap considered when tracking duplicate event. See (\code{\link{overlaps}})
+# @param case_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"case"} events. See (\code{\link{overlaps}})
+# @param recurrence_overlap_methods \code{[character|integer]}. Methods of overlap considered when tracking duplicates of \code{"recurrent"} events. See (\code{\link{overlaps}})
+# @param bi_direction \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events before and after the index event are tracked.
+# @param display \code{[character]}. The progress messages printed on screen. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
+# @param include_index_period \code{[logical]}. Deprecated. If \code{TRUE}, events overlapping with the index event or period are linked even if they are outside the cut-off period.
+# @param deduplicate \code{[logical]}. Deprecated. If \code{TRUE}, \code{"duplicate"} events are excluded from the \code{\link[=epid-class]{epid}}.
+# @param x \code{[date|datetime|integer|\link{number_line}]}. Deprecated. Record date or period. Please use \code{date}.
+# @param to_s4 \code{[logical]}. Deprecated. Output type - \code{\link[=epid-class]{epid}} (\code{TRUE}) or \code{data.frame} (\code{FALSE}).
+# @param ... Arguments passed to \code{episodes}.
+# @details
+# \strong{These functions are no longer supported. Please use \code{\link{episodes}} instead}.
+#
+# @return \code{\link[=epid-class]{epid}}; \code{list}
+#
+# @seealso
+# \code{\link{episodes}}
+#
+# @examples
+# data(infections)
+# data(hospital_admissions)
+#
+# # One 16-day (15-day difference) fixed episode per type of infection
+# fixed_episodes(date = infections$date,
+#                strata = infections$infection,
+#                case_length = 15,
+#                episodes_max = 1)
+#
+# # Multiple 16-day episodes with an 11-day recurrence period
+# rolling_episodes(date = infections$date,
+#                  case_length = 15,
+#                  recurrence_length = 10)
+#
+# # Overlapping episodes of hospital stays
+# hospital_admissions$admin_period <-
+#   number_line(hospital_admissions$admin_dt,
+#               hospital_admissions$discharge_dt)
+# hospital_admissions$epi_length <-
+#   index_window(hospital_admissions$admin_period)
+#
+# episode_group(hospital_admissions,
+#               date = admin_period,
+#               case_length = epi_length,
+#               case_overlap_methods = "inbetween")
+#
+# @details
+# \code{\link{episode_group}}, \code{\link{fixed_episodes}} and \code{\link{rolling_episodes}} are superseded by \code{\link{episodes}}.
+#
+# @aliases episode_group
 episode_group <- function(df, ..., episode_type = "fixed"){
   args <- as.list(substitute(...()))
   if (length(names(args)[names(args) == ""] > 0)){
@@ -85,8 +84,7 @@ episode_group <- function(df, ..., episode_type = "fixed"){
   return(out$err_nm)
 }
 
-#' @rdname episode_group
-#' @export
+# @rdname episode_group
 fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                            to_s4 = TRUE, case_overlap_methods = 8, deduplicate = FALSE,
                            display = "none", bi_direction = FALSE,
@@ -148,6 +146,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
                     episode_unit, bi_direction)
   case_length <- r$lengths
   case_overlap_methods <- r$method
+  names(case_length) <- names(case_overlap_methods) <- NULL
 
   if(isTRUE(include_index_period)){
     case_length <- c(case_length, list(index_window(date)))
@@ -172,8 +171,7 @@ fixed_episodes <- function(date, case_length = Inf, episode_unit = "days",
   return(epids)
 }
 
-#' @rdname episode_group
-#' @export
+# @rdname episode_group
 rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_length,
                              episode_unit = "days", to_s4 = TRUE, case_overlap_methods = 8,
                              recurrence_overlap_methods = case_overlap_methods, deduplicate = FALSE,
@@ -247,11 +245,13 @@ rolling_episodes <- function(date, case_length = Inf, recurrence_length = case_l
                     episode_unit, bi_direction)
   case_length <- r$lengths
   case_overlap_methods <- r$method
+  names(case_length) <- names(case_overlap_methods) <- NULL
 
   r <- prep_lengths(recurrence_length, recurrence_overlap_methods, as.number_line(date),
                     episode_unit, bi_direction)
   recurrence_length <- r$lengths
   recurrence_overlap_methods <- r$method
+  names(recurrence_length) <- names(recurrence_overlap_methods) <- NULL
 
   if(isTRUE(include_index_period)){
     case_length <- c(case_length, list(index_window(date)))

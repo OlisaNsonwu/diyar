@@ -89,8 +89,8 @@ make_episodes <- function(
     names(epids@wind_nm) <- paste0("wind_nm", 1:ncol)
     epids@wind_nm <- lapply(epids@wind_nm, function(x){
       class(x) <- "d_label"
-      attr(x, "value") <- -1L : 1L
-      attr(x, "label") <- c("Skipped", "Case", "Recurrence")
+      attr(x, "value") <- -1L : 2L
+      attr(x, "label") <- c("Skipped", "Case", "Recurrence", "Case_for_recurrence")
       attr(x, "state") <- "encoded"
       return(x)
     })
@@ -116,15 +116,17 @@ make_episodes <- function(
 
     if(is_dt){
       if(!missing_wf.null(episode_unit)){
-        episode_unit <- episode_unit[!duplicated(episode_unit)]
-        if(length(episode_unit) > 1){
-          episode_unit <- 4L
+        diff_unit <- episode_unit
+        diff_unit[diff_unit %in% c("months", "years")] <- "days"
+        diff_unit <- diff_unit[!duplicated(diff_unit)]
+        if(length(diff_unit) > 1){
+          diff_unit <- "days"
         }
-        diff_unit <- names(diyar::episode_unit)[episode_unit]
-        lgk <- diff_unit %in% c("seconds", "minutes")
-        diff_unit[lgk] <- paste0(substr(diff_unit[lgk], 1 ,3), "s")
+        diff_unit <- diff_unit
+        diff_unit[diff_unit == "seconds"] <- "secs"
+        diff_unit[diff_unit == "minutes"] <- "mins"
       }else{
-        episode_unit <- 4L
+        diff_unit <- "days"
       }
 
       epids@dist_epid_index <-
@@ -132,7 +134,7 @@ make_episodes <- function(
       epids@dist_epid_index <-
         as.difftime(epids@dist_epid_index, units = diff_unit)
 
-      if(any(unlist(epids@wind_nm, use.names = FALSE) == 1)){
+      if(!missing_wf.null(wind_id)){
         epids@dist_wind_index <-
           epids@dist_wind_index / as.numeric(diyar::episode_unit[episode_unit])
         epids@dist_wind_index <-

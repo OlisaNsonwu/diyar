@@ -30,25 +30,6 @@ episodes <- function(..., to_s4 = T){
   }
 }
 
-fixed_episodes <- function(..., to_s4 = T){
-  if(to_s4 == F){
-    as.data.frame(diyar::fixed_episodes(..., display = "none"), stringsAsFactors = FALSE)
-  }else{
-    x <- diyar::fixed_episodes(..., display = "none")
-    x@options <- list()
-    return(x)
-  }
-}
-
-rolling_episodes <- function(..., to_s4 = T){
-  if(to_s4 == F){
-    as.data.frame(diyar::rolling_episodes(..., display = "none"), stringsAsFactors = FALSE)
-  }else{
-    x <- diyar::rolling_episodes(..., display = "none")
-    x@options <- list()
-    return(x)
-  }
-}
 decode <- function(x) as.vector(diyar::decode(x))
 # episode grouping with episode_group()
 T1 <- rbind(head(data,10), head(data,10))
@@ -209,8 +190,9 @@ test_that("testing user defined episodes_max", {
 
 # Test 6 - Combining rolls_max and episodes_max
 test_6 <- rbind(data_4, head(data_4, 10))
+test_6$strata <- paste0(test_6$pid, " DS-", sort(rep(c("A","B","C"), 10)))
 test_6 <- cbind(test_6,
-                episodes(strata = paste0(test_6$pid, " DS-", sort(rep(c("A","B","C"), 10))),
+                episodes(strata = test_6$strata,
                          date = test_6$date,
                          case_length = test_6$episode_len_s,
                          episode_type ="rolling",
@@ -286,7 +268,7 @@ e_int <- number_line(dttm(format(test_8a$date, "%d/%m/%Y 00:00:00")), dttm(forma
 
 test_that("testing; episode grouping by the hour", {
   expect_equal(test_8a$epid, 1L:11L)
-  expect_equal(test_8a$case_nm, rep("Case",11))
+  expect_equal(test_8a$case_nm, c( "Skipped", rep("Case",10)))
 
   e_int@gid <- e_int@id <- 1L:11L
 
@@ -339,7 +321,7 @@ e_int <- number_line(dttm(l), dttm(r))
 
 test_that("testing episode; custom sort", {
   expect_equal(test_9a$epid, c(1,rep(2,6), rep(8,3), 11))
-  expect_equal(test_9a$case_nm, c("Case","Case",rep("Duplicate_C",5),"Case", rep("Duplicate_C",2), "Case"))
+  expect_equal(test_9a$case_nm, c("Case","Case",rep("Duplicate_C",5),"Case", rep("Duplicate_C",2), "Skipped"))
 
   e_int@id <- 1L:11L
   e_int@gid <- as.integer(c(1,rep(2,6), rep(8,3), 11))
@@ -387,7 +369,7 @@ test_that("testing; episode grouping with custom sort and bi_direction", {
   e_int.2@gid <- as.integer(c(rep(10,10), 11))
 
   expect_equal(test_9b$epid.2, c(rep(10,10), 11))
-  expect_equal(test_9b$case_nm.2, c(rep("Duplicate_C",9),"Case","Case"))
+  expect_equal(test_9b$case_nm.2, c(rep("Duplicate_C",9),"Case","Skipped"))
   expect_equal(test_9b$epid_start.2, left_point(e_int.2))
   expect_equal(test_9b$epid_end.2, right_point(e_int.2))
   expect_equal(test_9b$epid_total.2, c(rep(10,10),1))
@@ -546,7 +528,7 @@ test_that("testing; intervals grouping with a case length", {
 
 infections <- diyar::infections
 test_that("test that fixed_episodes() with numeric 'date' works the same as compress_number_line()", {
-  a <- fixed_episodes(date = c(1,1,4,4,1,4,3,2), case_length = 0, to_s4 = T, group_stats = T, deduplicate = F)
+  a <- episodes(date = c(1,1,4,4,1,4,3,2), case_length = 0, to_s4 = T, group_stats = T)
   b <- compress_number_line(x = as.number_line(c(1,1,4,4,1,4,3,2)), collapse =T, deduplicate = F)
   expect_equal(a@epid_interval, b)
 })
@@ -610,17 +592,18 @@ epids <- episodes(date = date(c(x1, x2, x3, x4, x5)),
                   rolls_max = rm,
                   episode_type = "rolling")
 
-e_case_nm <- c("Case","Duplicate_C","Recurrent","Duplicate_R","Duplicate_R",
-               "Case","Duplicate_C","Recurrent","Case","Duplicate_C",
-               "Case","Duplicate_C","Recurrent","Duplicate_R","Duplicate_R","Duplicate_R",
-               "Case","Duplicate_C","Recurrent","Duplicate_R","Case","Duplicate_C",
-               "Case","Duplicate_C","Recurrent","Duplicate_R","Recurrent","Duplicate_R",
-               "Case","Duplicate_C","Case","Duplicate_C","Duplicate_C","Recurrent",
-               "Case","Recurrent","Duplicate_R","Recurrent",
-               "Case","Recurrent","Duplicate_R","Case",
-               "Case","Recurrent","Duplicate_R","Duplicate_R","Recurrent","Duplicate_R",
-               "Case","Recurrent","Duplicate_R","Duplicate_R","Recurrent","Case",
-               "Case","Recurrent","Duplicate_R","Duplicate_R","Case","Duplicate_C")
+e_case_nm <- c("Case", "Duplicate_C", "Recurrent", "Recurrent", "Duplicate_C",
+               "Case", "Duplicate_C", "Recurrent", "Case", "Duplicate_C", "Case",
+               "Duplicate_C", "Recurrent", "Duplicate_R", "Recurrent", "Duplicate_C",
+               "Case", "Duplicate_C", "Recurrent", "Duplicate_R", "Case", "Duplicate_C",
+               "Case", "Duplicate_C", "Recurrent", "Duplicate_R", "Recurrent",
+               "Duplicate_R", "Case", "Duplicate_C", "Case", "Duplicate_C",
+               "Duplicate_C", "Recurrent", "Case", "Recurrent", "Duplicate_R",
+               "Recurrent", "Case", "Recurrent", "Duplicate_R", "Case", "Case",
+               "Recurrent", "Duplicate_R", "Duplicate_R", "Recurrent", "Duplicate_R",
+               "Case", "Recurrent", "Duplicate_R", "Duplicate_R", "Recurrent",
+               "Case", "Case", "Recurrent", "Duplicate_R", "Duplicate_R", "Case",
+               "Duplicate_C")
 
 e_eid <- c(1, 1, 1, 1, 1, 6, 6, 6, 9, 9,
            11, 11, 11, 11, 11, 11, 17, 17, 17, 17,
@@ -658,9 +641,8 @@ df$r2 <- episodes(d, case_length = 3, case_for_recurrence = T, to_s4 = T, episod
 
 test_that("test case_for_recurrence", {
   expect_equal(df$r1@.Data, rep(1,6))
-  expect_equal(decode(df$r1@case_nm), c("Case","Duplicate_C","Recurrent","Recurrent","Recurrent", "Recurrent"))
-  expect_equal(df$r2@.Data, rep(1,6))
-  expect_equal(decode(df$r2@case_nm), c("Case","Duplicate_C","Recurrent","Duplicate_R","Recurrent","Duplicate_R"))
+  expect_equal(decode(df$r1@case_nm), c("Case", "Duplicate_C", rep("Recurrent", 4)))
+  expect_equal(df$r2, df$r1)
 })
 
 # Lengths range
@@ -730,18 +712,18 @@ df$ep6 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, 
 
 test_that("test wind_id and wind_nm", {
   expect_equal(df$ep1@.Data, rep(1, 5))
-  expect_equal(decode(df$ep1@case_nm), c("Case","Recurrent", rep("Duplicate_R", 3)))
-  expect_equal(decode(df$ep1@wind_nm), c("Recurrence", rep("Recurrence", 3), "Case"))
+  expect_equal(decode(df$ep1@case_nm), c("Case","Recurrent", rep("Duplicate_R", 2), "Recurrent"))
+  expect_equal(decode(df$ep1@wind_nm$wind_nm1), c("Case", rep("Recurrence", 3), "Case_for_recurrence"))
   expect_equal(df$ep1@wind_id[[1]], c(rep(1,4),4))
   expect_equal(df$ep2, df$ep4)
   expect_equal(decode(df$ep1@case_nm), decode(df$ep3@case_nm))
-  expect_equal(decode(df$ep1@wind_nm), decode(df$ep3@wind_nm))
+  expect_equal(decode(df$ep1@wind_nm$wind_nm1), decode(df$ep3@wind_nm$wind_nm1))
   expect_equal(df$ep1@.Data, df$ep3@.Data)
   expect_equal(df$ep3@wind_id[[1]], c(rep(1,4),2))
   expect_equal(df$ep1, df$ep5)
   expect_equal(df$ep1@.Data, df$ep6@.Data)
   expect_equal(decode(df$ep6@case_nm), c("Case","Recurrent", rep("Duplicate_R", 2), "Recurrent"))
-  expect_equal(decode(df$ep6@wind_nm), c("Recurrence", rep("Recurrence", 4)))
+  expect_equal(decode(df$ep6@wind_nm$wind_nm1), c("Case", rep("Recurrence", 4)))
 })
 
 x <- c(1,6,7,8,10)
@@ -760,22 +742,22 @@ test_that("test cut-off ranges", {
   expect_equal(df1$ep1@.Data, c(1,2,3,4,1))
   expect_equal(df1$ep1@wind_id[[1]], df1$ep1@.Data)
   expect_equal(decode(df1$ep1@case_nm), c("Case","Skipped","Skipped","Skipped","Duplicate_C"))
-  expect_equal(decode(df1$ep1@wind_nm), c("Case","Skipped","Skipped","Skipped","Case"))
+  expect_equal(decode(df1$ep1@wind_nm$wind_nm1), c("Case","Skipped","Skipped","Skipped","Case"))
 
   expect_equal(df1$ep1@.Data, df1$ep2@.Data)
   expect_equal(df1$ep1@wind_id[[1]], df1$ep1@wind_id[[1]])
-  expect_equal(decode(df1$ep2@case_nm), c(rep("Case",4),"Duplicate_C"))
-  expect_equal(decode(df1$ep2@wind_nm), c(rep("Case",5)))
+  expect_equal(decode(df1$ep2@case_nm), c(rep("Case",3), "Skipped","Duplicate_C"))
+  expect_equal(decode(df1$ep2@wind_nm$wind_nm1), c(rep("Case",3), "Skipped", "Case"))
 
   expect_equal(df2$ep3@.Data, c(1,2,1,4,5,4,7))
-  expect_equal(df2$ep3@.Data, df2$ep3@wind_id[[1]])
-  expect_equal(decode(df2$ep3@wind_nm), c("Case","Skipped", "Case", "Case", "Skipped", "Case", "Case"))
-  expect_equal(decode(df2$ep3@case_nm), c("Case","Skipped", "Duplicate_C", "Case", "Skipped", "Duplicate_C", "Case"))
+  expect_equal(df2$ep3@.Data, c(1,2,1,4,5,4,7))
+  expect_equal(decode(df2$ep3@wind_nm$wind_nm1), c("Case","Skipped", "Case", "Case", "Skipped", "Case", "Skipped"))
+  expect_equal(decode(df2$ep3@case_nm), c("Case","Skipped", "Duplicate_C", "Case", "Skipped", "Duplicate_C", "Skipped"))
 
   expect_equal(df2$ep4@.Data, c(1,2,1,2,5,6,5))
   expect_equal(df2$ep4@.Data, df2$ep4@wind_id[[1]])
-  expect_equal(decode(df2$ep4@wind_nm), rep("Case",7))
-  expect_equal(decode(df2$ep4@case_nm), c("Case","Case", "Duplicate_C","Duplicate_C", "Case", "Case", "Duplicate_C"))
+  expect_equal(decode(df2$ep4@wind_nm$wind_nm1), c(rep("Case",5), "Skipped", "Case"))
+  expect_equal(decode(df2$ep4@case_nm), c("Case","Case", "Duplicate_C","Duplicate_C", "Case", "Skipped", "Duplicate_C"))
 })
 
 ds <- data.frame(
@@ -823,9 +805,9 @@ test_that("test concepts in event grouping", {
   expect_equal(decode(ds$ep_2@case_nm), c("Case", "Duplicate_C","Case", "Duplicate_C","Duplicate_C"))
   # Fixed episode grouping ranges for length
   expect_equal(ds$ep_3@.Data, c(1,2,3,4,3))
-  expect_equal(decode(ds$ep_3@case_nm), c("Case", "Case","Case", "Skipped","Duplicate_C"))
+  expect_equal(decode(ds$ep_3@case_nm), c("Case", "Skipped","Case", "Skipped","Duplicate_C"))
   expect_equal(ds$ep_4@.Data, c(1,2,1,4,5))
-  expect_equal(decode(ds$ep_4@case_nm), c("Case", "Skipped","Duplicate_C","Case", "Case"))
+  expect_equal(decode(ds$ep_4@case_nm), c("Case", "Skipped","Duplicate_C","Case", "Skipped"))
   # Rolling episode grouping ranges for length
   expect_equal(ds$ep_5@.Data, c(1,2,1,4,1))
   expect_equal(decode(ds$ep_5@case_nm), c("Case", "Skipped","Duplicate_C","Skipped", "Recurrent"))
@@ -840,13 +822,13 @@ test_that("test concepts in event grouping", {
   expect_equal(decode(ds$ep_9@case_nm), decode(ds$ep_10@case_nm))
   expect_equal(ds$ep_3, ds$ep_11.2)
   expect_equal(ds$ep_11@.Data, c(1,2,3,4,5))
-  expect_equal(decode(ds$ep_11@case_nm), c("Case", "Case","Case","Case", "Case"))
+  expect_equal(decode(ds$ep_11@case_nm), c("Skipped", "Case","Case","Case", "Case"))
 
   # Neg lengths
   expect_equal(ds$ep_12@.Data, c(3,2,3,4,5))
-  expect_equal(decode(ds$ep_12@case_nm), c("Duplicate_C", "Skipped","Case", "Case", "Case"))
+  expect_equal(decode(ds$ep_12@case_nm), c("Duplicate_C", "Skipped","Case", "Case", "Skipped"))
   expect_equal(ds$ep_13@.Data, c(3,3,3,4,5))
-  expect_equal(decode(ds$ep_13@case_nm), c("Duplicate_C", "Duplicate_C","Case", "Case", "Case"))
+  expect_equal(decode(ds$ep_13@case_nm), c("Duplicate_C", "Duplicate_C","Case", "Case", "Skipped"))
 
   # Case level bi_direction
   expect_equal(ds$ep_15, ds$ep_14)
@@ -910,12 +892,12 @@ test_that("test concepts in interval grouping", {
   expect_equal(decode(ds$ep_2@case_nm), c("Case", rep("Duplicate_C",3), "Case", rep("Duplicate_C",5)))
   # Fixed episode grouping ranges for length
   # ep3 and ep3.5 include_inital_period
-  expect_equal(ds$ep_3@.Data, c(1,1,3,3,5,5,7,8,5,5))
-  expect_equal(decode(ds$ep_3@case_nm), c("Case","Duplicate_C","Case","Duplicate_C","Case","Duplicate_C", "Skipped","Skipped", "Duplicate_C", "Duplicate_C"))
+  expect_equal(ds$ep_3@.Data, c(1,1,3,4,5,5,7,8,5,5))
+  expect_equal(decode(ds$ep_3@case_nm), c("Case","Duplicate_C","Skipped","Skipped","Case","Duplicate_C", "Skipped","Skipped", "Duplicate_C", "Duplicate_C"))
   expect_equal(ds$ep_3.5@.Data, c(1,2,3,4,5,6,7,8,5,5))
-  expect_equal(decode(ds$ep_3.5@case_nm), c("Case","Case","Case","Case","Case","Skipped", "Skipped","Skipped", "Duplicate_C", "Duplicate_C"))
-  expect_equal(ds$ep_4@.Data, c(1,1,3,4,1,1,7,7,9,9))
-  expect_equal(decode(ds$ep_4@case_nm), c("Case","Duplicate_C","Skipped","Skipped","Duplicate_C","Duplicate_C", "Case","Duplicate_C", "Case", "Duplicate_C"))
+  expect_equal(decode(ds$ep_3.5@case_nm), c("Case","Skipped","Skipped","Skipped","Case","Case", "Skipped","Skipped", "Duplicate_C", "Duplicate_C"))
+  expect_equal(ds$ep_4@.Data, c(1,1,3,4,1,1,7,7,9,10))
+  expect_equal(decode(ds$ep_4@case_nm), c("Case","Duplicate_C","Skipped","Skipped","Duplicate_C","Duplicate_C", "Case","Duplicate_C", "Skipped", "Skipped"))
 
   # Rolling episode grouping ranges for length
   expect_equal(ds$ep_5@.Data, c(1,1,3,4,1,1,7,8,1,1))
@@ -937,20 +919,20 @@ test_that("test concepts in interval grouping", {
 
   expect_equal(ds$ep_11@.Data, c(2,2,4,4,6,6,8,8,10,10))
   expect_equal(decode(ds$ep_11@case_nm), c("Duplicate_C","Case","Duplicate_C","Case","Duplicate_C","Case", "Duplicate_C","Case", "Duplicate_C", "Case"))
-  expect_equal(ds$ep_11.2@.Data, c(1,1,3,3,5,5,7,8,5,5))
-  expect_equal(decode(ds$ep_11.2@case_nm), c("Case","Duplicate_C","Case","Duplicate_C", "Case", "Duplicate_C", "Skipped", "Skipped", "Duplicate_C", "Duplicate_C"))
+  expect_equal(ds$ep_11.2@.Data, c(1,1,3,4,5,5,7,8,5,5))
+  expect_equal(decode(ds$ep_11.2@case_nm), c("Case","Duplicate_C","Skipped","Skipped", "Case", "Duplicate_C", "Skipped", "Skipped", "Duplicate_C", "Duplicate_C"))
   expect_equal(ds$ep_3, ds$ep_11.2)
 
   # Neg lengths
   expect_equal(ds$ep_12@.Data, c(5,2,5,5,5,5,7,7,9,9))
-  expect_equal(decode(ds$ep_12@case_nm), c("Duplicate_C","Case","Duplicate_C","Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C"))
+  expect_equal(decode(ds$ep_12@case_nm), c("Duplicate_C","Skipped","Duplicate_C","Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C"))
   expect_equal(ds$ep_12@.Data, c(5,2,5,5,5,5,7,7,9,9))
-  expect_equal(decode(ds$ep_12@case_nm), c("Duplicate_C","Case","Duplicate_C","Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C"))
+  expect_equal(decode(ds$ep_12@case_nm), c("Duplicate_C","Skipped","Duplicate_C","Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C", "Case", "Duplicate_C"))
   expect_equal(ds$ep_12, ds$ep_13)
 
   # Case level bi_direction
   expect_equal(ds$ep_14@.Data, c(5,2,rep(5, 8)))
-  expect_equal(decode(ds$ep_14@case_nm), c("Duplicate_C","Case","Duplicate_C","Duplicate_C", "Case", rep("Duplicate_C",5)))
+  expect_equal(decode(ds$ep_14@case_nm), c("Duplicate_C","Skipped","Duplicate_C","Duplicate_C", "Case", rep("Duplicate_C",5)))
   expect_equal(ds$ep_15, ds$ep_14)
 
   expect_equal(ds$ep_16@.Data, c(rep(rep(4,4)),rep(10, 6)))
@@ -965,26 +947,26 @@ dates <- seq(as.Date("01/04/2019", "%d/%M/%Y"), as.Date("20/04/2019", "%d/%M/%Y"
 periods <- number_line(dates, dates + 4)
 
 # Track fixed episodes from events with a 5 day cut-off
-mth1 <- fixed_episodes(date = dates, case_length = 4)
+mth1 <- episodes(date = dates, case_length = 4)
 
 # Track fixed episodes from periods that are 5 days long
-mth2 <- fixed_episodes(date = periods, case_length = 0)
+mth2 <- episodes(date = periods, case_length = 0)
 
 # Track rolling episodes from events using a 5 day cut-off
-mth3 <- rolling_episodes(date = dates, case_length = 4)
+mth3 <- episodes(date = dates, case_length = 4, episode_type = "rolling")
 
 # Track rolling episode from periods that are 5 days long
-mth4 <- rolling_episodes(date = periods, case_length = 0)
+mth4 <- episodes(date = periods, case_length = 0, episode_type = "rolling")
 
 test_that("test interchangeable use of interval grouping and event grouping ", {
   expect_equal(mth1@.Data, c(1,1,3,3,5))
   expect_equal(mth1@wind_id[[1]], c(1,1,3,3,5))
-  expect_equal(decode(mth1@case_nm), c("Case", "Duplicate_C", "Case", "Duplicate_C", "Case"))
-  expect_equal(decode(mth1@wind_nm), c("Case", "Case", "Case", "Case", "Case"))
+  expect_equal(decode(mth1@case_nm), c("Case", "Duplicate_C", "Case", "Duplicate_C", "Skipped"))
+  expect_equal(decode(mth1@wind_nm$wind_nm1), c("Case", "Case", "Case", "Case", "Skipped"))
   expect_equal(mth3@.Data, c(1,1,1,1,1))
   expect_equal(mth3@wind_id[[1]], c(1,1,2,3,4))
   expect_equal(decode(mth3@case_nm), c("Case", "Duplicate_C", "Recurrent", "Recurrent", "Recurrent"))
-  expect_equal(decode(mth3@wind_nm), c("Case", "Case", "Recurrence", "Recurrence", "Recurrence"))
+  expect_equal(decode(mth3@wind_nm$wind_nm1), c("Case", "Case", "Recurrence", "Recurrence", "Recurrence"))
   expect_equal(mth1, mth2)
   expect_equal(mth3, mth4)
 })

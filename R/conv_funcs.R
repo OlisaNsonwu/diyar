@@ -80,7 +80,6 @@ logicals_check <- function(x){
 # @rdname finite_check
 sep_bdr_nl <- function(x){
   nl_prp <- function(i){
-
     x <- x[[i]]
     if(!is.number_line(x)){
       x <- as.number_line(x)
@@ -604,7 +603,9 @@ length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_l
         x <- rep(x, length(date))
       }
       x@start <- as.numeric(x@start)
-      x[from_last] <- invert_number_line(x)[from_last]
+      x[from_last] <- reverse_number_line(
+        invert_number_line(x[from_last]),
+        direction = "decreasing")
       return(x)
     })
   }
@@ -618,8 +619,14 @@ length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_l
       row_wise(lengths$coverage, type = "min"),
       row_wise(lengths$coverage, type = "max")
     )
-    lgk <- (lengths$coverage@start * lengths$coverage@.Data) > 0
+    lgk <- lengths$coverage@start > 0 &
+      lengths$coverage@.Data > -abs(lengths$coverage@start)
     left_point(lengths$coverage[lgk]) <- 0
+
+    lgk <- lengths$coverage@start < 0 &
+      lengths$coverage@.Data < abs(lengths$coverage@start)
+    right_point(lengths$coverage[lgk]) <- 0
+
     lengths$coverage <- epid_windows(
       date = date,
       lengths = lengths$coverage,
