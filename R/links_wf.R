@@ -34,9 +34,9 @@
 #' Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs, aiding the review of potential scores.
 #'
 #'
-#' \bold{\code{links_sv_probabilistic()}} - A simpler version of \code{\link{links}}.
+#' \bold{\code{links_af_probabilistic()}} - A simpler version of \code{\link{links}}.
 #' It excludes functionalities for the batched, nested and multi-stage linkage.
-#' \code{links_sv_probabilistic()} requires a \code{score_threshold} in advance,
+#' \code{links_af_probabilistic()} requires a \code{score_threshold} in advance,
 #' however, since it exports the match weights, the \code{score_threshold}
 #' can be changed after the analysis.
 #'
@@ -58,8 +58,8 @@
 #'                                 m_probability = 0.95,
 #'                                 u_probability = NULL)
 #' \dontrun{
-#' # Probabilistic record linkage with 'links_sv_probabilistic()'
-#' pids_1a <- links_sv_probabilistic(attribute = criteria_1,
+#' # Probabilistic record linkage with 'links_af_probabilistic()'
+#' pids_1a <- links_af_probabilistic(attribute = criteria_1,
 #'                         cmp_func = exact_match,
 #'                         attr_threshold = 1,
 #'                         probabilistic = TRUE,
@@ -103,7 +103,7 @@
 #'   wgt
 #' }
 #'
-#' pids_2a <- links_sv_probabilistic(attribute = criteria_2,
+#' pids_2a <- links_af_probabilistic(attribute = criteria_2,
 #'                         blocking_attribute = patient_records$surname,
 #'                         cmp_func = c(exact_match, exact_match, age_diff),
 #'                         score_threshold = number_line(3, 5),
@@ -118,7 +118,7 @@
 #'   wgt[wgt] <- match(as.numeric(cut(diff[wgt], 3)), 3:1)
 #'   wgt
 #' }
-#' pids_2b <- links_sv_probabilistic(attribute = criteria_2,
+#' pids_2b <- links_af_probabilistic(attribute = criteria_2,
 #'                         blocking_attribute = patient_records$surname,
 #'                         cmp_func = c(exact_match, exact_match, age_diff_2),
 #'                         score_threshold = number_line(3, 5),
@@ -130,7 +130,7 @@
 #'
 #' @rdname links_wf
 #' @export
-links_sv_probabilistic <- function(attribute,
+links_af_probabilistic <- function(attribute,
                                    blocking_attribute = NULL,
                                    cmp_func = diyar::exact_match,
                                    attr_threshold = 1,
@@ -144,7 +144,6 @@ links_sv_probabilistic <- function(attribute,
                                    ignore_same_source = TRUE,
                                    display = "none"){
   tm_a <- Sys.time()
-  mem_ia <- sum(gc()[, 1])
   err <- err_links_wf_probablistic_0(attribute = attribute,
                                      blocking_attribute = blocking_attribute,
                                      cmp_func = cmp_func,
@@ -158,8 +157,7 @@ links_sv_probabilistic <- function(attribute,
 
   if(!display %in% c("none")){
     rp_data <- di_report(duration = tm_a, iteration = "Data validation",
-                         current_tot = length(attrs(attribute)[[1]]),
-                         memory_used = mem_ia)
+                         current_tot = length(attrs(attribute)[[1]]))
     tm_ia <- Sys.time()
     report <- list(rp_data)
     if(display %in% c("stats_with_report", "stats")){
@@ -266,8 +264,7 @@ links_sv_probabilistic <- function(attribute,
 
   if(!display %in% c("none")){
     rp_data <- di_report(duration = tm_ia, iteration = "Pairs created",
-                         current_tot = length(x[[1]]),
-                         memory_used = mem_ia)
+                         current_tot = length(x[[1]]))
     tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
@@ -290,8 +287,7 @@ links_sv_probabilistic <- function(attribute,
                            probabilistic = probabilistic)
   if(!display %in% c("none")){
     rp_data <- di_report(duration = tm_ia, iteration =  "Weights calculated",
-                         current_tot = length(x[[1]]),
-                         memory_used = mem_ia)
+                         current_tot = length(x[[1]]))
     tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){
@@ -312,25 +308,25 @@ links_sv_probabilistic <- function(attribute,
   pids <- pid_weights[c("sn_x", "sn_y", "record.match")]
   pids <- pids[as.logical(pids$record.match),]
 
-  pids <- make_ids(pids$sn_x, pids$sn_y, rd_n)
-  tots <- rle(sort(pids$group_id))
-  pids <- methods::new("pid",
-                       .Data = pids$group_id,
-                       sn = pids$sn,
-                       pid_cri = as.integer(pids$linked),
-                       link_id = pids$link_id,
-                       pid_total = tots$lengths[match(pids$group_id, tots$values)],
-                       iteration = rep(1L, length(pids$sn)))
+  link_id <- make_refs_V2(x = pids$sn_x, y = pids$sn_y, rd_n)
+  group_id <- make_ids(pids$sn_x, pids$sn_y, rd_n)
 
-  if(!is.null(data_source)){
-    rst <- check_links(pids@.Data, data_source, list(l = "ANY"))
-    pids@pid_dataset <- encode(rst$ds)
-  }
+  link_id <- link_id[,-1]
+  tgt_pos <- which(is.na(link_id))
+  link_id[tgt_pos] <- tgt_pos %% rd_n
+
+  pids <- make_pids(
+    y_pos = group_id$group_id,
+    x_pos = group_id$sn,
+    pid_cri = as.integer(group_id$linked),
+    iteration = rep(1L, length(group_id$sn)),
+    link_id = link_id,
+    data_source = data_source)
+
   if(!display %in% c("none")){
     rp_data <- di_report(duration = tm_ia, iteration = "`pid` created",
                          current_tot = length(x[[1]]),
-                         current_tagged = nrow(pid_weights[pid_weights$record.match,]),
-                         memory_used = mem_ia)
+                         current_tagged = nrow(pid_weights[pid_weights$record.match,]))
     tm_ia <- Sys.time()
     report <- c(report, list(rp_data))
     if(display %in% c("stats_with_report", "stats")){

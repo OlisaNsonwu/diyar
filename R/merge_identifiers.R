@@ -50,10 +50,9 @@ merge_ids <- function(...) UseMethod("merge_ids")
 #' @export
 merge_ids.default <- function(id1, id2, tie_sort = NULL,
                               expand = TRUE, shrink = FALSE, ...){
-
   #
   overwrite <- FALSE
-
+  #
   err <- err_atomic_vectors(id1, "id1")
   if(err != FALSE) stop(err, call. = FALSE)
   err <- err_atomic_vectors(id2, "id2")
@@ -129,9 +128,10 @@ merge_ids.pid <- function(id1, id2, tie_sort = NULL,
   new_pid@.Data <- merge_ids.default(id1 = id1@.Data,
                                      id2 = id2@.Data,
                                      tie_sort = tie_sort)
-  new_pid@link_id <- merge_ids.default(id1 = id1@link_id,
-                                       id2 = id2@link_id,
-                                       tie_sort = tie_sort)
+  new_pid@link_id <- list(link_id1 = new_pid@link_id)
+  # new_pid@link_id <- merge_ids.default(id1 = id1@link_id,
+  #                                      id2 = id2@link_id,
+  #                                      tie_sort = tie_sort)
   lgk <- id1@.Data != new_pid@.Data
   lgk <- new_pid@.Data %in% new_pid@.Data[lgk]
   mx_cri <- max(id1@pid_cri)

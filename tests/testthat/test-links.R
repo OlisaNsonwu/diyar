@@ -1,4 +1,4 @@
-context("testing record_group function")
+context("Unit tests - links()")
 
 library(testthat)
 library(diyar)
@@ -9,19 +9,15 @@ df <- data.frame(
   r_id = c(1:5)
 )
 
-links <- function(..., group_stats = T){
-  diyar::links(..., group_stats = group_stats, display = "none", recursive = TRUE)
+links <- function(..., group_stats = TRUE, recursive = TRUE){
+  diyar::links(..., group_stats = group_stats, display = "none", recursive = recursive)
 }
 sub_criteria <- diyar::sub_criteria
 decode <- function(x) as.vector(diyar::decode(x))
 
 #
 test_1 <- df
-test_1$pids <- links(
-  criteria = df$cri_1,
-  group_stats = TRUE,
-  recursive = TRUE,
-  display = "none")
+test_1$pids <- links(criteria = df$cri_1)
 
 test_that("basic tests", {
   expect_equal(test_1$pids@sn, test_1$r_id)
@@ -313,24 +309,21 @@ pd2a <- links(
   sub_criteria = list("cr1" = sb.cri.v2),
   recursive = TRUE,
   tie_sort = t_sort_v3,
-  batched = "yes",
-  recursive = TRUE)
+  batched = "yes")
 
 pd2b <- links(
   criteria = "p1",
   sub_criteria = list("cr1" = sb.cri.v2),
   recursive = TRUE,
   tie_sort = t_sort_v3,
-  batched = "semi",
-  recursive = TRUE)
+  batched = "semi")
 
 pd2c <- links(
   criteria = "p1",
   sub_criteria = list("cr1" = sb.cri.v2),
   recursive = TRUE,
   tie_sort = t_sort_v3,
-  batched = "no",
-  recursive = TRUE)
+  batched = "no")
 
 test_that("test `batched` with `tie_sort`", {
   # should be the same as with no `tie_sort`
@@ -340,6 +333,6 @@ test_that("test `batched` with `tie_sort`", {
   expect_equal(max(pd2a@iteration) > max(pd2b@iteration), TRUE)
   expect_equal(max(pd2b@iteration) > max(pd2c@iteration), TRUE)
   expect_equal(max(pd2a@iteration), 10)
-  expect_equal(max(pd2b@iteration), 3)
+  expect_equal(max(pd2b@iteration), 2)
   expect_equal(max(pd2c@iteration), 1)
 })

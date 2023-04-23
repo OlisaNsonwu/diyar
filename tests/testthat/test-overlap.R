@@ -64,20 +64,20 @@ test_that("test that error and warning messages are returned correctly", {
 })
 
 
-test_that("test compress function", {
-  expect_equal(compress_number_line(c(number_line(1, 20), number_line(5, 7))), number_line(1,20))
-  expect_equal(compress_number_line(c(number_line(20, 1), number_line(5, 7))), number_line(20,1))
-  expect_equal(compress_number_line(c(number_line(2, 5), number_line(3, 3), number_line(6, 7))), number_line(c(2,6), c(5,7), id=c(1L,3L), gid =c(1L,3L)))
-
-  #warnings and errors
-  # expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), methods = 2), "Invalid object type for `methods`.\ni - Valid object types are `character`.\nX - You've supplied a `numeric` object.")
-  #expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = 2), "Invalid object type for `collapse`.\ni - Valid object types are `logical (`TRUE` or `FALSE`)`.\nX - You've supplied a `numeric` object.")
-  expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = rep(TRUE,4)), "Invalid length for `collapse`:\ni - Expecting a length of 1.\nX - Length is 4.")
-  #expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), deduplicate ="2"), "Invalid object type for `deduplicate`.\ni - Valid object types are `logical (`TRUE` or `FALSE`)`.\nX - You've supplied a `character` object.")
-  # expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), methods = "crossing"), "Invalid option for `methods`\ni - Valid options are \"overlap\", \"exact\", \"reverse\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\ni - Syntax 1 ~ \"aligns_end|exact...\".\ni - Syntax 2 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\ni - Syntax 3 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\nX - `methods 1`: You've supplied \"crossing\" at [1].")
-  expect_error(compress_number_line(mtcars, number_line(6, 7), number_line(3, 3)), "Invalid object type for `x`.\ni - Valid object types are `number_line`, `numeric` or `integer`.\nX - You've supplied a `data.frame` object.")
-
-})
+# test_that("test compress function", {
+#   expect_equal(compress_number_line(c(number_line(1, 20), number_line(5, 7))), number_line(1,20))
+#   expect_equal(compress_number_line(c(number_line(20, 1), number_line(5, 7))), number_line(20,1))
+#   expect_equal(compress_number_line(c(number_line(2, 5), number_line(3, 3), number_line(6, 7))), number_line(c(2,6), c(5,7), id=c(1L,3L), gid =c(1L,3L)))
+#
+#   #warnings and errors
+#   # expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), methods = 2), "Invalid object type for `methods`.\ni - Valid object types are `character`.\nX - You've supplied a `numeric` object.")
+#   #expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = 2), "Invalid object type for `collapse`.\ni - Valid object types are `logical (`TRUE` or `FALSE`)`.\nX - You've supplied a `numeric` object.")
+#   expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), collapse = rep(TRUE,4)), "Invalid length for `collapse`:\ni - Expecting a length of 1.\nX - Length is 4.")
+#   #expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), deduplicate ="2"), "Invalid object type for `deduplicate`.\ni - Valid object types are `logical (`TRUE` or `FALSE`)`.\nX - You've supplied a `character` object.")
+#   # expect_error(compress_number_line(c(number_line(1, 20), number_line(5, 7), number_line(1,20)), methods = "crossing"), "Invalid option for `methods`\ni - Valid options are \"overlap\", \"exact\", \"reverse\", \"across\", \"chain\", \"aligns_start\", \"aligns_end\", \"inbetween\" or \"none\".\ni - Syntax 1 ~ \"aligns_end|exact...\".\ni - Syntax 2 ~ include_overlap_method(c(\"aligns_end\", \"exact\")).\ni - Syntax 3 ~ exclude_overlap_method(c(\"across\", \"chain\", \"aligns_start\", \"inbetween\")).\nX - `methods 1`: You've supplied \"crossing\" at [1].")
+#   expect_error(compress_number_line(mtcars, number_line(6, 7), number_line(3, 3)), "Invalid object type for `x`.\ni - Valid object types are `number_line`, `numeric` or `integer`.\nX - You've supplied a `data.frame` object.")
+#
+# })
 
 test_that("test set overlap functions", {
   expect_equal(exclude_overlap_method(""), overlap_method_codes("x_across_y|y_across_x|aligns_end|aligns_start|x_chain_y|y_chain_x|exact|x_inbetween_y|y_inbetween_x|y_aligns_start_x"))

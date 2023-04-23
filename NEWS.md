@@ -32,6 +32,8 @@
 -   `as.data.frame()` and `as.data.list()` only creates elements/fields
     from non-empty fields
 -   `number_line()` - `id` and `gid` slots are now empty by default.
+-   Removed `episode_group()`, `record_group()` and
+    `range_match_legacy()`
 
 ## Bug fixes
 

@@ -29,7 +29,8 @@ This leads to fewer iterations compared with `["yes"]` but with less memory usag
 + `number_line_sequence()` removed?
 + `as.data.frame()` and `as.data.list()` only creates elements/fields from non-empty fields
 + `number_line()` - `id` and `gid` slots are now empty by default.
-+ Removed `episode_group()` and `record_group()`?
++ Removed `episode_group()`, `record_group()` and `range_match_legacy()`
+
 
 ## Bug fixes
 + When `recursive` was `TRUE`, `links()` ended prematurely and therefore missed some matches. Resolved.

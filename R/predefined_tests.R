@@ -35,30 +35,6 @@ range_match <- function(x, y, range = 10){
 }
 
 #' @rdname predefined_tests
-#' @details
-#' \bold{\code{range_match_legacy()}} - test that \code{overlap(as.number_line(x@gid), y)} is \code{TRUE}.
-#' @examples
-#' `range_match_legacy`
-#' x_nl <- number_line(10, 16, gid = 10)
-#' y_nl1 <- number_line(16, 10)
-#' y_nl2 <- number_line(16, 10)
-#'
-#' range_match_legacy(x = x_nl, y = y_nl1)
-#' range_match_legacy(x = x_nl, y = y_nl2)
-#'
-#' @export
-range_match_legacy <- function(x, y) {
-  lg <- overlap(as.number_line(x@gid), x)
-  lg[is.na(lg)] <- F
-  if(any(!lg)) {
-    rng_i <- paste(head(which(!lg), 5), collapse = ", ", sep="")
-    rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
-    stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
-  }
-  overlap(as.number_line(x@gid), y)
-}
-
-#' @rdname predefined_tests
 #' @param cmp_func Logical tests such as string comparators. See \code{\link{links_wf_probabilistic}}.
 #' @param attr_threshold Matching set of weight thresholds for each result of \code{cmp_func}. See \code{\link{links_wf_probabilistic}}.
 #' @param probabilistic If \code{TRUE}, matches determined through a score derived base on Fellegi-Sunter model for probabilistic linkage. See \code{\link{links_wf_probabilistic}}.

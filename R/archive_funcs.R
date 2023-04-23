@@ -3942,3 +3942,27 @@ episodes_retired_1 <- function(date, case_length = Inf, episode_type = "fixed", 
   rm(list = ls()[ls() != "epids"])
   return(epids)
 }
+
+#' @rdname predefined_tests
+#' @details
+#' \bold{\code{range_match_legacy()}} - test that \code{overlap(as.number_line(x@gid), y)} is \code{TRUE}.
+#' @examples
+#' `range_match_legacy`
+#' x_nl <- number_line(10, 16, gid = 10)
+#' y_nl1 <- number_line(16, 10)
+#' y_nl2 <- number_line(16, 10)
+#'
+#' range_match_legacy(x = x_nl, y = y_nl1)
+#' range_match_legacy(x = x_nl, y = y_nl2)
+#'
+#' @export
+range_match_legacy <- function(x, y) {
+  lg <- overlap(as.number_line(x@gid), x)
+  lg[is.na(lg)] <- F
+  if(any(!lg)) {
+    rng_i <- paste(head(which(!lg), 5), collapse = ", ", sep="")
+    rng_v <- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]
+    stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
+  }
+  overlap(as.number_line(x@gid), y)
+}

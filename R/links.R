@@ -362,15 +362,19 @@ links <- function(criteria,
     }
     #
     if(isTRUE(web$options$is_nested)){
-      mVal.indx <- function(x){
-        exc_indx <- which(is.na(x))
+      tmp.func.1 <- function(x){
         if(length(x) == 1){
           exc_indx <- Inf
+        }else{
+          exc_indx <- which(is.na(x))
         }
         return(exc_indx)
       }
+      tmp.func.2 <- function(x){
+        rc_dv(x = x, func = tmp.func.1)
+      }
       mVal.indx <- attr_eval(web$cri.tmp$sub.cri[[1]],
-                             simplify = TRUE, func = mVal.indx)
+                             simplify = TRUE, func = tmp.func.2)
       if(Inf %in% mVal.indx){
         web$ite.tmp$cri_inc_indx <- numeric()
       }else{
@@ -430,6 +434,10 @@ links <- function(criteria,
     web$ite.tmp$ite_inc_indx <- web$ite.tmp$cri_inc_indx
     while(suppressWarnings(min(web$repo$tag[web$ite.tmp$ite_inc_indx])) != 2 &
           length(web$ite.tmp$ite_inc_indx) > 0) {
+      if(web$ite == 2){
+        # browser()
+      }
+
       #
       web$ite.tmp$ite_inc_indx <- web$ite.tmp$ite_inc_indx[
         web$repo$tag[web$ite.tmp$ite_inc_indx] != 2 |
@@ -479,7 +487,8 @@ links <- function(criteria,
         index_record = web$ite.tmp$index_cd,
         assign_ord = seq_len(length(web$ite.tmp$ite_inc_indx)),
         look_back = web$options$permutations_allowed,
-        include_repeat = web$options$repeats_allowed,
+        # include_repeat = web$options$repeats_allowed,
+        include_repeat = TRUE,
         ignore_same_source = web$options$ignore_same_source,
         data_source = web$data_source)
 

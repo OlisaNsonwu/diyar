@@ -4,7 +4,6 @@
 \alias{predefined_tests}
 \alias{exact_match}
 \alias{range_match}
-\alias{range_match_legacy}
 \alias{prob_link}
 \alias{true}
 \alias{false}
@@ -13,8 +12,6 @@
 exact_match(x, y)
 
 range_match(x, y, range = 10)
-
-range_match_legacy(x, y)
 
 prob_link(
   x,
@@ -55,8 +52,6 @@ A collection of predefined logical tests used with \bold{\code{\link{sub_criteri
 
 \bold{\code{range_match()}} - test that \code{x} \eqn{\le} \code{y} \eqn{\le} \code{(x + range)}
 
-\bold{\code{range_match_legacy()}} - test that \code{overlap(as.number_line(x@gid), y)} is \code{TRUE}.
-
 \bold{\code{prob_link()}} - Test that a record-pair relate to the same entity based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.
 
 In summary, record-pairs are created and categorised as matches and non-matches (\code{attr_threshold}) with user-defined functions (\code{cmp_func}).
@@ -91,13 +86,5 @@ exact_match(x = 1, y = 2)
 `range_match`
 range_match(x = 10, y = 16, range = 6)
 range_match(x = 16, y = 10, range = 6)
-
-`range_match_legacy`
-x_nl <- number_line(10, 16, gid = 10)
-y_nl1 <- number_line(16, 10)
-y_nl2 <- number_line(16, 10)
-
-range_match_legacy(x = x_nl, y = y_nl1)
-range_match_legacy(x = x_nl, y = y_nl2)
 
 }

@@ -2,13 +2,13 @@
 % Please edit documentation in R/links_wf.R
 \name{link_wf}
 \alias{link_wf}
-\alias{links_sv_probabilistic}
+\alias{links_af_probabilistic}
 \alias{links_wf}
 \alias{links_wf_probabilistic}
 \alias{prob_score_range}
 \title{Record linkage}
 \usage{
-links_sv_probabilistic(
+links_af_probabilistic(
   attribute,
   blocking_attribute = NULL,
   cmp_func = diyar::exact_match,
@@ -92,9 +92,9 @@ To help with this, \code{prob_score_range()} can be used to return the range of 
 Additionally, \code{id_1} and \code{id_2} can be used to link specific records pairs, aiding the review of potential scores.
 
 
-\bold{\code{links_sv_probabilistic()}} - A simpler version of \code{\link{links}}.
+\bold{\code{links_af_probabilistic()}} - A simpler version of \code{\link{links}}.
 It excludes functionalities for the batched, nested and multi-stage linkage.
-\code{links_sv_probabilistic()} requires a \code{score_threshold} in advance,
+\code{links_af_probabilistic()} requires a \code{score_threshold} in advance,
 however, since it exports the match weights, the \code{score_threshold}
 can be changed after the analysis.
 }
@@ -108,8 +108,8 @@ prob_scores <- prob_score_range(attribute = criteria_1,
                                 m_probability = 0.95,
                                 u_probability = NULL)
 \dontrun{
-# Probabilistic record linkage with 'links_sv_probabilistic()'
-pids_1a <- links_sv_probabilistic(attribute = criteria_1,
+# Probabilistic record linkage with 'links_af_probabilistic()'
+pids_1a <- links_af_probabilistic(attribute = criteria_1,
                         cmp_func = exact_match,
                         attr_threshold = 1,
                         probabilistic = TRUE,
@@ -153,7 +153,7 @@ age_diff <- function(x, y){
   wgt
 }
 
-pids_2a <- links_sv_probabilistic(attribute = criteria_2,
+pids_2a <- links_af_probabilistic(attribute = criteria_2,
                         blocking_attribute = patient_records$surname,
                         cmp_func = c(exact_match, exact_match, age_diff),
                         score_threshold = number_line(3, 5),
@@ -168,7 +168,7 @@ age_diff_2 <- function(x, y){
   wgt[wgt] <- match(as.numeric(cut(diff[wgt], 3)), 3:1)
   wgt
 }
-pids_2b <- links_sv_probabilistic(attribute = criteria_2,
+pids_2b <- links_af_probabilistic(attribute = criteria_2,
                         blocking_attribute = patient_records$surname,
                         cmp_func = c(exact_match, exact_match, age_diff_2),
                         score_threshold = number_line(3, 5),

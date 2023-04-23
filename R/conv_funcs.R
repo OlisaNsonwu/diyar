@@ -1257,7 +1257,7 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   logic_txt
 }
 
-rc_dv <- function(x, func = func, depth = 1, tgt_depth = Inf){
+rc_dv <- function(x, func = length, depth = 1, tgt_depth = Inf){
   if(inherits(x, c("d_attribute", "list")) & depth <= tgt_depth){
     lapply(x, function(x) rc_dv(x = x, func = func,
                                 depth = depth + 1,
