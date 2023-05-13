@@ -555,7 +555,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     web$tmp$min_custom_sort <-
       web$tmp$t_csort[match(web$repo$cri, web$tmp$t_cri)]
     web$tmp$lgk <- web$tmp$min_custom_sort <= web$repo$skip_order
-    web$tmp$lgk <- !web$repo$cri %in% web$repo$cri[lgk]
+    web$tmp$lgk <- !web$repo$cri %in% web$repo$cri[web$tmp$lgk]
     web$repo$tag[web$tmp$lgk] <- 10L
     web$repo$case_nm[web$tmp$lgk] <- -1L
     web$repo$iteration[web$tmp$lgk] <- 0L
@@ -881,6 +881,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         web$rec.pairs[[w.name]]$tr_pos.mi <-
           web$rec.pairs[[w.name]]$tr_pos.mm <-
           web$rec.pairs[[w.name]]$tr_pos
+        web$rec.pairs[[w.name]]$ld_pos.mi <-
+          web$rec.pairs[[w.name]]$ld_pos.mm <-
+          web$rec.pairs[[w.name]]$ld_pos
         web$rec.pairs[[w.name]]$cu_pos.ord <- rep(
           1L, web$counts$rec.pairs.wind)
       }
