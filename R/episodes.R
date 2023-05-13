@@ -108,7 +108,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
                         case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
                         display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
                         case_length_total = 1, recurrence_length_total = case_length_total,
-                        skip_unique_strata = TRUE) {
+                        skip_unique_strata = TRUE, splits = 1) {
   web <- list(tm_a = Sys.time())
   # Validations
   errs <- err_episodes_checks_0(sn = sn, date = date, case_length = case_length, strata = strata,
@@ -602,14 +602,44 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     web$report[length(web$report) + 1] <- list(web$rp_data)
   }
 
-  web$tm_ia <- Sys.time()
-  web$sys.tmp$ite_pos <- web$repo$pr_sn[
+  web$sys.tmp$all_pos <- web$repo$pr_sn[
     order(web$repo$assign_ord)
   ]
 
+  web$counts$split <- 1L
+  web$tm_ia <- Sys.time()
+  if(splits > 1){
+    web$splits$cri <- web$repo$cri[!duplicated(web$repo$cri)]
+    web$splits$order <- as.integer(cut(web$splits$cri, breaks = splits))
+    web$splits <- split(web$splits$cri, web$splits$order)
+
+    web$sys.tmp$ite_pos <-
+      web$sys.tmp$all_pos[
+        web$sys.tmp$all_pos %in% web$repo$pr_sn[
+          web$repo$cri %in% web$splits[[web$counts$split]]
+        ]
+      ]
+  }else{
+    # web$splits <- list(1 = web$repo$cri)
+    web$sys.tmp$ite_pos <- web$sys.tmp$all_pos
+  }
+
+
   while (max(web$repo$tag) == 20) {
+    web$sys.tmp$ite_pos <-
+      web$sys.tmp$ite_pos[web$repo$tag[web$sys.tmp$ite_pos] != 10]
+
+    if(splits > 1 & length(web$sys.tmp$ite_pos) == 0){
+      web$counts$split <- web$counts$split + 1L
+      web$sys.tmp$ite_pos <-
+        web$sys.tmp$all_pos[
+          web$sys.tmp$all_pos %in% web$repo$pr_sn[
+            web$repo$cri %in% web$splits[[web$counts$split]]
+          ]
+        ]
+    }
+
     # Priority for reference events
-    web$sys.tmp$ite_pos <- web$sys.tmp$ite_pos[web$repo$tag[web$sys.tmp$ite_pos] != 10]
     web$tmp$tgt_pos <- web$sys.tmp$ite_pos[web$repo$tag[web$sys.tmp$ite_pos] == 1]
     web$tmp$lgk <-
       web$repo$reference_event[web$repo$ld_pos[web$tmp$tgt_pos]] %in%
@@ -667,16 +697,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         ]
       ]
     if(length(web$sys.tmp$ite_pos) <= 1){
-      if(grepl("^progress", web$controls$display)){
-        web$msg <- progress_bar(
-          n = 1, d = 1, max_width = 100,
-          msg = paste0("Iteration ",
-                       fmt(ite), " (",
-                       fmt(difftime(Sys.time(), web$tm_ia), "difftime"),
-                       ")"),
-          prefix_msg = "  ")
-        cat(web$msg, "\r", sep = "")
-      }
+      # if(grepl("^progress", web$controls$display)){
+      #   web$msg <- progress_bar(
+      #     n = 1, d = 1, max_width = 100,
+      #     msg = paste0("Iteration ",
+      #                  fmt(ite), " (",
+      #                  fmt(difftime(Sys.time(), web$tm_ia), "difftime"),
+      #                  ")"),
+      #     prefix_msg = "  ")
+      #   cat(web$msg, "\r", sep = "")
+      # }
       ite <- ite  + 1L
       break
     }
@@ -1300,14 +1330,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         #     web$repo$tag[web$rec.pairs[[w.name]]$cu_pos] == 1
         #   ]
         # ] <- 10L
-
         web$repo$tag[
           web$sys.tmp$ite_pos[
             web$repo$tag[web$sys.tmp$ite_pos] == 1
           ]
         ] <- 10L
-
-
       }
 
       if(web$controls$use_skip_b4_len){
