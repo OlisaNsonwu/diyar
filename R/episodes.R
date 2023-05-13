@@ -1221,30 +1221,28 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           web$repo$epid_n[web$rec.pairs[[w.name]]$cu_pos[web$tmp$upd_lgk]] + .5
       }
 
-      if(web$controls$use_rolls_max){
-        if(w.name %in% c("recurrence", "case_for_recurrence")){
-          if(w.name == "case_for_recurrence"){
-            # Update recurrence counter
-            web$tmp$vr <- web$rec.pairs[[w.name]]$cri %in%
-              web$rec.pairs[[w.name]]$cri[
-                web$rec.pairs[[w.name]]$w.match & !web$rec.pairs[[w.name]]$nwEpi]
-            web$tmp$vr2 <- web$rec.pairs[[w.name]]$cu_pos[web$tmp$vr]
-            web$tmp$vr <- web$rec.pairs[[w.name]]$tr_pos[web$tmp$vr]
-            web$tmp$vr2 <- c(web$tmp$vr[!duplicated(web$tmp$vr)], web$tmp$vr2)
-            web$repo$rxt_n[web$tmp$vr2] <- web$repo$rxt_n[web$tmp$vr2] + 1L
-          }
-
-          # Update rolling counter
+      if(w.name %in% c("recurrence", "case_for_recurrence")){
+        if(w.name == "case_for_recurrence"){
+          # Update recurrence counter
           web$tmp$vr <- web$rec.pairs[[w.name]]$cri %in%
             web$rec.pairs[[w.name]]$cri[
-              web$rec.pairs[[w.name]]$w.match]
+              web$rec.pairs[[w.name]]$w.match & !web$rec.pairs[[w.name]]$nwEpi]
           web$tmp$vr2 <- web$rec.pairs[[w.name]]$cu_pos[web$tmp$vr]
           web$tmp$vr <- web$rec.pairs[[w.name]]$tr_pos[web$tmp$vr]
           web$tmp$vr2 <- c(web$tmp$vr[!duplicated(web$tmp$vr)], web$tmp$vr2)
-
-          web$repo$roll_n[web$tmp$vr2] <-
-            web$repo$roll_n[web$tmp$vr2] + 1L
+          web$repo$rxt_n[web$tmp$vr2] <- web$repo$rxt_n[web$tmp$vr2] + 1L
         }
+
+        # Update rolling counter
+        web$tmp$vr <- web$rec.pairs[[w.name]]$cri %in%
+          web$rec.pairs[[w.name]]$cri[
+            web$rec.pairs[[w.name]]$w.match]
+        web$tmp$vr2 <- web$rec.pairs[[w.name]]$cu_pos[web$tmp$vr]
+        web$tmp$vr <- web$rec.pairs[[w.name]]$tr_pos[web$tmp$vr]
+        web$tmp$vr2 <- c(web$tmp$vr[!duplicated(web$tmp$vr)], web$tmp$vr2)
+
+        web$repo$roll_n[web$tmp$vr2] <-
+          web$repo$roll_n[web$tmp$vr2] + 1L
       }
 
       # Update `case_nm` - "Case" records
