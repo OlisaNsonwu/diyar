@@ -642,7 +642,13 @@ df$r2 <- episodes(d, case_length = 3, case_for_recurrence = T, to_s4 = T, episod
 test_that("test case_for_recurrence", {
   expect_equal(df$r1@.Data, rep(1,6))
   expect_equal(decode(df$r1@case_nm), c("Case", "Duplicate_C", rep("Recurrent", 4)))
-  expect_equal(df$r2, df$r1)
+  r1.list <- lapply(as.list(df$r1), decode)
+  r1.list <- r1.list[!grepl("wind_nm", names(r1.list))]
+  r2.list <- lapply(as.list(df$r2), decode)
+  r2.list <- r2.list[!grepl("wind_nm", names(r2.list))]
+  expect_equal(r2.list, r2.list)
+  expect_equal(decode(df$r1@wind_nm$wind_nm1), c(rep("Case", 2), rep("Recurrence", 4)))
+  expect_equal(decode(df$r2@wind_nm$wind_nm1), c(rep("Case", 2), "Recurrence", "Case_for_recurrence", "Recurrence", "Case_for_recurrence"))
 })
 
 # Lengths range

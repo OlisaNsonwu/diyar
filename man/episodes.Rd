@@ -33,7 +33,8 @@ episodes(
   case_length_total = 1,
   recurrence_length_total = case_length_total,
   skip_unique_strata = TRUE,
-  splits = 1
+  splits = 1,
+  batched = "semi"
 )
 
 links_wf_episodes(

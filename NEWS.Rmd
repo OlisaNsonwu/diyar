@@ -13,6 +13,8 @@ knitr::opts_chunk$set(
 ## New features
 + New function - `links_wf_episodes()`. 
 + New value for `wind_id` slot in `episodes()`
++ `split` arg
++ `batched` arg - `episodes`
 
 ## Changes
 + Optimised `episodes()` and `links()`. Each iteration now uses less time and memory for each.
@@ -30,6 +32,7 @@ This leads to fewer iterations compared with `["yes"]` but with less memory usag
 + `as.data.frame()` and `as.data.list()` only creates elements/fields from non-empty fields
 + `number_line()` - `id` and `gid` slots are now empty by default.
 + Removed `episode_group()`, `record_group()` and `range_match_legacy()`
++ `recurisve` episodes changed to `reference_event = 'all_records'`
 
 
 ## Bug fixes

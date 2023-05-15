@@ -5,6 +5,8 @@
 
 -   New function - `links_wf_episodes()`.
 -   New value for `wind_id` slot in `episodes()`
+-   `split` arg
+-   `batched` arg - `episodes`
 
 ## Changes
 
@@ -34,6 +36,7 @@
 -   `number_line()` - `id` and `gid` slots are now empty by default.
 -   Removed `episode_group()`, `record_group()` and
     `range_match_legacy()`
+-   `recurisve` episodes changed to `reference_event = 'all_records'`
 
 ## Bug fixes
 
