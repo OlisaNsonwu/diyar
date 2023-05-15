@@ -54,6 +54,7 @@ episodes_af_shift(
   group_stats = FALSE,
   episode_type = "fixed",
   data_source = NULL,
+  episode_unit = "days",
   data_links = "ANY"
 )
 }

@@ -1739,14 +1739,24 @@ links_wf_episodes <- function(date,
 episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
                               strata = NULL, group_stats = FALSE,
                               episode_type = "fixed", data_source = NULL,
+                              episode_unit = "days",
                               data_links = "ANY"){
   web <- list()
+  date <- as.number_line(date)
   web$controls$is_dt <- ifelse(
-    inherits(date, c("Date","POSIXct","POSIXt","POSIXlt")),
+    inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt")),
     TRUE, FALSE)
-  web$repo$pr_sn <- seq_len(length(date))
+  if(isTRUE(web$controls$is_dt)){
+    date <- number_line(
+      l = as.POSIXct(date@start),
+      r = as.POSIXct(right_point(date))
+    )
+  }
+  web$repo$pr_sn <- seq_len(length(date@start))
   web$repo$sn <- sn
-  web$repo$date <- as.number_line(date)
+  web$repo$date <- date
+  case_length <- diyar::episode_unit[[episode_unit]] * case_length
+  web$repo$case_length <- case_length
 
   if(!all(class(data_links) == "list")){
     data_links <- list(l = data_links)
@@ -1757,7 +1767,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 
   web$repo$date_a <- web$repo$date@start
   web$repo$date_z <- right_point(web$repo$date)
-  web$repo$tmp.windowEnd <- web$repo$date_z + case_length
+  web$repo$tmp.windowEnd <- web$repo$date_z + web$repo$case_length
   web$repo$strata <- strata
 
   if(length(web$repo$strata) > 1){
@@ -1830,7 +1840,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     # options = options_lst,
     case_nm = web$repo$case_nm,
     wind_nm = web$repo$wind_nm,
-    # episode_unit = web$repo$episode_unit,
+    episode_unit = episode_unit,
     data_source = data_source,
     data_links = data_links)
 
