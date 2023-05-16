@@ -1740,8 +1740,10 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
                               strata = NULL, group_stats = FALSE,
                               episode_type = "fixed", data_source = NULL,
                               episode_unit = "days",
-                              data_links = "ANY"){
+                              data_links = "ANY",
+                              display = "none"){
   web <- list()
+  web$tm_a <- Sys.time()
   date <- as.number_line(date)
   web$controls$is_dt <- ifelse(
     inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt")),
@@ -1752,6 +1754,8 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
       r = as.POSIXct(right_point(date))
     )
   }
+
+  web$controls$display <- display
   web$repo$pr_sn <- seq_len(length(date@start))
   web$repo$sn <- sn
   web$repo$date <- date
@@ -1795,7 +1799,8 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$epid <- links_wf_episodes(
       date = web$repo$date,
       strata = web$repo$epid,
-      case_length = case_length
+      case_length = web$controlscase_length,
+      display = web$controls$display
     )
     web$repo$iteration <- web$epid@iteration + 1L
     web$epid <- web$epid@.Data
@@ -1844,6 +1849,10 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     data_source = data_source,
     data_links = data_links)
 
+  tms <- difftime(Sys.time(), web$tm_a)
+  if(!grepl("^none", web$controls$display)){
+    cat("\nEpisodes tracked in ", fmt(tms, "difftime"), "!\n", sep = "")
+  }
   web <- web$epids
   return(web)
 }

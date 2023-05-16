@@ -55,7 +55,8 @@ episodes_af_shift(
   episode_type = "fixed",
   data_source = NULL,
   episode_unit = "days",
-  data_links = "ANY"
+  data_links = "ANY",
+  display = "none"
 )
 }
 \arguments{
