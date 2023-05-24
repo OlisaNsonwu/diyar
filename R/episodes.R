@@ -1823,6 +1823,12 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$repo$iteration <- rep(1L, length(date))
   }
 
+  if(TRUE){
+    case_s_ord <- order(web$repo$date_a, -as.numeric(web$repo$date_z))
+    web$repo <- lapply(web$repo[c("pr_sn", "epid", "iteration")],
+                       function(x) x[case_s_ord])
+  }
+
   web$indx <- which(!duplicated(web$repo$epid))
   web$repo$group_id <- web$repo$pr_sn[web$indx][
     match(web$repo$epid, web$repo$epid[web$indx])
@@ -1830,6 +1836,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 
   web$repo <- web$repo[
     c("pr_sn", "group_id", "iteration")]
+
   web$s_ord <- order(web$repo$pr_sn)
   web$repo <- lapply(web$repo, function(x){
     x[web$s_ord]
