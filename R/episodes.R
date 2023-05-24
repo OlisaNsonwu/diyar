@@ -1776,28 +1776,31 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 
   if(length(web$repo$strata) > 1){
     web$repo$s_ord <- order(web$repo$strata, web$repo$date_a, web$repo$date_z)
-    web$repo$s_ord2 <- order(web$repo$strata, web$repo$date_z, web$repo$date_a)
   }else{
     web$repo$s_ord <- order(web$repo$date_a, web$repo$date_z)
-    web$repo$s_ord2 <- order(web$repo$date_z, web$repo$date_a)
   }
 
-  web$repo$s_ord <- order(web$repo$s_ord)
-  web$repo$s_ord2 <- order(web$repo$s_ord2)
 
-  web$repo <- lapply(web$repo, function(x) x[order(web$repo$s_ord2)])
-  web$repo$tmp.PrvWindowEnd2 <- c(NA, rev(rev(web$repo$tmp.windowEnd)[-1]))
-  web$repo$change_lgk2 <- (web$repo$date_a < web$repo$tmp.PrvWindowEnd2)
+  # browser()
+  web$repo <- lapply(web$repo, function(x) x[web$repo$s_ord])
+  web$repo$cumEnd <- as.numeric(web$repo$tmp.windowEnd)
 
-  web$repo <- lapply(web$repo, function(x) x[order(web$repo$s_ord)])
-  web$repo$tmp.PrvWindowEnd <- c(NA, rev(rev(web$repo$tmp.windowEnd)[-1]))
-  web$repo$change_lgk <- (web$repo$date_a > web$repo$tmp.PrvWindowEnd)
+  # web$repo$tmp.PrvWindowStart <- rev(rev(web$repo$date_a)[-1])
+  lead.pos <- 2:length(web$repo$date_a)
+  web$repo$tmp.NxtWindowStart <-
+    web$repo$date_a[c(lead.pos, NA)]
 
-  web$repo$change_lgk[
-    !is.na(web$repo$change_lgk2) &
-      web$repo$change_lgk &
-      !web$repo$change_lgk2
-      ] <- FALSE
+  if(length(web$repo$strata) > 1){
+    web$repo$strata.unq <- web$repo$strata[!duplicated(web$repo$strata)]
+    web$repo$cumEnd <- sapply(web$repo$strata.unq, function(x){
+      cummax(web$repo$cumEnd[web$repo$strata == x])
+    }, simplify = TRUE)
+    web$repo$cumEnd <- as.numeric(web$repo$cumEnd)
+  }else{
+    web$repo$cumEnd <- cummax(web$repo$cumEnd)
+  }
+
+  web$repo$change_lgk <- (web$repo$date_a > web$repo$cumEnd)
 
   if(length(web$repo$strata) > 1){
     web$repo$tmp.Prvstrata <- c(NA, rev(rev(web$repo$strata)[-1]))
