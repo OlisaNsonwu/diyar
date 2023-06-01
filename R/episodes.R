@@ -1776,6 +1776,9 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   web$repo$tmp.date_a <- web$repo$date_a <- web$repo$date@start
   web$repo$tmp.date_z <- web$repo$date_z <- right_point(web$repo$date)
   web$repo$tmp.window_z <- web$repo$window_z <- web$repo$date_z + web$controls$case_length
+  web$repo$tmp.date_a <- as.numeric(web$repo$tmp.date_a)
+  web$repo$tmp.window_z <- as.numeric(web$repo$tmp.window_z)
+
   web$repo$strata <- strata
 
   if(length(web$repo$strata) > 1){
@@ -1792,17 +1795,16 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   lag.pos <- 1:(length(web$repo$tmp.date_a)-1)
 
   if(length(web$repo$strata) > 1){
-    # browser()
 
     web$repo$tmp.strata <- match(
       web$repo$strata,
       web$repo$strata[!duplicated(web$repo$strata)])
-    RNG <- range(c(web$repo$date_a, web$repo$window_z))
+    RNG <- range(c(web$repo$tmp.date_a, web$repo$tmp.window_z))
     faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
     faC <- 10 ^ faC
 
-    web$repo$tmp.date_a <- web$repo$tmp.strata + (web$repo$date_a - RNG[[1]])/faC
-    web$repo$tmp.window_z <- web$repo$tmp.strata + (web$repo$window_z - RNG[[1]])/faC
+    web$repo$tmp.date_a <- web$repo$tmp.strata + (web$repo$tmp.date_a - RNG[[1]])/faC
+    web$repo$tmp.window_z <- web$repo$tmp.strata + (web$repo$tmp.window_z - RNG[[1]])/faC
 
   }
 
@@ -1822,6 +1824,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$repo$tmp.date_a[web$repo$Sbrk_indx]
 
   web$repo$change_lgk <- (web$repo$tmp.NxtWindowStart > web$repo$cumEnd)
+  web$repo$change_lgk <- web$repo$change_lgk[c(NA, lag.pos)]
 
   if(length(web$repo$strata) > 1){
     web$repo$tmp.Prvstrata <- c(NA, rev(rev(web$repo$strata)[-1]))
@@ -1833,7 +1836,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$repo$diff_lgk <- 1
   }
   web$repo$change_lgk[web$repo$diff_lgk] <- TRUE
-  web$repo$change_lgk[which(is.na(web$repo$change_lgk))] <- FALSE
+  #web$repo$change_lgk[which(is.na(web$repo$change_lgk))] <- FALSE
   web$repo$Cummchange_lgk <- cumsum(web$repo$change_lgk)
 
   web$repo$epid <- web$repo$Cummchange_lgk + 1
