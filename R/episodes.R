@@ -1802,9 +1802,13 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     RNG <- range(c(web$repo$tmp.date_a, web$repo$tmp.window_z))
     faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
     faC <- 10 ^ faC
+    web$repo$tmp.strata <- web$repo$tmp.strata * faC
 
-    web$repo$tmp.date_a <- web$repo$tmp.strata + (web$repo$tmp.date_a - RNG[[1]])/faC
-    web$repo$tmp.window_z <- web$repo$tmp.strata + (web$repo$tmp.window_z - RNG[[1]])/faC
+    web$repo$tmp.date_a <- web$repo$tmp.date_a - RNG[[1]]
+    web$repo$tmp.date_a <- web$repo$tmp.strata + web$repo$tmp.date_a
+
+    web$repo$tmp.window_z <- web$repo$tmp.window_z - RNG[[1]]
+    web$repo$tmp.window_z <- web$repo$tmp.strata + web$repo$tmp.window_z
 
   }
 
@@ -1841,14 +1845,48 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 
   web$repo$epid <- web$repo$Cummchange_lgk + 1
   if(episode_type == "fixed"){
-    web$epid <- links_wf_episodes(
-      date = web$repo$date,
-      strata = web$repo$epid,
-      case_length = web$controls$case_length,
-      display = web$controls$display
-    )
-    web$repo$iteration <- web$epid@iteration + 1L
-    web$epid <- web$epid@.Data
+    # browser()
+    web$repo$iteration <-
+      web$repo$fepid <- rep(0L, length(web$repo$pr_sn))
+    web$repo$tmp.strata <- match(
+      web$repo$Cummchange_lgk,
+      web$repo$Cummchange_lgk[!duplicated(web$repo$Cummchange_lgk)])
+    web$repo$tmp.strata <- (max(web$repo$tmp.strata) + 1) - web$repo$tmp.strata
+
+    RNG <- range(c(web$repo$tmp.date_a, web$repo$tmp.date_z))
+    faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
+    faC <- 10 ^ faC
+    web$repo$tmp.strata <- web$repo$tmp.strata * faC
+    web$repo$tmp.date_z <- (web$repo$tmp.date_z) + web$repo$tmp.strata
+    i <- 1L
+    while(any(is.finite(web$repo$tmp.date_z))){
+      web$repo$i.date_z <- abs(cummax(-web$repo$tmp.date_z))
+      # web$repo$i.date_z <- (web$repo$i.date_z - web$repo$tmp.strata) * faC
+
+      web$repo$diff <- web$repo$tmp.date_z - web$repo$i.date_z
+      web$repo$lgk <-  web$repo$diff <= case_length
+      web$repo$lgk <- web$repo$lgk & !is.na(web$repo$lgk)
+      web$repo$fepid[web$repo$lgk] <- web$repo$i.date_z[web$repo$lgk]
+      web$repo$tmp.date_z[web$repo$lgk] <- Inf
+      web$repo$iteration[web$repo$lgk] <- i
+
+      # as.data.frame(web$repo[c("tmp.strata", "tmp.date_z", "i.date_z", "lgk", "fepid", "diff")])
+      # web$repo <- web$repo[!web$repo$lgk,]
+
+      i <- i + 1L
+    }
+
+    web$repo$epid <- combi(web$repo$tmp.strata, web$repo$fepid)
+    web$repo$iteration <- web$repo$iteration + 1L
+
+    # web$epid <- links_wf_episodes(
+    #   date = web$repo$date,
+    #   strata = web$repo$epid,
+    #   case_length = web$controls$case_length,
+    #   display = web$controls$display
+    # )
+    # web$repo$iteration <- web$epid@iteration + 1L
+    # web$epid <- web$epid@.Data
   }else{
     web$repo$iteration <- rep(1L, length(date))
   }
