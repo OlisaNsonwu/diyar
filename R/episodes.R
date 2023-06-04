@@ -1785,11 +1785,9 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     }
   }
 
-  web$repo$tmp.dt_a <- web$repo$dt_a <- web$repo$date@start
-  web$repo$tmp.dt_z <- web$repo$dt_z <- right_point(web$repo$date)
+  web$repo$tmp.dt_a <- web$repo$dt_a <- as.numeric(web$repo$date@start)
+  web$repo$tmp.dt_z <- web$repo$dt_z <- as.numeric(right_point(web$repo$date))
   web$repo$tmp.wind_z <- web$repo$wind_z <- web$repo$dt_z + web$controls$case_length
-  web$repo$tmp.dt_a <- as.numeric(web$repo$tmp.dt_a)
-  web$repo$tmp.wind_z <- as.numeric(web$repo$tmp.wind_z)
 
   # Sort records by strata and ascending order of event periods
   if(length(web$repo$rw.strata) > 1){
@@ -1859,13 +1857,13 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$repo$epid <- rw.strata
   }
 
+  unq.pr_sn.2 <- integer()
   if(episode_type == "fixed"){
     web$repo <- web$repo[c("pr_sn", "date", "dt_a", "dt_z", "wind_z",
                            "rw.strata", "epid")]
 
     web$repo$iteration <- rep(ifelse(roll_first, 1L, 0L) , length(web$repo$pr_sn))
 
-    unq.pr_sn.2 <- integer()
     if(roll_first){
       if(length(web$repo$epid[!duplicated(web$repo$epid)]) > 1){
         lgk <- !duplicated(web$repo$epid, fromLast = TRUE) &
