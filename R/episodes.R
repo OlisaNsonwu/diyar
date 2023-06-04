@@ -1744,6 +1744,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
                               display = "none"){
   web <- list()
   web$tm_a <- Sys.time()
+  dataset.n <- length(date)
   date <- as.number_line(date)
   web$controls$is_dt <- ifelse(
     inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt")),
@@ -1763,8 +1764,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   web$repo$pr_sn <- seq_len(length(date@start))
   web$repo$sn <- sn
   web$repo$date <- date
-  case_length <- diyar::episode_unit[[episode_unit]] * case_length
-  web$controls$case_length <- case_length
+  web$controls$case_length <- diyar::episode_unit[[episode_unit]] * case_length
 
   if(!all(class(data_links) == "list")){
     data_links <- list(l = data_links)
@@ -1772,106 +1772,165 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   if(is.null(names(data_links))) names(data_links) <- rep("l", length(data_links))
   names(data_links) <- ifelse(names(data_links) == "", "l", names(data_links))
   data_links <- data_links
+  web$repo$rw.strata <- strata
 
-  web$repo$tmp.date_a <- web$repo$date_a <- web$repo$date@start
-  web$repo$tmp.date_z <- web$repo$date_z <- right_point(web$repo$date)
-  web$repo$tmp.window_z <- web$repo$window_z <- web$repo$date_z + web$controls$case_length
-  web$repo$tmp.date_a <- as.numeric(web$repo$tmp.date_a)
-  web$repo$tmp.window_z <- as.numeric(web$repo$tmp.window_z)
+  if(length(web$repo$rw.strata) > 1){
+    lgk <- !duplicated(web$repo$rw.strata, fromLast = TRUE) &
+      !duplicated(web$repo$rw.strata, fromLast = FALSE)
 
-  web$repo$strata <- strata
+    if(any(lgk)){
+      web_unq <- lapply(web$repo, function(x) x[lgk])
+      web$repo <- lapply(web$repo, function(x) x[!lgk])
+    }else{
+      web_unq <- list()
+    }
 
-  if(length(web$repo$strata) > 1){
-    web$repo$s_ord <- order(web$repo$strata, web$repo$date_a, web$repo$date_z)
-  }else{
-    web$repo$s_ord <- order(web$repo$date_a, web$repo$date_z)
   }
 
+  web$repo$tmp.dt_a <- web$repo$dt_a <- web$repo$date@start
+  web$repo$tmp.dt_z <- web$repo$dt_z <- right_point(web$repo$date)
+  web$repo$tmp.wind_z <- web$repo$wind_z <- web$repo$dt_z + web$controls$case_length
+  web$repo$tmp.dt_a <- as.numeric(web$repo$tmp.dt_a)
+  web$repo$tmp.wind_z <- as.numeric(web$repo$tmp.wind_z)
 
-  # browser()
+  # Sort records by strata and ascending order of event periods
+  if(length(web$repo$rw.strata) > 1){
+    web$repo$strata_cd <- match(
+      web$repo$rw.strata,
+      web$repo$strata[!duplicated(web$repo$rw.strata)])
+
+    web$repo$s_ord <- order(web$repo$strata_cd, web$repo$dt_a, web$repo$dt_z)
+  }else{
+    web$repo$s_ord <- order(web$repo$dt_a, web$repo$dt_z)
+  }
   web$repo <- lapply(web$repo, function(x) x[web$repo$s_ord])
 
-  lead.pos <- 2:length(web$repo$tmp.date_a)
-  lag.pos <- 1:(length(web$repo$tmp.date_a)-1)
+  # Lead and lag records indexes
+  lead.pos <- 2:length(web$repo$dt_a)
+  lag.pos <- 1:(length(web$repo$dt_a)-1)
 
-  if(length(web$repo$strata) > 1){
-
-    web$repo$tmp.strata <- match(
-      web$repo$strata,
-      web$repo$strata[!duplicated(web$repo$strata)])
-    RNG <- range(c(web$repo$tmp.date_a, web$repo$tmp.window_z))
+  if(length(web$repo$rw.strata) > 1){
+    # Make the identical dates in subsequent strata larger,
+    # but still relatively the same compared to other dates in the same strata
+    RNG <- range(c(web$repo$dt_a, web$repo$wind_z))
     faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
     faC <- 10 ^ faC
-    web$repo$tmp.strata <- web$repo$tmp.strata * faC
 
-    web$repo$tmp.date_a <- web$repo$tmp.date_a - RNG[[1]]
-    web$repo$tmp.date_a <- web$repo$tmp.strata + web$repo$tmp.date_a
+    web$repo$tmp.strata <- web$repo$rw.strata * faC
 
-    web$repo$tmp.window_z <- web$repo$tmp.window_z - RNG[[1]]
-    web$repo$tmp.window_z <- web$repo$tmp.strata + web$repo$tmp.window_z
+    web$repo$tmp.dt_a <- web$repo$dt_a - RNG[[1]]
+    web$repo$tmp.dt_a <- web$repo$tmp.strata + web$repo$dt_a
+
+    web$repo$tmp.wind_z <- web$repo$wind_z - RNG[[1]]
+    web$repo$tmp.wind_z <- web$repo$tmp.strata + web$repo$wind_z
 
   }
 
-  web$repo$tmp.NxtWindowStart <-
-    web$repo$tmp.date_a[c(lead.pos, NA)]
+  web$repo$Nxt.wind_a <-
+    web$repo$tmp.dt_a[c(lead.pos, NA)]
   web$repo$Nxt.strata <-
     web$repo$strata[c(lead.pos, NA)]
   web$repo$Prv.strata <-
     web$repo$strata[c(NA, lag.pos)]
 
-  web$repo$cumEnd <- cummax(as.numeric(web$repo$tmp.window_z))
+  web$repo$cumEnd <- cummax(as.numeric(web$repo$tmp.wind_z))
 
-  # browser()
-  web$repo$Sbrk_indx <- web$repo$strata != web$repo$Nxt.strata
-  web$repo$Sbrk_indx <- web$repo$Sbrk_indx | is.na(web$repo$Sbrk_indx)
-  web$repo$tmp.NxtWindowStart[web$repo$Sbrk_indx] <-
-    web$repo$tmp.date_a[web$repo$Sbrk_indx]
+  end_strata_lgk <- web$repo$strata != web$repo$Nxt.strata
+  end_strata_lgk <- end_strata_lgk | is.na(end_strata_lgk)
+  web$repo$Nxt.wind_a[end_strata_lgk] <-
+    web$repo$tmp.dt_a[end_strata_lgk]
 
-  web$repo$change_lgk <- (web$repo$tmp.NxtWindowStart > web$repo$cumEnd)
+  web$repo$change_lgk <- (web$repo$Nxt.wind_a > web$repo$cumEnd)
   web$repo$change_lgk <- web$repo$change_lgk[c(NA, lag.pos)]
 
   if(length(web$repo$strata) > 1){
-    web$repo$tmp.Prvstrata <- c(NA, rev(rev(web$repo$strata)[-1]))
-    web$repo$diff_lgk <- which(web$repo$strata != web$repo$tmp.Prvstrata)
-
-    web$repo$diff_lgk <- web$repo$strata != web$repo$Prv.strata
-    web$repo$diff_lgk <- which(web$repo$diff_lgk | is.na(web$repo$diff_lgk))
+    # Start of new strata
+    web$repo$new_strata_lgk <-
+      web$repo$strata != web$repo$Prv.strata
+    web$repo$new_strata_lgk <-
+      which(web$repo$new_strata_lgk | is.na(web$repo$new_strata_lgk))
   }else{
-    web$repo$diff_lgk <- 1
+    web$repo$new_strata_lgk <- 1
   }
-  web$repo$change_lgk[web$repo$diff_lgk] <- TRUE
-  #web$repo$change_lgk[which(is.na(web$repo$change_lgk))] <- FALSE
+  web$repo$change_lgk[web$repo$new_strata_lgk] <- TRUE
   web$repo$Cummchange_lgk <- cumsum(web$repo$change_lgk)
 
   web$repo$epid <- web$repo$Cummchange_lgk + 1
   if(episode_type == "fixed"){
-    # browser()
-    web$repo$iteration <-
-      web$repo$fepid <- rep(0L, length(web$repo$pr_sn))
+    web$repo$iteration <- rep(1L, length(web$repo$pr_sn))
+    web$repo$fepid <- rep(0L, length(web$repo$pr_sn))
+
+    if(length(web$repo$Cummchange_lgk) > 1){
+      lgk <- !duplicated(web$repo$Cummchange_lgk, fromLast = TRUE) &
+        !duplicated(web$repo$Cummchange_lgk, fromLast = FALSE)
+
+      if(any(lgk)){
+        web_unq_2 <- lapply(web$repo, function(x) x[lgk])
+        web$repo <- lapply(web$repo, function(x) x[!lgk])
+      }else{
+        web_unq_2 <- list()
+      }
+    }
+
     web$repo$tmp.strata <- match(
       web$repo$Cummchange_lgk,
       web$repo$Cummchange_lgk[!duplicated(web$repo$Cummchange_lgk)])
-    web$repo$tmp.strata <- (max(web$repo$tmp.strata) + 1) - web$repo$tmp.strata
 
-    RNG <- range(c(web$repo$tmp.date_a, web$repo$tmp.date_z))
+    RNG <- range(c(web$repo$dt_a, web$repo$wind_z))
     faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
     faC <- 10 ^ faC
-    web$repo$tmp.strata <- web$repo$tmp.strata * faC
-    web$repo$tmp.date_z <- (web$repo$tmp.date_z) + web$repo$tmp.strata
-    i <- 1L
-    while(any(is.finite(web$repo$tmp.date_z))){
-      web$repo$i.date_z <- abs(cummax(-web$repo$tmp.date_z))
-      # web$repo$i.date_z <- (web$repo$i.date_z - web$repo$tmp.strata) * faC
 
-      web$repo$diff <- web$repo$tmp.date_z - web$repo$i.date_z
-      web$repo$lgk <-  web$repo$diff <= case_length
+    web$repo$tmp.strata <- ((max(web$repo$tmp.strata) + 1)) - web$repo$tmp.strata
+    web$repo$tmp.strata <- web$repo$tmp.strata * faC
+
+    web$repo$tmp.dt_a <- web$repo$dt_a - RNG[[1]]
+    web$repo$tmp.dt_a <- web$repo$tmp.strata + web$repo$dt_a
+
+    web$repo$tmp.wind_z <- web$repo$wind_z - RNG[[1]]
+    web$repo$tmp.wind_z <- web$repo$tmp.strata + web$repo$wind_z
+
+    i <- 1L
+    tm_ia <- Sys.time()
+    while(any(is.finite(web$repo$tmp.wind_z))){
+      web$repo$ld.wind_z <- abs(cummax(-web$repo$tmp.wind_z))
+
+      web$repo$lgk <- (web$repo$ld.wind_z >= web$repo$tmp.dt_a) &
+        web$repo$ld.wind_z != Inf
       web$repo$lgk <- web$repo$lgk & !is.na(web$repo$lgk)
-      web$repo$fepid[web$repo$lgk] <- web$repo$i.date_z[web$repo$lgk]
-      web$repo$tmp.date_z[web$repo$lgk] <- Inf
+
+      web$repo$fepid[web$repo$lgk] <- web$repo$ld.wind_z[web$repo$lgk]
+      web$repo$tmp.wind_z[web$repo$lgk] <- Inf
       web$repo$iteration[web$repo$lgk] <- i
 
-      # as.data.frame(web$repo[c("tmp.strata", "tmp.date_z", "i.date_z", "lgk", "fepid", "diff")])
-      # web$repo <- web$repo[!web$repo$lgk,]
+      if(!grepl("^none", web$controls$display)){
+        ite.linked.n <- length(which(web$repo$lgk))
+        ite.tot.n <- length(web$repo$tmp.wind_z[web$repo$tmp.wind_z != Inf]) + ite.linked.n
+        cri.linked.n <- length(web$repo$tmp.wind_z[web$repo$tmp.wind_z == Inf])
+
+        if(grepl("^progress", web$controls$display)){
+          msg <- progress_bar(
+            n = dataset.n - (ite.tot.n - ite.linked.n),
+            d = dataset.n,
+            max_width = 100,
+            msg = paste0("Iteration ",
+                         fmt(i + 1L), " (",
+                         fmt(difftime(Sys.time(), tm_ia), "difftime"),
+                         ")"),
+            prefix_msg = "")
+          cat(msg, "\r", sep = "")
+        }else if (grepl("^stats", web$controls$display)){
+          web$msg <- update_text(
+            tot_records = fmt(dataset.n),
+            current_tot = fmt(ite.tot.n),
+            current_tagged = fmt(ite.linked.n),
+            time = fmt(Sys.time() - tm_ia, "difftime"),
+            # iteration = ite,
+            indent_txt = ""
+          )
+          cat(msg, "\n", sep = "")
+        }
+        tm_ia <- Sys.time()
+      }
 
       i <- i + 1L
     }
@@ -1879,24 +1938,16 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$repo$epid <- combi(web$repo$tmp.strata, web$repo$fepid)
     web$repo$iteration <- web$repo$iteration + 1L
 
-    # web$epid <- links_wf_episodes(
-    #   date = web$repo$date,
-    #   strata = web$repo$epid,
-    #   case_length = web$controls$case_length,
-    #   display = web$controls$display
-    # )
-    # web$repo$iteration <- web$epid@iteration + 1L
-    # web$epid <- web$epid@.Data
   }else{
     web$repo$iteration <- rep(1L, length(date))
   }
 
-  if(TRUE){
-    case_s_ord <- order(web$repo$date_a, -as.numeric(web$repo$date_z))
-    web$repo <- lapply(web$repo[c("pr_sn", "epid", "iteration")],
-                       function(x) x[case_s_ord])
-  }
+  # Match the default preference for case records used in `episodes()`
+  case_s_ord <- order(web$repo$dt_a, -as.numeric(web$repo$dt_z))
+  web$repo <- lapply(web$repo[c("pr_sn", "epid", "iteration")],
+                     function(x) x[case_s_ord])
 
+  # Familiar IDs
   web$indx <- which(!duplicated(web$repo$epid))
   web$repo$group_id <- web$repo$pr_sn[web$indx][
     match(web$repo$epid, web$repo$epid[web$indx])
@@ -1905,6 +1956,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   web$repo <- web$repo[
     c("pr_sn", "group_id", "iteration")]
 
+  # Re-order as entered
   web$s_ord <- order(web$repo$pr_sn)
   web$repo <- lapply(web$repo, function(x){
     x[web$s_ord]
