@@ -977,3 +977,55 @@ test_that("test interchangeable use of interval grouping and event grouping ", {
   expect_equal(mth3, mth4)
 })
 
+nl <- number_line
+dt <- c(nl(1,1), nl(1,4), nl(4,5))
+ep <- episodes(
+  date = dt,
+  custom_sort = c(1:3),
+  episodes_max = 1,
+  case_length = 2,
+  reference_event = "last_event",
+  batched = "yes")
+
+test_that("xxx", {
+  expect_equal(ep@.Data, c(1,1,1))
+  expect_equal(decode(ep@case_nm), c("Case", "Case", "Duplicate_C"))
+})
+
+dt <- c(nl(1,1), nl(1,4), nl(4,5), nl(4,5), nl(14,25))
+ep_l <- c(nl(10, 15), nl(10, 15), nl(-1, 0), nl(-1, 0), nl(-1, 0))
+ep <-  episodes(
+  date = dt,
+  custom_sort = c(1:5),
+  case_length = ep_l,
+  reference_event = "last_event",
+  skip_if_b4_lengths = TRUE,
+  batched = "yes")
+
+ep2 <-  episodes(
+  date = dt,
+  custom_sort = c(1:5),
+  case_length = ep_l,
+  reference_event = "last_event",
+  skip_if_b4_lengths = FALSE,
+  batched = "yes")
+
+ep3 <-  episodes(
+  date = dt,
+  custom_sort = c(1:5),
+  episodes_max = 1,
+  case_length = ep_l,
+  reference_event = "last_event",
+  skip_if_b4_lengths = TRUE,
+  batched = "yes")
+
+test_that("batched + skip_if_b4_lengths", {
+  expect_equal(ep@.Data, c(1,1,3,4,1))
+  expect_equal(decode(ep@case_nm), c("Case", "Case", "Skipped", "Skipped", "Duplicate_C"))
+  expect_equal(ep2@.Data, c(1,1,3,3,1))
+  expect_equal(decode(ep2@case_nm), c("Case", "Case", "Case", "Case", "Duplicate_C"))
+  expect_equal(ep, ep3)
+})
+
+
+

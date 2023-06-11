@@ -442,7 +442,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     min(as.numeric(date@start), na.rm = TRUE) - as.numeric(date@start[!from_last]))
   ord_z[!from_last] <- abs(
     min(as.numeric(right_point(date)), na.rm = TRUE) - as.numeric(right_point(date[!from_last])))
-  assign_ord <- order(order(ord_a, -ord_z, pr_sn))
+
+  temporal_ord <- order(order(ord_a, -ord_z, pr_sn))
+  rev_temporal_ord <- order(order(-ord_a, -ord_z, -pr_sn))
 
   # User-defined preference for case-assignment
   if(!is.null(custom_sort)) {
@@ -471,7 +473,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   web$repo$cri <- cri
   web$repo$strata <- strata
-  web$repo$assign_ord <- assign_ord
+  web$repo$temporal_ord <- temporal_ord
+  web$repo$rev_temporal_ord <- rev_temporal_ord
 
   web$repo$cur_refs <- web$repo$max_refs <- web$repo$epid_n <-
     web$repo$iteration <- rep(0L, web$counts$dataset.n)
@@ -483,6 +486,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   web$repo$reference_event <- reference_event
   web$repo$episode_type <- episode_type
 
+  web$repo$last.batched <- rep(TRUE, web$counts$dataset.n)
   web$repo$nwEpi <- rep(FALSE, web$counts$dataset.n)
 
   web$repo$date <- date
@@ -576,14 +580,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   web$counts$max_indexes <- ite <- 1L
 
-  web$repo$temporal_ord <- web$repo$assign_ord
   web$repo$look_back_ord <- order(order(
     web$repo$cri, -web$repo$custom_sort, web$repo$temporal_ord))
   web$repo$assign_ord <- order(order(
     web$repo$cri, web$repo$custom_sort, web$repo$temporal_ord))
+  web$repo$rev_assign_ord <- order(order(
+    web$repo$cri, web$repo$custom_sort, web$repo$rev_temporal_ord))
 
   # browser()
-  rm(assign_ord, case_for_recurrence, case_length, case_length_total,
+  rm(#assign_ord,
+     case_for_recurrence, case_length, case_length_total,
      case_overlap_methods, case_sub_criteria, cri, custom_sort, data_links,
      data_source, date, display, dl_lst, episode_type,
      episode_unit, episodes_max, errs, from_last, group_stats,
@@ -605,6 +611,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
   web$sys.tmp$all_pos <- web$repo$pr_sn[
     order(web$repo$assign_ord)
+  ]
+  web$sys.tmp$rev_all_pos <- web$repo$pr_sn[
+    order(web$repo$rev_assign_ord)
   ]
 
   web$counts$split <- 1L
@@ -630,13 +639,14 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
   }
 
   while (max(web$repo$tag) == 20) {
-    if(ite == 3){
+    if(ite == 5){
       # browser()
-      # as.data.frame(web$repo[c("pr_sn", "tag", "case_nm", "iteration", "ite.window", "batched")])
+      # print(as.data.frame(web$repo[c("pr_sn", "tag", "case_nm", "iteration", "ite.window", "sys.batched", "batched", "epid")]))
     }
     web$sys.tmp$ite_pos <-
       web$sys.tmp$ite_pos[web$repo$tag[web$sys.tmp$ite_pos] != 10]
     web$sys.tmp$ite_pos <- web$sys.tmp$all_pos[web$sys.tmp$all_pos %in% web$sys.tmp$ite_pos]
+    web$sys.tmp$rev_ite_pos <- web$sys.tmp$rev_all_pos[web$sys.tmp$rev_all_pos %in% web$sys.tmp$ite_pos]
 
     if(splits > 1 & length(web$sys.tmp$ite_pos) == 0){
       web$counts$split <- web$counts$split + 1L
@@ -650,10 +660,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     # Priority for reference events
     # Non-Batched tracked reference events
-    web$tmp$tgt_pos2 <- web$sys.tmp$ite_pos[
+    web$tmp$tgt_pos_rev <- web$sys.tmp$rev_ite_pos[
+      web$repo$tag[web$sys.tmp$rev_ite_pos] == 1 &
+        !web$repo$batched[web$sys.tmp$rev_ite_pos]
+      ]
+
+    web$tmp$tgt_pos <- web$sys.tmp$ite_pos[
       web$repo$tag[web$sys.tmp$ite_pos] == 1 &
         !web$repo$batched[web$sys.tmp$ite_pos]
-      ]
+    ]
 
       # Batched tracked reference events
     # web$tmp$tgt_pos <-
@@ -664,10 +679,15 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     # web$tmp$tgt_pos <- web$tmp$tgt_pos[web$tmp$s_ord]
 
     # web$tmp$tgt_pos <- c(web$tmp$tgt_pos, web$tmp$tgt_pos2)
-    web$tmp$lgk <-
-      web$repo$reference_event[web$repo$ld_pos[web$tmp$tgt_pos2]] %in%
+    web$tmp$lgk1 <-
+      web$repo$reference_event[web$repo$ld_pos[web$tmp$tgt_pos_rev]] %in%
       c("last_event", "last_record") &
-      web$repo$episode_type[web$repo$ld_pos[web$tmp$tgt_pos2]] != 3
+      web$repo$episode_type[web$repo$ld_pos[web$tmp$tgt_pos_rev]] != 3
+
+    web$tmp$lgk2 <-
+      web$repo$reference_event[web$repo$ld_pos[web$tmp$tgt_pos]] %in%
+      c("first_event", "first_record") &
+      web$repo$episode_type[web$repo$ld_pos[web$tmp$tgt_pos]] != 3
 
     web$sys.tmp$ite_pos <- c(
       # 0.
@@ -675,9 +695,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       # 0.
       # web$tmp$tgt_pos,
       # 1. Windows with last record/event
-      rev(web$tmp$tgt_pos2[web$tmp$lgk]),
+      web$tmp$tgt_pos_rev[web$tmp$lgk1],
       # 2. Windows with first record/event
-      web$tmp$tgt_pos2[!web$tmp$lgk],
+      web$tmp$tgt_pos[web$tmp$lgk2],
       # 3. Un-linked records
       web$sys.tmp$ite_pos[
         web$repo$tag[web$sys.tmp$ite_pos] == 20 &
@@ -716,7 +736,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
     # Exclude from iteration
     web$sys.tmp$ite_pos <- web$sys.tmp$ite_pos[!web$tmp$exc_lgk]
 
-    if(length(web$sys.tmp$ite_pos) <= 1){
+    if(length(web$sys.tmp$ite_pos) < 1){
       # if(grepl("^progress", web$controls$display)){
       #   web$msg <- progress_bar(
       #     n = 1, d = 1, max_width = 100,
@@ -756,9 +776,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       web$tmp2$rl$lengths
     )
 
-    if(ite == 4){
-      # browser()
-    }
     web$sys.tmp$ite_tr_lgk <- web$tmp2$tr_lgk[order(web$tmp2$s_ord)]
     web$sys.tmp$ite_tr_pos <- web$tmp2$tr_pos[order(web$tmp2$s_ord)]
 
@@ -772,13 +789,23 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       web$repo$cri[web$sys.tmp$ite_pos] %in% web$repo$cri[
         web$sys.tmp$ite_pos[
           web$sys.tmp$ite_tr_lgk &
-            web$repo$tag[web$sys.tmp$ite_pos] == 20
+            web$repo$tag[web$sys.tmp$ite_pos] == 20 &
+            # !web$repo$batched[web$sys.tmp$ite_tr_pos]
+            web$repo$last.batched[web$sys.tmp$ite_tr_pos]
         ]
       ]
 
     # Episode's reference record
-    web$repo$ld_pos[web$sys.tmp$ite_pos[web$repo$nwEpi[web$sys.tmp$ite_pos]]] <-
-      web$sys.tmp$ite_tr_pos[web$repo$nwEpi[web$sys.tmp$ite_pos]]
+    web$tmp$lgk <- web$repo$nwEpi[web$sys.tmp$ite_pos]
+
+    web$repo$ld_pos[web$sys.tmp$ite_pos[web$tmp$lgk]] <-
+      web$sys.tmp$ite_tr_pos[web$tmp$lgk]
+
+    if(batched == "yes"){
+      web$repo$last.batched[web$sys.tmp$ite_pos[web$tmp$lgk]] <-
+        TRUE
+    }
+
 
     if(grepl("^stats", web$controls$display)){
       msg <- paste0("Iteration ", fmt(ite) ,".\n")
@@ -799,14 +826,17 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
            %in% c("first_event", "last_event") |
            web$repo$episode_type[web$repo$ld_pos[web$sys.tmp$ite_pos]] == 3)
     ){
+      if(ite == 4){
+        # browser()
+      }
       # Reference events
       web$sys.tmp$ite_rIndex[
         web$repo$reference_event[web$repo$ld_pos[web$sys.tmp$ite_pos]] %in%
           c("first_event", "last_event") &
-          !web$sys.tmp$ite_tr_lgk &
-          !web$repo$batched[web$sys.tmp$ite_tr_pos]
+          # !web$sys.tmp$ite_tr_lgk &
+          # !web$repo$batched[web$sys.tmp$ite_tr_pos]
+          web$repo$last.batched[web$sys.tmp$ite_tr_pos]
       ]  <- TRUE
-
 
       web$sys.tmp$ite_rIndex[web$sys.tmp$ite_rIndex] <-
         overlap(
@@ -816,8 +846,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       web$sys.tmp$ite_rIndex[
         web$repo$episode_type[web$repo$ld_pos[web$sys.tmp$ite_pos]] == 3 &
           web$repo$tag[web$sys.tmp$ite_pos] == 1 &
-          !web$sys.tmp$ite_tr_lgk &
-          !web$repo$batched[web$sys.tmp$ite_tr_pos]] <- TRUE
+          # !web$sys.tmp$ite_tr_lgk &
+          # !web$repo$batched[web$sys.tmp$ite_tr_pos]
+          web$repo$last.batched[web$sys.tmp$ite_tr_pos]
+      ] <- TRUE
       #
       web$sys.tmp$ite_index[
         web$sys.tmp$ite_rIndex &
@@ -826,12 +858,21 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
       if(batched == "yes"){
         web$manual_recursive_index.pos <- web$sys.tmp$ite_pos[web$sys.tmp$ite_rIndex]
+        web$repo$batched[web$manual_recursive_index.pos] <- TRUE
+
+        web$manual_recursive_index.tr_pos <-
+          web$sys.tmp$ite_tr_pos[web$sys.tmp$ite_rIndex]
+        web$manual_recursive_index.tr_pos <-
+          web$manual_recursive_index.tr_pos[!duplicated(web$manual_recursive_index.tr_pos)]
+
+        web$repo$sys.batched[
+          c(web$manual_recursive_index.pos,
+            web$manual_recursive_index.tr_pos)] <- TRUE
+
       }else{
         web$manual_recursive_index.pos <- integer()
       }
 
-      web$repo$sys.batched[web$manual_recursive_index.pos] <-
-        web$repo$batched[web$manual_recursive_index.pos] <- TRUE
     }
 
     web$rec.pairs <- make_pairs_batched(
@@ -907,7 +948,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             web$repo$case_for_recurrence[web$rec.pairs$ld_pos] &
               !web$rec.pairs$nwEpi &
               web$repo$prev.ite.window[web$rec.pairs$tr_pos] == 2 &
-              !web$repo$batched[web$rec.pairs$tr_pos]]
+              # !web$repo$batched[web$rec.pairs$tr_pos]]
+              web$repo$last.batched[web$rec.pairs$tr_pos]]
       ] <- 3L
 
       web$repo$ite.window[
@@ -915,7 +957,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           web$rec.pairs$cri[
             !web$rec.pairs$nwEpi &
               web$repo$prev.ite.window[web$rec.pairs$tr_pos] %in% c(1, 3) &
-              !web$repo$batched[web$rec.pairs$tr_pos]]
+              # !web$repo$batched[web$rec.pairs$tr_pos]]
+              web$repo$last.batched[web$rec.pairs$tr_pos]]
       ] <- 2L
 
       # web$repo$ite.window[
@@ -926,9 +969,6 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       #         web$repo$ite.window[web$rec.pairs$tr_pos] == 3 &
       #         web$repo$tag[web$rec.pairs$tr_pos] != 0]
       # ] <- 2L
-
-
-
 
 
       web$rec.pairs$is_case_window <-
@@ -959,6 +999,16 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         c("cri", "index_ord", "cu_pos", "tr_pos",
           "nwEpi", "ld_pos", "is_case_window", "ref_rd")
       ])
+    }
+
+    if(batched == "yes"){
+      web$tmp$tgt_pos <- web$sys.tmp$ite_pos[web$repo$batched[web$sys.tmp$ite_pos]]
+      web$repo$last.batched[web$sys.tmp$ite_pos[web$repo$sys.batched[web$sys.tmp$ite_pos]]] <-
+        web$repo$cri[web$sys.tmp$ite_pos[web$repo$sys.batched[web$sys.tmp$ite_pos]]] %in%
+        web$repo$cri[web$tmp$tgt_pos][
+          !duplicated(web$repo$cri[web$tmp$tgt_pos], fromLast = TRUE) &
+            !duplicated(web$repo$cri[web$tmp$tgt_pos], fromLast = FALSE)
+        ]
     }
 
     # Separate overlap and sub_criteria check for each type of window
@@ -1261,7 +1311,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(web$controls$use_skip_b4_len){
         web$tmp$indx <- which(!web$rec.pairs[[w.name]]$w.match &
                                 web$repo$skip_if_b4_lengths[
-                                  web$rec.pairs[[w.name]]$ld_pos])
+                                  web$rec.pairs[[w.name]]$ld_pos] &
+                                !web$repo$batched[
+                                  web$rec.pairs[[w.name]]$cu_pos]
+                                )
         web$rec.pairs[[w.name]]$sk_checks <-
           rep(FALSE, web$counts$rec.pairs.wind)
         web$rec.pairs[[w.name]]$sk_checks[web$tmp$indx] <- overlap(
@@ -1310,13 +1363,17 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       if(web$controls$use_episodes_max){
         web$tmp$upd_lgk <-
           web$repo$episode_type[web$rec.pairs[[w.name]]$ld_pos] == 1 &
-          web$repo$tag[web$rec.pairs[[w.name]]$tr_pos] == 20L
+          web$repo$tag[web$rec.pairs[[w.name]]$tr_pos] == 20L &
+          web$repo$last.batched[web$rec.pairs[[w.name]]$tr_pos]
+
         web$repo$epid_n[web$rec.pairs[[w.name]]$cu_pos[web$tmp$upd_lgk]] <-
           web$repo$epid_n[web$rec.pairs[[w.name]]$cu_pos[web$tmp$upd_lgk]] + 1L
 
         web$tmp$upd_lgk <-
           web$repo$episode_type[web$rec.pairs[[w.name]]$ld_pos] %in% c(2, 3) &
-          web$repo$tag[web$rec.pairs[[w.name]]$tr_pos] == 20L
+          web$repo$tag[web$rec.pairs[[w.name]]$tr_pos] == 20L &
+          web$repo$last.batched[web$rec.pairs[[w.name]]$tr_pos]
+
         web$repo$epid_n[web$rec.pairs[[w.name]]$cu_pos[web$tmp$upd_lgk]] <-
           web$repo$epid_n[web$rec.pairs[[w.name]]$cu_pos[web$tmp$upd_lgk]] + .5
       }
@@ -1338,7 +1395,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         web$tmp$vr <- web$rec.pairs[[w.name]]$cri %in%
           web$rec.pairs[[w.name]]$cri[
             web$rec.pairs[[w.name]]$w.match &
-              !web$repo$batched[web$rec.pairs[[w.name]]$tr_pos]]
+              # !web$repo$batched[web$rec.pairs[[w.name]]$tr_pos]
+              web$repo$last.batched[web$rec.pairs[[w.name]]$tr_pos]
+            ]
         web$tmp$vr2 <- web$rec.pairs[[w.name]]$cu_pos[web$tmp$vr]
         web$tmp$vr <- web$rec.pairs[[w.name]]$tr_pos[web$tmp$vr]
         web$tmp$vr2 <- c(web$tmp$vr[!duplicated(web$tmp$vr)], web$tmp$vr2)
@@ -1378,40 +1437,32 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           is.na(web$repo$case_nm[web$rec.pairs[[w.name]]$cu_pos])
       ]] <- ifelse(w.type == "recurrence", 3L, 2L)
 
+      if(batched == "yes"){
+        web$tmp$lgk <-
+          web$rec.pairs[[w.name]]$cu_pos[
+            web$rec.pairs[[w.name]]$ref_rd &
+              web$repo$batched[web$rec.pairs[[w.name]]$tr_pos]
+          ]
+        # web$repo$tag[web$tmp$lgk] <- 1L
+        web$repo$batched[web$tmp$lgk] <- FALSE
+      }
+
       # Close if episode type is "fixed"
       if(w.name == "case"){
-        if(ite == 1){
-          # browser()
-        }
+
         web$tmp$indx <- web$rec.pairs[[w.name]]$w.match &
           web$repo$episode_type[web$rec.pairs[[w.name]]$cu_pos] == 1
 
         if(batched == "yes"){
+          # use web$sys.tmp$ite_pos like the rec window?
           web$tmp$indx <- web$tmp$indx &
             ((!web$repo$batched[web$rec.pairs[[w.name]]$cu_pos] &
                web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos])
              |
-              (!web$repo$sys.batched[web$rec.pairs[[w.name]]$tr_pos] &
-                 !web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos]))
+              !web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos]
+             )
+
         }
-
-        # web$tmp$indx2 <- web$rec.pairs[[w.name]]$cu_pos %in%
-        #   # c(web$sys.tmp$ite_pos[web$sys.tmp$ite_rIndex],
-        #   #   web$sys.tmp$ite_tr_pos[web$sys.tmp$ite_rIndex])
-        #   web$manual_recursive_index.pos
-
-        # web$repo$tag[web$rec.pairs[[w.name]]$cu_pos[
-        #   web$tmp$indx &
-        #     (!web$tmp$indx2 |
-        #        web$rec.pairs[[w.name]]$cu_pos %in%
-        #        web$rec.pairs[[w.name]]$cu_pos[
-        #          web$repo$batched[web$rec.pairs[[w.name]]$tr_pos] &
-        #            web$rec.pairs[[w.name]]$ref_rd]
-        #      )
-        # ]] <- 10L
-        # web$repo$tag[web$rec.pairs[[w.name]]$cu_pos[
-        #   web$tmp$indx & web$tmp$indx2
-        # ]] <- 2L
         web$repo$tag[web$rec.pairs[[w.name]]$cu_pos[
           web$tmp$indx]] <- 10L
       }
@@ -1479,33 +1530,21 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             web$sys.tmp$ite_pos[web$repo$tag[web$sys.tmp$ite_pos] == 1]
           ] <- 10L
         }else{
+
+
           web$repo$tag[
             web$sys.tmp$ite_pos[
               web$repo$tag[web$sys.tmp$ite_pos] == 1 &
                 (
                   (!web$repo$batched[web$sys.tmp$ite_pos] &
-                     web$repo$sys.batched[web$sys.tmp$ite_pos]) |
-                    (!web$repo$sys.batched[web$sys.tmp$ite_tr_pos] &
-                       !web$repo$sys.batched[web$sys.tmp$ite_pos])
+                     web$repo$sys.batched[web$sys.tmp$ite_pos])
+                  |
+                    !web$repo$sys.batched[web$sys.tmp$ite_pos]
                 )
             ]] <- 10L
         }
 
       }
-
-      web$tmp$lgk <-
-        web$rec.pairs[[w.name]]$cu_pos[
-          web$rec.pairs[[w.name]]$ref_rd &
-            web$repo$batched[web$rec.pairs[[w.name]]$tr_pos]
-        ]
-      # web$repo$tag[web$tmp$lgk] <- 1L
-      web$repo$batched[web$tmp$lgk] <- FALSE
-
-      # web$repo$tag[
-      #   web$rec.pairs[[w.name]]$cu_pos[
-      #     web$rec.pairs[[w.name]]$index_rd
-      #   ]
-      # ] <- 10L
 
       if(web$controls$use_skip_b4_len){
         # close if `skip_if_b4_lengths`
@@ -1538,6 +1577,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             ) |
             web$repo$rolls_max[web$tmp$tr_pos] == 0
 
+          web$tmp$lgk <- web$tmp$lgk & web$repo$last.batched[web$tmp$tr_pos]
+
           # Flag strata with no more recurrence
           web$tmp$tgt_pos <- web$rec.pairs[[w.name]]$cri %in%
             web$rec.pairs[[w.name]]$cri[web$rec.pairs[[w.name]]$w.match][web$tmp$lgk]
@@ -1562,7 +1603,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         web$tmp$indx <-
           web$rec.pairs[[w.name]]$w.match &
           web$repo$episode_type[web$rec.pairs[[w.name]]$ld_pos] %in% 2:3 &
-          web$repo$tag[web$rec.pairs[[w.name]]$cu_pos] == 20
+          web$repo$tag[web$rec.pairs[[w.name]]$cu_pos] == 20 &
+          !web$repo$batched[web$rec.pairs[[w.name]]$cu_pos]
 
         web$repo$tag[web$rec.pairs[[w.name]]$cu_pos[web$tmp$indx]] <- 1L
       }
@@ -1609,6 +1651,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       )
       web$report[length(web$report) + 1] <- list(web$rp_data)
     }
+
+    # print(paste0("Ite. ", ite, " and tr ",  unique(web$sys.tmp$ite_tr_pos)))
+    # print(as.data.frame(web$repo[c("pr_sn", "date", "tag", "case_nm", "iteration", "ite.window", "last.batched", "sys.batched", "batched", "epid_n", "roll_n", "epid")]))
 
     web$tm_ia <- Sys.time()
     ite <- ite + 1L
