@@ -170,7 +170,7 @@ links <- function(criteria,
   #
   web$err <- err_links_checks_0(
     web$match.cri$criteria, web$match.cri$sub_criteria,
-    web$repo$sn, web$repo$strata, web$repo$data_source, web$data_links,
+    web$repo$sn, web$repo$strata, web$repo$data_source, web$match.cri$data_links,
     web$options$display, web$options$group_stats, web$options$expand,
     web$options$shrink, web$options$recursive, web$options$check_duplicates,
     web$repo$tie_sort,web$options$repeats_allowed,
@@ -233,14 +233,14 @@ links <- function(criteria,
     web$repo$tie_sort <- rep(0L, web$n.row)
   }
   #
-  if(!inherits(web$data_links, "list")){
-    web$data_links <- list(l = web$data_links)
+  if(!inherits(web$match.cri$data_links, "list")){
+    web$match.cri$data_links <- list(l = web$match.cri$data_links)
   }
-  if(is.null(names(web$data_links))){
-    names(web$data_links) <- rep("l", length(web$data_links))
+  if(is.null(names(web$match.cri$data_links))){
+    names(web$match.cri$data_links) <- rep("l", length(web$match.cri$data_links))
   }
-  names(web$data_links) <- ifelse(
-    names(web$data_links) == "", "l", names(web$data_links))
+  names(web$match.cri$data_links) <- ifelse(
+    names(web$match.cri$data_links) == "", "l", names(web$match.cri$data_links))
   #
   if(length(web$options$batched) == 1 & length(web$match.cri$criteria) > 1){
     web$options$batched <- rep(
@@ -832,7 +832,7 @@ links <- function(criteria,
     iteration = web$repo$iteration,
     link_id = web$repo$wind_id,
     data_source = web$repo$data_source,
-    data_links = web$repo$data_links)
+    data_links = web$match.cri$data_links)
   #
   web$tm_z <- Sys.time()
   web$tms <- fmt(difftime(web$tm_z, web$tm_a), "difftime")

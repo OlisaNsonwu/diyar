@@ -846,14 +846,29 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
     }
 
+    web$repo$tmp.assign_ord <- web$repo$assign_ord[web$sys.tmp$ite_pos]
+    if(batched == "yes"){
+      web$repo$tmp.assign_ord[
+        web$repo$tag[web$sys.tmp$ite_pos] == 1 &
+          web$repo$sys.batched[web$sys.tmp$ite_pos] &
+          !web$sys.tmp$ite_index
+      ] <- Inf
+    }
+
+    if(ite == 4){
+      # browser()
+    }
+
     web$rec.pairs <- make_pairs_batched(
       strata = web$repo$cri[web$sys.tmp$ite_pos],
       x = web$sys.tmp$ite_pos,
       index_record = web$sys.tmp$ite_index,
-      assign_ord = web$repo$assign_ord[web$sys.tmp$ite_pos],
+      assign_ord = web$repo$tmp.assign_ord,
       include_repeat = TRUE,
       look_back = FALSE
     )
+
+    # print(as.data.frame(web$rec.pairs))
 
     web$rec.pairs$x_pos <-
       web$rec.pairs$y_pos <- NULL
@@ -928,6 +943,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       ])
     }
 
+    if(ite == 8){
+      # browser()
+    }
     if(batched == "yes"){
       web$tmp$tgt_pos <- web$sys.tmp$ite_pos[web$repo$batched[web$sys.tmp$ite_pos]]
       web$tmp$tgt_pos_2 <- web$sys.tmp$ite_pos[web$repo$sys.batched[web$sys.tmp$ite_pos]]
@@ -1316,7 +1334,9 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
           # web$tmp$vr2 <- c(web$tmp$vr[!duplicated(web$tmp$vr)], web$tmp$vr2)
           # web$repo$rxt_n[web$tmp$vr2] <- web$repo$rxt_n[web$tmp$vr2] + 1L
         }
-
+        if(ite ==12){
+          # browser()
+        }
         # Update rolling counter
         web$tmp$vr <- web$rec.pairs[[w.name]]$cri %in%
           web$rec.pairs[[w.name]]$cri[
@@ -1378,7 +1398,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
         if(batched == "yes"){
           # use web$sys.tmp$ite_pos like the rec window?
           web$tmp$indx <- web$tmp$indx &
-            ((!web$repo$batched[web$rec.pairs[[w.name]]$cu_pos] &
+            (
+              (!web$repo$batched[web$rec.pairs[[w.name]]$cu_pos] &
                web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos])
              |
               !web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos]
@@ -1434,14 +1455,20 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             web$sys.tmp$ite_pos[web$repo$tag[web$sys.tmp$ite_pos] == 1]
           ] <- 10L
         }else{
+          if(ite == 4){
+            # browser()
+          }
+
           web$repo$tag[
             web$sys.tmp$ite_pos[
               web$repo$tag[web$sys.tmp$ite_pos] == 1 &
+                web$sys.tmp$ite_pos %in% web$rec.pairs[[w.name]]$cu_pos &
                 (
                   (!web$repo$batched[web$sys.tmp$ite_pos] &
                      web$repo$sys.batched[web$sys.tmp$ite_pos])
                   |
-                    !web$repo$sys.batched[web$sys.tmp$ite_pos]
+                  # !web$repo$sys.batched[web$sys.tmp$ite_pos]
+                  !web$repo$sys.batched[web$sys.tmp$ite_tr_pos]
                 )
             ]] <- 10L
         }
@@ -1466,6 +1493,7 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
       if(web$controls$use_recurrence){
         if(web$controls$use_rolls_max){
+
           # End recurrence when rolls_max is reached
           web$tmp$tr_pos <- web$rec.pairs[[w.name]]$tr_pos[web$rec.pairs[[w.name]]$w.match]
           web$tmp$ld_pos <- web$rec.pairs[[w.name]]$ld_pos[web$rec.pairs[[w.name]]$w.match]
@@ -1496,7 +1524,11 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
             web$repo$roll_n[web$tmp$tgt_pos] <-
             0L
           # Close matched records to stop recurrence
-          web$repo$tag[web$tmp$cu_pos[web$tmp$lgk]] <- 10L
+          # web$repo$tag[web$tmp$cu_pos[web$tmp$lgk]] <- 10L
+            web$repo$tag[web$tmp$tgt_pos][
+              web$tmp$tgt_pos %in% web$tmp$cu_pos[web$tmp$lgk] |
+              web$repo$tag[web$tmp$tgt_pos] == 1
+            ] <- 10L
         }
 
         # Flag next batched to be checked for recurrence
@@ -1508,6 +1540,8 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
 
         web$repo$tag[web$rec.pairs[[w.name]]$cu_pos[web$tmp$indx]] <- 1L
       }
+
+      # print(as.data.frame(web$rec.pairs[[w.name]][c("cu_pos", "tr_pos")]))
     }
 
     if(TRUE){
@@ -1555,10 +1589,10 @@ episodes <- function(date, case_length = Inf, episode_type = "fixed", recurrence
       web$report[length(web$report) + 1] <- list(web$rp_data)
     }
 
-    # print(paste0("Ite. ", ite, " and tr ",  unique(web$sys.tmp$ite_tr_pos)))
+    # print(paste0("Ite. ", ite, " and tr ",  unique(web$sys.tmp$ite_tr_pos), " - ", w.name))
     # print(as.data.frame(web$repo[c("pr_sn", "date", "tag", "case_nm",
     # "iteration", "ite.window", "last.batched", "sys.batched",
-    # "batched", "epid_n", "roll_n", "epid")]))
+    # "batched", "epid", "roll_n", "epid_n")]) %>% arrange(date.start, date.end))
 
     web$tm_ia <- Sys.time()
     ite <- ite + 1L
@@ -1745,11 +1779,10 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$repo$strata_cd <- match(
       web$repo$rw.strata,
       web$repo$rw.strata[!duplicated(web$repo$rw.strata)])
-
-    web$repo$s_ord <- order(web$repo$strata_cd, web$repo$dt_a, web$repo$dt_z)
   }else{
-    web$repo$s_ord <- order(web$repo$dt_a, web$repo$dt_z)
+    web$repo$strata_cd <- rep(1L, length(web$repo$pr_sn))
   }
+  web$repo$s_ord <- order(web$repo$strata_cd, web$repo$dt_a, -web$repo$dt_z)
   web$repo <- lapply(web$repo, function(x) x[web$repo$s_ord])
 
   if((episode_type == "fixed" & roll_first) | episode_type == "rolling"){
@@ -1764,7 +1797,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
       faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
       faC <- 10 ^ faC
 
-      web$repo$tmp.strata <- web$repo$rw.strata * faC
+      web$repo$tmp.strata <- web$repo$strata_cd * faC
 
       web$repo$tmp.dt_a <- web$repo$dt_a - RNG[[1]]
       web$repo$tmp.dt_a <- web$repo$tmp.strata + web$repo$dt_a
@@ -1772,26 +1805,29 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
       web$repo$tmp.wind_z <- web$repo$wind_z - RNG[[1]]
       web$repo$tmp.wind_z <- web$repo$tmp.strata + web$repo$wind_z
 
+      web$repo$Nxt.strata <-
+        web$repo$strata[c(lead.pos, NA)]
+      web$repo$Prv.strata <-
+        web$repo$strata_cd[c(NA, lag.pos)]
+
+      end_strata_lgk <- web$repo$strata_cd != web$repo$Nxt.strata
+    }else{
+      end_strata_lgk <- FALSE
     }
 
     web$repo$Nxt.wind_a <-
       web$repo$tmp.dt_a[c(lead.pos, NA)]
-    web$repo$Nxt.strata <-
-      web$repo$strata[c(lead.pos, NA)]
-    web$repo$Prv.strata <-
-      web$repo$strata[c(NA, lag.pos)]
 
     web$repo$cumEnd <- cummax(as.numeric(web$repo$tmp.wind_z))
 
-    end_strata_lgk <- web$repo$strata != web$repo$Nxt.strata
-    end_strata_lgk <- end_strata_lgk | is.na(end_strata_lgk)
-    web$repo$Nxt.wind_a[end_strata_lgk] <-
-      web$repo$tmp.dt_a[end_strata_lgk]
+    lgk <- end_strata_lgk | is.na(web$repo$Nxt.wind_a)
+    web$repo$Nxt.wind_a[lgk] <-
+      web$repo$tmp.dt_a[lgk]
 
     web$repo$change_lgk <- (web$repo$Nxt.wind_a > web$repo$cumEnd)
     web$repo$change_lgk <- web$repo$change_lgk[c(NA, lag.pos)]
 
-    if(length(web$repo$strata) > 1){
+    if(length(web$repo$rw.strata) > 1){
       # Start of new strata
       web$repo$new_strata_lgk <-
         web$repo$strata != web$repo$Prv.strata
@@ -1805,13 +1841,12 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 
     web$repo$epid <- web$repo$Cummchange_lgk + 1
   }else{
-    web$repo$epid <- rw.strata
+    web$repo$epid <- web$repo$strata_cd
   }
 
   unq.pr_sn.2 <- integer()
   if(episode_type == "fixed"){
-    web$repo <- web$repo[c("pr_sn", "date", "dt_a", "dt_z", "wind_z",
-                           "rw.strata", "epid")]
+    web$repo <- web$repo[c("pr_sn", "date", "dt_a", "dt_z", "wind_z", "strata_cd", "epid")]
 
     web$repo$iteration <- rep(ifelse(roll_first, 1L, 0L) , length(web$repo$pr_sn))
 
@@ -1830,39 +1865,37 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
         web$repo$epid,
         web$repo$epid[!duplicated(web$repo$epid)])
     }else{
-      web$repo$tmp.strata <- web$repo$rw.strata
+      web$repo$tmp.strata <- web$repo$strata_cd
     }
 
-    RNG <- range(c(web$repo$dt_a, web$repo$wind_z))
-    faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
+    web$repo$rec_pos <- seq_len(length(web$repo$tmp.strata))
+    faC <- as.integer(log10(max(web$repo$rec_pos))) + 1
     faC <- 10 ^ faC
 
     web$repo$tmp.strata <- ((max(web$repo$tmp.strata) + 1)) - web$repo$tmp.strata
     web$repo$tmp.strata <- web$repo$tmp.strata * faC
 
-    web$repo$tmp.dt_a <- web$repo$dt_a - RNG[[1]]
-    web$repo$tmp.dt_a <- web$repo$tmp.strata + web$repo$dt_a
-
-    web$repo$tmp.wind_z <- web$repo$wind_z - RNG[[1]]
-    web$repo$tmp.wind_z <- web$repo$tmp.strata + web$repo$wind_z
+    web$repo$tmp.rec_pos <- web$repo$tmp.strata + web$repo$rec_pos
 
     i <- 1L
     tm_ia <- Sys.time()
-    while(any(is.finite(web$repo$tmp.wind_z))){
-      web$repo$ld.wind_z <- abs(cummax(-web$repo$tmp.wind_z))
+    while(any(is.finite(web$repo$tmp.rec_pos))){
+      # browser()
+      ite_lgk <- web$repo$tmp.rec_pos != Inf
+      web$repo$ld.rec_pos[ite_lgk] <-
+        abs(cummax(-web$repo$tmp.rec_pos[ite_lgk])) - web$repo$tmp.strata[ite_lgk]
 
-      web$repo$lgk <- (web$repo$ld.wind_z >= web$repo$tmp.dt_a) &
-        web$repo$ld.wind_z != Inf
-      web$repo$lgk <- web$repo$lgk & !is.na(web$repo$lgk)
+      web$repo$lgk[ite_lgk] <- (web$repo$wind_z[web$repo$ld.rec_pos[ite_lgk]] >= web$repo$dt_a[ite_lgk])
+      web$repo$lgk[ite_lgk] <- web$repo$lgk[ite_lgk] & !is.na(web$repo$lgk[ite_lgk])
 
-      web$repo$epid[web$repo$lgk] <- web$repo$ld.wind_z[web$repo$lgk]
-      web$repo$tmp.wind_z[web$repo$lgk] <- Inf
-      web$repo$iteration[web$repo$lgk] <- i
+      web$repo$epid[ite_lgk][web$repo$lgk[ite_lgk]] <- web$repo$ld.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]]
+      web$repo$tmp.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]] <- Inf
+      web$repo$iteration[ite_lgk][web$repo$lgk[ite_lgk]] <- i
 
       if(!grepl("^none", web$controls$display)){
-        ite.linked.n <- length(which(web$repo$lgk))
-        ite.tot.n <- length(web$repo$tmp.wind_z[web$repo$tmp.wind_z != Inf]) + ite.linked.n
-        cri.linked.n <- length(web$repo$tmp.wind_z[web$repo$tmp.wind_z == Inf])
+        ite.linked.n <- length(which(web$repo$lgk[ite_lgk]))
+        ite.tot.n <- length(which(ite_lgk)) + ite.linked.n
+        cri.linked.n <- length(which(!ite_lgk))
 
         if(grepl("^progress", web$controls$display)){
           msg <- progress_bar(
@@ -1899,10 +1932,12 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     web$repo$iteration <- rep(1L, length(date))
   }
 
-  # Match the default preference for case records used in `episodes()`
-  case_s_ord <- order(web$repo$dt_a, -as.numeric(web$repo$dt_z), web$repo$pr_sn)
-  web$repo <- lapply(web$repo[c("pr_sn", "epid", "iteration")],
-                     function(x) x[case_s_ord])
+  if(FALSE){
+    # Match the default preference for case records used in `episodes()`
+    case_s_ord <- order(web$repo$dt_a, -as.numeric(web$repo$dt_z), web$repo$pr_sn)
+    web$repo <- lapply(web$repo[c("pr_sn", "epid", "iteration")],
+                       function(x) x[case_s_ord])
+  }
 
   web$repo <- list(
     pr_sn = c(web$repo$pr_sn, unq.pr_sn.1, unq.pr_sn.2),
