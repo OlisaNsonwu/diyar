@@ -972,7 +972,7 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                                   case_overlap_methods = 8, recurrence_overlap_methods = case_overlap_methods,
                                   skip_if_b4_lengths = FALSE, data_source = "1",
                                   data_links = "ANY", custom_sort = 1, skip_order = 1, reference_event = "last_record",
-                                  case_for_recurrence = FALSE, from_last = FALSE, group_stats = FALSE,
+                                  case_for_recurrence = FALSE, from_last = FALSE, group_stats = c("case_nm", "wind", "epid_interval"),
                                   display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = NULL,
                                   case_length_total = 1, recurrence_length_total = case_length_total,
                                   skip_unique_strata = TRUE, skip_checks = NULL, ...){
@@ -1019,7 +1019,7 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                        reference_event = c("character", "logical"),
                        case_for_recurrence = "logical",
                        from_last = "logical",
-                       group_stats = "logical",
+                       group_stats = c("logical", "character", "NULL"),
                        case_length_total = c("numeric", "integer", "number_line"),
                        recurrence_length_total = c("numeric", "integer", "number_line"),
                        case_sub_criteria = c("sub_criteria", "NULL"),
@@ -1158,6 +1158,8 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
   err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
   if(err != FALSE) return(err)
   err <- err_spec_vals(reference_event, "reference_event", c("first_record", "first_event", "last_record", "last_event", TRUE, FALSE))
+  if(err != FALSE) return(err)
+  err <- err_spec_vals(group_stats, "group_stats", c("case_nm", "wind", "epid_interval", TRUE, FALSE, NULL))
   if(err != FALSE) return(err)
   err <- err_overlap_methods_1(overlap_methods = case_overlap_methods, "case_overlap_methods")
   if(err != FALSE) return(err)

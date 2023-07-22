@@ -1152,15 +1152,20 @@ make_pairs_batched <- function(
   tmp2$index_ord <- rep(tmp_indexes$index_ord, tmp_indexes$strata_tot_new)
 
   tmp2 <- tmp2[c("x_pos", "y_pos", "index_ord")]
+
+  tmp2$x_pos <- tmp$sn[tmp2$x_pos]
+  tmp2$y_pos <- tmp$sn[tmp2$y_pos]
+
   if(!is.null(data_source) & isTRUE(ignore_same_source)){
     lgk <- which(data_source[tmp2$x_pos] != data_source[tmp2$y_pos])
     tmp2 <- lapply(tmp2, function(x) x[lgk])
   }
-  tmp2$x_pos <- tmp$sn[tmp2$x_pos]
-  tmp2$y_pos <- tmp$sn[tmp2$y_pos]
 
   tmp2$x_val <- x[tmp2$x_pos]
   tmp2$y_val <- x[tmp2$y_pos]
+  if(!is.null(strata)){
+    tmp2$strata <- strata[tmp2$y_pos]
+  }
 
   rm(list = ls()[ls() != "tmp2"])
   return(tmp2)

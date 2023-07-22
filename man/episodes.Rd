@@ -26,7 +26,7 @@ episodes(
   reference_event = "last_record",
   case_for_recurrence = FALSE,
   from_last = FALSE,
-  group_stats = FALSE,
+  group_stats = c("case_nm", "wind", "epid_interval"),
   display = "none",
   case_sub_criteria = NULL,
   recurrence_sub_criteria = case_sub_criteria,
@@ -99,7 +99,7 @@ If \code{FALSE} (default), only \code{case events} will have a \code{case window
 
 \item{from_last}{\code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).}
 
-\item{group_stats}{\code{[logical]}. If \code{TRUE} (default), episode-specific information like episode start and end dates are returned.}
+\item{group_stats}{\code{[character]}. Return episode-specific information in \code{\link[=epid-class]{epid}} \code{"slots"}. Options are any combination of \code{"case_nm"}, \code{"wind"} and \code{"epid_interval"}.}
 
 \item{display}{\code{[character]}. Display or produce a status update. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
