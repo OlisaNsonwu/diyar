@@ -894,7 +894,6 @@ combi_v2 <- function(...){
     return(rep(1, max(dd_err)))
   }
 
-  browser()
   mk_cd <- function(x){
     match(x, x[!duplicated(x)])
   }
@@ -909,24 +908,14 @@ combi_v2 <- function(...){
   faC <- faC + (length(faC)-1):0
   faC <- 10 ^ faC
 
-  sapply(seq_len(length(faC)), function(i){
+  combi <- sapply(seq_len(length(faC)), function(i){
     combi[[i]] * faC[i]
   })
 
+  combi <- match(combi, combi[!duplicated(combi)])
 
-
-  combi_cd <- match(combi[[1]], (combi[[1]])[!duplicated(combi[[1]])])
-  for (j in seq_len(length(combi))[-1]){
-    k <- match(combi[[j]], (combi[[j]])[!duplicated(combi[[j]])])
-
-    faC <- as.integer(log10(max(combi_cd))) + 1
-    faC <- 10 ^ faC
-
-    combi_cd <- combi_cd + (k * faC)
-    combi_cd <- match(combi_cd, combi_cd[!duplicated(combi_cd)])
-  }
-  rm(list = ls()[ls() != "combi_cd"])
-  return(combi_cd)
+  rm(list = ls()[ls() != "combi"])
+  return(combi)
 }
 
 dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
