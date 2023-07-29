@@ -1790,10 +1790,23 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   data_links <- data_links
   web$repo$rw.strata <- strata
 
+
+  unq.pr_sn.0 <- integer()
+  lgk <- is.na(web$repo$date@start) |
+    is.na(web$repo$date@.Data) |
+    !is.finite(web$repo$date@start) |
+    !is.finite(web$repo$date@.Data)
+
+  if(any(lgk)){
+    unq.pr_sn.0 <- web$repo$pr_sn[lgk]
+    web$repo <- lapply(web$repo, function(x) x[!lgk])
+  }
+
   unq.pr_sn.1 <- integer()
   if(length(web$repo$rw.strata) > 1){
-    lgk <- !duplicated(web$repo$rw.strata, fromLast = TRUE) &
-      !duplicated(web$repo$rw.strata, fromLast = FALSE)
+    lgk <- (!duplicated(web$repo$rw.strata, fromLast = TRUE) &
+      !duplicated(web$repo$rw.strata, fromLast = FALSE)) |
+      is.na(web$repo$rw.strata)
 
     if(any(lgk)){
       unq.pr_sn.1 <- web$repo$pr_sn[lgk]
@@ -1824,7 +1837,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     if(length(web$repo$rw.strata) > 1){
       # Make the identical dates in subsequent strata larger,
       # but still relatively the same compared to other dates in the same strata
-      RNG <- range(c(web$repo$dt_a, web$repo$wind_z))
+      RNG <- range(c(web$repo$dt_a, web$repo$wind_z[is.finite(web$repo$wind_z)]))
       faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
       faC <- 10 ^ faC
 
@@ -1970,9 +1983,10 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   }
 
   web$repo <- list(
-    pr_sn = c(web$repo$pr_sn, unq.pr_sn.1, unq.pr_sn.2),
-    group_id = c(-web$repo$epid, unq.pr_sn.1, unq.pr_sn.2),
+    pr_sn = c(web$repo$pr_sn, unq.pr_sn.0, unq.pr_sn.1, unq.pr_sn.2),
+    group_id = c(-web$repo$epid, unq.pr_sn.0, unq.pr_sn.1, unq.pr_sn.2),
     iteration = c(web$repo$iteration,
+                  rep(0L, length(unq.pr_sn.0)),
                   rep(0L, length(unq.pr_sn.1)),
                   rep(ifelse(roll_first, 1L, 0L), length(unq.pr_sn.2)))
   )

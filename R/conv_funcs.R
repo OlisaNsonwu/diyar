@@ -912,6 +912,7 @@ combi_v2 <- function(...){
     combi[[i]] * faC[i]
   })
 
+  combi <- rowSums(combi)
   combi <- match(combi, combi[!duplicated(combi)])
 
   rm(list = ls()[ls() != "combi"])
