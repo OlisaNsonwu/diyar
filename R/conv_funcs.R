@@ -861,6 +861,10 @@ combi <- function(...){
   return(combi_cd)
 }
 
+mk_cd <- function(x){
+  match(x, x[!duplicated(x)])
+}
+
 combi_v2 <- function(...){
   # ... must be vectors
   combi <- list(...)
@@ -894,9 +898,6 @@ combi_v2 <- function(...){
     return(rep(1, max(dd_err)))
   }
 
-  mk_cd <- function(x){
-    match(x, x[!duplicated(x)])
-  }
   combi <- lapply(combi, mk_cd)
 
   faC <- lapply(combi, function(x){

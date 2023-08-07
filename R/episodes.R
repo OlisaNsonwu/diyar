@@ -1913,10 +1913,10 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     }
 
     web$repo$rec_pos <- seq_len(length(web$repo$tmp.strata))
-    faC <- as.integer(log10(max(web$repo$rec_pos))) + 1
+    faC <- as.integer(log10(max(web$repo$rec_pos, na.rm = FALSE))) + 1
     faC <- 10 ^ faC
 
-    web$repo$tmp.strata <- ((max(web$repo$tmp.strata) + 1)) - web$repo$tmp.strata
+    web$repo$tmp.strata <- ((max(web$repo$tmp.strata, na.rm = FALSE) + 1)) - web$repo$tmp.strata
     web$repo$tmp.strata <- web$repo$tmp.strata * faC
 
     web$repo$tmp.rec_pos <- web$repo$tmp.strata + web$repo$rec_pos
