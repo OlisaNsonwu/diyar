@@ -33,7 +33,7 @@ episodes(
   case_length_total = 1,
   recurrence_length_total = case_length_total,
   skip_unique_strata = TRUE,
-  splits = 1,
+  splits_by_strata = 1,
   batched = "semi"
 )
 
@@ -114,10 +114,10 @@ Options are \code{NULL} or any combination of \code{"case_nm"}, \code{"wind"} an
 
 \item{skip_unique_strata}{\code{[logical]}. If \code{TRUE}, a strata with a single event is skipped.}
 
+\item{splits_by_strata}{\code{[integer]}. Split the analysis into \code{n} parts. This typically lowers max memory used but increases the run time.}
+
 \item{batched}{\code{[character]}. At each iteration, compare records against one index record per \code{strata} (\code{"no"}) or all records of an index event (\code{"semi"}).
 typically, the (\code{"semi"}) option will have a higher max memory and shorter run-time while (\code{"no"}) will have a lower max memory but longer run-time}
-
-\item{splits_by_strata}{\code{[integer]}. Split the analysis into \code{n} parts. This typically lowers max memory used but increases the run time.}
 }
 \value{
 \code{\link[=epid-class]{epid}}; \code{list}

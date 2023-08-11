@@ -250,7 +250,8 @@ links <- function(criteria,
   #
   web$repo$tag <-
     web$repo$iteration <- rep(0L, web$n.row)
-  web$repo$linked <- rep(FALSE, web$n.row)
+  web$repo$sys.linked <-
+    web$repo$cri.linked <- rep(FALSE, web$n.row)
   web$mxp_cri <- length(web$match.cri$criteria) + 1L
   web$repo$pid_cri <- rep(web$mxp_cri, web$n.row)
   #
@@ -270,6 +271,7 @@ links <- function(criteria,
   }
   web$i <- web$ite <- web$itx <- web$counts$max_indexes <- 1L
   while(web$i %in% seq_len(length(web$match.cri$criteria))){
+    # if(web$i == 2) browser()
     #
     web$i_nm <- ifelse(!is.null(names(web$match.cri$criteria[web$i])),
                        paste0(web$i, ": ", names(web$match.cri$criteria[web$i])),
@@ -292,9 +294,12 @@ links <- function(criteria,
         isFALSE(web$options$is_nested),
       TRUE, web$options$check_duplicates
     )
+
+    web$repo$cri.linked <- rep(FALSE, web$n.row)
+
     # Restart iteration
     web$repo$iteration[
-      which(web$repo$linked & web$repo$iteration != 0)
+      which(!web$repo$sys.linked)
     ] <- 0L
 
     # Attribute for current stage
@@ -323,15 +328,15 @@ links <- function(criteria,
       web$repo$cri_level[["strata"]] <- web$repo$strata
     }
     #
+    if(web$i == 2){
+      # browser()
+    }
     if(isTRUE(web$options$shrink) & web$ite != 1){
-      web$repo$cri_level[["record_group"]] <- web$repo$linked
-      if(FALSE){
-        web$ite.tmp$lgk <- web$repo$cri_level$record_group
-      }else{
-        web$ite.tmp$lgk <- TRUE
-      }
-      web$repo$cri_level$record_group[web$ite.tmp$lgk] <-
-        web$repo$pid[web$ite.tmp$lgk]
+      web$repo$cri_level[["record_group"]] <- web$repo$pid
+      web$repo$cri_level$record_group[!web$repo$sys.linked] <-
+        web$repo$pr_sn[!web$repo$sys.linked]
+
+      web$repo$sys.linked <- rep(FALSE, web$n.row)
     }
     web$repo$cri <- rep(NA, web$n.row)
     web$repo$cri[which(web$ite.tmp$inc_lgk)] <- combi(
@@ -341,6 +346,7 @@ links <- function(criteria,
       (!duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = TRUE) &
          !duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = FALSE))
     ] <- FALSE
+    # if(web$i == 2) browser()
     web$ite.tmp$cri_inc_indx <- which(web$ite.tmp$inc_lgk)
     #
     if(isFALSE(web$options$shrink)){
@@ -348,8 +354,8 @@ links <- function(criteria,
         web$ite.tmp$cri_inc_indx <- web$ite.tmp$cri_inc_indx[
           web$repo$pid_cri[web$ite.tmp$cri_inc_indx] >= web$i]
       }else{
-        if(length(web$repo$linked) == length(which(web$repo$linked[
-          web$ite.tmp$cri_inc_indx]))){
+        # if(length(web$repo$cri.linked) == length(which(web$repo$cri.linked[web$ite.tmp$cri_inc_indx]))){
+        if(length(which(!web$repo$sys.linked[web$ite.tmp$cri_inc_indx])) == 0){
           web$ite.tmp$cri_inc_indx <- numeric()
         }
       }
@@ -357,7 +363,7 @@ links <- function(criteria,
       if(web$i > 1){
         web$ite.tmp$cri_inc_indx <-
           web$ite.tmp$cri_inc_indx[web$repo$pid_cri[
-            web$ite.tmp$cri_inc_indx] == web$i - 1]
+            web$ite.tmp$cri_inc_indx] >= web$i - 1]
       }
     }
     #
@@ -396,7 +402,8 @@ links <- function(criteria,
       # Back up identifiers
       web$repo$pid[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_pid
       web$repo$tag[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_tag
-      web$repo$linked[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_linked
+      web$repo$cri.linked[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_cri.linked
+      web$repo$sys.linked[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_sys.linked
       web$repo$pid_cri[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_pid_cri
       web$repo$iteration[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_iteration
       web$ite.tmp$cri_inc_indx.mm <- index_multiples(
@@ -423,7 +430,7 @@ links <- function(criteria,
     }
 
     web$repo$tag <- rep(0L, web$n.row)
-    web$repo$iteration.linked <- as.logical(web$repo$tag)
+    # web$repo$ite.linked <- as.logical(web$repo$tag)
     web$repo$bkp_pid <- web$repo$pid
     web$itx <- 1L
 
@@ -434,16 +441,24 @@ links <- function(criteria,
     web$ite.tmp$ite_inc_indx <- web$ite.tmp$cri_inc_indx
     while(suppressWarnings(min(web$repo$tag[web$ite.tmp$ite_inc_indx])) != 2 &
           length(web$ite.tmp$ite_inc_indx) > 0) {
-      if(web$ite == 2){
+      if(web$ite > 1){
+        # browser()
+      }
+
+      if(web$ite == 10){
         # browser()
       }
 
       #
-      web$ite.tmp$ite_inc_indx <- web$ite.tmp$ite_inc_indx[
-        web$repo$tag[web$ite.tmp$ite_inc_indx] != 2 |
-          (web$repo$tag[web$ite.tmp$ite_inc_indx] == 2 & web$repo$iteration.linked[web$ite.tmp$ite_inc_indx] & "linked.true" %in% web$options$recursive) |
-          (web$repo$tag[web$ite.tmp$ite_inc_indx] == 2 & !web$repo$iteration.linked[web$ite.tmp$ite_inc_indx] & "linked.false" %in% web$options$recursive)
-      ]
+      web$tmp$lgk <- web$repo$tag[web$ite.tmp$ite_inc_indx] != 2
+      if(web$itx > 1){
+        web$tmp$lgk[
+          (web$repo$sys.linked[web$ite.tmp$ite_inc_indx] & "linked.true" %in% web$options$recursive) |
+            (!web$repo$sys.linked[web$ite.tmp$ite_inc_indx] & "linked.false" %in% web$options$recursive)
+        ] <- TRUE
+      }
+      web$ite.tmp$ite_inc_indx <- web$ite.tmp$ite_inc_indx[web$tmp$lgk]
+
       web$sort_ord <- order(
         web$repo$cri[web$ite.tmp$ite_inc_indx],
         web$repo$tag[web$ite.tmp$ite_inc_indx],
@@ -507,11 +522,6 @@ links <- function(criteria,
 
       names(web$rec.pairs)[which(names(web$rec.pairs) == "x_val")] <- "cu_pos"
       names(web$rec.pairs)[which(names(web$rec.pairs) == "y_val")] <- "tr_pos"
-      if(FALSE){
-        web$rec.pairs$cu_pid <- web$repo$pid[web$rec.pairs$cu_pos]
-        web$rec.pairs$cu_linked <- web$repo$iteration.linked[web$rec.pairs$cu_pos]
-        web$rec.pairs$cu_linked <- rep(FALSE, length(web$rec.pairs$cu_linked))
-      }
       #
       if(isTRUE(web$options$is_nested)){
         web$rec.pairs[["rec.match"]] <- eval_sub_criteria(
@@ -540,11 +550,12 @@ links <- function(criteria,
       web$rec.pairs$ref_rd <- web$rec.pairs$cu_pos == web$rec.pairs$tr_pos
       # Update window ids for matched or reference records
       web$rec.pairs$w.match <-
-        ((web$rec.pairs$rec.match$logical_test) | web$rec.pairs$ref_rd)# &
+        ((web$rec.pairs$rec.match$logical_test) | web$rec.pairs$ref_rd) &
         # (is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi]) |
         #    (!is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi]) & web$rec.pairs$cu_linked)
         # )
       # & is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi])
+        !web$repo$sys.linked[web$rec.pairs$cu_pos]
 
       if(TRUE){
         web$ite.tmp$s_ord <- order(web$rec.pairs$cu_pos[web$rec.pairs$w.match])
@@ -575,7 +586,8 @@ links <- function(criteria,
       web$rec.pairs$e.match <- web$rec.pairs$cu_pos %in%
         web$rec.pairs$cu_pos[
           web$rec.pairs$rec.match$logical_test &
-            !web$rec.pairs$ref_rd
+            !web$rec.pairs$ref_rd &
+            !web$repo$sys.linked[web$rec.pairs$cu_pos]
         ]
       web$rec.pairs$e.match <- web$rec.pairs$index_ord == 1 & web$rec.pairs$e.match
       web$rec.pairs$index_rd <- web$rec.pairs$cu_pos %in% web$rec.pairs$cu_pos[web$rec.pairs$ref_rd]
@@ -589,7 +601,12 @@ links <- function(criteria,
           web$ite.tmp$ite_inc_indx[web$ite.tmp$batched_pids$sn[web$ite.tmp$batched_pids$linked]]
         ] <- web$ite.tmp$ite_inc_indx[web$ite.tmp$batched_pids$group_id[web$ite.tmp$batched_pids$linked]]
       }else{
-        web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pid[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
+        if(web$options$shrink){
+          web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pr_sn[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
+        }else{
+          web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pid[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
+        }
+
         if(isTRUE(web$options$is_recursive)){
           web$ite.tmp$tr_refs <- list(cu_pos = web$rec.pairs$cu_pos[web$rec.pairs$index_ord == 1], tr_pos = web$rec.pairs$tr_pos[web$rec.pairs$index_ord == 1])
           web$ite.tmp$tr_refs$inherit_lgk <- web$repo$tag[web$ite.tmp$tr_refs$cu_pos] == 2 & web$repo$pid[web$ite.tmp$tr_refs$cu_pos] != web$repo$bkp_pid[web$ite.tmp$tr_refs$cu_pos]
@@ -600,7 +617,7 @@ links <- function(criteria,
 
       if(isTRUE(web$options$is_recursive)){
         web$repo$ovr_lgk <- web$repo$pr_sn %in% web$rec.pairs$cu_pos[web$rec.pairs$e.match] &
-          web$repo$iteration.linked
+          web$repo$cri.linked
         # web$ite.tmp$tgt_pid <- web$repo$bkp_pid
         web$ite.tmp$tgt_pid <- web$repo$pid
         web$ite.tmp$ovr_grp_indx <- which(web$ite.tmp$tgt_pid %in% web$ite.tmp$tgt_pid[web$repo$ovr_lgk])
@@ -637,7 +654,10 @@ links <- function(criteria,
           web$repo$pid_cri[web$ite.tmp$tgt_indx] == web$mxp_cri
       ] <- web$i
 
-      web$repo$iteration.linked[web$ite.tmp$tgt_indx] <- TRUE
+      if(web$ite == 1){
+        # browser()
+      }
+      web$repo$cri.linked[web$ite.tmp$tgt_indx] <- TRUE
       #
       web$repo$bkp_pid <- web$repo$pid
       #
@@ -686,74 +706,68 @@ links <- function(criteria,
       web$ite <- web$ite + 1L
       web$itx <- web$itx + 1L
     }
+    # browser()
     ta <- Sys.time()
     if(web$options$shrink){
-      if(FALSE){
-        # If sub-record-group has lost it's index
-        web$reset_lgk <- which(
-          # Records not in the current set checked ...
-          !web$repo$pr_sn %in% web$ite.tmp$cri_inc_indx &
-            # Previously linked to an index now associated with another record-group ...
-            # web$repo$pid %in% web$repo$pr_sn[web$repo$pr_sn %in% web$repo$pid[!web$repo$pr_sn %in% web$ite.tmp$cri_inc_indx]]
-            web$repo$pid %in% web$ite.tmp$cri_inc_indx[web$repo$iteration.linked[web$ite.tmp$cri_inc_indx]]
-        )
-      }else{
-        # alt approach
-        # Records which are not part of the current iteration
-        web$ite.tmp$cri_exc_indx <- which(!seq_len(web$n.row) %in% web$ite.tmp$cri_inc_indx)
-        # ... but belong to a group created by a record that has now changed groups
-        web$ite.tmp$tgt_indx <- web$ite.tmp$cri_exc_indx[web$repo$pid[web$ite.tmp$cri_exc_indx] %in% web$ite.tmp$cri_inc_indx]
-        if(length(web$ite.tmp$tgt_indx) > 0){
-          # ... this includes the same records from the POV of other references (index_cd)
-          web$ite.tmp$tgt_indx.mm <- index_multiples(
-            x = web$ite.tmp$tgt_indx,
-            multiples = web$n.row,
-            repeats = web$counts$max_indexes)$mm
-          # ... flag those with links to records that did not change groups in the current since the last iteration
-          web$l1 <- rep(web$ite.tmp$tgt_indx, web$n.row)
-          web$l2 <- web$repo$wind_id[web$ite.tmp$tgt_indx.mm]
-          web$indx <- which(web$l2 %in% web$ite.tmp$tgt_indx)
-          web$indx <- c(web$l2[web$indx], web$l1[web$indx])
-          # ... records not flagged have no links to allow it remain part of the group and so need will be reset
-          web$reset_lgk <- web$ite.tmp$tgt_indx[!web$ite.tmp$tgt_indx %in% web$indx]
-        }else{
-          web$reset_lgk <- numeric()
-        }
-        if(length(web$reset_lgk) > 0){
-          web$repo$pid[web$reset_lgk] <-
-            web$repo$pr_sn[web$reset_lgk]
-          web$repo$tag[web$reset_lgk] <- 0L
-          web$repo$linked[web$reset_lgk] <- FALSE
-          web$repo$pid_cri[web$reset_lgk] <- web$mxp_cri
-          web$repo$iteration[web$reset_lgk] <- 0L
-          web$repo$wind_id[
-            index_multiples(
-              x = web$reset_lgk,
-              multiples = web$n.row,
-              repeats = web$counts$max_indexes)$mm
-          ] <- NA_real_
-        }
-        if(length(web$ite.tmp$tgt_indx) > 0){
-          # ... flagged records can still remain in the same group but need a new ID to differentiate them from any other group.
-          web$newId_indx <- web$ite.tmp$tgt_indx[!web$ite.tmp$tgt_indx %in% web$reset_lgk]
-          web$repo$pid[web$newId_indx] <- web$n.row + web$repo$pid[web$newId_indx]
-        }
-        # ... links to records that have changed grouped are erased.
-        web$ite.tmp$cri_exc_indx.mm <- index_multiples(
-          x = web$ite.tmp$cri_exc_indx,
+
+      # alt approach
+      # Records which are not part of the current iteration
+      web$ite.tmp$cri_exc_indx <- which(!seq_len(web$n.row) %in% web$ite.tmp$cri_inc_indx)
+      # ... but belong to a group created by a record that has now changed groups
+      web$ite.tmp$tgt_indx <- web$ite.tmp$cri_exc_indx[web$repo$pid[web$ite.tmp$cri_exc_indx] %in% web$ite.tmp$cri_inc_indx]
+      if(length(web$ite.tmp$tgt_indx) > 0){
+        # ... this includes the same records from the POV of other references (index_cd)
+        web$ite.tmp$tgt_indx.mm <- index_multiples(
+          x = web$ite.tmp$tgt_indx,
           multiples = web$n.row,
           repeats = web$counts$max_indexes)$mm
-        web$repo$wind_id[web$ite.tmp$cri_exc_indx.mm][
-          web$repo$wind_id[web$ite.tmp$cri_exc_indx.mm] %in% web$ite.tmp$cri_inc_indx
-        ] <- NA
+        # ... flag those with links to records that did not change groups in the current since the last iteration
+        web$l1 <- rep(web$ite.tmp$tgt_indx, web$n.row)
+        web$l2 <- web$repo$wind_id[web$ite.tmp$tgt_indx.mm]
+        web$indx <- which(web$l2 %in% web$ite.tmp$tgt_indx)
+        web$indx <- c(web$l2[web$indx], web$l1[web$indx])
+        # ... records not flagged have no links to allow it remain part of the group and so need will be reset
+        web$reset_lgk <- web$ite.tmp$tgt_indx[!web$ite.tmp$tgt_indx %in% web$indx]
+      }else{
+        web$reset_lgk <- numeric()
       }
+      if(length(web$reset_lgk) > 0){
+        web$repo$pid[web$reset_lgk] <-
+          web$repo$pr_sn[web$reset_lgk]
+        web$repo$tag[web$reset_lgk] <- 0L
+        web$repo$cri.linked[web$reset_lgk] <- FALSE
+        web$repo$sys.linked[web$reset_lgk] <- FALSE
+        web$repo$pid_cri[web$reset_lgk] <- web$mxp_cri
+        web$repo$iteration[web$reset_lgk] <- 0L
+        web$repo$wind_id[
+          index_multiples(
+            x = web$reset_lgk,
+            multiples = web$n.row,
+            repeats = web$counts$max_indexes)$mm
+        ] <- NA_real_
+      }
+      if(length(web$ite.tmp$tgt_indx) > 0){
+        # ... flagged records can still remain in the same group but need a new ID to differentiate them from any other group.
+        web$newId_indx <- web$ite.tmp$tgt_indx[!web$ite.tmp$tgt_indx %in% web$reset_lgk]
+        web$repo$pid[web$newId_indx] <- web$n.row + web$repo$pid[web$newId_indx]
+      }
+      # ... links to records that have changed grouped are erased.
+      web$ite.tmp$cri_exc_indx.mm <- index_multiples(
+        x = web$ite.tmp$cri_exc_indx,
+        multiples = web$n.row,
+        repeats = web$counts$max_indexes)$mm
+      web$repo$wind_id[web$ite.tmp$cri_exc_indx.mm][
+        web$repo$wind_id[web$ite.tmp$cri_exc_indx.mm] %in% web$ite.tmp$cri_inc_indx
+      ] <- NA
+
       web$restore_lgk <- (!duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx]) &
                             !duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx], fromLast = TRUE))
       web$restore_lgk <- which(!web$repo$cri %in% web$repo$cri[!web$restore_lgk])
       if(length(web$restore_lgk) > 0){
         web$repo$pid[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_pid[web$restore_lgk]
         web$repo$tag[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_tag[web$restore_lgk]
-        web$repo$linked[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_linked[web$restore_lgk]
+        web$repo$cri.linked[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_cri.linked[web$restore_lgk]
+        web$repo$sys.linked[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_sys.linked[web$restore_lgk]
         web$repo$pid_cri[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_pid_cri[web$restore_lgk]
         web$repo$iteration[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_iteration[web$restore_lgk]
         web$restore_indx.mm <- index_multiples(
@@ -767,12 +781,15 @@ links <- function(criteria,
         web$ite.tmp$bkp_iteration <- web$ite.tmp$bkp_wind_id <-  NULL
     }
     # Unlink pids with a single record for another attempt in the next stage
-    web$ite.tmp$lgk <- (!duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx]) &
-                      !duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx], fromLast = TRUE))
-    web$repo$linked[web$ite.tmp$cri_inc_indx][
+    web$ite.tmp$lgk <- (
+      !duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx], fromLast = FALSE) &
+      !duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx], fromLast = TRUE))
+
+    web$repo$sys.linked[web$ite.tmp$cri_inc_indx][
       !web$repo$pid[web$ite.tmp$cri_inc_indx] %in% web$repo$pid[web$ite.tmp$cri_inc_indx][web$ite.tmp$lgk]
     ] <- TRUE
-    web$repo$linked[web$ite.tmp$cri_inc_indx][!web$ite.tmp$lgk] <- TRUE
+    # web$repo$cri.linked[web$ite.tmp$cri_inc_indx][!web$ite.tmp$lgk] <- TRUE
+
     #
     web$repo$pid[web$ite.tmp$cri_inc_indx[web$ite.tmp$lgk]] <-
       web$repo$pr_sn[web$ite.tmp$cri_inc_indx[web$ite.tmp$lgk]]

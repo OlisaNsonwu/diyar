@@ -135,7 +135,7 @@ episodes <- function(
     case_for_recurrence = FALSE, from_last = FALSE, group_stats = c("case_nm", "wind", "epid_interval"),
     display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = case_sub_criteria,
     case_length_total = 1, recurrence_length_total = case_length_total,
-    skip_unique_strata = TRUE, splits = 1, batched = "semi") {
+    skip_unique_strata = TRUE, splits_by_strata = 1, batched = "semi") {
   web <- list(tm_a = Sys.time())
   # Validations
   errs <- err_episodes_checks_0(
