@@ -782,19 +782,18 @@ links <- function(criteria,
     }
     # Unlink pids with a single record for another attempt in the next stage
     web$ite.tmp$lgk <- (
-      !duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx], fromLast = FALSE) &
-      !duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx], fromLast = TRUE))
+      !duplicated(web$repo$pid, fromLast = FALSE) &
+      !duplicated(web$repo$pid, fromLast = TRUE))
 
-    web$repo$sys.linked[web$ite.tmp$cri_inc_indx][
-      !web$repo$pid[web$ite.tmp$cri_inc_indx] %in% web$repo$pid[web$ite.tmp$cri_inc_indx][web$ite.tmp$lgk]
+    web$repo$sys.linked[
+      !web$repo$pid %in% web$repo$pid[web$ite.tmp$lgk]
     ] <- TRUE
-    # web$repo$cri.linked[web$ite.tmp$cri_inc_indx][!web$ite.tmp$lgk] <- TRUE
 
     #
-    web$repo$pid[web$ite.tmp$cri_inc_indx[web$ite.tmp$lgk]] <-
-      web$repo$pr_sn[web$ite.tmp$cri_inc_indx[web$ite.tmp$lgk]]
-    web$repo$pid_cri[web$ite.tmp$cri_inc_indx[web$ite.tmp$lgk]] <- web$mxp_cri
-    web$repo$iteration[web$ite.tmp$cri_inc_indx[web$ite.tmp$lgk]] <- 0L
+    web$repo$pid[web$ite.tmp$lgk] <-
+      web$repo$pr_sn[web$ite.tmp$lgk]
+    web$repo$pid_cri[web$ite.tmp$lgk] <- web$mxp_cri
+    web$repo$iteration[web$ite.tmp$lgk] <- 0L
     # Flag records linked at current stage
     #
     web$current_tot <- length(web$ite.tmp$cri_inc_indx)
