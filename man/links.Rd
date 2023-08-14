@@ -2,7 +2,7 @@
 % Please edit documentation in R/links.R
 \name{links}
 \alias{links}
-\title{Multistage and nested record linkage}
+\title{Stepwise and nested record linkage}
 \usage{
 links(
   criteria,

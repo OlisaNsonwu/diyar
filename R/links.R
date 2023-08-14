@@ -1,5 +1,5 @@
 #' @name links
-#' @title Multistage and nested record linkage
+#' @title Stepwise and nested record linkage
 #'
 #' @description Assign unique identifiers to records based on multiple stages of different match criteria.
 #'
@@ -186,13 +186,13 @@ links <- function(criteria,
   if(inherits(web$options$recursive, "logical")){
     web$options$is_recursive <- web$options$recursive
     if(isTRUE(web$options$recursive)){
-      web$options$recursive <- c("linked.false", "linked.true", "unlinked")
+      web$options$recursive <- c("linked", "unlinked")
     }else{
       web$options$recursive <- "none"
     }
   }else{
     web$options$is_recursive <-
-      any(c("linked.false", "linked.true", "unlinked") %in%
+      any(c("linked", "unlinked") %in%
             web$options$recursive) &
       !"none" %in% web$options$recursive
   }
@@ -271,8 +271,6 @@ links <- function(criteria,
   }
   web$i <- web$ite <- web$itx <- web$counts$max_indexes <- 1L
   while(web$i %in% seq_len(length(web$match.cri$criteria))){
-    # if(web$i == 2) browser()
-    #
     web$i_nm <- ifelse(!is.null(names(web$match.cri$criteria[web$i])),
                        paste0(web$i, ": ", names(web$match.cri$criteria[web$i])),
                        web$i)
@@ -328,9 +326,6 @@ links <- function(criteria,
       web$repo$cri_level[["strata"]] <- web$repo$strata
     }
     #
-    if(web$i == 2){
-      # browser()
-    }
     if(isTRUE(web$options$shrink) & web$ite != 1){
       web$repo$cri_level[["record_group"]] <- web$repo$pid
       web$repo$cri_level$record_group[!web$repo$sys.linked] <-
@@ -346,7 +341,7 @@ links <- function(criteria,
       (!duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = TRUE) &
          !duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = FALSE))
     ] <- FALSE
-    # if(web$i == 2) browser()
+    #
     web$ite.tmp$cri_inc_indx <- which(web$ite.tmp$inc_lgk)
     #
     if(isFALSE(web$options$shrink)){
@@ -441,20 +436,12 @@ links <- function(criteria,
     web$ite.tmp$ite_inc_indx <- web$ite.tmp$cri_inc_indx
     while(suppressWarnings(min(web$repo$tag[web$ite.tmp$ite_inc_indx])) != 2 &
           length(web$ite.tmp$ite_inc_indx) > 0) {
-      if(web$ite > 1){
-        # browser()
-      }
-
-      if(web$ite == 10){
-        # browser()
-      }
-
       #
       web$tmp$lgk <- web$repo$tag[web$ite.tmp$ite_inc_indx] != 2
-      if(web$itx > 1){
+      if(web$itx > 1 & web$options$is_recursive){
         web$tmp$lgk[
-          (web$repo$sys.linked[web$ite.tmp$ite_inc_indx] & "linked.true" %in% web$options$recursive) |
-            (!web$repo$sys.linked[web$ite.tmp$ite_inc_indx] & "linked.false" %in% web$options$recursive)
+          (web$repo$cri.linked[web$ite.tmp$ite_inc_indx] & "linked" %in% web$options$recursive) |
+            (!web$repo$cri.linked[web$ite.tmp$ite_inc_indx] & "unlinked" %in% web$options$recursive)
         ] <- TRUE
       }
       web$ite.tmp$ite_inc_indx <- web$ite.tmp$ite_inc_indx[web$tmp$lgk]
@@ -557,30 +544,28 @@ links <- function(criteria,
       # & is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi])
         !web$repo$sys.linked[web$rec.pairs$cu_pos]
 
-      if(TRUE){
-        web$ite.tmp$s_ord <- order(web$rec.pairs$cu_pos[web$rec.pairs$w.match])
-        web$ite.tmp$nw_index_ord <- rle(web$rec.pairs$cu_pos[web$rec.pairs$w.match][web$ite.tmp$s_ord])
-        web$ite.tmp$nw_index_ord <- sequence(web$ite.tmp$nw_index_ord$lengths)
-        web$ite.tmp$nw_index_ord <- web$ite.tmp$nw_index_ord[order(web$ite.tmp$s_ord)]
+      web$ite.tmp$s_ord <- order(web$rec.pairs$cu_pos[web$rec.pairs$w.match])
+      web$ite.tmp$nw_index_ord <- rle(web$rec.pairs$cu_pos[web$rec.pairs$w.match][web$ite.tmp$s_ord])
+      web$ite.tmp$nw_index_ord <- sequence(web$ite.tmp$nw_index_ord$lengths)
+      web$ite.tmp$nw_index_ord <- web$ite.tmp$nw_index_ord[order(web$ite.tmp$s_ord)]
 
-        web$ite.tmp$lgk <- !duplicated(web$rec.pairs$cu_pos[web$rec.pairs$w.match], fromLast = TRUE)
-        web$repo$max_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match][web$ite.tmp$lgk]] <-
-          web$repo$cur_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match][web$ite.tmp$lgk]] + web$ite.tmp$nw_index_ord[web$ite.tmp$lgk]
+      web$ite.tmp$lgk <- !duplicated(web$rec.pairs$cu_pos[web$rec.pairs$w.match], fromLast = TRUE)
+      web$repo$max_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match][web$ite.tmp$lgk]] <-
+        web$repo$cur_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match][web$ite.tmp$lgk]] + web$ite.tmp$nw_index_ord[web$ite.tmp$lgk]
 
-        # Maximum number of index records per episode (`max_indexes`).
-        web$ite.tmp$max_indexes <- suppressWarnings(max(web$repo$max_refs))
-        # Increase the number of `wind_id` by multiples of `max_indexes`
-        if(web$ite.tmp$max_indexes > web$counts$max_indexes){
-          web$repo$wind_id <- c(
-            web$repo$wind_id,
-            rep(rep(NA_real_, web$n.row), (web$ite.tmp$max_indexes - web$counts$max_indexes))
-          )
-          web$counts$max_indexes <- web$ite.tmp$max_indexes
-        }
-
-        web$rec.pairs$cu_pos.mi <- ((web$ite.tmp$nw_index_ord + web$repo$cur_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match]] - 1L) * web$n.row) + web$rec.pairs$cu_pos[web$rec.pairs$w.match]
-        web$repo$cur_refs <- web$repo$max_refs
+      # Maximum number of index records per episode (`max_indexes`).
+      web$ite.tmp$max_indexes <- suppressWarnings(max(web$repo$max_refs))
+      # Increase the number of `wind_id` by multiples of `max_indexes`
+      if(web$ite.tmp$max_indexes > web$counts$max_indexes){
+        web$repo$wind_id <- c(
+          web$repo$wind_id,
+          rep(rep(NA_real_, web$n.row), (web$ite.tmp$max_indexes - web$counts$max_indexes))
+        )
+        web$counts$max_indexes <- web$ite.tmp$max_indexes
       }
+
+      web$rec.pairs$cu_pos.mi <- ((web$ite.tmp$nw_index_ord + web$repo$cur_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match]] - 1L) * web$n.row) + web$rec.pairs$cu_pos[web$rec.pairs$w.match]
+      web$repo$cur_refs <- web$repo$max_refs
       web$repo$wind_id[web$rec.pairs$cu_pos.mi] <- web$rec.pairs$tr_pos[web$rec.pairs$w.match]
       #
       web$rec.pairs$e.match <- web$rec.pairs$cu_pos %in%
@@ -654,9 +639,6 @@ links <- function(criteria,
           web$repo$pid_cri[web$ite.tmp$tgt_indx] == web$mxp_cri
       ] <- web$i
 
-      if(web$ite == 1){
-        # browser()
-      }
       web$repo$cri.linked[web$ite.tmp$tgt_indx] <- TRUE
       #
       web$repo$bkp_pid <- web$repo$pid
@@ -709,7 +691,6 @@ links <- function(criteria,
     # browser()
     ta <- Sys.time()
     if(web$options$shrink){
-
       # alt approach
       # Records which are not part of the current iteration
       web$ite.tmp$cri_exc_indx <- which(!seq_len(web$n.row) %in% web$ite.tmp$cri_inc_indx)
@@ -762,7 +743,7 @@ links <- function(criteria,
 
       web$restore_lgk <- (!duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx]) &
                             !duplicated(web$repo$pid[web$ite.tmp$cri_inc_indx], fromLast = TRUE))
-      web$restore_lgk <- which(!web$repo$cri %in% web$repo$cri[!web$restore_lgk])
+      web$restore_lgk <- which(!web$repo$cri[web$ite.tmp$cri_inc_indx] %in% web$repo$cri[!web$restore_lgk])
       if(length(web$restore_lgk) > 0){
         web$repo$pid[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_pid[web$restore_lgk]
         web$repo$tag[web$ite.tmp$cri_inc_indx[web$restore_lgk]] <- web$ite.tmp$bkp_tag[web$restore_lgk]
@@ -781,12 +762,13 @@ links <- function(criteria,
         web$ite.tmp$bkp_iteration <- web$ite.tmp$bkp_wind_id <-  NULL
     }
     # Unlink pids with a single record for another attempt in the next stage
+    web$tgt_indx <- web$ite.tmp$cri_inc_indx[!web$repo$sys.linked[web$ite.tmp$cri_inc_indx]]
     web$ite.tmp$lgk <- (
-      !duplicated(web$repo$pid, fromLast = FALSE) &
-      !duplicated(web$repo$pid, fromLast = TRUE))
-
-    web$repo$sys.linked[
-      !web$repo$pid %in% web$repo$pid[web$ite.tmp$lgk]
+      !duplicated(web$repo$pid[web$tgt_indx], fromLast = FALSE) &
+        !duplicated(web$repo$pid[web$tgt_indx], fromLast = TRUE)
+    )
+    web$repo$sys.linked[web$tgt_indx][
+      !web$repo$pid[web$tgt_indx] %in% web$repo$pid[web$tgt_indx[web$ite.tmp$lgk]]
     ] <- TRUE
 
     #
