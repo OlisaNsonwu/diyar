@@ -1,57 +1,59 @@
 #' @name links
-#' @title Stepwise and nested record linkage
+#' @title Multistage record linkage
 #'
-#' @description Assign unique identifiers to records based on multiple stages of different match criteria.
+#' @description Assign records to unique groups based on an ordered set of matching attributes and other match criteria.
 #'
-#' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pid-class]{pid}} identifiers.
+#' @param sn \code{[integer]}. Unique record ID.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Record-groups are created separately for each \code{strata}. See \code{Details}.
-#' @param criteria \code{[list|atomic]}. Attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.
+#' @param criteria \code{[list|atomic]}. Order list of attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.
 #' @param sub_criteria \code{[list|\link{sub_criteria}]}. Match criteria. Must be paired to a stage of the linkage process (\code{criteria}). See \code{\link{sub_criteria}}
-#' @param data_source \code{[character]}. Data source identifier. Adds the list of data sources in each record-group to the \code{\link[=pid-class]{pid}}. Useful when the data is from multiple sources.
-#' @param group_stats \code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.
+#' @param data_source \code{[character]}. Source ID for each record. If provided, a list of all sources in each record-group is returned. See \code{\link[=pid-class]{pid_dataset slot}}.
+#' @param group_stats \code{[character]}. A selection of group specific information to be return for each record-group. Most are added to slots of the \code{\link[=pid-class]{pid}} object.
+#' Options are \code{NULL} or any combination of \code{"XX"}, \code{"XX"} and \code{"XX"}.
 #' @param data_links \code{[list|character]}. \code{data_source} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
 #' @param expand \code{[logical]}. If \code{TRUE}, a record-group gains new records if a match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.
 #' @param shrink \code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
 #' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{FALSE}.
 #' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{FALSE}.
-#' @param display \code{[character]}. display a status updated or generate a status report. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param tie_sort \code{[atomic]}. Preferential order for breaking ties within a iteration.
-#' @param repeats_allowed \code{[logical]} If \code{TRUE}, record-pairs with repeat values are created and compared. Ignored when \code{batched} is \code{TRUE}.
-#' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations of record-pairs are created and compared. Ignored when \code{batched} is \code{TRUE}.
-#' @param ignore_same_source \code{[logical]} If \code{TRUE}, only records-pairs with a different \bold{\code{data_source}} are created and compared.
+#' @param display \code{[character]}. Display progress update and/or generate a linkage report for the analysis. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
+#' @param tie_sort \code{[atomic]}. Preferential order for breaking match ties within an iteration of record linkage.
+#' @param repeats_allowed \code{[logical]} If \code{TRUE}, pairs made up of repeat records are not created and compared. Only used when \code{batched} is \code{"no"}.
+#' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations of record-pairs are created and compared. Only used when \code{batched} is \code{"no"}.
+#' @param ignore_same_source \code{[logical]} If \code{TRUE}, only records-pairs from a different \code{data_source} are created and compared.
 #' @param batched \code{[character]} Determines if record-pairs are created and compared in batches. Options are \code{"yes"}, \code{"no"} or \code{"semi"}.
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
-#' @seealso \code{\link{links_sv_probabilistic}}; \code{\link{episodes}}; \code{\link{partitions}}; \code{\link{predefined_tests}}; \code{\link{sub_criteria}}; \code{\link{schema}}
+#' @seealso \code{\link{links_af_probabilistic}}; \code{\link{episodes}};
+#' \code{\link{predefined_tests}}; \code{\link{sub_criteria}}
 #'
 #' @details
 #' The priority of matches decreases with each subsequent stage of the linkage process
-#' i.e. earlier stages (\code{criteria}) are considered superior.
-#' Therefore, it's important that each \code{criteria} is listed in an order of decreasing relevance.
+#' Therefore, it is important that list of \code{criteria} is in an order of decreasing relevance.
 #'
-#' Records with missing \code{criteria} (\code{NA} values) are skipped at their respective stage, while
-#' records with missing \code{strata} (\code{NA}) are skipped at every stage.
+#' Records with missing data for each \code{criteria} (\code{NA}) are
+#' skipped at the respective stage, while records with
+#' missing data for a \code{strata} (\code{NA}) are skipped from every stage.
 #'
-#' If a record is skipped, another attempt will be made to match the record at the next stage.
-#' If a record does not match any other record by the end of the linkage process (or it has a missing \code{strata}),
-#' it is assigned to a unique record-group.
+#' If a record is skipped from a stage, another attempt will be made to
+#' match the record at the next stage. If a record is still unmatched
+#' by the end of the linkage process, it is assigned to a unique record-group.
 #'
-#' A \code{\link{sub_criteria}} can be used to introduce additional and/or nested matching conditions at each stage of the linkage process.
-#' This results in only records with a matching \code{criteria} and \code{sub_criteria} being linked.
+#' A \code{\link{sub_criteria}} can be used to add additional
+#' matching conditions at each stage of the linkage process.
+#' In this case, only records with a matching \code{criteria}
+#' and \code{sub_criteria} are linked.
 #'
-#' In \bold{\code{\link{links}}}, each \code{\link{sub_criteria}} must be linked to a \code{criteria}.
-#' This is done by adding a \code{\link{sub_criteria}} to a named element of a \code{list}.
-#' Each element's name must correspond to a stage. For example, the list for 3 \code{sub_criteria} linked to
+#' In \bold{\code{\link{links}}}, each \code{\link{sub_criteria}} must
+#' be linked to a \code{criteria}. This is done by adding
+#' a \code{\link{sub_criteria}} to a named element of a \code{list}.
+#' Each element's name must be "cr" concatenated with the
+#' corresponding stage's number.
+#' For example, the list for 3 \code{sub_criteria} linked to
 #' \code{criteria} \code{1}, \code{5} and \code{13} will be;
 #'
-#' \deqn{list(cr1 = sub\_criteria(...), cr5 = sub\_criteria(...), cr13 = sub\_criteria(...))}
+#' \deqn{list(cr1 = sub_criteria(...), cr5 = sub_criteria(...), cr13 = sub_criteria(...))}
 #'
 #' Any unlinked \code{\link{sub_criteria}} will be ignored.
-#'
-#' \code{\link{sub_criteria}} objects themselves can be nested.
-#'
-#' By default, attributes in a \code{\link{sub_criteria}} are compared for an \code{\link{exact_match}}.
-#' However, user-defined functions are also permitted.
 #'
 #' Every element in \code{data_links} must be named \code{"l"} (links) or \code{"g"} (groups).
 #' Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
@@ -64,75 +66,73 @@
 #'
 #' @examples
 #' data(patient_records)
+#' dfr <- patient_records
 #' # An exact match on surname followed by an exact match on forename
-#' stages <- as.list(patient_records[c("surname", "forename")])
-#' pids_1 <- links(criteria = stages)
+#' stages <- as.list(dfr[c("surname", "forname")])
+#' p1 <- links(criteria = stages)
 #'
 #' # An exact match on forename followed by an exact match on surname
-#' pids_2 <- links(criteria = rev(stages))
+#' p2 <- links(criteria = rev(stages))
 #'
 #' # Nested matches
-#' # Same sex OR year of birth
-#' multi_cond1 <- sub_criteria(format(patient_records$dateofbirth, "%Y"),
-#'                            patient_records$sex,
-#'                            operator = "or")
+#' # Same sex OR birth year
+#' m.cri.1 <- sub_criteria(
+#'   format(dfr$dateofbirth, "%Y"), dfr$sex,
+#'   operator = "or")
 #'
 #' # Same middle name AND a 10 year age difference
 #' age_diff <- function(x, y){
 #'   diff <- abs(as.numeric(x) - as.numeric(y))
-#'   wgt <-  diff %in% 0:(365 * 10) & !is.na(diff)
+#'   wgt <-  diff %in% 0:10 & !is.na(diff)
 #'   wgt
 #' }
-#' multi_cond2 <- sub_criteria(patient_records$dateofbirth,
-#'                            patient_records$middlename,
-#'                            operator = "and",
-#'                            match_funcs = c(age_diff, exact_match))
+#' m.cri.2 <- sub_criteria(
+#'   format(dfr$dateofbirth, "%Y"), dfr$middlename,
+#'   operator = "and",
+#'   match_funcs = c(age_diff, exact_match))
 #'
-#' # 'multi_cond1' OR 'multi_cond2'
-#' nested_cond1 <- sub_criteria(multi_cond1,
-#'                              multi_cond2,
-#'                              operator = "or")
+#' # Nested match criteria 'm.cri.1' OR 'm.cri.2'
+#' n.cri <- sub_criteria(
+#'   m.cri.1, m.cri.2,
+#'   operator = "or")
 #'
-#' # Record linkage with nested conditions
-#' pids_3 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = multi_cond1,
-#'                                     cr2 = multi_cond2))
+#' # Record linkage with additional match criteria
+#' p3 <- links(
+#'   criteria = stages,
+#'   sub_criteria = list(cr1 = m.cri.1,
+#'                       cr2 = m.cri.2))
 #'
-#' # Record linkage with multiple (two) layers of nested conditions
-#' pids_4 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = nested_cond1,
-#'                                     cr2 = nested_cond1))
+#' # Record linkage with additonal nested match criteria
+#' p4 <- links(
+#'   criteria = stages,
+#'   sub_criteria = list(cr1 = n.cri,
+#'                       cr2 = n.cri))
 #'
-#' # Record linkage without group expansion
-#' pids_5 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = multi_cond1,
-#'                                     cr2 = multi_cond2),
-#'                 expand = FALSE)
+#' dfr$p1 <- p1; dfr$p2 <- p2
+#' dfr$p3 <- p3; dfr$p4 <- p4
 #'
-#' # Record linkage with shrinking record groups
-#' pids_6 <- links(criteria = stages,
-#'                 sub_criteria = list(cr1 = multi_cond1,
-#'                                     cr2 = multi_cond2),
-#'                 shrink = TRUE)
+#' head(dfr)
+#'
 #' @aliases links
 #' @export
-links <- function(criteria,
-                  sub_criteria = NULL,
-                  sn = NULL,
-                  strata = NULL,
-                  data_source = NULL,
-                  data_links = "ANY",
-                  display = "none",
-                  group_stats = FALSE,
-                  expand = TRUE,
-                  shrink = FALSE,
-                  recursive = "none",
-                  check_duplicates = FALSE,
-                  tie_sort = NULL,
-                  batched = "yes",
-                  repeats_allowed = FALSE,
-                  permutations_allowed = FALSE,
-                  ignore_same_source = FALSE){
+links <- function(
+    criteria,
+    sub_criteria = NULL,
+    sn = NULL,
+    strata = NULL,
+    data_source = NULL,
+    data_links = "ANY",
+    display = "none",
+    group_stats = FALSE,
+    expand = TRUE,
+    shrink = FALSE,
+    recursive = "none",
+    check_duplicates = FALSE,
+    tie_sort = NULL,
+    batched = "yes",
+    repeats_allowed = FALSE,
+    permutations_allowed = FALSE,
+    ignore_same_source = FALSE){
   tm_a <- Sys.time()
   #
   web <- list(repo = list(
