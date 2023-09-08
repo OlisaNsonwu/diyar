@@ -1840,172 +1840,177 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
     }
   }
 
-  web$repo$tmp.dt_a <- web$repo$dt_a <- as.numeric(web$repo$date@start)
-  web$repo$tmp.dt_z <- web$repo$dt_z <- as.numeric(right_point(web$repo$date))
-  web$repo$tmp.wind_z <- web$repo$wind_z <- web$repo$dt_z + web$controls$case_length
+  if(length(web$repo$pr_sn) > 0){
+    web$repo$tmp.dt_a <- web$repo$dt_a <- as.numeric(web$repo$date@start)
+    web$repo$tmp.dt_z <- web$repo$dt_z <- as.numeric(right_point(web$repo$date))
+    web$repo$tmp.wind_z <- web$repo$wind_z <- web$repo$dt_z + web$controls$case_length
 
-  # Sort records by strata and ascending order of event periods
-  if(length(web$repo$rw.strata) > 1){
-    web$repo$strata_cd <- match(
-      web$repo$rw.strata,
-      web$repo$rw.strata[!duplicated(web$repo$rw.strata)])
-  }else{
-    web$repo$strata_cd <- rep(1L, length(web$repo$pr_sn))
-  }
-  web$repo$s_ord <- order(web$repo$strata_cd, web$repo$dt_a, -web$repo$dt_z)
-  web$repo <- lapply(web$repo, function(x) x[web$repo$s_ord])
-
-  if((episode_type == "fixed" & roll_first) | episode_type == "rolling"){
-    # Lead and lag records indexes
-    lead.pos <- 2:length(web$repo$dt_a)
-    lag.pos <- 1:(length(web$repo$dt_a)-1)
-
+    # Sort records by strata and ascending order of event periods
     if(length(web$repo$rw.strata) > 1){
-      # Make the identical dates in subsequent strata larger,
-      # but still relatively the same compared to other dates in the same strata
-      RNG <- range(c(web$repo$dt_a, web$repo$wind_z[is.finite(web$repo$wind_z)]))
-      faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
+      web$repo$strata_cd <- match(
+        web$repo$rw.strata,
+        web$repo$rw.strata[!duplicated(web$repo$rw.strata)])
+    }else{
+      web$repo$strata_cd <- rep(1L, length(web$repo$pr_sn))
+    }
+    web$repo$s_ord <- order(web$repo$strata_cd, web$repo$dt_a, -web$repo$dt_z)
+    web$repo <- lapply(web$repo, function(x) x[web$repo$s_ord])
+
+    if((episode_type == "fixed" & roll_first) | episode_type == "rolling"){
+      # Lead and lag records indexes
+      lead.pos <- 2:length(web$repo$dt_a)
+      lag.pos <- 1:(length(web$repo$dt_a)-1)
+
+      if(length(web$repo$rw.strata) > 1){
+        # Make the identical dates in subsequent strata larger,
+        # but still relatively the same compared to other dates in the same strata
+        RNG <- range(c(web$repo$dt_a, web$repo$wind_z[is.finite(web$repo$wind_z)]))
+        faC <- as.integer(log10(RNG[[2]] - RNG[[1]])) + 1
+        faC <- 10 ^ faC
+
+        web$repo$tmp.strata <- web$repo$strata_cd * faC
+
+        web$repo$tmp.dt_a <- web$repo$dt_a - RNG[[1]]
+        web$repo$tmp.dt_a <- web$repo$tmp.strata + web$repo$dt_a
+
+        web$repo$tmp.wind_z <- web$repo$wind_z - RNG[[1]]
+        web$repo$tmp.wind_z <- web$repo$tmp.strata + web$repo$wind_z
+
+        web$repo$Nxt.strata <-
+          web$repo$strata[c(lead.pos, NA)]
+        web$repo$Prv.strata <-
+          web$repo$strata_cd[c(NA, lag.pos)]
+
+        end_strata_lgk <- web$repo$strata_cd != web$repo$Nxt.strata
+      }else{
+        end_strata_lgk <- FALSE
+      }
+
+      web$repo$Nxt.wind_a <-
+        web$repo$tmp.dt_a[c(lead.pos, NA)]
+
+      web$repo$cumEnd <- cummax(as.numeric(web$repo$tmp.wind_z))
+
+      lgk <- end_strata_lgk | is.na(web$repo$Nxt.wind_a)
+      web$repo$Nxt.wind_a[lgk] <-
+        web$repo$tmp.dt_a[lgk]
+
+      web$repo$change_lgk <- (web$repo$Nxt.wind_a > web$repo$cumEnd)
+      web$repo$change_lgk <- web$repo$change_lgk[c(NA, lag.pos)]
+
+      if(length(web$repo$rw.strata) > 1){
+        # Start of new strata
+        web$repo$new_strata_lgk <-
+          web$repo$strata != web$repo$Prv.strata
+        web$repo$new_strata_lgk <-
+          which(web$repo$new_strata_lgk | is.na(web$repo$new_strata_lgk))
+      }else{
+        web$repo$new_strata_lgk <- 1
+      }
+      web$repo$change_lgk[web$repo$new_strata_lgk] <- TRUE
+      web$repo$Cummchange_lgk <- cumsum(web$repo$change_lgk)
+
+      web$repo$epid <- web$repo$Cummchange_lgk + 1
+    }else{
+      web$repo$epid <- web$repo$strata_cd
+    }
+
+    unq.pr_sn.2 <- integer()
+    if(episode_type == "fixed"){
+      web$repo <- web$repo[c("pr_sn", "date", "dt_a", "dt_z", "wind_z", "strata_cd", "epid")]
+
+      web$repo$iteration <- rep(ifelse(roll_first, 1L, 0L) , length(web$repo$pr_sn))
+
+      if(roll_first){
+        if(length(web$repo$epid[!duplicated(web$repo$epid)]) > 1){
+          lgk <- !duplicated(web$repo$epid, fromLast = TRUE) &
+            !duplicated(web$repo$epid, fromLast = FALSE)
+
+          if(any(lgk)){
+            unq.pr_sn.2 <- web$repo$pr_sn[lgk]
+            web$repo <- lapply(web$repo, function(x) x[!lgk])
+          }
+        }
+
+        web$repo$tmp.strata <- match(
+          web$repo$epid,
+          web$repo$epid[!duplicated(web$repo$epid)])
+      }else{
+        web$repo$tmp.strata <- web$repo$strata_cd
+      }
+
+      web$repo$rec_pos <- seq_len(length(web$repo$tmp.strata))
+      faC <- as.integer(log10(max(web$repo$rec_pos, na.rm = FALSE))) + 1
       faC <- 10 ^ faC
 
-      web$repo$tmp.strata <- web$repo$strata_cd * faC
+      web$repo$tmp.strata <- ((max(web$repo$tmp.strata, na.rm = FALSE) + 1)) - web$repo$tmp.strata
+      web$repo$tmp.strata <- web$repo$tmp.strata * faC
 
-      web$repo$tmp.dt_a <- web$repo$dt_a - RNG[[1]]
-      web$repo$tmp.dt_a <- web$repo$tmp.strata + web$repo$dt_a
+      web$repo$tmp.rec_pos <- web$repo$tmp.strata + web$repo$rec_pos
 
-      web$repo$tmp.wind_z <- web$repo$wind_z - RNG[[1]]
-      web$repo$tmp.wind_z <- web$repo$tmp.strata + web$repo$wind_z
+      i <- 1L
+      tm_ia <- Sys.time()
+      while(any(is.finite(web$repo$tmp.rec_pos))){
+        ite_lgk <- web$repo$tmp.rec_pos != Inf
+        web$repo$ld.rec_pos[ite_lgk] <-
+          abs(cummax(-web$repo$tmp.rec_pos[ite_lgk])) - web$repo$tmp.strata[ite_lgk]
 
-      web$repo$Nxt.strata <-
-        web$repo$strata[c(lead.pos, NA)]
-      web$repo$Prv.strata <-
-        web$repo$strata_cd[c(NA, lag.pos)]
+        web$repo$lgk[ite_lgk] <- (web$repo$wind_z[web$repo$ld.rec_pos[ite_lgk]] >= web$repo$dt_a[ite_lgk])
+        web$repo$lgk[ite_lgk] <- web$repo$lgk[ite_lgk] & !is.na(web$repo$lgk[ite_lgk])
 
-      end_strata_lgk <- web$repo$strata_cd != web$repo$Nxt.strata
-    }else{
-      end_strata_lgk <- FALSE
-    }
+        web$repo$epid[ite_lgk][web$repo$lgk[ite_lgk]] <- web$repo$ld.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]]
+        web$repo$tmp.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]] <- Inf
+        web$repo$iteration[ite_lgk][web$repo$lgk[ite_lgk]] <- i
 
-    web$repo$Nxt.wind_a <-
-      web$repo$tmp.dt_a[c(lead.pos, NA)]
+        if(!grepl("^none", web$controls$display)){
+          ite.linked.n <- length(which(web$repo$lgk[ite_lgk]))
+          ite.tot.n <- length(which(ite_lgk)) + ite.linked.n
+          cri.linked.n <- length(which(!ite_lgk))
 
-    web$repo$cumEnd <- cummax(as.numeric(web$repo$tmp.wind_z))
-
-    lgk <- end_strata_lgk | is.na(web$repo$Nxt.wind_a)
-    web$repo$Nxt.wind_a[lgk] <-
-      web$repo$tmp.dt_a[lgk]
-
-    web$repo$change_lgk <- (web$repo$Nxt.wind_a > web$repo$cumEnd)
-    web$repo$change_lgk <- web$repo$change_lgk[c(NA, lag.pos)]
-
-    if(length(web$repo$rw.strata) > 1){
-      # Start of new strata
-      web$repo$new_strata_lgk <-
-        web$repo$strata != web$repo$Prv.strata
-      web$repo$new_strata_lgk <-
-        which(web$repo$new_strata_lgk | is.na(web$repo$new_strata_lgk))
-    }else{
-      web$repo$new_strata_lgk <- 1
-    }
-    web$repo$change_lgk[web$repo$new_strata_lgk] <- TRUE
-    web$repo$Cummchange_lgk <- cumsum(web$repo$change_lgk)
-
-    web$repo$epid <- web$repo$Cummchange_lgk + 1
-  }else{
-    web$repo$epid <- web$repo$strata_cd
-  }
-
-  unq.pr_sn.2 <- integer()
-  if(episode_type == "fixed"){
-    web$repo <- web$repo[c("pr_sn", "date", "dt_a", "dt_z", "wind_z", "strata_cd", "epid")]
-
-    web$repo$iteration <- rep(ifelse(roll_first, 1L, 0L) , length(web$repo$pr_sn))
-
-    if(roll_first){
-      if(length(web$repo$epid[!duplicated(web$repo$epid)]) > 1){
-        lgk <- !duplicated(web$repo$epid, fromLast = TRUE) &
-          !duplicated(web$repo$epid, fromLast = FALSE)
-
-        if(any(lgk)){
-          unq.pr_sn.2 <- web$repo$pr_sn[lgk]
-          web$repo <- lapply(web$repo, function(x) x[!lgk])
+          if(grepl("^progress", web$controls$display)){
+            msg <- progress_bar(
+              n = dataset.n - (ite.tot.n - ite.linked.n),
+              d = dataset.n,
+              max_width = 100,
+              msg = paste0("Iteration ",
+                           fmt(i + 1L), " (",
+                           fmt(difftime(Sys.time(), tm_ia), "difftime"),
+                           ")"),
+              prefix_msg = "")
+            cat(msg, "\r", sep = "")
+          }else if (grepl("^stats", web$controls$display)){
+            web$msg <- update_text(
+              tot_records = fmt(dataset.n),
+              current_tot = fmt(ite.tot.n),
+              current_tagged = fmt(ite.linked.n),
+              time = fmt(Sys.time() - tm_ia, "difftime"),
+              # iteration = ite,
+              indent_txt = ""
+            )
+            cat(msg, "\n", sep = "")
+          }
+          tm_ia <- Sys.time()
         }
+
+        i <- i + 1L
       }
 
-      web$repo$tmp.strata <- match(
-        web$repo$epid,
-        web$repo$epid[!duplicated(web$repo$epid)])
+      web$repo$epid <- combi(web$repo$tmp.strata, web$repo$epid)
+      web$repo$iteration <- web$repo$iteration + 1L
+
     }else{
-      web$repo$tmp.strata <- web$repo$strata_cd
+      web$repo$iteration <- rep(1L, length(date))
     }
 
-    web$repo$rec_pos <- seq_len(length(web$repo$tmp.strata))
-    faC <- as.integer(log10(max(web$repo$rec_pos, na.rm = FALSE))) + 1
-    faC <- 10 ^ faC
-
-    web$repo$tmp.strata <- ((max(web$repo$tmp.strata, na.rm = FALSE) + 1)) - web$repo$tmp.strata
-    web$repo$tmp.strata <- web$repo$tmp.strata * faC
-
-    web$repo$tmp.rec_pos <- web$repo$tmp.strata + web$repo$rec_pos
-
-    i <- 1L
-    tm_ia <- Sys.time()
-    while(any(is.finite(web$repo$tmp.rec_pos))){
-      ite_lgk <- web$repo$tmp.rec_pos != Inf
-      web$repo$ld.rec_pos[ite_lgk] <-
-        abs(cummax(-web$repo$tmp.rec_pos[ite_lgk])) - web$repo$tmp.strata[ite_lgk]
-
-      web$repo$lgk[ite_lgk] <- (web$repo$wind_z[web$repo$ld.rec_pos[ite_lgk]] >= web$repo$dt_a[ite_lgk])
-      web$repo$lgk[ite_lgk] <- web$repo$lgk[ite_lgk] & !is.na(web$repo$lgk[ite_lgk])
-
-      web$repo$epid[ite_lgk][web$repo$lgk[ite_lgk]] <- web$repo$ld.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]]
-      web$repo$tmp.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]] <- Inf
-      web$repo$iteration[ite_lgk][web$repo$lgk[ite_lgk]] <- i
-
-      if(!grepl("^none", web$controls$display)){
-        ite.linked.n <- length(which(web$repo$lgk[ite_lgk]))
-        ite.tot.n <- length(which(ite_lgk)) + ite.linked.n
-        cri.linked.n <- length(which(!ite_lgk))
-
-        if(grepl("^progress", web$controls$display)){
-          msg <- progress_bar(
-            n = dataset.n - (ite.tot.n - ite.linked.n),
-            d = dataset.n,
-            max_width = 100,
-            msg = paste0("Iteration ",
-                         fmt(i + 1L), " (",
-                         fmt(difftime(Sys.time(), tm_ia), "difftime"),
-                         ")"),
-            prefix_msg = "")
-          cat(msg, "\r", sep = "")
-        }else if (grepl("^stats", web$controls$display)){
-          web$msg <- update_text(
-            tot_records = fmt(dataset.n),
-            current_tot = fmt(ite.tot.n),
-            current_tagged = fmt(ite.linked.n),
-            time = fmt(Sys.time() - tm_ia, "difftime"),
-            # iteration = ite,
-            indent_txt = ""
-          )
-          cat(msg, "\n", sep = "")
-        }
-        tm_ia <- Sys.time()
-      }
-
-      i <- i + 1L
+    if(FALSE){
+      # Match the default preference for case records used in `episodes()`
+      case_s_ord <- order(web$repo$dt_a, -as.numeric(web$repo$dt_z), web$repo$pr_sn)
+      web$repo <- lapply(web$repo[c("pr_sn", "epid", "iteration")],
+                         function(x) x[case_s_ord])
     }
-
-    web$repo$epid <- combi(web$repo$tmp.strata, web$repo$epid)
-    web$repo$iteration <- web$repo$iteration + 1L
-
   }else{
-    web$repo$iteration <- rep(1L, length(date))
-  }
-
-  if(FALSE){
-    # Match the default preference for case records used in `episodes()`
-    case_s_ord <- order(web$repo$dt_a, -as.numeric(web$repo$dt_z), web$repo$pr_sn)
-    web$repo <- lapply(web$repo[c("pr_sn", "epid", "iteration")],
-                       function(x) x[case_s_ord])
+    web$repo$epid <-
+      unq.pr_sn.2 <- as.integer()
   }
 
   web$repo <- list(

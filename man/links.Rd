@@ -88,8 +88,8 @@ be linked to a \code{criteria}. This is done by adding
 a \code{\link{sub_criteria}} to a named element of a \code{list}.
 Each element's name must be "cr" concatenated with the
 corresponding stage's number.
-For example, the list for 3 \code{sub_criteria} linked to
-\code{criteria} \code{1}, \code{5} and \code{13} will be;
+For example, 3 \code{sub_criteria} linked to
+\code{criteria} 1, 5 and 13 will be;
 
 \deqn{list(cr1 = sub_criteria(...), cr5 = sub_criteria(...), cr13 = sub_criteria(...))}
 

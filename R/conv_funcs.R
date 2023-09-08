@@ -920,6 +920,37 @@ combi_v2 <- function(...){
   return(combi)
 }
 
+concat.integer <- function(...){
+  # ... must be vectors
+  combi <- list(...)
+  faC <- lapply(combi, function(x){
+    faC <- as.integer(log10(max(x))) + 1L
+    return(faC)
+  })
+
+  faC <- unlist(faC, use.names = FALSE)
+  faC <- rev(cumsum(rev(faC)))
+  faC <- c(faC, 0)
+
+  faC <- c(faC[1:(length(faC)-1)], 0)
+  faC <- 10 ^ faC
+
+  combi <- sapply(seq_len(length(faC)-1L), function(i){
+    combi[[i]] * faC[i+1]
+  })
+
+  if(inherits(combi, "matrix")){
+    combi <- rowSums(combi)
+  }else{
+    combi <- sum(combi)
+  }
+
+  combi <- combi + faC[1]
+
+  rm(list = ls()[ls() != "combi"])
+  return(combi)
+}
+
 dst_tab <- function(x, order_by_label = NULL, order_by_val = TRUE){
   y <- rle(as.vector(x))
   if(is.null(order_by_label) & isTRUE(order_by_val)){
@@ -1656,4 +1687,11 @@ missing_wf.null <- function(x){
 round_to <- function(x, to, f = round){
   r <- (as.numeric(x) %% to)
   (x - r) + (f(r/to) * to)
+}
+
+concat.integer_v1 <- function(a, z){
+  faC <- as.integer(log10(max(z, na.rm = TRUE))) + 1L
+  faC <- 10 ^ faC
+  a <- (a * faC) + z
+  a
 }
