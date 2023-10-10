@@ -686,7 +686,7 @@ links <- function(
       web$ite <- web$ite + 1L
       web$itx <- web$itx + 1L
     }
-    # browser()
+
     ta <- Sys.time()
     if(web$options$shrink){
       # alt approach
