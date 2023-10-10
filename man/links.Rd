@@ -25,9 +25,9 @@ links(
 )
 }
 \arguments{
-\item{criteria}{\code{[list|atomic]}. Order list of attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.}
+\item{criteria}{\code{[list|atomic]}. Ordered list of attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.}
 
-\item{sub_criteria}{\code{[list|\link{sub_criteria}]}. Match criteria. Must be paired to a stage of the linkage process (\code{criteria}). See \code{\link{sub_criteria}}}
+\item{sub_criteria}{\code{[list|\link{sub_criteria}]}. Nested match criteria. This must be paired to a stage of the linkage process (\code{criteria}). See \code{\link{sub_criteria}}}
 
 \item{sn}{\code{[integer]}. Unique record ID.}
 
@@ -64,30 +64,28 @@ Options are \code{NULL} or any combination of \code{"XX"}, \code{"XX"} and \code
 \code{\link[=pid-class]{pid}}; \code{list}
 }
 \description{
-Assign records to unique groups based on an ordered set of matching attributes and other match criteria.
+Assign records to unique groups based on an ordered set of match criteria.
 }
 \details{
-The priority of matches decreases with each subsequent stage of the linkage process
-Therefore, it is important that list of \code{criteria} is in an order of decreasing relevance.
+The priority of matches decreases with each subsequent stage of the linkage process.
+Therefore, the attributes in \code{criteria} should be in an order of decreasing relevance.
 
-Records with missing data for each \code{criteria} (\code{NA}) are
+Records with missing data (\code{NA}) for each \code{criteria} are
 skipped at the respective stage, while records with
-missing data for a \code{strata} (\code{NA}) are skipped from every stage.
+missing data \code{strata} are skipped from every stage.
 
 If a record is skipped from a stage, another attempt will be made to
 match the record at the next stage. If a record is still unmatched
-by the end of the linkage process, it is assigned to a unique record-group.
+by the last stage, it is assigned a unique group ID.
 
-A \code{\link{sub_criteria}} can be used to add additional
-matching conditions at each stage of the linkage process.
-In this case, only records with a matching \code{criteria}
-and \code{sub_criteria} are linked.
+A \code{\link{sub_criteria}} adds nested match criteria
+to each stage of the linkage process. If used, only
+records with a matching \code{criteria} and \code{sub_criteria} are linked.
 
 In \bold{\code{\link{links}}}, each \code{\link{sub_criteria}} must
-be linked to a \code{criteria}. This is done by adding
-a \code{\link{sub_criteria}} to a named element of a \code{list}.
-Each element's name must be "cr" concatenated with the
-corresponding stage's number.
+be linked to a \code{criteria}. This is done by adding each \code{\link{sub_criteria}}
+to a named element of a list - "cr" concatenated with
+the corresponding stage's number.
 For example, 3 \code{sub_criteria} linked to
 \code{criteria} 1, 5 and 13 will be;
 
