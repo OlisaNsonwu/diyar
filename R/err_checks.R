@@ -1363,7 +1363,7 @@ err_atomic_vectors <- function(arg, arg_nm){
 }
 
 err_atomic_vectors_2 <- function(arg, arg_nm){
-  err <- is.atomic(arg)
+  err <- is.atomic(arg) | is.null(arg)
   if(isFALSE(err)){
     return(paste0("`", arg_nm, "` must be an `atomic` vector.`\n"))
   }else{
