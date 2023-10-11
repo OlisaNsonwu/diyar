@@ -462,34 +462,6 @@ err_episode_unit_1 <- function(episode_unit){
   }
 }
 
-err_episode_type_1 <- function(episode_type){
-  if(any(!tolower(episode_type) %in% c("fixed", "rolling"))){
-    opts <- episode_type
-    sn <- 1:length(opts)
-
-    opts <- split(sn , opts)
-    opts <- opts[!tolower(names(opts)) %in% c("fixed", "rolling")]
-
-    opts <- unlist(lapply(opts, function(x){
-      missing_check(ifelse(sn %in% x, NA, T), 2)
-    }), use.names = T)
-
-    opts <- paste0("\"", names(opts),"\"", " at ", opts)
-    if(length(opts) >3){
-      errs <- paste0(paste0(opts[1:3], collapse = ", "), " ...")
-    } else{
-      errs <- listr(opts)
-    }
-    errs <-  paste0("Invalid values for `episode_type`:\n",
-                    "i - Vaild values are \"fixed\" or \"rolling\".\n",
-                    "X - You've supplied ", errs, ".")
-
-    return(errs)
-  }
-
-  return(FALSE)
-}
-
 err_by_1 <- function(by){
   if(any( by <= 0)){
     by[by <= 0] <- NA_real_
@@ -855,7 +827,7 @@ err_episodes_checks_1 <- function(date,
 
   err <- err_episode_unit_1(episode_unit = episode_unit)
   if(err != FALSE) return(err[1])
-  err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling", "recursive"))
+  err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling"))
   if(err != FALSE) return(err[1])
   err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
   if(err != FALSE) return(err[1])
@@ -1153,11 +1125,11 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
   if(err != FALSE) return(err)
   err <- err_episode_unit_1(episode_unit = episode_unit)
   if(err != FALSE) return(err)
-  err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling", "recursive"))
+  err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling"))
   if(err != FALSE) return(err)
   err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
   if(err != FALSE) return(err)
-  err <- err_spec_vals(reference_event, "reference_event", c("first_record", "first_event", "last_record", "last_event", TRUE, FALSE))
+  err <- err_spec_vals(reference_event, "reference_event", c("all_record", "first_record", "first_event", "last_record", "last_event",  TRUE, FALSE))
   if(err != FALSE) return(err)
   err <- err_spec_vals(group_stats, "group_stats", c("case_nm", "wind", "epid_interval", TRUE, FALSE, NULL))
   if(err != FALSE) return(err)

@@ -114,9 +114,9 @@ Options are \code{NULL} or any combination of \code{"case_nm"}, \code{"wind"} an
 
 \item{skip_unique_strata}{\code{[logical]}. If \code{TRUE}, a strata with a single event is skipped.}
 
-\item{splits_by_strata}{\code{[integer]}. Split the analysis into \code{n} parts. This typically lowers max memory used but increases the run time.}
+\item{splits_by_strata}{\code{[integer]}. Split analysis into \code{n} parts. This typically lowers max memory usage but increases run time.}
 
-\item{batched}{\code{[character]}. At each iteration, compare records against one index record per \code{strata} (\code{"no"}) or all records of an index event (\code{"semi"}).
+\item{batched}{\code{[character]}. Create and compare records in batches. Options are \code{"yes"}, \code{"no"}, and \code{"semi"}.
 typically, the (\code{"semi"}) option will have a higher max memory and shorter run-time while (\code{"no"}) will have a lower max memory but longer run-time}
 }
 \value{
@@ -136,7 +136,7 @@ are within a set duration of each other in iterations.
 Every record is linked to a unique group (episode; \code{\link[=epid-class]{epid}} object).
 These episodes represent occurrences of interest as specified by function's arguments and defined by a case definition.
 
-In general, three type of episodes are possible;
+Two main type of episodes are possible;
 \itemize{
 \item \code{"fixed"} - An episode where all events are within a fixed duration of an index event.
 \item \code{"rolling"} - An episode where all events are within a recurring duration of an index event.
