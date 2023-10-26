@@ -332,32 +332,59 @@ summary.epid <- function(object, ...){
   summ$total_records <- length(object)
   summ$total_episodes <- length(object[object@case_nm == 0])
 
-  x <- object[order(-object@wind_nm$wind_nm1)]
-  x <- x[!duplicated(x@.Data)]
-  x <- decode(x@wind_nm$wind_nm1[x@case_nm != -1])
-  x[x == "Case"] <- "Fixed"
-  x[x == "Recurrence"] <- "Rolling"
-  summ$episode_type <- dst_tab(x = x, order_by_label = c("Fixed", "Rolling"))
+  w.i <- sapply(object@wind_nm, function(x){
+    x[is.na(x)] <- 0L
+    x
+  })
+  w.i <- row_wise(w.i, value = TRUE, type = "max")
+  x <- c("Fixed", "Rolling")[w.i + 1L]
 
-  x <- object[object@wind_nm$wind_nm1 == 1]
-  x <- x[!duplicated(x@wind_id$wind_id1)]
-  x <- x[order(x@.Data)]
-  x <- rle(x@.Data)
+
+  x <- object@.Data[x == "Fixed"]
+  x <- x[!duplicated(x)]
+  summ$episode_type <- list(lengths = c(summ$total_episodes - length(x), length(x)),
+                            values = c("Fixed", "Rolling"))
+  summ$episode_type <- lapply(summ$episode_type, function(x){
+    x[summ$episode_type$lengths > 0]
+  })
+
+  x <- sapply(object@wind_id, function(x){
+    x[w.i == 1]
+  })
+  y <- object@.Data[w.i == 1]
+  y <- rep(as.matrix(y), ncol(x))
+  x <- as.integer(x)
+  x <- y[!duplicated(x)]
+  x <- x[order(x)]
+  x <- rle(x)
 
   summ$recurrence <- dst_tab(x = paste0(x$lengths[order(x$lengths)]))
   if(length(summ$recurrence$values) > 0){
     summ$recurrence$values <- paste0(summ$recurrence$values, " times")
     summ$recurrence$values[summ$recurrence$values == "1 times"] <- "1 time"
   }
-  summ$case_nm <- dst_tab(x = decode(object@case_nm[order(object@case_nm)]), order_by_label = c("Case", "Duplicate_C", "Recurrent", "Duplicate_R", "Skipped"))
+  summ$case_nm <- dst_tab(
+    x = decode(object@case_nm[order(object@case_nm)]),
+    order_by_label = c("Case", "Duplicate_C", "Recurrent", "Duplicate_R", "Skipped"))
   x <- object@epid_total[object@case_nm == 0]
   summ$epid_total <- dst_tab(x[order(x)])
   if(length(summ$epid_total$values) > 0){
     summ$epid_total$values <- paste0(summ$epid_total$values, " records")
     summ$epid_total$values[summ$epid_total$values == "1 records"] <- "1 record"
   }
-  summ$epid_length <- if(is.null(object@epid_length)) list(values = numeric(), length = numeric()) else dst_tab(x = format((object@epid_length[object@case_nm == 0])[order(object@epid_length[object@case_nm == 0])], trim = TRUE))
-  summ$data_source <- if(is.null(object@epid_dataset)) list(values = numeric(), length = numeric()) else dst_tab(x = decode((object@epid_dataset[object@case_nm == 0])[order(object@epid_dataset[object@case_nm == 0])]), order_by_label = sort(attr(object@epid_dataset, "label")))
+  if(is.null(object@epid_length)){
+    summ$epid_length <- list(values = numeric(), length = numeric())
+  } else {
+    summ$epid_length <- dst_tab(x = format((object@epid_length[object@case_nm %in% c(0, 4)])[
+      order(object@epid_length[object@case_nm %in% c(0, 4)])], trim = TRUE))
+  }
+  if(is.null(object@epid_dataset)){
+    summ$data_source <- list(values = numeric(), length = numeric())
+  } else{
+    summ$data_source <- dst_tab(x = decode((object@epid_dataset[object@case_nm %in% c(0, 4)])[
+      order(object@epid_dataset[object@case_nm %in% c(0, 4)])]),
+            order_by_label = sort(attr(object@epid_dataset, "label")))
+  }
   class(summ) <- "epid_summary"
   return(summ)
 }
@@ -411,7 +438,7 @@ print.epid_summary <- function(x, ...){
                 paste0(ds_txts["episode_type"], "\n"),
                 " by episode dataset:", "\n",
                 paste0(ds_txts["data_source"], "\n"),
-                " by episodes duration:", "\n",
+                " by episode duration:", "\n",
                 paste0(ds_txts["epid_length"], "\n"),
                 " by records per episode:", "\n",
                 paste0(ds_txts["epid_total"], "\n"),
