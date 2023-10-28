@@ -69,7 +69,7 @@ make_episodes <- function(
     epids@wind_nm <- lapply(epids@wind_nm, function(x){
       class(x) <- "d_label"
       attr(x, "value") <- -1L : 2L
-      attr(x, "label") <- c("Skipped", "Case", "Recurrence", "Case_for_recurrence")
+      attr(x, "label") <- c("Skipped", "Case", "Recurrence", "Case for Recurrence")
       attr(x, "state") <- "encoded"
       return(x)
     })

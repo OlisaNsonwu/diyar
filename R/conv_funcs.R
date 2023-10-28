@@ -505,14 +505,21 @@ box_ring <- function(boxes_w = 3, order = 1){
 }
 
 l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
-  winds <- pltd[!duplicated(pltd$wind_id) &  pltd$wind_nm != "Skipped" & pltd$wind_nm == wind_nm,]
-  lgk <- pltd$sn %in% winds$wind_id & pltd$case_nm != "Skipped"
-  lar <- pltd[lgk,]
-  lens <- lapply(lens, function(x) x[lgk])
-  rec_ls <- nrow(lar)
-  if(rec_ls >0){
-    lar$mid_y_lead <- pltd$mid_y[match(lar$sn, pltd$wind_id)]
-    lar <- lapply(lens, function(x){
+  lar <- lapply(seq_len(length(lens)), function(i){
+    winds <- pltd[!duplicated(pltd$wind_id) &
+                    pltd$wind_nm %in% wind_nm &
+                    !is.na(pltd$wind_nm),]
+    lgk <- pltd$sn %in% winds$wind_id
+    lar <- pltd[lgk,]
+    lens[[i]] <- lens[[i]][lgk]
+
+    rec_ls <- nrow(lar)
+    if(rec_ls >0){
+
+      # lar$mid_y_lead <- pltd$mid_y[match(lar$sn, pltd$wind_id)]
+      lar$mid_y_lead <- winds$mid_y
+
+      x <- lens[[1]]
       y <- number_line(as.numeric(start_point(x)),
                        as.numeric(end_point(x)))
       y <- as.data.frame(y)
@@ -530,7 +537,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$nl_nm <- "len"
       y$start_rl <- as.numeric(left_point(x))
       y$end_rl <- as.numeric(right_point(x))
-      y$wind_nm_l <- paste0(winds$wind_nm, " length")
+      y$wind_nm_l <- paste0("`",winds$wind_nm[match(lar$sn, winds$wind_id)], "`-length")
       y$bi_dir <- start_point(x) < lar$end & end_point(x) > lar$end
       y <- y[!is.na(y$start) & !is.na(y$end),]
       if(nrow(y) > 0){
@@ -562,15 +569,15 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       y$episode_unit <- y$ep_uni
       y$nl_l <- NULL
       y$lab_y <- (y$mid_y_lead + y$y)/2
-      y
-    })
-  }else{
-    lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "epid_total", "episode_unit")]
-    lar$wind_nm_l <- lar$nl_nm <- character()
-    lar$start_rl <- lar$end_rl <- lar$pt_start <- lar$pt_end <- lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
-    lar$pt_sn <- integer()
-    lar <- list(lar)
-  }
+      return(y)
+    }else{
+      lar <-  pltd[0, c("end", "start", "epid", "y", "wind_total", "epid_total", "episode_unit")]
+      lar$wind_nm_l <- lar$nl_nm <- character()
+      lar$start_rl <- lar$end_rl <- lar$pt_start <- lar$pt_end <- lar$lab_y <- lar$mid_y_lead <- lar$nl_s <- lar$nl_e <- numeric()
+      lar$pt_sn <- integer()
+      return(lar)
+    }
+  })
   lar
 }
 

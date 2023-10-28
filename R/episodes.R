@@ -832,7 +832,7 @@ episodes <- function(
       # Reference events
       web$sys.tmp$ite_rIndex[
         web$repo$reference_event[web$repo$ld_pos[web$sys.tmp$ite_pos]] %in%
-          c("first_event", "last_event") &
+          c("first_event", "last_event", "all_record") &
           # !web$sys.tmp$ite_tr_lgk &
           # !web$repo$batched[web$sys.tmp$ite_tr_pos]
           web$repo$last.batched[web$sys.tmp$ite_tr_pos]
@@ -853,24 +853,24 @@ episodes <- function(
       #
       web$sys.tmp$ite_index[
         web$sys.tmp$ite_rIndex &
-          batched == "semi"
+          batched %in% c("semi", "no")
       ] <- TRUE
 
+      web$manual_recursive_index.pos <- web$sys.tmp$ite_pos[web$sys.tmp$ite_rIndex]
+
       if(batched == "yes"){
-        web$manual_recursive_index.pos <- web$sys.tmp$ite_pos[web$sys.tmp$ite_rIndex]
         web$repo$batched[web$manual_recursive_index.pos] <- TRUE
+      }
 
-        web$manual_recursive_index.tr_pos <-
-          web$sys.tmp$ite_tr_pos[web$sys.tmp$ite_rIndex]
-        web$manual_recursive_index.tr_pos <-
-          web$manual_recursive_index.tr_pos[!duplicated(web$manual_recursive_index.tr_pos)]
+      web$manual_recursive_index.tr_pos <-
+        web$sys.tmp$ite_tr_pos[web$sys.tmp$ite_rIndex]
+      web$manual_recursive_index.tr_pos <-
+        web$manual_recursive_index.tr_pos[!duplicated(web$manual_recursive_index.tr_pos)]
 
+      if(batched == "yes"){
         web$repo$sys.batched[
           c(web$manual_recursive_index.pos,
             web$manual_recursive_index.tr_pos)] <- TRUE
-
-      }else{
-        web$manual_recursive_index.pos <- integer()
       }
 
     }
