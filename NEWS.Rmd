@@ -33,7 +33,7 @@ This leads to fewer iterations compared with `["yes"]` but with less memory usag
 + `number_line()` - `id` and `gid` slots are now empty by default.
 + Removed `episode_group()`, `record_group()` and `range_match_legacy()`
 + `recurisve` episodes changed to `reference_event = 'all_records'`
-
++ New option for `orientation` in `schema.pid()` - `"by_iteration"`
 
 ## Bug fixes
 + When `recursive` was `TRUE`, `links()` ended prematurely and therefore missed some matches. Resolved.

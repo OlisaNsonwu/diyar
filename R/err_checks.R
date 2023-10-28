@@ -1864,7 +1864,7 @@ err_schema_pid_0 <- function(x,
   err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
   if(err != FALSE) return(err[1])
 
-  err <- err_spec_vals(orientation, "orientation", c("by_pid", "by_pid_cri"))
+  err <- err_spec_vals(orientation, "orientation", c("by_pid", "by_pid_cri", "by_iteration"))
   if(err != FALSE) return(err[1])
 
   err <- err_spec_vals(theme, "theme", c("dark", "light"))

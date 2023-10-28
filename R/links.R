@@ -453,6 +453,7 @@ links <- function(
 
       web$ite.tmp$ite_inc_indx <- web$ite.tmp$ite_inc_indx[web$sort_ord]
       if(length(web$ite.tmp$ite_inc_indx) <= 1){
+        web$repo$pid_cri[web$ite.tmp$ite_inc_indx] <- -1L
         web$ite <- web$ite + 1L
         if(grepl("^progress", web$options$display)){
           web$msg <- progress_bar(

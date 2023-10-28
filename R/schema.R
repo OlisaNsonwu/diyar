@@ -726,23 +726,21 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
   if(!is.null(seed)) set.seed(seed)
   # `Data to plot`pid` data
   pl_dt <- as.data.frame(x)
-
-  # Temp solution for >1 link_id
-  link_id <- sapply(x@link_id, identity)
-  link_id[is.na(link_id)] <- Inf
-  link_id <- row_wise(link_id, value = TRUE, type = "min")
-  pl_dt$link_id <- link_id
+  pl_dt$link_id <- x@link_id[[1]]
   #
 
   if(!is.null(custom_label)){
     pl_dt$custom_label <- custom_label
   }
-  if(orientation == "by_pid"){
+  if(orientation == "by_pid_cri"){
     pl_dt$link_col <- paste0("P. ", pl_dt$pid)
     pl_dt$pid_box_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("CRI ", pl_dt$pid_cri)))
-  }else if(orientation == "by_pid_cri"){
+  }else if(orientation == "by_pid"){
     pl_dt$pid_box_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("P. ", pl_dt$pid)))
     pl_dt$link_col <- ifelse(pl_dt$pid_cri %in% -1:0, "", paste0("CRI ", pl_dt$pid_cri))
+  }else if(orientation == "by_iteration"){
+    pl_dt$link_col <- paste0("P. ", pl_dt$pid)
+    pl_dt$pid_box_cri <- pl_dt$iteration
   }
 
   cris <- pl_dt$pid_box_cri
@@ -789,6 +787,20 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
 
   pl_dt$x <- cords("x")
   pl_dt$y <- cords("y")
+
+  refs.n <- length(x@link_id)
+
+  pl_dt <- lapply(seq_len(refs.n), function(i){
+    pl_dt <- pl_dt[!is.na(pl_dt[[paste0("link_id",i)]]),]
+    if(i > 1){
+      pl_dt <- pl_dt[pl_dt[[paste0("link_id",i)]] != pl_dt$sn,]
+      if(nrow(pl_dt) > 0){
+        pl_dt$link_id <- pl_dt[[paste0("link_id",i)]]
+      }
+    }
+    return(pl_dt)
+  })
+  pl_dt <- do.call("rbind", pl_dt)
 
   # Link between records and their index
   link_sn <- pl_dt[pl_dt$sn %in% pl_dt$link_id, c("sn", "x", "y")]
