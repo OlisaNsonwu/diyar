@@ -1640,6 +1640,10 @@ S4_to_list <- function(x, decode = TRUE, .Data_type = "epid"){
     tmp.func <- identity
   }
 
+  if(inherits(x, "pane")){
+    window_list <- lapply(x@window_list, list)
+    x@window_list <- list()
+  }
   slot.nm <- slotNames(x)
   slot.val <- lapply(slot.nm, function(nm){
     slot(x, nm)
@@ -1678,6 +1682,11 @@ S4_to_list <- function(x, decode = TRUE, .Data_type = "epid"){
     tmp.list[[paste0(.Data_type,"_start")]] <- slot.val[lgk][[1]]@start
     tmp.list[[paste0(.Data_type,"_end")]] <- right_point(slot.val[lgk][[1]])
     slot.val <- c(slot.val[!lgk], tmp.list)
+  }
+
+  if(inherits(x, "pane")){
+    slot.val$window_list <- window_list[match(slot.val$pane, names(window_list))]
+    names(slot.val$window_list) <- NULL
   }
   return(slot.val)
 }

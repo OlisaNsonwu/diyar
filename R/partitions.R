@@ -274,7 +274,9 @@ partitions <- function(date, window = NULL, windows_total = 1, separate = FALSE,
                case_nm = repo$case_nm,
                pane_total = panes@epid_total,
                options = options_lst)
-  panes@window_list <- splits_windows[match(repo$cri, as.integer(names(splits_windows)))]
+  indx <- which(!duplicated(panes@.Data))
+  panes@window_list <- splits_windows[match(repo$cri[indx], names(splits_windows))]
+  names(panes@window_list) <- panes@.Data[indx]
 
   tm_z <- Sys.time()
   tms <- difftime(tm_z, tm_a)

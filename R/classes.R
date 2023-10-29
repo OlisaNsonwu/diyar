@@ -736,7 +736,11 @@ as.data.frame.pane <- function(x, ..., decode = TRUE){
   x <- as.list(x, decode = decode)
   lgk <- as.logical(lapply(x, function(x) inherits(x, "d_label")))
   x[lgk] <- lapply(x[lgk], as.vector)
-  as.data.frame(x, ...)
+  wl <- x$window_list
+  x$window_list <- NULL
+  x <- as.data.frame(x, ...)
+  x$window_list <- wl
+  x
 }
 
 #' @rdname pane-class
