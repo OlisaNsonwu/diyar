@@ -947,7 +947,7 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                                   case_for_recurrence = FALSE, from_last = FALSE, group_stats = c("case_nm", "wind", "epid_interval"),
                                   display = "none", case_sub_criteria = NULL, recurrence_sub_criteria = NULL,
                                   case_length_total = 1, recurrence_length_total = case_length_total,
-                                  skip_unique_strata = TRUE, skip_checks = NULL, ...){
+                                  skip_unique_strata = TRUE, skip_checks = NULL, batched = "semi", ...){
 
   # Check for required object types
   args <- list(date = date,
@@ -972,7 +972,8 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                recurrence_length_total = recurrence_length_total,
                case_sub_criteria = case_sub_criteria,
                recurrence_sub_criteria = recurrence_sub_criteria,
-               skip_unique_strata = skip_unique_strata)
+               skip_unique_strata = skip_unique_strata,
+               batched = batched)
 
   args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
                        episode_type = "character",
@@ -996,7 +997,8 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                        recurrence_length_total = c("numeric", "integer", "number_line"),
                        case_sub_criteria = c("sub_criteria", "NULL"),
                        recurrence_sub_criteria = c("sub_criteria", "NULL"),
-                       skip_unique_strata = "logical")
+                       skip_unique_strata = "logical",
+                       batched = "character")
 
   err <- mapply(err_object_types_2,
                 args,
@@ -1034,7 +1036,8 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                case_for_recurrence = case_for_recurrence,
                case_length_total = case_length_total,
                recurrence_length_total = recurrence_length_total,
-               skip_unique_strata = skip_unique_strata)
+               skip_unique_strata = skip_unique_strata,
+               batched = batched)
 
   args_lens <- list(episode_type = len_lims,
                     case_overlap_methods = len_lims,
@@ -1055,7 +1058,8 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                     case_for_recurrence = len_lims,
                     case_length_total = len_lims,
                     recurrence_length_total = len_lims,
-                    skip_unique_strata = 1)
+                    skip_unique_strata = 1,
+                    batched = 1)
 
   err <- mapply(err_match_ref_len_2,
                 args,
@@ -1063,7 +1067,7 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                   rep(as.list(" or the same length as `date`"), 4),
                   as.list(""),
                   rep(as.list(" or the same length as `date`"), 13),
-                  as.list("")
+                  rep(as.list(""), 2)
                 )
                 ,
                 args_lens[match(names(args), names(args_lens))],
@@ -1126,6 +1130,8 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
   err <- err_episode_unit_1(episode_unit = episode_unit)
   if(err != FALSE) return(err)
   err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling"))
+  if(err != FALSE) return(err)
+  err <- err_spec_vals(batched, "batched", c("yes", "semi", "no"))
   if(err != FALSE) return(err)
   err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
   if(err != FALSE) return(err)
@@ -1221,7 +1227,6 @@ err_links_checks_0 <- function(criteria,
                        repeats_allowed = "logical",
                        permutations_allowed = "logical",
                        ignore_same_source = "logical",
-                       # batched = "logical",
                        batched = "character")
 
   err <- mapply(err_object_types_2,
@@ -1269,7 +1274,7 @@ err_links_checks_0 <- function(criteria,
                     repeats_allowed = 1,
                     permutations_allowed = 1,
                     ignore_same_source = 1,
-                    batched = c(1, length(criteria)),
+                    batched = 1,
                     strata = c(0, len_lims))
 
   err <- mapply(err_match_ref_len_2,
@@ -1278,7 +1283,8 @@ err_links_checks_0 <- function(criteria,
                   rep(as.list(""), 6),
                   as.list(" or the same length as each attribute in the match crtieria"),
                   rep(as.list(""), 3),
-                  rep(as.list(" or the same length as each attribute in the match crtieria"), 2)
+                  rep(as.list(" or the same length as each attribute in the match crtieria"), 2),
+                  as.list("")
                 ),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
@@ -1311,6 +1317,8 @@ err_links_checks_0 <- function(criteria,
   err <- err_spec_vals(display, "display", c("none", "progress", "stats",
                                              "none_with_report", "progress_with_report",
                                              "stats_with_report"))
+  if(err != FALSE) return(err)
+  err <- err_spec_vals(batched, "batched", c("yes", "semi", "no"))
   if(err != FALSE) return(err)
   return(FALSE)
 }

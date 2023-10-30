@@ -46,9 +46,9 @@ Options are \code{NULL} or any combination of \code{"XX"}, \code{"XX"} and \code
 
 \item{shrink}{\code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
 
-\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{FALSE}.}
+\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{"no"}.}
 
-\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{FALSE}.}
+\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{"no"}.}
 
 \item{tie_sort}{\code{[atomic]}. Preferential order for breaking match ties within an iteration of record linkage.}
 

@@ -10,46 +10,49 @@ knitr::opts_chunk$set(
 ```
 # Version 0.4.3.9000
 
-## New features
-+ New function - `links_wf_episodes()`. 
-+ New value for `wind_id` slot in `episodes()`
-+ `split` arg
-+ `batched` arg - `episodes`
+## New futures
++ New option (`"semi"`) for `batched` argument in `links()`.
+    All matches are compared against the record-set in the next iteration.
+    Therefore, the number of record-pairs increase exponentially as new matches are found.
+    This means fewer record-pairs (memory usage) but a longer run time compared 
+    to the `"no"` option. Conversely, it leads to more record-pairs (memory usage)
+    but a shorter run time compared to the `"yes"` option.
++ New argument (`batched`) in `episodes()`
++ New argument (`split`) in `episodes()`. Split the analysis in `N`-splits of `strata`.
+    This leads to fewer record-pairs (and memory usage) but a longer run time.
++ New argument (`decode`) in `as.data.frame.pid()`, `as.data.frame.epid()` and
+    `as.data.frame.pane()`
++ New function - `episodes_af_shift()`. A more vectorised approach to `episodes()` based on `epidm::group_time()`.
++ New function - `links_wf_episodes()`. Implantation of `episodes()` using `links()`.
 
 ## Changes
-+ Optimised `episodes()` and `links()`. Each iteration now uses less time and memory for each.
-+ Updated argument in `links()`- `batched`. A new option - `["semi"]`.
-With `["semi"]`, each match spawns additional record-pairs per iteration instead of more iterations as with `["no"]`.
-This leads to fewer iterations compared with `["yes"]` but with less memory usage than `["no"]`.
-+ New argument in `as.data.frame.pid()`, `as.data.frame.epid()` and `as.data.frame.pane()` - `decode`
++ Optimised `episodes()` and `links()`. Each iteration now uses less
+    time and memory.
 + `link_id` slot in `pid` objects is now a `list`.
-+ In `links()`, records with missing values in a `sub_criteria` are skipped at each iteration.
-+ Updated argument in `links()`- `recursive`. This is now takes any of four options `[c("linked", "unlinked", "none")]` .
-`[c("linked", "unlinked")]` is the equivalent of the old `[TRUE]` option, while `["none"]` is the equivalent of the old `[FALSE]` option.
-+ `as.epids()` - `make_episodes()`.
-+ `partitions()` - `winodow` - Default is now `NULL`
-+ `number_line_sequence()` removed?
-+ `as.data.frame()` and `as.data.list()` only creates elements/fields from non-empty fields
-+ `number_line()` - `id` and `gid` slots are now empty by default.
-+ Removed `episode_group()`, `record_group()` and `range_match_legacy()`
-+ `recurisve` episodes changed to `reference_event = 'all_records'`
-+ New option for `orientation` in `schema.pid()` - `"by_iteration"`
-
++ `links()` - records with missing values in a `sub_criteria` are now
+    skipped at the corresponding iteration.
++ Updated argument in `links()`- `recursive`. This now takes any of
+    three options
+    `[c("linked", "unlinked", "none")]` .
+    `[c("linked", "unlinked")]` collectively were previously `[TRUE]`, 
+    while `["none"]` was previously `[FALSE]`.
++ `as.epids()` now calls `make_episodes()`.
++ The default value for the `window` argument in `partitions()` is now `NULL`
++ `as.data.frame()` and `as.data.list()` now only creates elements/fields
+    from non-empty fields
++ `id` and `gid` slots in `number_line` objects are now `integer(0)` by default.
++ `episode_group()`, `record_group()` and `range_match_legacy()` have been removed.
++ `["recurisve"]` episodes from `episodes()` are now presented as `["rolling"]` 
+    episodes with `reference_event = "all_records"` i.e
+    + `Old syntax ~ episodes(..., episode_type == "recursive")`
+    + `New syntax ~ episodes(..., episode_type == "rolling", reference_event = "all_records")`
+  
 ## Bug fixes
 + When `recursive` was `TRUE`, `links()` ended prematurely and therefore missed some matches. Resolved.
 + `recurrence_sub_criteria` in `episodes()` was not implemented correctly and lead to incorrect linkage result in some instances. Resolved.
 + `overlap_method()` - logical tests recycled incorrectly. Resolved.
 + `check_links` argument - Option `"g"` implemented as option `"l"`. Resolved. 
 + `make_pairs_wf_source()`. Created incorrect pairs. Resolved.
-  
-
-# Version 0.4.3
-
-## New features
-
-## Changes
-
-## Bug fixes
 + `case_sub_criteria` and `recurrence_sub_criteria` in `episodes()` led to incorrect results. Resolved.
 
 # Version 0.4.2
