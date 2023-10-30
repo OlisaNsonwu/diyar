@@ -519,7 +519,7 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
       # lar$mid_y_lead <- pltd$mid_y[match(lar$sn, pltd$wind_id)]
       lar$mid_y_lead <- winds$mid_y
 
-      x <- lens[[1]]
+      x <- lens[[i]]
       y <- number_line(as.numeric(start_point(x)),
                        as.numeric(end_point(x)))
       y <- as.data.frame(y)

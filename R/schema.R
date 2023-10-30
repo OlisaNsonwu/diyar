@@ -226,7 +226,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   })
 
   case_l_ar <- unlist(case_l_ar, recursive = FALSE)
-  # case_l_ar <- case_l_ar[!duplicated(case_l_ar)]
+  case_l_ar <- case_l_ar[!duplicated(case_l_ar)]
 
   if(any_rolling == T){
     # Recurrence length arrows
@@ -326,7 +326,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
   # Mid point of `date` to show links
   plt_df$mid_x <- (as.numeric(plt_df$start) + as.numeric( plt_df$end))/2
 
-  dev.orientation <- TRUE
+  dev.orientation <- FALSE
 
   # Link between records and their index
   plt_df <- lapply(1:length(x@wind_id), function(i){
