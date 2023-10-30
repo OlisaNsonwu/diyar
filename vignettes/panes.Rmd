@@ -40,7 +40,7 @@ age_bands <- seq(0, 69, by =17)
 age_bands <- number_line(age_bands, age_bands + 16)
 age_bands
 
-homes$grp_1 <- partitions(homes$age, window = age_bands, separate = TRUE)
+homes$grp_1 <- partitions(homes$age, window = list(age_bands), separate = TRUE)
 homes
 
 schema(homes$grp_1, seed = 4,

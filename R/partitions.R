@@ -165,7 +165,7 @@ partitions <- function(date, window = NULL, windows_total = 1, separate = FALSE,
       if(is.null(by)){
         seq(x, length.out = length.out, precision = precision)
       }else{
-        seq(x, by = y, precision = precision)
+        seq(x, by = by, precision = precision)
       }
     })
 

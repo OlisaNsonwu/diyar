@@ -54,10 +54,11 @@ event_dt
 ```
 We can see that every event after the fourth day has now been assigned to a different episode, each with its own index event. This type of episode is referred to as a `"fixed"` episode.
 
-`episodes()` can also produce two additional type of episodes - `"rolling"` and `"recursive"`. See examples of each below.
+`episodes()` can also produce `"rolling"` (recurring) episodes. See examples of each below.
 ```{r warning=FALSE}
 event_dt$ep3 <- episodes(event_dt$date, 3, episode_type = "rolling")
-event_dt$ep4 <- episodes(event_dt$date, 3, episode_type = "recursive")
+event_dt$ep4 <- episodes(event_dt$date, 3, 
+                         episode_type = "rolling", reference_event = "all_record")
 event_dt
 ```
 
