@@ -4,7 +4,7 @@
 \alias{make_s4_ids}
 \alias{make_episodes}
 \alias{make_pids}
-\title{TBC.}
+\title{Create \code{epid} and \code{pid} objects with index of matching records}
 \usage{
 make_episodes(
   x_pos,
@@ -34,11 +34,11 @@ make_pids(
 )
 }
 \arguments{
-\item{x_pos}{\code{[atomic]}. TBC.}
+\item{x_pos}{\code{[integer]}. Index of one half of a record pair.}
 
-\item{y_pos}{\code{[atomic]}. TBC.}
+\item{y_pos}{\code{[integer]}. Index of one half of a record pair.}
 
-\item{x_val}{\code{[atomic]}. TBC.}
+\item{x_val}{\code{[integer]}. Value of one half of a record pair.}
 
 \item{date}{\code{[date|datetime|integer|\link{number_line}]}. Record date or period.}
 
@@ -61,5 +61,5 @@ make_pids(
 \item{pid_cri}{Match stage of the step-wise linkage.}
 }
 \description{
-TBC.
+Create \code{epid} and \code{pid} objects with index of matching records
 }

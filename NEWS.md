@@ -1,15 +1,15 @@
 
-# Version 0.4.3.9000
+# Version 0.5.0
 
 ## New futures
 
-- New option (`"semi"`) for `batched` argument in `links()`. All matches
-  are compared against the record-set in the next iteration. Therefore,
-  the number of record-pairs increase exponentially as new matches are
-  found. This means fewer record-pairs (memory usage) but a longer run
-  time compared to the `"no"` option. Conversely, it leads to more
-  record-pairs (memory usage) but a shorter run time compared to the
-  `"yes"` option.
+- New option (`"semi"`) for the `batched` argument in `links()`. All
+  matches are compared against the record-set in the next iteration.
+  Therefore, the number of record-pairs increase exponentially as new
+  matches are found. This means fewer record-pairs (memory usage) but a
+  longer run time compared to the `"no"` option. Conversely, it leads to
+  more record-pairs (memory usage) but a shorter run time compared to
+  the `"yes"` option.
 - New argument (`batched`) in `episodes()`
 - New argument (`split`) in `episodes()`. Split the analysis in
   `N`-splits of `strata`. This leads to fewer record-pairs (and memory

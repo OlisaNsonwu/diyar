@@ -1,10 +1,10 @@
 #' @name make_s4_ids
 #' @aliases make_s4_ids
-#' @title TBC.
+#' @title Create \code{epid} and \code{pid} objects with index of matching records
 #'
-#' @param x_pos \code{[atomic]}. TBC.
-#' @param y_pos \code{[atomic]}. TBC.
-#' @param x_val \code{[atomic]}. TBC.
+#' @param x_pos \code{[integer]}. Index of one half of a record pair.
+#' @param y_pos \code{[integer]}. Index of one half of a record pair.
+#' @param x_val \code{[integer]}. Value of one half of a record pair.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Record date or period.
 #' @param case_nm \code{[integer|character]} Record type in regards to case assignment (\code{\link{sub_criteria}[Encoded]}).
 #' @param episode_unit \code{[character]}. Time unit for \code{case_length} and \code{recurrence_length}. See \code{\link{episodes}}
