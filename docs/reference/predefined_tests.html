@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -76,8 +76,6 @@
 <span></span>
 <span><span class="fu">range_match</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span>, range <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span>
 <span></span>
-<span><span class="fu">range_match_legacy</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span></span>
-<span></span>
 <span><span class="fu">prob_link</span><span class="op">(</span></span>
 <span>  <span class="va">x</span>,</span>
 <span>  <span class="va">y</span>,</span>
@@ -131,7 +129,6 @@
     <h2>Details</h2>
     <p><b><code>exact_match()</code></b> - test that  <code>x == y</code></p>
 <p><b><code>range_match()</code></b> - test that <code>x</code> \(\le\) <code>y</code> \(\le\) <code>(x + range)</code></p>
-<p><b><code>range_match_legacy()</code></b> - test that <code>overlap(as.number_line(x@gid), y)</code> is <code>TRUE</code>.</p>
 <p><b><code>prob_link()</code></b> - Test that a record-pair relate to the same entity based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity.</p>
 <p>In summary, record-pairs are created and categorised as matches and non-matches (<code>attr_threshold</code>) with user-defined functions (<code>cmp_func</code>).
 If <code>probabilistic</code> is <code>TRUE</code>, two probabilities (<code>m</code> and <code>u</code>) are used to calculate weights for matches and non-matches.
@@ -156,7 +153,7 @@ then the <code>u</code>-probability for the pair will be <code>0.02</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span> function(x, y) {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   x == y &amp; !is.na(x) &amp; !is.na(y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000001439378d358&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x000000002c7f8fb0&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:diyar&gt;</span>
 <span class="r-in"><span><span class="fu">exact_match</span><span class="op">(</span>x <span class="op">=</span> <span class="fl">1</span>, y <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
@@ -168,34 +165,12 @@ then the <code>u</code>-probability for the pair will be <code>0.02</code>.</p>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   x &lt;- as.numeric(x); y &lt;- as.numeric(y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   (x &lt;= y) &amp; (y &lt;= x + range) &amp; !is.na(x) &amp; !is.na(y)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x0000014394aec868&gt;</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x00000000467fa1d8&gt;</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:diyar&gt;</span>
 <span class="r-in"><span><span class="fu">range_match</span><span class="op">(</span>x <span class="op">=</span> <span class="fl">10</span>, y <span class="op">=</span> <span class="fl">16</span>, range <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span><span class="fu">range_match</span><span class="op">(</span>x <span class="op">=</span> <span class="fl">16</span>, y <span class="op">=</span> <span class="fl">10</span>, range <span class="op">=</span> <span class="fl">6</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="va">`range_match_legacy`</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> function(x, y) {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   lg &lt;- overlap(as.number_line(x@gid), x)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   lg[is.na(lg)] &lt;- F</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   if(any(!lg)) {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     rng_i &lt;- paste(head(which(!lg), 5), collapse = ", ", sep="")</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     rng_v &lt;- as.character(substitute(x))[!as.character(substitute(x)) %in% c("$","df2")]</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   overlap(as.number_line(x@gid), y)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;bytecode: 0x00000143928cb4d0&gt;</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> &lt;environment: namespace:diyar&gt;</span>
-<span class="r-in"><span><span class="va">x_nl</span> <span class="op">&lt;-</span> <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">16</span>, gid <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y_nl1</span> <span class="op">&lt;-</span> <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span><span class="va">y_nl2</span> <span class="op">&lt;-</span> <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">16</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-in"><span></span></span>
-<span class="r-in"><span><span class="fu">range_match_legacy</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x_nl</span>, y <span class="op">=</span> <span class="va">y_nl1</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
-<span class="r-in"><span><span class="fu">range_match_legacy</span><span class="op">(</span>x <span class="op">=</span> <span class="va">x_nl</span>, y <span class="op">=</span> <span class="va">y_nl2</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

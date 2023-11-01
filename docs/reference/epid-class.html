@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -74,7 +74,7 @@
     <div id="ref-usage">
     <div class="sourceCode"><pre><code>is.epid(x)
 
-as.epid(x)
+as.epid(x, ...)
 
 # S3 method for epid
 format(x, ...)
@@ -89,10 +89,10 @@ summary(object, ...)
 print(x, ...)
 
 # S3 method for epid
-as.data.frame(x, ...)
+as.data.frame(x, ..., decode = TRUE)
 
 # S3 method for epid
-as.list(x, ...)
+as.list(x, ..., decode = TRUE)
 
 # S4 method for epid
 show(object)
@@ -153,7 +153,7 @@ c(x, ...)</code></pre></div>
 
 
 <dt><code>wind_id</code></dt>
-<dd><p>Unique window identifier.</p></dd>
+<dd><p>Unique reference ID for each match.</p></dd>
 
 
 <dt><code>wind_nm</code></dt>
@@ -189,7 +189,7 @@ c(x, ...)</code></pre></div>
 
 
 <dt><code>iteration</code></dt>
-<dd><p>The iteration of the tracking process when a record was linked to its episode.</p></dd>
+<dd><p>The iteration when a record was matched to it's group (<code>.Data</code>).</p></dd>
 
 
 <dt><code>options</code></dt>
@@ -201,6 +201,11 @@ c(x, ...)</code></pre></div>
     <div id="ref-examples">
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A test for `epid` objects</span></span></span>
+<span class="r-in"><span><span class="va">ep</span> <span class="op">&lt;-</span> <span class="fu"><a href="episodes.html">episodes</a></span><span class="op">(</span>date <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="fu">is.epid</span><span class="op">(</span><span class="va">ep</span><span class="op">)</span>; <span class="fu">is.epid</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>
+<span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">ep</span> <span class="op">&lt;-</span> <span class="fu"><a href="episodes.html">episodes</a></span><span class="op">(</span>date <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">is.epid</span><span class="op">(</span><span class="va">ep</span><span class="op">)</span>; <span class="fu">is.epid</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -74,6 +74,10 @@
         </td>
         <td><p>Sub-criteria attributes.</p></td>
       </tr><tr><td>
+          <p><code><a href="bys_funcs.html">bys_count()</a></code> <code><a href="bys_funcs.html">bys_rank()</a></code> <code><a href="bys_funcs.html">bys_position()</a></code> <code><a href="bys_funcs.html">bys_val()</a></code> <code><a href="bys_funcs.html">bys_nval()</a></code> <code><a href="bys_funcs.html">bys_min()</a></code> <code><a href="bys_funcs.html">bys_max()</a></code> <code><a href="bys_funcs.html">bys_sum()</a></code> <code><a href="bys_funcs.html">bys_prod()</a></code> <code><a href="bys_funcs.html">bys_cummin()</a></code> <code><a href="bys_funcs.html">bys_cummax()</a></code> <code><a href="bys_funcs.html">bys_cumsum()</a></code> <code><a href="bys_funcs.html">bys_cumprod()</a></code> <code><a href="bys_funcs.html">bys_lag()</a></code> <code><a href="bys_funcs.html">bys_lead()</a></code> </p>
+        </td>
+        <td><p>Vectorised approach to group operations.</p></td>
+      </tr><tr><td>
           <p><code><a href="combi.html">combi()</a></code> </p>
         </td>
         <td><p>Vector combinations</p></td>
@@ -98,7 +102,7 @@
         </td>
         <td><p><code>epid</code> object</p></td>
       </tr><tr><td>
-          <p><code><a href="episodes.html">episodes()</a></code> </p>
+          <p><code><a href="episodes.html">episodes()</a></code> <code><a href="episodes.html">links_wf_episodes()</a></code> <code><a href="episodes.html">episodes_af_shift()</a></code> </p>
         </td>
         <td><p>Group dated events into episodes.</p></td>
       </tr><tr><td>
@@ -106,15 +110,11 @@
         </td>
         <td><p>Link events to chronological episodes.</p></td>
       </tr><tr><td>
-          <p><code><a href="episode_group.html">episode_group()</a></code> <code><a href="episode_group.html">fixed_episodes()</a></code> <code><a href="episode_group.html">rolling_episodes()</a></code> </p>
-        </td>
-        <td><p>Group dated events into episodes.</p></td>
-      </tr><tr><td>
           <p><code><a href="links.html">links()</a></code> </p>
         </td>
-        <td><p>Multistage and nested record linkage</p></td>
+        <td><p>Multistage record linkage</p></td>
       </tr><tr><td>
-          <p><code><a href="links_wf.html">links_sv_probabilistic()</a></code> <code><a href="links_wf.html">links_wf_probabilistic()</a></code> <code><a href="links_wf.html">prob_score_range()</a></code> </p>
+          <p><code><a href="links_wf.html">links_af_probabilistic()</a></code> <code><a href="links_wf.html">links_wf_probabilistic()</a></code> <code><a href="links_wf.html">prob_score_range()</a></code> </p>
         </td>
         <td><p>Record linkage</p></td>
       </tr><tr><td>
@@ -126,9 +126,13 @@
         </td>
         <td><p>Convert an edge list to record identifiers.</p></td>
       </tr><tr><td>
-          <p><code><a href="make_pairs.html">sets()</a></code> <code><a href="make_pairs.html">make_sets()</a></code> <code><a href="make_pairs.html">make_sets_v2()</a></code> <code><a href="make_pairs.html">make_pairs()</a></code> <code><a href="make_pairs.html">make_pairs_wf_source()</a></code> </p>
+          <p><code><a href="make_pairs.html">sets()</a></code> <code><a href="make_pairs.html">make_sets()</a></code> <code><a href="make_pairs.html">make_pairs()</a></code> <code><a href="make_pairs.html">make_pairs_wf_source()</a></code> </p>
         </td>
         <td><p>Combinations and permutations of record-sets.</p></td>
+      </tr><tr><td>
+          <p><code><a href="make_s4_ids.html">make_episodes()</a></code> <code><a href="make_s4_ids.html">make_pids()</a></code> </p>
+        </td>
+        <td><p>Create <code>epid</code> and <code>pid</code> objects with index of matching records</p></td>
       </tr><tr><td>
           <p><code><a href="merge_identifiers.html">merge_ids()</a></code> </p>
         </td>
@@ -162,13 +166,9 @@
         </td>
         <td><p><code>pid</code> objects</p></td>
       </tr><tr><td>
-          <p><code><a href="predefined_tests.html">exact_match()</a></code> <code><a href="predefined_tests.html">range_match()</a></code> <code><a href="predefined_tests.html">range_match_legacy()</a></code> <code><a href="predefined_tests.html">prob_link()</a></code> <code><a href="predefined_tests.html">true()</a></code> <code><a href="predefined_tests.html">false()</a></code> </p>
+          <p><code><a href="predefined_tests.html">exact_match()</a></code> <code><a href="predefined_tests.html">range_match()</a></code> <code><a href="predefined_tests.html">prob_link()</a></code> <code><a href="predefined_tests.html">true()</a></code> <code><a href="predefined_tests.html">false()</a></code> </p>
         </td>
         <td><p>Predefined logical tests in <b><code>diyar</code></b></p></td>
-      </tr><tr><td>
-          <p><code><a href="record_group.html">record_group()</a></code> </p>
-        </td>
-        <td><p>Multistage deterministic record linkage</p></td>
       </tr><tr><td>
           <p><code><a href="reframe.html">reframe()</a></code> </p>
         </td>

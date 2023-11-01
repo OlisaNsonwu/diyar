@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -189,7 +189,7 @@ Such functions must meet three requirements:</p><ol><li><p>It must be able to co
 <span class="r-in"><span><span class="va">s_cri1</span> <span class="op">&lt;-</span> <span class="fu">sub_criteria</span><span class="op">(</span><span class="va">attr_1</span>, match_funcs <span class="op">=</span> <span class="va">range_match</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">s_cri1</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> match_func(30,28 ...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> match_func(30,28,40 ...)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Evaluate the match criteria</span></span></span>
@@ -215,10 +215,10 @@ Such functions must meet three requirements:</p><ol><li><p>It must be able to co
 <span class="r-in"><span><span class="va">s_cri2</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(30,28 ...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(30,28,40 ...)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   } AND </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(M,F ...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(M,F,U ...)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-in"><span></span></span>
@@ -230,10 +230,10 @@ Such functions must meet three requirements:</p><ol><li><p>It must be able to co
 <span class="r-in"><span><span class="va">s_cri3</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(30,28 ...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(30,28,40 ...)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   } OR </span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(M,F ...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   match_func(M,F,U ...)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   }</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-in"><span></span></span>

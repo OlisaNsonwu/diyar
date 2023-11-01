@@ -43,6 +43,9 @@
     <loc>/reference/attr_eval.html</loc>
   </url>
   <url>
+    <loc>/reference/bys_funcs.html</loc>
+  </url>
+  <url>
     <loc>/reference/combi.html</loc>
   </url>
   <url>
@@ -116,6 +119,9 @@
   </url>
   <url>
     <loc>/reference/make_pairs.html</loc>
+  </url>
+  <url>
+    <loc>/reference/make_s4_ids.html</loc>
   </url>
   <url>
     <loc>/reference/merge_identifiers.html</loc>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -112,25 +112,26 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">ep</span> <span class="op">&lt;-</span> <span class="fu"><a href="episodes.html">episodes</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">unlinked_ep</span> <span class="op">&lt;-</span> <span class="fu">delink</span><span class="op">(</span><span class="va">ep</span>, <span class="va">ep</span><span class="op">@</span><span class="va">sn</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">8</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">ep</span>; <span class="va">unlinked_ep</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "E.1 (C)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "E.1 (D)"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "E.1 (C)" "E.1 (D)" "E.3 (S)" "E.1 (D)" "E.1 (D)" "E.1 (D)" "E.1 (D)"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "E.8 (S)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "E.1 1 -&gt; 8 (C)" "E.1 1 -&gt; 8 (D)" "E.1 1 -&gt; 8 (D)" "E.1 1 -&gt; 8 (D)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "E.1 1 -&gt; 8 (D)" "E.1 1 -&gt; 8 (D)" "E.1 1 -&gt; 8 (D)" "E.1 1 -&gt; 8 (D)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "E.1 1 -&gt; 8 (C)" "E.1 1 -&gt; 8 (D)" "E.3 3 == 3 (S)" "E.1 1 -&gt; 8 (D)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [5] "E.1 1 -&gt; 8 (D)" "E.1 1 -&gt; 8 (D)" "E.1 1 -&gt; 8 (D)" "E.8 8 == 8 (S)"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pn</span> <span class="op">&lt;-</span> <span class="fu"><a href="partitions.html">partitions</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="fl">8</span>, length.out <span class="op">=</span> <span class="fl">2</span>, separate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>`l` and `r` have different classes. They may need to be reconciled.</span>
 <span class="r-in"><span><span class="va">unlinked_pn</span> <span class="op">&lt;-</span> <span class="fu">delink</span><span class="op">(</span><span class="va">pn</span>, <span class="va">pn</span><span class="op">@</span><span class="va">.Data</span> <span class="op">==</span> <span class="fl">5</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>An index/reference record has been unlinked!</span>
 <span class="r-in"><span><span class="va">pn</span>; <span class="va">unlinked_pn</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.1 (I)" "PN.1 (D)" "PN.1 (D)" "PN.1 (D)" "PN.5 (I)" "PN.5 (D)" "PN.5 (D)"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "PN.5 (D)"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.1 (I)" "PN.1 (D)" "PN.1 (D)" "PN.1 (D)" "PN.5 (S)" "PN.6 (S)" "PN.7 (S)"</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "PN.8 (S)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.9 (I)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "PN.9 (D)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.9 (I)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)" "PN.9 (D)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [8] "PN.9 (D)"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="links.html">links</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">1</span>, <span class="fl">1</span>, <span class="cn">NA</span>, <span class="cn">NA</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                 <span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="cn">NA</span>, <span class="cn">NA</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
 <span class="r-in"><span><span class="va">unlinked_pd</span> <span class="op">&lt;-</span> <span class="fu">delink</span><span class="op">(</span><span class="va">pd</span>, <span class="va">pd</span><span class="op">@</span><span class="va">pid_cri</span> <span class="op">==</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>An index/reference record has been unlinked!</span>
 <span class="r-in"><span><span class="va">pd</span>; <span class="va">unlinked_pd</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 001)" "P.1 (CRI 002)"</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [5] "P.1 (CRI 002)"</span>

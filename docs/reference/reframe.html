@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -102,11 +102,11 @@
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="va">s_cri</span> <span class="op">&lt;-</span> <span class="fu"><a href="sub_criteria.html">sub_criteria</a></span><span class="op">(</span><span class="va">month.abb</span>, <span class="va">month.name</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="fu">reframe</span><span class="op">(</span><span class="va">s_cri</span>, func <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[</span><span class="fl">12</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> exact(Dec) OR exact(December)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> exact(Dec,NA,NA ...) OR exact(December,NA,NA ...)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-in"><span><span class="fu">reframe</span><span class="op">(</span><span class="va">s_cri</span>, func <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="va">x</span><span class="op">[</span><span class="fl">12</span><span class="op">:</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> {</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> exact(Dec,Nov ...) OR exact(December,November ...)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> exact(Dec,Nov,Oct ...) OR exact(December,November,October ...)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> }</span>
 <span class="r-in"><span><span class="fu">reframe</span><span class="op">(</span><span class="va">s_cri</span>, func <span class="op">=</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="sub_criteria.html">attrs</a></span><span class="op">(</span><span class="va">x</span><span class="op">[</span><span class="fl">1</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span>, <span class="va">x</span><span class="op">[</span><span class="fl">7</span><span class="op">:</span><span class="fl">12</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> {</span>

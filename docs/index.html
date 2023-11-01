@@ -12,12 +12,17 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/v4-shims.min.css" integrity="sha256-wZjR52fzng1pJHwx4aV2AO3yyTOXrcDW7jBpJtTwVxw=" crossorigin="anonymous">
 <!-- clipboard.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.6/clipboard.min.js" integrity="sha256-inc5kl9MA1hkeYUt+EC3BhlIgyp/2jDIyBLS6k3UxPI=" crossorigin="anonymous"></script><!-- headroom.js --><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/headroom.min.js" integrity="sha256-AsUX4SJE1+yuDu5+mAVzJbuYNPHj/WroHuZ8Ir/CkE0=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/headroom/0.11.0/jQuery.headroom.min.js" integrity="sha256-ZX/yNShbjqsohH1k95liqY9Gd8uOiE1S4vZc+9KQ1K4=" crossorigin="anonymous"></script><!-- pkgdown --><link href="pkgdown.css" rel="stylesheet">
 <script src="pkgdown.js"></script><meta property="og:title" content="Record Linkage and Epidemiological Case Definitions in R">
-<meta property="og:description" content="An R package for record linkage and implementing epidemiological case definitions in R.
-    Record linkage is implemented either through a multistage deterministic approach or a probabilistic approach. 
-    Matching records are assigned to unique groups. There are mechanisms to address missing data and conflicting matches across linkage stages.
-    Track and assign events (e.g. sample collection) and periods (e.g. hospital admission) to unique groups based on a case definition. 
-    The tracking process permits several options such as episode lengths and recurrence.
-    Duplicate events or records can then be identified for removal or further analyses.  ">
+<meta property="og:description" content="An R package for iterative and batched record linkage, 
+    and applying epidemiological case definitions.
+    diyar can be used for determinisitic and probablistic record linkage, 
+    or multistage record linkage combining both approaches.
+    It features the implementation of nested match criteria, and mechanisms to 
+    address missing data and conflicting matches during stepwise record linkage.
+    Case definitions are implemented by assigning records to groups based on 
+    match criteria such as person or place, and overlaping time or duration of 
+    events e.g. sample collection dates or periods of hospital stays.
+    Matching records are assigned a unique group ID. Index and duplicate records 
+    are removed or further analyses as required.  ">
 <!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha256-nvJJv9wWKEm88qvoQl9ekL2J+k/RWIsaSScxxlsrv8k=" crossorigin="anonymous"></script><script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/config/TeX-AMS-MML_HTMLorMML.js" integrity="sha256-84DKXVJXs0/F8OTMzX4UR909+jtl4G7SPypPavF+GfA=" crossorigin="anonymous"></script><!--[if lt IE 9]>
 <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
 <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
@@ -38,7 +43,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -190,7 +195,7 @@ contact or network analyses e.t.c.</p>
 <span><span class="co">#&gt; 5  30       Green            France P.4 (CRI 001) P.2 (CRI 001) P.2 (CRI 001)</span></span>
 <span><span class="co">#&gt; 6  30  Dark brown             Ghana P.6 (No hits) P.6 (No hits) P.1 (CRI 001)</span></span>
 <span><span class="co">#&gt; 7  30       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span></code></pre></div>
-<p>There are variations of <code><a href="reference/links.html">links()</a></code> like <code><a href="reference/links_wf.html">links_wf_probabilistic()</a></code> and <code><a href="reference/links_wf.html">links_sv_probabilistic()</a></code> for specific use cases such as probabilistic record linkage.</p>
+<p>There are variations of <code><a href="reference/links.html">links()</a></code> like <code><a href="reference/links_wf.html">links_wf_probabilistic()</a></code> and <code>links_sv_probabilistic()</code> for specific use cases such as probabilistic record linkage.</p>
 </div>
 <div class="section level2">
 <h2 id="episodes">episodes()<a class="anchor" aria-label="anchor" href="#episodes"></a>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -89,10 +89,10 @@ summary(object, ...)
 print(x, ...)
 
 # S3 method for pid
-as.data.frame(x, ...)
+as.data.frame(x, ..., decode = TRUE)
 
 # S3 method for pid
-as.list(x, ...)
+as.list(x, ..., decode = TRUE)
 
 # S4 method for pid
 show(object)
@@ -153,11 +153,11 @@ c(x, ...)</code></pre></div>
 
 
 <dt><code>link_id</code></dt>
-<dd><p>Unique record identifier for matching records.</p></dd>
+<dd><p>Unique reference ID for each match.</p></dd>
 
 
 <dt><code>pid_cri</code></dt>
-<dd><p>Matching criteria.</p></dd>
+<dd><p>Match stage of the step-wise linkage.</p></dd>
 
 
 <dt><code>pid_dataset</code></dt>
@@ -169,7 +169,7 @@ c(x, ...)</code></pre></div>
 
 
 <dt><code>iteration</code></dt>
-<dd><p>The iteration of the linkage process when a record was linked to its group.</p></dd>
+<dd><p>The iteration when a record was matched to it's group (<code>.Data</code>).</p></dd>
 
 
 </dl></div>
@@ -178,6 +178,9 @@ c(x, ...)</code></pre></div>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A test for pid objects</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="links.html">links</a></span><span class="op">(</span>criteria <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
+<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
 <span class="r-in"><span><span class="fu">is.pid</span><span class="op">(</span><span class="va">pd</span><span class="op">)</span>; <span class="fu">is.pid</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>

@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.4.3</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
       </span>
     </div>
 
@@ -89,7 +89,7 @@
     <div class="page-header toc-ignore">
       <h1 data-toc-skip>Introduction to record linkage with diyar</h1>
             
-            <h4 data-toc-skip class="date">22 December 2022</h4>
+            <h4 data-toc-skip class="date">01 November 2023</h4>
       
       <small class="dont-index">Source: <a href="https://github.com/OlisaNsonwu/diyar/blob/HEAD/vignettes/links.Rmd" class="external-link"><code>vignettes/links.Rmd</code></a></small>
       <div class="hidden name"><code>links.Rmd</code></div>
@@ -154,13 +154,13 @@ should then be added to the group.</p>
 <code class="sourceCode R"><span><span class="va">missing_staff_id</span><span class="op">$</span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/links.html">links</a></span><span class="op">(</span>criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">missing_staff_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"initials"</span>, <span class="st">"hair_colour"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></span>
 <span><span class="va">missing_staff_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"initials"</span>, <span class="st">"hair_colour"</span>, <span class="st">"p1"</span>, <span class="st">"p2"</span>, <span class="st">"p3"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   initials hair_colour            p1            p2            p3</span></span>
-<span><span class="co">#&gt; 1     G.D.       Brown P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span>
+<span><span class="co">#&gt; 1     G.D.       Brown P.1 (CRI 001) P.1 (CRI 001) P.1 (No hits)</span></span>
 <span><span class="co">#&gt; 2     B.G.        Teal P.2 (No hits) P.2 (No hits) P.2 (No hits)</span></span>
-<span><span class="co">#&gt; 3     X.P.        &lt;NA&gt; P.3 (CRI 001) P.3 (No hits) P.3 (CRI 001)</span></span>
-<span><span class="co">#&gt; 4     X.P.       Green P.3 (CRI 001) P.4 (CRI 001) P.3 (CRI 001)</span></span>
-<span><span class="co">#&gt; 5     &lt;NA&gt;       Green P.5 (No hits) P.4 (CRI 001) P.3 (CRI 002)</span></span>
-<span><span class="co">#&gt; 6     G.D.  Dark brown P.1 (CRI 001) P.6 (No hits) P.1 (CRI 001)</span></span>
-<span><span class="co">#&gt; 7     G.D.       Brown P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span></code></pre></div>
+<span><span class="co">#&gt; 3     X.P.        &lt;NA&gt; P.3 (CRI 001) P.3 (No hits) P.3 (No hits)</span></span>
+<span><span class="co">#&gt; 4     X.P.       Green P.3 (CRI 001) P.4 (CRI 001) P.4 (No hits)</span></span>
+<span><span class="co">#&gt; 5     &lt;NA&gt;       Green P.5 (No hits) P.4 (CRI 001) P.5 (No hits)</span></span>
+<span><span class="co">#&gt; 6     G.D.  Dark brown P.1 (CRI 001) P.6 (No hits) P.6 (No hits)</span></span>
+<span><span class="co">#&gt; 7     G.D.       Brown P.1 (CRI 001) P.1 (CRI 001) P.7 (No hits)</span></span></code></pre></div>
 <p>We see that <code>p3</code> now identifies records 3, 4 and 5 as the
 same person. The logic here is that since record 4 has the same
 <code>initial</code> as record 3 and also has the same
@@ -212,13 +212,13 @@ office.</p>
 <span>                             recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">missing_staff_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>, <span class="st">"p4"</span>, <span class="st">"p5"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   hair_colour     branch_office            p4            p5</span></span>
-<span><span class="co">#&gt; 1       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001)</span></span>
+<span><span class="co">#&gt; 1       Brown Republic of Ghana P.1 (CRI 001) P.1 (No hits)</span></span>
 <span><span class="co">#&gt; 2        Teal            France P.2 (CRI 001) P.2 (No hits)</span></span>
 <span><span class="co">#&gt; 3        &lt;NA&gt;              &lt;NA&gt; P.3 (No hits) P.3 (No hits)</span></span>
-<span><span class="co">#&gt; 4       Green              &lt;NA&gt; P.2 (CRI 001) P.4 (No hits)</span></span>
+<span><span class="co">#&gt; 4       Green              &lt;NA&gt; P.4 (No hits) P.4 (No hits)</span></span>
 <span><span class="co">#&gt; 5       Green            France P.2 (CRI 001) P.5 (No hits)</span></span>
 <span><span class="co">#&gt; 6  Dark brown             Ghana P.6 (No hits) P.6 (No hits)</span></span>
-<span><span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001)</span></span></code></pre></div>
+<span><span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.7 (No hits)</span></span></code></pre></div>
 <p>There is no limit to the number of <code>sub_criteria</code> that can
 be specified but each <code>sub_criteria</code> must be paired to a
 <code>criteria</code>. Any unpaired <code>sub_criteria</code> will be
@@ -240,13 +240,13 @@ office).</p>
 <span>                             recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">missing_staff_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>, <span class="st">"p4"</span>, <span class="st">"p5"</span>, <span class="st">"p6"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   hair_colour     branch_office            p4            p5            p6</span></span>
-<span><span class="co">#&gt; 1       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span>
-<span><span class="co">#&gt; 2        Teal            France P.2 (CRI 001) P.2 (No hits) P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 1       Brown Republic of Ghana P.1 (CRI 001) P.1 (No hits) P.1 (No hits)</span></span>
+<span><span class="co">#&gt; 2        Teal            France P.2 (CRI 001) P.2 (No hits) P.2 (No hits)</span></span>
 <span><span class="co">#&gt; 3        &lt;NA&gt;              &lt;NA&gt; P.3 (No hits) P.3 (No hits) P.3 (No hits)</span></span>
-<span><span class="co">#&gt; 4       Green              &lt;NA&gt; P.2 (CRI 001) P.4 (No hits) P.4 (No hits)</span></span>
-<span><span class="co">#&gt; 5       Green            France P.2 (CRI 001) P.5 (No hits) P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 4       Green              &lt;NA&gt; P.4 (No hits) P.4 (No hits) P.4 (No hits)</span></span>
+<span><span class="co">#&gt; 5       Green            France P.2 (CRI 001) P.5 (No hits) P.5 (No hits)</span></span>
 <span><span class="co">#&gt; 6  Dark brown             Ghana P.6 (No hits) P.6 (No hits) P.6 (No hits)</span></span>
-<span><span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span></code></pre></div>
+<span><span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.7 (No hits) P.7 (No hits)</span></span></code></pre></div>
 <p>Evaluated matches can be implemented with user-defined functions. The
 only requirement is that they:</p>
 <ul>
@@ -280,18 +280,18 @@ case earlier.</p>
 <span>                             recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">missing_staff_id</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"hair_colour"</span>, <span class="st">"branch_office"</span>, <span class="st">"p4"</span>, <span class="st">"p5"</span>, <span class="st">"p6"</span>, <span class="st">"p7"</span><span class="op">)</span><span class="op">]</span></span>
 <span><span class="co">#&gt;   hair_colour     branch_office            p4            p5            p6</span></span>
-<span><span class="co">#&gt; 1       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span>
-<span><span class="co">#&gt; 2        Teal            France P.2 (CRI 001) P.2 (No hits) P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 1       Brown Republic of Ghana P.1 (CRI 001) P.1 (No hits) P.1 (No hits)</span></span>
+<span><span class="co">#&gt; 2        Teal            France P.2 (CRI 001) P.2 (No hits) P.2 (No hits)</span></span>
 <span><span class="co">#&gt; 3        &lt;NA&gt;              &lt;NA&gt; P.3 (No hits) P.3 (No hits) P.3 (No hits)</span></span>
-<span><span class="co">#&gt; 4       Green              &lt;NA&gt; P.2 (CRI 001) P.4 (No hits) P.4 (No hits)</span></span>
-<span><span class="co">#&gt; 5       Green            France P.2 (CRI 001) P.5 (No hits) P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 4       Green              &lt;NA&gt; P.4 (No hits) P.4 (No hits) P.4 (No hits)</span></span>
+<span><span class="co">#&gt; 5       Green            France P.2 (CRI 001) P.5 (No hits) P.5 (No hits)</span></span>
 <span><span class="co">#&gt; 6  Dark brown             Ghana P.6 (No hits) P.6 (No hits) P.6 (No hits)</span></span>
-<span><span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span>
+<span><span class="co">#&gt; 7       Brown Republic of Ghana P.1 (CRI 001) P.7 (No hits) P.7 (No hits)</span></span>
 <span><span class="co">#&gt;              p7</span></span>
 <span><span class="co">#&gt; 1 P.1 (CRI 001)</span></span>
 <span><span class="co">#&gt; 2 P.2 (CRI 001)</span></span>
 <span><span class="co">#&gt; 3 P.3 (No hits)</span></span>
-<span><span class="co">#&gt; 4 P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 4 P.4 (No hits)</span></span>
 <span><span class="co">#&gt; 5 P.2 (CRI 001)</span></span>
 <span><span class="co">#&gt; 6 P.1 (CRI 001)</span></span>
 <span><span class="co">#&gt; 7 P.1 (CRI 001)</span></span></code></pre></div>
@@ -342,7 +342,7 @@ analysis as above but as a probabilistic record linkage.</p>
 <span>                   probabilistic <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">p9</span></span>
 <span><span class="co">#&gt; [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"</span></span>
-<span><span class="co">#&gt; [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.1 (CRI 001)"</span></span></code></pre></div>
+<span><span class="co">#&gt; [5] "P.5 (Skipped)" "P.1 (CRI 001)" "P.7 (No hits)"</span></span></code></pre></div>
 <p>As mentioned, with a sufficiently large dataset, we can easily run
 out of memory. If memory usage is a concern, then use
 <code><a href="../reference/links_wf.html">links_wf_probabilistic()</a></code> instead.
@@ -359,7 +359,7 @@ above.</p>
 <span>                              recursive <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">p10</span></span>
 <span><span class="co">#&gt; [1] "P.1 (CRI 001)" "P.2 (No hits)" "P.3 (No hits)" "P.4 (No hits)"</span></span>
-<span><span class="co">#&gt; [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.1 (CRI 001)"</span></span></code></pre></div>
+<span><span class="co">#&gt; [5] "P.5 (No hits)" "P.1 (CRI 001)" "P.7 (No hits)"</span></span></code></pre></div>
 <p><code><a href="../reference/links.html">links()</a></code> and <code><a href="../reference/links_wf.html">links_wf_probabilistic()</a></code> can
 perform record linkage across multiple datasets in one instance. To
 achieve this, values from the different datasets should be passed to the
@@ -383,78 +383,78 @@ of the dataset. See a demonstration of these below.</p>
 <span></span>
 <span><span class="va">triplicate</span></span>
 <span><span class="co">#&gt;    initials hair_colour source_1 data_source            p1             p2</span></span>
-<span><span class="co">#&gt; 1      G.D.       Brown        A       set_1 P.1 (CRI 001) P.01 (CRI 001)</span></span>
+<span><span class="co">#&gt; 1      G.D.       Brown        A       set_1 P.1 (CRI 001) P.01 (No hits)</span></span>
 <span><span class="co">#&gt; 2      B.G.        Teal        A       set_1 P.2 (CRI 001) P.02 (No hits)</span></span>
-<span><span class="co">#&gt; 3      X.P.        &lt;NA&gt;        A       set_1 P.3 (CRI 001) P.03 (CRI 001)</span></span>
-<span><span class="co">#&gt; 4      X.P.       Green        B       set_1 P.4 (CRI 001) P.03 (CRI 001)</span></span>
-<span><span class="co">#&gt; 5      &lt;NA&gt;       Green        A       set_1 P.5 (CRI 002) P.03 (CRI 002)</span></span>
-<span><span class="co">#&gt; 6      G.D.  Dark brown        A       set_1 P.1 (CRI 001) P.01 (CRI 001)</span></span>
-<span><span class="co">#&gt; 7      G.D.       Brown        B       set_1 P.7 (CRI 001) P.01 (CRI 001)</span></span>
-<span><span class="co">#&gt; 8      G.D.       Brown        A       set_2 P.1 (CRI 001) P.08 (CRI 001)</span></span>
+<span><span class="co">#&gt; 3      X.P.        &lt;NA&gt;        A       set_1 P.3 (CRI 001) P.03 (No hits)</span></span>
+<span><span class="co">#&gt; 4      X.P.       Green        B       set_1 P.4 (CRI 001) P.04 (No hits)</span></span>
+<span><span class="co">#&gt; 5      &lt;NA&gt;       Green        A       set_1 P.5 (CRI 002) P.05 (No hits)</span></span>
+<span><span class="co">#&gt; 6      G.D.  Dark brown        A       set_1 P.1 (CRI 001) P.06 (No hits)</span></span>
+<span><span class="co">#&gt; 7      G.D.       Brown        B       set_1 P.7 (CRI 001) P.07 (No hits)</span></span>
+<span><span class="co">#&gt; 8      G.D.       Brown        A       set_2 P.1 (CRI 001) P.08 (No hits)</span></span>
 <span><span class="co">#&gt; 9      B.G.        Teal        A       set_2 P.2 (CRI 001) P.09 (No hits)</span></span>
-<span><span class="co">#&gt; 10     X.P.        &lt;NA&gt;        A       set_2 P.3 (CRI 001) P.10 (CRI 001)</span></span>
-<span><span class="co">#&gt; 11     X.P.       Green        B       set_2 P.4 (CRI 001) P.10 (CRI 001)</span></span>
-<span><span class="co">#&gt; 12     &lt;NA&gt;       Green        A       set_2 P.5 (CRI 002) P.10 (CRI 002)</span></span>
-<span><span class="co">#&gt; 13     G.D.  Dark brown        A       set_2 P.1 (CRI 001) P.08 (CRI 001)</span></span>
-<span><span class="co">#&gt; 14     G.D.       Brown        B       set_2 P.7 (CRI 001) P.08 (CRI 001)</span></span>
-<span><span class="co">#&gt; 15     G.D.       Brown        A       set_3 P.1 (CRI 001) P.15 (CRI 001)</span></span>
+<span><span class="co">#&gt; 10     X.P.        &lt;NA&gt;        A       set_2 P.3 (CRI 001) P.10 (No hits)</span></span>
+<span><span class="co">#&gt; 11     X.P.       Green        B       set_2 P.4 (CRI 001) P.11 (No hits)</span></span>
+<span><span class="co">#&gt; 12     &lt;NA&gt;       Green        A       set_2 P.5 (CRI 002) P.12 (No hits)</span></span>
+<span><span class="co">#&gt; 13     G.D.  Dark brown        A       set_2 P.1 (CRI 001) P.13 (No hits)</span></span>
+<span><span class="co">#&gt; 14     G.D.       Brown        B       set_2 P.7 (CRI 001) P.14 (No hits)</span></span>
+<span><span class="co">#&gt; 15     G.D.       Brown        A       set_3 P.1 (CRI 001) P.15 (No hits)</span></span>
 <span><span class="co">#&gt; 16     B.G.        Teal        A       set_3 P.2 (CRI 001) P.16 (No hits)</span></span>
-<span><span class="co">#&gt; 17     X.P.        &lt;NA&gt;        A       set_3 P.3 (CRI 001) P.17 (CRI 001)</span></span>
-<span><span class="co">#&gt; 18     X.P.       Green        B       set_3 P.4 (CRI 001) P.17 (CRI 001)</span></span>
-<span><span class="co">#&gt; 19     &lt;NA&gt;       Green        A       set_3 P.5 (CRI 002) P.17 (CRI 002)</span></span>
-<span><span class="co">#&gt; 20     G.D.  Dark brown        A       set_3 P.1 (CRI 001) P.15 (CRI 001)</span></span>
-<span><span class="co">#&gt; 21     G.D.       Brown        B       set_3 P.7 (CRI 001) P.15 (CRI 001)</span></span></code></pre></div>
+<span><span class="co">#&gt; 17     X.P.        &lt;NA&gt;        A       set_3 P.3 (CRI 001) P.17 (No hits)</span></span>
+<span><span class="co">#&gt; 18     X.P.       Green        B       set_3 P.4 (CRI 001) P.18 (No hits)</span></span>
+<span><span class="co">#&gt; 19     &lt;NA&gt;       Green        A       set_3 P.5 (CRI 002) P.19 (No hits)</span></span>
+<span><span class="co">#&gt; 20     G.D.  Dark brown        A       set_3 P.1 (CRI 001) P.20 (No hits)</span></span>
+<span><span class="co">#&gt; 21     G.D.       Brown        B       set_3 P.7 (CRI 001) P.21 (No hits)</span></span></code></pre></div>
 <p>The results are different as per the different linkage strategy. We
 can use <code>as.data.frame</code> or <code>as.list</code> to access the
 contents of each identifier to inspect the difference.</p>
 <div class="sourceCode" id="cb11"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">triplicate</span><span class="op">$</span><span class="va">p1</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    pid sn pid_cri link_id pid_total iteration       pid_dataset</span></span>
-<span><span class="co">#&gt; 1    1  1       1       1         6         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 2    2  2       1       2         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 3    3  3       1       3         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 4    4  4       1       4         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 5    5  5       2       5         3         2 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 6    1  6       1       1         6         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 7    7  7       1       7         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 8    1  8       1       1         6         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 9    2  9       1       2         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 10   3 10       1       3         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 11   4 11       1       4         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 12   5 12       2       5         3         2 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 13   1 13       1       1         6         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 14   7 14       1       7         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 15   1 15       1       1         6         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 16   2 16       1       2         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 17   3 17       1       3         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 18   4 18       1       4         3         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 19   5 19       2       5         3         2 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 20   1 20       1       1         6         1 set_1,set_2,set_3</span></span>
-<span><span class="co">#&gt; 21   7 21       1       7         3         1 set_1,set_2,set_3</span></span>
+<span><span class="co">#&gt;    pid sn pid_cri       pid_dataset pid_total iteration link_id1</span></span>
+<span><span class="co">#&gt; 1    1  1       1 set_1,set_2,set_3         6         1        1</span></span>
+<span><span class="co">#&gt; 2    2  2       1 set_1,set_2,set_3         3         1        2</span></span>
+<span><span class="co">#&gt; 3    3  3       1 set_1,set_2,set_3         3         1        3</span></span>
+<span><span class="co">#&gt; 4    4  4       1 set_1,set_2,set_3         3         1        4</span></span>
+<span><span class="co">#&gt; 5    5  5       2 set_1,set_2,set_3         3         2        5</span></span>
+<span><span class="co">#&gt; 6    1  6       1 set_1,set_2,set_3         6         1        1</span></span>
+<span><span class="co">#&gt; 7    7  7       1 set_1,set_2,set_3         3         1        7</span></span>
+<span><span class="co">#&gt; 8    1  8       1 set_1,set_2,set_3         6         1        1</span></span>
+<span><span class="co">#&gt; 9    2  9       1 set_1,set_2,set_3         3         1        2</span></span>
+<span><span class="co">#&gt; 10   3 10       1 set_1,set_2,set_3         3         1        3</span></span>
+<span><span class="co">#&gt; 11   4 11       1 set_1,set_2,set_3         3         1        4</span></span>
+<span><span class="co">#&gt; 12   5 12       2 set_1,set_2,set_3         3         2        5</span></span>
+<span><span class="co">#&gt; 13   1 13       1 set_1,set_2,set_3         6         1        1</span></span>
+<span><span class="co">#&gt; 14   7 14       1 set_1,set_2,set_3         3         1        7</span></span>
+<span><span class="co">#&gt; 15   1 15       1 set_1,set_2,set_3         6         1        1</span></span>
+<span><span class="co">#&gt; 16   2 16       1 set_1,set_2,set_3         3         1        2</span></span>
+<span><span class="co">#&gt; 17   3 17       1 set_1,set_2,set_3         3         1        3</span></span>
+<span><span class="co">#&gt; 18   4 18       1 set_1,set_2,set_3         3         1        4</span></span>
+<span><span class="co">#&gt; 19   5 19       2 set_1,set_2,set_3         3         2        5</span></span>
+<span><span class="co">#&gt; 20   1 20       1 set_1,set_2,set_3         6         1        1</span></span>
+<span><span class="co">#&gt; 21   7 21       1 set_1,set_2,set_3         3         1        7</span></span>
 <span></span>
 <span><span class="fu"><a href="https://rdrr.io/r/base/as.data.frame.html" class="external-link">as.data.frame</a></span><span class="op">(</span><span class="va">triplicate</span><span class="op">$</span><span class="va">p2</span><span class="op">)</span></span>
-<span><span class="co">#&gt;    pid sn pid_cri link_id pid_total iteration pid_dataset</span></span>
-<span><span class="co">#&gt; 1    1  1       1       1         3         1         A,B</span></span>
-<span><span class="co">#&gt; 2    2  2       0       2         1         2           A</span></span>
-<span><span class="co">#&gt; 3    3  3       1       3         3         1         A,B</span></span>
-<span><span class="co">#&gt; 4    3  4       1       3         3         1         A,B</span></span>
-<span><span class="co">#&gt; 5    3  5       2       4         3         2         A,B</span></span>
-<span><span class="co">#&gt; 6    1  6       1       1         3         1         A,B</span></span>
-<span><span class="co">#&gt; 7    1  7       1       1         3         1         A,B</span></span>
-<span><span class="co">#&gt; 8    8  8       1       8         3         1         A,B</span></span>
-<span><span class="co">#&gt; 9    9  9       0       9         1         2           A</span></span>
-<span><span class="co">#&gt; 10  10 10       1      10         3         1         A,B</span></span>
-<span><span class="co">#&gt; 11  10 11       1      10         3         1         A,B</span></span>
-<span><span class="co">#&gt; 12  10 12       2      11         3         2         A,B</span></span>
-<span><span class="co">#&gt; 13   8 13       1       8         3         1         A,B</span></span>
-<span><span class="co">#&gt; 14   8 14       1       8         3         1         A,B</span></span>
-<span><span class="co">#&gt; 15  15 15       1      15         3         1         A,B</span></span>
-<span><span class="co">#&gt; 16  16 16       0      16         1         2           A</span></span>
-<span><span class="co">#&gt; 17  17 17       1      17         3         1         A,B</span></span>
-<span><span class="co">#&gt; 18  17 18       1      17         3         1         A,B</span></span>
-<span><span class="co">#&gt; 19  17 19       2      18         3         2         A,B</span></span>
-<span><span class="co">#&gt; 20  15 20       1      15         3         1         A,B</span></span>
-<span><span class="co">#&gt; 21  15 21       1      15         3         1         A,B</span></span></code></pre></div>
+<span><span class="co">#&gt;    pid sn pid_cri pid_dataset pid_total iteration link_id1 link_id2</span></span>
+<span><span class="co">#&gt; 1    1  1       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 2    2  2       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 3    3  3       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 4    4  4       0           B         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 5    5  5       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 6    6  6       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 7    7  7       0           B         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 8    8  8       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 9    9  9       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 10  10 10       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 11  11 11       0           B         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 12  12 12       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 13  13 13       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 14  14 14       0           B         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 15  15 15       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 16  16 16       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 17  17 17       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 18  18 18       0           B         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 19  19 19       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 20  20 20       0           A         1         2       NA       NA</span></span>
+<span><span class="co">#&gt; 21  21 21       0           B         1         2       NA       NA</span></span></code></pre></div>
   </div>
 
   <div class="col-md-3 hidden-xs hidden-sm" id="pkgdown-sidebar">
