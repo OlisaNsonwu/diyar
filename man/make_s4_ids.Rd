@@ -50,6 +50,10 @@ make_pids(
 
 \item{from_last}{\code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).}
 
+\item{data_source}{\code{[character]}. Source ID for each record.}
+
+\item{data_links}{\code{[list|character]}. \code{data_source} required in each record-group. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}.}
+
 \item{iteration}{The iteration when a record was matched to it's group (\code{.Data}).}
 
 \item{options}{\code{[list]}. Some options passed to the instance of \code{\link{episodes}}.}

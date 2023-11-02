@@ -58,9 +58,13 @@ bys_lead(val, by = NULL, n = 1)
 
 \item{val}{\code{[atomic]}. Value}
 
+\item{ordered}{If \code{TRUE}, values are sequential.}
+
 \item{n}{\code{[integer]} Position.}
 
 \item{nmax}{\code{[logical]} If \code{TRUE}, use \code{length([by])} when \code{n} is greater than the number of records in a group.}
+
+\item{na.rm}{If \code{TRUE}, remove \code{NA} values}
 }
 \value{
 \code{[atomic]}

@@ -70,6 +70,7 @@ bys_rank <- function(..., by = NULL, from_last = FALSE){
 }
 
 #' @rdname bys_funcs
+#' @param ordered If \code{TRUE}, values are sequential.
 #' @export
 bys_position <- function(val, by = NULL, from_last = FALSE, ordered = TRUE){
   if(!is.logical(from_last)) stop("`from_last` must be `TRUE` or `FALSE`!")
@@ -97,7 +98,7 @@ bys_position <- function(val, by = NULL, from_last = FALSE, ordered = TRUE){
       rp$lengths)
   }else{
     x <- rep(
-      ((by[!duplicated(by)] - bys_min(by = st[!duplicated(by)], val = by[!duplicated(by)])) + 1L) + + (rp$lengths)/faC,
+      ((by[!duplicated(by)] - bys_min(by = st[!duplicated(by)], val = by[!duplicated(by)])) + 1L) + (rp$lengths)/faC,
       rp$lengths
     )
   }
@@ -147,6 +148,7 @@ bys_nval <- function(..., val, by = NULL, from_last = FALSE, n = 1, nmax = FALSE
 }
 
 #' @rdname bys_funcs
+#' @param na.rm If \code{TRUE}, remove \code{NA} values
 #' @export
 bys_min <- function(val, by = NULL, na.rm = TRUE){
   val2 <- bys_val(val, by = by, from_last = FALSE, val = val)

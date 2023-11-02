@@ -177,6 +177,9 @@ unique.number_line <- function(x, ...){
 }
 
 #' @rdname number_line-class
+#' @param precision Round precision
+#' @param fill \code{[logical]}. Retain (\code{TRUE}) or
+#' drop (\code{FALSE}) the remainder of an uneven split.
 #' @export
 seq.number_line <- function(x, precision = NULL, fill = FALSE, ...){
   y <- seq(from = start_point(x), to = end_point(x), ...)
@@ -383,7 +386,7 @@ summary.epid <- function(object, ...){
   } else{
     summ$data_source <- dst_tab(x = decode((object@epid_dataset[object@case_nm %in% c(0, 4)])[
       order(object@epid_dataset[object@case_nm %in% c(0, 4)])]),
-            order_by_label = sort(attr(object@epid_dataset, "label")))
+      order_by_label = sort(attr(object@epid_dataset, "label")))
   }
   class(summ) <- "epid_summary"
   return(summ)
@@ -449,6 +452,7 @@ print.epid_summary <- function(x, ...){
 }
 
 #' @rdname epid-class
+#' @param decode If \code{TRUE}, data is \code{\link[=decode]{decoded}}
 #' @export
 as.data.frame.epid <- function(x, ..., decode = TRUE){
   x <- as.list(x, decode = decode)
@@ -731,6 +735,7 @@ print.pane_summary <- function(x, ...){
 }
 
 #' @rdname pane-class
+#' @param decode If \code{TRUE}, data is \code{\link[=decode]{decoded}}
 #' @export
 as.data.frame.pane <- function(x, ..., decode = TRUE){
   x <- as.list(x, decode = decode)
@@ -973,6 +978,7 @@ print.pid_summary <- function(x, ...){
 }
 
 #' @rdname pid-class
+#' @param decode If \code{TRUE}, data is \code{\link[=decode]{decoded}}
 #' @export
 as.data.frame.pid <- function(x, ..., decode = TRUE){
   x <- as.list(x, decode = decode)

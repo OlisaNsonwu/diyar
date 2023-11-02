@@ -791,8 +791,8 @@ schema.pid <- function(x, title = NULL, show_labels = TRUE,
   refs.n <- length(x@link_id)
 
   pl_dt <- lapply(seq_len(refs.n), function(i){
-    pl_dt <- pl_dt[!is.na(pl_dt[[paste0("link_id",i)]]),]
     if(i > 1){
+      pl_dt <- pl_dt[!is.na(pl_dt[[paste0("link_id",i)]]),]
       pl_dt <- pl_dt[pl_dt[[paste0("link_id",i)]] != pl_dt$sn,]
       if(nrow(pl_dt) > 0){
         pl_dt$link_id <- pl_dt[[paste0("link_id",i)]]

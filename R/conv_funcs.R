@@ -1432,9 +1432,7 @@ group_stats <- function(strata, start_date, end_date){
 
 make_refs_V2 <- function(x_val, y_val, id_length = max(x_val, y_val), useAsPos = TRUE, na = NA_real_){
   if(length(x_val) == 0 & length(y_val) == 0){
-    x <- NA
-    y1 <- NA
-    return(cbind(x, y1))
+    return(cbind(NA, NA))
   }
   repo <- list(x = x_val, y = y_val)
   repo <- cbind(x_val, y_val)
@@ -1644,9 +1642,9 @@ S4_to_list <- function(x, decode = TRUE, .Data_type = "epid"){
     window_list <- lapply(x@window_list, list)
     x@window_list <- list()
   }
-  slot.nm <- slotNames(x)
+  slot.nm <- methods::slotNames(x)
   slot.val <- lapply(slot.nm, function(nm){
-    slot(x, nm)
+    methods::slot(x, nm)
   })
   names(slot.val) <- slot.nm
   slot.val <- slot.val[slot.nm != "options"]
@@ -1710,4 +1708,10 @@ concat.integer_v1 <- function(a, z){
   faC <- 10 ^ faC
   a <- (a * faC) + z
   a
+}
+
+id_total <- function(x){
+  rr <- rle(sort(x))
+  x <- rr$lengths[match(x, rr$values)]
+  x
 }

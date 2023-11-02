@@ -19,7 +19,7 @@
 ^LICENSE$
 ^revdep$
 ^\.covrignore$
-^R/retired_funcs\.R$
+^R/dev_funcs\.R$
 ^R/archive_funcs\.R$
 ^tests
 ^fig_r1_dark\.png$

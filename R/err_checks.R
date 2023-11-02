@@ -372,8 +372,8 @@ err_sub_criteria_10b <- function(sub_criteria){
                   "i - Instead, nest all match criteria in one `sub_criteria` object.\n",
                   "i - Example ~ `sub_criteria(X, sub_criteria(Y), operator = \"and\")`.\n",
                   paste0("X - ", nms$lengths, " `sub_criteria` object(s) assinged to Criteria-", gsub("^cr", "", nms$values), " (`", nms$values, "`)", collapse = "\n")
-                  )
-           )
+    )
+    )
   }else{
     F
   }
@@ -1109,10 +1109,10 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
                data_links = data_links)
 
   args_opt_lv <- list(case_length = c("", "r", "e", "w"),
-                    recurrence_length = c("", "r", "e", "w"),
-                    case_overlap_methods = c("", "r", "e", "w"),
-                    recurrence_overlap_methods = c("", "r", "e", "w"),
-                    data_links = c("", "l", "g"))
+                      recurrence_length = c("", "r", "e", "w"),
+                      case_overlap_methods = c("", "r", "e", "w"),
+                      recurrence_overlap_methods = c("", "r", "e", "w"),
+                      data_links = c("", "l", "g"))
 
   err <- mapply(err_option_level,
                 args,
@@ -1176,23 +1176,24 @@ err_episodes_checks_0 <- function(date = 1, case_length = 1, episode_type = "fix
   return(FALSE)
 }
 
-err_links_checks_0 <- function(criteria,
-                               sub_criteria,
-                               sn,
-                               strata,
-                               data_source,
-                               data_links,
-                               display,
-                               group_stats,
-                               expand,
-                               shrink,
-                               recursive,
-                               check_duplicates,
-                               tie_sort,
-                               repeats_allowed,
-                               permutations_allowed,
-                               ignore_same_source,
-                               batched){
+err_links_checks_0 <- function(
+    criteria,
+    sub_criteria,
+    sn,
+    strata,
+    data_source,
+    data_links,
+    display,
+    group_stats,
+    expand,
+    shrink,
+    recursive,
+    check_duplicates,
+    tie_sort,
+    repeats_allowed,
+    permutations_allowed,
+    ignore_same_source,
+    batched){
 
   # Check for required object types
   args <- list(
@@ -1283,8 +1284,7 @@ err_links_checks_0 <- function(criteria,
                   rep(as.list(""), 6),
                   as.list(" or the same length as each attribute in the match crtieria"),
                   rep(as.list(""), 3),
-                  rep(as.list(" or the same length as each attribute in the match crtieria"), 2),
-                  as.list("")
+                  rep(as.list(" or the same length as each attribute in the match crtieria"), 2)
                 ),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
@@ -1408,7 +1408,10 @@ err_partitions_checks_0 <- function(
     fill,
     display){
 
-
+  # browser()
+  if(!inherits(window, "list")){
+    window <- list(window)
+  }
   # Check for required object types
   args <- list(
     date = date,
@@ -1426,20 +1429,21 @@ err_partitions_checks_0 <- function(
     group_stats = group_stats,
     display = display )
 
-  args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-                       window = c("numeric", "integer", "number_line", "list", "NULL"),
-                       windows_total  = c("number_line", "numeric", "integer"),
-                       separate = "logical",
-                       strata = "atomic",
-                       custom_sort = "atomic",
-                       data_source = "atomic",
-                       data_links = c("list", "character"),
-                       group_stats = "logical",
-                       by = c("numeric", "integer", "NULL"),
-                       length.out = c("numeric", "integer", "NULL"),
-                       fill = "logical",
-                       group_stats = "logical",
-                       display = "character")
+  args_classes <- list(
+    date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
+    window = c("numeric", "integer", "number_line", "list", "NULL"),
+    windows_total  = c("number_line", "numeric", "integer"),
+    separate = "logical",
+    strata = "atomic",
+    custom_sort = "atomic",
+    data_source = "atomic",
+    data_links = c("list", "character"),
+    group_stats = "logical",
+    by = c("numeric", "integer", "NULL"),
+    length.out = c("numeric", "integer", "NULL"),
+    fill = "logical",
+    group_stats = "logical",
+    display = "character")
 
   err <- mapply(err_object_types_2,
                 args,

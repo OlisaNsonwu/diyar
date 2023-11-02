@@ -51,6 +51,8 @@ as.epid(x, ...)
 
 \item{object}{object}
 
+\item{decode}{If \code{TRUE}, data is \code{\link[=decode]{decoded}}}
+
 \item{i}{i}
 
 \item{j}{j}

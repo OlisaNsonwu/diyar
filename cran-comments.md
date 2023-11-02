@@ -14,6 +14,20 @@ There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments
 
 ## Resubmission
 This is a resubmission. Summary of changes below:
+* Optimisations and bug fixes
+* Updated package to v.0.5.0
+
+## Test environments
+* Windows 10 (local machine), R 4.0.2
+* win-builder (release)
+* Debian Linux (rhub)
+* Ubuntu Linux (rhub)
+
+## R CMD check results
+There were no ERRORs or WARNINGs on the Ubuntu and win-builder test environments.
+
+## Resubmission
+This is a resubmission. Summary of changes below:
 * Removed invalid file URIs:
 
 ## Test environments

@@ -95,12 +95,6 @@ roll_sum <- function(val, by = 1000000){
   unlist(lapply(p, roll_seq))
 }
 
-id_total <- function(x){
-  rr <- rle(sort(x))
-  x <- rr$lengths[match(x, rr$values)]
-  x
-}
-
 make_ids_v2 <- function(x_pos, y_pos, id_length = max(x_pos, y_pos), ref_ord = NULL){
   repo <- seq_len(length(x_pos))
   repo <- list(

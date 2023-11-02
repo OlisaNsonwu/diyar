@@ -18,6 +18,7 @@
 #' @param length.out \code{[integer]}. Number of splits.
 #' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
 #' @param display \code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.
+#' @param precision Round precision
 #' @return \code{\link[=pane-class]{pane}}
 #'
 #' @seealso
@@ -67,9 +68,12 @@
 #' @aliases partitions
 #' @export
 #'
-partitions <- function(date, window = NULL, windows_total = 1, separate = FALSE, sn = NULL, strata = NULL,
-                       data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
-                       data_source = NULL, by = NULL, length.out = NULL, fill =  TRUE, display = "none", precision = 1){
+partitions <- function(
+    date, window = NULL, windows_total = 1,
+    separate = FALSE, sn = NULL, strata = NULL,
+    data_links = "ANY", custom_sort = NULL, group_stats = FALSE,
+    data_source = NULL, by = NULL, length.out = NULL,
+    fill =  TRUE, display = "none", precision = 1){
   tm_a <- Sys.time()
 
   # Validations
@@ -104,7 +108,7 @@ partitions <- function(date, window = NULL, windows_total = 1, separate = FALSE,
   }
   if(is.null(names(data_links))){
     names(data_links) <- rep("l", length(data_links))
-    }
+  }
   names(data_links) <- ifelse(names(data_links) == "", "l", names(data_links))
   # `date`
   int <- as.number_line(date)
@@ -182,7 +186,7 @@ partitions <- function(date, window = NULL, windows_total = 1, separate = FALSE,
     c(
       rp$cri,
       rep(names(splits_windows), unlist(lapply(splits_windows, length), use.names = FALSE))
-      )
+    )
 
   split_nms <- names(splits_windows)
   names(splits_windows) <- NULL
@@ -282,6 +286,6 @@ partitions <- function(date, window = NULL, windows_total = 1, separate = FALSE,
   tms <- difftime(tm_z, tm_a)
   if(tolower(display) != "none"){
     cat("Records partitioned in ", fmt(tms, "difftime"), "!\n", sep = "")
-    }
+  }
   return(panes)
 }

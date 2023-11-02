@@ -21,7 +21,7 @@
 #' @param expand \code{[logical]}. If \code{TRUE}, \code{id1} gains new records if \code{id2} indicates a match. \emph{Not interchangeable with \code{shrink}}.
 #' @param shrink \code{[logical]}. If \code{TRUE}, \code{id1} loses existing records \code{id2} does not indicate a match. \emph{Not interchangeable with \code{expand}}.
 #'
-#' @seealso \code{\link{links}}; \code{\link{links_sv_probabilistic}}
+#' @seealso \code{\link{links}}; \code{\link{links_af_probabilistic}}
 #'
 #' @examples
 #' id1 <- rep(1, 5)

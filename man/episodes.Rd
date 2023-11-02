@@ -188,8 +188,7 @@ episodes(date = infections$date,
          case_length = 15,
          episodes_max = Inf,
          episode_type = "rolling",
-         recurrence_length = 10,
-         episode_type = "rolling")
+         recurrence_length = 10)
 
 # Overlapping periods of hospital stays
 dfr <- hospital_admissions[2:3]

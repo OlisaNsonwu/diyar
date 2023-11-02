@@ -106,7 +106,7 @@ See \code{vignette("links")} for more information.
 data(patient_records)
 dfr <- patient_records
 # An exact match on surname followed by an exact match on forename
-stages <- as.list(dfr[c("surname", "forname")])
+stages <- as.list(dfr[c("surname", "forename")])
 p1 <- links(criteria = stages)
 
 # An exact match on forename followed by an exact match on surname

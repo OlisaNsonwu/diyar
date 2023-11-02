@@ -69,6 +69,11 @@
 
 \item{name}{slot name}
 
+\item{precision}{Round precision}
+
+\item{fill}{\code{[logical]}. Retain (\code{TRUE}) or
+drop (\code{FALSE}) the remainder of an uneven split.}
+
 \item{decreasing}{If \code{TRUE}, sort in descending order.}
 }
 \description{

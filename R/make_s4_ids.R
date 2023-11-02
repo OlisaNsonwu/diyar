@@ -15,6 +15,8 @@
 #' @param wind_nm \code{[list]}. Type of window i.e. "Case" or "Recurrence".
 #' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
 #' @param pid_cri Match stage of the step-wise linkage.
+#' @param data_links \code{[list|character]}. \code{data_source} required in each record-group. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}.
+#' @param data_source \code{[character]}. Source ID for each record.
 #' @export
 make_episodes <- function(
     x_pos,

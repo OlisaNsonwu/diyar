@@ -66,7 +66,7 @@
 #' data(patient_records)
 #' dfr <- patient_records
 #' # An exact match on surname followed by an exact match on forename
-#' stages <- as.list(dfr[c("surname", "forname")])
+#' stages <- as.list(dfr[c("surname", "forename")])
 #' p1 <- links(criteria = stages)
 #'
 #' # An exact match on forename followed by an exact match on surname
@@ -160,11 +160,11 @@ links <- function(
   web$tm_a <- tm_a
   #
   rm(criteria, sub_criteria, sn,
-       strata, data_source, data_links,
-       display, group_stats, expand,
-       shrink, recursive, check_duplicates,
-       tie_sort, batched, repeats_allowed,
-       permutations_allowed, ignore_same_source)
+     strata, data_source, data_links,
+     display, group_stats, expand,
+     shrink, recursive, check_duplicates,
+     tie_sort, batched, repeats_allowed,
+     permutations_allowed, ignore_same_source)
   #
   web$err <- err_links_checks_0(
     web$match.cri$criteria, web$match.cri$sub_criteria,
@@ -278,7 +278,7 @@ links <- function(
     #
     web$cri.tmp$sub.cri <- web$match.cri$sub_criteria[
       which(names(web$match.cri$sub_criteria) == paste0("cr", web$i))
-      ]
+    ]
     web$options$is_nested <- length(web$cri.tmp$sub.cri) > 0
     web$options$is_recursive <- ifelse(
       web$options$batched[web$i] %in% "no" |
@@ -469,10 +469,10 @@ links <- function(
       }
       web$ite.tmp$index_cd <- !duplicated(web$repo$cri[web$ite.tmp$ite_inc_indx], fromLast = FALSE)
       if(web$options$batched[web$i] == "semi" # & isTRUE(web$options$is_nested)
-         ){
+      ){
         web$ite.tmp$index_cd[web$repo$tag[web$ite.tmp$ite_inc_indx] == -1] <- TRUE
       }else if(web$options$batched[web$i] == "no" # & isTRUE(web$options$is_nested)
-               ){
+      ){
         web$ite.tmp$index_cd[TRUE] <- TRUE
       }
       #
@@ -540,7 +540,7 @@ links <- function(
         # (is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi]) |
         #    (!is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi]) & web$rec.pairs$cu_linked)
         # )
-      # & is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi])
+        # & is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi])
         !web$repo$sys.linked[web$rec.pairs$cu_pos]
 
       web$ite.tmp$s_ord <- order(web$rec.pairs$cu_pos[web$rec.pairs$w.match])
@@ -579,8 +579,8 @@ links <- function(
       #
       if(web$options$batched[web$i] == "no"){
         web$ite.tmp$batched_pids <- make_ids(web$rec.pairs$x_pos[web$rec.pairs$rec.match$logical_test],
-                                         web$rec.pairs$y_pos[web$rec.pairs$rec.match$logical_test],
-                                         id_length = max(web$rec.pairs$x_pos))
+                                             web$rec.pairs$y_pos[web$rec.pairs$rec.match$logical_test],
+                                             id_length = max(web$rec.pairs$x_pos))
         web$repo$pid[
           web$ite.tmp$ite_inc_indx[web$ite.tmp$batched_pids$sn[web$ite.tmp$batched_pids$linked]]
         ] <- web$ite.tmp$ite_inc_indx[web$ite.tmp$batched_pids$group_id[web$ite.tmp$batched_pids$linked]]
@@ -626,7 +626,7 @@ links <- function(
         web$ite.tmp$tgt_indx <- web$rec.pairs$cu_pos[web$rec.pairs$rec.match$logical_test]
       }else{
         web$ite.tmp$tgt_indx <- c(web$rec.pairs$cu_pos[web$rec.pairs$rec.match$logical_test],
-                              web$rec.pairs$tr_pos[web$rec.pairs$rec.match$logical_test])
+                                  web$rec.pairs$tr_pos[web$rec.pairs$rec.match$logical_test])
       }
       web$repo$iteration[web$ite.tmp$tgt_indx][
         web$repo$tag[web$ite.tmp$tgt_indx] == 2 &

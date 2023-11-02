@@ -50,6 +50,8 @@ partitions(
 \item{fill}{\code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.}
 
 \item{display}{\code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.}
+
+\item{precision}{Round precision}
 }
 \value{
 \code{\link[=pane-class]{pane}}

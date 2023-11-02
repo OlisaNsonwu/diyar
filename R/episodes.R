@@ -106,8 +106,7 @@
 #'          case_length = 15,
 #'          episodes_max = Inf,
 #'          episode_type = "rolling",
-#'          recurrence_length = 10,
-#'          episode_type = "rolling")
+#'          recurrence_length = 10)
 #'
 #' # Overlapping periods of hospital stays
 #' dfr <- hospital_admissions[2:3]
@@ -179,23 +178,23 @@ episodes <- function(
                        if(is.null(strata)){
                          NULL
                        }else{
-                           encode(strata)
-                         }
+                         encode(strata)
+                       }
                      ),
                      case_length = (
                        if(!inherits(case_length, "list")){
                          list(case_length)
-                         }else{
-                           case_length
-                           }
-                       ),
+                       }else{
+                         case_length
+                       }
+                     ),
                      recurrence_length = (
                        if(!inherits(recurrence_length, "list")){
                          list(recurrence_length)
-                         }else{
-                           recurrence_length
-                           }
-                       ),
+                       }else{
+                         recurrence_length
+                       }
+                     ),
                      episode_unit = episode_unit,
                      from_last = from_last)
   episode_unit <- as.vector(episode_unit)
@@ -631,14 +630,14 @@ episodes <- function(
     web$repo$cri, web$repo$custom_sort, web$repo$rev_temporal_ord))
 
   rm(#assign_ord,
-     case_for_recurrence, case_length, case_length_total,
-     case_overlap_methods, case_sub_criteria, cri, custom_sort, data_links,
-     data_source, date, display, dl_lst, episode_type,
-     episode_unit, episodes_max, errs, from_last, group_stats,
-     is_dt, ord_a, ord_z, pr_sn, recurrence_length, recurrence_length_total,
-     recurrence_overlap_methods, recurrence_sub_criteria, reference_event,
-     rolls_max, skip_if_b4_lengths, skip_order, skip_unique_strata,
-     sn, strata)
+    case_for_recurrence, case_length, case_length_total,
+    case_overlap_methods, case_sub_criteria, cri, custom_sort, data_links,
+    data_source, date, display, dl_lst, episode_type,
+    episode_unit, episodes_max, errs, from_last, group_stats,
+    is_dt, ord_a, ord_z, pr_sn, recurrence_length, recurrence_length_total,
+    recurrence_overlap_methods, recurrence_sub_criteria, reference_event,
+    rolls_max, skip_if_b4_lengths, skip_order, skip_unique_strata,
+    sn, strata)
 
   if(grepl("report$", web$controls$display)){
     web$rp_data <- di_report(
@@ -700,14 +699,14 @@ episodes <- function(
     web$tmp$tgt_pos_rev <- web$sys.tmp$rev_ite_pos[
       web$repo$tag[web$sys.tmp$rev_ite_pos] == 1 &
         !web$repo$batched[web$sys.tmp$rev_ite_pos]
-      ]
+    ]
 
     web$tmp$tgt_pos <- web$sys.tmp$ite_pos[
       web$repo$tag[web$sys.tmp$ite_pos] == 1 &
         !web$repo$batched[web$sys.tmp$ite_pos]
     ]
 
-      # Batched tracked reference events
+    # Batched tracked reference events
     web$tmp$lgk1 <-
       web$repo$reference_event[web$repo$ld_pos[web$tmp$tgt_pos_rev]] %in%
       c("last_event", "last_record", "all_record")
@@ -727,7 +726,7 @@ episodes <- function(
       web$sys.tmp$ite_pos[
         web$repo$tag[web$sys.tmp$ite_pos] == 20 &
           !web$repo$batched[web$sys.tmp$ite_pos]
-        ]
+      ]
     )
 
     # Window's reference record
@@ -777,7 +776,7 @@ episodes <- function(
     web$tmp2$s_ord <- order(
       web$tmp2$s_cri
     )
-      # Window's reference record based on new selection
+    # Window's reference record based on new selection
     web$tmp2$tr_lgk <- !duplicated(
       web$tmp2$s_cri[web$tmp2$s_ord], fromLast = FALSE)
     web$tmp2$ite_pos <- web$sys.tmp$ite_pos[web$tmp2$s_ord]
@@ -820,7 +819,7 @@ episodes <- function(
     }
     nms_a <- names(web)
     # Record-pairs
-      # Index for rec-pairs
+    # Index for rec-pairs
     web$sys.tmp$ite_index <- web$sys.tmp$ite_tr_lgk
 
     # Records for recursive checks (semi batched)
@@ -1090,7 +1089,7 @@ episodes <- function(
               web$rec.pairs[[w.name]]$cu_pos.mi[!web$tmp$lgk]],
             y = web$mm_opts[[web$tmp$length_nm]]$range[
               web$rec.pairs[[w.name]]$len_pos[!web$tmp$lgk]],
-            m = web$mm_opts[[web$tmp$overlap_method]][
+            methods = web$mm_opts[[web$tmp$overlap_method]][
               web$rec.pairs[[w.name]]$ovr_pos[!web$tmp$lgk]]
           )
       }
@@ -1105,8 +1104,8 @@ episodes <- function(
       if(web$controls[[paste0("use_", w.type, "_length_total")]]){
         # Number of records matched (Excludes self-matches)
         web$tmp$c_hits <- make_refs_V2(
-          x = web$rec.pairs[[w.name]]$tr_pos.mi[web$rec.pairs[[w.name]]$ep_checks],
-          y = !duplicated(web$rec.pairs[[w.name]]$tr_pos.ord[web$rec.pairs[[w.name]]$ep_checks]),
+          x_val = web$rec.pairs[[w.name]]$tr_pos.mi[web$rec.pairs[[w.name]]$ep_checks],
+          y_val = !duplicated(web$rec.pairs[[w.name]]$tr_pos.ord[web$rec.pairs[[w.name]]$ep_checks]),
           useAsPos = FALSE,
           na = 0
         )
@@ -1197,7 +1196,7 @@ episodes <- function(
 
       web$rec.pairs[[w.name]]$w.match[
         web$rec.pairs[[w.name]]$ref_rd
-        ] <- TRUE
+      ] <- TRUE
 
       if("wind" %in% web$repo$group_stats){
         web$tmp$tgt_lgk <- any(duplicated(web$rec.pairs[[w.name]]$cu_pos[
@@ -1281,7 +1280,7 @@ episodes <- function(
                                   web$rec.pairs[[w.name]]$ld_pos] &
                                 !web$repo$batched[
                                   web$rec.pairs[[w.name]]$cu_pos]
-                                )
+        )
         web$rec.pairs[[w.name]]$sk_checks <-
           rep(FALSE, web$counts$rec.pairs.wind)
         web$rec.pairs[[w.name]]$sk_checks[web$tmp$indx] <- overlap(
@@ -1352,7 +1351,7 @@ episodes <- function(
             web$rec.pairs[[w.name]]$w.match &
               # !web$repo$batched[web$rec.pairs[[w.name]]$tr_pos]
               web$repo$last.batched[web$rec.pairs[[w.name]]$tr_pos]
-            ]
+          ]
         web$tmp$vr2 <- web$rec.pairs[[w.name]]$cu_pos[web$tmp$vr]
         web$tmp$vr <- web$rec.pairs[[w.name]]$tr_pos[web$tmp$vr]
         web$tmp$vr2 <- c(web$tmp$vr[!duplicated(web$tmp$vr)], web$tmp$vr2)
@@ -1366,7 +1365,7 @@ episodes <- function(
         web$tmp$indx <- which(
           web$rec.pairs[[w.name]]$ref_rd |
             web$rec.pairs[[w.name]]$cu_pos %in% web$manual_recursive_index.pos
-                              )
+        )
         web$tgt_pos <- web$rec.pairs[[w.name]]$cu_pos[web$tmp$indx][
           !web$rec.pairs[[w.name]]$s.match[web$tmp$indx] &
             web$repo$tag[web$rec.pairs[[w.name]]$cu_pos[web$tmp$indx]] == 20
@@ -1411,10 +1410,10 @@ episodes <- function(
           web$tmp$indx <- web$tmp$indx &
             (
               (!web$repo$batched[web$rec.pairs[[w.name]]$cu_pos] &
-               web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos])
-             |
-              !web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos]
-             )
+                 web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos])
+              |
+                !web$repo$sys.batched[web$rec.pairs[[w.name]]$cu_pos]
+            )
 
         }
         web$repo$tag[web$rec.pairs[[w.name]]$cu_pos[
@@ -1450,7 +1449,7 @@ episodes <- function(
           web$tmp$tgt_pos <- web$rec.pairs[[w.name]]$cu_pos[
             web$rec.pairs[[w.name]]$is.rec_rd &
               !web$rec.pairs[[w.name]]$s.match
-              ]
+          ]
 
           web$repo$case_nm[web$tmp$tgt_pos] <- 1L
 
@@ -1476,8 +1475,8 @@ episodes <- function(
                   (!web$repo$batched[web$sys.tmp$ite_pos] &
                      web$repo$sys.batched[web$sys.tmp$ite_pos])
                   |
-                  # !web$repo$sys.batched[web$sys.tmp$ite_pos]
-                  !web$repo$sys.batched[web$sys.tmp$ite_tr_pos]
+                    # !web$repo$sys.batched[web$sys.tmp$ite_pos]
+                    !web$repo$sys.batched[web$sys.tmp$ite_tr_pos]
                 )
             ]] <- 10L
         }
@@ -1533,14 +1532,14 @@ episodes <- function(
           }
           # Restart recurrence counter
           # web$repo$rxt_n[web$tmp$tgt_pos] <-
-            web$repo$roll_n[web$tmp$tgt_pos] <-
+          web$repo$roll_n[web$tmp$tgt_pos] <-
             0L
           # Close matched records to stop recurrence
           # web$repo$tag[web$tmp$cu_pos[web$tmp$lgk]] <- 10L
-            web$repo$tag[web$tmp$tgt_pos][
-              web$tmp$tgt_pos %in% web$tmp$cu_pos[web$tmp$lgk] |
+          web$repo$tag[web$tmp$tgt_pos][
+            web$tmp$tgt_pos %in% web$tmp$cu_pos[web$tmp$lgk] |
               web$repo$tag[web$tmp$tgt_pos] == 1
-            ] <- 10L
+          ] <- 10L
         }
 
         # Flag next batched to be checked for recurrence
@@ -1785,7 +1784,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   unq.pr_sn.1 <- integer()
   if(length(web$repo$rw.strata) > 1){
     lgk <- (!duplicated(web$repo$rw.strata, fromLast = TRUE) &
-      !duplicated(web$repo$rw.strata, fromLast = FALSE)) |
+              !duplicated(web$repo$rw.strata, fromLast = FALSE)) |
       is.na(web$repo$rw.strata)
 
     if(any(lgk)){
@@ -1980,7 +1979,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   indx <- which(!duplicated(web$repo$group_id))
   web$repo$group_id <- web$repo$pr_sn[indx][
     match(web$repo$group_id, web$repo$group_id[indx])
-    ]
+  ]
 
   # Re-order as entered
   web$s_ord <- order(web$repo$pr_sn)
@@ -2095,6 +2094,14 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
     opt_lst,
     def_list[names(def_list)[!names(def_list) %in% names(opt_lst)]]
   )
+
+  opt_lst <- lapply(opt_lst, function(x){
+    if(inherits(x, "call")){
+      return(eval(x))
+    }else{
+      return(x)
+    }
+  })
   rm(def_list, unnamed_args, named_pos, unamed_pos)
 
   if(is.null(opt_lst$sn)) {
@@ -2113,8 +2120,9 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
       length(x)
     }
   }
+  row.n <- length(opt_lst$date)
   args_len <- unlist(lapply(combi_opt_lst, check_lens), use.names = FALSE)
-  combi_opt_lst <- combi_opt_lst[args_len > 1]
+  combi_opt_lst <- combi_opt_lst[args_len == row.n]
 
   if(length(combi_opt_lst) != 0){
     combi_opt_lst <- lapply(combi_opt_lst, function(x){
@@ -2168,13 +2176,13 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
       }
     }else if(inherits(opt_lst[[i]], "list")){
       return(lapply(opt_lst[[i]], function(x){
-        if(length(x) == 1){
+        if(length(x) != row.n){
           x
         }else{
           x[!rf_lgk]
         }
       }))
-    }else if(length(opt_lst[[i]]) %in% 0:1 | opt_lst_nms[i] %in% "data_links"){
+    }else if(length(opt_lst[[i]]) != row.n){
       return(opt_lst[[i]])
     }else{
       return((opt_lst[[i]])[!rf_lgk])

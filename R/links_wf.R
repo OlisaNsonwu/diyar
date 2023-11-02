@@ -308,7 +308,7 @@ links_af_probabilistic <- function(attribute,
   pids <- pid_weights[c("sn_x", "sn_y", "record.match")]
   pids <- pids[as.logical(pids$record.match),]
 
-  link_id <- make_refs_V2(x = pids$sn_x, y = pids$sn_y, rd_n)
+  link_id <- make_refs_V2(x_val = pids$sn_x, y_val = pids$sn_y, rd_n)
   group_id <- make_ids(pids$sn_x, pids$sn_y, rd_n)
 
   link_id <- link_id[,-1]
