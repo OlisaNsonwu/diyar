@@ -9,7 +9,7 @@ Author: Olisaeloka Nsonwu
 Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
 Description: An R package for iterative and batched record linkage, 
     and applying epidemiological case definitions.
-    diyar can be used for determinisitic and probabilistic record linkage, 
+    diyar can be used for deterministic and probabilistic record linkage, 
     or multistage record linkage combining both approaches.
     It features the implementation of nested match criteria, and mechanisms to 
     address missing data and conflicting matches during stepwise record linkage.
