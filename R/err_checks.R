@@ -1779,7 +1779,7 @@ err_links_wf_probablistic_0 <- function(attribute,
                score_threshold = score_threshold,
                id_1 = id_1, id_2 = id_2)
 
-  err <- mapply(err_atomic_vectors,
+  err <- mapply(err_atomic_vectors_2,
                 args,
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
