@@ -1608,28 +1608,30 @@ err_mins_1 <- function(x, arg){
   }
 }
 
-err_schema_epid_0 <- function(x,
-                              date,
-                              case_length,
-                              recurrence_length,
-                              episode_unit,
-                              from_last,
-                              title,
-                              show_labels,
-                              show_skipped,
-                              show_non_finite,
-                              theme){
+err_schema_epid_0 <- function(
+    x,
+    date,
+    case_length,
+    recurrence_length,
+    episode_unit,
+    from_last,
+    title,
+    show_labels,
+    show_skipped,
+    show_non_finite,
+    theme){
 
   err <- err_object_types(x, "x", "epid")
   if(err != FALSE) return(err)
   err <- err_match_ref_len(date, "x", length(x), "date")
   if(err != FALSE) return(err)
 
-  errs <- err_episodes_checks_0(date = date, case_length = case_length,
-                                recurrence_length = recurrence_length,
-                                episode_unit = episode_unit,
-                                from_last = from_last,
-                                skip_checks = "strata_level")
+  errs <- err_episodes_checks_0(
+    date = date, case_length = case_length,
+    recurrence_length = recurrence_length,
+    episode_unit = episode_unit,
+    from_last = from_last,
+    skip_checks = "strata_level")
 
   if(!isFALSE(errs)) return(errs)
 
@@ -1640,7 +1642,7 @@ err_schema_epid_0 <- function(x,
                show_non_finite = show_non_finite,
                theme = theme)
 
-  err <- mapply(err_atomic_vectors,
+  err <- mapply(err_atomic_vectors_2,
                 args,
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -1715,11 +1717,12 @@ err_schema_epid_0 <- function(x,
   return(FALSE)
 }
 
-err_schema_pane_0 <- function(x,
-                              date,
-                              title,
-                              show_labels,
-                              theme){
+err_schema_pane_0 <- function(
+    x,
+    date,
+    title,
+    show_labels,
+    theme){
 
   err <- err_object_types(x, "x", "pane")
   if(err != FALSE) return(err)
@@ -1734,7 +1737,7 @@ err_schema_pane_0 <- function(x,
                show_labels = show_labels,
                theme = theme)
 
-  err <- mapply(err_atomic_vectors,
+  err <- mapply(err_atomic_vectors_2,
                 args,
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -1798,11 +1801,12 @@ err_schema_pane_0 <- function(x,
   return(FALSE)
 }
 
-err_schema_pid_0 <- function(x,
-                             title,
-                             show_labels,
-                             theme,
-                             orientation){
+err_schema_pid_0 <- function(
+    x,
+    title,
+    show_labels,
+    theme,
+    orientation){
 
   err <- err_object_types(x, "x", "pid")
   if(err != FALSE) return(err)
@@ -1813,7 +1817,7 @@ err_schema_pid_0 <- function(x,
                theme = theme,
                orientation = orientation)
 
-  err <- mapply(err_atomic_vectors,
+  err <- mapply(err_atomic_vectors_2,
                 args,
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
