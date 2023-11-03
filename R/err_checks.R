@@ -697,152 +697,6 @@ err_object_types_2 <- function(arg, arg_nm, obj_types){
   }
 }
 
-err_episodes_checks_1 <- function(date,
-                                  case_length,
-                                  recurrence_length,
-                                  episode_type,
-                                  episode_unit,
-                                  case_overlap_methods,
-                                  recurrence_overlap_methods,
-                                  deduplicate,
-                                  display,
-                                  bi_direction,
-                                  include_index_period,
-                                  to_s4){
-  # Check for non-atomic vectors
-  args <- list(date = date,
-               case_length = case_length,
-               recurrence_length = recurrence_length,
-               episode_type = episode_type,
-               episode_unit= episode_unit,
-               case_overlap_methods = case_overlap_methods,
-               recurrence_overlap_methods = recurrence_overlap_methods,
-               deduplicate = deduplicate,
-               display = display,
-               bi_direction = bi_direction,
-               #from_last = from_last,
-               include_index_period = include_index_period,
-               to_s4 = to_s4)
-
-  err <- mapply(err_atomic_vectors,
-                args,
-                as.list(names(args)))
-  err <- unlist(err, use.names = FALSE)
-  err <- err[err != FALSE]
-  if(length(err) > 0) return(err[1])
-
-  # Check for required object types
-  args <- list(date = date,
-               case_length = case_length,
-               recurrence_length = recurrence_length,
-               episode_type = episode_type,
-               case_overlap_methods = case_overlap_methods,
-               recurrence_overlap_methods = recurrence_overlap_methods,
-               episode_unit = episode_unit,
-               deduplicate = deduplicate,
-               display = display,
-               bi_direction = bi_direction,
-               #from_last = from_last,
-               include_index_period = include_index_period,
-               to_s4 = to_s4)
-
-  args_classes <- list(date = c("Date","POSIXct", "POSIXt", "POSIXlt", "number_line", "numeric", "integer"),
-                       episode_type = "character",
-                       case_overlap_methods = c("list", "numeric", "integer", "character"),
-                       recurrence_overlap_methods = c("list", "numeric", "integer", "character"),
-                       episode_unit = "character",
-                       deduplicate = "logical",
-                       display = "character",
-                       bi_direction = "logical",
-                       # from_last = "logical",
-                       include_index_period = "logical",
-                       case_length = c("list", "integer", "numeric", "number_line"),
-                       recurrence_length = c("list", "integer", "numeric", "number_line"),
-                       to_s4 = "logical")
-
-  err <- mapply(err_object_types,
-                args,
-                as.list(names(args)),
-                args_classes[match(names(args), names(args_classes))])
-  err <- unlist(err, use.names = FALSE)
-  err <- err[err != FALSE]
-  if(length(err) > 0) return(err[1])
-
-  # Check for required object lengths
-  len_lims <- c(1, length(date))
-  args <- list(case_length = case_length,
-               recurrence_length = recurrence_length,
-               episode_type = episode_type,
-               episode_unit= episode_unit,
-               case_overlap_methods = case_overlap_methods,
-               recurrence_overlap_methods = recurrence_overlap_methods,
-               deduplicate = deduplicate,
-               display = display,
-               bi_direction = bi_direction,
-               #from_last = from_last,
-               include_index_period = include_index_period,
-               to_s4 = to_s4)
-
-  args_lens <- list(episode_type = len_lims,
-                    case_overlap_methods = len_lims,
-                    recurrence_overlap_methods = len_lims,
-                    episode_unit = len_lims,
-                    deduplicate = 1,
-                    display = 1,
-                    bi_direction = len_lims,
-                    #from_last = len_lims,
-                    include_index_period = 1,
-                    case_length = len_lims,
-                    recurrence_length = len_lims,
-                    to_s4 = 1)
-
-  err <- mapply(err_match_ref_len,
-                args,
-                rep(as.list("date"), length(args_lens)),
-                args_lens[match(names(args), names(args_lens))],
-                as.list(names(args)))
-  err <- unlist(err, use.names = FALSE)
-  err <- err[err != FALSE]
-  if(length(err) > 0) return(err[1])
-
-  # Check for missing values where they are not permitted
-  args <- list(episode_type = episode_type,
-               case_overlap_methods = case_overlap_methods,
-               recurrence_overlap_methods = recurrence_overlap_methods,
-               deduplicate = deduplicate,
-               display = display,
-               bi_direction = bi_direction,
-               # from_last = from_last,
-               include_index_period = include_index_period,
-               to_s4 = to_s4)
-
-  err <- mapply(err_missing_check,
-                args,
-                as.list(names(args)))
-  err <- unlist(err, use.names = FALSE)
-  err <- err[err != FALSE]
-  if(length(err) > 0) return(err[1])
-
-  #err <- err_missing_check(from_last, "from_last", 2)
-
-  err <- err_episode_unit_1(episode_unit = episode_unit)
-  if(err != FALSE) return(err[1])
-  err <- err_spec_vals(episode_type, "episode_type", c("fixed", "rolling"))
-  if(err != FALSE) return(err[1])
-  err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report", "stats_with_report"))
-  if(err != FALSE) return(err[1])
-  err <- err_overlap_methods_1(overlap_methods = case_overlap_methods, "case_overlap_methods")
-  if(err != FALSE) return(err[1])
-  err <- err_overlap_methods_1(overlap_methods = recurrence_overlap_methods, "recurrence_overlap_methods")
-  if(err != FALSE) return(err[1])
-  err <- err_overlap_methods_2(overlap_methods = case_overlap_methods, lengths = case_length, overlap_methods_nm = "case_overlap_methods", lengths_nm = "case_length")
-  if(err != FALSE) return(err[1])
-  err <- err_overlap_methods_2(overlap_methods = recurrence_overlap_methods, lengths = recurrence_length, overlap_methods_nm = "recurrence_overlap_methods", lengths_nm = "recurrence_length")
-  if(err != FALSE) return(err[1])
-
-  return(FALSE)
-}
-
 err_split_nl_1 <- function(x,
                            by,
                            length.out,
@@ -855,7 +709,7 @@ err_split_nl_1 <- function(x,
                fill = fill,
                simplify = simplify)
 
-  err <- mapply(err_atomic_vectors,
+  err <- mapply(err_atomic_vectors_2,
                 args,
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
@@ -2094,7 +1948,7 @@ err_make_pairs_1 <- function(x = 1, strata = NULL,
                repeats_allowed = repeats_allowed,
                permutations_allowed = permutations_allowed)
 
-  err <- mapply(err_atomic_vectors,
+  err <- mapply(err_atomic_vectors_2,
                 args,
                 as.list(names(args)))
   err <- unlist(err, use.names = FALSE)
