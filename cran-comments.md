@@ -18,9 +18,9 @@ This is a resubmission. Summary of changes below:
 * Updated package to v.0.5.0
 
 ## Test environments
-* Windows 10 (local machine), R 4.0.2
+* Windows 10 (local machine), R 4.1.0
 * win-builder (release)
-* Debian Linux (rhub)
+* Fedora Linux (rhub)
 * Ubuntu Linux (rhub)
 
 ## R CMD check results
