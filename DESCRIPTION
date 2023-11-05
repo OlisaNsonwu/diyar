@@ -1,6 +1,6 @@
 Package: diyar
 Type: Package
-Title: Record Linkage and Epidemiological Case Definitions in R
+Title: Record Linkage and Epidemiological Case Definitions in 'R'
 Date: 2023-11-01
 Version: 0.5.0
 URL: https://olisansonwu.github.io/diyar/index.html 
@@ -9,7 +9,7 @@ Author: Olisaeloka Nsonwu
 Maintainer: Olisaeloka Nsonwu <olisa.nsonwu@gmail.com>
 Description: An R package for iterative and batched record linkage, 
     and applying epidemiological case definitions.
-    diyar can be used for deterministic and probabilistic record linkage, 
+    'diyar' can be used for deterministic and probabilistic record linkage, 
     or multistage record linkage combining both approaches.
     It features the implementation of nested match criteria, and mechanisms to 
     address missing data and conflicting matches during stepwise record linkage.
