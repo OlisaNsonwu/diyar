@@ -1,7 +1,15 @@
 
+# Version 0.5.0.9000
+
+## New features
+
+## Changes
+
+## Bug fixes
+
 # Version 0.5.0
 
-## New futures
+## New features
 
 - New option (`"semi"`) for the `batched` argument in `links()`. All
   matches are compared against the record-set in the next iteration.

@@ -57,15 +57,7 @@ priority_order_1 <- c("hair_colour", "branch_office")
 priority_order_2 <- c("branch_office", "hair_colour")
 
 dfr_stages$id.1 <- links(criteria = as.list(dfr_stages[priority_order_1]))
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
 dfr_stages$id.2 <- links(criteria = as.list(dfr_stages[priority_order_2]))
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
 ```
 
 - create and use complex rules for record matching. This is done with a
@@ -111,9 +103,6 @@ dfr_stages$id.3 <- links(
   criteria = "place_holder",
   sub_criteria = list("cr1" = sub.cri.3)
 )
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
 dfr_stages
 #>   age hair_colour     branch_office          id.1          id.2          id.3
 #> 1  30       Brown Republic of Ghana P.1 (No hits) P.1 (No hits) P.1 (CRI 001)
@@ -241,22 +230,13 @@ dfr_3$id.1 <- partitions(
   window = number_line(as.Date(c("2020-01-10", "2020-01-17")), 
                        as.Date(c("2020-01-12", "2020-01-24")))
   )
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
 ```
 
 - link all records within a splits of an interval
 
 ``` r
 dfr_3$id.2 <- partitions(date = dfr_3$date, by = 3, separate = TRUE) 
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
 dfr_3$id.3 <- partitions(date = dfr_3$date, length.out = 3, separate = TRUE)
-#> [1] TRUE
-#> [1] TRUE
-#> [1] TRUE
 dfr_3
 #>          date      id.1      id.2      id.3
 #> 1  2020-01-02 PN.01 (I) PN.18 (I) PN.18 (I)
