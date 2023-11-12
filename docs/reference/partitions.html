@@ -18,7 +18,7 @@ Each set of linked records are assigned a unique identifier with relevant group-
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
       </span>
     </div>
 
@@ -150,6 +150,10 @@ Each set of linked records are assigned a unique identifier with relevant group-
 <dt>display</dt>
 <dd><p><code>[character]</code>. Display a status update. Options are; <code>"none"</code> (default), <code>"progress"</code> or <code>"stats"</code>.</p></dd>
 
+
+<dt>precision</dt>
+<dd><p>Round precision</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
@@ -194,20 +198,11 @@ Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</cod
 <span class="r-in"><span><span class="fu">partitions</span><span class="op">(</span>date <span class="op">=</span> <span class="va">events</span>, by <span class="op">=</span> <span class="fl">10</span>, separate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.8 (I)" "PN.6 (I)" "PN.6 (D)" "PN.6 (D)" "PN.5 (I)"</span>
 <span class="r-in"><span><span class="fu">partitions</span><span class="op">(</span>date <span class="op">=</span> <span class="va">events</span>, window <span class="op">=</span> <span class="va">windows</span>, separate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Invalid length for `window`:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> i - Length must be 1 or the same length as `date`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> i - Expecting a length of 0, 1 or 5.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> X - Length is 3.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.8 (I)" "PN.6 (I)" "PN.7 (D)" "PN.7 (I)" "PN.5 (I)"</span>
 <span class="r-in"><span><span class="fu">partitions</span><span class="op">(</span>date <span class="op">=</span> <span class="va">events</span>, window <span class="op">=</span> <span class="va">windows</span>, separate <span class="op">=</span> <span class="cn">FALSE</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Invalid length for `window`:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> i - Length must be 1 or the same length as `date`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> i - Expecting a length of 0, 1 or 5.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> X - Length is 3.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.1 (I)" "PN.2 (I)" "PN.3 (I)" "PN.4 (I)" "PN.5 (I)"</span>
 <span class="r-in"><span><span class="fu">partitions</span><span class="op">(</span>date <span class="op">=</span> <span class="va">events</span>, window <span class="op">=</span> <span class="va">windows</span>, separate <span class="op">=</span> <span class="cn">FALSE</span>, windows_total <span class="op">=</span> <span class="fl">4</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error:</span> Invalid length for `window`:</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> i - Length must be 1 or the same length as `date`.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> i - Expecting a length of 0, 1 or 5.</span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> X - Length is 3.</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [1] "PN.1 (I)" "PN.2 (I)" "PN.3 (I)" "PN.4 (I)" "PN.5 (I)"</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

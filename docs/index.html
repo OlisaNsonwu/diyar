@@ -14,12 +14,12 @@
 <script src="pkgdown.js"></script><meta property="og:title" content="Record Linkage and Epidemiological Case Definitions in R">
 <meta property="og:description" content="An R package for iterative and batched record linkage, 
     and applying epidemiological case definitions.
-    diyar can be used for determinisitic and probablistic record linkage, 
+    diyar can be used for deterministic and probabilistic record linkage, 
     or multistage record linkage combining both approaches.
     It features the implementation of nested match criteria, and mechanisms to 
     address missing data and conflicting matches during stepwise record linkage.
     Case definitions are implemented by assigning records to groups based on 
-    match criteria such as person or place, and overlaping time or duration of 
+    match criteria such as person or place, and overlapping time or duration of 
     events e.g. sample collection dates or periods of hospital stays.
     Matching records are assigned a unique group ID. Index and duplicate records 
     are removed or further analyses as required.  ">
@@ -43,7 +43,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
       </span>
     </div>
 
@@ -99,7 +99,7 @@
 <div class="section level1">
 <div class="page-header"><h1 id="diyar">diyar<a class="anchor" aria-label="anchor" href="#diyar"></a>
 </h1></div>
-<p><a href="https://cran.r-project.org/package=diyar" class="external-link"><img src="http://www.r-pkg.org/badges/version/diyar" alt="CRAN version"></a> <a href="https://www.r-pkg.org/pkg/diyar" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/diyar" alt="CRAN RStudio mirror downloads"></a> <a href="https://codecov.io/github/OlisaNsonwu/diyar?branch=master" class="external-link"><img src="https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg" alt="Coverage status"></a> <a href="https://travis-ci.org/OlisaNsonwu/diyar" class="external-link"><img src="https://travis-ci.org/OlisaNsonwu/diyar.svg?branch=master" alt="Travis build status"></a></p>
+<p><a href="https://cran.r-project.org/package=diyar" class="external-link"><img src="http://www.r-pkg.org/badges/version/diyar" alt="CRAN version"></a> <a href="https://www.r-pkg.org/pkg/diyar" class="external-link"><img src="https://cranlogs.r-pkg.org/badges/diyar" alt="CRAN RStudio mirror downloads"></a> <a href="https://app.codecov.io/github/OlisaNsonwu/diyar?branch=master" class="external-link"><img src="https://codecov.io/gh/OlisaNsonwu/diyar/branch/master/graph/badge.svg" alt="Coverage status"></a> <a href="https://app.travis-ci.com/github/OlisaNsonwu/diyar" class="external-link"><img src="https://api.travis-ci.com/OlisaNsonwu/diyar.svg?branch=master" alt="Travis build status"></a></p>
 <div class="section level2">
 <h2 id="installation">Installation<a class="anchor" aria-label="anchor" href="#installation"></a>
 </h2>
@@ -171,7 +171,7 @@ contact or network analyses e.t.c.</p>
 <span><span class="co">#&gt; }</span></span>
 <span><span class="va">sub.cri.2</span></span>
 <span><span class="co">#&gt; {</span></span>
-<span><span class="co">#&gt; last.word(Republic of Ghana,France ...) OR not.equal(30,30 ...)</span></span>
+<span><span class="co">#&gt; last.word(Republic of Ghana,France,NA ...) OR not.equal(30,30,30 ...)</span></span>
 <span><span class="co">#&gt; }</span></span>
 <span><span class="va">sub.cri.3</span></span>
 <span><span class="co">#&gt; {</span></span>
@@ -179,7 +179,7 @@ contact or network analyses e.t.c.</p>
 <span><span class="co">#&gt;   exact(hair.color) OR age.range(age)</span></span>
 <span><span class="co">#&gt;   } AND </span></span>
 <span><span class="co">#&gt;   {</span></span>
-<span><span class="co">#&gt;   last.word(Republic of Ghana,France ...) OR not.equal(30,30 ...)</span></span>
+<span><span class="co">#&gt;   last.word(Republic of Ghana,France,NA ...) OR not.equal(30,30,30 ...)</span></span>
 <span><span class="co">#&gt;   }</span></span>
 <span><span class="co">#&gt; }</span></span>
 <span><span class="va">dfr_stages</span><span class="op">$</span><span class="va">id.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/links.html">links</a></span><span class="op">(</span></span>
@@ -189,13 +189,13 @@ contact or network analyses e.t.c.</p>
 <span><span class="va">dfr_stages</span></span>
 <span><span class="co">#&gt;   age hair_colour     branch_office          id.1          id.2          id.3</span></span>
 <span><span class="co">#&gt; 1  30       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span>
-<span><span class="co">#&gt; 2  30        Teal            France P.4 (CRI 002) P.2 (CRI 001) P.2 (CRI 001)</span></span>
+<span><span class="co">#&gt; 2  30        Teal            France P.4 (CRI 003) P.2 (CRI 001) P.2 (CRI 001)</span></span>
 <span><span class="co">#&gt; 3  30        &lt;NA&gt;              &lt;NA&gt; P.3 (No hits) P.3 (No hits) P.3 (No hits)</span></span>
-<span><span class="co">#&gt; 4  30       Green              &lt;NA&gt; P.4 (CRI 001) P.2 (CRI 002) P.4 (No hits)</span></span>
+<span><span class="co">#&gt; 4  30       Green              &lt;NA&gt; P.4 (CRI 001) P.2 (CRI 003) P.4 (No hits)</span></span>
 <span><span class="co">#&gt; 5  30       Green            France P.4 (CRI 001) P.2 (CRI 001) P.2 (CRI 001)</span></span>
 <span><span class="co">#&gt; 6  30  Dark brown             Ghana P.6 (No hits) P.6 (No hits) P.1 (CRI 001)</span></span>
 <span><span class="co">#&gt; 7  30       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)</span></span></code></pre></div>
-<p>There are variations of <code><a href="reference/links.html">links()</a></code> like <code><a href="reference/links_wf.html">links_wf_probabilistic()</a></code> and <code>links_sv_probabilistic()</code> for specific use cases such as probabilistic record linkage.</p>
+<p>There are variations of <code><a href="reference/links.html">links()</a></code> like <code><a href="reference/links_wf.html">links_wf_probabilistic()</a></code> and <code><a href="reference/links_wf.html">links_af_probabilistic()</a></code> for specific use cases such as probabilistic record linkage.</p>
 </div>
 <div class="section level2">
 <h2 id="episodes">episodes()<a class="anchor" aria-label="anchor" href="#episodes"></a>
@@ -235,24 +235,60 @@ contact or network analyses e.t.c.</p>
 <span>  date <span class="op">=</span> <span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span>, case_length <span class="op">=</span> <span class="fu"><a href="reference/windows.html">index_window</a></span><span class="op">(</span><span class="va">dfr_2</span><span class="op">$</span><span class="va">period</span><span class="op">)</span>,</span>
 <span>  episodes_max <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
 <span><span class="va">dfr_2</span></span>
-<span><span class="co">#&gt;          date     id.1 pref     id.2     id.3                   period     id.4</span></span>
-<span><span class="co">#&gt; 1  2020-01-02 E.01 (C)    2 E.01 (S) E.01 (C) 2020-01-02 -&gt; 2020-01-07 E.01 (C)</span></span>
-<span><span class="co">#&gt; 2  2020-01-03 E.01 (D)    2 E.02 (S) E.01 (D) 2020-01-03 -&gt; 2020-01-08 E.01 (D)</span></span>
-<span><span class="co">#&gt; 3  2020-01-04 E.01 (D)    2 E.03 (S) E.01 (D) 2020-01-04 -&gt; 2020-01-09 E.01 (D)</span></span>
-<span><span class="co">#&gt; 4  2020-01-05 E.04 (S)    2 E.04 (S) E.01 (R) 2020-01-05 -&gt; 2020-01-10 E.01 (D)</span></span>
-<span><span class="co">#&gt; 5  2020-01-06 E.05 (S)    2 E.05 (S) E.05 (S) 2020-01-06 -&gt; 2020-01-11 E.01 (D)</span></span>
-<span><span class="co">#&gt; 6  2020-01-11 E.06 (S)    2 E.06 (S) E.06 (S) 2020-01-11 -&gt; 2020-01-16 E.06 (S)</span></span>
-<span><span class="co">#&gt; 7  2020-01-12 E.07 (S)    2 E.09 (D) E.07 (S) 2020-01-12 -&gt; 2020-01-17 E.07 (S)</span></span>
-<span><span class="co">#&gt; 8  2020-01-13 E.08 (S)    2 E.09 (D) E.08 (S) 2020-01-13 -&gt; 2020-01-18 E.08 (S)</span></span>
-<span><span class="co">#&gt; 9  2020-01-14 E.09 (S)    1 E.09 (C) E.09 (S) 2020-01-14 -&gt; 2020-01-19 E.09 (S)</span></span>
-<span><span class="co">#&gt; 10 2020-01-15 E.10 (S)    2 E.09 (D) E.10 (S) 2020-01-15 -&gt; 2020-01-20 E.10 (S)</span></span>
-<span><span class="co">#&gt; 11 2020-01-16 E.11 (S)    2 E.09 (D) E.11 (S) 2020-01-16 -&gt; 2020-01-21 E.11 (S)</span></span>
-<span><span class="co">#&gt; 12 2020-01-21 E.12 (S)    2 E.12 (S) E.12 (S) 2020-01-21 -&gt; 2020-01-26 E.12 (S)</span></span>
-<span><span class="co">#&gt; 13 2020-01-22 E.13 (S)    2 E.13 (S) E.13 (S) 2020-01-22 -&gt; 2020-01-27 E.13 (S)</span></span>
-<span><span class="co">#&gt; 14 2020-01-23 E.14 (S)    2 E.14 (S) E.14 (S) 2020-01-23 -&gt; 2020-01-28 E.14 (S)</span></span>
-<span><span class="co">#&gt; 15 2020-01-24 E.15 (S)    2 E.15 (S) E.15 (S) 2020-01-24 -&gt; 2020-01-29 E.15 (S)</span></span>
-<span><span class="co">#&gt; 16 2020-01-25 E.16 (S)    2 E.16 (S) E.16 (S) 2020-01-25 -&gt; 2020-01-30 E.16 (S)</span></span>
-<span><span class="co">#&gt; 17 2020-01-26 E.17 (S)    2 E.17 (S) E.17 (S) 2020-01-26 -&gt; 2020-01-31 E.17 (S)</span></span></code></pre></div>
+<span><span class="co">#&gt;          date                              id.1 pref</span></span>
+<span><span class="co">#&gt; 1  2020-01-02 E.01 2020-01-02 -&gt; 2020-01-04 (C)    2</span></span>
+<span><span class="co">#&gt; 2  2020-01-03 E.01 2020-01-02 -&gt; 2020-01-04 (D)    2</span></span>
+<span><span class="co">#&gt; 3  2020-01-04 E.01 2020-01-02 -&gt; 2020-01-04 (D)    2</span></span>
+<span><span class="co">#&gt; 4  2020-01-05 E.04 2020-01-05 == 2020-01-05 (S)    2</span></span>
+<span><span class="co">#&gt; 5  2020-01-06 E.05 2020-01-06 == 2020-01-06 (S)    2</span></span>
+<span><span class="co">#&gt; 6  2020-01-11 E.06 2020-01-11 == 2020-01-11 (S)    2</span></span>
+<span><span class="co">#&gt; 7  2020-01-12 E.07 2020-01-12 == 2020-01-12 (S)    2</span></span>
+<span><span class="co">#&gt; 8  2020-01-13 E.08 2020-01-13 == 2020-01-13 (S)    2</span></span>
+<span><span class="co">#&gt; 9  2020-01-14 E.09 2020-01-14 == 2020-01-14 (S)    1</span></span>
+<span><span class="co">#&gt; 10 2020-01-15 E.10 2020-01-15 == 2020-01-15 (S)    2</span></span>
+<span><span class="co">#&gt; 11 2020-01-16 E.11 2020-01-16 == 2020-01-16 (S)    2</span></span>
+<span><span class="co">#&gt; 12 2020-01-21 E.12 2020-01-21 == 2020-01-21 (S)    2</span></span>
+<span><span class="co">#&gt; 13 2020-01-22 E.13 2020-01-22 == 2020-01-22 (S)    2</span></span>
+<span><span class="co">#&gt; 14 2020-01-23 E.14 2020-01-23 == 2020-01-23 (S)    2</span></span>
+<span><span class="co">#&gt; 15 2020-01-24 E.15 2020-01-24 == 2020-01-24 (S)    2</span></span>
+<span><span class="co">#&gt; 16 2020-01-25 E.16 2020-01-25 == 2020-01-25 (S)    2</span></span>
+<span><span class="co">#&gt; 17 2020-01-26 E.17 2020-01-26 == 2020-01-26 (S)    2</span></span>
+<span><span class="co">#&gt;                                 id.2                              id.3</span></span>
+<span><span class="co">#&gt; 1  E.01 2020-01-02 == 2020-01-02 (S) E.01 2020-01-02 -&gt; 2020-01-05 (C)</span></span>
+<span><span class="co">#&gt; 2  E.02 2020-01-03 == 2020-01-03 (S) E.01 2020-01-02 -&gt; 2020-01-05 (D)</span></span>
+<span><span class="co">#&gt; 3  E.03 2020-01-04 == 2020-01-04 (S) E.01 2020-01-02 -&gt; 2020-01-05 (D)</span></span>
+<span><span class="co">#&gt; 4  E.04 2020-01-05 == 2020-01-05 (S) E.01 2020-01-02 -&gt; 2020-01-05 (R)</span></span>
+<span><span class="co">#&gt; 5  E.05 2020-01-06 == 2020-01-06 (S) E.05 2020-01-06 == 2020-01-06 (S)</span></span>
+<span><span class="co">#&gt; 6  E.06 2020-01-11 == 2020-01-11 (S) E.06 2020-01-11 == 2020-01-11 (S)</span></span>
+<span><span class="co">#&gt; 7  E.09 2020-01-12 -&gt; 2020-01-16 (D) E.07 2020-01-12 == 2020-01-12 (S)</span></span>
+<span><span class="co">#&gt; 8  E.09 2020-01-12 -&gt; 2020-01-16 (D) E.08 2020-01-13 == 2020-01-13 (S)</span></span>
+<span><span class="co">#&gt; 9  E.09 2020-01-12 -&gt; 2020-01-16 (C) E.09 2020-01-14 == 2020-01-14 (S)</span></span>
+<span><span class="co">#&gt; 10 E.09 2020-01-12 -&gt; 2020-01-16 (D) E.10 2020-01-15 == 2020-01-15 (S)</span></span>
+<span><span class="co">#&gt; 11 E.09 2020-01-12 -&gt; 2020-01-16 (D) E.11 2020-01-16 == 2020-01-16 (S)</span></span>
+<span><span class="co">#&gt; 12 E.12 2020-01-21 == 2020-01-21 (S) E.12 2020-01-21 == 2020-01-21 (S)</span></span>
+<span><span class="co">#&gt; 13 E.13 2020-01-22 == 2020-01-22 (S) E.13 2020-01-22 == 2020-01-22 (S)</span></span>
+<span><span class="co">#&gt; 14 E.14 2020-01-23 == 2020-01-23 (S) E.14 2020-01-23 == 2020-01-23 (S)</span></span>
+<span><span class="co">#&gt; 15 E.15 2020-01-24 == 2020-01-24 (S) E.15 2020-01-24 == 2020-01-24 (S)</span></span>
+<span><span class="co">#&gt; 16 E.16 2020-01-25 == 2020-01-25 (S) E.16 2020-01-25 == 2020-01-25 (S)</span></span>
+<span><span class="co">#&gt; 17 E.17 2020-01-26 == 2020-01-26 (S) E.17 2020-01-26 == 2020-01-26 (S)</span></span>
+<span><span class="co">#&gt;                      period                              id.4</span></span>
+<span><span class="co">#&gt; 1  2020-01-02 -&gt; 2020-01-07 E.01 2020-01-02 -&gt; 2020-01-11 (C)</span></span>
+<span><span class="co">#&gt; 2  2020-01-03 -&gt; 2020-01-08 E.01 2020-01-02 -&gt; 2020-01-11 (D)</span></span>
+<span><span class="co">#&gt; 3  2020-01-04 -&gt; 2020-01-09 E.01 2020-01-02 -&gt; 2020-01-11 (D)</span></span>
+<span><span class="co">#&gt; 4  2020-01-05 -&gt; 2020-01-10 E.01 2020-01-02 -&gt; 2020-01-11 (D)</span></span>
+<span><span class="co">#&gt; 5  2020-01-06 -&gt; 2020-01-11 E.01 2020-01-02 -&gt; 2020-01-11 (D)</span></span>
+<span><span class="co">#&gt; 6  2020-01-11 -&gt; 2020-01-16 E.06 2020-01-11 -&gt; 2020-01-16 (S)</span></span>
+<span><span class="co">#&gt; 7  2020-01-12 -&gt; 2020-01-17 E.07 2020-01-12 -&gt; 2020-01-17 (S)</span></span>
+<span><span class="co">#&gt; 8  2020-01-13 -&gt; 2020-01-18 E.08 2020-01-13 -&gt; 2020-01-18 (S)</span></span>
+<span><span class="co">#&gt; 9  2020-01-14 -&gt; 2020-01-19 E.09 2020-01-14 -&gt; 2020-01-19 (S)</span></span>
+<span><span class="co">#&gt; 10 2020-01-15 -&gt; 2020-01-20 E.10 2020-01-15 -&gt; 2020-01-20 (S)</span></span>
+<span><span class="co">#&gt; 11 2020-01-16 -&gt; 2020-01-21 E.11 2020-01-16 -&gt; 2020-01-21 (S)</span></span>
+<span><span class="co">#&gt; 12 2020-01-21 -&gt; 2020-01-26 E.12 2020-01-21 -&gt; 2020-01-26 (S)</span></span>
+<span><span class="co">#&gt; 13 2020-01-22 -&gt; 2020-01-27 E.13 2020-01-22 -&gt; 2020-01-27 (S)</span></span>
+<span><span class="co">#&gt; 14 2020-01-23 -&gt; 2020-01-28 E.14 2020-01-23 -&gt; 2020-01-28 (S)</span></span>
+<span><span class="co">#&gt; 15 2020-01-24 -&gt; 2020-01-29 E.15 2020-01-24 -&gt; 2020-01-29 (S)</span></span>
+<span><span class="co">#&gt; 16 2020-01-25 -&gt; 2020-01-30 E.16 2020-01-25 -&gt; 2020-01-30 (S)</span></span>
+<span><span class="co">#&gt; 17 2020-01-26 -&gt; 2020-01-31 E.17 2020-01-26 -&gt; 2020-01-31 (S)</span></span></code></pre></div>
 <p>There are variations of <code><a href="reference/episodes.html">episodes()</a></code> like <code><a href="reference/episodes_wf_splits.html">episodes_wf_splits()</a></code> for specific use cases such as more efficient handling of duplicate records.</p>
 </div>
 <div class="section level2">
@@ -277,24 +313,23 @@ contact or network analyses e.t.c.</p>
 <span><span class="va">dfr_3</span><span class="op">$</span><span class="va">id.3</span> <span class="op">&lt;-</span> <span class="fu"><a href="reference/partitions.html">partitions</a></span><span class="op">(</span>date <span class="op">=</span> <span class="va">dfr_3</span><span class="op">$</span><span class="va">date</span>, length.out <span class="op">=</span> <span class="fl">3</span>, separate <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></span>
 <span><span class="va">dfr_3</span></span>
 <span><span class="co">#&gt;          date      id.1      id.2      id.3</span></span>
-<span><span class="co">#&gt; 1  2020-01-02 PN.01 (S) PN.01 (I) PN.01 (I)</span></span>
-<span><span class="co">#&gt; 2  2020-01-03 PN.02 (S) PN.01 (D) PN.01 (D)</span></span>
-<span><span class="co">#&gt; 3  2020-01-04 PN.03 (S) PN.01 (D) PN.01 (D)</span></span>
-<span><span class="co">#&gt; 4  2020-01-05 PN.04 (S) PN.04 (I) PN.01 (D)</span></span>
-<span><span class="co">#&gt; 5  2020-01-06 PN.05 (S) PN.04 (D) PN.01 (D)</span></span>
-<span><span class="co">#&gt; 6  2020-01-11 PN.06 (I) PN.06 (I) PN.06 (I)</span></span>
-<span><span class="co">#&gt; 7  2020-01-12 PN.06 (D) PN.06 (D) PN.06 (D)</span></span>
-<span><span class="co">#&gt; 8  2020-01-13 PN.08 (S) PN.06 (D) PN.06 (D)</span></span>
-<span><span class="co">#&gt; 9  2020-01-14 PN.09 (S) PN.09 (I) PN.06 (D)</span></span>
-<span><span class="co">#&gt; 10 2020-01-15 PN.10 (S) PN.09 (D) PN.06 (D)</span></span>
-<span><span class="co">#&gt; 11 2020-01-16 PN.11 (S) PN.09 (D) PN.06 (D)</span></span>
-<span><span class="co">#&gt; 12 2020-01-21 PN.06 (D) PN.12 (I) PN.12 (I)</span></span>
-<span><span class="co">#&gt; 13 2020-01-22 PN.06 (D) PN.12 (D) PN.12 (D)</span></span>
-<span><span class="co">#&gt; 14 2020-01-23 PN.06 (D) PN.14 (I) PN.12 (D)</span></span>
-<span><span class="co">#&gt; 15 2020-01-24 PN.06 (D) PN.14 (D) PN.12 (D)</span></span>
-<span><span class="co">#&gt; 16 2020-01-25 PN.16 (S) PN.14 (D) PN.12 (D)</span></span>
-<span><span class="co">#&gt; 17 2020-01-26 PN.17 (S) PN.14 (D) PN.12 (D)</span></span></code></pre></div>
-<p>Other useful functions include in the <code>diyar</code> package are <code><a href="reference/combi.html">combi()</a></code> and <code><a href="reference/make_pairs.html">sets()</a></code>.</p>
+<span><span class="co">#&gt; 1  2020-01-02 PN.01 (I) PN.18 (I) PN.18 (I)</span></span>
+<span><span class="co">#&gt; 2  2020-01-03 PN.02 (I) PN.18 (D) PN.18 (D)</span></span>
+<span><span class="co">#&gt; 3  2020-01-04 PN.03 (I) PN.18 (D) PN.18 (D)</span></span>
+<span><span class="co">#&gt; 4  2020-01-05 PN.04 (I) PN.19 (I) PN.18 (D)</span></span>
+<span><span class="co">#&gt; 5  2020-01-06 PN.05 (I) PN.19 (D) PN.18 (D)</span></span>
+<span><span class="co">#&gt; 6  2020-01-11 PN.06 (I) PN.21 (I) PN.18 (D)</span></span>
+<span><span class="co">#&gt; 7  2020-01-12 PN.07 (I) PN.21 (D) PN.18 (D)</span></span>
+<span><span class="co">#&gt; 8  2020-01-13 PN.08 (I) PN.21 (D) PN.18 (D)</span></span>
+<span><span class="co">#&gt; 9  2020-01-14 PN.09 (I) PN.22 (I) PN.19 (I)</span></span>
+<span><span class="co">#&gt; 10 2020-01-15 PN.10 (I) PN.22 (D) PN.19 (D)</span></span>
+<span><span class="co">#&gt; 11 2020-01-16 PN.11 (I) PN.22 (D) PN.19 (D)</span></span>
+<span><span class="co">#&gt; 12 2020-01-21 PN.12 (I) PN.24 (I) PN.19 (D)</span></span>
+<span><span class="co">#&gt; 13 2020-01-22 PN.13 (I) PN.24 (D) PN.19 (D)</span></span>
+<span><span class="co">#&gt; 14 2020-01-23 PN.14 (I) PN.25 (I) PN.19 (D)</span></span>
+<span><span class="co">#&gt; 15 2020-01-24 PN.15 (I) PN.25 (D) PN.19 (D)</span></span>
+<span><span class="co">#&gt; 16 2020-01-25 PN.16 (I) PN.25 (D) PN.19 (D)</span></span>
+<span><span class="co">#&gt; 17 2020-01-26 PN.17 (I) PN.25 (D) PN.19 (D)</span></span></code></pre></div>
 <p>Find out more!</p>
 <ul>
 <li>number_line and overlaps - <code><a href="articles/number_line.html">vignette("number_line")</a></code>

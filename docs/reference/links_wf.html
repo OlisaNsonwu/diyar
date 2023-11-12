@@ -18,7 +18,7 @@ Assign unique identifiers to records based on partial, nested or calculated prob
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
       </span>
     </div>
 
@@ -217,13 +217,11 @@ See <code><a href="../articles/links.html">vignette("links")</a></code> for more
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">patient_records</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="co"># Weighted (probabilistic) comparison of forename, middlename and surname</span></span></span>
 <span class="r-in"><span><span class="va">criteria_1</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">patient_records</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forename"</span>, <span class="st">"middlename"</span>, <span class="st">"surname"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in `[.data.frame`(patient_records, c("forename", "middlename", "surname")):</span> undefined columns selected</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Possible scores when m-probability is 0.95</span></span></span>
 <span class="r-in"><span><span class="va">prob_scores</span> <span class="op">&lt;-</span> <span class="fu">prob_score_range</span><span class="op">(</span>attribute <span class="op">=</span> <span class="va">criteria_1</span>,</span></span>
 <span class="r-in"><span>                                m_probability <span class="op">=</span> <span class="fl">0.95</span>,</span></span>
 <span class="r-in"><span>                                u_probability <span class="op">=</span> <span class="cn">NULL</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in prob_score_range(attribute = criteria_1, m_probability = 0.95,     u_probability = NULL):</span> object 'criteria_1' not found</span>
 <span class="r-in"><span><span class="kw">if</span> <span class="op">(</span><span class="cn">FALSE</span><span class="op">)</span> <span class="op">{</span></span></span>
 <span class="r-in"><span><span class="co"># Probabilistic record linkage with 'links_af_probabilistic()'</span></span></span>
 <span class="r-in"><span><span class="va">pids_1a</span> <span class="op">&lt;-</span> <span class="fu">links_af_probabilistic</span><span class="op">(</span>attribute <span class="op">=</span> <span class="va">criteria_1</span>,</span></span>
@@ -264,7 +262,6 @@ See <code><a href="../articles/links.html">vignette("links")</a></code> for more
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Weighted (non-probabilistic) comparison of forename, middlename and age difference</span></span></span>
 <span class="r-in"><span><span class="va">criteria_2</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">patient_records</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"forename"</span>, <span class="st">"middlename"</span>, <span class="st">"dateofbirth"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in `[.data.frame`(patient_records, c("forename", "middlename", "dateofbirth")):</span> undefined columns selected</span>
 <span class="r-in"><span><span class="va">age_diff</span> <span class="op">&lt;-</span> <span class="kw">function</span><span class="op">(</span><span class="va">x</span>, <span class="va">y</span><span class="op">)</span><span class="op">{</span></span></span>
 <span class="r-in"><span>  <span class="va">diff</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/MathFun.html" class="external-link">abs</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="op">-</span> <span class="fu"><a href="https://rdrr.io/r/base/numeric.html" class="external-link">as.numeric</a></span><span class="op">(</span><span class="va">y</span><span class="op">)</span><span class="op">)</span></span></span>
 <span class="r-in"><span>  <span class="va">wgt</span> <span class="op">&lt;-</span>  <span class="va">diff</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fl">0</span><span class="op">:</span><span class="op">(</span><span class="fl">365</span> <span class="op">*</span> <span class="fl">10</span><span class="op">)</span> <span class="op">&amp;</span> <span class="op">!</span><span class="fu"><a href="https://rdrr.io/r/base/NA.html" class="external-link">is.na</a></span><span class="op">(</span><span class="va">diff</span><span class="op">)</span></span></span>
@@ -277,7 +274,11 @@ See <code><a href="../articles/links.html">vignette("links")</a></code> for more
 <span class="r-in"><span>                        score_threshold <span class="op">=</span> <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        probabilistic <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>                        display <span class="op">=</span> <span class="st">"stats"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in err_links_wf_probablistic_0(attribute = attribute, blocking_attribute = blocking_attribute,     cmp_func = cmp_func, attr_threshold = attr_threshold, probabilistic = probabilistic,     m_probability = m_probability, score_threshold = score_threshold,     id_1 = NULL, id_2 = NULL, u_probability = u_probability):</span> object 'criteria_2' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data validation: 1699828591.81 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pairs created: 1699828591.81 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Weights calculated: 1699828591.82 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> `pid` created: 1699828591.83 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Records linked in &lt; 1 secs!</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Larger weights can be assigned to particular attributes through `cmp_func`</span></span></span>
 <span class="r-in"><span><span class="co"># For example, a smaller age difference can contribute a higher score (e.g 0 to 3)</span></span></span>
@@ -293,12 +294,58 @@ See <code><a href="../articles/links.html">vignette("links")</a></code> for more
 <span class="r-in"><span>                        score_threshold <span class="op">=</span> <span class="fu"><a href="number_line.html">number_line</a></span><span class="op">(</span><span class="fl">3</span>, <span class="fl">5</span><span class="op">)</span>,</span></span>
 <span class="r-in"><span>                        probabilistic <span class="op">=</span> <span class="cn">FALSE</span>,</span></span>
 <span class="r-in"><span>                        display <span class="op">=</span> <span class="st">"stats"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in err_links_wf_probablistic_0(attribute = attribute, blocking_attribute = blocking_attribute,     cmp_func = cmp_func, attr_threshold = attr_threshold, probabilistic = probabilistic,     m_probability = m_probability, score_threshold = score_threshold,     id_1 = NULL, id_2 = NULL, u_probability = u_probability):</span> object 'criteria_2' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Data validation: 1699828591.84 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Pairs created: 1699828591.84 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Weights calculated: 1699828591.86 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> `pid` created: 1699828591.86 </span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> Records linked in &lt; 1 secs!</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pids_2a</span><span class="op">$</span><span class="va">pid_weights</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in head(pids_2a$pid_weights, 10):</span> object 'pids_2a' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    sn_x sn_y sn_x sn_y cmp.forename cmp.middlename cmp.dateofbirth cmp.weight</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1604    2 1604    2            0              1               0          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  3999    2 3999    2            0              1               1          2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3999 1604 3999 1604            0              1               0          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   279    3  279    3            0              1               1          2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  8422    3 8422    3            0              1               1          2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  8422  279 8422  279            0              1               1          2</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   451    4  451    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  3176    4 3176    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  3411    4 3411    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 5697    4 5697    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    record.match</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10            0</span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pids_2b</span><span class="op">$</span><span class="va">pid_weights</span>, <span class="fl">10</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in head(pids_2b$pid_weights, 10):</span> object 'pids_2b' not found</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    sn_x sn_y sn_x sn_y cmp.forename cmp.middlename cmp.dateofbirth cmp.weight</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1  1604    2 1604    2            0              1               0          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2  3999    2 3999    2            0              1               3          4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3  3999 1604 3999 1604            0              1               0          1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4   279    3  279    3            0              1               3          4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5  8422    3 8422    3            0              1               3          4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6  8422  279 8422  279            0              1               3          4</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7   451    4  451    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8  3176    4 3176    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9  3411    4 3411    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10 5697    4 5697    4            0              0               0          0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>    record.match</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 1             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2             1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 3             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4             1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 5             1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6             1</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 8             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9             0</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 10            0</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
     </div>

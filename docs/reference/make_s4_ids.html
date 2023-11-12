@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
       </span>
     </div>
 
@@ -132,6 +132,14 @@
 
 <dt>from_last</dt>
 <dd><p><code>[logical]</code>. Chronological order of episode tracking i.e. ascending (<code>TRUE</code>) or descending (<code>FALSE</code>).</p></dd>
+
+
+<dt>data_source</dt>
+<dd><p><code>[character]</code>. Source ID for each record.</p></dd>
+
+
+<dt>data_links</dt>
+<dd><p><code>[list|character]</code>. <code>data_source</code> required in each record-group. A record-group without records from these <code>data_sources</code> will be <code><a href="delink.html">unlinked</a></code>.</p></dd>
 
 
 <dt>iteration</dt>

@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
       </span>
     </div>
 
@@ -124,6 +124,10 @@ c(x, ...)</code></pre></div>
 <dd><p>object</p></dd>
 
 
+<dt>decode</dt>
+<dd><p>If <code>TRUE</code>, data is <code><a href="encode.html">decoded</a></code></p></dd>
+
+
 <dt>i</dt>
 <dd><p>i</p></dd>
 
@@ -178,9 +182,6 @@ c(x, ...)</code></pre></div>
     <h2>Examples</h2>
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="co"># A test for pid objects</span></span></span>
 <span class="r-in"><span><span class="va">pd</span> <span class="op">&lt;-</span> <span class="fu"><a href="links.html">links</a></span><span class="op">(</span>criteria <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
 <span class="r-in"><span><span class="fu">is.pid</span><span class="op">(</span><span class="va">pd</span><span class="op">)</span>; <span class="fu">is.pid</span><span class="op">(</span><span class="fl">2</span><span class="op">)</span></span></span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] TRUE</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> [1] FALSE</span>

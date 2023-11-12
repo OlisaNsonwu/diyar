@@ -22,7 +22,7 @@ the "Case" or "Recurrent" event.'><!-- mathjax --><script src="https://cdnjs.clo
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
       </span>
     </div>
 
@@ -317,9 +317,13 @@ Unnamed elements are assumed to be <code>"l"</code>.</p><ul><li><p>If named <cod
 <span class="r-in"><span>         case_length <span class="op">=</span> <span class="fl">15</span>,</span></span>
 <span class="r-in"><span>         episodes_max <span class="op">=</span> <span class="cn">Inf</span>,</span></span>
 <span class="r-in"><span>         episode_type <span class="op">=</span> <span class="st">"rolling"</span>,</span></span>
-<span class="r-in"><span>         recurrence_length <span class="op">=</span> <span class="fl">10</span>,</span></span>
-<span class="r-in"><span>         episode_type <span class="op">=</span> <span class="st">"rolling"</span><span class="op">)</span></span></span>
-<span class="r-err co"><span class="r-pr">#&gt;</span> <span class="error">Error in episodes(date = infections$date, strata = NULL, case_length = 15,     episodes_max = Inf, episode_type = "rolling", recurrence_length = 10,     episode_type = "rolling"):</span> formal argument "episode_type" matched by multiple actual arguments</span>
+<span class="r-in"><span>         recurrence_length <span class="op">=</span> <span class="fl">10</span><span class="op">)</span></span></span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [1] "E.1 2018-04-01 -&gt; 2018-05-31 (C)" "E.1 2018-04-01 -&gt; 2018-05-31 (D)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [3] "E.1 2018-04-01 -&gt; 2018-05-31 (D)" "E.1 2018-04-01 -&gt; 2018-05-31 (R)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [5] "E.1 2018-04-01 -&gt; 2018-05-31 (R)" "E.1 2018-04-01 -&gt; 2018-05-31 (R)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [7] "E.1 2018-04-01 -&gt; 2018-05-31 (R)" "E.1 2018-04-01 -&gt; 2018-05-31 (R)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>  [9] "E.1 2018-04-01 -&gt; 2018-05-31 (R)" "E.1 2018-04-01 -&gt; 2018-05-31 (R)"</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> [11] "E.1 2018-04-01 -&gt; 2018-05-31 (R)"</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Overlapping periods of hospital stays</span></span></span>
 <span class="r-in"><span><span class="va">dfr</span> <span class="op">&lt;-</span> <span class="va">hospital_admissions</span><span class="op">[</span><span class="fl">2</span><span class="op">:</span><span class="fl">3</span><span class="op">]</span></span></span>

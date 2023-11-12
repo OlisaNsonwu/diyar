@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">diyar</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.0</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.5.1</span>
       </span>
     </div>
 
@@ -209,17 +209,11 @@ Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</cod
     <div class="sourceCode"><pre class="sourceCode r"><code><span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="va">patient_records</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">dfr</span> <span class="op">&lt;-</span> <span class="va">patient_records</span></span></span>
 <span class="r-in"><span><span class="co"># An exact match on surname followed by an exact match on forename</span></span></span>
-<span class="r-in"><span><span class="va">stages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">dfr</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surname"</span>, <span class="st">"forname"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
+<span class="r-in"><span><span class="va">stages</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">as.list</a></span><span class="op">(</span><span class="va">dfr</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/c.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"surname"</span>, <span class="st">"forename"</span><span class="op">)</span><span class="op">]</span><span class="op">)</span></span></span>
 <span class="r-in"><span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="fu">links</span><span class="op">(</span>criteria <span class="op">=</span> <span class="va">stages</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># An exact match on forename followed by an exact match on surname</span></span></span>
 <span class="r-in"><span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="fu">links</span><span class="op">(</span>criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/rev.html" class="external-link">rev</a></span><span class="op">(</span><span class="va">stages</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Nested matches</span></span></span>
 <span class="r-in"><span><span class="co"># Same sex OR birth year</span></span></span>
@@ -248,36 +242,30 @@ Unnamed elements of <code>data_links</code> will be assumed to be <code>"l"</cod
 <span class="r-in"><span>  criteria <span class="op">=</span> <span class="va">stages</span>,</span></span>
 <span class="r-in"><span>  sub_criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cr1 <span class="op">=</span> <span class="va">m.cri.1</span>,</span></span>
 <span class="r-in"><span>                      cr2 <span class="op">=</span> <span class="va">m.cri.2</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="co"># Record linkage with additonal nested match criteria</span></span></span>
 <span class="r-in"><span><span class="va">p4</span> <span class="op">&lt;-</span> <span class="fu">links</span><span class="op">(</span></span></span>
 <span class="r-in"><span>  criteria <span class="op">=</span> <span class="va">stages</span>,</span></span>
 <span class="r-in"><span>  sub_criteria <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span>cr1 <span class="op">=</span> <span class="va">n.cri</span>,</span></span>
 <span class="r-in"><span>                      cr2 <span class="op">=</span> <span class="va">n.cri</span><span class="op">)</span><span class="op">)</span></span></span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
-<span class="r-wrn co"><span class="r-pr">#&gt;</span> <span class="warning">Warning: </span>longer argument not a multiple of length of shorter</span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="va">dfr</span><span class="op">$</span><span class="va">p1</span> <span class="op">&lt;-</span> <span class="va">p1</span>; <span class="va">dfr</span><span class="op">$</span><span class="va">p2</span> <span class="op">&lt;-</span> <span class="va">p2</span></span></span>
 <span class="r-in"><span><span class="va">dfr</span><span class="op">$</span><span class="va">p3</span> <span class="op">&lt;-</span> <span class="va">p3</span>; <span class="va">dfr</span><span class="op">$</span><span class="va">p4</span> <span class="op">&lt;-</span> <span class="va">p4</span></span></span>
 <span class="r-in"><span></span></span>
 <span class="r-in"><span><span class="fu"><a href="https://rdrr.io/r/utils/head.html" class="external-link">head</a></span><span class="op">(</span><span class="va">dfr</span><span class="op">)</span></span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>      forname middlename   surname dateofbirth specimendate  sex identity</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 4545    &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;  1971-11-28   2022-01-31 &lt;NA&gt;     2456</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9436    &lt;NA&gt;     GBENDA   IBEKAKU  1970-02-13   2021-04-29 &lt;NA&gt;     5157</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2303    &lt;NA&gt;    IKYAMBE EJOFODOMI  2002-03-18   2020-09-02    M     1256</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7813 HERVERT     AHAIWE     DOWGO        &lt;NA&gt;   2021-01-23    F     4258</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6448 OLUWOGA       &lt;NA&gt;      &lt;NA&gt;  1974-04-17   2021-02-27 &lt;NA&gt;     3492</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 7336    &lt;NA&gt;    IKYAMBE      &lt;NA&gt;  1976-08-23   2022-03-07    U     4005</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>      forename middlename   surname dateofbirth specimendate  sex identity</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 4545     &lt;NA&gt;       &lt;NA&gt;      &lt;NA&gt;  1971-11-28   2022-01-31 &lt;NA&gt;     2456</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9436     &lt;NA&gt;     GBENDA   IBEKAKU  1970-02-13   2021-04-29 &lt;NA&gt;     5157</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2303     &lt;NA&gt;    IKYAMBE EJOFODOMI  2002-03-18   2020-09-02    M     1256</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7813  HERVERT     AHAIWE     DOWGO        &lt;NA&gt;   2021-01-23    F     4258</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6448  OLUWOGA       &lt;NA&gt;      &lt;NA&gt;  1974-04-17   2021-02-27 &lt;NA&gt;     3492</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 7336     &lt;NA&gt;    IKYAMBE      &lt;NA&gt;  1976-08-23   2022-03-07    U     4005</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>                    p1              p2            p3            p4</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 4545 P.0001 (No hits) P.001 (No hits) P.1 (No hits) P.1 (No hits)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 9436 P.0002 (No hits) P.144 (CRI 002) P.2 (No hits) P.2 (No hits)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 2303 P.0003 (CRI 001) P.003 (CRI 003) P.3 (No hits) P.3 (No hits)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 9436 P.0002 (CRI 001) P.144 (CRI 002) P.2 (No hits) P.2 (No hits)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 2303 P.0003 (CRI 001) P.003 (CRI 002) P.3 (CRI 001) P.3 (CRI 001)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7813 P.0004 (CRI 001) P.004 (CRI 001) P.4 (No hits) P.4 (No hits)</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span> 6448 P.4143 (CRI 002) P.005 (CRI 001) P.5 (No hits) P.5 (No hits)</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span> 6448 P.4143 (CRI 003) P.005 (CRI 001) P.5 (No hits) P.5 (No hits)</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span> 7336 P.0006 (No hits) P.006 (No hits) P.6 (No hits) P.6 (No hits)</span>
 <span class="r-in"><span></span></span>
 </code></pre></div>
