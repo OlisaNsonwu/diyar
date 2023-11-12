@@ -19,9 +19,8 @@ knitr::opts_chunk$set(
 library(diyar)
 ```
 
-Data required for epidemiological investigations are usually stored in different databases. 
-Consolidating these datasets is often the first step for these investigations.
-This vignette provides a brief introduction to the basics of record linkage as implemented by `diyar`.
+Consolidating information from multiple sources is often the first step in these investigations.
+This vignette gives a brief introduction to the basics of record linkage as implemented by `diyar`.
 
 Let's begin by reviewing `missing_staff_id` - a sample dataset containing incomplete staff information.
 
@@ -31,7 +30,7 @@ missing_staff_id
 ```
 
 A unique identifier that distinguishes one entity (staff) from another is often unavailable or incomplete as is the case with `staff_id` in this example.
-`links()` is used to create one. 
+`links()` can be used to create one. 
 The identifier is created as an `S4` class (`pid`) with useful information about each group in its slots.
 
 The simplest strategy would be to select one attribute as a distinguishing characteristic for each entity. This is the simple deterministic approach to record linkage.
@@ -44,49 +43,57 @@ missing_staff_id[c("initials", "hair_colour", "p1", "p2")]
 ```
 
 Unsurprisingly, the uniqueness of identifiers `p1` and `p2` correspond to the uniqueness of the `initials` and `hair_colour` respectively. 
-In this case both strategies represent different outcomes. 
-For example, `p1` identifies records 3 and 4 as the same person, while `p2` has it as records 4 and 5.
+Both identifiers represent different outcomes - `p1` identifies records 3 and 4 as the same person, while `p2` has it as records 4 and 5.
 
-To maximise coverage, `links()` can implement an ordered multistage deterministic approach to record linkage. For example, we can say that records with matching `initials` should be linked to each other, then other records with a matching `hair_colour` should then be added to the group.
+To maximise coverage, `links()` can implement an ordered multistage deterministic approach to record linkage. For example, we can say that records with matching `initials` should be linked to each other first, then other records with a matching `hair_colour` should then be added to each group. This is referred to as group expansion.
 ```{r warning = FALSE}
-missing_staff_id$p3 <- links(criteria = as.list(missing_staff_id[c("initials", "hair_colour")]))
+missing_staff_id$p3 <- links(
+  criteria = as.list(missing_staff_id[c("initials", "hair_colour")])
+  )
 missing_staff_id[c("initials", "hair_colour", "p1", "p2", "p3")]
 ```
 
 We see that `p3` now identifies records 3, 4 and 5 as the same person.
-The logic here is that since record 4 has the same `initial` as record 3 and also has the same `hair_colour` as record 5, all three are linked together as records of the same entity.
-Records 3 and 5 are only considered part of the same entity because of their share link with record 4. If record 4 is removed from this dataset, records 3 and 5 will considered part of separate entities.
-This process is referred to as record expansion.
+The logic here is that since record 4 has the same `initial` as record 3 and also has the same `hair_colour` as record 5, all three are therefore linked as part of the same entity.
+Note that records 3 and 5 have only been linked due to their shared link with record 4. If record 4 is removed from this dataset, and the analysis repeated, records 3 and 5 will not be linked and therefore remain separate entities.
 
-During record expansion the following rules are implemented.
+During group expansion the following rules are applied.
 
-1.  Records with unique or missing values for one attribute (or stage) will not be linked. Instead there's another attempt to match them at the next stage.
-2.  Records linked at one stage will remain linked even if their attributes at the next stage are different i.e. earlier stages have priority.
-3.  If a record can be linked to multiple groups i.e. conflicting matches, the additional ordered rules below are used to break ties;
+1.  Records with unique or missing values for one attribute (or stage) will not be linked. Instead another attempt to match them will be made at the next stage.
+2.  Records linked at one stage will remain linked even if their attributes at the next stage are different i.e. matches at earlier stages have priority.
+3.  If a record can be linked to multiple groups i.e. conflicting matches, the following additional ordered rules are used to break ties;
       + assign the record to whichever group was created at the earlier stage
-      + assign the record to preferred group using the `tie_sort` argument.
+      + assign the record to a preferred group using the `tie_sort` argument.
       + assign the record to the group first encountered in the dataset
 
-At each stage, additional matching criteria can be specified.
+At each stage, additional match criteria can be specified.
 This is done through a `sub_criteria` object. 
 This is an `S3` class containing attributes to be compared and functions for the comparisons. 
 A `sub_criteria` object is used for evaluated, fuzzy and/or nested matches.
 
 For example, we can compare `hair_colour` and `branch_office` without any order (priority) to them.
-This is the equivalent of saying matching hair colour `OR/AND` branch office.
+This is the equivalent of saying matching hair color `OR/AND` branch office.
 ```{r warning = FALSE}
-scri_1 <- sub_criteria(missing_staff_id$hair_colour, 
-                       missing_staff_id$branch_office, 
-                       operator = "or")
-scri_2 <- sub_criteria(missing_staff_id$hair_colour, 
-                       missing_staff_id$branch_office, 
-                       operator = "and")
-missing_staff_id$p4 <- links(criteria = "place_holder", 
-                             sub_criteria = list(cr1 = scri_1), 
-                             recursive = TRUE)
-missing_staff_id$p5 <- links(criteria = "place_holder", 
-                             sub_criteria = list(cr1 = scri_2), 
-                             recursive = TRUE)
+scri_1 <- sub_criteria(
+  missing_staff_id$hair_colour, 
+  missing_staff_id$branch_office, 
+  operator = "or"
+  )
+scri_2 <- sub_criteria(
+  missing_staff_id$hair_colour, 
+  missing_staff_id$branch_office, 
+  operator = "and"
+  )
+missing_staff_id$p4 <- links(
+  criteria = "place_holder", 
+  sub_criteria = list(cr1 = scri_1), 
+  recursive = TRUE
+  )
+missing_staff_id$p5 <- links(
+  criteria = "place_holder", 
+  sub_criteria = list(cr1 = scri_2), 
+  recursive = TRUE
+  )
 missing_staff_id[c("hair_colour", "branch_office", "p4", "p5")]
 ```
 There is no limit to the number of `sub_criteria` that can be specified but each `sub_criteria` must be paired to a `criteria`.
@@ -95,20 +102,24 @@ Any unpaired `sub_criteria` will be ignored.
 As mentioned, a `sub_criteria` can be nested. 
 For example, `scri_3` below is the equivalent of saying (`scri_1`; matching hair colour `OR` branch office) `AND` (matching initials `OR` branch office).
 ```{r warning = FALSE}
-scri_3 <- sub_criteria(scri_1, 
-                       sub_criteria(missing_staff_id$initials, 
-                                    missing_staff_id$branch_office,
-                                    operator = "or"),
-                       operator = "and")
-
-missing_staff_id$p6 <- links(criteria = "place_holder", 
-                             sub_criteria = list(cr1 = scri_3), 
-                             recursive = TRUE)
+scri_3 <- sub_criteria(
+  scri_1, 
+  sub_criteria(
+    missing_staff_id$initials, 
+    missing_staff_id$branch_office,
+    operator = "or"),
+  operator = "and"
+  )
+missing_staff_id$p6 <- links(
+  criteria = "place_holder", 
+  sub_criteria = list(cr1 = scri_3), 
+  recursive = TRUE
+  )
 missing_staff_id[c("hair_colour", "branch_office", "p4", "p5", "p6")]
 ```
 
 Evaluated matches can be implemented with user-defined functions.
-The only requirement is that they:
+The only requirement for this is that they:
 
 +    Must be able to compare the attributes.
 +    Must have two arguments named `x` and `y`, where `y` is the value for one observation being compared against the value of all other observations - `x`.
@@ -116,7 +127,7 @@ The only requirement is that they:
 
 For example, there are variations of the same `hair_colour` and `branch_office` values in `missing_staff_id`.
 A quick look and we see that using the last word of each value will improve the linkage result.
-We can pass a custom function to the `sub_criteria` object that will make this comparison. After doing this below (`p7`), we see that record 6 has now been linked with records 1 and 7, which was not the case earlier.
+We can create and pass a function to the `sub_criteria` object that will make this comparison. After doing this below (`p7`), we see that record 6 has now been linked with records 1 and 7, which was not the case earlier.
 
 ```{r warning = FALSE}
 # A function to extract the last word in a string
@@ -124,76 +135,78 @@ last_word_wf <- function(x) tolower(gsub("^.* ", "", x))
 # A logical test using `last_word_wf`.
 last_word_cmp <- function(x, y) last_word_wf(x) == last_word_wf(y)
 
-scri_4 <- sub_criteria(missing_staff_id$hair_colour, 
-                       missing_staff_id$branch_office,
-                       match_funcs = c(last_word_cmp, last_word_cmp),
-                       operator = "or")
-
-missing_staff_id$p7 <- links(criteria = "place_holder", 
-                             sub_criteria = list(cr1 = scri_4), 
-                             recursive = TRUE)
+scri_4 <- sub_criteria(
+  missing_staff_id$hair_colour, 
+  missing_staff_id$branch_office,
+  match_funcs = c(last_word_cmp, last_word_cmp),
+  operator = "or"
+  )
+missing_staff_id$p7 <- links(
+  criteria = "place_holder", 
+  sub_criteria = list(cr1 = scri_4), 
+  recursive = TRUE
+  )
 missing_staff_id[c("hair_colour", "branch_office", "p4", "p5", "p6", "p7")]
 ```
 
+A `sub_criteria` can provide a lot of flexibly in terms of how attributes are compared however, it comes at the cost of processing time. This is because `links()` is an iterative function, comparing batches of record-pairs in iterations. 
+This generally leads to a lower maximum memory usage but longer run times needed to analyse the multiple batches. There are three modes of a `batched` analysis with `links()` - `"yes"`, `"semi"` and `"no"`. These help manage the maximum memory usage or maximum number of iterations expended to complete the analyses. 
 
-A `sub_criteria` provides a lot flexibly in terms of how attributes are compared however, it can cost a lot in processing time. This is because `links()` is an iterative function, comparing batches of record-pairs in iterations. This keeps memory usage down but at the cost of processing time. There are ways to mitigate this such as using the `recursive` and `check_duplicate` arguments. 
-
-In contrast to this, `links_wf_probabilistic()` creates every possible record-pair of values for each attribute, which are then compared.
-This is often faster but costs more in memory usage. With a large enough dataset, we will eventually run out of memory, especially when there is no `blocking_attribute`. Below we see how `links_wf_probabilistic()` is used for the same fuzzy matching.
-
+For instance, below is a match criteria for a rolling match of records within three days of each other. With `print()`, we can see the record-pair batches compared at each iteration.
 ```{r warning = FALSE}
-p8 <- links_wf_probabilistic(attribute = list(missing_staff_id$hair_colour, 
-                                    missing_staff_id$branch_office), 
-                   cmp_func = c(last_word_cmp, last_word_cmp), 
-                   probabilistic = FALSE)
-p8
+dfr <- data.frame(x = 1:5)
+roll_window_funx <- function(x, y){
+  match <- abs(x - y) <= 2
+  print(data.frame(y, x, match))
+  cat("\n")
+  return(match)
+  }
+roll_window_scri <- sub_criteria(
+  dfr$x,
+  match_funcs = roll_window_funx
+  )
 ```
 
-It's worth noting that `links_wf_probabilistic()` does not have the step-wise or nested matching features of `links()` however, `merge_ids()` can be used to achieve the same result by consolidating the result of multiple instances of `links_wf_probabilistic()` (`pid` objects) in the same way `links()` would.
-
-The advantage of `links_wf_probabilistic()` over `links()` is it's ability to implement a probabilistic approach to record linkage. Its implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity. In summary, `m_probabilities` and `u_probabilities`, which are the probabilities of a true and false match respectively are used to calculate a final match score for each record-pair. Records below or above a certain `score_threshold` are considered matches or non-matches respectively. See `help(links_wf_probabilistic)` for a more detailed explanation of the method. Below we see the same analysis as above but as a probabilistic record linkage.
+With the `"yes"` option, the linkage takes 5 iterations (run time) but only creates 5 record-pairs (max memory usage) are compared at each iteration. 
 ```{r warning = FALSE}
-p9 <- links_wf_probabilistic(attribute = list(missing_staff_id$hair_colour, 
-                                    missing_staff_id$branch_office), 
-                   cmp_func = c(last_word_cmp, last_word_cmp), 
-                   probabilistic = TRUE)
-p9
+dfr$b.p1 <- links(
+  criteria = "place_holder",
+  sub_criteria = list(cr1 = roll_window_scri),
+  batched = "yes",
+  recursive = TRUE
+  )
 ```
 
-As mentioned, with a sufficiently large dataset, we can easily run out of memory.
-If memory usage is a concern, then use `links_wf_probabilistic()` instead.
-`links_wf_probabilistic()` is a wrapper function of `links()` with a specific `sub_criteria` to achieve probabilistic record linkage. It's less memory intensive but is usually slower. The reasons for this has already been described above.
+Conversely, the `"no"` option completes the linkage in 1 iteration but creates 15 record-pairs in that single iteration. 
 ```{r warning = FALSE}
-p10 <- links_wf_probabilistic(attribute = list(missing_staff_id$hair_colour,
-                                               missing_staff_id$branch_office), 
-                              cmp_func = c(last_word_cmp, last_word_cmp), 
-                              probabilistic = TRUE,
-                              recursive = TRUE)
-p10
+dfr$b.p2 <- links(
+  criteria = "place_holder",
+  sub_criteria = list(cr1 = roll_window_scri),
+  batched = "no"
+  )
 ```
 
-`links()` and `links_wf_probabilistic()` can perform record linkage across multiple datasets in one instance. To achieve this, values from the different datasets should be passed to the functions as single atomic vectors. The corresponding identifier for each dataset should then be passed to the `data_source` argument. The `strata` argument is a related feature which provides a blocking attribute, limiting the linkage process to subsets of the dataset. See a demonstration of these below.
-
+The `"semi"` option is a balance between the `"yes"` and `"no"` options. The number of record-pairs increases as matches are identified. This generally leads to a lower maximum memory usage compared to the `"no"` option and fewer number of iterations compared to the `"yes"` options.
 ```{r warning = FALSE}
-triplicate <- rbind(missing_staff_id[c(4:5, 7)],
-                    missing_staff_id[c(4:5, 7)],
-                    missing_staff_id[c(4:5, 7)])
-triplicate$data_source <- c(rep("set_1", 7), rep("set_2", 7), rep("set_3", 7))
-
-triplicate$p1 <- links(as.list(triplicate[1:2]), 
-                       data_source = triplicate$data_source, 
-                       strata = triplicate$source_1)
-triplicate$p2 <- links(as.list(triplicate[1:2]), 
-                       strata = triplicate$data_source, 
-                       data_source = triplicate$source_1)
-
-triplicate
+dfr$b.p3 <- links(
+  criteria = "place_holder",
+  sub_criteria = list(cr1 = roll_window_scri),
+  batched = "semi",
+  recursive = TRUE
+  )
+dfr
 ```
 
-The results are different as per the different linkage strategy.
-We can use `as.data.frame` or `as.list` to access the contents of each identifier to inspect the difference.
-```{r warning = FALSE}
-as.data.frame(triplicate$p1)
+There are variations of `links()` such as `links_wf_probabilistic()`, `links_af_probabilistic()` and `links_wf_episodes()` for specific use cases such as probabilistic record linkage and grouping temporal events.
 
-as.data.frame(triplicate$p2)
+The implementation of probabilistic record linkage is based on Fellegi and Sunter (1969) model for deciding if two records belong to the same entity. In summary, `m_probabilities` and `u_probabilities`, which are the probabilities of a true and false match respectively are used to calculate a final match score for each record-pair. Records below or above a certain `score_threshold` are considered matches or non-matches respectively. See `help(links_wf_probabilistic)` for a more detailed explanation of the method. Below we see the same analysis as above but as a probabilistic record linkage.
+```{r warning = FALSE}
+missing_staff_id$p9 <- links_wf_probabilistic(
+  attribute = list(missing_staff_id$hair_colour, 
+                   missing_staff_id$branch_office), 
+  cmp_func = c(last_word_cmp, last_word_cmp), 
+  probabilistic = TRUE
+  )
+missing_staff_id[c("hair_colour", "branch_office", "p7", "p9")]
 ```
+

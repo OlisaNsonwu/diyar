@@ -105,13 +105,13 @@ dfr_stages$id.3 <- links(
 )
 dfr_stages
 #>   age hair_colour     branch_office          id.1          id.2          id.3
-#> 1  30       Brown Republic of Ghana P.1 (No hits) P.1 (No hits) P.1 (CRI 001)
-#> 2  30        Teal            France P.2 (No hits) P.2 (No hits) P.2 (CRI 001)
+#> 1  30       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)
+#> 2  30        Teal            France P.4 (CRI 003) P.2 (CRI 001) P.2 (CRI 001)
 #> 3  30        <NA>              <NA> P.3 (No hits) P.3 (No hits) P.3 (No hits)
-#> 4  30       Green              <NA> P.4 (No hits) P.4 (No hits) P.4 (No hits)
-#> 5  30       Green            France P.5 (No hits) P.5 (No hits) P.2 (CRI 001)
+#> 4  30       Green              <NA> P.4 (CRI 001) P.2 (CRI 003) P.4 (No hits)
+#> 5  30       Green            France P.4 (CRI 001) P.2 (CRI 001) P.2 (CRI 001)
 #> 6  30  Dark brown             Ghana P.6 (No hits) P.6 (No hits) P.1 (CRI 001)
-#> 7  30       Brown Republic of Ghana P.7 (No hits) P.7 (No hits) P.1 (CRI 001)
+#> 7  30       Brown Republic of Ghana P.1 (CRI 001) P.1 (CRI 001) P.1 (CRI 001)
 ```
 
 There are variations of `links()` like `links_wf_probabilistic()` and
@@ -257,9 +257,6 @@ dfr_3
 #> 16 2020-01-25 PN.16 (I) PN.25 (D) PN.19 (D)
 #> 17 2020-01-26 PN.17 (I) PN.25 (D) PN.19 (D)
 ```
-
-Other useful functions include in the `diyar` package are `combi()` and
-`sets()`.
 
 Find out more!
 

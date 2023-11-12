@@ -140,8 +140,6 @@ dfr_3$id.3 <- partitions(date = dfr_3$date, length.out = 3, separate = TRUE)
 dfr_3
 ```
 
-Other useful functions include in the `diyar` package are `combi()` and `sets()`.
-
 Find out more!
   
   + number_line and overlaps - `vignette("number_line")`

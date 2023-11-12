@@ -648,7 +648,7 @@ test_that("test case_for_recurrence", {
   r2.list <- r2.list[!grepl("wind_nm", names(r2.list))]
   expect_equal(r2.list, r2.list)
   expect_equal(decode(df$r1@wind_nm$wind_nm1), c(rep("Case", 2), rep("Recurrence", 4)))
-  expect_equal(decode(df$r2@wind_nm$wind_nm1), c(rep("Case", 2), "Recurrence", "Case_for_recurrence", "Recurrence", "Case_for_recurrence"))
+  expect_equal(decode(df$r2@wind_nm$wind_nm1), c(rep("Case", 2), "Recurrence", "Case for Recurrence", "Recurrence", "Case for Recurrence"))
 })
 
 # Lengths range
@@ -719,7 +719,7 @@ df$ep6 <- episodes(date = df$x, case_length = df$ep, recurrence_length = df$rc, 
 test_that("test wind_id and wind_nm", {
   expect_equal(df$ep1@.Data, rep(1, 5))
   expect_equal(decode(df$ep1@case_nm), c("Case","Recurrent", rep("Duplicate_R", 2), "Recurrent"))
-  expect_equal(decode(df$ep1@wind_nm$wind_nm1), c("Case", rep("Recurrence", 3), "Case_for_recurrence"))
+  expect_equal(decode(df$ep1@wind_nm$wind_nm1), c("Case", rep("Recurrence", 3), "Case for Recurrence"))
   expect_equal(df$ep1@wind_id[[1]], c(rep(1,4),4))
   expect_equal(df$ep2, df$ep4)
   expect_equal(decode(df$ep1@case_nm), decode(df$ep3@case_nm))

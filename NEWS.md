@@ -1,11 +1,13 @@
 
-# Version 0.5.0.9000
+# Version 0.5.1
 
 ## New features
 
 ## Changes
 
 ## Bug fixes
+
+`links()` - Incorrect results in some situations. Resolved.
 
 # Version 0.5.0
 

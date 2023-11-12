@@ -1174,6 +1174,8 @@ err_links_checks_0 <- function(
   if(err != FALSE) return(err)
   err <- err_spec_vals(batched, "batched", c("yes", "semi", "no"))
   if(err != FALSE) return(err)
+  err <- err_spec_vals(recursive, "recursive", c("linked", "unlinked", "none", TRUE, FALSE))
+  if(err != FALSE) return(err)
   return(FALSE)
 }
 

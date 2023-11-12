@@ -771,10 +771,10 @@ links <- function(
     ] <- TRUE
 
     #
-    web$repo$pid[web$ite.tmp$lgk] <-
-      web$repo$pr_sn[web$ite.tmp$lgk]
-    web$repo$pid_cri[web$ite.tmp$lgk] <- web$mxp_cri
-    web$repo$iteration[web$ite.tmp$lgk] <- 0L
+    # web$repo$pid[web$tgt_indx[web$ite.tmp$lgk]] <-
+    #   web$repo$pr_sn[web$tgt_indx[web$ite.tmp$lgk]]
+    web$repo$pid_cri[web$tgt_indx[web$ite.tmp$lgk]] <- web$mxp_cri
+    web$repo$iteration[web$tgt_indx[web$ite.tmp$lgk]] <- 0L
     # Flag records linked at current stage
     #
     web$current_tot <- length(web$ite.tmp$cri_inc_indx)

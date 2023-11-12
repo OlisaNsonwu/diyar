@@ -180,7 +180,6 @@ prob_link <- function(x, y,
   out_a <- out_a[,1:(ncol(out_a)-1)]
   # If probability based, matches are based on scores derived from m- and u-probabilities
   pwts <- sapply(seq_len(attr_n), function(i){
-    # browser()
     pwts <- rep(0, length(wts[[i]]))
     # Agreement/disagreement based on string comparators
     curr_match <- (wts[[i]])
@@ -192,6 +191,7 @@ prob_link <- function(x, y,
     lgk <- which(x$attribute[[i]] != y$attribute[[i]] &
                    !is.na(x$attribute[[i]]) &
                    !is.na(y$attribute[[i]]))
+
     curr_uprob[lgk] <- curr_uprob[lgk] * (y$u_probability[[i]])[lgk]
     curr_mprob[lgk] <- curr_mprob[lgk] * (y$m_probability[[i]])[lgk]
 

@@ -1109,7 +1109,7 @@ as.data.frame.d_report <- function(x, ...){
   return(as.data.frame(as.list(x), ...))
 }
 
-#' @export
+# @export
 `[.d_lazy_opts` <- function(x, i, ..., drop = TRUE) {
   x <- as.vector(x)
   x2 <- x[i]
@@ -1118,6 +1118,18 @@ as.data.frame.d_report <- function(x, ...){
   }
   class(x2) <- "d_lazy_opts"
   return(x2)
+}
+
+# @export
+`[<-.d_lazy_opts` <- function(x, i, j, ..., value) {
+  x <- as.vector(x)
+  if(length(x) == 1 & length(x[i]) != 0){
+    x <- value
+  }else{
+    x[i] <- value
+  }
+  class(x) <- "d_lazy_opts"
+  return(x)
 }
 
 # @export
