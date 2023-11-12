@@ -7,7 +7,8 @@
 
 ## Bug fixes
 
-`links()` - Incorrect results in some situations. Resolved.
+- `links()` - Incorrect results in some situations. Resolved.
+- `links_af_probabilistic()` - Failed in some situations. Resolved.
 
 # Version 0.5.0
 
