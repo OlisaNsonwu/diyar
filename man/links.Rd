@@ -39,8 +39,7 @@ links(
 
 \item{display}{\code{[character]}. Display progress update and/or generate a linkage report for the analysis. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
-\item{group_stats}{\code{[character]}. A selection of group specific information to be return for each record-group. Most are added to slots of the \code{\link[=pid-class]{pid}} object.
-Options are \code{NULL} or any combination of \code{"XX"}, \code{"XX"} and \code{"XX"}.}
+\item{group_stats}{\code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.}
 
 \item{expand}{\code{[logical]}. If \code{TRUE}, a record-group gains new records if a match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.}
 
