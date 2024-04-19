@@ -1503,7 +1503,7 @@ dv <- function(lst){
   }
 }
 
-unpack <- function(xx, depth = 1){
+unpack <- function(xx, depth = 0){
   classes <- unlist(lapply(xx, class))
   lgk <- classes == "list"
   xx.1 <- xx[!lgk]
@@ -1714,4 +1714,31 @@ id_total <- function(x){
   rr <- rle(sort(x))
   x <- rr$lengths[match(x, rr$values)]
   x
+}
+
+extract.opts <- function(..., ref.func){
+  opt_lst <- list(...)
+  def_list <- formals(ref.func)
+  named_pos <- which(names(opt_lst) %in% names(def_list))
+  unamed_pos <- seq_len(length(opt_lst))[!seq_len(length(opt_lst)) %in% named_pos]
+  unnamed_args <- names(def_list)[!names(def_list) %in% names(opt_lst)]
+  unnamed_args <- unnamed_args[unamed_pos]
+  names(opt_lst)[unamed_pos] <- unnamed_args
+
+  opt_lst <- c(
+    opt_lst,
+    def_list[names(def_list)[!names(def_list) %in% names(opt_lst)]]
+  )
+
+  opt_lst <- lapply(opt_lst, function(x){
+    if(inherits(x, "call")){
+      return(eval(x))
+    }else if(inherits(x, "name")){
+      return(opt_lst[[x]])
+    }else{
+      return(x)
+    }
+  })
+
+  return(opt_lst)
 }

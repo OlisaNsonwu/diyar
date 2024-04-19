@@ -43,7 +43,7 @@
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
 #' @seealso
-#' \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}};
+#' \code{\link{episodes_wf_repeats}}; \code{\link{custom_sort}};
 #' \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}};
 #' \code{\link[=windows]{epid_window}}; \code{\link{partitions}};
 #' \code{\link{links}}; \code{\link{overlaps}};
@@ -82,7 +82,7 @@
 #'
 #' Wrapper functions or alternative implementations of \bold{\code{episodes()}} for specific use cases or benefits:
 #' \itemize{
-#' \item \bold{\code{episodes_wf_splits()}} - Identical records are excluded from the main analysis.
+#' \item \bold{\code{episodes_wf_repeats()}} - Identical records are excluded from the main analysis.
 #' \item \bold{\code{episodes_af_shift()}} - A mostly vectorised approach.
 #' \item \bold{\code{links_wf_episodes()}} - The same functionality achieved with \code{\link{links}}.
 #' }
@@ -2025,10 +2025,10 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 }
 
 #'
-#' @name episodes_wf_splits
+#' @name episodes_wf_repeats
 #' @title Link events to chronological episodes.
 #'
-#' @description \code{episodes_wf_splits} is a wrapper function of \code{\link{episodes}}.
+#' @description \code{episodes_wf_repeats} is a wrapper function of \code{\link{episodes}}.
 #' It's designed to be more efficient with larger datasets.
 #' Duplicate records which do not affect the case definition are excluded prior to episode tracking.
 #' The resulting episode identifiers are then recycled for the duplicate records.
@@ -2044,7 +2044,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 #' \code{\link{episodes}}; \code{\link{sub_criteria}}
 #'
 #' @details
-#' \bold{\code{episodes_wf_splits()}} reduces or re-frames a dataset to
+#' \bold{\code{episodes_wf_repeats()}} reduces or re-frames a dataset to
 #' the minimum datasets required to implement a case definition.
 #' This leads to the same outcome but with the benefit of a shorter processing time.
 #'
@@ -2058,7 +2058,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 #'
 #' @examples
 #' # With 2,000 duplicate records of 20 events,
-#' # `episodes_wf_splits()` will take less time than `episodes()`
+#' # `episodes_wf_repeats()` will take less time than `episodes()`
 #' dates <- seq(from = as.Date("2019-04-01"), to = as.Date("2019-04-20"), by = 1)
 #' dates <- rep(dates, 2000)
 #'
@@ -2066,51 +2066,39 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
 #'   ep1 <- episodes(dates, 1)
 #' )
 #' system.time(
-#'   ep2 <- episodes_wf_splits(dates, 1)
+#'   ep2 <- episodes_wf_repeats(dates, 1)
 #' )
 #'
 #' # Both leads to the same outcome.
 #' all(ep1 == ep2)
 
 #' @export
-episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALSE){
-  tm_a <- Sys.time()
-
+episodes_wf_repeats <- function(..., duplicates_recovered = "ANY"){
   # Validations
   errs <- err_episodes_checks_0(...)
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
 
-  duplicates_recovered <- tolower(duplicates_recovered)
+  # Extract options
+  opts <- extract.opts(..., ref.func = episodes)
 
-  opt_lst <- list(...)
-  def_list <- formals(episodes)
-  named_pos <- which(names(opt_lst) %in% names(def_list))
-  unamed_pos <- seq_len(length(opt_lst))[!seq_len(length(opt_lst)) %in% named_pos]
-  unnamed_args <- names(def_list)[!names(def_list) %in% names(opt_lst)]
-  unnamed_args <- unnamed_args[unamed_pos]
-  names(opt_lst)[unamed_pos] <- unnamed_args
-
-  opt_lst <- c(
-    opt_lst,
-    def_list[names(def_list)[!names(def_list) %in% names(opt_lst)]]
-  )
-
-  opt_lst <- lapply(opt_lst, function(x){
-    if(inherits(x, "call")){
-      return(eval(x))
-    }else{
-      return(x)
-    }
-  })
-  rm(def_list, unnamed_args, named_pos, unamed_pos)
-
-  if(is.null(opt_lst$sn)) {
-    opt_lst$sn <- seq_len(length(opt_lst$date))
+  if(is.null(opts$sn)){
+    opts$sn <- seq_len(length(opts$date))
   }
-  sn <- opt_lst$sn
-  display <- opt_lst$display
+  opts$display <- gsub('_with_report', '', opts$display)
 
-  combi_opt_lst <- opt_lst[names(opt_lst) != "sn"]
+  aLvl.Opt <-
+    c("data_links", "group_stats", "display", "batched")
+
+  list.args <-
+    c("case_length", "recurrence_length",
+      "case_overlap_methods", "recurrence_overlap_methods")
+
+  duplicates_recovered <- tolower(duplicates_recovered)
+  sn <- opts$sn
+  display <- opts$display
+
+  # Flag unique records
+  s.opts <- opts[names(opts) != "sn"]
   check_lens <- function(x){
     if(inherits(x, "sub_criteria")){
       max(attr_eval(x))
@@ -2120,116 +2108,81 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
       length(x)
     }
   }
-  row.n <- length(opt_lst$date)
-  args_len <- unlist(lapply(combi_opt_lst, check_lens), use.names = FALSE)
-  combi_opt_lst <- combi_opt_lst[args_len == row.n]
+  row.n <- length(opts$date)
+  args_len <- unlist(lapply(s.opts, check_lens), use.names = FALSE)
+  s.opts <- s.opts[args_len == row.n]
 
-  if(length(combi_opt_lst) != 0){
-    combi_opt_lst <- lapply(combi_opt_lst, function(x){
-      if(inherits(x, "sub_criteria")){
-        attr_eval(x, func = identity, simplify = FALSE)
-      }else if(inherits(x, "list")){
-        x
+  s.opts <- lapply(s.opts, function(x){
+    if(inherits(x, "sub_criteria")){
+      unpack(attr_eval(x, func = identity, simplify = FALSE))
+    }else if(inherits(x, "list")){
+      x
+    }else{
+      list(x)
+    }
+  })
+
+  s.opts <- unlist(s.opts, recursive = FALSE, use.names = FALSE)
+  s.opts <- lapply(s.opts, function(x){
+    if(inherits(x, "number_line")){
+      list(x@start, x@.Data)
+    }else{
+      x
+    }
+  })
+  # sub_criteria with d_attributes/number_line objects
+  lgk <- unlist(lapply(s.opts, function(x) inherits(x, "list")),
+                use.names = FALSE)
+  s.opts <- c(s.opts[!lgk],
+              unlist(s.opts[lgk], recursive = FALSE, use.names = FALSE))
+
+  cmbi_cd <- combi(s.opts)
+  rf_lgk <- duplicated(cmbi_cd)
+
+  splits <- 1
+
+  # Split data into batches by strata
+  opts <- lapply(splits, function(i){
+    splt_func <- function(x){
+      if(length(x) <= 1){
+        return(x)
       }else{
-        list(x)
+        return(x[!rf_lgk])
+      }
+    }
+    opts_nm <- names(opts)
+    opts <- lapply(seq_len(length(opts)), function(k){
+      if(inherits(opts[[k]], 'sub_criteria')){
+        reframe(opts[[k]], splt_func)
+      }else if(opts_nm[[k]] %in% list.args &
+               inherits(opts[[k]], 'list')){
+        lapply(opts[[k]], splt_func)
+      }else if(opts_nm[[k]] %in% aLvl.Opt){
+        opts[[k]]
+      }else{
+        splt_func(opts[[k]])
       }
     })
 
-    combi_opt_lst <- unlist(combi_opt_lst, recursive = FALSE, use.names = FALSE)
-    combi_opt_lst <- lapply(combi_opt_lst, function(x){
-      if(inherits(x, "number_line")){
-        list(x@start, x@.Data)
-      }else{
-        x
-      }
-    })
-    # sub_criteria with d_attributes/number_line objects
-    lgk <- unlist(lapply(combi_opt_lst, function(x) inherits(x, "list")), use.names = FALSE)
-    combi_opt_lst <- c(combi_opt_lst[!lgk],
-                       unlist(combi_opt_lst[lgk], recursive = FALSE, use.names = FALSE))
-
-    cmbi_cd <- combi(combi_opt_lst)
-    rf_lgk <- duplicated(cmbi_cd)
-  }else{
-    rf_lgk <- cmbi_cd <- rep(TRUE, length(date))
-    rf_lgk[1] <- FALSE
-  }
-
-  opt_lst_nms <- names(opt_lst)
-  opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
-    if(inherits(opt_lst[[i]], "name")) {
-      return(
-        opt_lst[[as.character(opt_lst[[i]])]]
-      )
-    }else{
-      return(
-        opt_lst[[i]]
-      )
-    }
+    names(opts) <- opts_nm
+    return(opts)
   })
-  opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
-    if(inherits(opt_lst[[i]], "sub_criteria")) {
-      if(reframe){
-        return(reframe(opt_lst[[i]], func = function(x) split(x, cmbi_cd)))
-      }else{
-        return(reframe(opt_lst[[i]], func = function(x) x[!rf_lgk]))
-      }
-    }else if(inherits(opt_lst[[i]], "list")){
-      return(lapply(opt_lst[[i]], function(x){
-        if(length(x) != row.n){
-          x
-        }else{
-          x[!rf_lgk]
-        }
-      }))
-    }else if(length(opt_lst[[i]]) != row.n){
-      return(opt_lst[[i]])
-    }else{
-      return((opt_lst[[i]])[!rf_lgk])
-    }
+
+  epids <- lapply(splits, function(x){
+    opts_nm <- names(opts[[1]])
+    RcmD <- paste0(
+      'episodes(',
+      paste0(opts_nm, " = opts[[", x ,"]] [['", opts_nm, "']]", collapse = ',\n'),
+      ')'
+    )
+    epid <- eval(parse(text = RcmD))
+    return(epid)
   })
-  names(opt_lst) <- opt_lst_nms
-  if(!display %in% c("none")){
-    rp_data <- di_report(duration = Sys.time() - tm_a,
-                         iteration = "Remove duplicates",
-                         current_tot = length(rf_lgk),
-                         current_skipped = length(rf_lgk[rf_lgk]))
-    report_a <- rp_data
-    if(display %in% c("stats_with_report", "stats")){
-      cat(paste0("Remove duplicates\n",
-                 "Checked: ", fmt(rp_data$records_checked), " record(s)\n",
-                 "Skipped: ", fmt(rp_data$records_skipped), " record(s)","\n",
-                 "Time: ", fmt(rp_data$duration, "difftime"),
-                 "\n\n"))
-    }
-  }
 
-  epids <- episodes(sn = opt_lst$sn, date = opt_lst$date,
-                    case_length = opt_lst$case_length,
-                    strata = opt_lst$strata,
-                    display = opt_lst$display, episodes_max = opt_lst$episodes_max,
-                    from_last = opt_lst$from_last, episode_unit = opt_lst$episode_unit,
-                    case_overlap_methods = opt_lst$case_overlap_methods,
-                    recurrence_overlap_methods = opt_lst$recurrence_overlap_methods,
-                    skip_order = opt_lst$skip_order, custom_sort = opt_lst$custom_sort, group_stats = opt_lst$group_stats,
-                    data_source = opt_lst$data_source, data_links = opt_lst$data_links,
-                    skip_if_b4_lengths = opt_lst$skip_if_b4_lengths,
-                    rolls_max = opt_lst$rolls_max, case_for_recurrence = opt_lst$case_for_recurrence,
-                    reference_event = opt_lst$reference_event,
-                    episode_type = opt_lst$episode_type, recurrence_length = opt_lst$recurrence_length,
-                    case_sub_criteria = opt_lst$case_sub_criteria,
-                    recurrence_sub_criteria = opt_lst$recurrence_sub_criteria,
-                    case_length_total = opt_lst$case_length_total,
-                    recurrence_length_total = opt_lst$recurrence_length_total,
-                    skip_unique_strata = FALSE)
+  epids <- epids[[1]]
 
-  tm_a <- Sys.time()
   rp_lgk <- match(cmbi_cd, cmbi_cd[!rf_lgk])
-  if(display %in% c("none_with_report", "progress_with_report", "stats_with_report")){
-    wf_epid <- epids$epid[rp_lgk]
-  }else{
-    wf_epid <- epids[rp_lgk]
-  }
+  wf_epid <- epids[rp_lgk]
 
   wf_epid@sn <- sn
   wf_epid@case_nm[((wf_epid@case_nm %in% c(0, 4) & duplicates_recovered == "any") |
@@ -2249,33 +2202,81 @@ episodes_wf_splits <- function(..., duplicates_recovered = "ANY", reframe = FALS
   tot <- rle(sort(wf_epid@.Data[!seq_len(length(wf_epid)) %in% lgk]))
   wf_epid@epid_total <- tot$lengths[match(wf_epid@.Data, tot$values)]
   wf_epid@epid_total[is.na(wf_epid@epid_total)] <- 1L
-  if(!display %in% c("none")){
-    rp_data <- di_report(duration = Sys.time() - tm_a,
-                         iteration = "Return duplicates",
-                         current_tot = length(date),
-                         current_tagged = length(rf_lgk[rf_lgk]))
-    report_b <- rp_data
-    if(display %in% c("stats_with_report", "stats")){
-      cat(paste0("\n\n",
-                 "Return duplicates\n",
-                 "Checked: ", fmt(rp_data$records_checked), " record(s)\n",
-                 "Assigned: ", fmt(rp_data$records_tracked), " record(s)","\n",
-                 "Time: ", fmt(rp_data$duration, "difftime"),
-                 "\n\n"))
-    }
-  }
-  if(display %in% c("none_with_report", "progress_with_report", "stats_with_report")){
-    report <- rbind(as.data.frame(report_a),
-                    as.data.frame(epids$report),
-                    as.data.frame(report_b))
-    report <- as.list(report)
-    class(report) <- "d_report"
-    wf_epid <- list(epid = wf_epid,
-                    report = report)
-  }
 
   rm(list = ls()[ls() != "wf_epid"])
   return(wf_epid)
+}
+
+#' @export
+episodes_wf_splits <- function(..., splits_by_strata = 1L){
+  # Validations
+  errs <- err_episodes_checks_0(...)
+  if(!isFALSE(errs)) stop(errs, call. = FALSE)
+
+  # Extract options
+  opts <- extract.opts(..., ref.func = episodes)
+
+  if(is.null(opts$sn)){
+    opts$sn <- seq_len(length(opts$date))
+  }
+  opts$display <- gsub('_with_report', '', opts$display)
+
+  aLvl.Opt <-
+    c("data_links", "group_stats", "display", "batched")
+
+  list.args <-
+    c("case_length", "recurrence_length",
+      "case_overlap_methods", "recurrence_overlap_methods")
+
+  opts$strata <- (opts$strata %% splits_by_strata) + 1L
+  sn_splits <- split(opts$sn, opts$strata)
+  splits <- seq_len(length(sn_splits))
+
+  # Split data into batches by strata
+  opts <- lapply(splits, function(i){
+    splt_func <- function(x){
+      if(length(x) <= 1){
+        return(x)
+      }else{
+        return(x[sn_splits[[i]]])
+      }
+    }
+    opts_nm <- names(opts)
+    opts <- lapply(seq_len(length(opts)), function(k){
+      if(inherits(opts[[k]], 'sub_criteria')){
+        reframe(opts[[k]], splt_func)
+      }else if(opts_nm[[k]] %in% list.args &
+               inherits(opts[[k]], 'list')){
+        lapply(opts[[k]], splt_func)
+      }else if(opts_nm[[k]] %in% aLvl.Opt){
+        opts[[k]]
+      }else{
+        splt_func(opts[[k]])
+      }
+    })
+
+    names(opts) <- opts_nm
+    return(opts)
+  })
+
+  epids <- lapply(splits, function(x){
+    opts_nm <- names(opts[[1]])
+    RcmD <- paste0(
+      'episodes(',
+      paste0(opts_nm, " = opts[[", x ,"]] [['", opts_nm, "']]", collapse = ',\n'),
+      ')'
+    )
+    epid <- eval(parse(text = RcmD))
+    return(epid)
+  })
+
+  epids <- unlist(epids, recursive = FALSE)
+  epids <- do.call('c', epids)
+  sn_splits <- unlist(sn_splits, recursive = FALSE, use.names = FALSE)
+
+  epids <- epids[order(sn_splits)]
+
+  return(epids)
 }
 
 #' @name windows

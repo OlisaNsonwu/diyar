@@ -164,7 +164,7 @@ All records with a missing (\code{NA}) \code{strata} or \code{date} are skipped.
 
 Wrapper functions or alternative implementations of \bold{\code{episodes()}} for specific use cases or benefits:
 \itemize{
-\item \bold{\code{episodes_wf_splits()}} - Identical records are excluded from the main analysis.
+\item \bold{\code{episodes_wf_repeats()}} - Identical records are excluded from the main analysis.
 \item \bold{\code{episodes_af_shift()}} - A mostly vectorised approach.
 \item \bold{\code{links_wf_episodes()}} - The same functionality achieved with \code{\link{links}}.
 }
@@ -207,7 +207,7 @@ as.data.frame(dfr$ep)
 
 }
 \seealso{
-\code{\link{episodes_wf_splits}}; \code{\link{custom_sort}};
+\code{\link{episodes_wf_repeats}}; \code{\link{custom_sort}};
 \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}};
 \code{\link[=windows]{epid_window}}; \code{\link{partitions}};
 \code{\link{links}}; \code{\link{overlaps}};

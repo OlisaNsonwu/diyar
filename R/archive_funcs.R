@@ -3943,19 +3943,18 @@ episodes_retired_1 <- function(date, case_length = Inf, episode_type = "fixed", 
   return(epids)
 }
 
-#' @rdname predefined_tests
-#' @details
-#' \bold{\code{range_match_legacy()}} - test that \code{overlap(as.number_line(x@gid), y)} is \code{TRUE}.
-#' @examples
-#' `range_match_legacy`
-#' x_nl <- number_line(10, 16, gid = 10)
-#' y_nl1 <- number_line(16, 10)
-#' y_nl2 <- number_line(16, 10)
-#'
-#' range_match_legacy(x = x_nl, y = y_nl1)
-#' range_match_legacy(x = x_nl, y = y_nl2)
-#'
-#' @export
+# @rdname predefined_tests
+# @details
+# \bold{\code{range_match_legacy()}} - test that \code{overlap(as.number_line(x@gid), y)} is \code{TRUE}.
+# @examples
+# `range_match_legacy`
+# x_nl <- number_line(10, 16, gid = 10)
+# y_nl1 <- number_line(16, 10)
+# y_nl2 <- number_line(16, 10)
+#
+# range_match_legacy(x = x_nl, y = y_nl1)
+# range_match_legacy(x = x_nl, y = y_nl2)
+#
 range_match_legacy <- function(x, y) {
   lg <- overlap(as.number_line(x@gid), x)
   lg[is.na(lg)] <- F
@@ -3965,4 +3964,209 @@ range_match_legacy <- function(x, y) {
     stop(paste0("Range matching error: Actual value (gid) is out of range in ", "[", rng_i, "]"))
   }
   overlap(as.number_line(x@gid), y)
+}
+
+episodes_wf_repeats_arch <- function(..., duplicates_recovered = "ANY", reframe = FALSE){
+  tm_a <- Sys.time()
+
+  # Validations
+  errs <- err_episodes_checks_0(...)
+  if(!isFALSE(errs)) stop(errs, call. = FALSE)
+
+  duplicates_recovered <- tolower(duplicates_recovered)
+
+  opt_lst <- list(...)
+  def_list <- formals(episodes)
+  named_pos <- which(names(opt_lst) %in% names(def_list))
+  unamed_pos <- seq_len(length(opt_lst))[!seq_len(length(opt_lst)) %in% named_pos]
+  unnamed_args <- names(def_list)[!names(def_list) %in% names(opt_lst)]
+  unnamed_args <- unnamed_args[unamed_pos]
+  names(opt_lst)[unamed_pos] <- unnamed_args
+
+  opt_lst <- c(
+    opt_lst,
+    def_list[names(def_list)[!names(def_list) %in% names(opt_lst)]]
+  )
+
+  opt_lst <- lapply(opt_lst, function(x){
+    if(inherits(x, "call")){
+      return(eval(x))
+    }else{
+      return(x)
+    }
+  })
+  rm(def_list, unnamed_args, named_pos, unamed_pos)
+
+  if(is.null(opt_lst$sn)) {
+    opt_lst$sn <- seq_len(length(opt_lst$date))
+  }
+  sn <- opt_lst$sn
+  display <- opt_lst$display
+
+  combi_opt_lst <- opt_lst[names(opt_lst) != "sn"]
+  check_lens <- function(x){
+    if(inherits(x, "sub_criteria")){
+      max(attr_eval(x))
+    }else if(inherits(x, "list")){
+      max(as.numeric(lapply(x, length)))
+    }else {
+      length(x)
+    }
+  }
+  row.n <- length(opt_lst$date)
+  args_len <- unlist(lapply(combi_opt_lst, check_lens), use.names = FALSE)
+  combi_opt_lst <- combi_opt_lst[args_len == row.n]
+
+  if(length(combi_opt_lst) != 0){
+    combi_opt_lst <- lapply(combi_opt_lst, function(x){
+      if(inherits(x, "sub_criteria")){
+        attr_eval(x, func = identity, simplify = FALSE)
+      }else if(inherits(x, "list")){
+        x
+      }else{
+        list(x)
+      }
+    })
+
+    combi_opt_lst <- unlist(combi_opt_lst, recursive = FALSE, use.names = FALSE)
+    combi_opt_lst <- lapply(combi_opt_lst, function(x){
+      if(inherits(x, "number_line")){
+        list(x@start, x@.Data)
+      }else{
+        x
+      }
+    })
+    # sub_criteria with d_attributes/number_line objects
+    lgk <- unlist(lapply(combi_opt_lst, function(x) inherits(x, "list")), use.names = FALSE)
+    combi_opt_lst <- c(combi_opt_lst[!lgk],
+                       unlist(combi_opt_lst[lgk], recursive = FALSE, use.names = FALSE))
+
+    cmbi_cd <- combi(combi_opt_lst)
+    rf_lgk <- duplicated(cmbi_cd)
+  }else{
+    rf_lgk <- cmbi_cd <- rep(TRUE, length(date))
+    rf_lgk[1] <- FALSE
+  }
+
+  opt_lst_nms <- names(opt_lst)
+  opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
+    if(inherits(opt_lst[[i]], "name")) {
+      return(
+        opt_lst[[as.character(opt_lst[[i]])]]
+      )
+    }else{
+      return(
+        opt_lst[[i]]
+      )
+    }
+  })
+  opt_lst <- lapply(seq_len(length(opt_lst)), function(i){
+    if(inherits(opt_lst[[i]], "sub_criteria")) {
+      if(reframe){
+        return(reframe(opt_lst[[i]], func = function(x) split(x, cmbi_cd)))
+      }else{
+        return(reframe(opt_lst[[i]], func = function(x) x[!rf_lgk]))
+      }
+    }else if(inherits(opt_lst[[i]], "list")){
+      return(lapply(opt_lst[[i]], function(x){
+        if(length(x) != row.n){
+          x
+        }else{
+          x[!rf_lgk]
+        }
+      }))
+    }else if(length(opt_lst[[i]]) != row.n){
+      return(opt_lst[[i]])
+    }else{
+      return((opt_lst[[i]])[!rf_lgk])
+    }
+  })
+  names(opt_lst) <- opt_lst_nms
+  if(!display %in% c("none")){
+    rp_data <- di_report(duration = Sys.time() - tm_a,
+                         iteration = "Remove duplicates",
+                         current_tot = length(rf_lgk),
+                         current_skipped = length(rf_lgk[rf_lgk]))
+    report_a <- rp_data
+    if(display %in% c("stats_with_report", "stats")){
+      cat(paste0("Remove duplicates\n",
+                 "Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                 "Skipped: ", fmt(rp_data$records_skipped), " record(s)","\n",
+                 "Time: ", fmt(rp_data$duration, "difftime"),
+                 "\n\n"))
+    }
+  }
+
+  epids <- episodes(sn = opt_lst$sn, date = opt_lst$date,
+                    case_length = opt_lst$case_length,
+                    strata = opt_lst$strata,
+                    display = opt_lst$display, episodes_max = opt_lst$episodes_max,
+                    from_last = opt_lst$from_last, episode_unit = opt_lst$episode_unit,
+                    case_overlap_methods = opt_lst$case_overlap_methods,
+                    recurrence_overlap_methods = opt_lst$recurrence_overlap_methods,
+                    skip_order = opt_lst$skip_order, custom_sort = opt_lst$custom_sort, group_stats = opt_lst$group_stats,
+                    data_source = opt_lst$data_source, data_links = opt_lst$data_links,
+                    skip_if_b4_lengths = opt_lst$skip_if_b4_lengths,
+                    rolls_max = opt_lst$rolls_max, case_for_recurrence = opt_lst$case_for_recurrence,
+                    reference_event = opt_lst$reference_event,
+                    episode_type = opt_lst$episode_type, recurrence_length = opt_lst$recurrence_length,
+                    case_sub_criteria = opt_lst$case_sub_criteria,
+                    recurrence_sub_criteria = opt_lst$recurrence_sub_criteria,
+                    case_length_total = opt_lst$case_length_total,
+                    recurrence_length_total = opt_lst$recurrence_length_total,
+                    skip_unique_strata = FALSE)
+
+  tm_a <- Sys.time()
+  rp_lgk <- match(cmbi_cd, cmbi_cd[!rf_lgk])
+  if(display %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    wf_epid <- epids$epid[rp_lgk]
+  }else{
+    wf_epid <- epids[rp_lgk]
+  }
+
+  wf_epid@sn <- sn
+  wf_epid@case_nm[((wf_epid@case_nm %in% c(0, 4) & duplicates_recovered == "any") |
+                     (wf_epid@case_nm == 0 & duplicates_recovered == "without_sub_criteria") |
+                     (wf_epid@case_nm == 4 & duplicates_recovered == "with_sub_criteria")) & rf_lgk] <- 2
+  wf_epid@case_nm[((wf_epid@case_nm %in% c(1, 5) & duplicates_recovered == "all") |
+                     (wf_epid@case_nm == 1 & duplicates_recovered == "without_sub_criteria") |
+                     (wf_epid@case_nm == 5 & duplicates_recovered == "with_sub_criteria")) & rf_lgk] <- 3
+  lgk <- which(wf_epid@case_nm == -1 | (wf_epid@case_nm %in% c(0, 1, 4, 5) & rf_lgk))
+  if(length(lgk) > 0){
+    wf_epid@.Data[lgk] <- wf_epid@sn[lgk]
+    wf_epid@wind_id <- lapply(wf_epid@wind_id, function(x){
+      x[lgk] <- wf_epid@sn[lgk]
+      return(x)
+    })
+  }
+  tot <- rle(sort(wf_epid@.Data[!seq_len(length(wf_epid)) %in% lgk]))
+  wf_epid@epid_total <- tot$lengths[match(wf_epid@.Data, tot$values)]
+  wf_epid@epid_total[is.na(wf_epid@epid_total)] <- 1L
+  if(!display %in% c("none")){
+    rp_data <- di_report(duration = Sys.time() - tm_a,
+                         iteration = "Return duplicates",
+                         current_tot = length(date),
+                         current_tagged = length(rf_lgk[rf_lgk]))
+    report_b <- rp_data
+    if(display %in% c("stats_with_report", "stats")){
+      cat(paste0("\n\n",
+                 "Return duplicates\n",
+                 "Checked: ", fmt(rp_data$records_checked), " record(s)\n",
+                 "Assigned: ", fmt(rp_data$records_tracked), " record(s)","\n",
+                 "Time: ", fmt(rp_data$duration, "difftime"),
+                 "\n\n"))
+    }
+  }
+  if(display %in% c("none_with_report", "progress_with_report", "stats_with_report")){
+    report <- rbind(as.data.frame(report_a),
+                    as.data.frame(epids$report),
+                    as.data.frame(report_b))
+    report <- as.list(report)
+    class(report) <- "d_report"
+    wf_epid <- list(epid = wf_epid,
+                    report = report)
+  }
+
+  rm(list = ls()[ls() != "wf_epid"])
+  return(wf_epid)
 }
