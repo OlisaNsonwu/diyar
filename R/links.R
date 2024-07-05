@@ -341,6 +341,17 @@ links <- function(
     #
     web$ite.tmp$cri_inc_indx <- which(web$ite.tmp$inc_lgk)
     #
+
+    # Remove strata if all records have been linked
+    web$ite.tmp$cri_inc_indx <- web$ite.tmp$cri_inc_indx[
+      web$repo$cri[web$ite.tmp$cri_inc_indx] %in%
+        web$repo$cri[
+          web$ite.tmp$cri_inc_indx[
+            !web$repo$sys.linked[web$ite.tmp$cri_inc_indx]
+          ]
+        ]
+    ]
+
     if(isFALSE(web$options$shrink)){
       if(isFALSE(web$options$expand)){
         web$ite.tmp$cri_inc_indx <- web$ite.tmp$cri_inc_indx[
