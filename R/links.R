@@ -452,7 +452,10 @@ links <- function(
 
       web$ite.tmp$ite_inc_indx <- web$ite.tmp$ite_inc_indx[web$sort_ord]
       if(length(web$ite.tmp$ite_inc_indx) <= 1){
-        web$repo$pid_cri[web$ite.tmp$ite_inc_indx] <- -1L
+        web$repo$pid_cri[web$ite.tmp$ite_inc_indx[
+          web$repo$pid_cri[web$ite.tmp$ite_inc_indx] ==
+            web$mxp_cri
+        ]] <- -1L
         web$ite <- web$ite + 1L
         if(grepl("^progress", web$options$display)){
           web$msg <- progress_bar(
@@ -534,8 +537,11 @@ links <- function(
       # Flag the reference record
       web$rec.pairs$ref_rd <- web$rec.pairs$cu_pos == web$rec.pairs$tr_pos
       # Update window ids for matched or reference records
-      web$rec.pairs$w.match <-
-        ((web$rec.pairs$rec.match$logical_test) | web$rec.pairs$ref_rd) &
+
+      web$rec.pairs$w.hits <-
+        ((web$rec.pairs$rec.match$logical_test) | web$rec.pairs$ref_rd)
+
+      web$rec.pairs$w.match <- web$rec.pairs$w.hits &
         # (is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi]) |
         #    (!is.na(web$repo$wind_id[web$rec.pairs$cu_pos.mi]) & web$rec.pairs$cu_linked)
         # )
@@ -760,10 +766,12 @@ links <- function(
         web$ite.tmp$bkp_iteration <- web$ite.tmp$bkp_wind_id <-  NULL
     }
     # Unlink pids with a single record for another attempt in the next stage
-    web$tgt_indx <- web$ite.tmp$cri_inc_indx[!web$repo$sys.linked[web$ite.tmp$cri_inc_indx]]
+    # web$tgt_indx <- web$ite.tmp$cri_inc_indx[!web$repo$sys.linked[web$ite.tmp$cri_inc_indx]]
+    web$tgt_indx <- web$rec.pairs$cu_pos[web$rec.pairs$w.hits]
     web$ite.tmp$lgk <- (
       !duplicated(web$repo$pid[web$tgt_indx], fromLast = FALSE) &
-        !duplicated(web$repo$pid[web$tgt_indx], fromLast = TRUE)
+        !duplicated(web$repo$pid[web$tgt_indx], fromLast = TRUE) &
+        !web$repo$pid[web$tgt_indx] %in% web$repo$pid[web$repo$pr_sn[!web$repo$pr_sn %in% web$tgt_indx]]
     )
     web$repo$sys.linked[web$tgt_indx][
       !web$repo$pid[web$tgt_indx] %in% web$repo$pid[web$tgt_indx[web$ite.tmp$lgk]]
