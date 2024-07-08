@@ -271,7 +271,7 @@ links <- function(
     web$i_nm <- ifelse(!is.null(names(web$match.cri$criteria[web$i])),
                        paste0(web$i, ": ", names(web$match.cri$criteria[web$i])),
                        web$i)
-    if(grepl("^progress|^stats", web$options$display)){
+    if(grepl("^progress", web$options$display)){
       cat(paste0("`Criteria ", web$i_nm,"`.\n"), sep = "")
     }
     #
@@ -684,7 +684,7 @@ links <- function(
             iteration = web$ite,
             indent_txt = "  "
           )
-          cat(web$msg, "\n", sep = "")
+          cat('\r', web$msg, "", sep = "")
         }
       }
       #
@@ -796,8 +796,14 @@ links <- function(
     # Flag records linked at current stage
     #
     web$current_tot <- length(web$ite.tmp$cri_inc_indx)
-    web$assigned <- length(which(!web$ite.tmp$lgk))
-    if(grepl("^progress", web$options$display)){
+    web$assigned <- length(web$ite.tmp$cri_inc_indx[
+      web$repo$pid_cri[web$ite.tmp$cri_inc_indx] == web$i])
+    if(grepl("^progress|^stats", web$options$display)){
+      if(grepl("^stats", web$options$display)){
+        cat(paste0("`Criteria ", web$i_nm,"`.",
+                   ifelse(isFALSE(web$options$is_nested), "\n", "")), sep = "")
+      }
+
       web$msg <- update_text(
         tot_records = fmt(web$n.row),
         current_tot = fmt(web$current_tot),
