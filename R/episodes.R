@@ -25,7 +25,7 @@
 #' @param group_stats \code{[character]}. A selection of group metrics to return for each episode. Most are added to slots of the \code{\link[=epid-class]{epid}} object.
 #' Options are \code{NULL} or any combination of \code{"case_nm"}, \code{"wind"} and \code{"epid_interval"}.
 #' @param display \code{[character]}. Display progress update and/or generate a linkage report for the analysis. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param reference_event \code{[character]}. Specifies which of the records are used as index events. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"} or \code{"first_event"}.
+#' @param reference_event \code{[character]}. Specifies which of the records are used as index events. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"}. \code{"first_event"} or \code{"all_record"}.
 #' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, a \code{case_length} is applied to both \code{"Case"} and \code{"Recurrent"} events.
 #' If \code{FALSE} (default), a \code{case_length} is applied to only \code{"Case"} events.
 #' @param skip_order \code{[integer]}. End episode tracking in a \code{strata} when the an index event's \code{custom_sort} order is greater than the supplied \code{skip_order}.
@@ -1742,9 +1742,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   dataset.n <- length(date)
   roll_first <- TRUE
   date <- as.number_line(date)
-  web$controls$is_dt <- ifelse(
-    inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt")),
-    TRUE, FALSE)
+  web$controls$is_dt <- inherits(date@start, c("Date","POSIXct","POSIXt","POSIXlt"))
   if(isTRUE(web$controls$is_dt)){
     date <- number_line(
       l = as.POSIXct(date@start),
@@ -1892,64 +1890,66 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
         web$repo$tmp.strata <- web$repo$strata_cd
       }
 
-      web$repo$rec_pos <- seq_len(length(web$repo$tmp.strata))
-      faC <- as.integer(log10(max(web$repo$rec_pos, na.rm = FALSE))) + 1
-      faC <- 10 ^ faC
+      if(length(web$repo) > 0){
+        web$repo$rec_pos <- seq_len(length(web$repo$tmp.strata))
+        faC <- as.integer(log10(max(web$repo$rec_pos, na.rm = FALSE))) + 1
+        faC <- 10 ^ faC
 
-      web$repo$tmp.strata <- ((max(web$repo$tmp.strata, na.rm = FALSE) + 1)) - web$repo$tmp.strata
-      web$repo$tmp.strata <- web$repo$tmp.strata * faC
+        web$repo$tmp.strata <- ((max(web$repo$tmp.strata, na.rm = FALSE) + 1)) - web$repo$tmp.strata
+        web$repo$tmp.strata <- web$repo$tmp.strata * faC
 
-      web$repo$tmp.rec_pos <- web$repo$tmp.strata + web$repo$rec_pos
+        web$repo$tmp.rec_pos <- web$repo$tmp.strata + web$repo$rec_pos
 
-      i <- 1L
-      tm_ia <- Sys.time()
-      while(any(is.finite(web$repo$tmp.rec_pos))){
-        ite_lgk <- web$repo$tmp.rec_pos != Inf
-        web$repo$ld.rec_pos[ite_lgk] <-
-          abs(cummax(-web$repo$tmp.rec_pos[ite_lgk])) - web$repo$tmp.strata[ite_lgk]
+        i <- 1L
+        tm_ia <- Sys.time()
+        while(any(is.finite(web$repo$tmp.rec_pos))){
+          ite_lgk <- web$repo$tmp.rec_pos != Inf
+          web$repo$ld.rec_pos[ite_lgk] <-
+            abs(cummax(-web$repo$tmp.rec_pos[ite_lgk])) - web$repo$tmp.strata[ite_lgk]
 
-        web$repo$lgk[ite_lgk] <- (web$repo$wind_z[web$repo$ld.rec_pos[ite_lgk]] >= web$repo$dt_a[ite_lgk])
-        web$repo$lgk[ite_lgk] <- web$repo$lgk[ite_lgk] & !is.na(web$repo$lgk[ite_lgk])
+          web$repo$lgk[ite_lgk] <- (web$repo$wind_z[web$repo$ld.rec_pos[ite_lgk]] >= web$repo$dt_a[ite_lgk])
+          web$repo$lgk[ite_lgk] <- web$repo$lgk[ite_lgk] & !is.na(web$repo$lgk[ite_lgk])
 
-        web$repo$epid[ite_lgk][web$repo$lgk[ite_lgk]] <- web$repo$ld.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]]
-        web$repo$tmp.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]] <- Inf
-        web$repo$iteration[ite_lgk][web$repo$lgk[ite_lgk]] <- i
+          web$repo$epid[ite_lgk][web$repo$lgk[ite_lgk]] <- web$repo$ld.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]]
+          web$repo$tmp.rec_pos[ite_lgk][web$repo$lgk[ite_lgk]] <- Inf
+          web$repo$iteration[ite_lgk][web$repo$lgk[ite_lgk]] <- i
 
-        if(!grepl("^none", web$controls$display)){
-          ite.linked.n <- length(which(web$repo$lgk[ite_lgk]))
-          ite.tot.n <- length(which(ite_lgk)) + ite.linked.n
-          cri.linked.n <- length(which(!ite_lgk))
+          if(!grepl("^none", web$controls$display)){
+            ite.linked.n <- length(which(web$repo$lgk[ite_lgk]))
+            ite.tot.n <- length(which(ite_lgk)) + ite.linked.n
+            cri.linked.n <- length(which(!ite_lgk))
 
-          if(grepl("^progress", web$controls$display)){
-            msg <- progress_bar(
-              n = dataset.n - (ite.tot.n - ite.linked.n),
-              d = dataset.n,
-              max_width = 100,
-              msg = paste0("Iteration ",
-                           fmt(i + 1L), " (",
-                           fmt(difftime(Sys.time(), tm_ia), "difftime"),
-                           ")"),
-              prefix_msg = "")
-            cat(msg, "\r", sep = "")
-          }else if (grepl("^stats", web$controls$display)){
-            web$msg <- update_text(
-              tot_records = fmt(dataset.n),
-              current_tot = fmt(ite.tot.n),
-              current_tagged = fmt(ite.linked.n),
-              time = fmt(Sys.time() - tm_ia, "difftime"),
-              # iteration = ite,
-              indent_txt = ""
-            )
-            cat(msg, "\n", sep = "")
+            if(grepl("^progress", web$controls$display)){
+              msg <- progress_bar(
+                n = dataset.n - (ite.tot.n - ite.linked.n),
+                d = dataset.n,
+                max_width = 100,
+                msg = paste0("Iteration ",
+                             fmt(i + 1L), " (",
+                             fmt(difftime(Sys.time(), tm_ia), "difftime"),
+                             ")"),
+                prefix_msg = "")
+              cat(msg, "\r", sep = "")
+            }else if (grepl("^stats", web$controls$display)){
+              web$msg <- update_text(
+                tot_records = fmt(dataset.n),
+                current_tot = fmt(ite.tot.n),
+                current_tagged = fmt(ite.linked.n),
+                time = fmt(Sys.time() - tm_ia, "difftime"),
+                # iteration = ite,
+                indent_txt = ""
+              )
+              cat(msg, "\n", sep = "")
+            }
+            tm_ia <- Sys.time()
           }
-          tm_ia <- Sys.time()
+
+          i <- i + 1L
         }
 
-        i <- i + 1L
+        web$repo$epid <- combi(web$repo$tmp.strata, web$repo$epid)
+        web$repo$iteration <- web$repo$iteration + 1L
       }
-
-      web$repo$epid <- combi(web$repo$tmp.strata, web$repo$epid)
-      web$repo$iteration <- web$repo$iteration + 1L
 
     }else{
       web$repo$iteration <- rep(1L, length(date))

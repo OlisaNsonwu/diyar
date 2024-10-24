@@ -35,7 +35,7 @@
 
 #' @rdname bys_funcs
 #' @export
-bys_count <- function(by){
+bys_count <- function(by, unique.var = NULL){
   if(!is.atomic(by)) stop("`by` must be an `atomic` vector!")
   if(length(by) == 0) stop("`by` has a length of 0!")
 
@@ -43,7 +43,16 @@ bys_count <- function(by){
   s_ord <- order(by)
   by <- by[s_ord]
   rp <- rle(by)
-  x <- rep(rp$lengths, rp$lengths)[order(s_ord)]
+
+  if(!is.null(unique.var)){
+    unique.var <- unique.var[s_ord]
+    unique.var <- combi(by, unique.var)
+    by <- by[!duplicated(unique.var)]
+    rp2 <- rle(by)
+    x <- rep(rp2$lengths, rp$lengths)[order(s_ord)]
+  }else{
+    x <- rep(rp$lengths, rp$lengths)[order(s_ord)]
+  }
   return(x)
 }
 
@@ -174,84 +183,100 @@ bys_max <- function(val, by = NULL, na.rm = TRUE){
 
 #' @rdname bys_funcs
 #' @export
-bys_sum <- function(val, by = NULL, na.rm = TRUE){
-  null.by <- is.null(by)
-  if(null.by){
-    by <- rep(1L, length(val))
-    s_ord <- seq_len(length(val))
+bys_sum <- function(val, by = NULL, na.rm = TRUE, cumulative = FALSE){
+  lgk <- !duplicated(by)
+  if(length(which(lgk)) < 2){
+    out.val <- sum(val, na.rm = na.rm)
   }else{
-    by <- match(by, by[!duplicated(by)])
+    by <- match(by, by[lgk])
+
+    if(!na.rm){
+      NA_by <- by[is.na(val)]
+    }
+    val[is.na(val)] <- 0
+
     s_ord <- order(by, decreasing = FALSE, na.last = TRUE)
 
     by <- by[s_ord]
     val <- val[s_ord]
+
+    rp <- rle(by)
+    cum.val <- cumsum(val)
+    lgk <- !duplicated(by, fromLast = TRUE)
+    max.val <- cum.val[lgk]
+    by <- by[lgk]
+
+    lag_pos <- 1:(length(max.val) - 1)
+    prv_max.val <- c(0, max.val[lag_pos])
+
+    if(cumulative){
+      out.val <- cum.val - rep(prv_max.val, rp$lengths)
+    }else{
+      out.val <- max.val - c(0, max.val[lag_pos])
+      out.val <- rep(out.val, rp$lengths)
+    }
+
+    if(!na.rm){
+      out.val[rep(rp$values, rp$lengths) %in% NA_by] <- NA
+    }
+    out.val <- out.val[order(s_ord)]
   }
 
-  if(na.rm){
-    val[is.na(val)] <- 0
-  }
-
-  rp <- rle(by)
-  cum.val <- cumsum(val)
-  lgk <- !duplicated(by, fromLast = TRUE)
-  max.val <- cum.val[lgk]
-  by <- by[lgk]
-
-  if(length(max.val) == 1){
-    max.val <- rep(max.val, rp$lengths)
-    return(max.val)
-  }
-
-  lag_pos <- 1:(length(max.val) - 1)
-  prv_max.val <- c(0, max.val[lag_pos])
-  max.val <- max.val - c(0, max.val[lag_pos])
-  max.val <- rep(max.val, rp$lengths)
-  if(!null.by){
-    max.val <- max.val[order(s_ord)]
-  }
-
-  return(max.val)
+  return(out.val)
 }
 
 #' @rdname bys_funcs
 #' @export
-bys_prod <- function(val, by = NULL, na.rm = TRUE){
-  null.by <- is.null(by)
-  if(null.by){
-    by <- rep(1L, length(val))
-    s_ord <- seq_len(length(val))
+bys_prod <- function(val, by = NULL, na.rm = TRUE, cumulative = FALSE){
+  if(na.rm){
+
+  }
+
+  lgk <- !duplicated(by)
+  if(length(which(lgk)) < 2){
+    if(cumulative){
+      cum.val <- cumprod(val)
+    }else{
+      cum.val <- prod(val, na.rm)
+    }
+
   }else{
     by <- match(by, by[!duplicated(by)])
+
+    if(!na.rm){
+      NA_by <- by[is.na(val)]
+    }
+    val[is.na(val)] <- 0
+
     s_ord <- order(by, decreasing = FALSE, na.last = TRUE)
 
     by <- by[s_ord]
     val <- val[s_ord]
+
+    rp <- rle(by)
+    cum.val <- cumprod(val)
+    lgk <- !duplicated(by, fromLast = TRUE)
+    max.val <- cum.val[lgk]
+    by <- by[lgk]
+
+    lag_pos <- 1:(length(max.val) - 1)
+    prv_max.val <- c(1, max.val[lag_pos])
+
+    if(cumulative){
+      out.val <- cum.val / rep(prv_max.val, rp$lengths)
+    }else{
+      out.val <- max.val / c(1, max.val[lag_pos])
+      out.val <- rep(out.val, rp$lengths)
+    }
+
+    if(!na.rm){
+      out.val[rep(rp$values, rp$lengths) %in% NA_by] <- NA
+    }
+
+    out.val <- out.val[order(s_ord)]
   }
 
-  if(na.rm){
-    val[is.na(val)] <- 1
-  }
-
-  rp <- rle(by)
-  cum.val <- cumprod(val)
-  lgk <- !duplicated(by, fromLast = TRUE)
-  max.val <- cum.val[lgk]
-  by <- by[lgk]
-
-  if(length(max.val) == 1){
-    max.val <- rep(max.val, rp$lengths)
-    return(max.val)
-  }
-
-  lag_pos <- 1:(length(max.val) - 1)
-  prv_max.val <- c(0, max.val[lag_pos])
-  max.val <- max.val / c(1, max.val[lag_pos])
-  max.val <- rep(max.val, rp$lengths)
-  if(!null.by){
-    max.val <- max.val[order(s_ord)]
-  }
-
-  return(max.val)
+  return(out.val)
 }
 
 #' @rdname bys_funcs
@@ -340,82 +365,13 @@ bys_cummax <- function(val, by = NULL, na.rm = FALSE){
 #' @rdname bys_funcs
 #' @export
 bys_cumsum <- function(val, by = NULL, na.rm = TRUE){
-  null.by <- is.null(by)
-  if(null.by){
-    by <- rep(1L, length(val))
-    s_ord <- seq_len(length(val))
-  }else{
-    by <- match(by, by[!duplicated(by)])
-    s_ord <- order(by, decreasing = FALSE, na.last = TRUE)
-
-    by <- by[s_ord]
-    val <- val[s_ord]
-  }
-
-  if(na.rm){
-    val[is.na(val)] <- 0
-  }
-
-  rp <- rle(by)
-  cum.val <- cumsum(val)
-  lgk <- !duplicated(by, fromLast = TRUE)
-  max.val <- cum.val[lgk]
-  by <- by[lgk]
-
-  if(length(max.val) == 1){
-    max.val <- rep(max.val, rp$lengths)
-    return(max.val)
-  }
-
-  lag_pos <- 1:(length(max.val) - 1)
-  prv_max.val <- c(0, max.val[lag_pos])
-  cum.val <- cum.val - rep(prv_max.val, rp$lengths)
-  if(!null.by){
-    cum.val <- cum.val[order(s_ord)]
-  }
-
-  return(cum.val)
+  bys_sum(val = val, by = by, na.rm = na.rm, cumulative = TRUE)
 }
 
 #' @rdname bys_funcs
 #' @export
 bys_cumprod <- function(val, by = NULL, na.rm = TRUE){
-  null.by <- is.null(by)
-  if(null.by){
-    by <- rep(1L, length(val))
-    s_ord <- seq_len(length(val))
-  }else{
-    by <- match(by, by[!duplicated(by)])
-    s_ord <- order(by, decreasing = FALSE, na.last = TRUE)
-
-    by <- by[s_ord]
-    val <- val[s_ord]
-  }
-
-  if(na.rm){
-    val[is.na(val)] <- 1
-  }
-
-  rp <- rle(by)
-  cum.val <- cumprod(val)
-  lgk <- !duplicated(by, fromLast = TRUE)
-  max.val <- cum.val[lgk]
-  by <- by[lgk]
-
-  if(length(max.val) == 1){
-    max.val <- rep(max.val, rp$lengths)
-    return(max.val)
-  }
-
-  lag_pos <- 1:(length(max.val) - 1)
-  prv_max.val <- c(1, max.val[lag_pos])
-  cum.val <- cum.val / rep(prv_max.val, rp$lengths)
-
-  if(!null.by){
-    cum.val <- cum.val[order(s_ord)]
-  }
-
-  return(cum.val)
+  bys_prod(val = val, by = by, na.rm = na.rm, cumulative = TRUE)
 }
 
 #' @rdname bys_funcs

@@ -19,7 +19,7 @@
 \alias{bys_lead}
 \title{Vectorised approach to group operations.}
 \usage{
-bys_count(by)
+bys_count(by, unique.var = NULL)
 
 bys_rank(..., by = NULL, from_last = FALSE)
 
@@ -33,9 +33,9 @@ bys_min(val, by = NULL, na.rm = TRUE)
 
 bys_max(val, by = NULL, na.rm = TRUE)
 
-bys_sum(val, by = NULL, na.rm = TRUE)
+bys_sum(val, by = NULL, na.rm = TRUE, cumulative = FALSE)
 
-bys_prod(val, by = NULL, na.rm = TRUE)
+bys_prod(val, by = NULL, na.rm = TRUE, cumulative = FALSE)
 
 bys_cummin(val, by = NULL, na.rm = TRUE)
 

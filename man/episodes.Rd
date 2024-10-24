@@ -92,7 +92,7 @@ episodes_af_shift(
 
 \item{skip_order}{\code{[integer]}. End episode tracking in a \code{strata} when the an index event's \code{custom_sort} order is greater than the supplied \code{skip_order}.}
 
-\item{reference_event}{\code{[character]}. Specifies which of the records are used as index events. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"} or \code{"first_event"}.}
+\item{reference_event}{\code{[character]}. Specifies which of the records are used as index events. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"}. \code{"first_event"} or \code{"all_record"}.}
 
 \item{case_for_recurrence}{\code{[logical]}. If \code{TRUE}, a \code{case_length} is applied to both \code{"Case"} and \code{"Recurrent"} events.
 If \code{FALSE} (default), a \code{case_length} is applied to only \code{"Case"} events.}
