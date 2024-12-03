@@ -110,14 +110,15 @@ make_episodes <- function(
         diff_unit <- "days"
       }
 
+      episode_units <- diyar::episode_unit
       epids@dist_epid_index <-
-        epids@dist_epid_index / as.numeric(diyar::episode_unit[episode_unit])
+        epids@dist_epid_index / as.numeric(episode_units[episode_unit])
       epids@dist_epid_index <-
         as.difftime(epids@dist_epid_index, units = diff_unit)
 
       if(!missing_wf.null(wind_id)){
         epids@dist_wind_index <-
-          epids@dist_wind_index / as.numeric(diyar::episode_unit[episode_unit])
+          epids@dist_wind_index / as.numeric(episode_units[episode_unit])
         epids@dist_wind_index <-
           as.difftime(epids@dist_wind_index, units = diff_unit)
       }else{

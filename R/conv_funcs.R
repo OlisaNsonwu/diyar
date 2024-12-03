@@ -88,7 +88,7 @@ sep_bdr_nl <- function(x){
 
     x@start <- as.numeric(x@start)
     x <- reverse_number_line(x, "decreasing")
-    crx <- x@start/abs(x@start) != diyar::right_point(x)/abs(diyar::right_point(x))
+    crx <- x@start/abs(x@start) != right_point(x)/abs(right_point(x))
     crx[is.na(crx)] <- F
 
     nl_a <- x
@@ -291,7 +291,7 @@ overlaps_err <- function(opts){
     opts <- tolower(opts)
     opts_cd <- overlap_method_codes(opts)
   }else if(inherits(opts, c("numeric", "integer"))){
-    opts_cd <- match(opts, diyar::overlap_methods$options$cd)
+    opts_cd <- match(opts, overlap_methods$options$cd)
   }
 
   opts <- opts[is.na(opts_cd)]
@@ -561,8 +561,8 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
                              "seconds")
 
       if(is_dt == TRUE){
-        y$nl_l <- number_line(start_point(y$nl_l)/as.numeric(diyar::episode_unit[y$ep_uni]),
-                              end_point(y$nl_l)/as.numeric(diyar::episode_unit[y$ep_uni]))
+        y$nl_l <- number_line(start_point(y$nl_l)/as.numeric(episode_unit[y$ep_uni]),
+                              end_point(y$nl_l)/as.numeric(episode_unit[y$ep_uni]))
       }
       y$nl_s <- start_point(y$nl_l)
       y$nl_e <- end_point(y$nl_l)
@@ -637,7 +637,7 @@ length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_l
     lengths$coverage <- epid_windows(
       date = date,
       lengths = lengths$coverage,
-      episode_unit = names(diyar::episode_unit)[episode_unit]
+      episode_unit = names(episode_unit)[episode_unit]
     )
   }
 
@@ -645,7 +645,7 @@ length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_l
     x <- epid_windows(
       date = date,
       lengths = x,
-      episode_unit = names(diyar::episode_unit)[episode_unit]
+      episode_unit = names(episode_unit)[episode_unit]
     )
     return(x)
   })

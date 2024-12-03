@@ -96,7 +96,7 @@ bys_position <- function(val, by = NULL, from_last = FALSE, ordered = TRUE){
   x <- sequence(rp$lengths)
 
   st <- by
-  by <- diyar::combi(by, val[s_ord])
+  by <- combi(by, val[s_ord])
   rp <- rle(by)
   faC <- as.integer(log10(max(rp$lengths, na.rm = TRUE))) + 1L
   faC <- 10 ^ faC

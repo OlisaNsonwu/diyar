@@ -107,7 +107,7 @@ overlaps <- function(x, y, methods = 8){
   lgk_2 <- rep(FALSE, length(ov_lgk))
 
   # None
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["none"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["none"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      !ov_lgk)
   lgk_2[mth_lgk] <- TRUE
@@ -116,7 +116,7 @@ overlaps <- function(x, y, methods = 8){
     return(lgk_2)
   }
   # Overlap
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["overlap"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["overlap"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   lgk_2[mth_lgk] <- TRUE
@@ -126,7 +126,7 @@ overlaps <- function(x, y, methods = 8){
     return(lgk_2)
   }
   # x_across_y
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_across_y"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["x_across_y"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -137,7 +137,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # y_across_x
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_across_x"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["y_across_x"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -148,7 +148,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # exact
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["exact"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["exact"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -159,7 +159,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # x_inbetween_y
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_inbetween_y"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["x_inbetween_y"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -170,7 +170,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # y_inbetween_x
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_inbetween_x"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["y_inbetween_x"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -181,7 +181,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # x_aligns_start_y
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_aligns_start_y"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["x_aligns_start_y"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -192,7 +192,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # y_aligns_start_x
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_aligns_start_x"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["y_aligns_start_x"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -203,7 +203,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # x_aligns_end_y
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_aligns_end_y"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["x_aligns_end_y"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -214,7 +214,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # y_aligns_end_x
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_aligns_end_x"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["y_aligns_end_x"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -225,7 +225,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # x_chain_y
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["x_chain_y"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["x_chain_y"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -236,7 +236,7 @@ overlaps <- function(x, y, methods = 8){
     }
   }
   # y_chain_x
-  mth_lgk <- which(methods %in% diyar::overlap_methods$methods[["y_chain_x"]] &
+  mth_lgk <- which(methods %in% overlap_methods$methods[["y_chain_x"]] &
                      lgk_2 %in% c(FALSE, NA) &
                      ov_lgk)
   if(length(mth_lgk) > 0){
@@ -699,10 +699,10 @@ overlap_method_codes <- function(methods){
   x2_cd <-  lapply(x2, function(x){
     lgk <- sapply(strsplit(as.vector(x), "\\|"), function(x){
       if(any(x == "overlap")){
-        return(diyar::overlap_methods$options$cd[match("overlap", diyar::overlap_methods$options$nm)])
+        return(overlap_methods$options$cd[match("overlap", overlap_methods$options$nm)])
       }
       if(any(x == "none")){
-        return(diyar::overlap_methods$options$cd[match("none", diyar::overlap_methods$options$nm)])
+        return(overlap_methods$options$cd[match("none", overlap_methods$options$nm)])
       }
       if(any(x == "across")){
         x <- x[x != "across"]
@@ -724,10 +724,10 @@ overlap_method_codes <- function(methods){
         x <- x[x != "aligns_end"]
         x <- c(x, "x_aligns_end_y", "y_aligns_end_x")
       }
-      x <- x[x %in% names(diyar::overlap_methods$methods)]
+      x <- x[x %in% names(overlap_methods$methods)]
       x <- x[!duplicated(x)]
       x <- paste0(sort(x), collapse = "|")
-      diyar::overlap_methods$options$cd[match(x, diyar::overlap_methods$options$nm)]
+      overlap_methods$options$cd[match(x, overlap_methods$options$nm)]
     })
     lgk
   })
@@ -740,7 +740,7 @@ overlap_method_codes <- function(methods){
 #' @export
 overlap_method_names <- function(methods){
   nm <- rep(NA_character_, length(methods))
-  lgk <- methods %in% unlist(diyar::overlap_methods$methods, use.names = FALSE)
-  nm[lgk] <- diyar::overlap_methods$options$nm[match(methods[lgk], diyar::overlap_methods$options$cd)]
+  lgk <- methods %in% unlist(overlap_methods$methods, use.names = FALSE)
+  nm[lgk] <- overlap_methods$options$nm[match(methods[lgk], overlap_methods$options$cd)]
   return(nm)
 }

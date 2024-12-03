@@ -15,7 +15,7 @@
 #' @param episodes_max \code{[integer]}. Maximum number of episodes permitted within each \code{strata}.
 #' @param episode_type \code{[character]}. Options are \code{"fixed"} (default) or \code{"rolling"}. See \code{Details}.
 #' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from an index event distinguishing a \code{"Recurrent"} event from its \code{"Case"} or prior \code{"Recurrent"} event.
-#' @param episode_unit \code{[character]}. Unit of time for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.
+#' @param episode_unit \code{[character]}. Unit of time for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{episode_units}.
 #' @param rolls_max \code{[integer]}. Maximum number of times an index event can recur. Only used if \code{episode_type} is \code{"rolling"}.
 #' @param data_source \code{[character]}. Source ID for each record. If provided, a list of all sources in each episode is returned. See \code{\link[=epid-class]{epid_dataset slot}}.
 #' @param from_last \code{[logical]}. Track episodes beginning from the earliest to the most recent record (\code{FALSE}) or vice versa (\code{TRUE}).
@@ -136,6 +136,13 @@ episodes <- function(
     case_length_total = 1, recurrence_length_total = case_length_total,
     skip_unique_strata = TRUE, splits_by_strata = 1, batched = "semi") {
   web <- list(tm_a = Sys.time())
+
+  #
+  web$counts <- web$mm_opts <- web$controls <- web$opt_levels <-
+    web$repo <- web$tm_ia <- web$export <- web$report <- web$tmp <-
+    web$tmp2 <- web$rp_data <- web$sys.tmp <- web$rec.pairs <- web$window_opts <-
+    web$window_opts_nm <- web$tgt_pos <- web$epids <- list()
+
   # Validations
   errs <- err_episodes_checks_0(
     sn = sn, date = date, case_length = case_length, strata = strata,
@@ -160,11 +167,12 @@ episodes <- function(
   web$counts$dataset.n <- length(date)
 
   # `episode_unit`
+  episode_units <- diyar::episode_unit
   episode_unit <- tolower(episode_unit)
-  episode_unit <- match(episode_unit, names(diyar::episode_unit))
+  episode_unit <- match(episode_unit, names(episode_units))
   class(episode_unit) <- "d_label"
   attr(episode_unit, "value") <- as.vector(sort(episode_unit[!duplicated(episode_unit)]))
-  attr(episode_unit, "label") <- names(diyar::episode_unit)[attr(episode_unit, "value")]
+  attr(episode_unit, "label") <- names(episode_units)[attr(episode_unit, "value")]
   attr(episode_unit, "state") <- "encoded"
   # `strata`
   if(length(strata) == 1 | is.null(strata)) {
@@ -618,7 +626,7 @@ episodes <- function(
   web$repo$iteration[web$tmp$lgk] <- 0L
   web$tmp$lgk <- web$tmp$lgk & is.na(web$repo$wind_id)
 
-  web$tmp <- NULL
+  web$tmp <- list()
 
   web$counts$max_indexes <- ite <- 1L
 
@@ -1601,10 +1609,10 @@ episodes <- function(
     web$tm_ia <- Sys.time()
     ite <- ite + 1L
     nms_z <- names(web)
-    web$tmp <- web$rec.pairs <- NULL
+    web$tmp <- web$rec.pairs <- list()
   }
 
-  web$tmp <- web$rec.pairs <- NULL
+  web$tmp <- web$rec.pairs <- list()
   web$tmp$tgt_pos <- web$repo$pr_sn[web$repo$epid > 0]
 
   if("case_nm" %in% web$repo$group_stats){
@@ -1645,7 +1653,7 @@ episodes <- function(
     options = options_lst,
     case_nm = web$repo$case_nm,
     wind_nm = web$repo$wind_nm,
-    episode_unit = names(diyar::episode_unit)[web$repo$episode_unit],
+    episode_unit = names(episode_units)[web$repo$episode_unit],
     data_source = web$repo$data_source,
     data_links = web$repo$data_links,
     from_last = web$repo$from_last)
@@ -1757,7 +1765,7 @@ episodes_af_shift <- function(date, case_length = Inf, sn = NULL,
   web$controls$display <- display
   web$repo$pr_sn <- seq_len(length(date@start))
   web$repo$date <- date
-  web$controls$case_length <- diyar::episode_unit[[episode_unit]] * case_length
+  web$controls$case_length <- episode_units[[episode_unit]] * case_length
 
   if(!all(class(data_links) == "list")){
     data_links <- list(l = data_links)
@@ -2286,7 +2294,7 @@ episodes_wf_splits <- function(..., splits_by_strata = 1L){
 #' @param date As used in \bold{\code{\link{episodes}}}.
 #' @param lengths The duration (\code{lengths}) between a \code{date} and \code{window}.
 #' @param windows The range (\code{windows}) relative to a \code{date} for a given duration (\code{length}).
-#' @param episode_unit Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}
+#' @param episode_unit Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{episode_units}
 #' @param from_last As used in \bold{\code{\link{episodes}}}.
 #' @description Covert \code{windows} to and from \code{case_lengths} and \code{recurrence_lengths}.
 #'
@@ -2323,8 +2331,8 @@ epid_windows <- function(date, lengths, episode_unit = "days"){
     )
   }
 
-  number_line(right_point(date) + (lengths@start * as.numeric(diyar::episode_unit[episode_unit])),
-              right_point(date) + (right_point(lengths) * as.numeric(diyar::episode_unit[episode_unit])))
+  number_line(right_point(date) + (lengths@start * as.numeric(episode_units[episode_unit])),
+              right_point(date) + (right_point(lengths) * as.numeric(episode_units[episode_unit])))
 }
 
 #' @rdname windows
@@ -2356,8 +2364,8 @@ epid_lengths <- function(date, windows, episode_unit = "days"){
   }
 
   episode_unit[!is_dt1 | !is_dt2] <- "seconds"
-  number_line((as.numeric(windows@start) - as.numeric(right_point(date)))/as.numeric(diyar::episode_unit[episode_unit]),
-              (as.numeric(right_point(windows)) - as.numeric(right_point(date)))/as.numeric(diyar::episode_unit[episode_unit]))
+  number_line((as.numeric(windows@start) - as.numeric(right_point(date)))/as.numeric(episode_units[episode_unit]),
+              (as.numeric(right_point(windows)) - as.numeric(right_point(date)))/as.numeric(episode_units[episode_unit]))
 }
 
 #' @rdname windows

@@ -435,7 +435,8 @@ err_sn_1 <- function(sn, ref_nm, ref_num){
 }
 
 err_episode_unit_1 <- function(episode_unit){
-  if(any(!tolower(episode_unit) %in% names(diyar::episode_unit))){
+  episode_units <- diyar::episode_unit
+  if(any(!tolower(episode_unit) %in% names(episode_units))){
     opts <- episode_unit
     sn <- 1:length(opts)
 
@@ -453,7 +454,7 @@ err_episode_unit_1 <- function(episode_unit){
       errs <- listr(opts)
     }
     errs <-  paste0("Invalid values for `episode_unit`:\n",
-                    "i - Vaild values are ", listr(paste0("\"", names(diyar::episode_unit), "\""), conj = " or "), ".\n",
+                    "i - Vaild values are ", listr(paste0("\"", names(episode_units), "\""), conj = " or "), ".\n",
                     "X - You've supplied ", errs, ".")
 
     return(errs)

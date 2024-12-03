@@ -132,7 +132,7 @@
 #' @export
 links_af_probabilistic <- function(attribute,
                                    blocking_attribute = NULL,
-                                   cmp_func = diyar::exact_match,
+                                   cmp_func = exact_match,
                                    attr_threshold = 1,
                                    probabilistic = TRUE,
                                    m_probability = .95,
@@ -355,7 +355,7 @@ links_af_probabilistic <- function(attribute,
 #' @export
 links_wf_probabilistic <- function(attribute,
                                    blocking_attribute = NULL,
-                                   cmp_func = diyar::exact_match,
+                                   cmp_func = exact_match,
                                    attr_threshold = 1,
                                    probabilistic = TRUE,
                                    m_probability = .95,
