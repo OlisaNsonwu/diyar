@@ -561,8 +561,8 @@ l_ar <- function(lens, pltd, wind_nm, is_dt, epid_unit){
                              "seconds")
 
       if(is_dt == TRUE){
-        y$nl_l <- number_line(start_point(y$nl_l)/as.numeric(episode_unit[y$ep_uni]),
-                              end_point(y$nl_l)/as.numeric(episode_unit[y$ep_uni]))
+        y$nl_l <- number_line(start_point(y$nl_l)/as.numeric(episode_units[y$ep_uni]),
+                              end_point(y$nl_l)/as.numeric(episode_units[y$ep_uni]))
       }
       y$nl_s <- start_point(y$nl_l)
       y$nl_e <- end_point(y$nl_l)
@@ -637,7 +637,7 @@ length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_l
     lengths$coverage <- epid_windows(
       date = date,
       lengths = lengths$coverage,
-      episode_unit = names(episode_unit)[episode_unit]
+      episode_unit = names(episode_units)[episode_unit]
     )
   }
 
@@ -645,7 +645,7 @@ length_to_range <- function(lengths, date, from_last, episode_unit, skip_if_b4_l
     x <- epid_windows(
       date = date,
       lengths = x,
-      episode_unit = names(episode_unit)[episode_unit]
+      episode_unit = names(episode_units)[episode_unit]
     )
     return(x)
   })

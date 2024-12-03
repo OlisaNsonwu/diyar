@@ -84,13 +84,13 @@
 #' data(Opes)
 "Opes"
 
-#' @details Duration in seconds for each 'episode_unit'
-#' @usage data(episode_unit)
+#' @details Duration in seconds for each 'episode_units'
+#' @usage data(episode_units)
 #' @format list
 #' @rdname patient_list
 #' @examples
-#' data(episode_unit)
-"episode_unit"
+#' data(episode_units)
+"episode_units"
 
 #' @details Permutations of \code{\link{number_line}} overlap methods
 #' @usage data(overlap_methods)

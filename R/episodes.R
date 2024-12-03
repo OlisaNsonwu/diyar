@@ -167,7 +167,6 @@ episodes <- function(
   web$counts$dataset.n <- length(date)
 
   # `episode_unit`
-  episode_units <- diyar::episode_unit
   episode_unit <- tolower(episode_unit)
   episode_unit <- match(episode_unit, names(episode_units))
   class(episode_unit) <- "d_label"

@@ -435,7 +435,6 @@ err_sn_1 <- function(sn, ref_nm, ref_num){
 }
 
 err_episode_unit_1 <- function(episode_unit){
-  episode_units <- diyar::episode_unit
   if(any(!tolower(episode_unit) %in% names(episode_units))){
     opts <- episode_unit
     sn <- 1:length(opts)
