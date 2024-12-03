@@ -11,8 +11,8 @@
 \usage{
 sub_criteria(
   ...,
-  match_funcs = c(exact = diyar::exact_match),
-  equal_funcs = c(exact = diyar::exact_match),
+  match_funcs = c(exact = exact_match),
+  equal_funcs = c(exact = exact_match),
   operator = "or"
 )
 

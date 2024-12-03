@@ -18,7 +18,7 @@ index_window(date, from_last = FALSE)
 
 \item{lengths}{The duration (\code{lengths}) between a \code{date} and \code{window}.}
 
-\item{episode_unit}{Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{diyar::episode_unit}}
+\item{episode_unit}{Time unit of \code{lengths}. Options are "seconds", "minutes", "hours", "days", "weeks", "months" or "years". See \code{episode_units}}
 
 \item{windows}{The range (\code{windows}) relative to a \code{date} for a given duration (\code{length}).}
 

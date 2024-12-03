@@ -11,7 +11,7 @@
 links_af_probabilistic(
   attribute,
   blocking_attribute = NULL,
-  cmp_func = diyar::exact_match,
+  cmp_func = exact_match,
   attr_threshold = 1,
   probabilistic = TRUE,
   m_probability = 0.95,
@@ -27,7 +27,7 @@ links_af_probabilistic(
 links_wf_probabilistic(
   attribute,
   blocking_attribute = NULL,
-  cmp_func = diyar::exact_match,
+  cmp_func = exact_match,
   attr_threshold = 1,
   probabilistic = TRUE,
   m_probability = 0.95,

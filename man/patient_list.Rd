@@ -13,7 +13,7 @@
 \alias{patient_list_2}
 \alias{hourly_data}
 \alias{Opes}
-\alias{episode_unit}
+\alias{episode_units}
 \alias{overlap_methods}
 \alias{patient_records}
 \title{Datasets in \code{diyar} package}
@@ -69,7 +69,7 @@ data(hourly_data)
 
 data(Opes)
 
-data(episode_unit)
+data(episode_units)
 
 data(overlap_methods)
 
@@ -93,7 +93,7 @@ Hourly data
 
 Opes - List of individuals with the same name
 
-Duration in seconds for each 'episode_unit'
+Duration in seconds for each 'episode_units'
 
 Permutations of \code{\link{number_line}} overlap methods
 }
@@ -109,7 +109,7 @@ data(patient_list)
 data(patient_list_2)
 data(hourly_data)
 data(Opes)
-data(episode_unit)
+data(episode_units)
 data(overlap_methods)
 data(patient_records)
 }

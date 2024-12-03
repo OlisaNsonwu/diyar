@@ -68,7 +68,7 @@ episodes_af_shift(
 
 \item{recurrence_length}{\code{[integer|\link{number_line}]}. Duration from an index event distinguishing a \code{"Recurrent"} event from its \code{"Case"} or prior \code{"Recurrent"} event.}
 
-\item{episode_unit}{\code{[character]}. Unit of time for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{diyar::episode_unit}.}
+\item{episode_unit}{\code{[character]}. Unit of time for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{episode_units}.}
 
 \item{strata}{\code{[atomic]}. Subsets of the dataset. Episodes are created separately by each \code{strata}.}
 
