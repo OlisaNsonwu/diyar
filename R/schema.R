@@ -38,19 +38,17 @@
 #' @export
 schema <- function(x, ...) UseMethod("schema")
 #' @rdname schema
+#' @param custom_sort \code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.
 #' @importFrom rlang .data
 #' @export
-schema.number_line <- function(x, show_labels = c("date", "case_overlap_methods"), ...){
-  if("case_overlap_methods" %in% show_labels){
-    x <- episodes(date = x,
-                  case_length = index_window(x))
-  }else{
-    x <- episodes(date = x,
-                  case_length = index_window(x),
-                  strata = seq_len(length(x)))
-  }
+schema.number_line <- function(
+    x, show_labels = c("date", "case_overlap_methods"),
+    custom_sort = NULL, ...){
+  x <- episodes(
+    date = x, case_length = index_window(x),
+    custom_sort = custom_sort)
 
-  f <- schema.epid(x, show_labels = c("date", "case_overlap_methods"), ...)
+  f <- schema.epid(x, show_labels = show_labels, ...)
   return(f)
 }
 
@@ -346,13 +344,13 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
       plt_df$y_lead <- case_l_ar$y[indx]
       plt_df$sn_lead <- case_l_ar$pt_sn[indx]
     }
-
-    df_cols <- c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite")
+    plt_df$wind_nm <- plt_df[[paste0("wind_nm",i)]]
+    df_cols <- c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite", "wind_nm")
     if(!isFALSE(show_labels) | !is.null(custom_label)) {
       df_cols <- c(df_cols, "event_nm", "event_type")
     }
     plt_df <- plt_df[df_cols]
-    plt_df$wind_nm <- plt_df[[paste0("wind_nm",i)]]
+
     if(i > 1){
       plt_df <- plt_df[sw,]
     }
@@ -413,19 +411,17 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     if("case_overlap_methods" %in% show_labels){
       rep_lgk <- which(plt_df$sn != plt_df$sn_lead & plt_df$wind_nm == "Case")
       if(length(rep_lgk) > 0){
-        plt_df$overlap_method[rep_lgk] <- overlap_method(number_line(plt_df$start[rep_lgk],
-                                                                     plt_df$end[rep_lgk]),
-                                                         number_line(plt_df$lead_dt_a[rep_lgk],
-                                                                     plt_df$lead_dt_z[rep_lgk]))
+        plt_df$overlap_method[rep_lgk] <- overlap_method(
+          x = number_line(plt_df$start[rep_lgk], plt_df$end[rep_lgk]),
+          y = number_line(plt_df$lead_dt_a[rep_lgk], plt_df$lead_dt_z[rep_lgk]))
       }
     }
     if("recurrence_overlap_methods" %in% show_labels){
       rep_lgk <- which(plt_df$sn != plt_df$sn_lead & plt_df$wind_nm == "Recurrence")
       if(length(rep_lgk) > 0){
-        plt_df$overlap_method[rep_lgk] <- overlap_method(number_line(plt_df$start[rep_lgk],
-                                                                     plt_df$end[rep_lgk]),
-                                                         number_line(plt_df$lead_dt_a[rep_lgk],
-                                                                     plt_df$lead_dt_z[rep_lgk]))
+        plt_df$overlap_method[rep_lgk] <- overlap_method(
+          x = number_line(plt_df$start[rep_lgk], plt_df$end[rep_lgk]),
+          y = number_line(plt_df$lead_dt_a[rep_lgk], plt_df$lead_dt_z[rep_lgk]))
       }
     }
   }

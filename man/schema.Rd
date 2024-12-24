@@ -10,7 +10,12 @@
 \usage{
 schema(x, ...)
 
-\method{schema}{number_line}(x, show_labels = c("date", "case_overlap_methods"), ...)
+\method{schema}{number_line}(
+  x,
+  show_labels = c("date", "case_overlap_methods"),
+  custom_sort = NULL,
+  ...
+)
 
 \method{schema}{epid}(
   x,
@@ -51,6 +56,8 @@ schema(x, ...)
 \item{...}{Other arguments.}
 
 \item{show_labels}{\code{[logical|character]}. Show/hide certain parts of the schema. See \code{Details}.}
+
+\item{custom_sort}{\code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.}
 
 \item{title}{\code{[character]}. Plot title.}
 

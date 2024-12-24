@@ -112,18 +112,42 @@ nl_l <- seq(nl_c, length.out = 3); nl_l
 # 
 # library(cowplot)
 # library(ggplot2)
-# schema <- function(...){
-#   diyar::schema(..., theme = "dark") +
+# schema <- function(
+#     x, pair = 1:2,
+#     custom_label = paste0(format(x), ' (', c('y', 'x')[pair], ')'),
+#     show_labels = c('case_overlap_methods'),
+#     ...){
+#   diyar::schema(
+#     x,
+#     custom_sort = pair,
+#     custom_label = custom_label,
+#     ...,
+#     show_labels = show_labels,
+#     theme = "dark") +
 #     theme(plot.background = element_rect(color = "black"))
 # }
 # f <- plot_grid(
-#   plot_grid(schema(exact[1:2]), schema(exact[3:4]), schema(exact[5:6]), ncol = 1),
-#   plot_grid(schema(inbetween[1:2]), schema(inbetween[3:4]), schema(inbetween[5:6]), ncol = 1),
-#   plot_grid(schema(across[1:2]), schema(across[3:4]), ncol = 1),
-#   
-#   plot_grid(schema(chain[1:2]), schema(chain[3:4]), ncol = 1),
-#   plot_grid(schema(aligns_start[1:2]), schema(aligns_start[3:4]), ncol = 1),
-#   plot_grid(schema(aligns_end[1:2]), schema(aligns_end[3:4]), ncol = 1),
+#   plot_grid(
+#     schema(exact[1:2], custom_label = NULL, show_labels = c('case_overlap_methods', 'date')),
+#     schema(exact[c(1,4)], custom_label = NULL, show_labels = c('case_overlap_methods', 'date')),
+#     schema(exact[3:4], custom_label = NULL, show_labels = c('case_overlap_methods', 'date')), ncol = 1),
+#   plot_grid(
+#     schema(inbetween[1:2], pair = 1:2, seed = 1),
+#     schema(inbetween[1:2], pair = 2:1, seed = 4),
+#     schema(inbetween[5:6], pair = 1:2, seed = 1),
+#     ncol = 1),
+#   plot_grid(
+#     schema(across[1:2], pair = 1:2, seed = 1),
+#     schema(across[1:2], pair = 2:1, seed = 4), ncol = 1),
+#   plot_grid(
+#     schema(chain[1:2], pair = 1:2, seed = 1),
+#     schema(chain[1:2], pair = 2:1, seed = 4), ncol = 1),
+#   plot_grid(
+#     schema(aligns_start[1:2], pair = 2:1, seed = 4),
+#     schema(aligns_start[1:2], pair = 1:2, seed = 1), ncol = 1),
+#   plot_grid(
+#     schema(aligns_end[1:2], pair = 1:2, seed = 1),
+#     schema(aligns_end[1:2], pair = 2:1, seed = 4), ncol = 1),
 #   nrow = 1, label_colour = rgb(0, 0, 0)
 # )
 # 
