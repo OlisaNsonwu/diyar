@@ -331,13 +331,16 @@ links <- function(
       web$repo$sys.linked <- rep(FALSE, web$n.row)
     }
     web$repo$cri <- rep(NA, web$n.row)
-    web$repo$cri[which(web$ite.tmp$inc_lgk)] <- combi(
-      lapply(web$repo$cri_level, function(x) x[web$ite.tmp$inc_lgk])
-    )
-    web$ite.tmp$inc_lgk[
-      (!duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = TRUE) &
-         !duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = FALSE))
-    ] <- FALSE
+    if(length(which(web$ite.tmp$inc_lgk)) > 0){
+      web$repo$cri[which(web$ite.tmp$inc_lgk)] <- combi(
+        lapply(web$repo$cri_level, function(x) x[web$ite.tmp$inc_lgk])
+      )
+
+      web$ite.tmp$inc_lgk[web$ite.tmp$inc_lgk][
+        (!duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = TRUE) &
+           !duplicated(web$repo$cri[web$ite.tmp$inc_lgk], fromLast = FALSE))
+      ] <- FALSE
+    }
     #
     web$ite.tmp$cri_inc_indx <- which(web$ite.tmp$inc_lgk)
     #
