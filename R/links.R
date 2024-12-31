@@ -130,6 +130,22 @@ links <- function(
     repeats_allowed = FALSE,
     permutations_allowed = FALSE,
     ignore_same_source = FALSE){
+
+
+
+  if(isTRUE(shrink)){
+    stepwise_method <- 'shrink_to_last_match'
+  }
+
+  if(isTRUE(expand) & isFALSE(shrink)){
+    stepwise_method <- 'expand_with_priority'
+  }
+
+  if(isFALSE(expand) & isFALSE(shrink)){
+    stepwise_method <- 'mid'
+  }
+
+
   tm_a <- Sys.time()
   #
   web <- list(repo = list(
@@ -323,7 +339,7 @@ links <- function(
       web$repo$cri_level[["strata"]] <- web$repo$strata
     }
     #
-    if(isTRUE(web$options$shrink) & web$ite != 1){
+    if(stepwise_method == 'shrink_to_last_match' & web$ite != 1){
       web$repo$cri_level[["record_group"]] <- web$repo$pid
       web$repo$cri_level$record_group[!web$repo$sys.linked] <-
         web$repo$pr_sn[!web$repo$sys.linked]
@@ -355,17 +371,17 @@ links <- function(
         ]
     ]
 
-    if(isFALSE(web$options$shrink)){
-      if(isFALSE(web$options$expand)){
-        web$ite.tmp$cri_inc_indx <- web$ite.tmp$cri_inc_indx[
-          web$repo$pid_cri[web$ite.tmp$cri_inc_indx] >= web$i]
-      }else{
-        # if(length(web$repo$cri.linked) == length(which(web$repo$cri.linked[web$ite.tmp$cri_inc_indx]))){
-        if(length(which(!web$repo$sys.linked[web$ite.tmp$cri_inc_indx])) == 0){
-          web$ite.tmp$cri_inc_indx <- numeric()
-        }
+    if(stepwise_method == 'mid'){
+      web$ite.tmp$cri_inc_indx <- web$ite.tmp$cri_inc_indx[
+        web$repo$pid_cri[web$ite.tmp$cri_inc_indx] >= web$i]
+    }else if (stepwise_method == 'expand_with_priority') {
+      # if(length(web$repo$cri.linked) == length(which(web$repo$cri.linked[web$ite.tmp$cri_inc_indx]))){
+      if(length(which(!web$repo$sys.linked[web$ite.tmp$cri_inc_indx])) == 0){
+        web$ite.tmp$cri_inc_indx <- numeric()
       }
-    }else{
+    }
+
+    if(stepwise_method == 'shrink_to_last_match'){
       if(web$i > 1){
         web$ite.tmp$cri_inc_indx <-
           web$ite.tmp$cri_inc_indx[web$repo$pid_cri[
@@ -404,7 +420,7 @@ links <- function(
       next
     }
 
-    if(isTRUE(web$options$shrink)){
+    if(stepwise_method == 'shrink_to_last_match'){
       # Back up identifiers
       web$repo$pid[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_pid
       web$repo$tag[web$ite.tmp$cri_inc_indx] -> web$ite.tmp$bkp_tag
@@ -604,7 +620,7 @@ links <- function(
           web$ite.tmp$ite_inc_indx[web$ite.tmp$batched_pids$sn[web$ite.tmp$batched_pids$linked]]
         ] <- web$ite.tmp$ite_inc_indx[web$ite.tmp$batched_pids$group_id[web$ite.tmp$batched_pids$linked]]
       }else{
-        if(web$options$shrink){
+        if(stepwise_method == 'shrink_to_last_match'){
           web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pr_sn[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
         }else{
           web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pid[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
@@ -708,7 +724,7 @@ links <- function(
     }
 
     ta <- Sys.time()
-    if(web$options$shrink){
+    if(stepwise_method == 'shrink_to_last_match'){
       # alt approach
       # Records which are not part of the current iteration
       web$ite.tmp$cri_exc_indx <- which(!seq_len(web$n.row) %in% web$ite.tmp$cri_inc_indx)
