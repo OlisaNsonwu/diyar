@@ -21,7 +21,8 @@ links(
   batched = "yes",
   repeats_allowed = FALSE,
   permutations_allowed = FALSE,
-  ignore_same_source = FALSE
+  ignore_same_source = FALSE,
+  stepwise_method = "expand_with_priority"
 )
 }
 \arguments{

@@ -199,12 +199,13 @@ test_that("handling when `shrink` affects `batched`", {
   #`shrink` breaks group-1.
   # when `batched` is `no`, not links are available and so it isn't possible to
   # know if record 4 & 5 remain in the same group, so those records are reset
-  expect_equal(x1@.Data, c(1,1,1,4,5))
-  expect_equal(x1@pid_cri, c(2,2,2,0,0))
+    # Corrected
+  expect_equal(x1@.Data, c(1,1,1,4,4))
+  expect_equal(x1@pid_cri, c(2,2,2,1,1))
   # when `batched` is `yes`, all links are available and it's possible to
   # know if record 4 & 5 can and do remain in their own group.
   # the group IDs for 4 and 5 are 'corrected' and given a unique and new ID
-  expect_equal(x2@.Data, c(1,1,1,6,6))
+  expect_equal(x2@.Data, c(1,1,1,4,4))
   expect_equal(x2@pid_cri, c(2,2,2,1,1))
   # record 4 & 5 can and do remain a group but will not be included in all subsequent iterations.
   # They remain linked at criteria 2 until the end
@@ -216,7 +217,7 @@ test_that("handling when `shrink` affects `batched`", {
   # record 4 & 5 can and do remain in their own group
   # however, the reference for 1 and 5 (which is 5) is not broken
   # so a correction is not required and a new ID is not created
-  expect_equal(x5@.Data, c(1,1,1,5,5))
+  expect_equal(x5@.Data, c(1,1,1,4,4))
   expect_equal(x5@pid_cri, x2@pid_cri)
 
   # `shrink` breaks breaks group-1 via a sub_criteria

@@ -1742,3 +1742,23 @@ extract.opts <- function(..., ref.func){
 
   return(opt_lst)
 }
+
+mk_id <- function(id1, id2){
+  dfr <- as.data.frame(reverse_number_line(number_line(id1, id2), direction = 'decreasing'))
+  names(dfr) <- c('v1','v2')
+
+  dfr$l3 <- dfr$l1 <- dfr$v2[match(dfr$v1, dfr$v1)]
+  dfr$l2 <- dfr$l1[match(dfr$v2, dfr$v1)]
+
+  lgk <- !is.na(dfr$l2)
+  dfr$l1[lgk] <- dfr$l2[lgk]
+
+  sn <- c(dfr$v1, dfr$v2)
+  id <- c(dfr$l1, dfr$l1)
+
+  indx <- which(!duplicated(combi(sn, id)))
+  sn <- sn[indx]
+  id <- id[indx]
+
+  return(list(sn = sn, id = id))
+}

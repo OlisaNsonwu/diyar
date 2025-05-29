@@ -19,7 +19,7 @@ test_that("Matching input and ouput rows", {
 
 test_that("Record identifier is as expected for one criteria", {
   expect_equal(test_1$pids@.Data, c(1,2,3,2,1))
-  expect_equal(test_1$pids@pid_cri, c(1,1,0,1,1))
+  expect_equal(test_1$pids@pid_cri, c(1,1,-1,1,1))
   expect_equal(test_1$pids@pid_total, c(2,2,1,2,2))
 })
 
@@ -64,7 +64,7 @@ test_that("test that record grouping with >1 criteria follows an order of decrea
   expect_equal(test_3a$pids@pid_cri, c(2,2,2,0,2,1,1))
   expect_equal(test_3a$pids@pid_total, c(4,2,4,1,2,4,4))
   expect_equal(test_3b$pids@.Data, c(1,2,1,4,2,6,1))
-  expect_equal(test_3b$pids@pid_cri, c(2,2,2, 0,2,0, 2))
+  expect_equal(test_3b$pids@pid_cri, c(2,2,2, 0,2,-1, 2))
   expect_equal(test_3b$pids@pid_total, c(3,2,3,1,2,1,3))
 })
 

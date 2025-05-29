@@ -14,7 +14,7 @@ suffix <- function(df, x){
 data <- data.frame(date = seq.POSIXt(dttm("01/04/2018 00:00:00"), dttm("31/05/2018 00:00:00"), by="3 days"))
 data$pid <- "Patient 1"
 data$episode_len <- 6
-data$d <- data$episode_len * diyar::episode_unit$days
+data$d <- data$episode_len * diyar::episode_units$days
 
 data$rd_id <- 1:nrow(data)
 data$date_int <- as.number_line(data$date)
@@ -75,7 +75,7 @@ test_that("test that test episode identifier is as expected for fixed episodes",
 # Test 2 - Case assignment - Reverse chronological order
 data_2 <- head(data, 10)
 data_2$episode_len_s <- 13
-data_2$d <- 13 * diyar::episode_unit$days
+data_2$d <- 13 * diyar::episode_units$days
 
 data_2 <- rbind(data_2, data_2)
 test_2 <- cbind(data_2,
@@ -129,7 +129,7 @@ test_that("test rolling/recurring episodes", {
 # Test 3 - Rolls max
 data_4 <- data_2
 data_4$recurrence <- 3
-data_4$r <- 3 * diyar::episode_unit$days
+data_4$r <- 3 * diyar::episode_units$days
 
 test_4 <- cbind(data_4,
                 episodes(

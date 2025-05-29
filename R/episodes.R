@@ -458,8 +458,8 @@ episodes <- function(
   ord_z[!from_last] <- abs(
     min(as.numeric(right_point(date)), na.rm = TRUE) - as.numeric(right_point(date[!from_last])))
 
-  temporal_ord <- order(order(ord_a, -ord_z, pr_sn))
-  rev_temporal_ord <- order(order(-ord_a, -ord_z, -pr_sn))
+  temporal_ord <- order(order(cri, ord_a, -ord_z, pr_sn))
+  rev_temporal_ord <- order(order(cri, -ord_a, -ord_z, -pr_sn))
 
   # User-defined preference for case-assignment
   if(!is.null(custom_sort)) {
@@ -629,12 +629,10 @@ episodes <- function(
 
   web$counts$max_indexes <- ite <- 1L
 
-  web$repo$look_back_ord <- order(order(
-    web$repo$cri, -web$repo$custom_sort, web$repo$temporal_ord))
   web$repo$assign_ord <- order(order(
-    web$repo$cri, web$repo$custom_sort, web$repo$temporal_ord))
+    web$repo$custom_sort, web$repo$temporal_ord))
   web$repo$rev_assign_ord <- order(order(
-    web$repo$cri, web$repo$custom_sort, web$repo$rev_temporal_ord))
+    web$repo$custom_sort, web$repo$rev_temporal_ord))
 
   rm(#assign_ord,
     case_for_recurrence, case_length, case_length_total,
@@ -661,7 +659,7 @@ episodes <- function(
     order(web$repo$assign_ord)
   ]
   web$sys.tmp$rev_all_pos <- web$repo$pr_sn[
-    order(web$repo$rev_assign_ord)
+    order(web$repo$rev_temporal_ord)
   ]
 
   web$counts$split <- 1L

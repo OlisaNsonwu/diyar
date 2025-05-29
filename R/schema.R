@@ -385,7 +385,7 @@ schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
     case_l_ar$nl_t <- case_l_ar$wind_nm_l
     case_l_ar$nl_l <- paste0("\n",
                              format(number_line(case_l_ar$nl_s, case_l_ar$nl_e)),
-                             " ", ifelse(is_dt, gsub("s$", "-", names(diyar::episode_unit)[case_l_ar$episode_unit]), "unit-"),
+                             " ", ifelse(is_dt, gsub("s$", "-", names(diyar::episode_units)[case_l_ar$episode_unit]), "unit-"),
                              "difference.")
   }else{
     case_l_ar$no_ar <- logical()
