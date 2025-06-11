@@ -563,13 +563,15 @@ links <- function(
           !web$repo$sys.linked[web$rec.pairs$cu_pos]
       }
 
-      if(show_link_id){
+      if(show_link_id & any(web$rec.pairs$w.match)){
         web$rec.pairs$cu_pos.mi <- ((web$rec.pairs$index_ord[web$rec.pairs$w.match] + web$repo$cur_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match]]-1L) * web$n.row) + web$rec.pairs$cu_pos[web$rec.pairs$w.match]
 
         new_max <- ceiling(max(web$rec.pairs$cu_pos.mi) / web$n.row)
         old_max <- max(web$repo$cur_refs)
 
-        web$repo$wind_id <- c(web$repo$wind_id, rep(rep(NA, web$n.row), (new_max - old_max)))
+        if(old_max < new_max){
+          web$repo$wind_id <- c(web$repo$wind_id, rep(rep(NA, web$n.row), (new_max - old_max)))
+        }
         web$repo$wind_id[web$rec.pairs$cu_pos.mi] <- web$rec.pairs$tr_pos[web$rec.pairs$w.match]
 
         tgt_pos <- rle(sort(web$rec.pairs$cu_pos[web$rec.pairs$w.match]))
