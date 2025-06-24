@@ -861,7 +861,7 @@ combi <- function(...){
     faC <- as.integer(log10(max(combi_cd))) + 1
     faC <- 10 ^ faC
 
-    combi_cd <- combi_cd + (k * faC)
+    combi_cd <- combi_cd + (k / faC)
     combi_cd <- match(combi_cd, combi_cd[!duplicated(combi_cd)])
   }
   rm(list = ls()[ls() != "combi_cd"])
