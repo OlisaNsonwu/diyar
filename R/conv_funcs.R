@@ -858,10 +858,11 @@ combi <- function(...){
   for (j in seq_len(length(combi))[-1]){
     k <- match(combi[[j]], (combi[[j]])[!duplicated(combi[[j]])])
 
-    faC <- rep(as.integer(log10(max(k))), length(k))
-    trail_lgk <- k %% 10 == 0
+    # faC <- rep(as.integer(log10(max(k))), length(k))
+    faC <- as.integer(log10(max(k)))
+    # trail_lgk <- k %% 10 == 0
     faC <- faC + 1
-    faC[trail_lgk] <- (faC[trail_lgk] * 2)
+    # faC[trail_lgk] <- (faC[trail_lgk] * 2)
     faC <- 10 ^ faC
     combi_cd <- combi_cd + (k / faC)
     combi_cd <- match(combi_cd, combi_cd[!duplicated(combi_cd)])
