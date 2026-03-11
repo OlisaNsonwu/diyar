@@ -61,7 +61,7 @@ unpack_sub_criteria <- function(x, part = 'attribute'){
 #' @export
 flatten_list <- function(x, depth = 1){
   classes <- unlist(lapply(x, class))
-  lgk <- classes == "list"
+  lgk <- classes %in% c("list", "d_attribute")
   x.1 <- x[!lgk]
   x.2 <- unlist(x[lgk], recursive = FALSE)
   if(length(x.1) > 0){

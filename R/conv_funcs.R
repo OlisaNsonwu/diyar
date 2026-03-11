@@ -226,6 +226,33 @@ ovr_chks <- function(date, window, mths, ord){
   as.numeric(ord)
 }
 
+combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
+  funx <- function(v){
+    v <- v[!duplicated(v)]
+    lapply(seq_len(length(v)), function(i){
+      shuffle <- c(0:(i-1), i+1, i, (i+2):length(v))
+      shuffle <- shuffle[shuffle %in% 1:length(v)]
+      shuffle <- shuffle[!duplicated(shuffle)]
+      v[shuffle]
+    })
+  }
+
+  pos <- seq_len(length(x))
+  all_pos <- lapply(m, function(i){
+    utils::combn(pos, m = i, simplify = F, FUN = funx)
+  })
+  all_pos <- unlist(unlist(all_pos, recursive = F), recursive = F)
+  all_pos <- lapply(all_pos, function(y){x[y]})
+
+  if(inherits(FUN, "NULL")){
+    func <- function(x, ...) x
+  }else{
+    func <- function(x, ...) FUN(x, ...)
+  }
+  all_pos <- sapply(all_pos, func, simplify = simplify)
+  return(all_pos)
+}
+
 overlaps_err <- function(opts){
   opts <- as.vector(opts)
   if(inherits(opts, "character")){

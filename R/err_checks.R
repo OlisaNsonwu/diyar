@@ -346,7 +346,7 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err <- err[!duplicated(err)]
 
   err2 <- lapply(sub_criteria, function(x){
-    attr_eval(x, identity, simplify = FALSE)
+    attr_eval(x, simplify = FALSE)
   })
 
   err2 <- flatten_list(err2)
