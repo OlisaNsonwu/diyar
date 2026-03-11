@@ -615,9 +615,15 @@ links <- function(
         }
       }
 
-      if(isTRUE(web$options$is_recursive)){
-        web$repo$ovr_lgk <- web$repo$pr_sn %in% web$rec.pairs$cu_pos[web$rec.pairs$e.match] &
-          web$repo$cri.linked
+      if((isTRUE(web$options$is_recursive) | stepwise_method == 'expand_without_priority') & web$ite > 1){
+        if(stepwise_method == 'expand_without_priority'){
+          web$repo$ovr_lgk <- web$repo$pr_sn %in% web$rec.pairs$cu_pos[web$rec.pairs$e.match] &
+            web$repo$sys.linked
+        }else{
+          web$repo$ovr_lgk <- web$repo$pr_sn %in% web$rec.pairs$cu_pos[web$rec.pairs$e.match] &
+            web$repo$cri.linked
+        }
+
         # web$ite.tmp$tgt_pid <- web$repo$bkp_pid
         web$ite.tmp$tgt_pid <- web$repo$pid
         web$ite.tmp$ovr_grp_indx <- which(web$ite.tmp$tgt_pid %in% web$ite.tmp$tgt_pid[web$repo$ovr_lgk])
@@ -628,9 +634,10 @@ links <- function(
       }
 
       web$ite.tmp$linked_lgk <- which(web$rec.pairs$e.match | web$rec.pairs$index_rd)
-      web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$index_rd]] <- 2L
-      if(isFALSE(web$options$repeats_allowed)){
+      if(isFALSE(web$options$repeats_allowed) & web$options$batched[web$i] == 'no'){
         web$repo$tag[web$rec.pairs$tr_pos] <- 2L
+      }else{
+        web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$index_rd]] <- 2L
       }
       if(isFALSE(web$options$check_duplicates)){
         web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$rec.match$equal_test]] <- 2L

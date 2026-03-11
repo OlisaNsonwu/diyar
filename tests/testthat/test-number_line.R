@@ -7,8 +7,8 @@ dmy <- function(x) as.Date(x, "%d/%m/%Y")
 
 t1 <- number_line(1, 10)
 t2 <- number_line(10, 1)
-t3 <- number_line(5, NA)
-t4 <- number_line(NA, 5)
+t3 <- number_line(5, NA_real_)
+t4 <- number_line(NA_real_, 5)
 t5 <- number_line(20, 20)
 
 test_that("test direction of number line", {
@@ -22,7 +22,7 @@ test_that("test direction of number line", {
   expect_equal(t1@start, 1)
   expect_equal(t2@start, 10)
   expect_equal(t3@start, 5)
-  expect_equal(t4@start, NA)
+  expect_equal(t4@start, NA_real_)
   expect_equal(t5@start, 20)
 
   expect_equal(show(t1), "1 -> 10")
@@ -42,7 +42,7 @@ test_that("test direction of number line", {
   expect_equal(s1, 1)
   expect_equal(s2, 10)
   expect_equal(s3, 5)
-  expect_equal(s4, NA)
+  expect_equal(s4, NA_real_)
   expect_equal(s5, 20)
 
 })
@@ -97,7 +97,7 @@ test_that("test changing the number line", {
   expect_equal(unique(c(rep(number_line(50, 200),3), number_line(5, 10))), number_line(c(50,5), c(200,10), id =c(1L, 1L), gid =c(1L, 1L)))
   expect_equal(as.number_line(2), number_line(2, 2, 1L, 1L))
   expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2), c(number_line(1,8), number_line(8,1)))
-  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start"), c(number_line(1,6), number_line(6,5)))
+  expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "start"), c(number_line(1,6), number_line(6,1)))
   expect_equal(expand_number_line(c(number_line(3,6), number_line(6,3)), 2, "end"), c(number_line(3,8), number_line(8,3)))
   expect_equal(left_point(number_line(5, 1)), 5)
   expect_equal(right_point(number_line(5, 1)), 1)

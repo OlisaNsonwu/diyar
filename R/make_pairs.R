@@ -128,7 +128,6 @@ make_pairs <- function(x, strata = NULL, repeats_allowed = TRUE, permutations_al
     include_repeat = repeats_allowed
   )
 
-  rm(list = ls()[ls() != "repo"])
   return(repo)
 }
 
@@ -172,33 +171,24 @@ make_pairs_wf_source <- function(..., data_source = NULL){
     yi <- repo$y_pos[[i]]
 
     x_pos <- rep(r_sets[[xi]], length(r_sets[yi][[1]]), use.names = FALSE)
-    y_pos <- rep(r_sets[[yi]], length(r_sets[xi][[1]]), use.names = FALSE)
-    index_ord <- rep(seq_len(length(r_sets[[xi]])), rep(length(r_sets[yi][[1]]), length(r_sets[[xi]]))  , use.names = FALSE)
+    y_pos <- rep(r_sets[[yi]], rep(length(r_sets[xi][[1]]), length(r_sets[yi][[1]]))  , use.names = FALSE)
 
-    if(length(r_sets[[xi]]) < length(r_sets[[yi]])){
-      x_pos <- sort(x_pos)
-    }else{
-      y_pos <- sort(y_pos)
-    }
-
-    list(x_pos = x_pos, y_pos = y_pos, index_ord = index_ord)
+    list(x_pos = x_pos, y_pos = y_pos)
   })
 
-  repo <- list(x_pos = unlist(lapply(repo, function(x) x$x_pos)),
-               y_pos = unlist(lapply(repo, function(x) x$y_pos)),
-               index_ord = unlist(lapply(repo, function(x) x$index_ord))
-               )
+  repo <- list(
+    x_pos = unlist(lapply(repo, function(x) x$x_pos)),
+    y_pos = unlist(lapply(repo, function(x) x$y_pos)))
+
+  if(!is.null(opt_lst$strata)){
+    lgk <- which(opt_lst$strata[repo$x_pos] == opt_lst$strata[repo$y_pos])
+    repo$x_pos <- repo$x_pos[lgk]
+    repo$y_pos <- repo$y_pos[lgk]
+  }
 
   repo$x_val <- opt_lst$x[repo$x_pos]
   repo$y_val <- opt_lst$x[repo$y_pos]
 
-  if(!is.null(opt_lst$strata)){
-    lgk <- which(opt_lst$strata[repo$x_pos] == opt_lst$strata[repo$y_pos])
-    repo <- lapply(repo, function(x) x[lgk])
-  }
-
   return(repo)
 }
-
-
 

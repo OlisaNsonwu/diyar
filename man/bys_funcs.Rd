@@ -17,48 +17,65 @@
 \alias{bys_cumprod}
 \alias{bys_lag}
 \alias{bys_lead}
+\alias{bys}
+\alias{bys_shift}
+\alias{bys_func}
 \title{Vectorised approach to group operations.}
 \usage{
 bys_count(by, unique.var = NULL)
 
 bys_rank(..., by = NULL, from_last = FALSE)
 
-bys_position(val, by = NULL, from_last = FALSE, ordered = TRUE)
+bys_position(..., by = NULL, from_last = FALSE, ordered = TRUE)
 
-bys_val(..., val, by = NULL, from_last = FALSE)
+bys_val(..., val, by = NULL, from_last = FALSE, na.last = TRUE)
 
-bys_nval(..., val, by = NULL, from_last = FALSE, n = 1, nmax = FALSE)
+bys_nval(
+  ...,
+  val,
+  by = NULL,
+  from_last = FALSE,
+  n = 1,
+  nmax = FALSE,
+  na.last = TRUE
+)
 
 bys_min(val, by = NULL, na.rm = TRUE)
 
 bys_max(val, by = NULL, na.rm = TRUE)
 
-bys_sum(val, by = NULL, na.rm = TRUE, cumulative = FALSE)
+bys_sum(val, by = NULL, na.rm = TRUE)
 
-bys_prod(val, by = NULL, na.rm = TRUE, cumulative = FALSE)
+bys_prod(val, by = NULL, na.rm = TRUE)
 
-bys_cummin(val, by = NULL, na.rm = TRUE)
+bys_cummin(val, by = NULL)
 
-bys_cummax(val, by = NULL, na.rm = FALSE)
+bys_cummax(val, by = NULL)
 
-bys_cumsum(val, by = NULL, na.rm = TRUE)
+bys_cumsum(val, by = NULL)
 
-bys_cumprod(val, by = NULL, na.rm = TRUE)
+bys_cumprod(val, by = NULL)
 
-bys_lag(val, by = NULL, n = 1)
+bys_lag(..., val, by = NULL, n = 1, from_last = FALSE)
 
-bys_lead(val, by = NULL, n = 1)
+bys_lead(..., val, by = NULL, n = 1, from_last = FALSE)
+
+bys(..., val, by = NULL, from_last = FALSE, na.last = TRUE)
+
+bys_shift(..., val, by = NULL, n = 1, from_last = FALSE)
+
+bys_func(..., val, by = NULL, from_last = FALSE, func = sum)
 }
 \arguments{
 \item{by}{\code{[atomic]}. Groups.}
 
-\item{...}{\code{[atomic]}. Sort levels}
+\item{...}{\code{[atomic]}. Sort levels.}
 
 \item{from_last}{\code{[logical]} Sort order - \code{TRUE} (descending) or \code{FALSE} (ascending).}
 
-\item{val}{\code{[atomic]}. Value}
+\item{ordered}{If \code{TRUE}, the output is sequential.}
 
-\item{ordered}{If \code{TRUE}, values are sequential.}
+\item{val}{\code{[atomic]}. Value.}
 
 \item{n}{\code{[integer]} Position.}
 

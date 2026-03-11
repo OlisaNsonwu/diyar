@@ -3,7 +3,7 @@
 #' @title \code{number_line} object
 #'
 #' @description
-#' S4 objects representing a range of numeric values
+#' S4 objects representing a range of numeric values.
 #'
 #' @slot start First value in the range.
 #' @slot id Unique element id. Optional.

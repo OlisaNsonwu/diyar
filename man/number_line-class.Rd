@@ -77,7 +77,7 @@ drop (\code{FALSE}) the remainder of an uneven split.}
 \item{decreasing}{If \code{TRUE}, sort in descending order.}
 }
 \description{
-S4 objects representing a range of numeric values
+S4 objects representing a range of numeric values.
 }
 \section{Slots}{
 

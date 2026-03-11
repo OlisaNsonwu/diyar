@@ -2,7 +2,7 @@ Package: diyar
 Type: Package
 Title: Record Linkage and Epidemiological Case Definitions in 'R'
 Date: 2023-11-12
-Version: 0.5.1.9009
+Version: 0.5.1.9010
 URL: https://olisansonwu.github.io/diyar/index.html 
 BugReports: https://github.com/OlisaNsonwu/diyar/issues
 Author: Olisaeloka Nsonwu
@@ -25,8 +25,9 @@ Imports:
     methods,
     utils,
     ggplot2,
-    rlang
-RoxygenNote: 7.2.3
+    rlang,
+    data.table
+RoxygenNote: 7.3.2
 Suggests:
     knitr,
     rmarkdown,

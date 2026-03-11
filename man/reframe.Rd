@@ -3,11 +3,17 @@
 \name{reframe}
 \alias{reframe}
 \alias{reframe.sub_criteria}
-\title{Modify \code{sub_criteria} objects}
+\alias{unpack_sub_criteria}
+\alias{flatten_list}
+\title{Modify \code{sub_criteria} objects.}
 \usage{
 reframe(x, ...)
 
 \method{reframe}{sub_criteria}(x, func = identity, ...)
+
+unpack_sub_criteria(x, part = "attribute")
+
+flatten_list(x, depth = 1)
 }
 \arguments{
 \item{x}{\code{[\link{sub_criteria}]}.}
@@ -24,6 +30,15 @@ s_cri <- sub_criteria(month.abb, month.name)
 reframe(s_cri, func = function(x) x[12])
 reframe(s_cri, func = function(x) x[12:1])
 reframe(s_cri, func = function(x) attrs(x[1:6], x[7:12]))
+
+x <- sub_criteria(rep(1, 5), rep(5 * 10, 5), operator = 'and')
+x <- sub_criteria(x, c(1,9,1,11,5), operator = 'or')
+x
+format(x, show_levels = TRUE)
+unpack_sub_criteria(x)
+flatten_list(unpack_sub_criteria(x), depth = 0)
+lapply(flatten_list(unpack_sub_criteria(x), depth = 0), max)
+
 }
 \seealso{
 \code{\link{sub_criteria}}; \code{\link{eval_sub_criteria}}; \code{\link{attr_eval}}

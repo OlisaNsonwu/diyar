@@ -143,13 +143,9 @@ progress_txt <- function(n, d, msg){
   cat(status, "\r",sep="")
 }
 
-update_text <- function(tot_records = NULL,
-                        current_tot = NULL,
-                        current_tagged = NULL,
-                        indent_txt = "",
-                        time = NULL,
-                        skipped = NULL,
-                        iteration = NULL){
+update_text <- function(
+    tot_records = NULL, current_tot = NULL, current_tagged = NULL,
+    indent_txt = "", time = NULL, skipped = NULL, iteration = NULL){
   update <- ""
   if(!is.null(iteration)){
     update <- paste0(update, indent_txt, "Iteration: ", iteration, ".\n")
@@ -172,15 +168,6 @@ update_text <- function(tot_records = NULL,
   return(update)
 }
 
-datasets <- function(by, val, sep = ","){
-  datasets <- split(val, by)
-  func <- function(x) paste0(sort(x[!duplicated(x)]), collapse = sep)
-  datasets <- lapply(datasets, func)
-  #datasets <- as.character(datasets)[match(by, names(datasets))]
-  datasets <- unlist(datasets[match(by, names(datasets))], use.names = F)
-  datasets
-}
-
 check_links <- function(cri, data_source, data_links){
   dsc <- sort(data_source[!duplicated(data_source)])
   tmp <- rep(NA_character_, length(data_source))
@@ -192,7 +179,7 @@ check_links <- function(cri, data_source, data_links){
     tmp
   })
 
-  cmb_cd <- combi(datatset)
+  cmb_cd <- combi(datatset, ordered = TRUE)
   cmb_cd_idx <- which(!duplicated(cmb_cd))
   datatset_p <- lapply(datatset, function(x){
     x <- x[cmb_cd_idx]
@@ -229,52 +216,6 @@ check_links <- function(cri, data_source, data_links){
       ds = datatset_p[cmb_cd],
       rq = hits[cmb_cd]
     )
-  )
-}
-
-prep_lengths <- function(length, overlap_methods, int,
-                         episode_unit, bi_direction,
-                         #from_last,
-                         include_index_period = F){
-  length <- length
-  if(!inherits(length, "list")){
-    length <- list(length)
-  }
-  if(!inherits(overlap_methods, "list")){
-    overlap_methods <- list(overlap_methods)
-  }
-  if(length(overlap_methods) == 1){
-    overlap_methods <- rep(overlap_methods, length(length))
-  }
-
-  length <- sep_bdr_nl(length)
-  r <- rle(names(length))
-  overlap_methods <- rep(overlap_methods[as.numeric(r$values)], r$lengths)
-
-  if(any(bi_direction == T)){
-    is_bdr <- names(length) %in% r$values[r$lengths == 2]
-    n_length  <- length[!is_bdr]
-    if(length(n_length) > 0){
-      n_length <- lapply(n_length, function(x){
-        x[bi_direction] <- invert_number_line(x)[bi_direction]
-        return(x)
-      })
-      length <- c(n_length, length)
-      overlap_methods <- c(overlap_methods[!is_bdr], overlap_methods)
-    }
-  }
-
-  overlap_methods <- lapply(overlap_methods, function(x){
-    if(length(x)==1){
-      x <- rep(x, length(int))
-    }else{
-      x
-    }
-  })
-
-  list(
-    lengths = length,
-    method = overlap_methods
   )
 }
 
@@ -342,81 +283,6 @@ pid_cri_l <- function(n){
   return(n)
 }
 
-combns <- function(x, m, FUN = NULL, simplify = TRUE, ...){
-  funx <- function(v){
-    v <- v[!duplicated(v)]
-    lapply(seq_len(length(v)), function(i){
-      shuffle <- c(0:(i-1), i+1, i, (i+2):length(v))
-      shuffle <- shuffle[shuffle %in% 1:length(v)]
-      shuffle <- shuffle[!duplicated(shuffle)]
-      v[shuffle]
-    })
-  }
-
-  pos <- seq_len(length(x))
-  all_pos <- lapply(m, function(i){
-    utils::combn(pos, m = i, simplify = F, FUN = funx)
-  })
-  all_pos <- unlist(unlist(all_pos, recursive = F), recursive = F)
-  all_pos <- lapply(all_pos, function(y){x[y]})
-
-  if(inherits(FUN, "NULL")){
-    func <- function(x, ...) x
-  }else{
-    func <- function(x, ...) FUN(x, ...)
-  }
-  all_pos <- sapply(all_pos, func, simplify = simplify)
-  return(all_pos)
-}
-
-
-#' @name listr
-#' @aliases listr
-#' @title Grammatical lists.
-#' @description A convenience function to format \code{atomic} vectors as a written list.
-#'
-#' @param x \code{atomic} vector.
-#' @param sep Separator.
-#' @param conj Final separator.
-#' @param lim Elements to include in the list. Other elements are abbreviated to \code{" ..."}.
-#'
-#'
-#' @return \code{character}.
-#'
-#' @examples
-#' listr(1:5)
-#' listr(1:5, sep = "; ")
-#' listr(1:5, sep = "; ", conj = " and")
-#' listr(1:5, sep = "; ", conj = " and", lim = 2)
-#'
-#' @export
-listr <- function(x, sep = ", ", conj = " and ", lim = Inf){
-  err <- err_atomic_vectors(x, "x")
-  if(err != F) stop(err, call. = F)
-  err <- err_object_types(sep, "sep", c("character"))
-  if(err != F) stop(err, call. = F)
-  err <- err_match_ref_len(sep, "", 1, "sep")
-  if(err != F) stop(err, call. = F)
-  err <- err_object_types(conj, "conj", c("character"))
-  if(err != F) stop(err, call. = F)
-  err <- err_match_ref_len(conj, "", 1, "conj")
-  if(err != F) stop(err, call. = F)
-  err <- err_object_types(lim, "lim", c("integer", "numeric"))
-  if(err != F) stop(err, call. = F)
-  err <- err_match_ref_len(lim, "", 1, "lim")
-  if(err != F) stop(err, call. = F)
-
-  if(length(x) <= lim){
-    p <- x[length(x)]
-    f <- x[1:(length(x)-1)]
-    f <- paste(f, collapse = sep)
-    x <- ifelse(length(x) > 1, paste0(f, conj, p), f)
-  }else{
-    x <- paste0(paste0(x[seq_len(lim)], collapse = sep), " ...")
-  }
-
-  return(x)
-}
 
 sb_h <- function(x, by) {
   x$x1 <- x$x1 + by
@@ -717,55 +583,6 @@ check_skips <- function(lgk, cri, cr, tr_ep_l, vr, tr_date, date, case_nm){
   }
 }
 
-f_rbind <- function(..., deparse.level = 1){
-  dfs <- list(...)
-  dfs_nms <- unlist(lapply(dfs, names), use.names = FALSE)
-  dfs_nms <- dfs_nms[!duplicated(dfs_nms)]
-  dfs <- lapply(dfs, function(x){
-    for (i in dfs_nms) {
-      if(!i %in% names(x) & nrow(x) > 0){
-        x[[i]] <- NA
-      }else if (!i %in% names(x) & nrow(x) == 0){
-        x[[i]] <- logical()
-      }
-    }
-    return(x)
-  })
-  t.rbind <- function(..., x = deparse.level) rbind(..., deparse.level = x)
-  dfs <- do.call("t.rbind", dfs)
-  return(dfs)
-}
-
-#' @name attr_eval
-#' @title Sub-criteria attributes.
-#' @param x \code{[\link{sub_criteria}]}
-#' @param func \code{[function]}
-#' @param simplify If \code{TRUE} (default), coerce to a vector.
-#' @description
-#' Recursive evaluation of a function (\code{func}) on each attribute (vector) in a \bold{\code{\link{sub_criteria}}}.
-#' @return \code{vector}; \code{list}
-#' @export
-#'
-#' @examples
-#' x <- sub_criteria(rep(1, 5), rep(5 * 10, 5))
-#' attr_eval(x)
-#' attr_eval(x, func = max)
-#' attr_eval(x, func = max, simplify = FALSE)
-#' attr_eval(sub_criteria(x, x), func = max, simplify = FALSE)
-attr_eval <- function(x, func = length, simplify = TRUE){
-  if(inherits(x, "sub_criteria")){
-    x <- lapply(x, function(x){
-      attr_eval(x[[1]], func = func, simplify = simplify)
-    })
-  }else if(inherits(x, "d_attribute")){
-    x <- lapply(x, func)
-  }else if(is.atomic(x)){
-    x <- func(x)
-  }
-
-  if(simplify) unlist(x, use.names = FALSE) else x
-}
-
 sp_scri <- function(b, lgk){
   for (i in seq_len(length(b))) {
     attr <- (b[[i]][[1]])
@@ -805,129 +622,8 @@ rf_scri <- function(b, strata){
   return(b)
 }
 
-#' @name combi
-#' @title Vector combinations
-#' @description Numeric codes for unique combination of vectors.
-#' @param ... \code{[atomic]}
-#' @return \code{numeric}
-#'
-#' @examples
-#' x <- c("A", "B", "A", "C", "B", "B")
-#' y <- c("X", "X", "Z", "Z", "X", "Z")
-#' combi(x, y)
-#'
-#' # The code above is equivalent to but quicker than the one below.
-#' z <- paste0(y, "-", x)
-#' z <- match(z, z)
-#' z
-#' @export
-
-combi <- function(...){
-  # ... must be vectors
-  combi <- list(...)
-  is_list <- unlist(lapply(combi, function(x){
-    inherits(x, "list")
-  }), use.names = FALSE)
-  combi <- c(unlist(combi[is_list], recursive = FALSE),
-             combi[!is_list])
-  # Validations
-  err_txt <- unlist(lapply(seq_len(length(combi)), function(i){
-    x <- err_atomic_vectors(combi[[i]], paste0("vector ", i))
-    x[x == FALSE] <- NA_character_
-    x
-  }), use.names = FALSE)
-  err_txt <- err_txt[!is.na(err_txt)]
-  if(length(err_txt) > 0) stop(err_txt, call. = FALSE)
-
-  vec_lens <- unlist(lapply(combi, length), use.names = FALSE)
-  dd_err <- vec_lens[!duplicated(vec_lens)]
-  if(!(length(dd_err) == 1 | (length(dd_err) == 2 & 1 %in% dd_err))){
-    err_txt <- paste0("Length of each vector in `...` must be the same or equal to 1:\n",
-                      paste0("X - Length of vector ",
-                             seq_len(length(vec_lens)),
-                             " is ", vec_lens, ".",
-                             collapse = "\n"))
-    stop(err_txt, call. = FALSE)
-  }
-
-  combi[vec_lens == 1] <- NULL
-  if(length(combi) == 0){
-    return(rep(1, max(dd_err)))
-  }
-  combi_cd <- match(combi[[1]], (combi[[1]])[!duplicated(combi[[1]])])
-  for (j in seq_len(length(combi))[-1]){
-    k <- match(combi[[j]], (combi[[j]])[!duplicated(combi[[j]])])
-
-    # faC <- rep(as.integer(log10(max(k))), length(k))
-    faC <- as.integer(log10(max(k)))
-    # trail_lgk <- k %% 10 == 0
-    faC <- faC + 1
-    # faC[trail_lgk] <- (faC[trail_lgk] * 2)
-    faC <- 10 ^ faC
-    combi_cd <- combi_cd + (k / faC)
-    combi_cd <- match(combi_cd, combi_cd[!duplicated(combi_cd)])
-  }
-  rm(list = ls()[ls() != "combi_cd"])
-  return(combi_cd)
-}
-
 mk_cd <- function(x){
   match(x, x[!duplicated(x)])
-}
-
-combi_v2 <- function(...){
-  # ... must be vectors
-  combi <- list(...)
-  is_list <- unlist(lapply(combi, function(x){
-    inherits(x, "list")
-  }), use.names = FALSE)
-  combi <- c(unlist(combi[is_list], recursive = FALSE),
-             combi[!is_list])
-  # Validations
-  err_txt <- unlist(lapply(seq_len(length(combi)), function(i){
-    x <- err_atomic_vectors(combi[[i]], paste0("vector ", i))
-    x[x == FALSE] <- NA_character_
-    x
-  }), use.names = FALSE)
-  err_txt <- err_txt[!is.na(err_txt)]
-  if(length(err_txt) > 0) stop(err_txt, call. = FALSE)
-
-  vec_lens <- unlist(lapply(combi, length), use.names = FALSE)
-  dd_err <- vec_lens[!duplicated(vec_lens)]
-  if(!(length(dd_err) == 1 | (length(dd_err) == 2 & 1 %in% dd_err))){
-    err_txt <- paste0("Length of each vector in `...` must be the same or equal to 1:\n",
-                      paste0("X - Length of vector ",
-                             seq_len(length(vec_lens)),
-                             " is ", vec_lens, ".",
-                             collapse = "\n"))
-    stop(err_txt, call. = FALSE)
-  }
-
-  combi[vec_lens == 1] <- NULL
-  if(length(combi) == 0){
-    return(rep(1, max(dd_err)))
-  }
-
-  combi <- lapply(combi, mk_cd)
-
-  faC <- lapply(combi, function(x){
-    faC <- as.integer(log10(max(x))) + 1
-    return(faC)
-  })
-
-  faC <- unlist(faC, use.names = FALSE)
-  faC <- faC + (length(faC)-1):0
-  faC <- 10 ^ faC
-
-  combi <- sapply(seq_len(length(faC)), function(i){
-    combi[[i]] * faC[i]
-  })
-
-  combi <- rowSums(combi)
-  combi <- match(combi, combi[!duplicated(combi)])
-
-  rm(list = ls()[ls() != "combi"])
-  return(combi)
 }
 
 concat.integer <- function(...){
@@ -992,7 +688,9 @@ permute_num <- function(x, r = 2){
   (((x ^ r) - x)/r) + x
 }
 
-inherit <- function(tag, cri, pid_cri, tie_sort, sn, pr_sn, expand, pid, link_id, upd_link_id = TRUE, old_link_id = NULL, sn_ref){
+inherit <- function(
+    tag, cri, pid_cri, tie_sort, sn, pr_sn, expand,
+    pid, link_id, upd_link_id = TRUE, old_link_id = NULL, sn_ref){
   hri <- seq_len(length(tag))
   s_tag <- tag
   s_tag[s_tag != 0 & !expand] <- 1
@@ -1123,158 +821,6 @@ prep_cmps_thresh <- function(attr_nm,
               score_threshold = score_threshold))
 }
 
-make_pairs_batch_legacy <- function(strata, assign_ord, index_record, sn, ignore_same_source = FALSE, data_source = NULL, look_back = FALSE){
-  includes_multi_index <- any(index_record == -1)
-  curr_ds_len <- length(strata)
-  strata <- strata
-
-  if(isTRUE(includes_multi_index) & isFALSE(look_back)){
-    sc_ord <- order(strata, -(index_record != 0), assign_ord, decreasing = FALSE)
-    assign_ord <- assign_ord[sc_ord]
-  }else{
-    sc_ord <- order(strata, -index_record, decreasing = FALSE)
-  }
-
-  sn <- sn[sc_ord]
-  strata <- strata[sc_ord]
-  index_record <- index_record[sc_ord]
-  rc_sc_ord <- order(sc_ord)
-
-  rrr <- rle(strata)
-  lgk <- which(!duplicated(strata, fromLast = FALSE))
-
-  pos_repo <- list(sn = sn)
-  pos_repo$x_pos <- sn
-  pos_repo$y_pos <- rep(pos_repo$x_pos[lgk], rrr$lengths)
-
-  pos_repo$index_ord <- rep(1L, length(pos_repo[[1]]))
-  if(isTRUE(includes_multi_index)){
-    pos_repo$y_tot <- rep(rrr$lengths, rrr$lengths)
-    if(isFALSE(look_back)){
-      temporal_ord <- order(strata, abs(assign_ord), decreasing = FALSE)
-      pos_repo$y_ord <- sequence(rrr$lengths)[temporal_ord]
-
-    }
-    pos_repo$y_ref <- rep(lgk, rrr$lengths)
-    indx <- which(pos_repo$x_pos %in% sn[index_record == -1])
-    tmp_pos <- pos_repo[-1]
-
-    tmp_pos$x_pos <- tmp_pos$x_pos[indx]
-    tmp_pos$y_pos <- tmp_pos$y_pos[indx]
-    tmp_pos$y_tot <- tmp_pos$y_tot[indx]
-
-    if(isFALSE(look_back)){
-      tmp_pos$y_ord <- tmp_pos$y_ord[indx]
-    }
-    tmp_pos$y_ref <- tmp_pos$y_ref[indx]
-    tmp_pos$index_ord <- tmp_pos$index_ord[indx]
-
-    rrr <- rle(tmp_pos$y_pos)
-    tmp_pos$index_ord <- sequence(rrr$lengths) + 1L
-
-    if(isFALSE(look_back)){
-      tmp_pos$y_tot <- (tmp_pos$y_tot - tmp_pos$y_ord) + 1
-      tmp_pos$y_ref <- (tmp_pos$y_ref + tmp_pos$y_ord) - 1
-    }
-
-    tmp_pos$y_pos <- pos_repo$sn[temporal_ord][rep(tmp_pos$y_ref, tmp_pos$y_tot) + sequence(tmp_pos$y_tot, from = 0)]
-    tmp_pos$x_pos <- rep(tmp_pos$x_pos, tmp_pos$y_tot)
-    tmp_pos$index_ord <- rep(tmp_pos$index_ord, tmp_pos$y_tot)
-
-    pos_repo <- lapply(pos_repo, function(x) x[rc_sc_ord])
-    pos_repo$x_pos <-
-      pos_repo$sn <- c(pos_repo$x_pos, tmp_pos$y_pos)
-    pos_repo$y_pos <- c(pos_repo$y_pos, tmp_pos$x_pos)
-    pos_repo$index_ord <- c(pos_repo$index_ord, tmp_pos$index_ord)
-    tmp_pos <- pos_repo$y_ord <- pos_repo$y_ref <- pos_repo$y_tot <- NULL
-  }
-
-  if(!is.null(data_source) & isTRUE(ignore_same_source)){
-    lgk <- which(data_source[pos_repo$x_pos] != data_source[pos_repo$y_pos])
-    pos_repo <- lapply(pos_repo, function(x) x[lgk])
-  }
-  rm(list = ls()[ls() != "pos_repo"])
-  return(pos_repo)
-}
-
-make_pairs_batched <- function(
-    x,
-    index_record = rep(TRUE, length(x)),
-    strata = index_record,
-    assign_ord = order(x),
-    ignore_same_source = FALSE,
-    data_source = NULL,
-    look_back = FALSE,
-    include_repeat = FALSE){
-
-  tmp <- list(sn = order(strata, assign_ord))
-  tmp$pr_sn <- seq_len(length(tmp[[1]]))
-  tmp$strata <- strata[tmp$sn]
-  lgk <- which(!duplicated(tmp$strata, fromLast = FALSE))
-  rrr <- rle(tmp$strata)
-  class(rrr) <- NULL
-
-  tmp$strata_tot <- rep(rrr$lengths, rrr$lengths)
-  tmp$rec_ord <- sequence(rrr$lengths)
-  if(isFALSE(look_back)){
-    tmp$strata_a_ord <- tmp$rec_ord
-    tmp$strata_a_indx <- tmp$pr_sn
-  }else{
-    tmp$strata_a_ord <- rep(1, length(tmp[[1]]))
-    tmp$strata_a_indx <- rep(lgk, rrr$lengths)
-  }
-  if(isFALSE(include_repeat)){
-    tmp$strata_tot <- tmp$strata_tot - 1
-  }
-
-  tmp$reference_record <- index_record[tmp$sn]
-  tmp_indexes <- lapply(tmp, function(x){
-    x[tmp$reference_record == 1]
-  })
-  tmp_indexes$strata_tot_new <- tmp_indexes$strata_tot - tmp_indexes$strata_a_ord + 1
-
-  rrr <- rle(tmp_indexes$strata)
-  tmp_indexes$index_ord <- sequence(rrr$lengths)
-
-  tmp2 <- list()
-  tmp2$x_ord <- sequence(tmp_indexes$strata_tot_new)
-  if(isFALSE(include_repeat)){
-    if(isTRUE(look_back)){
-      tmp2$y_ord <- rep(tmp_indexes$rec_ord, tmp_indexes$strata_tot_new)
-      tmp2$y_tot <- rep(tmp_indexes$strata_tot_new, tmp_indexes$strata_tot_new)
-      tmp2$lgk <- tmp2$x_ord == tmp2$y_ord
-      tmp2$x_ord[tmp2$lgk] <- tmp2$y_tot[tmp2$lgk] + 1
-    }else{
-      tmp_indexes <- lapply(tmp_indexes, function(x){
-        x[!tmp_indexes$strata_tot_new == 0]
-      })
-      tmp_indexes$strata_a_indx <- tmp_indexes$strata_a_indx + 1
-    }
-  }
-  tmp2$x_pos <- tmp2$x_ord + rep(tmp_indexes$strata_a_indx, tmp_indexes$strata_tot_new) - 1
-  tmp2$y_pos <- rep(tmp_indexes$pr_sn, tmp_indexes$strata_tot_new)
-  tmp2$index_ord <- rep(tmp_indexes$index_ord, tmp_indexes$strata_tot_new)
-
-  tmp2 <- tmp2[c("x_pos", "y_pos", "index_ord")]
-
-  tmp2$x_pos <- tmp$sn[tmp2$x_pos]
-  tmp2$y_pos <- tmp$sn[tmp2$y_pos]
-
-  if(!is.null(data_source) & isTRUE(ignore_same_source)){
-    lgk <- which(data_source[tmp2$x_pos] != data_source[tmp2$y_pos])
-    tmp2 <- lapply(tmp2, function(x) x[lgk])
-  }
-
-  tmp2$x_val <- x[tmp2$x_pos]
-  tmp2$y_val <- x[tmp2$y_pos]
-  if(!is.null(strata)){
-    tmp2$strata <- strata[tmp2$y_pos]
-  }
-
-  rm(list = ls()[ls() != "tmp2"])
-  return(tmp2)
-}
-
 fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
   left_indent <- paste0(rep(" ", 2 * depth_n), collapse = "")
   operator_txt <- toupper(attr(x, "operator"))
@@ -1313,7 +859,7 @@ fmt_sub_criteria <- function(x, depth_n = 0, show_levels = FALSE){
       if(at_nm != ""){
 
       }else if(is.atomic(vv)){
-        at_nm <- listr(trimws(format(vv[1:4])), lim = 3, sep = ",")
+        at_nm <- listr(trimws(format(vv[1: ifelse(length(vv) > 4, 4, length(vv))])), lim = 3, sep = ",")
       }else{
         if(!is.null(names(vv))){
           at_nm <- paste0(class(vv), "; ", listr(paste0("`", names(vv), "`"), lim = 2))
@@ -1506,109 +1052,6 @@ dv <- function(lst){
   }
 }
 
-unpack <- function(xx, depth = 0){
-  classes <- unlist(lapply(xx, class))
-  lgk <- classes == "list"
-  xx.1 <- xx[!lgk]
-  xx.2 <- unlist(xx[lgk], recursive = FALSE)
-  if(length(xx.1) > 0){
-    names(xx.1) <- paste0("var_", depth, ".", seq_len(length(xx.1)))
-  }
-  if(length(xx.2) > 0){
-    names(xx.2) <- paste0("var_", depth + 1, ".", seq_len(length(xx.2)))
-  }
-  xx <- c(xx.1, xx.2)
-  classes <- unlist(lapply(xx, class))
-  lgk <- classes == "list"
-  if(any(lgk)){
-    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
-    unpack(xx, depth = depth + 1)
-  }else{
-    # rm(list = ls()[!ls() %in% c("xx", "depth", "lgk")])
-    xx
-  }
-}
-
-make_sets_v2 <- function (x, r, strata = NULL, permutations_allowed = TRUE, repeats_allowed = TRUE){
-  if (!is.null(strata)) {
-    strata <- match(strata, strata)
-    pos <- seq_len(length(x))
-    s_ord <- order(strata)
-    strata <- strata[s_ord]
-    pos <- pos[s_ord]
-    rl <- rle(strata)
-    n <- max(rl$lengths)
-  }
-  else {
-    n <- length(x)
-  }
-  repo <- sets(n = n, r = r, permutations_allowed = permutations_allowed,
-               repeats_allowed = repeats_allowed)
-  if (!is.null(strata)) {
-    sn <- seq_len(length(x))
-    rl$start_sn <- sn[!duplicated(strata)]
-    unq_lens <- rl$lengths[!duplicated(rl$lengths)]
-    repo <- lapply(unq_lens, function(x) {
-      exc_indx <- which(repo > x)
-      exc_indx <- exc_indx%%nrow(repo)
-      exc_indx[exc_indx == 0] <- nrow(repo)
-      x.repo <- repo[!seq_len(nrow(repo)) %in% exc_indx,
-      ]
-      x.repo
-    })
-    repo <- repo[match(rl$lengths, unq_lens)]
-    reps <- (unq_lens^2)
-    reps <- reps[match(rl$lengths, unq_lens)]
-    repo <- do.call("rbind", repo)
-    start_sn <- rep(rep(rl$start_sn, reps), r)
-    repo <- repo + (start_sn - 1)
-    repo <- pos[repo]
-    repo <- matrix(repo, ncol = r)
-  }
-  repo <- split(repo, rep(seq_len(r), rep(nrow(repo), r)))
-  repo <- c(repo, lapply(repo, function(i) x[i]))
-  names(repo) <- paste0("x", rep(1:r, 2), rep(c("_pos", "_val"),
-                                              rep(r, 2)))
-  rm(list = ls()[ls() != "repo"])
-  return(repo)
-}
-
-
-make_pairs_batched_wf_episodes <- function(
-    x, index_record, strata, assign_ord,
-    ignore_same_source, data_source, lgk){
-
-  a_indx <- which(lgk)
-  b_indx <- which(!lgk)
-  a <- make_pairs_batched(
-    strata = strata[a_indx],
-    x = x[a_indx],
-    index_record = index_record[a_indx],
-    assign_ord = assign_ord[a_indx],
-    include_repeat = TRUE,
-    look_back = TRUE
-  )
-
-  b <- make_pairs_batched(
-    strata = strata[b_indx],
-    x = x[b_indx],
-    index_record = index_record[b_indx],
-    assign_ord = assign_ord[b_indx],
-    include_repeat = TRUE,
-    look_back = FALSE
-  )
-
-  a$x_pos <- c(a$x_pos, b$x_pos)
-  a$y_pos <- c(a$y_pos, b$y_pos)
-  a$x_val <- c(a$x_val, b$x_val)
-  a$y_val <- c(a$y_val, b$y_val)
-  a$index_ord <- c(a$index_ord, b$index_ord)
-  b <- NULL
-
-  return(a)
-}
-
-
 mix_pos <- function(cu_pos.mi, tr_pos.mi, ld_pos.mi, cu_pos.ord, opt_levels){
   rp <- list(
     cu_pos.mi = cu_pos.mi, tr_pos.mi = tr_pos.mi,
@@ -1764,4 +1207,207 @@ mk_id <- function(id1, id2){
   id <- id[indx]
 
   return(list(sn = sn, id = id))
+}
+
+tots <- function(x){
+  n.row <- length(x)
+  sn <- seq_len(n.row-1)
+  sn <- c(sn[x[sn] != x[-1]], n.row)
+  c(sn[1], sn[-1] - sn[seq_len(length(sn)-1)])
+}
+
+make_pairs_batched <- function(
+    x,
+    index_record = rep(TRUE, length(x)),
+    strata = index_record,
+    assign_ord = order(x),
+    ignore_same_source = FALSE,
+    data_source = NULL,
+    look_back = FALSE,
+    include_repeat = FALSE){
+
+  ord <- order(strata, assign_ord)
+  sn <- seq_len(length(ord))
+
+  # if(FALSE){
+  #   ordered_index <- index_record[ord]
+  #   ordered_strata <- strata[ord][ordered_index]
+  #   ordered_source <- data_source[ord][ordered_index]
+  #   ordered_source_order <- c(1, ordered_source[seq_len(length(ordered_source) - 1)] != ordered_source[-1])
+  #   ordered_source_order <- cumsum(ordered_source_order)
+  #   ordered_source_order <- rep(tots(ordered_strata), tots(ordered_strata))
+  # }
+
+  #
+  ordered_strata <- strata[ord]
+  ordered_index <- index_record[ord]
+  ordered_x <- x[ord]
+
+  others_runs <- rle(ordered_strata)
+
+  i.assign_pos <- which(ordered_index)
+  strata_index <- cumsum(c(1L, head(others_runs$lengths, -1)))
+
+  rep_strata_index <- data.table::rleid(ordered_strata[ordered_index])
+  if(!include_repeat & look_back){
+    # run_order <- seq_len(length(i.assign_pos))
+    i.assign_ord <- (i.assign_pos + 1) - strata_index[rep_strata_index]
+  }
+
+  others_runs$lengths <- others_runs$lengths[rep_strata_index]
+  others_runs$values <- others_runs$values[rep_strata_index]
+  strata_index <- strata_index[rep_strata_index]
+
+  if(!include_repeat){
+    others_runs$lengths <- others_runs$lengths - 1L
+  }
+  if(!look_back){
+    others_runs$lengths <- others_runs$lengths - (i.assign_pos - strata_index)
+  }
+
+  if(!include_repeat & !look_back){
+    lgk <- others_runs$lengths > 0
+    if(all(!lgk)){
+      return(
+        list( x_pos = integer(), y_pos = integer(), index_ord = integer(), x_val = integer(),
+              y_val = integer(), strata = integer()))
+    }else if(any(!lgk)){
+      # index_runs$lengths <- index_runs$lengths[lgk]
+      # index_runs$values <- index_runs$values[lgk]
+
+      others_runs$lengths <- others_runs$lengths[lgk]
+      others_runs$values <- others_runs$values[lgk]
+
+      i.assign_pos <- i.assign_pos[lgk]
+      strata_index <- strata_index[lgk]
+    }
+  }
+
+  if(include_repeat & look_back){
+    xpos_start <- strata_index
+  }else if(include_repeat & !look_back){
+    xpos_start <- i.assign_pos
+  }else if(!include_repeat & look_back){
+    xpos_start <- strata_index
+  }else if(!include_repeat & !look_back){
+    xpos_start <- i.assign_pos + 1
+  }
+  ypos_start <- i.assign_pos
+
+  if(!include_repeat & look_back){
+    x_pos <- sequence(others_runs$lengths + 1L) + rep(xpos_start - 1L, others_runs$lengths + 1)
+    x_pos[
+      cumsum(c(1L, head(others_runs$lengths + 1L, -1))) + i.assign_ord - 1L
+    ] <- 0
+  }else{
+    x_pos <- sequence(others_runs$lengths) + rep(xpos_start - 1L, others_runs$lengths)
+  }
+  y_pos <- rep(ypos_start, others_runs$lengths)
+
+  x_pos <- ord[x_pos]
+  y_pos <- ord[y_pos]
+
+  x_val <- x[x_pos]
+  y_val <- x[y_pos]
+
+  index_ord <- rep(sequence(tots(strata_index)), others_runs$lengths)
+
+  out <- list(
+    x_pos = x_pos, y_pos = y_pos,
+    index_ord = index_ord,
+    x_val = x_val, y_val = y_val,
+    strata = strata[y_pos])
+  return(out)
+}
+
+make_pairs_batched_wf_source <- function(..., data_source = NULL){
+  opt_lst <- list(...)
+  def_list <- formals(make_pairs_batched)
+  named_pos <- which(names(opt_lst) %in% names(def_list))
+  unamed_pos <- seq_len(length(opt_lst))[!seq_len(length(opt_lst)) %in% named_pos]
+  unnamed_args <- names(def_list)[!names(def_list) %in% names(opt_lst)]
+  unnamed_args <- unnamed_args[unamed_pos]
+  names(opt_lst)[unamed_pos] <- unnamed_args
+
+  opt_lst <- c(
+    opt_lst,
+    def_list[names(def_list)[!names(def_list) %in% names(opt_lst)]]
+  )
+  rm(def_list, unnamed_args, named_pos, unamed_pos)
+
+  if(length(opt_lst$x) != length(data_source)){
+    stop("`data_source` must be `NULL` or have the same lenght as `x`", call. = FALSE)
+  }
+
+  x <- eval(opt_lst$x)
+  index_record <- eval(opt_lst$index_record)
+  strata <- eval(opt_lst$strata)
+  assign_ord <- eval(opt_lst$assign_ord)
+
+  ord <- order(strata, assign_ord)
+  sn <- seq_len(length(ord))
+
+  #
+  ordered_strata <- strata[ord]
+  ordered_index <- index_record[ord]
+  orderded_source <- data_source[ord]
+  ordered_sn <- sn[ord]
+
+  index_strata <- ordered_strata[ordered_index]
+  index_source <- orderded_source[ordered_index]
+  index_sn <- ordered_sn[ordered_index]
+
+  index_frame <- bys_rank(by = index_strata)
+
+  tgt_pairs <- list()
+  for (fr in seq_len(max(index_frame))) {
+    tgt_lgk <- strata %in% index_strata[index_frame == fr]
+    # Strata with index records from the same source
+    tmp.index_record <- sn[tgt_lgk] == index_sn[index_frame == fr]
+    tmp.index_source <- bys_val(
+      !tmp.index_record[tgt_lgk], val = data_source[tgt_lgk],
+      by = strata[tgt_lgk])
+    sub.tgt_lgk <- data_source[tgt_lgk] != tmp.index_source | tmp.index_record
+    tmp.sn <- sn[tgt_lgk][sub.tgt_lgk]
+    tgt_pairs[[fr]] <- data.table::as.data.table(make_pairs_batched(
+      x = x[tgt_lgk][sub.tgt_lgk],
+      index_record = tmp.index_record[sub.tgt_lgk],
+      strata = strata[tgt_lgk][sub.tgt_lgk],
+      assign_ord = assign_ord[tgt_lgk][sub.tgt_lgk],
+      include_repeat = eval(opt_lst$include_repeat),
+      look_back = eval(opt_lst$look_back)))
+    tgt_pairs[[fr]][,index_ord := fr]
+    tgt_pairs[[fr]][,index_ord := fr]
+    tgt_pairs[[fr]][,x_pos := tmp.sn[x_pos]]
+    tgt_pairs[[fr]][,y_pos := tmp.sn[y_pos]]
+  }
+  tgt_pairs <- data.table::rbindlist(tgt_pairs)
+  tgt_pairs <- as.list(tgt_pairs)
+
+  return(tgt_pairs)
+}
+
+attr_eval <- function(x, func = length, simplify = TRUE){
+  if(inherits(x, 'sub_criteria')) x <- unpack_sub_criteria(x, part = 'attribute')
+  x <- lapply(flatten_list(x), func)
+  if(simplify){
+    x <- unlist(x, use.names = FALSE)
+  }
+  return(x)
+}
+
+match.alt <- function(x){
+  ord <- data.table:::forder(x)
+  x <- data.table::rleid(x[ord])
+  x <- x[data.table:::forder(data.table:::forder(ord))]
+  return(x)
+}
+
+tmp.func <- function(x){
+  if(inherits(x, "number_line")){
+    x <- reverse_number_line(x, "decreasing")
+  }else{
+    x <- number_line(0, x)
+  }
+  return(x)
 }

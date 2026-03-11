@@ -141,7 +141,6 @@ start_point <- function(x){
   y <- x@start
   indx <- which(x@.Data < 0)
   y[indx] <- x@start[indx] + x@.Data[indx]
-  rm(x, indx)
   return(y)
 }
 
@@ -168,7 +167,6 @@ end_point <- function(x){
   y <- x@start + x@.Data
   indx <- which(x@.Data < 0)
   y[indx] <- x@start[indx]
-  rm(x, indx)
   return(y)
 }
 
@@ -226,14 +224,12 @@ reverse_number_line <- function(x, direction = "both"){
   direction <- tolower(direction)
   fnt <- is.finite(as.numeric(x@start)) & is.finite(as.numeric(x@.Data))
 
-  y <- x
-  indx <- which(((direction %in% c("decreasing", "both") & y@.Data < 0) |
-                  (direction %in% c("increasing", "both") & y@.Data > 0)) & fnt)
+  indx <- ((direction %in% c("decreasing", "both") & x@.Data < 0) |
+                  (direction %in% c("increasing", "both") & x@.Data > 0)) & fnt
 
-  left_point(x[indx]) <- right_point(y[indx])
-  right_point(x[indx]) <- left_point(y[indx])
+  x@start[indx] <- x@start[indx] + x@.Data[indx]
+  x@.Data[indx] <- -x@.Data[indx]
 
-  rm(indx, y)
   return(x)
 }
 
@@ -305,19 +301,14 @@ expand_number_line <- function(x, by = 1, point = "both"){
   by[!is.finite(by)] <- NA_real_
   n <- ifelse(x@.Data<0 & is.finite(x@.Data),-1,1)
   by <- by * n
-  g <- ifelse(x@.Data >= 0, T,FALSE)
-  if(any(point == "both")) x@start[point == "both"] <- x@start[point == "both"] - by[point == "both"]
-  if(any(point == "both")) x@.Data[point == "both"] <- x@.Data[point == "both"] + (by[point == "both"] *2)
+  g <- x@.Data < 0
 
-  if(any(point %in% c("left", "start"))) x@start[point == "left" | (point == "start" & g)] <- x@start[point == "left" | (point == "start" & g)] - by[point == "left" | (point == "start" & g)]
-  if(any(point %in% c("left", "start"))) x@.Data[point == "left" | (point == "start" & g)] <- x@.Data[point == "left" | (point == "start" & g)] + by[point == "left" | (point == "start" & g)]
+  lgk <- point %in% c("both", 'left') | (point == 'end' & g) | (point == 'start' & !g)
+  x@start[lgk] <- x@start[lgk] - by[lgk]
+  x@.Data[lgk] <- x@.Data[lgk] + by[lgk]
 
-  if(any(point %in% c("right", "end"))) x@.Data[point == "right"| (point == "end" & g)] <- x@.Data[point == "right"| (point == "end" & g)] + by[point == "right"| (point == "end" & g)]
-
-  if(any(point == "start")) x@.Data[point == "start" & !g] <- x@.Data[point == "start" & !g] - by[point == "start" & !g]
-
-  if(any(point == "end")) x@start[point == "end" & !g] <- x@start[point == "end" & !g] - by[point == "end" & !g]
-  if(any(point == "end")) x@.Data[point == "end" & !g] <- x@.Data[point == "end" & !g] + by[point == "end" & !g]
+  lgk <- point %in% c("both", 'right') | (point == 'start' & g) | (point == 'end' & !g)
+  x@.Data[lgk] <- x@.Data[lgk] + by[lgk]
   return(x)
 }
 

@@ -348,7 +348,8 @@ err_sub_criteria_10 <- function(ref_arg, sub_criteria, arg_nm = "criteria", cri_
   err2 <- lapply(sub_criteria, function(x){
     attr_eval(x, identity, simplify = FALSE)
   })
-  err2 <- unpack(err2)
+
+  err2 <- flatten_list(err2)
   err2 <- lapply(err2, length)
   err2 <- unlist(err2, use.names = FALSE)
   err2 <- sort(err2[!duplicated(err2)])
@@ -380,9 +381,7 @@ err_sub_criteria_10b <- function(sub_criteria){
 }
 
 err_sub_criteria_3dot_1 <- function(...){
-  err <- lapply(list(...), function(x){
-    attr_eval(x, rc_dv)
-  })
+  err <- lapply(flatten_list(list(...)), length)
   err <- unlist(err, use.names = FALSE)
   err <- sort(err[!duplicated(err)])
   err2 <- err[err != 1]
@@ -1834,7 +1833,7 @@ err_links_wf_probablistic_0 <- function(attribute,
     return(err)
   }
 
-  lens <- unlist(lapply(attribute, attr_eval), use.names = FALSE)
+  lens <- unlist(lapply(flatten_list(attribute), length), use.names = FALSE)
   if(!is.null(blocking_attribute)){
     lens <- c(lens, length(blocking_attribute))
   }
