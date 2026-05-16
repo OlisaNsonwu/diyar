@@ -333,7 +333,7 @@ summary.epid <- function(object, ...){
   summ <- list()
   summ$iterations <- max(object@iteration)
   summ$total_records <- length(object)
-  summ$total_episodes <- length(object[object@case_nm == 0])
+  summ$total_episodes <- length(object[object@case_nm %in% c(0, 4)])
 
   w.i <- sapply(object@wind_nm, function(x){
     x[is.na(x)] <- 0L
@@ -345,7 +345,7 @@ summary.epid <- function(object, ...){
 
   x <- object@.Data[x == "Fixed"]
   x <- x[!duplicated(x)]
-  summ$episode_type <- list(lengths = c(summ$total_episodes - length(x), length(x)),
+  summ$episode_type <- list(lengths = c(length(x), summ$total_episodes - length(x)),
                             values = c("Fixed", "Rolling"))
   summ$episode_type <- lapply(summ$episode_type, function(x){
     x[summ$episode_type$lengths > 0]
