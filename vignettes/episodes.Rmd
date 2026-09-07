@@ -28,6 +28,7 @@ This vignette provides a brief introduction to how this is done with `episodes()
 We begin by reviewing `event_dt` below. 
 This is a sample dataset of 11 infection events and includes data on the location and type of infection.
 ```{r warning=FALSE}
+tmp.seed <- 3
 event_dt <- seq(from = as.Date("2021-01-01"), to = as.Date("2021-01-11"), by = 1)
 event_dt <- data.frame(date = event_dt)
 event_dt$attr_1 <- c("BSI", "UTI", "RTI", "RTI", "BSI", "BSI", "BSI", "RTI", "RTI", "BSI", "RTI")
@@ -69,9 +70,9 @@ Even though `ep1` has the same outcome (one episode) as `ep3` and `ep4`, they ar
 This is demonstrated below by using `schema()` to visualise the identifiers.
 
 ```{r warning=FALSE, fig.width=7, message=FALSE}
-schema(event_dt$ep1, seed = 2, show_labels = c("case_nm", "length_arrow"))
-schema(event_dt$ep3, seed = 2, show_labels = c("case_nm", "length_arrow"))
-schema(event_dt$ep4, seed = 2, show_labels = c("case_nm", "length_arrow"))
+schema(event_dt$ep1, seed = tmp.seed, show_labels = c("case_nm", "length_arrow"))
+schema(event_dt$ep3, seed = tmp.seed, show_labels = c("case_nm", "length_arrow"))
+schema(event_dt$ep4, seed = tmp.seed, show_labels = c("case_nm", "length_arrow"))
 ```
 
 You may have noticed that this process starts from the earliest event and proceeds forward in time.
@@ -98,9 +99,9 @@ event_dt$ep7 <- episodes(event_dt$date, 3, custom_sort = custom_pref,
 ```
 
 ```{r warning=FALSE, fig.width=7}
-schema(event_dt$ep6, seed = 2, show_labels = c("length_arrow"), 
+schema(event_dt$ep6, seed = tmp.seed, show_labels = c("length_arrow"), 
        custom_label = paste0(decode(event_dt$ep6@case_nm), " (", event_dt$attr_1, ")"))
-schema(event_dt$ep7, seed = 2, show_labels = c("length_arrow"), 
+schema(event_dt$ep7, seed = tmp.seed, show_labels = c("length_arrow"), 
        custom_label = paste0(decode(event_dt$ep7@case_nm), " (", event_dt$attr_1, ")"))
 ```
 
@@ -124,9 +125,9 @@ event_dt$ep9 <- episodes(event_dt$date, list(number_line(-2, -1),
 ```
 
 ```{r warning=FALSE, fig.width=7}
-schema(event_dt$ep8, seed = 2, show_labels = c("length_arrow"), 
+schema(event_dt$ep8, seed = tmp.seed, show_labels = c("length_arrow"), 
        custom_label = paste0(decode(event_dt$ep8@case_nm), " (", event_dt$attr_1, ")"))
-schema(event_dt$ep9, seed = 2, show_labels = c("length_arrow", "length"))
+schema(event_dt$ep9, seed = tmp.seed, show_labels = c("length_arrow", "length"))
 ```
 
 It's possible to track episodes among events with known start and end points, instead of those occurring at a single point in time. It is worth noting that the reference point for such events is their end point. Therefore, using a `case_length` of `1` when working with such events is interpreted as 2 days (1-day difference) after the end point of the interval. By default, other events that occur on or after the start point but before the end point of the index event will not be captured. If this is required, use `index_window()` to get the range required to capture such events, and supply it to the `case_length` or `recurrence_length` arguments. See the examples below.
@@ -147,8 +148,8 @@ dfr$ep2 <- episodes(date = dfr$admin_period, case_length =  dfr$ep_len2)
 
 ```{r warning=FALSE, fig.width=7}
 dfr[c("admin_period", "ep_len1", "ep_len2", "ep1", "ep2")]
-schema(dfr$ep1, seed = 2, show_labels = "length_arrow")
-schema(dfr$ep2, seed = 2, show_labels = "length_arrow")
+schema(dfr$ep1, seed = tmp.seed, show_labels = "length_arrow")
+schema(dfr$ep2, seed = tmp.seed, show_labels = "length_arrow")
 ```
 
 Currently, the `diyar` packages recognises 7 mutually exclusive and 2 mutually inclusive ways a pair of intervals can overlap. Please see `vignette("number_line")` for more details about this. Using `case_overlap_methods` and `recurrence_overlap_methods`, the episode tracking process can be made to only capture intervals that overlap by specific methods. See the example below.
@@ -207,7 +208,7 @@ event_dt$ep10 <- episodes(event_dt$date, case_length = 5, case_sub_criteria = su
 ```
 
 ```{r warning=FALSE, fig.width=7}
-schema(event_dt$ep10, seed = 2, show_labels = c("length_arrow"),
+schema(event_dt$ep10, seed = tmp.seed, show_labels = c("length_arrow"),
        custom_label = paste0(event_dt$attr_1, " in ", event_dt$attr_2))
 ```
 
@@ -226,7 +227,7 @@ event_dt$ep11 <- episodes(event_dt$date, case_length = 5, case_sub_criteria = su
 ```
 
 ```{r warning=FALSE, fig.width=7}
-schema(event_dt$ep11, seed = 2, show_labels = c("length_arrow"),
+schema(event_dt$ep11, seed = tmp.seed, show_labels = c("length_arrow"),
        custom_label = paste0(event_dt$attr_1, " in ", event_dt$attr_2))
 ```
 
@@ -238,7 +239,7 @@ event_dt$ep12 <- episodes(event_dt$date, case_length = 5,
 ```
 
 ```{r warning=FALSE, fig.width=7}
-schema(event_dt$ep12, seed = 2, show_labels = c("length_arrow"),
+schema(event_dt$ep12, seed = tmp.seed, show_labels = c("length_arrow"),
        custom_label = paste0(event_dt$attr_1, " in ", event_dt$attr_2))
 ```
 

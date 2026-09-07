@@ -36,10 +36,11 @@
 #' schema(links(list(c(1, 1, NA, NA), c(NA, 1, 1, NA))))
 #'
 #' @export
-schema <- function(x, ...) UseMethod("schema")
+schema <- function(x, ...){
+  UseMethod("schema")
+}
 #' @rdname schema
 #' @param custom_sort \code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.
-#' @importFrom rlang .data
 #' @export
 schema.number_line <- function(
     x, show_labels = c("date", "case_overlap_methods"),
@@ -53,818 +54,468 @@ schema.number_line <- function(
 }
 
 #' @rdname schema
-#' @importFrom rlang .data
 #' @export
-schema.epid <- function(x, title = NULL, show_labels = c("length_arrow"),
-                        show_skipped = TRUE, show_non_finite = FALSE,
-                        theme = "dark", seed = NULL, custom_label = NULL, ...){
-  . <- NULL
+schema.epid <- function(
+    x, title = NULL, show_labels = c("length_arrow"),
+    show_skipped = TRUE, show_non_finite = FALSE, plot_scale = 'fit.screen',
+    theme = "dark", seed = NULL, custom_label = NULL, ...){
   # Validations
-  errs <- err_schema_epid_0(x = x,
-                            date = x@options$date,
-                            case_length = x@options$case_length,
-                            recurrence_length = x@options$recurrence_length,
-                            episode_unit = as.vector(decode(x@options$episode_unit)),
-                            from_last = x@options$from_last,
-                            title = title,
-                            show_labels = show_labels,
-                            show_skipped = show_skipped,
-                            show_non_finite = show_non_finite,
-                            theme = theme)
+  errs <- err_schema_epid_0(
+    x = x, date = x@options$date, case_length = x@options$case_length,
+    recurrence_length = x@options$recurrence_length,
+    episode_unit = as.vector(decode(x@options$episode_unit)),
+    from_last = x@options$from_last, title = title, show_labels = show_labels,
+    show_skipped = show_skipped, show_non_finite = show_non_finite, theme = theme)
 
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
 
   if(!is.null(seed)) set.seed(seed)
+
+  theme_color <- ifelse(theme == 'light', 'white', 'black')
+  contrast_color <- ifelse(theme == 'light', 'black', 'white')
+  if(isTRUE(show_labels)){
+    show_labels <-
+      c("sn", "epid", "date", "case_nm", "wind_nm", "length",
+        "length_arrow", "case_overlap_methods","recurrence_overlap_methods")
+  }
+
   # Standardise inputs
   # `date`
   int <- as.number_line(x@options$date)
-  is_dt <- ifelse(!any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt")), F, T)
+  is_dt <- any(class(int@start) %in% c("Date","POSIXct","POSIXt","POSIXlt"))
   if(isTRUE(is_dt)){
     int <- number_line(
-      l = as.POSIXct(int@start),
-      r = as.POSIXct(right_point(int))
-    )
+      l = as.POSIXct(int@start, tz = 'GMT'),
+      r = as.POSIXct(right_point(int), tz = 'GMT'))
   }
   # `episode_unit`
-  episode_unit <- x@options$episode_unit
+  episode_unit <- as.vector(x@options$episode_unit)
   episode_unit[!is_dt] <- 1
   # `case_length`
-  case_length <- x@options$case_length
-  case_length <- lapply(case_length, function(x){
-    if(length(x) == 1){
-      rep(x, length(int))
-    }else{
-      x
-    }
-  })
-  ep_l <- length_to_range(lengths = case_length,
-                          date = int,
-                          from_last = x@options$from_last,
-                          episode_unit = as.vector(episode_unit))$range
-  any_rolling <- any(sapply(x@wind_nm, function(x) any(x == 1)))
-  if(any_rolling){
-    recurrence_length <- x@options$recurrence_length
-    # `recurrence_length`
-    recurrence_length <- lapply(recurrence_length, function(x){
-      if(length(x) == 1){
-        rep(x, length(int))
-      }else{
-        x
-      }
-    })
-    rc_l <- length_to_range(lengths = recurrence_length,
-                            date = int,
-                            from_last = x@options$from_last,
-                            episode_unit = as.vector(episode_unit))$range
-  }else{
-    rc_l <- NULL
-  }
 
-  # `epid` data
-  plt_df <- as.data.frame(x)
-  if(!is.null(custom_label)){
-    plt_df$custom_label <- custom_label
-  }
-  plt_df$wind_id <- x@wind_id[[1]]
-  plt_df$wind_nm <- x@wind_nm[[1]]
+  if(any(c("case_overlap_methods","recurrence_overlap_methods", "length", "length_arrow") %in% show_labels)){
+    ep_l <- length_to_range(
+      x = x@options$case_length, date = int, from_last = x@options$from_last,
+      episode_unit = episode_unit, output = 'window', skip_if_b4_lengths = TRUE)
 
-  # Show skipped records
-  if(isFALSE(show_skipped)){
-    lgk <- plt_df$case_nm != -1
-    int <- int[lgk]
-    plt_df <- plt_df[plt_df$case_nm != -1,]
-    ep_l <- lapply(ep_l, function(x) x[lgk])
+    any_rolling <- any(sapply(x@wind_nm, function(x) any(x == 1 & !is.na(x))))
     if(any_rolling){
-      rc_l <- lapply(rc_l, function(x) x[lgk])
-    }
-
-  }
-  plt_df$start <- left_point(int)
-  plt_df$end <- right_point(int)
-  plt_df$start_l <- left_point(as.number_line(x@options$date))
-  plt_df$end_l <- right_point(as.number_line(x@options$date))
-  plt_df$epid <- as.character(plt_df$epid)
-
-  # Data points without finite coordinates.
-  plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
-
-  windows_dy <- sort(plt_df$wind_id)
-  windows_dy <- rle(windows_dy)
-  plt_df$wind_total <- windows_dy$length[match(plt_df$wind_id, windows_dy$values)]
-
-  lgk <- which(plt_df$epid_total != 1)
-  dts_a <- lapply(split(as.numeric(plt_df$start[lgk]), plt_df$epid[lgk]), min)
-  dts_z <- lapply(split(as.numeric(plt_df$end[lgk]), plt_df$epid[lgk]), max)
-
-  plt_df$epid_dts_a <- as.numeric(plt_df$start)
-  plt_df$epid_dts_z <- as.numeric(plt_df$end)
-  plt_df$epid_dts_a[lgk] <- as.numeric(dts_a)[match(plt_df$epid[lgk], names(dts_a))]
-  plt_df$epid_dts_z[lgk] <- as.numeric(dts_z)[match(plt_df$epid[lgk], names(dts_z))]
-
-  plt_df$di_pid <- episodes(date = number_line(plt_df$epid_dts_a, plt_df$epid_dts_z),
-                            case_length = index_window(number_line(plt_df$epid_dts_a, plt_df$epid_dts_z)),
-                            display = "none")
-  bd_id <- split(plt_df$epid, as.numeric(plt_df$di_pid))
-  bd_id_sn <- split(plt_df$sn, as.numeric(plt_df$di_pid))
-  bd_id <- lapply(bd_id, function(x){
-    match(x, x[!duplicated(x)])
-  })
-  bd_id_sn <- unlist(bd_id_sn, use.names = FALSE)
-  bd_id <- unlist(bd_id, use.names = FALSE)
-  plt_df$bd_id <- bd_id[match(plt_df$sn, bd_id_sn)]
-
-  # Alternating boundaries for separate `windows`
-  unq_bd_id <- plt_df$bd_id[!duplicated(plt_df$bd_id)]
-  bds <- number_line_sequence(number_line(0, 2), length.out = length(unq_bd_id))
-  # Alternating boundaries (y-axis) for each window
-
-  wind_br_a <- bds@start + (bds@.Data/32)
-  wind_br_z <- right_point(bds) - (bds@.Data/32)
-  winds_sn <- split(plt_df$sn, plt_df$bd_id)
-
-  # Random `y` coordinates within each window's boundary (above)
-  cord_y <- lapply(seq_len(length(wind_br_a)), function(i){
-    if(length(winds_sn[[i]]) > 1){
-      sample(seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]])),
-             length(winds_sn[[i]]))
+      # `recurrence_length`
+      rc_l <- length_to_range(
+        x = x@options$recurrence_length, date = int,from_last = x@options$from_last,
+        episode_unit = episode_unit, output = 'window', skip_if_b4_lengths = TRUE)
     }else{
-      wind_br_a[i]
-    }
-  })
-  winds_sn <- unlist(winds_sn, use.names = FALSE)
-  cord_y <- unlist(cord_y, use.names = FALSE)
-  plt_df$y <- cord_y[match(plt_df$sn, winds_sn)]
-  winds_cord_y <- split(plt_df$y, plt_df$bd_id)
-
-  # Midpoint of each window's boundaries (y-axis)
-  mid_y <- lapply(winds_cord_y, function(x){
-    rep(mean(x), length(x))
-  })
-  mid_y <- unlist(mid_y, use.names = FALSE)
-  plt_df$mid_y <- mid_y[match(plt_df$sn, winds_sn)]
-
-  # `dates`
-  plt_df$start <- as.numeric(plt_df$start)
-  plt_df$end <- as.numeric(plt_df$end)
-
-  # `episode_unit` used
-  plt_df$episode_unit <- episode_unit
-
-  # Information to show in the plot
-  if(isTRUE(show_labels)){
-    show_labels <- c("sn", "epid", "date", "case_nm", "wind_nm", "length",
-                     "length_arrow", "case_overlap_methods","recurrence_overlap_methods")
-  }
-
-  # Case length arrows
-  case_l_ar <- lapply(seq_len(length(x@wind_id)), function(i){
-    plt_df$wind_id <- plt_df[[paste0("wind_id",i)]]
-    plt_df$wind_nm <- as.vector(plt_df[[paste0("wind_nm",i)]])
-    l_ar(ep_l, plt_df, c("Case", "Case for Recurrence"), is_dt)
-  })
-
-  case_l_ar <- unlist(case_l_ar, recursive = FALSE)
-  case_l_ar <- case_l_ar[!duplicated(case_l_ar)]
-
-  if(any_rolling == T){
-    # Recurrence length arrows
-    rc_l_ar <- lapply(seq_len(length(x@wind_id)), function(i){
-      plt_df$wind_id <- plt_df[[paste0("wind_id",i)]]
-      plt_df$wind_nm <- as.vector(plt_df[[paste0("wind_nm",i)]])
-      l_ar(rc_l, plt_df, "Recurrence", is_dt)
-    })
-
-    rc_l_ar <- unlist(rc_l_ar, recursive = FALSE)
-    rc_l_ar <- rc_l_ar[!duplicated(rc_l_ar)]
-    case_l_ar <- c(case_l_ar, rc_l_ar)
-  }
-  case_l_ar <- do.call("rbind", case_l_ar)
-  case_l_ar$mid_x <- (case_l_ar$start + case_l_ar$end)/2L
-
-  any_finite <- length(plt_df$start[plt_df$finite]) > 0
-  if(any_finite){
-    breaks <- seq(min(as.numeric(plt_df$start[plt_df$finite])), max(as.numeric(plt_df$start[plt_df$finite])), length.out = 10)
-    labels <- seq(min(plt_df$start[plt_df$finite]), max(plt_df$start[plt_df$finite]), length.out = 10)
-
-    if(is_dt == TRUE){
-      # Sensible labels for time points. Based on `episode_unit`
-      if(min(episode_unit[[1]]) >= 4){
-        labels <- as.Date(as.POSIXct(labels, "GMT", origin = as.POSIXct("1970-01-01", "GMT")))
-        plt_df$event_nm <- number_line(as.Date(as.POSIXct(plt_df$start, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))),
-                                       as.Date(as.POSIXct(plt_df$end, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))))
-      }else{
-        labels <- as.POSIXct(labels, "GMT", origin = as.POSIXct("1970-01-01", "GMT"))
-        plt_df$event_nm <- number_line(as.POSIXct(plt_df$start, "GMT", origin = as.POSIXct("1970-01-01", "GMT")),
-                                       as.POSIXct(plt_df$end, "GMT", origin = as.POSIXct("1970-01-01", "GMT")))
-      }
-    }else{
-      plt_df$event_nm <- number_line(plt_df$start,
-                                     plt_df$start)
+      rc_l <- NULL
     }
   }else{
-    breaks <- 0
-    labels <- "Unknown"
+    any_rolling <- FALSE
   }
 
-  if(length(!duplicated(breaks)) == 1){
-    int <- 0
-  }else{
-    int <- (breaks[2]-breaks[1])
-  }
+  dfr <- as.data.frame(x = int)
+  dfr <- cbind(dfr, as.data.frame(x))
+  dfr$from_last <- x@options$from_last
+  dfr$episode_unit <- episode_unit
 
-  # Labels to plot
-  plt_df$event_type <- ""
-  plt_df$event_nm <- ""
-  # Show `epid_id` if requested
+  dfr$event_nm <- dfr$event_type <- ''
   if("epid" %in% show_labels){
-    plt_df$event_type <- paste0("E.", plt_df$epid)
+    dfr$event_type <- paste0("E.", dfr$epid)
   }
+
   # Show `case_nm` if requested
   if("case_nm" %in% show_labels){
-    plt_df$event_type <- paste0(plt_df$event_type, ifelse(plt_df$event_type == "", "", "\n"),
-                                decode(plt_df$case_nm),
-                                ifelse(plt_df$sn %in% case_l_ar$pt_sn & plt_df$case_nm != -1,
-                                       "\n(reference)",""))
+    dfr$event_type <- paste0(
+      dfr$event_type, ifelse(dfr$event_type == "", "", "\n"), decode(dfr$case_nm),
+      ifelse(dfr$sn %in% dfr$epid & dfr$case_nm != -1, "\n(reference)",""))
   }
+
   # Show `date` if requested
   if("date" %in% show_labels){
-    plt_df$event_nm <- number_line(plt_df$start_l, plt_df$end_l)
-    plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
-                              format(left_point(plt_df$event_nm)),
-                              format(plt_df$event_nm))
+    dfr$event_nm <- number_line(dfr$start, dfr$end)
+    dfr$event_nm <- ifelse(
+      dfr$event_nm@.Data == 0, format(left_point(dfr$event_nm)),
+      format(dfr$event_nm))
   }
   # Show record `custom_label` if requested
   if(!is.null(custom_label)){
-    plt_df$event_nm <- paste0(plt_df$custom_label, " ", plt_df$event_nm)
+    dfr$event_nm <- paste0(custom_label, " ", dfr$event_nm)
   }
   # Show record `sn` if requested
   if("sn" %in% show_labels){
-    plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ", plt_df$event_nm)
+    dfr$event_nm <- paste0("SN ", dfr$sn, "; ", dfr$event_nm)
   }
 
-  # Show non-finite dates if requested
-  if(isTRUE(show_non_finite)){
-    # Add non-finite `dates` to plot.
-    plt_df$start[!plt_df$finite] <- sample(seq(max(breaks) + (int * 1),
-                                               max(breaks) + (int * 3),
-                                               length.out = length(plt_df$start[!plt_df$finite])),
-                                           length(plt_df$start[!plt_df$finite]))
-
-    plt_df$end[!plt_df$finite] <- plt_df$start[!plt_df$finite]
-    breaks2 <- seq(max(breaks), int, length.out = 3)
-    labels2 <- rep("", 3)
-    labels2[floor(mean(seq_len(length(labels2))))] <- "Unknown"
-  }else{
-    breaks2 <- breaks[0]
-    labels2 <- labels[0]
-    x <- x[plt_df$finite]
-    plt_df <- plt_df[plt_df$finite,]
+  if(!show_skipped){
+    dfr <- dfr[decode(dfr$case_nm) != 'Skipped', ]
   }
 
-  # Mid point of `date` to show links
-  plt_df$mid_x <- (as.numeric(plt_df$start) + as.numeric( plt_df$end))/2
+  epids_n <- length(dfr$epid[!duplicated(dfr$epid)])
+  epids_cols <- random_colors(epids_n, alpha = .7, theme = ifelse(theme == 'light', 'dark', 'light'))
 
-  dev.orientation <- FALSE
 
-  # Link between records and their index
-  plt_df <- lapply(1:length(x@wind_id), function(i){
-    sw <- which(plt_df$wind_id != plt_df[[paste0("wind_id",i)]] &
-                  !is.na(plt_df[[paste0("wind_id",i)]]))
-    plt_df$wind_id[sw] <- x@wind_id[[i]][sw]
-    link_sn <- plt_df[plt_df$sn %in% plt_df$wind_id, c("sn", "mid_x", "y")]
+  dfr$ep_i <- match(dfr$epid, dfr$sn)
+  dfr$ep_ord <- combi(dfr$ep_i, ordered = TRUE)
 
-    if(!dev.orientation){
-      indx <- match(plt_df$wind_id, link_sn$sn)
-      plt_df$x_lead <- link_sn$mid_x[indx]
-      plt_df$y_lead <- link_sn$y[indx]
-      plt_df$sn_lead <- link_sn$sn[indx]
+  tmp.lgk <- is.na(dfr$end) | is.na(dfr$start)
+  if(show_non_finite){
+    if(all(tmp.lgk)){
+      dfr$end[tmp.lgk] <- dfr$start[tmp.lgk] <- 1
     }else{
-      indx <- match(plt_df$wind_id, case_l_ar$pt_sn)
-      plt_df$x_lead <- case_l_ar$mid_x[indx]
-      plt_df$y_lead <- case_l_ar$y[indx]
-      plt_df$sn_lead <- case_l_ar$pt_sn[indx]
+      dfr$end[tmp.lgk] <- dfr$start[tmp.lgk] <- min(c(dfr$start, dfr$end), na.rm = TRUE)
     }
-    plt_df$wind_nm <- plt_df[[paste0("wind_nm",i)]]
-    df_cols <- c("sn", "start", "end", "y", "epid", "y_lead", "x_lead", "mid_x","sn_lead", "finite", "wind_nm")
-    if(!isFALSE(show_labels) | !is.null(custom_label)) {
-      df_cols <- c(df_cols, "event_nm", "event_type")
-    }
-    plt_df <- plt_df[df_cols]
-
-    if(i > 1){
-      plt_df <- plt_df[sw,]
-    }
-    plt_df
-  })
-
-  plt_df <- do.call("rbind", plt_df)
-
-  if(nrow(case_l_ar) > 0){
-    case_l_ar$start <- as.numeric(case_l_ar$start)
-    case_l_ar$end <- as.numeric(case_l_ar$end)
-
-    pl_x_e <- max(plt_df$end, plt_df$start)
-    pl_x_s <- min(plt_df$start, plt_df$end)
-
-    lgk <- ((case_l_ar$end > pl_x_e & case_l_ar$end > case_l_ar$start))
-    case_l_ar$end[lgk] <- pl_x_e
-    lgk <- ((case_l_ar$end < pl_x_s & case_l_ar$end < case_l_ar$start))
-    case_l_ar$end[lgk] <- pl_x_s
-
-    lgk <- ((case_l_ar$start < pl_x_s & case_l_ar$end > case_l_ar$start))
-    case_l_ar$start[lgk] <- pl_x_s
-    lgk <- ((case_l_ar$start > pl_x_e & case_l_ar$end < case_l_ar$start))
-    case_l_ar$start[lgk] <- pl_x_e
-
-    case_l_ar$bck_dir <- abs(case_l_ar$nl_s) > abs(case_l_ar$nl_e)
-    rev_len <- reverse_number_line(number_line(case_l_ar$start[case_l_ar$bck_dir], case_l_ar$end[case_l_ar$bck_dir]), direction = "both")
-    case_l_ar$start[case_l_ar$bck_dir] <- rev_len@start
-    case_l_ar$end[case_l_ar$bck_dir] <- right_point(rev_len)
-
-    case_l_ar$lab_y[case_l_ar$no_ar] <- case_l_ar$y[case_l_ar$no_ar]
-    case_l_ar$nl_t <- case_l_ar$wind_nm_l
-    case_l_ar$nl_l <- paste0("\n",
-                             format(number_line(case_l_ar$nl_s, case_l_ar$nl_e)),
-                             " ", ifelse(is_dt, gsub("s$", "-", names(diyar::episode_units)[case_l_ar$episode_unit]), "unit-"),
-                             "difference.")
   }else{
-    case_l_ar$no_ar <- logical()
-    case_l_ar$nl_t <- case_l_ar$nl_l <- character()
+    dfr <- dfr[!tmp.lgk,]
   }
 
-  plot_pts <- nrow(plt_df)
-  min_x <- min(c(plt_df$start, plt_df$end, case_l_ar$start, case_l_ar$end))
-
-  if(theme == "dark"){
-    bg_col <- "black"
-    txt_col <- "white"
-  }else{
-    bg_col <- "white"
-    txt_col <- "black"
+  # Size scaling
+  if(plot_scale == 'fit.screen'){
+    s.fac <- prod(grDevices::dev.size())/70
+  }else if(plot_scale == 'default'){
+    s.fac <- 1
+  }else if(inherits(plot_scale, 'numeric')){
+    s.fac <- abs(1 * plot_scale)
   }
 
-  plt_df$overlap_method <- ""
-  if(nrow(case_l_ar) > 0 & ("case_overlap_methods" %in% show_labels | "recurrence_overlap_methods" %in% show_labels)){
-    rep_lgk <- match(plt_df$sn_lead, case_l_ar$pt_sn)
-    plt_df$lead_dt_a <- case_l_ar$start_rl[rep_lgk]
-    plt_df$lead_dt_z <- case_l_ar$end_rl[rep_lgk]
-    if("case_overlap_methods" %in% show_labels){
-      rep_lgk <- which(plt_df$sn != plt_df$sn_lead & plt_df$wind_nm == "Case")
-      if(length(rep_lgk) > 0){
-        plt_df$overlap_method[rep_lgk] <- overlap_method(
-          x = number_line(plt_df$start[rep_lgk], plt_df$end[rep_lgk]),
-          y = number_line(plt_df$lead_dt_a[rep_lgk], plt_df$lead_dt_z[rep_lgk]))
+  dfr$dt_n <- bys_count(combi(dfr$start, dfr$end))
+  y_scatter_fac <- max(dfr$dt_n)*10
+  size.adjust <- 10/nrow(dfr) * s.fac
+  nodes.size <- 4*size.adjust
+  arrow.head.size <- .3*size.adjust
+  text.size <- 2*size.adjust
+  edges.size <- 4*size.adjust
+
+  # yadj <- seq(0, 10, length.out = y_scatter_fac)
+  # dfr$ycord <- 1 + sample(yadj, nrow(dfr), replace = nrow(dfr) > length(yadj))
+  spn <- 10
+  yadj <- seq(0, spn, length.out = nrow(dfr) * spn)
+  dfr$ycord <- 1 + sample(yadj, nrow(dfr), replace = FALSE)
+
+  dfr$x_gap <- sample(yadj, nrow(dfr), replace = TRUE)/(spn + 1)
+  dfr$xcord_end <- dfr$end + dfr$x_gap; dfr$xcord_start <- dfr$start + dfr$x_gap
+  dfr$xcord <- ((as.numeric(dfr$start) +  as.numeric(dfr$end))/2) + dfr$x_gap
+
+  # Main plot
+  wind_ids <- grep('wind_id', names(dfr), value = T)
+  dfr_w <- list()
+  for(i in seq_len(length(wind_ids))){
+    dfr_w[[i]] <-
+      dfr[c('sn', 'start', 'end','xcord', 'xcord_start',
+            'xcord_end','ycord', 'ep_ord', 'x_gap', 'epid_total',
+            'from_last', 'episode_unit',
+            wind_ids[i], gsub('_id', '_nm', wind_ids[i]))]
+    names(dfr_w[[i]])[length(dfr_w[[i]])-1] <- 'wind_id'
+    names(dfr_w[[i]])[length(dfr_w[[i]])] <- 'wind_nm'
+    dfr_w[[i]]$order <- i
+  }
+
+  dfr_w <- do.call('rbind', dfr_w)
+  dfr_w <- dfr_w[!is.na(dfr_w$wind_id),]
+  dfr_w$wi_i <- match(dfr_w$wind_id, dfr_w$sn)
+  dfr_w$wi_xcord <- dfr_w$xcord[dfr_w$wi_i]; dfr_w$wi_ycord <- dfr_w$ycord[dfr_w$wi_i]
+
+  # lengths
+  # xlim <- as.list(dfr_w[c('start', 'end', 'wi_xcord','xcord', 'xcord_start', 'xcord_end')])
+  xlim <- as.list(dfr_w[c('wi_xcord','xcord', 'xcord_start', 'xcord_end')])
+
+  if(is_dt){
+    xlim <- lapply(xlim, as.POSIXct)
+  }
+
+  xlim <- range(xlim, na.rm = TRUE)
+  x_margin <- 0.00001; y_margin <- 0.5
+  x_margin <- 0; y_margin <- 0
+  xlim[1] <- xlim[1] - x_margin; xlim[2] <- xlim[2] + x_margin
+  ylim <- range(as.list(dfr_w[c('wi_ycord', 'ycord')]), na.rm = TRUE)
+  ylim[1] <- floor(ylim[1] - (ylim[1] * y_margin)); ylim[2] <- ceiling(ylim[2] + (ylim[2] * y_margin))
+
+  par(bg = theme_color, mar = c(0,0,0,0))
+
+  plot(
+    x = dfr$xcord_end, y = dfr$ycord, col = epids_cols[dfr$ep_ord], pch = 16,
+    cex = nodes.size, ylab = "", xlab = "", xlim = xlim, ylim = ylim,
+    yaxt = "n",  xaxt = "n", bty = "n")
+
+  if(any(c("epid", "case_nm") %in% show_labels)){
+    text(dfr$xcord, dfr$ycord, labels = dfr$event_type, pos = 1,
+         col = epids_cols[dfr$ep_ord], cex = text.size)
+  }
+
+  if(any(c("date", "sn") %in% show_labels | !is.null(custom_label))){
+    text(dfr$xcord, dfr$ycord, labels = dfr$event_nm, pos = 3,
+         col = epids_cols[dfr$ep_ord], cex = text.size)
+  }
+
+  tmp.lgk <- dfr$start != dfr$end
+  points(
+    x = dfr$xcord_start[tmp.lgk], y = dfr$ycord[tmp.lgk],
+    col = epids_cols[dfr$ep_ord[tmp.lgk]], pch = 16, cex = nodes.size)
+
+  segments(
+    x0 = dfr_w$xcord_start[tmp.lgk], y0 = dfr_w$ycord[tmp.lgk], x1 = dfr_w$xcord_end[tmp.lgk],
+    y1 = dfr_w$ycord[tmp.lgk], col = epids_cols[dfr_w$ep_ord[tmp.lgk]], lwd = edges.size)
+  tmp.lgk <- dfr_w$epid_total > 1
+  segments(
+    x0 = dfr_w$xcord[tmp.lgk], y0 = dfr_w$ycord[tmp.lgk], x1 = dfr_w$wi_xcord[tmp.lgk],
+    y1 = dfr_w$wi_ycord[tmp.lgk], col = epids_cols[dfr_w$ep_ord[tmp.lgk]], lwd = edges.size)
+
+  if(any(c('length_arrow', 'length', 'wind_nm', 'case_overlap_methods',
+           'recurrence_overlap_methods') %in% show_labels)){
+    for (window in c('Case', 'Recurrence')) {
+      if(window == 'Recurrence' & !any_rolling) next
+      if(window == 'Case') tmp_l2 <- ep_l else tmp_l2 <- rc_l
+      repeats <- length(tmp_l2$length)
+      tmp_lty <- ifelse(window == 'Case',1,2)
+      tmp_v.off <- ifelse(window == 'Case',1,0.995)
+      tmp_len.pos <- ifelse(window == 'Case',3,1)
+      tmp_l <- do.call('rbind', lapply(tmp_l2$length, as.data.frame))
+      names(tmp_l) <- paste0('ep_', names(tmp_l))
+
+      dfr_i <- dfr_w[
+        dfr_w$sn %in% dfr_w$wind_id[dfr_w$wind_nm == window]
+        & dfr_w$epid_total > 1  & !is.na(dfr_w$wind_nm),]
+      dfr_i$ycord <- dfr_i$ycord * tmp_v.off
+      mm <- as.data.frame(index_multiples(dfr_i$sn, nrow(dfr), repeats))
+      dfr_i <- do.call('rbind', rep(list(dfr_i), repeats))
+      dfr_i$mm <- mm$mm
+
+      dfr_i$ep_xcord_a <- tmp_l$ep_start[dfr_i$mm] + dfr_i$x_gap
+      dfr_i$ep_xcord_z <- tmp_l$ep_end[dfr_i$mm] + dfr_i$x_gap
+
+      dfr_i$ep_xcord_a[dfr_i$ep_xcord_a < xlim[1]] <- xlim[1]
+      dfr_i$ep_xcord_a[dfr_i$ep_xcord_a > xlim[2]] <- xlim[2]
+      dfr_i$ep_xcord_z[dfr_i$ep_xcord_z < xlim[1]] <- xlim[1]
+      dfr_i$ep_xcord_z[dfr_i$ep_xcord_z > xlim[2]] <- xlim[2]
+
+      dfr_i$ep_xcord_m <-( (as.numeric(dfr_i$ep_xcord_z) - as.numeric(dfr_i$ep_xcord_a))/2) + dfr_i$ep_xcord_a
+      dfr_i <- dfr_i[dfr_i$ep_xcord_a != dfr_i$ep_xcord_z,]
+
+      tmp.lgk <- !dfr_i$from_last
+      suppressWarnings({
+        arrows(
+          x0 = dfr_i$ep_xcord_a[tmp.lgk], y0 = dfr_i$ycord[tmp.lgk],
+          x1 = dfr_i$ep_xcord_z[tmp.lgk], y1 = dfr_i$ycord[tmp.lgk],
+          col = contrast_color,
+          length = arrow.head.size, lwd = edges.size, lty = tmp_lty, code = 2)
+      })
+
+      tmp.lgk <- dfr_i$from_last
+      suppressWarnings({
+        arrows(
+          x0 = dfr_i$ep_xcord_a[tmp.lgk], y0 = dfr_i$ycord[tmp.lgk],
+          x1 = dfr_i$ep_xcord_z[tmp.lgk], y1 = dfr_i$ycord[tmp.lgk],
+          col = contrast_color,
+          length = arrow.head.size, lwd = edges.size, lty = tmp_lty, code = 1)
+      })
+
+      if(repeats > 1){
+        tmp.lgk <- dfr_i$mm <= nrow(dfr)
+
+        dfr_i$cv_xcord_a <-  dfr_i$cv_xcord_z <- NA
+        dfr_i$cv_xcord_a[tmp.lgk] <- tmp_l2$coverage@start[dfr_i$sn[tmp.lgk]] + dfr_i$x_gap[tmp.lgk]
+        dfr_i$cv_xcord_z[tmp.lgk] <- right_point(tmp_l2$coverage[dfr_i$sn[tmp.lgk]]) + dfr_i$x_gap[tmp.lgk]
+
+        segments(
+          x0 = dfr_i$cv_xcord_a[tmp.lgk], y0 = dfr_i$ycord[tmp.lgk],
+          x1 = dfr_i$cv_xcord_z[tmp.lgk], y1 = dfr_i$ycord[tmp.lgk],
+          col = contrast_color, lwd = edges.size, lty = 3)
+      }
+
+      dfr_i$len_nm <- ''
+      if('wind_nm' %in% show_labels){
+        dfr_i$len_nm <- paste0(window, '-length')
+      }
+
+      if("length" %in% show_labels){
+        tmp_l2 <- length_to_range(
+          x = x@options$case_length, date = int, from_last = x@options$from_last,
+          episode_unit = 1, output = 'length')$length
+
+        tmp_l2 <- do.call('rbind', lapply(tmp_l2, as.data.frame))
+
+        dfr_i$len_nm <-
+          paste0(dfr_i$len_nm, "\n",
+                 format(number_line(tmp_l2$start[dfr_i$mm], tmp_l2$end[dfr_i$mm])),
+                 " ", ifelse(is_dt, gsub("s$", "-", names(diyar::episode_units)[dfr_i$episode_unit]), "unit-"),
+                 "difference")
+
+        if(any(c("length", 'wind_nm') %in% show_labels)){
+          text(dfr_i$ep_xcord_m, dfr_i$ycord, labels = dfr_i$len_nm,
+               pos = tmp_len.pos, col = contrast_color, cex = text.size)
+        }
+      }
+
+
+
+      if(tolower(paste0(window, '_overlap_methods')) %in% show_labels){
+        dfr_o <- data.table::as.data.table(dfr_w[dfr_w$wind_id %in% dfr_i$sn,])
+        tmp_l$mm <- seq_len(nrow(tmp_l))
+        tmp_l$ord <- ceiling(tmp_l$mm/nrow(dfr))
+        tmp_l$wind_id <- tmp_l$mm - (nrow(dfr) * (tmp_l$ord -1))
+        tmp_l3 <- data.table::as.data.table(tmp_l[dfr_i$mm,])
+
+        dfr_o <- merge(dfr_o, tmp_l3, all = TRUE, allow.cartesian=TRUE, by = 'wind_id')
+        dfr_o$mth <- overlap_method(
+          number_line(dfr_o$start, dfr_o$end),
+          number_line(dfr_o$ep_start, dfr_o$ep_end))
+        dfr_o <- dfr_o[dfr_o$mth != 'none',]
+        text((dfr_o$xcord + dfr_o$wi_xcord)/2,
+             (dfr_o$ycord + dfr_o$wi_ycord)/2,
+             labels = dfr_o$mth, cex = text.size,
+             col = epids_cols[dfr_o$ep_ord])
+        dfr_o$mth <- dfr_o$ep_start <- dfr_o$ep_end <- NULL
       }
     }
-    if("recurrence_overlap_methods" %in% show_labels){
-      rep_lgk <- which(plt_df$sn != plt_df$sn_lead & plt_df$wind_nm == "Recurrence")
-      if(length(rep_lgk) > 0){
-        plt_df$overlap_method[rep_lgk] <- overlap_method(
-          x = number_line(plt_df$start[rep_lgk], plt_df$end[rep_lgk]),
-          y = number_line(plt_df$lead_dt_a[rep_lgk], plt_df$lead_dt_z[rep_lgk]))
-      }
-    }
   }
-
-
-  f <- ggplot2::ggplot(data = plt_df) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$end, y = .data$y, yend = .data$y, colour = .data$epid), size = scale_size(c(.1,1), 500, plot_pts), alpha= .7) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, colour = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha= .7) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$x_lead, y = .data$y_lead, colour = .data$epid, xend = .data$mid_x, yend = .data$y), alpha = .4)
-  if(!isFALSE(show_labels) | !is.null(custom_label)){
-    if(("case_overlap_methods" %in% show_labels | "recurrence_overlap_methods" %in% show_labels)){
-      f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$x_lead) + as.numeric(.data$mid_x))/2, y = (as.numeric(.data$y) + as.numeric(.data$y_lead))/2, label = .data$overlap_method, colour = .data$epid), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha= .7)
-    }
-    if("length_arrow" %in% show_labels){
-      f <- f + ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y), linetype = "solid", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$wind_nm_l != "`Recurrence`-length" & case_l_ar$epid_total > 1 & case_l_ar$nl_s != case_l_ar$nl_e,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open")) +
-        ggplot2::geom_segment(ggplot2::aes(x = .data$start, y = .data$y, xend = .data$end, yend = .data$y), linetype = "dashed", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$wind_nm_l == "`Recurrence`-length" & case_l_ar$epid_total > 1 & case_l_ar$nl_s != case_l_ar$nl_e,], arrow = ggplot2::arrow(length = ggplot2::unit(scale_size(c(.5,.2), 500, plot_pts),"cm"), ends = "last", type = "open")) +
-        ggplot2::geom_segment(ggplot2::aes(x = .data$pt_end, y = .data$y, xend = .data$start, yend = .data$y), linetype = "dotted", color = txt_col, alpha= .9, data = case_l_ar[case_l_ar$epid_total > 1 & case_l_ar$start != 0 & case_l_ar$end != 0,])
-      if(dev.orientation){
-        f <- f + ggplot2::geom_point(ggplot2::aes(x = .data$mid_x, y = .data$y), color = "white", size = scale_size(c(1,2), 500, plot_pts), alpha= .7, data = case_l_ar[case_l_ar$epid_total > 1 & case_l_ar$nl_s != case_l_ar$nl_e,])
-      }
-    }
-    if("wind_nm" %in% show_labels){
-      case_l_ar$nl_l <- paste0(case_l_ar$nl_t,  case_l_ar$nl_l)
-    }
-    if("length" %in% show_labels){
-      f <- f + ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, label = .data$nl_l), data = case_l_ar[case_l_ar$nl_nm == "len" & case_l_ar$epid_total > 1,], nudge_y = scale_size(c(.02, .06), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), color = txt_col, alpha= .9, vjust = "bottom")
-    }
-
-    f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha= .7) +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y = .data$y, colour = .data$epid, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "top", alpha= .7)
-  }
-  if(!is.null(title)){
-    f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y= 2.15, label = title), colour = txt_col, size = 5)
-  }
-  if(isTRUE(show_non_finite)){
-    t1 <- plt_df[!plt_df$finite,]
-    x1 <- min(t1$x); x2 <- max(t1$x)
-    f <- f +
-      ggplot2::geom_vline(ggplot2::aes(xintercept = x1), alpha = 1, color = txt_col, linetype = 3) +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(x1) + as.numeric(x2))/2, y = 1), color = txt_col, label = "Non-finite\nevents)", size = scale_size(c(2,5), 500, plot_pts), alpha= .9, hjust = "middle")
-  }
-  f <- f + ggplot2::theme(
-    legend.position = "none",
-    legend.background = ggplot2::element_rect(fill = bg_col),
-    legend.text = ggplot2::element_text(colour = txt_col),
-    plot.background = ggplot2::element_rect(fill = bg_col),
-    panel.background = ggplot2::element_rect(fill = bg_col),
-    panel.border = ggplot2::element_blank(),
-    panel.grid = ggplot2::element_blank(),
-    axis.line = ggplot2::element_blank(),
-    axis.text = ggplot2::element_blank(),
-    axis.ticks = ggplot2::element_blank(),
-    axis.title = ggplot2::element_blank()
-  )
-  return(f)
 }
 
 #' @rdname schema
-#' @importFrom rlang .data
 #' @export
-schema.pane <- function(x, title = NULL, show_labels = c("window_label"),
-                        theme = "dark", seed = NULL, custom_label = NULL, ...) {
-  . <- NULL
+schema.pane <- function(
+    x, title = NULL, show_labels = c("window_label"), plot_scale = 'fit.screen',
+    theme = "dark", seed = NULL, custom_label = NULL, ...){
 
   # Validations
-  errs <- err_schema_pane_0(x = x,
-                            date = x@options$date,
-                            title = title,
-                            show_labels = show_labels,
-                            theme = theme)
-
+  errs <- err_schema_pane_0(
+    x = x, date = x@options$date, title = '', show_labels = show_labels,
+    theme = theme)
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
-  if(!is.null(seed)) set.seed(seed)
 
-  # `Pane` data
-  panes <- x
-  plt_df <- as.data.frame(panes)
-  if(!is.null(custom_label)){
-    plt_df$custom_label <- custom_label
-  }
-  plt_df$start <- as.number_line(x@options$date)@start
-  plt_df$end <- right_point(as.number_line(x@options$date))
-  plt_df$epid <- as.character(panes@.Data)
-  plt_df$pane_id <- panes@.Data
-  plt_df$case_nm <- decode(panes@case_nm)
+  theme_color <- ifelse(theme == 'light', 'white', 'black')
+  contrast_color <- ifelse(theme == 'light', 'black', 'white')
 
-  # Data points without finite coordinates.
-  plt_df$finite <- !is.na(plt_df$start) & !is.na(plt_df$end)
-
-  windows_dy <- sort(plt_df$pane_id)
-  windows_dy <- rle(windows_dy)
-  plt_df$wind_total <- windows_dy$length[match(plt_df$pane_id, windows_dy$values)]
-
-  # Colour code for each window
-  if(isTRUE(x@options$separate)){
-    plt_df$pane_n <- as.character(plt_df$window_matched)
-  }else{
-    plt_df$pane_n <- "1"
-  }
-
-  # Same colour for non-matches
-  plt_df$pane_n[plt_df$window_matched == 0] <- -seq_len(length(plt_df$pane_n[plt_df$window_matched == 0]))
-  plt_df$pane_n <- as.character(plt_df$pane_n)
-
-  # `windows`
-  splits_windows <- x@window_list
-  splits_windows <- splits_windows[!duplicated(splits_windows)]
-
-  border <- do.call(rbind, lapply(splits_windows, function(x){
-    x <- as.data.frame(x)
-    x$pane_n <- as.character(seq_len(nrow(x)))
-    x
-  }))
-
-  if(isFALSE(x@options$separate)){
-    border$pane_n <- "1"
-  }
-
-  border$y2 <- 2.05
-  border$y1 <- 0.00
-
-  # Information to show in the plot
   if(isTRUE(show_labels)){
-    show_labels <- c("sn", "pane", "date", "case_nm", "window_label")
-  }
-  # If show `window_label` is requested
-  if("window_label" %in% show_labels){
-    border$win_l <- format(number_line(border$start, border$end))
+    show_labels <- c("sn", "epid", "date", "case_nm", "window_label")
   }else{
-    border$win_l <- ""
+    show_labels[show_labels == 'pane'] <- 'epid'
   }
 
-  # Identify points that will overlap on the plot
-  lgk <- which(plt_df$pane_total != 1)
-  dts_a <- lapply(split(as.numeric(plt_df$start[lgk]), plt_df$epid[lgk]), min)
-  dts_z <- lapply(split(as.numeric(plt_df$end[lgk]), plt_df$epid[lgk]), max)
+  y <- x
+  x <- as.epid(y)
+  x@sn <- y@sn
+  x@wind_id <- list(wind_id1 = x@.Data)
+  x@wind_nm <- lapply(x@wind_id, as.character)
 
-  plt_df$epid_dts_a <- as.numeric(plt_df$start)
-  plt_df$epid_dts_z <- as.numeric(plt_df$end)
-  plt_df$epid_dts_a[lgk] <- as.numeric(dts_a)[match(plt_df$epid[lgk], names(dts_a))]
-  plt_df$epid_dts_z[lgk] <- as.numeric(dts_z)[match(plt_df$epid[lgk], names(dts_z))]
+  names(x@wind_nm) <- gsub('wind_id', 'wind_nm',  names(x@wind_nm))
+  x@epid_total <- y@pane_total
+  x@case_nm <- y@case_nm
+  x@options <-list(
+    date = y@options$date, strata = y@.Data,
+    episode_unit = encode('seconds'), from_last = FALSE,
+    case_length = 1, recurrence_length = 1)
 
-  plt_df$di_pid <- episodes(date = number_line(plt_df$epid_dts_a, plt_df$epid_dts_z),
-                            strata = plt_df$pane_n,
-                            case_length = index_window(number_line(plt_df$epid_dts_a, plt_df$epid_dts_z)),
-                            display = "none")
-  bd_id <- split(plt_df$epid, as.numeric(plt_df$di_pid))
-  bd_id_sn <- split(plt_df$sn, as.numeric(plt_df$di_pid))
-  bd_id <- lapply(bd_id, function(x){
-    match(x, x[!duplicated(x)])
-  })
-  bd_id_sn <- unlist(bd_id_sn, use.names = FALSE)
-  bd_id <- unlist(bd_id, use.names = FALSE)
-  plt_df$bd_id <- bd_id[match(plt_df$sn, bd_id_sn)]
+  if(length(show_labels) == 0) show_labels <- FALSE
+  schema(
+    x, show_labels = show_labels[!show_labels %in% 'window_label'],
+    custom_label = custom_label, seed = seed,
+    theme = theme, plot_scale = plot_scale)
 
-
-  # Set alternating boundaries for separate `windows`
-  unq_bd_id <- plt_df$bd_id[!duplicated(plt_df$bd_id)]
-  bds <- number_line_sequence(number_line(0, 2), length.out = length(unq_bd_id))
-
-  wind_br_a <- bds@start + (bds@.Data/32)
-  wind_br_z <- right_point(bds) - (bds@.Data/32)
-  winds_sn <- split(plt_df$sn, plt_df$bd_id)
-
-  # Random `y` coordinates within each window's boundary (above)
-  cord_y <- lapply(seq_len(length(wind_br_a)), function(i){
-    if(length(winds_sn[[i]]) > 1){
-      sample(seq(wind_br_a[i], wind_br_z[i], length.out = length(winds_sn[[i]])),
-             length(winds_sn[[i]]))
-    }else{
-      wind_br_a[i]
-    }
-  })
-  winds_sn <- unlist(winds_sn, use.names = FALSE)
-  cord_y <- unlist(cord_y, use.names = FALSE)
-  plt_df$y <- cord_y[match(plt_df$sn, winds_sn)]
-
-  # Mid point of date` to show links
-  plt_df$mid_x <- (as.numeric(plt_df$start) + as.numeric(plt_df$end))/2
-  # Link between records and their index
-  link_sn <- plt_df[plt_df$sn %in% plt_df$pane_id, c("sn", "mid_x", "y")]
-  plt_df$x_lead <- link_sn$mid_x[match(plt_df$pane_id, link_sn$sn)]
-  plt_df$y_lead <- link_sn$y[match(plt_df$pane_id, link_sn$sn)]
-
-  plt_df$event_type <- ""
-  plt_df$event_nm <- ""
-  # Show `pane_id` if requested
-  if("pane" %in% show_labels){
-    plt_df$event_type <- paste0("PN.", plt_df$epid)
-  }
-  # Show `case_nm` if requested
-  if("case_nm" %in% show_labels){
-    plt_df$event_type <- paste0(plt_df$event_type, ifelse(plt_df$event_type == "", "", "\n"),
-                                plt_df$case_nm,
-                                ifelse(plt_df$sn %in% plt_df$pane_id & plt_df$case_nm != -1,
-                                       "\n(reference)",""))
-  }
-  # Show record `date` if requested
-  if("date" %in%  show_labels){
-    plt_df$event_nm <- number_line(plt_df$start,
-                                   plt_df$end)
-    plt_df$event_nm <- ifelse(left_point(plt_df$event_nm) == right_point(plt_df$event_nm),
-                              format(left_point(plt_df$event_nm)),
-                              format(plt_df$event_nm))
-  }
-  # Show record `custom_label` if requested
-  if(!is.null(custom_label)){
-    plt_df$event_nm <- paste0(plt_df$custom_label, " ",
-                              plt_df$event_nm)
-  }
-  # Show record `sn` if requested
-  if("sn" %in%  show_labels){
-    plt_df$event_nm <- paste0("SN ", plt_df$sn, "; ",
-                              plt_df$event_nm)
+  # Size scaling
+  if(plot_scale == 'fit.screen'){
+    s.fac <- prod(grDevices::dev.size())/70
+  }else if(plot_scale == 'default'){
+    s.fac <- 1
+  }else if(inherits(plot_scale, 'numeric')){
+    s.fac <- abs(1 * plot_scale)
   }
 
-  # Can't plot `Inf'/`-Inf`, so close infinite `window`
-  r_lim <- c(border$end, plt_df$end)
-  r_lim <- r_lim[!is.infinite(r_lim)]
-  l_lim <- c(border$start, plt_df$start)
-  l_lim <- l_lim[!is.infinite(l_lim)]
+  size.adjust <- 10/length(x) * s.fac
+  text.size <- 2*size.adjust
 
-  border$end[is.infinite(border$end)] <- max(r_lim)
-  border$start[is.infinite(border$start)] <- min(l_lim)
+  wnds <- y@window_list[!duplicated(y@window_list)]
+  wnds <- do.call('rbind', lapply(wnds, as.data.frame))
+  wnds$nl <- number_line(wnds$start, wnds$end)
 
-  # Can't plot records with missing `dates`
-  plt_df <- plt_df[plt_df$finite,]
-  plt_df$start <- as.numeric(plt_df$start)
-  plt_df$end <- as.numeric(plt_df$end)
-  plot_pts <- nrow(plt_df)
-  min_x <- min(c(plt_df$start, border$start))
-
-  if(theme == "dark"){
-    bg_col <- "black"
-    txt_col <- "white"
-  }else{
-    bg_col <- "white"
-    txt_col <- "black"
-  }
-
-  plt_df$epid <- match(plt_df$epid, plt_df$epid[!duplicated(plt_df$epid)])
-  plt_df$epid <- formatC(plt_df$epid, width = nchar(max(plt_df$epid)), flag = 0, format = "fg")
-
-  q <- border$pane_n[!duplicated(border$pane_n)]
-  border$pane_n <- match(border$pane_n, sample(q, length(q)))
-  border$pane_n <- formatC(border$pane_n, width = nchar(max(border$pane_n)), flag = 0, format = "fg")
-  border$start <- as.numeric(border$start)
-  border$end <- as.numeric(border$end)
-
-  f <- ggplot2::ggplot(data = plt_df) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$start, xend = .data$end, y = .data$y, yend = .data$y, colour = .data$epid), size = scale_size(c(.1,1), 500, plot_pts), alpha = .7) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$start, y = .data$y, color = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$end, y = .data$y, color = .data$epid), size = scale_size(c(1,3), 500, plot_pts), alpha = .7) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$mid_x, y= .data$y, colour = .data$epid, xend = .data$x_lead, yend = .data$y_lead), alpha = .4) +
-    ggplot2::geom_rect(ggplot2::aes(xmin = .data$start, xmax = .data$end, ymin = .data$y1, ymax = .data$y2, fill = .data$pane_n), data = border, alpha = .2) +
-    ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y2, label = .data$win_l), color = txt_col, data = border, nudge_y = .05, size = 5)
-  if(!isFALSE(show_labels) | !is.null(custom_label)){
-    f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$epid, label = .data$event_nm), nudge_y = scale_size(c(.01, .02), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "bottom", alpha = .7) +
-      ggplot2::geom_text(ggplot2::aes(x = (as.numeric(.data$start) + as.numeric(.data$end))/2, y= .data$y, colour = .data$epid, label = .data$event_type), nudge_y = -scale_size(c(0, .01), 500, plot_pts), size = scale_size(c(2,4), 500, plot_pts), vjust = "top", alpha = .7)
-  }
-  if(!is.null(title)){
-    f <- f + ggplot2::geom_text(ggplot2::aes(x = min_x, y = 2.2, label = title), colour = txt_col, size = 5)
-  }
-  f <- f +
-    ggplot2::theme(
-      legend.position = "none",
-      plot.background = ggplot2::element_rect(fill = bg_col),
-      panel.background = ggplot2::element_rect(fill = bg_col),
-      panel.border = ggplot2::element_blank(),
-      panel.grid = ggplot2::element_blank(),
-      axis.line = ggplot2::element_blank(),
-      axis.text = ggplot2::element_blank(),
-      axis.title = ggplot2::element_blank(),
-      axis.ticks = ggplot2::element_blank()
+  ylim <- par('usr')[3:4]
+  for (i in 1:nrow(wnds)) {
+    rect(
+      ytop = ylim[2], ybottom = ylim[1], xleft = wnds$start[i],
+      xright = wnds$end[i], col = random_colors(1, alpha = .2),
+      border = NA
     )
-  return(f)
+
+    if('window_label' %in% show_labels){
+      text(wnds$start[i] + (wnds$nl[i]@.Data/2), ylim[2],
+           labels = format(wnds$nl[i]), col = contrast_color, cex = text.size, pos = 1)
+    }
+  }
 }
 
 #' @rdname schema
-#' @importFrom rlang .data
 #' @export
-schema.pid <- function(x, title = NULL, show_labels = TRUE,
-                       theme = "dark", orientation = "by_pid",
-                       seed = NULL, custom_label = NULL, ...){
-  . <- NULL
+schema.pid <- function(
+    x, title = NULL, show_labels = TRUE, theme = "dark", seed = NULL,
+    plot_scale = 'fit.screen', custom_label = NULL, ...){
 
   # Validations
-  errs <- err_schema_pid_0(x = x,
-                           title = title,
-                           show_labels = show_labels,
-                           theme = theme,
-                           orientation = orientation)
-
+  errs <- err_schema_pid_0(
+    x = x, title = title, show_labels = show_labels, theme = theme)
   if(!isFALSE(errs)) stop(errs, call. = FALSE)
-  if(!is.null(seed)) set.seed(seed)
-  # `Data to plot`pid` data
-  pl_dt <- as.data.frame(x)
-  pl_dt$link_id <- x@link_id[[1]]
-  #
 
-  if(!is.null(custom_label)){
-    pl_dt$custom_label <- custom_label
-  }
-  if(orientation == "by_pid_cri"){
-    pl_dt$link_col <- paste0("P. ", pl_dt$pid)
-    pl_dt$pid_box_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("CRI ", pl_dt$pid_cri)))
-  }else if(orientation == "by_pid"){
-    pl_dt$pid_box_cri <- ifelse(pl_dt$pid_cri == 0, "No Hits", ifelse(pl_dt$pid_cri == -1, "Skipped", paste0("P. ", pl_dt$pid)))
-    pl_dt$link_col <- ifelse(pl_dt$pid_cri %in% -1:0, "", paste0("CRI ", pl_dt$pid_cri))
-  }else if(orientation == "by_iteration"){
-    pl_dt$link_col <- paste0("P. ", pl_dt$pid)
-    pl_dt$pid_box_cri <- pl_dt$iteration
-  }
+  theme_color <- ifelse(theme == 'light', 'white', 'black')
+  contrast_color <- ifelse(theme == 'light', 'black', 'white')
 
-  cris <- pl_dt$pid_box_cri
-  cris <- cris[!duplicated(cris)]
-  cris <- length(cris)
-
-  # N-cycle of pid_cri boxes
-  order <- ceiling(cris / 8)
-
-  # pid_cri boxes
-  boxes_w <- 10
-  border <-  lapply(seq_len(order), function(x) box_ring(order = x, boxes_w = boxes_w))
-  border <- do.call(rbind, c(list(box(boxes_w)), border))
-  border <- head(border, cris)
-  mx <- boxes_w * order
-  border$pid_box <- seq_len(nrow(border))
-
-  pl_dt$pid_box <- match(pl_dt$pid_box_cri,  pl_dt$pid_box_cri[!duplicated(pl_dt$pid_box_cri)] )
-
-  # Boundaries for pid_cri boxes
-  pl_dt$x1 <- border$x1[match(pl_dt$pid_box, border$pid_box)]
-  pl_dt$x2 <- border$x2[match(pl_dt$pid_box, border$pid_box)]
-  pl_dt$y1 <- border$y1[match(pl_dt$pid_box, border$pid_box)]
-  pl_dt$y2 <- border$y2[match(pl_dt$pid_box, border$pid_box)]
-
-  # Random x & y coordinates
-  cords <- function(cord, dt = pl_dt, bw = boxes_w){
-    pts <- split(reverse_number_line(number_line(dt[[paste0(cord,"1")]], dt[[paste0(cord,"2")]]), direction = "decreasing"), dt$pid_box)
-    pts <- unlist(lapply(pts, function(x){
-      y <- unique(x)
-      wd <- y@.Data
-      y <- seq(left_point(y), right_point(y), length.out = length(x))
-      y[1] <- y[1] + (wd * .1)
-      if(length(y) > 1){
-        y[length(y)] <- y[length(y)] + (wd * -.1)
-        y <- sample(y, length(y))
-      }
-      y
-    }), use.names = F)
-    sn <- unlist(split(seq_len(nrow(dt)), dt$pid_box), use.names = F)
-    pts <- pts[order(sn)]
-    pts
-  }
-
-  pl_dt$x <- cords("x")
-  pl_dt$y <- cords("y")
-
-  refs.n <- length(x@link_id)
-
-  pl_dt <- lapply(seq_len(refs.n), function(i){
-    if(i > 1){
-      pl_dt <- pl_dt[!is.na(pl_dt[[paste0("link_id",i)]]),]
-      pl_dt <- pl_dt[pl_dt[[paste0("link_id",i)]] != pl_dt$sn,]
-      if(nrow(pl_dt) > 0){
-        pl_dt$link_id <- pl_dt[[paste0("link_id",i)]]
-      }
-    }
-    return(pl_dt)
-  })
-  pl_dt <- do.call("rbind", pl_dt)
-
-  # Link between records and their index
-  link_sn <- pl_dt[pl_dt$sn %in% pl_dt$link_id, c("sn", "x", "y")]
-  pl_dt$x_lead <- link_sn$x[match(pl_dt$link_id, link_sn$sn)]
-  pl_dt$y_lead <- link_sn$y[match(pl_dt$link_id, link_sn$sn)]
-
-  pl_dt$pid <- as.character(pl_dt$pid)
   if(isTRUE(show_labels)){
-    show_labels <- c("sn", "pid")
-  }
-
-  # Labels to plot
-  pl_dt$event_nm <- ""
-  pl_dt$pid_l <- ""
-  # Show record `custom_label` if requested
-  if(!is.null(custom_label)){
-    pl_dt$event_nm <- paste0(pl_dt$custom_label, " ", pl_dt$event_nm)
-  }
-  # Show record `sn` is requested
-  if("sn" %in% show_labels){
-    pl_dt$event_nm <- paste0("SN ", pl_dt$sn, "; ", pl_dt$event_nm)
-  }
-  # Show record `pid` is requested
-  if("pid" %in% show_labels){
-    pl_dt$pid_l <- pl_dt$link_col
-  }
-
-  border$pid_box_cri <- pl_dt$pid_box_cri[match(border$pid_box, pl_dt$pid_box)]
-  tx_l <- min(pl_dt$x1)
-  tx_h <- max(pl_dt$y2)
-  boxes_n <- nrow(border)
-
-  if(theme == "dark"){
-    bg_col <- "black"
-    txt_col <- "white"
+    show_labels <- c('sn', 'epid')
   }else{
-    bg_col <- "white"
-    txt_col <- "black"
+    show_labels[show_labels == 'pid'] <- 'epid'
   }
 
-  f <- ggplot2::ggplot(data = pl_dt) +
-    ggplot2::geom_point(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col), size = scale_size(c(1,3), 125, boxes_n), alpha = .7 + ifelse(theme != "dark", .1, 0)) +
-    ggplot2::geom_segment(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, xend = .data$x_lead, yend = .data$y_lead), alpha = .4 + ifelse(theme != "dark", .1, 0)) +
-    ggplot2::geom_rect(ggplot2::aes(xmin = .data$x1, xmax = .data$x2, ymin = .data$y1, ymax = .data$y2,  fill = .data$pid_box_cri), data = border, alpha = .1 + ifelse(theme != "dark", .1, 0)) +
-    ggplot2::geom_text(ggplot2::aes(x = (.data$x1 + .data$x2)/2, y = (.data$y1 + .data$y2)/2, label = .data$pid_box_cri), size = scale_size(c(9, 30), 125, boxes_n), color = txt_col, alpha = scale_size(c(.1, .2), 125, boxes_n, decreasing = FALSE), data = border)
-  if(!isFALSE(show_labels) | !is.null(custom_label)){
-    f <- f +
-      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$event_nm), nudge_y = scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "bottom", size = scale_size(c(2,4), 125, boxes_n), alpha = .7) +
-      ggplot2::geom_text(ggplot2::aes(x = .data$x, y = .data$y, colour = .data$link_col, label = .data$pid_l), nudge_y = -scale_size(c(.12, .3), 125, boxes_n, decreasing = FALSE), vjust = "top", size = scale_size(c(2,4), 125, boxes_n), alpha = .7)
+  y <- x
+  x <- as.epid(y)
+  x@sn <- y@sn
+  x@wind_id <- y@link_id
+  x@wind_nm <- lapply(x@wind_id, as.character)
+  names(x@wind_id) <- gsub('link_id', 'wind_id',  names(x@wind_id))
+  names(x@wind_nm) <- gsub('link_id', 'wind_nm',  names(x@wind_nm))
+  x@epid_total <- y@pid_total
+  x@options <-list(
+    date = as.vector(y@pid_cri), strata = y@.Data,
+    episode_unit = encode('seconds'), from_last = FALSE,
+    case_length = 1, recurrence_length = 1)
+
+  schema(
+    x, show_labels = show_labels, custom_label = custom_label, seed = seed,
+    theme = theme, plot_scale = plot_scale)
+
+  # Size scaling
+  if(plot_scale == 'fit.screen'){
+    s.fac <- prod(grDevices::dev.size())/70
+  }else if(plot_scale == 'default'){
+    s.fac <- 1
+  }else if(inherits(plot_scale, 'numeric')){
+    s.fac <- abs(1 * plot_scale)
   }
 
-  if(!is.null(title)){
-    txt_y <- max(c(border$y1, border$y2)) + 2
-    txt_x <- min(c(border$x1, border$x2))
+  size.adjust <- 10/length(x) * s.fac
+  text.size <- 3*size.adjust
 
-    f <- f + ggplot2::geom_text(ggplot2::aes(x = txt_x, y = txt_y), colour = txt_col, label = title, size = 5)
+  xlim2 <- xlim <- par('usr')[1:2]
+  xlim2[1] <- ceiling(xlim2[1]); xlim2[2] <- floor(xlim2[2])
+  xlim2 <- unique(xlim2)
+
+  if(length(unique(range(y@pid_cri))) == 1){
+    xlim <- number_line(xlim[1], xlim[2])
+  }else{
+    xlim <- range(y@pid_cri)
+    xlim <- split_number_line(number_line(xlim[1], xlim[2]+1), by = 1, precision = .1, fill = FALSE)
+    xlim@.Data <- ceiling(xlim@.Data)
+    left_point(xlim[1]) <- par('usr')[1]
+    right_point(xlim[length(xlim)]) <- par('usr')[2]
   }
-  f <- f +
-    ggplot2::theme(
-      legend.position = "none",
-      plot.background = ggplot2::element_rect(fill = bg_col),
-      panel.background = ggplot2::element_rect(fill = bg_col),
-      panel.border = ggplot2::element_blank(),
-      panel.grid = ggplot2::element_blank(),
-      axis.line = ggplot2::element_blank(),
-      axis.text = ggplot2::element_blank(),
-      axis.ticks = ggplot2::element_blank(),
-      axis.title = ggplot2::element_blank()
+
+  pid_cris <- y@pid_cri[!duplicated(y@pid_cri)]
+  pid_cris <- sort(pid_cris)
+  ylim <- par('usr')[3:4]
+
+  for (i in 1:length(xlim)) {
+    rect(
+      ytop = ylim[2], ybottom = ylim[1], xleft = left_point(xlim[i]),
+      xright = right_point(xlim[i]), col = random_colors(1, alpha = .2),
+      border = NA
     )
-  return(f)
+
+    text(left_point(xlim[i]) + (xlim[i]@.Data/2), ylim[1] + ((ylim[2] - ylim[1])/2),
+         labels = pid_cri_l(pid_cris[i]), col = contrast_color, cex = text.size)
+  }
 }
+
+

@@ -558,10 +558,23 @@ number_line_sequence <- function(x,
 #' @export
 #'
 split_number_line <- function(x, precision = 1, fill = TRUE, ...){
-  y <- seq(start_point(x), end_point(x), ...)
+  arg <- list(...)
+  y <- seq(start_point(x), end_point(x) + precision, ...)
+
+  y_lag <- bys_lag(val = y, by = 1)
+  sys.precision <- suppressWarnings(min(abs((y_lag - y)/2), na.rm = TRUE))
+  if(precision > sys.precision){
+    precision <- sys.precision
+    y <- seq(start_point(x), end_point(x) + precision, ...)
+  }
+
   if(fill){
     y <- unique(c(y, end_point(x) + precision))
   }
-  y <- number_line(y[1:length(y)-1], y[2:length(y)] - precision)
-  return(y)
+  if(length(y) == 1){
+    return(x)
+  }else{
+    y <- number_line(y[1:length(y)-1], y[2:length(y)] - precision)
+    return(y)
+  }
 }

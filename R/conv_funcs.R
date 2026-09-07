@@ -1448,3 +1448,17 @@ tmp.func <- function(x){
 
 same_group <- function(x, y) bys_count(x) == bys_count(y)
 same_id <- function(x, y) bys_count(x) == bys_count(y) & x == y
+
+random_colors <- function(n, alpha, theme = 'any'){
+  if(theme == 'dark'){
+    col_range <- seq_len(128)
+  }else if(theme == 'light'){
+    col_range <- 129:256
+  }else if (theme == 'any'){
+    col_range <- seq_len(256)
+  }
+  rgb(
+    sample(col_range, n, replace = TRUE)/256,
+    sample(col_range, n, replace = TRUE)/256,
+    sample(col_range, n, replace = TRUE)/256, alpha = alpha)
+}

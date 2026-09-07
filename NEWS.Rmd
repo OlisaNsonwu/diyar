@@ -33,8 +33,9 @@ Please use `stepwise_method` moving forward. `shrink` and `expand` will be remov
 + `eval_sub_criteria()` upgrades. uses less memory.
 + `combi()` is now a wrapper function for `data.table::frankv`
 + `number_line_sequence()` removed. Use `split_number_lines()` instead
-+ Performance improvements - `episodes()`, `links()`, `invert_number_line()`.
++ Performance improvements - `episodes()`, `links()`, `invert_number_line()`, `schema()`.
 + `links_wf_episodes()` replaces `episodes_af_links()` and now returns an `epid` object. 
++ `schema()` dependence on ggplot2 removed. Plots now created with `plot()`.
 
 ## Bug fixes
 + The result of `expand_number_line(point = 'start', ...)` was incorrect for descending number lines. Corrected.

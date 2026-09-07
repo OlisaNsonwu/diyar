@@ -23,6 +23,7 @@ schema(x, ...)
   show_labels = c("length_arrow"),
   show_skipped = TRUE,
   show_non_finite = FALSE,
+  plot_scale = "fit.screen",
   theme = "dark",
   seed = NULL,
   custom_label = NULL,
@@ -33,6 +34,7 @@ schema(x, ...)
   x,
   title = NULL,
   show_labels = c("window_label"),
+  plot_scale = "fit.screen",
   theme = "dark",
   seed = NULL,
   custom_label = NULL,
@@ -44,8 +46,8 @@ schema(x, ...)
   title = NULL,
   show_labels = TRUE,
   theme = "dark",
-  orientation = "by_pid",
   seed = NULL,
+  plot_scale = "fit.screen",
   custom_label = NULL,
   ...
 )

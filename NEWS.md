@@ -32,9 +32,11 @@
 - `combi()` is now a wrapper function for `data.table::frankv`
 - `number_line_sequence()` removed. Use `split_number_lines()` instead
 - Performance improvements - `episodes()`, `links()`,
-  `invert_number_line()`.
+  `invert_number_line()`, `schema()`.
 - `links_wf_episodes()` replaces `episodes_af_links()` and now returns
   an `epid` object.
+- `schema()` dependence on ggplot2 removed. Plots now created with
+  `plot()`.
 
 ## Bug fixes
 
@@ -176,9 +178,10 @@ format(sub.cri.1, show_levels = TRUE)
 #> }
 eval_sub_criteria(sub.cri.1)
 #> $logical_test
-#>  [1] 1 0 0 0 0 1 0 0 0 0
+#>  [1]  TRUE FALSE FALSE FALSE FALSE  TRUE FALSE FALSE FALSE FALSE
 #> 
 #> $mf.0.1
+#> $mf.0.1[[1]]
 #>    x_val y_val is_match
 #> 1    Jan   Jan     TRUE
 #> 2    Feb   Jan    FALSE
@@ -213,12 +216,13 @@ links(
   sub_criteria = list("cr1" = sub.cri.2))
 #> $pid
 #> [1] "P.1 (CRI 001)" "P.1 (CRI 001)" "P.3 (CRI 001)" "P.3 (CRI 001)"
-#> [5] "P.5 (No hits)"
+#> [5] "P.5 (Skipped)"
 #> 
 #> $export
-#> $export$cri.1
-#> $export$cri.1$iteration.1
-#> $export$cri.1$iteration.1$mf.0.1
+#> $export$mf
+#> $export$mf$i.1
+#> $export$mf$i.1$mf.0.1
+#> $export$mf$i.1$mf.0.1[[1]]
 #>   x_val y_val diff is_match
 #> 1     1     1    0     TRUE
 #> 2     2     1    1     TRUE
@@ -227,8 +231,10 @@ links(
 #> 5     5     1    4    FALSE
 #> 
 #> 
-#> $export$cri.1$iteration.2
-#> $export$cri.1$iteration.2$mf.0.1
+#> 
+#> $export$mf$i.2
+#> $export$mf$i.2$mf.0.1
+#> $export$mf$i.2$mf.0.1[[1]]
 #>   x_val y_val diff is_match
 #> 1     3     3    0     TRUE
 #> 2     4     3    1     TRUE

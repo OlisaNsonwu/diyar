@@ -1661,7 +1661,7 @@ err_schema_pid_0 <- function(
     title,
     show_labels,
     theme,
-    orientation){
+    orientation = 'by_pid'){
 
   err <- err_object_types(x, "x", "pid")
   if(err != FALSE) return(err)
@@ -1732,7 +1732,7 @@ err_schema_pid_0 <- function(
   err <- err[err != FALSE]
   if(length(err) > 0) return(err[1])
 
-  err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pane", "date", "case_nm", "window_label"))
+  err <- err_spec_vals(show_labels, "show_labels", c(TRUE, FALSE, "sn", "pid"))
   if(err != FALSE) return(err[1])
 
   err <- err_spec_vals(orientation, "orientation", c("by_pid", "by_pid_cri", "by_iteration"))

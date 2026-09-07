@@ -1,11 +1,11 @@
 #' @name episodes
 #' @title Group dated events into episodes.
 #'
-#' @description Dated events (records) within a certain duration of an index event are assigned to a unique group.
-#' Each group has unique ID and are described as \code{"episodes"}.
-#' \code{"episodes"} can be \code{"fixed"} or \code{"rolling"} (\code{"recurring"}).
-#' Each episodes has a \code{"Case"} and/or \code{"Recurrent"} record
-#' while all other records within the group are either \code{"Duplicates"} of
+#' @description Assigns dated events (records) within a certain duration of an index event to a unique group.
+#' Each group has a unique ID and are described as \code{"episodes"}.
+#' \code{"episodes"} can be \code{"fixed"} or \code{"rolling"} ("recurring").
+#' Each episode has a \code{"Case"} and/or \code{"Recurrent"} record
+#' while all other records within the group are either a \code{"Duplicate"} of
 #' the \code{"Case"} or \code{"Recurrent"} event.
 #'
 #' @param sn \code{[integer]}. Unique record ID.
@@ -14,13 +14,13 @@
 #' @param case_length \code{[integer|\link{number_line}]}. Duration from an index event distinguishing one \code{"Case"} from another.
 #' @param episodes_max \code{[integer]}. Maximum number of episodes permitted within each \code{strata}.
 #' @param episode_type \code{[character]}. Options are \code{"fixed"} (default) or \code{"rolling"}. See \code{Details}.
-#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from an index event distinguishing a \code{"Recurrent"} event from its \code{"Case"} or prior \code{"Recurrent"} event.
-#' @param episode_unit \code{[character]}. Unit of time for \code{case_length} and \code{recurrence_length}. Options are "seconds", "minutes", "hours", "days" (default), "weeks", "months" or "years". See \code{episode_units}.
+#' @param recurrence_length \code{[integer|\link{number_line}]}. Duration from an index event distinguishing a \code{"Recurrent"} event from its \code{"Case"} or prior \code{"Recurrent"} events.
+#' @param episode_unit \code{[character]}. Time unit for \code{case_length} and \code{recurrence_length}. Options are \code{"seconds"}, \code{"minutes"}, \code{"hours"}, \code{"days"} (default), \code{"weeks"}, \code{"months"} or \code{"years"}. See \code{episode_units} for conversion rates.
 #' @param rolls_max \code{[integer]}. Maximum number of times an index event can recur. Only used if \code{episode_type} is \code{"rolling"}.
-#' @param data_source \code{[character]}. Source ID for each record. If provided, a list of all sources in each episode is returned. See \code{\link[=epid-class]{epid_dataset slot}}.
+#' @param data_source \code{[character]}. Source ID for each record. If provided, a list of all sources in each episode is returned to the \code{\link[=epid-class]{epid_dataset}} slot.
 #' @param from_last \code{[logical]}. Track episodes beginning from the earliest to the most recent record (\code{FALSE}) or vice versa (\code{TRUE}).
 #' @param case_overlap_methods \code{[character|integer]}. Specific ways a period (record) most overlap with a \code{"Case"} event. See (\code{\link{overlaps}}).
-#' @param recurrence_overlap_methods \code{[character|integer]}. Specific ways a period (record) most overlap with a \code{"Recurrent"} event. See (\code{\link{overlaps}}).
+#' @param recurrence_overlap_methods \code{[character|integer]}. Specific ways a period (record) most overlap with the index of a \code{"Recurrent"} event. See (\code{\link{overlaps}}).
 #' @param custom_sort \code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.
 #' @param group_stats \code{[character]}. A selection of group metrics to return for each episode. Most are added to slots of the \code{\link[=epid-class]{epid}} object.
 #' Options are \code{NULL} or any combination of \code{"case_nm"}, \code{"wind"} and \code{"epid_interval"}.
@@ -28,22 +28,24 @@
 #' @param reference_event \code{[character]}. Specifies which of the records are used as index events. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"}. \code{"first_event"} or \code{"all_record"}.
 #' @param case_for_recurrence \code{[logical]}. If \code{TRUE}, a \code{case_length} is applied to both \code{"Case"} and \code{"Recurrent"} events.
 #' If \code{FALSE} (default), a \code{case_length} is applied to only \code{"Case"} events.
-#' @param skip_order \code{[integer]}. End episode tracking in a \code{strata} when the an index event's \code{custom_sort} order is greater than the supplied \code{skip_order}.
-#' @param data_links \code{[list|character]}. \code{data_source} required in each \code{\link[=epid-class]{epid}}. An episode without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
-#' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), events before a lagged \code{case_length} or \code{recurrence_length} are skipped.
+#' @param skip_order \code{[integer]}. End episode tracking in a \code{strata} when an index event's \code{custom_sort} order (value) is greater than the supplied \code{skip_order}.
+#' @param data_links \code{[list|character]}. \code{data_source} required in each episode. Episodes created without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
+#' @param skip_if_b4_lengths \code{[logical]}. If \code{TRUE} (default), events before a lagged/leading \code{case_length} or \code{recurrence_length} periods are skipped. For example, records up to the 1 unit-difference after the index with \code{"2 -> 4"} are skipped.
 #' @param skip_unique_strata \code{[logical]}. If \code{TRUE}, a strata with a single event is skipped.
-#' @param case_sub_criteria \code{[\link{sub_criteria}]}. Additional nested match criteria for events in a \code{case_length}.
-#' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Additional nested match criteria for events in a \code{recurrence_length}.
+#' @param case_sub_criteria \code{[\link{sub_criteria}]}. Additional nested match criteria for events within the \code{case_length} period.
+#' @param recurrence_sub_criteria \code{[\link{sub_criteria}]}. Additional nested match criteria for events within the \code{recurrence_length} period.
 #' @param case_length_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{case_lengths} required for an episode.
 #' @param recurrence_length_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{recurrence_lengths} required for an episode.
-#' @param batched \code{[character]}. Create and compare records in batches. Options are \code{"yes"}, \code{"no"}, and \code{"semi"}.
-#' typically, the (\code{"semi"}) option will have a higher max memory and shorter run-time while (\code{"no"}) will have a lower max memory but longer run-time
+#' @param batched \code{[character]}. Episode tracking in batches. Options are \code{"yes"}, \code{"no"}, and \code{"semi"} (default).
+#' Typically, the (\code{"semi"}) option will have a higher max memory and shorter run-time while (\code{"no"}) will have a lower max memory but longer run-time
 #' @param splits_by_strata \code{[integer]}. Split analysis into \code{n} parts. This typically lowers max memory usage but increases run time.
 #'
 #' @return \code{\link[=epid-class]{epid}}; \code{list}
 #'
 #' @seealso
-#' \code{\link{episodes_wf_repeats}}; \code{\link{custom_sort}};
+#' \code{\link{episodes_af_shift}}; \code{\link{episodes_af_shift}};
+#' \code{\link{episodes_af_links}}; \code{\link{episodes_wf_repeats}};
+#' \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}};
 #' \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}};
 #' \code{\link[=windows]{epid_window}}; \code{\link{partitions}};
 #' \code{\link{links}}; \code{\link{overlaps}};
@@ -187,7 +189,7 @@ episodes <- function(
 
   options_lst = list(
     date = date, strata = strata, case_length = case_length,
-    recurrence_length = recurrence_length, episode = opt.epid_unit,from_last = from_last)
+    recurrence_length = recurrence_length, episode_unit = opt.epid_unit,from_last = from_last)
   opt.epid_unit <- as.vector(opt.epid_unit)
 
   # Standardise inputs
@@ -411,7 +413,8 @@ episodes <- function(
   web$repo$strata <- strata
   web$repo$temporal_ord <- temporal_ord
 
-  web$repo$cur_refs <- web$repo$max_refs <- web$repo$epid_n <-
+  web$repo$cur_refs <- rep(1L, opts.nrow)
+  web$repo$max_refs <- web$repo$epid_n <-
     web$repo$iteration <- rep(0L, opts.nrow)
 
   web$repo$tag <- rep(20L, opts.nrow)
@@ -1128,6 +1131,7 @@ episodes <- function(
             web$repo$wind_nm <- c(web$repo$wind_nm, web$tmp$indx)
             web$counts$max_indexes <- web$tmp$max_indexes
           }
+
           web$tmp$pos <- ((web$tmp$nw_index_ord + web$repo$cur_refs[web$rec.pairs[[w.name]]$cu_pos[web$rec.pairs[[w.name]]$w.match]] - 1L) * opts.nrow) + web$rec.pairs[[w.name]]$cu_pos[web$rec.pairs[[w.name]]$w.match]
           web$repo$cur_refs <- web$repo$max_refs
         }else{
@@ -1524,23 +1528,14 @@ episodes <- function(
   web$repo$epid <- abs(web$repo$epid)
   web$epids <- make_episodes(
     y_pos = web$repo$epid,
-    date = (
-      if("epid_interval" %in% web$repo$group_stats){
-        web$repo$date
-      }else{
-        NULL
-      }),
-    x_pos = web$repo$pr_sn,
-    x_val = web$repo$sn,
-    iteration = web$repo$iteration,
-    wind_id = web$repo$wind_id,
-    options = options_lst,
-    case_nm = web$repo$case_nm,
-    wind_nm = web$repo$wind_nm,
-    episode = names(episode_units)[opt.epid_unit],
-    data_source = web$repo$data_source,
-    data_links = opt.data_links,
-    from_last = web$repo$from_last)
+    date =
+      if("epid_interval" %in% web$repo$group_stats) web$repo$date else NULL,
+    x_pos = web$repo$pr_sn, x_val = web$repo$sn,
+    iteration = web$repo$iteration, wind_id = web$repo$wind_id,
+    options = options_lst, case_nm = web$repo$case_nm,
+    wind_nm = web$repo$wind_nm, from_last = web$repo$from_last,
+    episode_unit = names(episode_units)[opt.epid_unit],
+    data_source = web$repo$data_source, data_links = opt.data_links)
 
   if(grepl("report$", opt.display)){
     web$rp_data <- di_report(

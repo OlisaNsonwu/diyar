@@ -78,27 +78,15 @@ partitions <- function(
 
   # Validations
   errs <- err_partitions_checks_0(
-    date = date,
-    window = window,
-    windows_total = windows_total,
-    separate = separate,
-    sn = sn,
-    strata = strata,
-    data_source = data_source,
-    data_links = data_links,
-    custom_sort = custom_sort,
-    group_stats = group_stats,
-    by = by,
-    length.out = length.out,
-    fill = fill,
-    display = display
-  )
+    date = date, window = window, windows_total = windows_total,
+    separate = separate, sn = sn, strata = strata, data_source = data_source,
+    data_links = data_links, custom_sort = custom_sort, group_stats = group_stats,
+    by = by, length.out = length.out, fill = fill, display = display)
 
   if(errs != FALSE) stop(errs, call. = FALSE)
 
-  options_lst = list(date = as.number_line(date),
-                     strata = strata,
-                     separate = separate)
+  options_lst = list(
+    date = as.number_line(date), strata = strata, separate = separate)
 
   dl_lst <- unlist(data_links, use.names = FALSE)
   # Standardise inputs
@@ -124,11 +112,8 @@ partitions <- function(
     cri_l <- strata
   }
   # `sn`
-  if(is.null(sn)) {
-    sn <- seq_len(length(int))
-  }else{
-    sn <- as.integer(sn)
-  }
+  if(is.null(sn)) sn <- seq_len(length(int)) else sn <- as.integer(sn)
+
   # `custom_sort`
   if(!is.null(custom_sort)) {
     c_sort <- as.numeric(as.factor(custom_sort))
@@ -137,35 +122,30 @@ partitions <- function(
     c_sort <- rep(0L, length(int))
   }
   # `windows_total`
-  if(is.number_line(windows_total)){
-    windows_total[windows_total@.Data < 0] <-
-      reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
-  }else{
+  if(!is.number_line(windows_total)){
     windows_total <- number_line(windows_total, Inf)
   }
-  windows_total[windows_total@.Data < 0] <-
-    reverse_number_line(windows_total[windows_total@.Data < 0], "decreasing")
+  lgk <- windows_total@.Data < 0
+  windows_total[lgk] <- reverse_number_line(windows_total[lgk], "decreasing")
 
   if(length(windows_total) == 1){
     windows_total <- rep(windows_total, length(int))
   }
 
-  if(inherits(window, "number_line")){
-    window <- list(window)
-  }
+  if(inherits(window, "number_line")) window <- list(window)
 
   splits <- split(int, cri)
   if(!is.null(window)){
     if(length(window) == 1){
-      splits_windows <- splits
-      splits_windows[1:length(splits_windows)] <- window
+      splits_windows <- rep(window, length(splits))
+      names(splits_windows) <- names(splits)
     }else{
       splits_windows <- lapply(split(window, cri), function(x) x[[1]])
     }
   }else{
     splits_windows <- lapply(splits, function(x){
-      x <- x[order(x@start, x@.Data)]
-      x <- number_line(x[1]@start, right_point(x[length(x)]))
+      x <- range(c(x@start, right_point(x)))
+      x <- number_line(x[1], x[2])
       if(is.null(by)){
         seq(x, length.out = length.out, precision = precision)
       }else{
@@ -183,42 +163,31 @@ partitions <- function(
   rp$source <- rep(FALSE, length(rp$dts))
 
   rp$cri <-
-    c(
-      rp$cri,
+    c(rp$cri,
       rep(names(splits_windows), unlist(lapply(splits_windows, length), use.names = FALSE))
     )
+  rp$cri <- as.numeric(rp$cri)
 
   split_nms <- names(splits_windows)
   names(splits_windows) <- NULL
-  rp$dts <- c(
-    rp$dts,
-    do.call("c", splits_windows)
-  )
+  rp$dts <- c(rp$dts, do.call("c", splits_windows))
   split_nms -> names(splits_windows)
 
-  rp$source <- c(
-    rp$source,
-    rep(TRUE, length(rp$dts) - length(rp$source))
-  )
+  rp$source <- c(rp$source, rep(TRUE, length(rp$dts) - length(rp$source)))
 
+  debugonce(make_pairs_batched_wf_source)
   rec.pairs <- make_pairs_batched(
-    strata = rp$cri,
-    x = rp$dts,
-    index_record = rp$source,
-    data_source = rp$source,
-    ignore_same_source = TRUE,
-    include_repeat = FALSE,
-    look_back = TRUE,
-    assign_ord = rep(1, length(rp$cri))
-  )
-  rec.pairs$w.match <- overlap(
-    rec.pairs$x_val,
-    rec.pairs$y_val
-  )
+    strata = rp$cri, x = rp$dts, index_record = rp$source,
+    data_source = rp$source, ignore_same_source = TRUE, include_repeat = FALSE,
+    look_back = TRUE, assign_ord = rep(1, length(rp$cri)))
+
+  lgk <- rp$source[rec.pairs$x_pos] != rp$source[rec.pairs$y_pos]
+
+  rec.pairs <- lapply(rec.pairs, function(x) x[lgk])
+  rec.pairs$w.match <- overlap(rec.pairs$x_val, rec.pairs$y_val)
 
   repo <- list()
-  repo$pane <-
-    repo$pr_sn <- 1:length(date)
+  repo$pane <- repo$pr_sn <- 1:length(date)
   repo$tag <- rep(20L, length(date))
   repo$cri <- cri
   repo$case_nm <- rep(-1L, length(date))
@@ -229,10 +198,11 @@ partitions <- function(
   repo$case_nm[repo$tag == 10] <- 1L
   repo$window_matched[rec.pairs$x_pos[rec.pairs$w.match]] <-
     rec.pairs$index_ord[rec.pairs$w.match]
+
   if(separate){
-    repo$pane[rec.pairs$x_pos[rec.pairs$w.match]] <- rec.pairs$y_pos[rec.pairs$w.match]
+    repo$pane[rec.pairs$x_pos[rec.pairs$w.match]] <- -rec.pairs$y_pos[rec.pairs$w.match]
   }else{
-    repo$pane[rec.pairs$x_pos[rec.pairs$w.match]] <- repo$cri[rec.pairs$y_pos[rec.pairs$w.match]]
+    repo$pane[rec.pairs$x_pos[rec.pairs$w.match]] <- max(repo$pr_sn) +  rp$cri[rec.pairs$y_pos[rec.pairs$w.match]]
   }
 
   # Implement `windows_total`
@@ -243,24 +213,18 @@ partitions <- function(
   repo$pane[lgk] <- repo$pr_sn[lgk]
 
   # Index records - `custom_sort`
-  ord <- order(
-    repo$pane, c_sort,
-    as.numeric(int@start),
-    -as.numeric(right_point(int)))
+  ord <- order(repo$pane, c_sort, as.numeric(int@start), -as.numeric(right_point(int)))
   s_pane <- repo$pane[ord]
   s_sn <- repo$pr_sn[ord]
 
   lgk <- !duplicated(s_pane)
   repo$case_nm[s_sn[lgk]] <- 0L
 
+  repo$pane <- bys_val(custom_sort(repo$case_nm, repo$pr_sn), by = repo$pane, val = repo$pr_sn)
+
   panes <- make_episodes(
     y_pos = repo$pane,
-    date = (
-      if(group_stats){
-        int
-      }else{
-        NULL
-      }),
+    date = if(group_stats) int else NULL,
     x_pos = repo$pr_sn,
     data_source = data_source,
     data_links = data_links)
@@ -270,14 +234,10 @@ partitions <- function(
   attr(repo$case_nm, "label") <- c("Skipped", "Index", "Duplicate_I")
   attr(repo$case_nm, "state") <- "encoded"
 
-  panes <- new("pane",
-               .Data = panes@.Data,
-               dist_pane_index = panes@dist_epid_index,
-               window_matched = repo$window_matched,
-               sn = panes@sn,
-               case_nm = repo$case_nm,
-               pane_total = panes@epid_total,
-               options = options_lst)
+  panes <- new(
+    "pane", .Data = panes@.Data, dist_pane_index = panes@dist_epid_index,
+    window_matched = repo$window_matched, sn = panes@sn, case_nm = repo$case_nm,
+    pane_total = panes@epid_total,options = options_lst)
   indx <- which(!duplicated(panes@.Data))
   panes@window_list <- splits_windows[match(repo$cri[indx], names(splits_windows))]
   names(panes@window_list) <- panes@.Data[indx]
@@ -289,3 +249,4 @@ partitions <- function(
   }
   return(panes)
 }
+
