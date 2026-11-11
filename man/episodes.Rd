@@ -46,7 +46,7 @@ episodes_af_links(
   strata = NULL,
   data_source = NULL,
   data_links = "ANY",
-  group_stats = FALSE,
+  group_stats = c("case_nm", "wind", "epid_interval"),
   display = "none"
 )
 
@@ -64,29 +64,29 @@ episodes_af_shift(
 )
 }
 \arguments{
-\item{date}{\code{[date|datetime|integer|\link{number_line}]}. Record date or period.}
+\item{date}{\code{[date|datetime|integer|\link{number_line}]}. Date or period.}
 
-\item{case_length}{\code{[integer|\link{number_line}]}. Duration from an index event distinguishing one \code{"Case"} from another.}
+\item{case_length}{\code{[integer|\link{number_line}]}. Duration from an index event distinguishing one \code{"Case"} from another. This will equal the episode length if \code{episode_type} is \code{"fixed"}.}
 
 \item{episode_type}{\code{[character]}. Options are \code{"fixed"} (default) or \code{"rolling"}. See \code{Details}.}
 
 \item{recurrence_length}{\code{[integer|\link{number_line}]}. Duration from an index event distinguishing a \code{"Recurrent"} event from its \code{"Case"} or prior \code{"Recurrent"} events.}
 
-\item{episode_unit}{\code{[character]}. Time unit for \code{case_length} and \code{recurrence_length}. Options are \code{"seconds"}, \code{"minutes"}, \code{"hours"}, \code{"days"} (default), \code{"weeks"}, \code{"months"} or \code{"years"}. See \code{episode_units} for conversion rates.}
+\item{episode_unit}{\code{[character]}. Time unit for \code{case_length} and \code{recurrence_length}. Options are \code{"seconds"}, \code{"minutes"}, \code{"hours"}, \code{"days"} (default), \code{"weeks"}, \code{"months"} or \code{"years"}. See \code{\link{epid_units}} for conversion rates.}
 
 \item{strata}{\code{[atomic]}. Subsets of the dataset. Episodes are created separately by each \code{strata}.}
 
-\item{sn}{\code{[integer]}. Unique record ID.}
+\item{sn}{\code{[integer]}. Unique record ID. If provided, group IDs are based on corresponding \code{sn}.}
 
 \item{episodes_max}{\code{[integer]}. Maximum number of episodes permitted within each \code{strata}.}
 
 \item{rolls_max}{\code{[integer]}. Maximum number of times an index event can recur. Only used if \code{episode_type} is \code{"rolling"}.}
 
-\item{case_overlap_methods}{\code{[character|integer]}. Specific ways a period (record) most overlap with a \code{"Case"} event. See (\code{\link{overlaps}}).}
+\item{case_overlap_methods}{\code{[character|integer]}. Specific ways a period (record) must overlap with a \code{"Case"} event. See (\code{\link{overlaps}}).}
 
-\item{recurrence_overlap_methods}{\code{[character|integer]}. Specific ways a period (record) most overlap with the index of a \code{"Recurrent"} event. See (\code{\link{overlaps}}).}
+\item{recurrence_overlap_methods}{\code{[character|integer]}. Specific ways a period (record) must overlap with the index of a \code{"Recurrent"} event. See (\code{\link{overlaps}}).}
 
-\item{skip_if_b4_lengths}{\code{[logical]}. If \code{TRUE} (default), events before a lagged/leading \code{case_length} or \code{recurrence_length} periods are skipped. For example, records up to the 1 unit-difference after the index with \code{"2 -> 4"} are skipped.}
+\item{skip_if_b4_lengths}{\code{[logical]}. If \code{TRUE} (default), events before a lagged/leading \code{case_length} or \code{recurrence_length} periods are skipped. For example, if the \code{case_length} or \code{recurrence_length} is \code{"2 -> 4"}, records within 0-1 unit-difference from the index event are skipped.}
 
 \item{data_source}{\code{[character]}. Source ID for each record. If provided, a list of all sources in each episode is returned to the \code{\link[=epid-class]{epid_dataset}} slot.}
 
@@ -94,7 +94,7 @@ episodes_af_shift(
 
 \item{custom_sort}{\code{[atomic]}. Preferential order for selecting index events. See \code{\link{custom_sort}}.}
 
-\item{skip_order}{\code{[integer]}. End episode tracking in a \code{strata} when an index event's \code{custom_sort} order (value) is greater than the supplied \code{skip_order}.}
+\item{skip_order}{\code{[integer]}. End episode tracking in a \code{strata} when an index event's \code{custom_sort} order (value) is greater than the corresponding \code{skip_order}.}
 
 \item{reference_event}{\code{[character]}. Specifies which of the records are used as index events. Options are \code{"last_record"} (default), \code{"last_event"}, \code{"first_record"}. \code{"first_event"} or \code{"all_record"}.}
 
@@ -103,8 +103,9 @@ If \code{FALSE} (default), a \code{case_length} is applied to only \code{"Case"}
 
 \item{from_last}{\code{[logical]}. Track episodes beginning from the earliest to the most recent record (\code{FALSE}) or vice versa (\code{TRUE}).}
 
-\item{group_stats}{\code{[character]}. A selection of group metrics to return for each episode. Most are added to slots of the \code{\link[=epid-class]{epid}} object.
-Options are \code{NULL} or any combination of \code{"case_nm"}, \code{"wind"} and \code{"epid_interval"}.}
+\item{group_stats}{\code{[character|logical]}. A selection of group metrics returned with each episode. Most are added to slots of the \code{\link[=epid-class]{epid}} object.
+Options are \code{NULL} (for none), \code{TRUE} (for all options), or any combination of \code{"case_nm"}, \code{"wind"} and \code{"epid_interval"}.
+The \code{FALSE} option is included for backward compatibility and is equivalent to \code{"case_nm"}, \code{"wind"} and \code{"epid_interval"}.}
 
 \item{display}{\code{[character]}. Display progress update and/or generate a linkage report for the analysis. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
@@ -118,35 +119,37 @@ Options are \code{NULL} or any combination of \code{"case_nm"}, \code{"wind"} an
 
 \item{skip_unique_strata}{\code{[logical]}. If \code{TRUE}, a strata with a single event is skipped.}
 
-\item{splits_by_strata}{\code{[integer]}. Split analysis into \code{n} parts. This typically lowers max memory usage but increases run time.}
+\item{splits_by_strata}{\code{[integer]}. Split analysis into \code{n} parts. This typically leads to a lower peak memory usage but longer run-times.}
 
-\item{batched}{\code{[character]}. Episode tracking in batches. Options are \code{"yes"}, \code{"no"}, and \code{"semi"} (default).
-Typically, the (\code{"semi"}) option will have a higher max memory and shorter run-time while (\code{"no"}) will have a lower max memory but longer run-time}
+\item{batched}{\code{[character]}. Tracks episodes in batches. Options are \code{"yes"}, \code{"no"}, and \code{"semi"} (default).
+Typically, (\code{"semi"}) leads to higher peak memory usage but shorter run-times while (\code{"no"}) leads to lower peak memory usage but longer run-times}
 }
 \value{
 \code{\link[=epid-class]{epid}}; \code{list}
 }
 \description{
-Assigns dated events (records) within a certain duration of an index event to a unique group.
-Each group has a unique ID and are described as \code{"episodes"}.
-\code{"episodes"} can be \code{"fixed"} or \code{"rolling"} ("recurring").
-Each episode has a \code{"Case"} and/or \code{"Recurrent"} record
-while all other records within the group are either a \code{"Duplicate"} of
+Assigns dated events (records) within a specified period of each
+other to the same group ("episode"). Episodes can represent repeated infections,
+hospital admissions, outbreaks, or other recurring events.
+Each episode has a unique ID. Episodes maybe based on a \code{"fixed"} window or
+a \code{"rolling"} ("recurring") window which extends the episode's length.
+Each episode has a \code{"Case"} and/or \code{"Recurrent"} (index) record,
+while all other records within the group are a treated as a \code{"Duplicate"} of either
 the \code{"Case"} or \code{"Recurrent"} event.
 }
 \details{
-\bold{\code{episodes()}} links dated records (events) that
-are within a set duration of each other in iterations.
+\bold{\code{episodes()}} links records in iterations.
 Every record is linked to a unique group (episode; \code{\link[=epid-class]{epid}} object).
-These episodes represent occurrences of interest as specified by function's arguments and defined by a case definition.
+These episodes represent occurrences of interest as specified by function's arguments
+and defined by the user's case definition.
 
-Two main type of episodes are possible;
+Two type of episodes are possible:
 \itemize{
-\item \code{"fixed"} - An episode where all events are within a fixed duration of an index event.
-\item \code{"rolling"} - An episode where all events are within a recurring duration of an index event.
+\item \code{"fixed"} - An episode where all events are within a fixed period of an index event.
+\item \code{"rolling"} - An episode where all events are within a recurring period of an index event.
 }
 
-Every record in each episode is categorised as one of the following;
+Every record in each episode is categorised as one of the following:
 \itemize{
 \item \code{"Case"} - Index event of the episode (without a nested match criteria).
 \item \code{"Case_CR"} - Index event of the episode (with a nested match criteria).
@@ -157,20 +160,35 @@ Every record in each episode is categorised as one of the following;
 \item \code{"Skipped"} - Skipped records.
 }
 
-If \code{data_links} is supplied, every element of the list must be named \code{"l"} (links) or \code{"g"} (groups).
-Unnamed elements are assumed to be \code{"l"}.
+If \code{data_links} is supplied, every element of the list should be named
+\code{"l"} (links) or \code{"g"} (groups). Unnamed elements are assumed to be \code{"l"}:
 \itemize{
 \item If named \code{"l"}, groups without records from every listed \code{data_source} will be unlinked.
 \item If named \code{"g"}, groups without records from any listed \code{data_source} will be unlinked.
 }
 
+Multiple values for \code{case_length}, \code{recurrence_length}, \code{case_overlaps}
+and \code{recurrence_overlaps} can be provided. These should be provided as a list.
+Each element should be named \code{"r"} (record), \code{"w"} (window) or \code{"e"} (episode)
+based on which level they should be used. Unnamed elements are assumed
+to be \code{"w"} (\code{case_length} and \code{recurrence_length})
+or \code{"r"} (\code{case_overlaps}, \code{recurrence_overlaps}).
+
+\itemize{
+\item If named \code{"r"}, each records values is use.
+\item If named \code{"w"}, the current window's index record's value is used.
+\item If named \code{"e"}, the current episode's index record's value is used.
+}
+
 All records with a missing (\code{NA}) \code{strata} or \code{date} are skipped.
 
-Wrapper functions or alternative implementations of \bold{\code{episodes()}} for specific use cases or benefits:
+There are wrapper functions or alternative implementations of \bold{\code{episodes()}}
+for specific use cases or benefits:
 \itemize{
-\item \bold{\code{episodes_wf_repeats()}} - Identical records are excluded from the main analysis.
-\item \bold{\code{episodes_af_shift()}} - A mostly vectorised approach.
-\item \bold{\code{episodes_af_links()}} - The same functionality achieved with \code{\link{links}}.
+\item \bold{\code{episodes_wf_repeats()}} - See \code{\link[=episodes_wf]{episodes_wf_*}} functions.
+\item \bold{\code{episodes_wf_splits()}} - See \code{\link[=episodes_wf]{episodes_wf_*}} functions.
+\item \bold{\code{episodes_af_shift()}} - A mostly vectorised approach to episode tracking.
+\item \bold{\code{episodes_af_links()}} - Episode tracking achieved with \code{\link{links}}.
 }
 
 See \code{vignette("episodes")} for further details.
@@ -179,39 +197,74 @@ See \code{vignette("episodes")} for further details.
 data(infections)
 data(hospital_admissions)
 
-# One 16-day (15-day difference) fixed episode per type of infection
-episodes(date = infections$date,
-         strata = infections$infection,
-         case_length = 15,
-         episodes_max = 1,
-         episode_type = "fixed")
+dfr1 <- infections; dfr2 <- hospital_admissions[2:3]
+dfr1$epi_len[dfr1$infection == 'UTI'] <- 7
 
-# Multiple 16-day episodes with an 11-day recurrence period
-episodes(date = infections$date,
-         strata = NULL,
-         case_length = 15,
-         episodes_max = Inf,
-         episode_type = "rolling",
-         recurrence_length = 10)
+# Group records by infection infection type
+  # One 16-day (15-day difference) fixed episode
+dfr1$ep1 <- episodes(
+  date = dfr1$date, strata = dfr1$infection,
+  case_length = 15, episodes_max = 1, group_stats = FALSE)
 
-# Overlapping periods of hospital stays
-dfr <- hospital_admissions[2:3]
+  # Multiple episodes with different episode lengths
+dfr1$ep2 <- episodes(
+  date = dfr1$date, strata = dfr1$infection,
+  case_length = dfr1$epi_len, group_stats = FALSE)
 
-dfr$admin_period <-
-  number_line(dfr$admin_dt,dfr$discharge_dt)
+  # Multiple 16-day (15-day difference) rolling episodes
+  # with an 11-day (10-day difference) recurrence window
+dfr1$ep3 <- episodes(
+  date = dfr1$date, case_length = 15, episodes_max = Inf,
+   episode_type = "rolling", recurrence_length = 10,
+   group_stats = FALSE)
 
-dfr$ep <-
-  episodes(date = dfr$admin_period,
-           strata = NULL,
-           case_length = index_window(dfr$admin_period),
-           case_overlap_methods = "inbetween")
+# Choose which record is the starting point for episodes
+start_at_row_6 <- !(dfr1$rd_id == 6)
+  # with a case_length that includes two separate time ranges:
+  # 20-12 day-difference before the index event and
+  # 15-25 day-difference after the index event
+ns_epi_len <- list(
+  number_line(-20, -12),  number_line(15, 25))
+dfr1$ep4 <- episodes(
+  date = dfr1$date, episodes_max = 1,
+  case_length = ns_epi_len,
+  group_stats = FALSE, custom_sort = start_at_row_6)
 
-dfr
-as.data.frame(dfr$ep)
+  # OR includes the range without any gaps in time
+dfr1$ep5 <- episodes(
+  date = dfr1$date, episodes_max = 1,
+  case_length = number_line(-20, 25),
+  group_stats = FALSE, custom_sort = start_at_row_6)
+
+dfr1
+
+# Periods rather than dates can also be tracked.
+  # Identify episodes from hospital stays that overlap in specific ways
+dfr2$admin_period <- number_line(dfr2$admin_dt, dfr2$discharge_dt)
+match_index <- index_window(dfr2$admin_period)
+dfr2$ep1 <- episodes(
+  date = dfr$admin_period, case_length = match_index,
+  case_overlap_methods = "overlap", group_stats = FALSE)
+
+dfr2$ep2 <- episodes(
+  date = dfr$admin_period, case_length = match_index,
+  case_overlap_methods = "inbetween", group_stats = FALSE)
+
+dfr2$ep3 <- episodes(
+  date = dfr$admin_period, case_length = match_index,
+  case_overlap_methods = "chain", group_stats = FALSE)
+
+dfr2$ep4 <- episodes(
+  date = dfr$admin_period, case_length = match_index,
+  case_overlap_methods = "aligns_start|aligns_end",
+  group_stats = FALSE)
+
+dfr2
+as.data.frame(dfr2$ep)
 
 }
 \seealso{
-\code{\link{episodes_af_shift}}; \code{\link{episodes_af_shift}};
+\code{\link{episodes_af_shift}};
 \code{\link{episodes_af_links}}; \code{\link{episodes_wf_repeats}};
 \code{\link{episodes_wf_splits}}; \code{\link{custom_sort}};
 \code{\link{sub_criteria}}; \code{\link[=windows]{epid_length}};

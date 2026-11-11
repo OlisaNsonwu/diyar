@@ -2,7 +2,7 @@
 % Please edit documentation in R/make_ids.R
 \name{make_ids}
 \alias{make_ids}
-\title{Convert an edge list to record identifiers.}
+\title{Convert an edge list to group identifiers.}
 \usage{
 make_ids(x_pos, y_pos, id_length = max(x_pos, y_pos))
 }
@@ -17,10 +17,11 @@ make_ids(x_pos, y_pos, id_length = max(x_pos, y_pos))
 \code{list}
 }
 \description{
-Convert an edge list to record identifiers.
+Convert an edge list to group identifiers.
 }
 \details{
-Record groups from non-recursive links have the lowest record ID (\code{sn}) in the set as their group ID.
+Each connected record pair is assigned the same group ID.
+For non-recursive links, the lowest record ID (\code{sn}) is set as their group ID.
 }
 \examples{
 make_ids(x_pos = rep(7, 7), y_pos = 1:7)

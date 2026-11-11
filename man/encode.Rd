@@ -34,7 +34,7 @@ decode(x, ...)
 \method{[[}{d_label}(x, i, ..., drop = TRUE)
 }
 \arguments{
-\item{x}{\code{[d_label|atomic]}}
+\item{x}{\code{[d_label|atomic]} Values to encode or decode}
 
 \item{...}{Other arguments.}
 
@@ -46,11 +46,16 @@ decode(x, ...)
 \code{d_label}; \code{atomic}
 }
 \description{
-Encode and decode character and numeric values.
+Encode values as labelled integer codes and decode them back to their original values.
 }
 \details{
-To minimise memory usage, most components of \code{\link[=pid-class]{pid}}, \code{\link[=epid-class]{epid}} and \code{\link[=pane-class]{pane}} are \code{integer} objects with labels.
-\bold{\code{encode()}} and \bold{\code{decode()}} translates these codes and labels as required.
+To minimise memory usage, most components of \code{\link[=pid-class]{pid}},
+\code{\link[=epid-class]{epid}} and \code{\link[=pane-class]{pane}} are
+stored as labelled integer values.
+\itemize{
+\item \bold{\code{encode()}} - converts values to labels
+\item \bold{\code{decode()}} - converts labels to values
+}
 }
 \examples{
 cds <- encode(rep(LETTERS[1:5], 3))

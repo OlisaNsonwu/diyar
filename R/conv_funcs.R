@@ -957,6 +957,16 @@ rc_dv <- function(x, func = length, depth = 1, tgt_depth = Inf){
 
   }
 }
+rc_dv2 <- function(x, func = identity, ...){
+  for(i in seq_len(length(x))){
+    if(class(x[[i]]) %in% c('list', 'd_attribute')){
+      x[[i]] <- rc_dv2(x[[i]], func = func)
+    }else{
+      x[[i]] <- func(x[[i]])
+    }
+  }
+  return(x)
+}
 
 nl_bind <- function(...){
   return(c(...))
@@ -1263,15 +1273,6 @@ make_pairs_batched <- function(
   ord <- order(strata, assign_ord)
   sn <- seq_len(length(ord))
 
-  # if(FALSE){
-  #   ordered_index <- index_record[ord]
-  #   ordered_strata <- strata[ord][ordered_index]
-  #   ordered_source <- data_source[ord][ordered_index]
-  #   ordered_source_order <- c(1, ordered_source[seq_len(length(ordered_source) - 1)] != ordered_source[-1])
-  #   ordered_source_order <- cumsum(ordered_source_order)
-  #   ordered_source_order <- rep(tots(ordered_strata), tots(ordered_strata))
-  # }
-
   #
   ordered_strata <- strata[ord]
   ordered_index <- index_record[ord]
@@ -1284,7 +1285,6 @@ make_pairs_batched <- function(
 
   rep_strata_index <- data.table::rleid(ordered_strata[ordered_index])
   if(!include_repeat & look_back){
-    # run_order <- seq_len(length(i.assign_pos))
     i.assign_ord <- (i.assign_pos + 1) - strata_index[rep_strata_index]
   }
 
@@ -1306,9 +1306,6 @@ make_pairs_batched <- function(
         list( x_pos = integer(), y_pos = integer(), index_ord = integer(), x_val = integer(),
               y_val = integer(), strata = integer()))
     }else if(any(!lgk)){
-      # index_runs$lengths <- index_runs$lengths[lgk]
-      # index_runs$values <- index_runs$values[lgk]
-
       others_runs$lengths <- others_runs$lengths[lgk]
       others_runs$values <- others_runs$values[lgk]
 
@@ -1351,6 +1348,11 @@ make_pairs_batched <- function(
     index_ord = index_ord,
     x_val = x_val, y_val = y_val,
     strata = strata[y_pos])
+
+  if(ignore_same_source & !is.null(data_source)){
+    tmp.lgk <- data_source[x_pos] != data_source[y_pos]
+    out <- lapply(out, function(x) x[tmp.lgk])
+  }
   return(out)
 }
 
@@ -1397,9 +1399,9 @@ make_pairs_batched_wf_source <- function(..., data_source = NULL){
   for (fr in seq_len(max(index_frame))) {
     tgt_lgk <- strata %in% index_strata[index_frame == fr]
     # Strata with index records from the same source
-    tmp.index_record <- sn[tgt_lgk] == index_sn[index_frame == fr]
+    tmp.index_record <- sn[tgt_lgk] %in% index_sn[index_frame == fr]
     tmp.index_source <- bys_val(
-      !tmp.index_record[tgt_lgk], val = data_source[tgt_lgk],
+      !tmp.index_record, val = data_source[tgt_lgk],
       by = strata[tgt_lgk])
     sub.tgt_lgk <- data_source[tgt_lgk] != tmp.index_source | tmp.index_record
     tmp.sn <- sn[tgt_lgk][sub.tgt_lgk]
@@ -1408,14 +1410,17 @@ make_pairs_batched_wf_source <- function(..., data_source = NULL){
       index_record = tmp.index_record[sub.tgt_lgk],
       strata = strata[tgt_lgk][sub.tgt_lgk],
       assign_ord = assign_ord[tgt_lgk][sub.tgt_lgk],
-      include_repeat = eval(opt_lst$include_repeat),
+      include_repeat = FALSE,
       look_back = eval(opt_lst$look_back)))
     tgt_pairs[[fr]][,index_ord := fr]
     tgt_pairs[[fr]][,index_ord := fr]
-    tgt_pairs[[fr]][,x_pos := tmp.sn[x_pos]]
-    tgt_pairs[[fr]][,y_pos := tmp.sn[y_pos]]
+    tgt_pairs[[fr]][,x_pos := x_val]
+    tgt_pairs[[fr]][,y_pos := y_val]
   }
   tgt_pairs <- data.table::rbindlist(tgt_pairs)
+  tgt_pairs[,x_val := x[x_pos]]
+  tgt_pairs[,y_val := x[y_pos]]
+
   tgt_pairs <- as.list(tgt_pairs)
 
   return(tgt_pairs)
@@ -1461,4 +1466,209 @@ random_colors <- function(n, alpha, theme = 'any'){
     sample(col_range, n, replace = TRUE)/256,
     sample(col_range, n, replace = TRUE)/256,
     sample(col_range, n, replace = TRUE)/256, alpha = alpha)
+}
+
+.flatten_list <- function(x, depth = 1){
+  classes <- unlist(lapply(x, class))
+  lgk <- classes %in% c("list", "d_attribute")
+  x.1 <- x[!lgk]
+  x.2 <- unlist(x[lgk], recursive = FALSE)
+  if(length(x.1) > 0 & depth == 1){
+    names(x.1) <- paste0("var_", depth, ".", seq_len(length(x.1)))
+  }
+  if(length(x.2) > 0){
+    names(x.2) <- paste0("var_", depth + 1, ".", seq_len(length(x.2)))
+  }
+  x <- c(x.1, x.2)
+  classes <- unlist(lapply(x, class))
+  lgk <- classes %in% c("list", "d_attribute")
+  if(any(lgk)){
+    .flatten_list(x, depth = depth + 1)
+  }else{
+    x
+  }
+}
+
+.traverse_sub_criteria <- function(x, depth = 0, Lv = depth){
+  chck_lgk <- rep(FALSE, length(x))
+  for(i in seq_len(length(x))){
+    chck_lgk[i] <- all(class(x[[i]]$attribute) == 'sub_criteria')
+  }
+  if(all(!chck_lgk)){
+    .validate_sub_criteria_level(x, Lv = Lv)
+  }else{
+    for(k in which(chck_lgk)){
+      x[[k]]$attribute <- .traverse_sub_criteria(
+        x[[k]]$attribute, depth = depth + 1, Lv = paste0(depth + 1, '.', k))
+    }
+    .validate_sub_criteria_level(x, Lv = Lv)
+  }
+  return(TRUE)
+}
+
+.validate_sub_criteria_level <- function(x, Lv){
+  tmp_func <- function(...){
+    err_sub_criteria_0(
+      ..., match_funcs = unpack_sub_criteria(x, part = 'match_func'),
+      equal_funcs = unpack_sub_criteria(x, part = 'equal_func'),
+      operator = 'or')
+  }
+  err <- do.call(tmp_func, unpack_sub_criteria(x, part = 'attribute'))
+  if(!isFALSE(err)) stop(paste0('Lv',Lv,': ', err), call. = FALSE)
+
+  err <- err_sub_criteria_5.0(x, funcs_l = "match_funcs", funcs_pos = 2)
+  if(!isFALSE(err)) stop(paste0('Lv',Lv,': ', err), call. = FALSE)
+
+  err <- err_sub_criteria_5.0(x, funcs_l = "equal_funcs", funcs_pos = 3)
+  if(!isFALSE(err)) stop(paste0('Lv',Lv,': ', err), call. = FALSE)
+
+  return(TRUE)
+}
+
+.evaluate_sub_criteria <- function(
+    x,
+    x_pos = seq_len(max(attr_eval(x))),
+    y_pos = rep(1L, length(x_pos)),
+    check_duplicates = TRUE,
+    depth = 0){
+  if(length(x_pos) == 0 & length(y_pos) == 0){
+    x <- list(logical_test = integer())
+    if(isFALSE(check_duplicates)){
+      x$equal_test <- integer()
+    }
+    return(x)
+  }
+  curr_ds_len <- length(y_pos)
+
+  matches <- list()
+  for(j in 1:length(x)){
+    a <- x[[j]]
+    x1 <- a[[1]]
+    f1 <- a[[2]]
+    if(inherits(x1,"sub_criteria")){
+      xx <- eval_sub_criteria(
+        x = x1, x_pos = x_pos, y_pos = y_pos,
+        check_duplicates = check_duplicates,
+        depth = depth + 1)
+      matches[[length(matches)+1]] <- xx
+    }else{
+      if(inherits(x1,"d_attribute")){
+        y <- rc_dv(x1, func = function(x){
+          if(length(x) <= 1) x else x[y_pos]
+        })
+        x1 <- rc_dv(x1, func = function(x){
+          if(length(x) <= 1) x else x[x_pos]
+        })
+      }else{
+        if(length(x1) == 1) x1 <- rep(x1, curr_ds_len)
+        y <- x1[y_pos]
+        x1 <- x1[x_pos]
+      }
+
+      lgk <- try(f1(x = x1, y = y), silent = TRUE)
+      request_info <- !is.atomic(lgk)
+      if(isTRUE(request_info)){
+        out1_match <- lgk[[1]]
+        out1_export <- lgk[-1]
+      }else{
+        out1_match <- lgk
+      }
+      if(inherits(out1_match, "try-error") | !inherits(out1_match, "logical")){
+        if(inherits(out1_match, "try-error")){
+          err <- attr(out1_match, "condition")$message
+        }else{
+          err <- "Output is not a `logical` object"
+        }
+
+        err <-
+          paste0("Unable to evaluate `match_funcs`:\n",
+                 "i - Each function in `match_funcs` must have the following syntax and output.\n",
+                 "i - Syntax ~ `function(x, y, ...)`.\n",
+                 "i - Output ~ `TRUE`, `FALSE`, `list(TRUE, ... )` or `list(FALSE, ... )`.\n",
+                 "X - Issue with `match_funcs`: ", err, ".")
+        stop(err, call. = F)
+      }
+      # out1_match[is.na(out1_match)] <- 0L
+      if(length(out1_match) == 1) out1_match <- rep(out1_match, curr_ds_len)
+      if(!length(out1_match) %in% c(1, curr_ds_len)){
+        err <-
+          paste0("Output length of `match_funcs` must be 1 or the same as `criteria`:\n",
+                 "i - Unexpected length for `match_funcs`:\n",
+                 "i - Expecting a length of 1 of ", curr_ds_len, ".\n",
+                 "X - Length is ", length(out1_match), ".")
+        stop(err, call. = F)
+      }
+      output <- list(logical_test = out1_match)
+      if(isTRUE(request_info)){
+        output[[paste0("mf.", depth, ".", j)]] <- out1_export
+      }
+
+      if(isFALSE(check_duplicates)){
+        f2 <- a[[3]]
+        lgk <- try(f2(x = x1, y = y), silent = T)
+        request_info <- !is.atomic(lgk)
+        if(isTRUE(request_info)){
+          out2_match <- lgk[[1]]
+          out2_export <- lgk[-1]
+        }else{
+          out2_match <- lgk
+        }
+        if(inherits(out2_match, "try-error") | !inherits(out2_match, "logical")){
+          if(inherits(out2_match, "try-error")){
+            err <- attr(out2_match, "condition")$message
+          }else{
+            err <- "Output is not a `logical` object"
+          }
+
+          err <-
+            paste0("Unable to evaluate `equal_funcs`:\n",
+                   "i - Each function in `equal_funcs` must have the following syntax and output.\n",
+                   "i - Syntax ~ `function(x, y, ...)`.\n",
+                   "i - Output ~ `TRUE`, `FALSE`, `list(TRUE, ... )` or `list(FALSE, ... )`.\n",
+                   "X - Issue with `equal_funcs`: ", err, ".")
+          stop(err, call. = F)
+        }
+        # out2_match[is.na(out2_match)] <- 0
+        if(length(out2_match) == 1) out2_match <- rep(out2_match, curr_ds_len)
+        if(!length(out2_match) %in% c(1,curr_ds_len)){
+          err <- paste0(
+            "Output length of `equal_funcs` must be 1 or the same as `criteria`:\n",
+            "i - Unexpected length for `equal_funcs`:\n",
+            "i - Expecting a length of 1 of ", curr_ds_len, ".\n",
+            "X - Length is ", length(out2_match), ".")
+          stop(err, call. = F)
+        }
+        output$equal_test <- out2_match
+        if(isTRUE(request_info)){
+          output[[paste0("ef.", depth, ".", j)]] <- out2_export
+        }
+      }
+      matches[[length(matches)+1]] <- output
+    }
+  }
+
+  attr_n <- length(matches)
+  s.len <- length(matches[[1]])
+  if(attr_n > 1){
+    operator <- tolower(attr(x, "operator"))
+    for (i in 2:length(matches)) {
+      for (k in grep('logical|equal', names(matches[[i]]), value = TRUE)) {
+        matches[[1]][[k]] <- matches[[1]][[k]] + matches[[i]][[k]]
+        if(operator == "or"){
+          matches[[1]][[k]] <- as.logical(matches[[1]][[k]])
+        }else if (operator == "and"){
+          matches[[1]][[k]] <- matches[[1]][[k]] == attr_n
+        }
+      }
+      new.outputs <- grep("^ef|^mf", names(matches[[i]]), value = TRUE)
+      if(length(new.outputs) > 0){
+        new_index <- s.len + seq_len(length(new.outputs))
+        matches[[1]][new_index] <- matches[[i]][new.outputs]
+        names(matches[[1]])[new_index] <- new.outputs
+      }
+    }
+    matches[2:attr_n] <- NULL
+  }
+
+  return(matches[[1]])
 }

@@ -51,7 +51,7 @@ However, we can make the case that the children are all part of the same generat
 This presents the main difference between `partitions()` and `episodes()`.
 Unlike `episodes()`, the duration (age gaps) between records is not a factor. Here records or events are linked together simply because they exist within the same interval (age gap). 
 
-To correct this, we can start the age band from age 6 but this becomes difficult to manage when analysing multiple homes. Instead, we can use the `by` or `lenght.out` argument to create windows (`window`) relative to the first event (or `custom_sort`) only. 
+To correct this, we can start the age band from age 6 but this becomes difficult to manage when analysing multiple homes. Instead, we can use the `by` or `length.out` argument to create windows (`window`) relative to the first event (or `custom_sort`) only. 
 Although this makes it more like `episodes()`, it is still different since all age gaps are relative to only one reference event `(I)`.
 
 ```{r warning=FALSE, fig.width=7}

@@ -17,7 +17,7 @@
 \alias{bys_cumprod_legacy}
 \alias{bys_lag_legacy}
 \alias{bys_lead_legacy}
-\title{Vectorised approach to group operations.}
+\title{Vectorised approach to grouped summary, ranking, selection, cumulative and value selection operations.}
 \usage{
 bys_count_legacy(by, unique.var = NULL)
 
@@ -50,9 +50,9 @@ bys_lag_legacy(val, by = NULL, n = 1)
 bys_lead_legacy(val, by = NULL, n = 1)
 }
 \arguments{
-\item{by}{\code{[atomic]}. Groups.}
+\item{by}{\code{[atomic]}. Groups. Operations are performed separately within a group.}
 
-\item{...}{\code{[atomic]}. Sort levels.}
+\item{...}{\code{[atomic]}. Sort levels applied within a group.}
 
 \item{from_last}{\code{[logical]} Sort order - \code{TRUE} (descending) or \code{FALSE} (ascending).}
 
@@ -70,7 +70,20 @@ bys_lead_legacy(val, by = NULL, n = 1)
 \code{[atomic]}
 }
 \description{
-Vectorised approach to group operations.
+These functions perform operations separately within a group.
+Most functions mirror a base R equivalent.
+Outputs are returned in the order they were provided.
+}
+\details{
+The functions can be broadly grouped as:
+\itemize{
+\item Counting: \code{bys_count_legacy()}:
+\item Ranking and ordering: \code{bys_rank_legacy()} and \code{bys_position_legacy()}
+\item Value selection: \code{bys_val_legacy()}, \code{bys_nval_legacy()}
+\item Summary statistics: \code{bys_min_legacy()}, \code{bys_max_legacy()}, \code{bys_sum_legacy()} and \code{bys_prod_legacy()}
+\item Cumulative statistics: \code{bys_cummin_legacy()}, \code{bys_cummax_legacy()}, \code{bys_cumsum_legacy()} and \code{bys_cumprod_legacy()}
+\item Lead and lag operations: \code{bys_lead_legacy()}, \code{bys_lag_legacy()}
+}
 }
 \examples{
 x <- data.frame(

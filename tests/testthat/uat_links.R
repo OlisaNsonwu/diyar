@@ -100,7 +100,7 @@ test_5$pids_c <- uat.links(
   permutations_allowed = FALSE, recursive = TRUE)
 test_5$pids_d <- uat.links(
   criteria = as.list(test_5[c("cri_1", "cri_2")]),
-  stepwise_method = 'ordered_only', repeats_allowed = FALSE,
+  stepwise_method = 'exclude_previous_matches', repeats_allowed = FALSE,
   permutations_allowed = FALSE, recursive = TRUE)
 
 test_that("handling group expansion vs group shrinking", {

@@ -3,10 +3,10 @@
 #' @title Grammatical lists.
 #' @description A convenience function to format \code{atomic} vectors as a written list.
 #'
-#' @param x \code{atomic} vector.
-#' @param sep Separator.
-#' @param conj Final separator.
-#' @param lim Elements to include in the list. Other elements are abbreviated to \code{" ..."}.
+#' @param x \code{[atomic]} Values.
+#' @param sep \code{[atomic]} Separator.
+#' @param conj \code{[atomic]} Final separator.
+#' @param lim \code{[integer]} Maximum number of elements included in the list. Additional elements are abbreviated to \code{" ..."}.
 #'
 #'
 #' @return \code{character}.
@@ -34,11 +34,13 @@ listr <- function(x, sep = ", ", conj = " and ", lim = Inf){
   err <- err_match_ref_len(lim, "", 1, "lim")
   if(err != F) stop(err, call. = F)
 
-  if(length(x) <= lim){
+  if(length(x) == 1){
+    x <- as.character(x)
+  }else if (length(x) <= lim){
     p <- x[length(x)]
     f <- x[1:(length(x)-1)]
     f <- paste(f, collapse = sep)
-    x <- ifelse(length(x) > 1, paste0(f, conj, p), f)
+    x <- paste0(f, conj, p)
   }else{
     x <- paste0(paste0(x[seq_len(lim)], collapse = sep), " ...")
   }

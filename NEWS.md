@@ -9,6 +9,7 @@
 - `flip_number_line()`
 - `links_af_modular()`
 - `links_af_dt()`
+- `epid_units()`
 
 ## Changes
 
@@ -29,14 +30,17 @@
 - `make_pairs()` upgrades. Less memory.
 - `overlap()` upgrades. Less memory.
 - `eval_sub_criteria()` upgrades. uses less memory.
-- `combi()` is now a wrapper function for `data.table::frankv`
+- `combi()` is now a wrapper function for `data.table::frankv`. The
+  previous version is now `combi_legacy()`
 - `number_line_sequence()` removed. Use `split_number_lines()` instead
 - Performance improvements - `episodes()`, `links()`,
-  `invert_number_line()`, `schema()`.
+  `invert_number_line()`, `schema()`, `make_pairs_wf_source()`.
 - `links_wf_episodes()` replaces `episodes_af_links()` and now returns
   an `epid` object.
 - `schema()` dependence on ggplot2 removed. Plots now created with
   `plot()`.
+- `episode_units` 1 month is now equal to 31 days. It was previously
+  30.4 days.
 
 ## Bug fixes
 

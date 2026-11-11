@@ -2,23 +2,35 @@
 % Please edit documentation in R/combi.R
 \name{combi}
 \alias{combi}
+\alias{combi_legacy}
 \title{Vector combinations}
 \usage{
 combi(..., ordered = FALSE)
+
+combi_legacy(...)
 }
 \arguments{
-\item{...}{\code{[atomic]}.}
+\item{...}{\code{[atomic]} One or more vectors to be combined.}
 
-\item{ordered}{\code{[logical]}. If \code{TRUE}, the output is sequential.}
+\item{ordered}{\code{[logical]}. If \code{TRUE}, the codes are assigned sequentially in the order combinations are encountered.}
 }
 \value{
 \code{numeric}
 }
 \description{
-Numeric codes for unique combination of vectors.
+Generate numeric codes representing unique combinations of vectors.
+}
+\details{
+Each unique combination of values across the supplied vectors is
+assigned a unique numeric code. Records with the same values across all
+are assigned the same code.
 }
 \examples{
+
 x <- c("A", "B", "A", "C", "B", "B")
 y <- c("X", "X", "Z", "Z", "X", "Z")
-combi(x, y)
+
+# Create a unique code for each x-y combination
+data.frame(x, y, combi(x, y))
+
 }

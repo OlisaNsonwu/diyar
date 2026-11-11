@@ -14,7 +14,7 @@ links(
   data_source = NULL,
   data_links = "ANY",
   display = "none",
-  group_stats = FALSE,
+  group_stats = "link",
   expand = TRUE,
   shrink = FALSE,
   recursive = "none",
@@ -56,35 +56,39 @@ links_af_modular(
 
 \item{sub_criteria}{\code{[list|\link{sub_criteria}]}. Nested match criteria. This must be paired to a stage of the linkage process (\code{criteria}). See \code{\link{sub_criteria}}}
 
-\item{sn}{\code{[integer]}. Unique record ID.}
+\item{sn}{\code{[integer]}. Unique record ID}
 
-\item{strata}{\code{[atomic]}. Subsets of the dataset. Record-groups are created separately for each \code{strata}. See \code{Details}.}
+\item{strata}{\code{[atomic]}. Subsets of the dataset. Record-groups are created separately within each \code{strata}. See \code{Details}.}
 
-\item{data_source}{\code{[character]}. Source ID for each record. If provided, a list of all sources in each record-group is returned. See \code{\link[=pid-class]{pid_dataset slot}}.}
+\item{data_source}{\code{[character]}. Source ID for each record. If provided, a list of all sources in each record-group is returned to the \code{\link[=pid-class]{pid_dataset slot}}.}
 
 \item{data_links}{\code{[list|character]}. \code{data_source} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.}
 
 \item{display}{\code{[character]}. Display progress update and/or generate a linkage report for the analysis. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.}
 
-\item{group_stats}{\code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.}
+\item{group_stats}{\code{[character|logical]}. A selection of group metrics returned with each record group. Most are added to slots of the \code{\link[=pid-class]{pid}} object.
+Options are \code{NULL}  (for none), \code{TRUE} (for all options) and \code{"link"}.
+The \code{FALSE} option is retained for backward compatibility and is equivalent to \code{"link"}.}
 
 \item{expand}{\code{[logical]}. If \code{TRUE}, a record-group gains new records if a match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.}
 
 \item{shrink}{\code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.}
 
-\item{recursive}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{"no"}.}
+\item{recursive}{\code{[logical|character]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{"no"}.}
 
-\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{"no"}.}
+\item{check_duplicates}{\code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attribute are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{"no"}.}
 
-\item{tie_sort}{\code{[atomic]}. Preferential order for breaking match ties within an iteration of record linkage.}
+\item{tie_sort}{\code{[atomic]}. Preferential order for breaking match ties within an iteration of record linkage. See \code{\link{custom_sort}}.}
 
 \item{batched}{\code{[character]} Determines if record-pairs are created and compared in batches. Options are \code{"yes"}, \code{"no"} or \code{"semi"}.}
 
-\item{repeats_allowed}{\code{[logical]} If \code{TRUE}, pairs made up of repeat records are not created and compared. Only used when \code{batched} is \code{"no"}.}
+\item{repeats_allowed}{\code{[logical]} If \code{TRUE}, self-pairs (e.g. A-A, B-B) are created and compared. Only used when \code{batched} is \code{"no"}.}
 
-\item{permutations_allowed}{\code{[logical]} If \code{TRUE}, permutations of record-pairs are created and compared. Only used when \code{batched} is \code{"no"}.}
+\item{permutations_allowed}{\code{[logical]} If \code{TRUE}, permutations of the same record-pairs (e.g. A-B, B-A) are created and compared. Only used when \code{batched} is \code{"no"}.}
 
-\item{ignore_same_source}{\code{[logical]} If \code{TRUE}, only records-pairs from a different \code{data_source} are created and compared.}
+\item{ignore_same_source}{\code{[logical]} If \code{TRUE}, only record-pairs from a different \code{data_source} are created and compared.}
+
+\item{stepwise_method}{\code{[character]} Determines how matches identified at earlier linkage stages are handled in subsequent stages. Options are \code{"expand_with_priority"} (default), \code{"expand_without_priority"}, \code{"exclude_previous_matches"}, and \code{"shrink_to_last_match"}. See \code{Details}.}
 }
 \value{
 \code{\link[=pid-class]{pid}}; \code{list}
@@ -93,8 +97,18 @@ links_af_modular(
 Assign records to unique groups based on an ordered set of match criteria.
 }
 \details{
-The priority of matches decreases with each subsequent stage of the linkage process.
-Therefore, the attributes in \code{criteria} should be in an order of decreasing relevance.
+Linkage stages are processed in order. Match at each stage create record-groups.
+\link{stepwise_method} handles how record-groups in one stage are handled in subsequent stage:
+\itemize{
+\item \code{"expand_with_priority"} (default) - Record-groups created in one stage have priority over those created at subsequent stages. Record-group can gain additional records at subsequent stages, but only from previously unmatched records. Once a record has been assigned to a group, it will not reassigned by a match at a subsequent stage.
+\item \code{"expand_without_priority"} - Record-groups created in one stage can be updated by those created at subsequent stages. Record-group can gain additional records at subsequent stages from both previously matched and unmatched records. Once a record has been assigned to a group, it can be reassigned to another due to a match at a subsequent stage.
+\item \code{"exclude_previous_matches"} - Record-group created in one stage are excluded from subsequent stages. Only unmatched records are considered at subsequent stages. Record-groups will neither gain nor lose records once created.
+\item \code{"shrink_to_last_match"} - Only record-groups created in one stage are considered at the next stage. Record-groups can lose records at subsequent stages as the combined match criteria becomes increasingly restrictive, with final group membership determined by the last successful stage.
+}
+
+The priority of matches is influenced by the order of the linkage stages.
+Therefore, the order of attributes in `criteria` should reflect their intended
+relevance to the linkage process (e.g. low-to-high or high-to-low).
 
 Records with missing data (\code{NA}) for each \code{criteria} are
 skipped at the respective stage, while records with
@@ -115,7 +129,7 @@ the corresponding stage's number.
 For example, 3 \code{sub_criteria} linked to
 \code{criteria} 1, 5 and 13 will be;
 
-\deqn{list(cr1 = sub_criteria(...), cr5 = sub_criteria(...), cr13 = sub_criteria(...))}
+\code{list(cr1 = sub_criteria(...), cr5 = sub_criteria(...), cr13 = sub_criteria(...))}
 
 Any unlinked \code{\link{sub_criteria}} will be ignored.
 
@@ -131,11 +145,15 @@ See \code{vignette("links")} for more information.
 \examples{
 data(patient_records)
 dfr <- patient_records
-# An exact match on surname followed by an exact match on forename
+
+# Stage 1: Exact match on surname
+# Stage 2: Exact match on forename
 stages <- as.list(dfr[c("surname", "forename")])
 p1 <- links(criteria = stages)
 
-# An exact match on forename followed by an exact match on surname
+# Reverse the order
+# Stage 1: Exact match on forename
+# Stage 2: Exact match on surname
 p2 <- links(criteria = rev(stages))
 
 # Nested matches
@@ -166,7 +184,7 @@ p3 <- links(
   sub_criteria = list(cr1 = m.cri.1,
                       cr2 = m.cri.2))
 
-# Record linkage with additonal nested match criteria
+# Record linkage with additional nested match criteria
 p4 <- links(
   criteria = stages,
   sub_criteria = list(cr1 = n.cri,

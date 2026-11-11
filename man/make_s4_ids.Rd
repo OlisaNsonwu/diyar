@@ -4,7 +4,7 @@
 \alias{make_s4_ids}
 \alias{make_episodes}
 \alias{make_pids}
-\title{Create \code{epid} and \code{pid} objects with index of matching records}
+\title{Create \code{epid} and \code{pid} objects from index of matching records}
 \usage{
 make_episodes(
   x_pos,
@@ -34,27 +34,27 @@ make_pids(
 )
 }
 \arguments{
-\item{x_pos}{\code{[integer]}. Index of one half of a record pair.}
+\item{x_pos}{\code{[integer]}. Index of first half of a record pair.}
 
-\item{y_pos}{\code{[integer]}. Index of one half of a record pair.}
+\item{y_pos}{\code{[integer]}. Index of second half of a record pair.}
 
 \item{x_val}{\code{[integer]}. Value of one half of a record pair.}
 
 \item{date}{\code{[date|datetime|integer|\link{number_line}]}. Record date or period.}
 
-\item{case_nm}{\code{[integer|character]} Record type in regards to case assignment (\code{\link{sub_criteria}[Encoded]}).}
+\item{case_nm}{\code{[integer|character]} Record type in regards to case assignment.}
 
 \item{wind_id}{\code{[integer]}. Unique reference ID for each match.}
 
 \item{wind_nm}{\code{[list]}. Type of window i.e. "Case" or "Recurrence".}
 
-\item{from_last}{\code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).}
+\item{from_last}{\code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{FALSE}) or descending (\code{TRUE}).}
 
 \item{data_source}{\code{[character]}. Source ID for each record.}
 
 \item{data_links}{\code{[list|character]}. \code{data_source} required in each record-group. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}.}
 
-\item{iteration}{The iteration when a record was matched to it's group (\code{.Data}).}
+\item{iteration}{The iteration when a record was matched to its group.}
 
 \item{options}{\code{[list]}. Some options passed to the instance of \code{\link{episodes}}.}
 
@@ -62,8 +62,14 @@ make_pids(
 
 \item{link_id}{\code{[integer]}. Unique reference ID for each match.}
 
-\item{pid_cri}{Match stage of the step-wise linkage.}
+\item{pid_cri}{\code{[integer]} Match stage of the step-wise linkage.}
 }
 \description{
-Create \code{epid} and \code{pid} objects with index of matching records
+Create \code{epid} and \code{pid} objects from index of matching records
+}
+\details{
+\code{make_episodes()} and \code{make_pids()} are used by
+\code{\link{episodes}} and \code{\link{links}} respectively.
+They construct \code{\link[=epid-class]{epid}} object and \code{\link[=pid-class]{pid}}
+objects from matched record-pairs and associated metadata.
 }

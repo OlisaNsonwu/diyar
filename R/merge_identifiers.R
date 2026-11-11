@@ -31,12 +31,12 @@
 #' id3 <- c(rep(1, 3), 6, 7)
 #' id4 <- c(2,2,3,3,3)
 #' merge_ids(id3, id4, stepwise_method = 'shrink_to_last_match')
-#' merge_ids(id3, id4, stepwise_method = 'ordered_only')
+#' merge_ids(id3, id4, stepwise_method = 'exclude_previous_matches')
 #'
 #' id5 <- rep(1, 5)
 #' id6 <- c(1:3, 4, 4)
 #' merge_ids(id5, id6, stepwise_method = 'shrink_to_last_match')
-#' merge_ids(id5, id6, stepwise_method = 'ordered_only')
+#' merge_ids(id5, id6, stepwise_method = 'exclude_previous_matches')
 #'
 #' data(missing_staff_id)
 #' dfr <- missing_staff_id
@@ -82,7 +82,7 @@ merge_ids.default <- function(id1, id2, tie_sort = NULL, stepwise_method = 'expa
     dfr[include == TRUE, id1 := id2]
   }
   data.table::setorderv(dfr, sort_var, order = sort_ord)
-  if(stepwise_method == 'ordered_only'){
+  if(stepwise_method == 'exclude_previous_matches'){
     dfr[old_match == TRUE, include := FALSE]
   }
   dfr[,f_match := FALSE]

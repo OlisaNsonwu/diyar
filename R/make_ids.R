@@ -1,13 +1,14 @@
 #' @name make_ids
 #' @aliases make_ids
-#' @title Convert an edge list to record identifiers.
+#' @title Convert an edge list to group identifiers.
 #'
 #' @param x_pos \code{[integer]}. Index of first half of a record-pair.
 #' @param y_pos \code{[integer]}. Index of second half of a record-pair.
 #' @param id_length Length of the record identifier.
 #'
 #' @details
-#' Record groups from non-recursive links have the lowest record ID (\code{sn}) in the set as their group ID.
+#' Each connected record pair is assigned the same group ID.
+#' For non-recursive links, the lowest record ID (\code{sn}) is set as their group ID.
 #'
 #' @examples
 #' make_ids(x_pos = rep(7, 7), y_pos = 1:7)

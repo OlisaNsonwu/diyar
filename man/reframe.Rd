@@ -4,16 +4,13 @@
 \alias{reframe}
 \alias{reframe.sub_criteria}
 \alias{unpack_sub_criteria}
-\alias{flatten_list}
-\title{Modify \code{sub_criteria} objects.}
+\title{Access and modify \code{sub_criteria} objects.}
 \usage{
 reframe(x, ...)
 
 \method{reframe}{sub_criteria}(x, func = identity, ...)
 
 unpack_sub_criteria(x, part = "attribute")
-
-flatten_list(x, depth = 1)
 }
 \arguments{
 \item{x}{\code{[\link{sub_criteria}]}.}
@@ -21,25 +18,49 @@ flatten_list(x, depth = 1)
 \item{...}{Arguments passed to methods.}
 
 \item{func}{\code{[function]}. Transformation function.}
+
+\item{part}{\code{[character]} Component of the \code{\link{sub_criteria}} object to extract.
+Options are one of \code{"attribute"}, \code{"match_func"} or \code{"equal_func"}.}
 }
 \description{
-Modify the attributes of a \code{\link{sub_criteria}} object.
+Access and modify the attributes of a \code{\link{sub_criteria}} object.
+}
+\details{
+\code{reframe()} - Modifies a \code{\link{sub_criteria}} object by transforming
+its attributes. \code{reframe()} automatically validates the modified
+\code{\link{sub_criteria}} object to ensure it is still structurally valid.
+
+\code{unpack_sub_criteria()} - Extracts nested attributes,
+match functions, or equality functions from a \code{sub_criteria} object.
+
+The combination of both functions can be used to inspect and modify
+a \code{sub_criteria} object.
 }
 \examples{
+# Modify `sub_criteria` object
+  # Modifying attributes
 s_cri <- sub_criteria(month.abb, month.name)
+s_cri
+  # Retain the 12th element of each attribute
 reframe(s_cri, func = function(x) x[12])
-reframe(s_cri, func = function(x) x[12:1])
+  # Reverse the order of each attribute
+reframe(s_cri, func = function(x) rev(x))
+  # Split each attribute into a two-element d_attribute object
 reframe(s_cri, func = function(x) attrs(x[1:6], x[7:12]))
 
+# Extracting components from a `sub_criteria` object
 x <- sub_criteria(rep(1, 5), rep(5 * 10, 5), operator = 'and')
 x <- sub_criteria(x, c(1,9,1,11,5), operator = 'or')
-x
 format(x, show_levels = TRUE)
-unpack_sub_criteria(x)
-flatten_list(unpack_sub_criteria(x), depth = 0)
-lapply(flatten_list(unpack_sub_criteria(x), depth = 0), max)
+ # Extract the `sub_criteria` match functions
+unpack_sub_criteria(x, part = 'match_func')
+ # Extract the `sub_criteria` attributes
+unpack_sub_criteria(x, part = 'attribute')
+ # Flatten before modifying the extracted `sub_criteria` attributes
+flatten_list(unpack_sub_criteria(x))
+lapply(flatten_list(unpack_sub_criteria(x)), max)
 
 }
 \seealso{
-\code{\link{sub_criteria}}; \code{\link{eval_sub_criteria}}; \code{\link{attr_eval}}
+\code{\link{sub_criteria}}; \code{\link{eval_sub_criteria}}; \code{\link{validate_sub_criteria}}
 }

@@ -1,19 +1,19 @@
 #' @title Overlapping number line objects
 #'
-#' @description Identify overlapping \code{\link{number_line}} objects
+#' @description Identify overlapping \code{\link{number_line}} objects and they type of overlap between them.
 #'
 #' @param x \code{[\link{number_line}]}
 #' @param y \code{[\link{number_line}]}
-#' @param methods \code{[charater|integer]}. Type of overlap. See \code{as.data.frame(diyar::overlap_methods$options)} for options.
+#' @param methods \code{[character|integer]}. Type of overlap. See \code{as.data.frame(diyar::overlap_methods$options)} for options.
 #' @aliases overlaps
 #' @return \code{logical}; \code{character}
 #'
 #' @details
 #'
-#' There are 6 mutually exclusive types of overlap;
+#' There are 6 overlap types;
 #' \itemize{
-#' \item \bold{\code{exact()}} - identical \code{\link{start_point}} and \code{\link{end_point}} points.
-#' \item \bold{\code{inbetween()}} - Both \code{\link{start_point}} and \code{\link{end_point}} of one \code{\link{number_line}} object are within the \code{\link{start_point}} and \code{\link{end_point}} of another.
+#' \item \bold{\code{exact()}} - Identical \code{\link{start_point}} and \code{\link{end_point}} points.
+#' \item \bold{\code{inbetween()}} - Both \code{\link{start_point}} and \code{\link{end_point}} of one \code{\link{number_line}} object are contained within the \code{\link{start_point}} and \code{\link{end_point}} of another.
 #' \item \bold{\code{across()}} - Only the \code{\link{start_point}} or \code{\link{end_point}} of one \code{\link{number_line}} object is in between the \code{\link{start_point}} and \code{\link{end_point}} of another.
 #' \item \bold{\code{chain()}} - \code{\link{end_point}} of one \code{\link{number_line}} object is identical to the \code{\link{start_point}} of another.
 #' \item \bold{\code{aligns_start()}} - identical \code{\link{start_point}} only.
@@ -22,14 +22,14 @@
 #'
 #' Except \bold{\code{exact()}}, each type of overlap has two variations;
 #' \itemize{
-#' \item \bold{\code{x_`method`_y()}} - \code{\link{number_line}}-\code{x} starts before \code{\link{number_line}}-\code{y}.
-#' \item \bold{\code{y_`method`_x()}} - \code{\link{number_line}}-\code{y} starts before \code{\link{number_line}}-\code{x}.
+#' \item \bold{\code{x_`method`_y()}} - \code{x} starts before \code{y}.
+#' \item \bold{\code{y_`method`_x()}} - \code{y} starts before \code{x}.
 #' }
 #'
-#' There are two mutually inclusive types of overlap;
+#' Two convenient functions are include:
 #' \itemize{
-#' \item \bold{\code{overlap()}} - a convenient option to select "ANY" and "ALL" type of overlap.
-#' \item \bold{\code{none()}} - a convenient option to select "NO" type of overlap.
+#' \item \bold{\code{overlap()}} - Any overlap type.
+#' \item \bold{\code{none()}} - No overlap.
 #' }
 #'
 #' Selecting multiple types of overlap;

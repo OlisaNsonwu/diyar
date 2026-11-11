@@ -84,12 +84,12 @@ merge_ids(id1, id2, stepwise_method = 'shrink_to_last_match')
 id3 <- c(rep(1, 3), 6, 7)
 id4 <- c(2,2,3,3,3)
 merge_ids(id3, id4, stepwise_method = 'shrink_to_last_match')
-merge_ids(id3, id4, stepwise_method = 'ordered_only')
+merge_ids(id3, id4, stepwise_method = 'exclude_previous_matches')
 
 id5 <- rep(1, 5)
 id6 <- c(1:3, 4, 4)
 merge_ids(id5, id6, stepwise_method = 'shrink_to_last_match')
-merge_ids(id5, id6, stepwise_method = 'ordered_only')
+merge_ids(id5, id6, stepwise_method = 'exclude_previous_matches')
 
 data(missing_staff_id)
 dfr <- missing_staff_id

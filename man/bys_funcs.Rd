@@ -20,7 +20,7 @@
 \alias{bys}
 \alias{bys_shift}
 \alias{bys_func}
-\title{Vectorised approach to group operations.}
+\title{Grouped summary, ranking, selection, cumulative and value selection operations.}
 \usage{
 bys_count(by, unique.var = NULL)
 
@@ -67,9 +67,9 @@ bys_shift(..., val, by = NULL, n = 1, from_last = FALSE)
 bys_func(..., val, by = NULL, from_last = FALSE, func = sum)
 }
 \arguments{
-\item{by}{\code{[atomic]}. Groups.}
+\item{by}{\code{[atomic]}. Groups. Operations are performed separately within a group.}
 
-\item{...}{\code{[atomic]}. Sort levels.}
+\item{...}{\code{[atomic]}. Sort levels applied within a group.}
 
 \item{from_last}{\code{[logical]} Sort order - \code{TRUE} (descending) or \code{FALSE} (ascending).}
 
@@ -87,7 +87,20 @@ bys_func(..., val, by = NULL, from_last = FALSE, func = sum)
 \code{[atomic]}
 }
 \description{
-Vectorised approach to group operations.
+These functions perform operations separately within a group.
+Most functions mirror a base R equivalent.
+Outputs are returned in the order they were provided.
+}
+\details{
+The functions can be broadly grouped as:
+\itemize{
+\item Counting: \code{bys_count()}:
+\item Ranking and ordering: \code{bys_rank()} and \code{bys_position()}
+\item Value selection: \code{bys_val()}, \code{bys_nval()}
+\item Summary statistics: \code{bys_min()}, \code{bys_max()}, \code{bys_sum()} and \code{bys_prod()}
+\item Cumulative statistics: \code{bys_cummin()}, \code{bys_cummax()}, \code{bys_cumsum()} and \code{bys_cumprod()}
+\item Lead and lag operations: \code{bys_lead()}, \code{bys_lag()}
+}
 }
 \examples{
 x <- data.frame(

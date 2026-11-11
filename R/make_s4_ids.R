@@ -1,22 +1,29 @@
 #' @name make_s4_ids
 #' @aliases make_s4_ids
-#' @title Create \code{epid} and \code{pid} objects with index of matching records
+#' @title Create \code{epid} and \code{pid} objects from index of matching records
 #'
-#' @param x_pos \code{[integer]}. Index of one half of a record pair.
-#' @param y_pos \code{[integer]}. Index of one half of a record pair.
+#' @param x_pos \code{[integer]}. Index of first half of a record pair.
+#' @param y_pos \code{[integer]}. Index of second half of a record pair.
 #' @param x_val \code{[integer]}. Value of one half of a record pair.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Record date or period.
-#' @param case_nm \code{[integer|character]} Record type in regards to case assignment (\code{\link{sub_criteria}[Encoded]}).
+#' @param case_nm \code{[integer|character]} Record type in regards to case assignment.
 #' @param episode_unit \code{[character]}. Time unit for \code{case_length} and \code{recurrence_length}. See \code{\link{episodes}}
-#' @param iteration The iteration when a record was matched to it's group (\code{.Data}).
+#' @param iteration The iteration when a record was matched to its group.
 #' @param options \code{[list]}. Some options passed to the instance of \code{\link{episodes}}.
 #' @param wind_id \code{[integer]}. Unique reference ID for each match.
 #' @param link_id \code{[integer]}. Unique reference ID for each match.
 #' @param wind_nm \code{[list]}. Type of window i.e. "Case" or "Recurrence".
-#' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{TRUE}) or descending (\code{FALSE}).
-#' @param pid_cri Match stage of the step-wise linkage.
+#' @param from_last \code{[logical]}. Chronological order of episode tracking i.e. ascending (\code{FALSE}) or descending (\code{TRUE}).
+#' @param pid_cri \code{[integer]} Match stage of the step-wise linkage.
 #' @param data_links \code{[list|character]}. \code{data_source} required in each record-group. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}.
 #' @param data_source \code{[character]}. Source ID for each record.
+#'
+#' @details
+#' \code{make_episodes()} and \code{make_pids()} are used by
+#' \code{\link{episodes}} and \code{\link{links}} respectively.
+#' They construct \code{\link[=epid-class]{epid}} object and \code{\link[=pid-class]{pid}}
+#' objects from matched record-pairs and associated metadata.
+#'
 #' @export
 make_episodes <- function(
     x_pos,

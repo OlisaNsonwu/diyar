@@ -27,7 +27,7 @@ partitions(
 
 \item{window}{\code{[integer|\link{number_line}]}. Numeric or time intervals.}
 
-\item{windows_total}{\code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required for a pane. See \code{details}}
+\item{windows_total}{\code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required to form a pane. See \code{details}}
 
 \item{separate}{\code{[logical]}. If \code{TRUE}, events matched to different \code{windows} are not linked.}
 
@@ -51,14 +51,14 @@ partitions(
 
 \item{display}{\code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.}
 
-\item{precision}{Round precision}
+\item{precision}{Rounding precision}
 }
 \value{
 \code{\link[=pane-class]{pane}}
 }
 \description{
 Distribute events into groups defined by time or numerical intervals.
-Each set of linked records are assigned a unique identifier with relevant group-level data.
+Each set of linked records is assigned a unique identifier with relevant group-level data.
 }
 \details{
 Each assigned group is referred to as a \code{\link[=pane-class]{pane}} A \code{\link[=pane-class]{pane}} consists of events within a specific time or numerical intervals (\code{window}).
@@ -88,7 +88,7 @@ Unnamed elements of \code{data_links} will be assumed to be \code{"l"}.
 
 \emph{\code{NA} values in \code{strata} excludes records from the partitioning process}.
 
-See \code{vignette("episodes")} for more information.
+See \code{vignette("panes")} for more information.
 }
 \examples{
 events <- c(30, 2, 11, 10, 100)

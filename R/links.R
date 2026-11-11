@@ -3,31 +3,44 @@
 #'
 #' @description Assign records to unique groups based on an ordered set of match criteria.
 #'
-#' @param sn \code{[integer]}. Unique record ID.
-#' @param strata \code{[atomic]}. Subsets of the dataset. Record-groups are created separately for each \code{strata}. See \code{Details}.
+#' @param sn \code{[integer]}. Unique record ID
+#' @param strata \code{[atomic]}. Subsets of the dataset. Record-groups are created separately within each \code{strata}. See \code{Details}.
 #' @param criteria \code{[list|atomic]}. Ordered list of attributes to be compared. Each element of the list is a stage in the linkage process. See \code{Details}.
 #' @param sub_criteria \code{[list|\link{sub_criteria}]}. Nested match criteria. This must be paired to a stage of the linkage process (\code{criteria}). See \code{\link{sub_criteria}}
-#' @param data_source \code{[character]}. Source ID for each record. If provided, a list of all sources in each record-group is returned. See \code{\link[=pid-class]{pid_dataset slot}}.
-#' @param group_stats \code{[logical]}. If \code{TRUE} (default), return group specific information like record counts for each \code{\link[=pid-class]{pid}}.
+#' @param data_source \code{[character]}. Source ID for each record. If provided, a list of all sources in each record-group is returned to the \code{\link[=pid-class]{pid_dataset slot}}.
+#' @param group_stats \code{[character|logical]}. A selection of group metrics returned with each record group. Most are added to slots of the \code{\link[=pid-class]{pid}} object.
+#' Options are \code{NULL}  (for none), \code{TRUE} (for all options) and \code{"link"}.
+#' The \code{FALSE} option is retained for backward compatibility and is equivalent to \code{"link"}.
 #' @param data_links \code{[list|character]}. \code{data_source} required in each \code{\link[=pid-class]{pid}}. A record-group without records from these \code{data_sources} will be \code{\link[=delink]{unlinked}}. See \code{Details}.
 #' @param expand \code{[logical]}. If \code{TRUE}, a record-group gains new records if a match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{shrink}}.
 #' @param shrink \code{[logical]}. If \code{TRUE}, a record-group loses existing records if no match is found at the next stage of the linkage process. \emph{Not interchangeable with \code{expand}}.
-#' @param recursive \code{[logical]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{"no"}.
-#' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attributes are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{"no"}.
+#' @param recursive \code{[logical|character]}. If \code{TRUE}, within each iteration of the process, a match can spawn new matches. Ignored when \code{batched} is \code{"no"}.
+#' @param check_duplicates \code{[logical]}. If \code{TRUE}, within each iteration of the process, duplicates values of an attribute are not checked. The outcome of the logical test on the first instance of the value will be recycled for the duplicate values. Ignored when \code{batched} is \code{"no"}.
 #' @param display \code{[character]}. Display progress update and/or generate a linkage report for the analysis. Options are; \code{"none"} (default), \code{"progress"}, \code{"stats"}, \code{"none_with_report"}, \code{"progress_with_report"} or \code{"stats_with_report"}.
-#' @param tie_sort \code{[atomic]}. Preferential order for breaking match ties within an iteration of record linkage.
-#' @param repeats_allowed \code{[logical]} If \code{TRUE}, pairs made up of repeat records are not created and compared. Only used when \code{batched} is \code{"no"}.
-#' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations of record-pairs are created and compared. Only used when \code{batched} is \code{"no"}.
-#' @param ignore_same_source \code{[logical]} If \code{TRUE}, only records-pairs from a different \code{data_source} are created and compared.
+#' @param tie_sort \code{[atomic]}. Preferential order for breaking match ties within an iteration of record linkage. See \code{\link{custom_sort}}.
+#' @param repeats_allowed \code{[logical]} If \code{TRUE}, self-pairs (e.g. A-A, B-B) are created and compared. Only used when \code{batched} is \code{"no"}.
+#' @param permutations_allowed \code{[logical]} If \code{TRUE}, permutations of the same record-pairs (e.g. A-B, B-A) are created and compared. Only used when \code{batched} is \code{"no"}.
+#' @param ignore_same_source \code{[logical]} If \code{TRUE}, only record-pairs from a different \code{data_source} are created and compared.
 #' @param batched \code{[character]} Determines if record-pairs are created and compared in batches. Options are \code{"yes"}, \code{"no"} or \code{"semi"}.
+#' @param stepwise_method \code{[character]} Determines how matches identified at earlier linkage stages are handled in subsequent stages. Options are \code{"expand_with_priority"} (default), \code{"expand_without_priority"}, \code{"exclude_previous_matches"}, and \code{"shrink_to_last_match"}. See \code{Details}.
 #' @return \code{\link[=pid-class]{pid}}; \code{list}
 #'
 #' @seealso \code{\link{links_af_probabilistic}}; \code{\link{episodes}};
 #' \code{\link{predefined_tests}}; \code{\link{sub_criteria}}
 #'
 #' @details
-#' The priority of matches decreases with each subsequent stage of the linkage process.
-#' Therefore, the attributes in \code{criteria} should be in an order of decreasing relevance.
+#' Linkage stages are processed in order. Match at each stage create record-groups.
+#' \link{stepwise_method} handles how record-groups in one stage are handled in subsequent stage:
+#' \itemize{
+#' \item \code{"expand_with_priority"} (default) - Record-groups created in one stage have priority over those created at subsequent stages. Record-group can gain additional records at subsequent stages, but only from previously unmatched records. Once a record has been assigned to a group, it will not reassigned by a match at a subsequent stage.
+#' \item \code{"expand_without_priority"} - Record-groups created in one stage can be updated by those created at subsequent stages. Record-group can gain additional records at subsequent stages from both previously matched and unmatched records. Once a record has been assigned to a group, it can be reassigned to another due to a match at a subsequent stage.
+#' \item \code{"exclude_previous_matches"} - Record-group created in one stage are excluded from subsequent stages. Only unmatched records are considered at subsequent stages. Record-groups will neither gain nor lose records once created.
+#' \item \code{"shrink_to_last_match"} - Only record-groups created in one stage are considered at the next stage. Record-groups can lose records at subsequent stages as the combined match criteria becomes increasingly restrictive, with final group membership determined by the last successful stage.
+#' }
+#'
+#' The priority of matches is influenced by the order of the linkage stages.
+#' Therefore, the order of attributes in `criteria` should reflect their intended
+#' relevance to the linkage process (e.g. low-to-high or high-to-low).
 #'
 #' Records with missing data (\code{NA}) for each \code{criteria} are
 #' skipped at the respective stage, while records with
@@ -48,7 +61,7 @@
 #' For example, 3 \code{sub_criteria} linked to
 #' \code{criteria} 1, 5 and 13 will be;
 #'
-#' \deqn{list(cr1 = sub_criteria(...), cr5 = sub_criteria(...), cr13 = sub_criteria(...))}
+#' \code{list(cr1 = sub_criteria(...), cr5 = sub_criteria(...), cr13 = sub_criteria(...))}
 #'
 #' Any unlinked \code{\link{sub_criteria}} will be ignored.
 #'
@@ -64,11 +77,15 @@
 #' @examples
 #' data(patient_records)
 #' dfr <- patient_records
-#' # An exact match on surname followed by an exact match on forename
+#'
+#' # Stage 1: Exact match on surname
+#' # Stage 2: Exact match on forename
 #' stages <- as.list(dfr[c("surname", "forename")])
 #' p1 <- links(criteria = stages)
 #'
-#' # An exact match on forename followed by an exact match on surname
+#' # Reverse the order
+#' # Stage 1: Exact match on forename
+#' # Stage 2: Exact match on surname
 #' p2 <- links(criteria = rev(stages))
 #'
 #' # Nested matches
@@ -99,7 +116,7 @@
 #'   sub_criteria = list(cr1 = m.cri.1,
 #'                       cr2 = m.cri.2))
 #'
-#' # Record linkage with additonal nested match criteria
+#' # Record linkage with additional nested match criteria
 #' p4 <- links(
 #'   criteria = stages,
 #'   sub_criteria = list(cr1 = n.cri,
@@ -120,7 +137,7 @@ links <- function(
     data_source = NULL,
     data_links = "ANY",
     display = "none",
-    group_stats = FALSE,
+    group_stats = 'link',
     expand = TRUE,
     shrink = FALSE,
     recursive = "none",
@@ -180,7 +197,7 @@ links <- function(
     web$options$shrink, web$options$recursive, web$options$check_duplicates,
     web$repo$tie_sort,web$options$repeats_allowed,
     web$options$permutations_allowed, web$options$ignore_same_source,
-    web$options$batched)
+    web$options$batched, stepwise_method)
   if(!isFALSE(web$err)){
     stop(web$err, call. = FALSE)
   }
@@ -196,11 +213,14 @@ links <- function(
       stepwise_method <- 'expand_with_priority'
     }
     if(isFALSE(web$options$expand) & isFALSE(web$options$shrink)){
-      stepwise_method <- 'ordered_only'
+      stepwise_method <- 'exclude_previous_matches'
     }
   }
 
-  show_link_id = TRUE
+  if(is.logical(web$options$group_stats)){
+    web$options$group_stats <- ifelse(web$options$group_stats, 'link', '')
+  }
+  show_link = any(web$options$group_stats %in% c('link'))
   #
   if(inherits(web$options$recursive, "logical")){
     web$options$is_recursive <- web$options$recursive
@@ -238,7 +258,12 @@ links <- function(
   #
   web$repo$pr_sn <-
     web$repo$pid <- seq_len(web$n.row)
-  web$repo$wind_id <- integer()
+  if(show_link){
+    web$repo$wind_id <- integer()
+  }else{
+    web$repo$wind_id <- NULL
+  }
+
   web$repo$cur_refs <- rep(0L, web$n.row)
   #
   if(!is.null(web$repo$tie_sort)) {
@@ -393,7 +418,7 @@ links <- function(
       ]
     }
 
-    if(stepwise_method == 'ordered_only'){
+    if(stepwise_method == 'exclude_previous_matches'){
       # Remove records matched in previous stages
       web$ite.tmp$cri_inc_indx <- web$ite.tmp$cri_inc_indx[
         web$repo$pid_cri[web$ite.tmp$cri_inc_indx] >= web$i]
@@ -575,7 +600,7 @@ links <- function(
           !web$repo$sys.linked[web$rec.pairs$cu_pos]
       }
 
-      if(show_link_id & any(web$rec.pairs$w.match)){
+      if(show_link & any(web$rec.pairs$w.match)){
         web$rec.pairs$cu_pos.mi <- ((web$rec.pairs$index_ord[web$rec.pairs$w.match] + web$repo$cur_refs[web$rec.pairs$cu_pos[web$rec.pairs$w.match]]-1L) * web$n.row) + web$rec.pairs$cu_pos[web$rec.pairs$w.match]
 
         new_max <- ceiling(max(web$rec.pairs$cu_pos.mi) / web$n.row)
@@ -791,7 +816,7 @@ links <- function(
   web$repo$pid[web$ite.tmp$lgk] <-
     web$repo$pr_sn[web$ite.tmp$lgk]
 
-  if(show_link_id){
+  if(show_link){
     web$repo$wind_id[
       index_multiples(
         x = which(web$ite.tmp$lgk),
@@ -887,7 +912,7 @@ links_af_dt <- function(
       repo[include == TRUE, include := stg == (i-1)]
       repo[include == TRUE, c("tmp.cri", "bkp_pid", "pid") := .(tmp.cri = combi(tmp.cri, pid), bkp_pid = pid, pid = row_sn)]
     }
-    if(stepwise_method == 'ordered_only'){
+    if(stepwise_method == 'exclude_previous_matches'){
       repo[include == TRUE, include := stg == open.record]
     }
     repo[include == TRUE, c("tmp_id", "tmp.wind", "tot") := .(tmp_id = pid[1], tmp.wind = row_sn[1], tot = .N), by = tmp.cri]

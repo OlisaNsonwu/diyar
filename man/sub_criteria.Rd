@@ -7,6 +7,7 @@
 \alias{print.sub_criteria}
 \alias{format.sub_criteria}
 \alias{eval_sub_criteria.sub_criteria}
+\alias{validate_sub_criteria}
 \title{Match criteria}
 \usage{
 sub_criteria(
@@ -29,24 +30,27 @@ eval_sub_criteria(x, ...)
   x_pos = seq_len(max(attr_eval(x))),
   y_pos = rep(1L, length(x_pos)),
   check_duplicates = TRUE,
-  depth = 0,
   ...
 )
+
+validate_sub_criteria(x)
 }
 \arguments{
-\item{...}{\code{[atomic]} Attributes passed to or \code{eval_sub_criteria()} or \code{eval_sub_criteria()}
+\item{...}{\code{[atomic]} in \code{print(), format(), eval_sub_criteria()} - Arguments passed to methods.
 
-Arguments passed to methods for \code{eval_sub_criteria()}}
+\code{[Any object]} in \code{attrs()} - Attributes i.e. match criteria.
+
+\code{[atomic|d_attribute|sub_criteria]} in \code{sub_criteria()} - Attributes i.e. match criteria.}
 
 \item{match_funcs}{\code{[function]}. User defined logical test for matches.}
 
-\item{equal_funcs}{\code{[function]}. User defined logical test for identical record sets (all attributes of the same record).}
+\item{equal_funcs}{\code{[function]}. User defined logical test for identical records (i.e. rows).}
 
 \item{operator}{\code{[character]}. Options are \code{"and"} or \code{"or"}.}
 
-\item{.obj}{\code{[data.frame|list]}. Attributes.}
+\item{.obj}{\code{[data.frame|list]}. Attributes i.e. match criteria.}
 
-\item{x}{\code{[sub_criteria]}. Attributes.}
+\item{x}{\code{[sub_criteria]}.}
 
 \item{show_levels}{\code{[logical]}. If \code{TRUE}, show recursive depth for each logic statement of the match criteria.}
 
@@ -55,24 +59,24 @@ Arguments passed to methods for \code{eval_sub_criteria()}}
 \item{y_pos}{\code{[integer]}. Index of one half of a record pair.}
 
 \item{check_duplicates}{\code{[logical]}. If \code{FALSE}, does not check duplicate values. The result of the initial check will be recycled.}
-
-\item{depth}{\code{[integer]}. First order of recursion.}
 }
 \value{
 \code{\link{sub_criteria}}
 }
 \description{
-Match criteria for record linkage with \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
+Create, evaluate and validate match criteria for record linkage with \bold{\code{\link{links}}} and \bold{\code{\link{episodes}}}
 }
 \details{
-\bold{\code{sub_criteria()}} - Create a match criteria as a \code{sub_criteria} object.
+\bold{\code{sub_criteria()}} - Creates a match criteria as a \code{sub_criteria} object.
 A \code{sub_criteria} object contains attributes to be compared,
 logical tests for the comparisons (see \bold{\code{\link{predefined_tests}}} for examples) and
 another set of logical tests to determine identical records.
 
-\bold{\code{attrs()}} - Create a \code{d_attribute} object - a collection of atomic objects that can be passed to \bold{\code{sub_criteria()}} as a single attribute.
+\bold{\code{attrs()}} - Creates a \code{d_attribute} object - a collection of objects that can be passed to \bold{\code{sub_criteria()}} as a single attribute.
 
 \bold{\code{eval_sub_criteria()}} - Evaluates a \code{sub_criteria} object.
+
+\bold{\code{validate_sub_criteria()}} - Checks that a \code{sub_criteria} object is structurally valid.
 
 At each iteration of \code{\link{links}} or \code{\link{episodes}}, record-pairs are created from each attribute of a \code{sub_criteria} object.
 \code{eval_sub_criteria()} evaluates each record-pair using the \code{match_funcs} and \code{equal_funcs} functions of a \code{sub_criteria} object.
@@ -83,10 +87,13 @@ Such functions must meet three requirements:
 \enumerate{
 \item It must be able to compare the attributes.
 \item It must have two arguments named \code{`x`} and \code{`y`}, where \code{`y`} is the value for one observation being compared against all other observations (\code{`x`}).
-\item It must return a \code{logical} object i.e. \code{TRUE} or \code{FALSE}.
+\item It must return a \code{logical} object i.e. \code{TRUE} or \code{FALSE}, or a list whose first element is the \code{logical} object i.e. \code{list(TRUE, ...)} or \code{list(FALSE, ...)}
 }
 
-\code{attrs()} is useful when the match criteria requires an interaction between the multiple attributes. For example, attribute 1 + attribute 2 > attribute 3.
+\code{attrs()} is useful when the match criteria requires an interaction between the multiple attributes.
+For example, attribute 1 + attribute 2 > attribute 3.
+Objects assigned to \code{...} are put in a list while those passed to \code{.obj}
+are converted to a list.
 
 Every attribute, including those in \code{attrs()}, must have the same length or a length of 1.
 }
@@ -96,20 +103,22 @@ attr_1 <- c(30, 28, 40, 25, 25, 29, 27)
 attr_2 <- c("M", "F", "U", "M", "F", "U", "M")
 
 # A match criteria
-## Example 1 - A maximum difference of 10 in attribute 1
+# Example 1 - A maximum difference of 10 in attribute 1
 s_cri1 <- sub_criteria(attr_1, match_funcs = range_match)
 s_cri1
 
 # Evaluate the match criteria
-## Compare the first element of 'attr_1' against all other elements
+ # Compare the first element (default) of 'attr_1'
+ # against all other elements
 eval_sub_criteria(s_cri1)
-## Compare the second element of 'attr_1' against all other elements
+ # Compare the second element of 'attr_1'
+ # against all other elements
 x_pos_val <- seq_len(max(attr_eval(s_cri1)))
-eval_sub_criteria(s_cri1,
-                  x_pos = x_pos_val,
-                  y_pos = rep(2, length(x_pos_val)))
+eval_sub_criteria(
+  s_cri1, x_pos = x_pos_val,
+  y_pos = rep(2, length(x_pos_val)))
 
-## Example 2 - `s_cri1` AND an exact match on attribute 2
+# Example 2 - `s_cri1` AND an exact match on attribute 2
 s_cri2 <- sub_criteria(
   s_cri1,
   sub_criteria(attr_2, match_funcs = exact_match),
@@ -127,15 +136,17 @@ s_cri3
 eval_sub_criteria(s_cri2)
 eval_sub_criteria(s_cri3)
 
-# Alternatively, using `attr()`
+# Alternatively, using `attrs()`
 AND_func <- function(x, y) range_match(x$a1, y$a1) & x$a2 == y$a2
 OR_func <- function(x, y) range_match(x$a1, y$a1) | x$a2 == y$a2
 
 ## Create a match criteria
-s_cri2b <- sub_criteria(attrs(.obj = list(a1 = attr_1, a2 = attr_2)),
-                        match_funcs = AND_func)
-s_cri3b <- sub_criteria(attrs(.obj = list(a1 = attr_1, a2 = attr_2)),
-                        match_funcs = OR_func)
+s_cri2b <- sub_criteria(
+  attrs(.obj = list(a1 = attr_1, a2 = attr_2)),
+   match_funcs = AND_func)
+s_cri3b <- sub_criteria(
+  attrs(.obj = list(a1 = attr_1, a2 = attr_2)),
+  match_funcs = OR_func)
 
 # Evaluate the match criteria
 eval_sub_criteria(s_cri2b)
@@ -143,5 +154,7 @@ eval_sub_criteria(s_cri3b)
 
 }
 \seealso{
-\code{\link{predefined_tests}}; \code{\link{links}}; \code{\link{episodes}}; \code{\link{eval_sub_criteria}}
+\code{\link{predefined_tests}}; \code{\link{links}}; \code{\link{episodes}};
+\code{\link{eval_sub_criteria}}; \code{\link{unpack_sub_criteria}};
+\code{\link{reframe}}
 }

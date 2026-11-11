@@ -383,11 +383,13 @@ err_sub_criteria_10b <- function(sub_criteria){
 err_sub_criteria_3dot_1 <- function(...){
   err <- lapply(list(...), function(x){
     if(inherits(x, 'sub_criteria')){
-      x <- unpack_sub_criteria(x)
+      x <- unpack_sub_criteria(x, part = 'attribute')
     }
     return(x)
   })
-  err <- lapply(flatten_list(err), length)
+
+  err <- flatten_list(err)
+  err <- lapply(err, length)
   err <- unlist(err, use.names = FALSE)
   err <- sort(err[!duplicated(err)])
   err2 <- err[err != 1]
@@ -1052,7 +1054,8 @@ err_links_checks_0 <- function(
     repeats_allowed,
     permutations_allowed,
     ignore_same_source,
-    batched){
+    batched,
+    stepwise_method){
 
   # Check for required object types
   args <- list(
@@ -1070,14 +1073,15 @@ err_links_checks_0 <- function(
     repeats_allowed = repeats_allowed,
     permutations_allowed = permutations_allowed,
     ignore_same_source = ignore_same_source,
-    batched = batched)
+    batched = batched,
+    stepwise_method = stepwise_method)
 
   args_classes <- list(display = "character",
                        data_source = c("character", "NULL"),
                        data_links = c("list", "character"),
                        shrink = "logical",
                        expand = "logical",
-                       group_stats = "logical",
+                       group_stats = c("character", "logical", "NULL"),
                        recursive = c("character", "logical"),
                        sub_criteria = c("list", "sub_criteria", "NULL"),
                        criteria = c("list", "atomic"),
@@ -1087,7 +1091,8 @@ err_links_checks_0 <- function(
                        repeats_allowed = "logical",
                        permutations_allowed = "logical",
                        ignore_same_source = "logical",
-                       batched = "character")
+                       batched = "character",
+                       stepwise_method = "character")
 
   err <- mapply(err_object_types_2,
                 args,
@@ -1109,41 +1114,38 @@ err_links_checks_0 <- function(
     scri.attrs.len <- unlist(scri.attrs.len, use.names = FALSE)
     len_lims <- max(c(len_lims, scri.attrs.len))
   }
-  args <- list(data_source = data_source,
-               display = display,
-               group_stats = group_stats,
+  args <- list(display = display,
                expand = expand,
                shrink = shrink,
                recursive = recursive,
                check_duplicates = check_duplicates,
-               tie_sort = tie_sort,
                repeats_allowed = repeats_allowed,
                permutations_allowed = permutations_allowed,
                ignore_same_source = ignore_same_source,
                batched = batched,
+               stepwise_method = stepwise_method,
+               data_source = data_source,
+               tie_sort = tie_sort,
                strata = strata)
 
-  args_lens <- list(data_source = c(0, len_lims),
-                    display = 1,
-                    group_stats = 1,
+  args_lens <- list(display = 1,
                     expand = 1,
                     shrink = 1,
                     recursive = 1:4,
                     check_duplicates = 1,
-                    tie_sort = c(0, len_lims),
                     repeats_allowed = 1,
                     permutations_allowed = 1,
                     ignore_same_source = 1,
                     batched = 1,
+                    stepwise_method = 1,
+                    data_source = c(0, len_lims),
+                    tie_sort = c(0, len_lims),
                     strata = c(0, len_lims))
 
   err <- mapply(err_match_ref_len_2,
                 args,
-                c(as.list(" or the same length as each attribute in the match crtieria"),
-                  rep(as.list(""), 6),
-                  as.list(" or the same length as each attribute in the match crtieria"),
-                  rep(as.list(""), 3),
-                  rep(as.list(" or the same length as each attribute in the match crtieria"), 2)
+                c(rep(as.list(""), 10),
+                  rep(as.list(" or the same length as each attribute in the match crtieria"), 3)
                 ),
                 args_lens[match(names(args), names(args_lens))],
                 as.list(names(args)))
@@ -1173,13 +1175,15 @@ err_links_checks_0 <- function(
   if(err != FALSE) return(err)
   err <- err_criteria_2(criteria)
   if(err != FALSE) return(err)
-  err <- err_spec_vals(display, "display", c("none", "progress", "stats",
-                                             "none_with_report", "progress_with_report",
-                                             "stats_with_report"))
+  err <- err_spec_vals(display, "display", c("none", "progress", "stats", "none_with_report", "progress_with_report","stats_with_report"))
   if(err != FALSE) return(err)
   err <- err_spec_vals(batched, "batched", c("yes", "semi", "no"))
   if(err != FALSE) return(err)
   err <- err_spec_vals(recursive, "recursive", c("linked", "unlinked", "none", TRUE, FALSE))
+  if(err != FALSE) return(err)
+  err <- err_spec_vals(stepwise_method, "stepwise_method", c("expand_with_priority", "expand_without_priority", "exclude_previous_matches", "shrink_to_last_match"))
+  if(err != FALSE) return(err)
+  err <- err_spec_vals(group_stats, "group_stats", c("link", TRUE, FALSE, NULL))
   if(err != FALSE) return(err)
   return(FALSE)
 }

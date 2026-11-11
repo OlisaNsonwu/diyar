@@ -2,11 +2,11 @@
 #' @title Distribute events into specified intervals.
 #'
 #' @description Distribute events into groups defined by time or numerical intervals.
-#' Each set of linked records are assigned a unique identifier with relevant group-level data.
+#' Each set of linked records is assigned a unique identifier with relevant group-level data.
 #'
 #' @param sn \code{[integer]}. Unique record identifier. Useful for creating familiar \code{\link[=pane-class]{pane}} identifiers.
 #' @param strata \code{[atomic]}. Subsets of the dataset. Panes are created separately for each \code{strata}.
-#' @param windows_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required for a pane. See \code{details}
+#' @param windows_total \code{[integer|\link{number_line}]}. Minimum number of matched \code{windows} required to form a pane. See \code{details}
 #' @param separate \code{[logical]}. If \code{TRUE}, events matched to different \code{windows} are not linked.
 #' @param date \code{[date|datetime|integer|\link{number_line}]}. Event date or period.
 #' @param window \code{[integer|\link{number_line}]}. Numeric or time intervals.
@@ -18,7 +18,7 @@
 #' @param length.out \code{[integer]}. Number of splits.
 #' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
 #' @param display \code{[character]}. Display a status update. Options are; \code{"none"} (default), \code{"progress"} or \code{"stats"}.
-#' @param precision Round precision
+#' @param precision Rounding precision
 #' @return \code{\link[=pane-class]{pane}}
 #'
 #' @seealso
@@ -52,7 +52,7 @@
 #'
 #' \emph{\code{NA} values in \code{strata} excludes records from the partitioning process}.
 #'
-#' See \code{vignette("episodes")} for more information.
+#' See \code{vignette("panes")} for more information.
 #'
 #' @examples
 #' events <- c(30, 2, 11, 10, 100)

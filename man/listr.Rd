@@ -7,13 +7,13 @@
 listr(x, sep = ", ", conj = " and ", lim = Inf)
 }
 \arguments{
-\item{x}{\code{atomic} vector.}
+\item{x}{\code{[atomic]} Values.}
 
-\item{sep}{Separator.}
+\item{sep}{\code{[atomic]} Separator.}
 
-\item{conj}{Final separator.}
+\item{conj}{\code{[atomic]} Final separator.}
 
-\item{lim}{Elements to include in the list. Other elements are abbreviated to \code{" ..."}.}
+\item{lim}{\code{[integer]} Maximum number of elements included in the list. Additional elements are abbreviated to \code{" ..."}.}
 }
 \value{
 \code{character}.
