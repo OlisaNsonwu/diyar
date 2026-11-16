@@ -139,12 +139,12 @@ test_that("test that error and warning messages are returned correctly", {
   expect_error(as.number_line(mtcars), "`x` can't be coerced to a `number_line` object")
 })
 
-test_that("test series function", {
-  expect_equal(number_line_sequence(number_line(1, 5), by = 1, simplify = TRUE), c(1:5))
-  expect_equal(number_line_sequence(number_line(5, 1), -.5, simplify = TRUE), seq(5,1,-.5))
-  expect_equal(number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1, simplify = TRUE), seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
-  expect_error(number_line_sequence(1, .5, simplify = TRUE), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
-})
+# test_that("test series function", {
+#   expect_equal(number_line_sequence(number_line(1, 5), by = 1, simplify = TRUE), c(1:5))
+#   expect_equal(number_line_sequence(number_line(5, 1), -.5, simplify = TRUE), seq(5,1,-.5))
+#   expect_equal(number_line_sequence(number_line(dmy("01/04/2019"), dmy("10/04/2019")), 1, simplify = TRUE), seq(dmy("01/04/2019"), dmy("10/04/2019"), 1))
+#   expect_error(number_line_sequence(1, .5, simplify = TRUE), "Invalid object type for `x`.\ni - Valid object type is `number_line`.\nX - You've supplied a `numeric` object.")
+# })
 
 # a <- c(number_line(1,3), number_line(3,3), number_line(5,3))
 # test_that("Convert `number_line to data.frame and vice versa`", {

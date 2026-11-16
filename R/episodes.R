@@ -220,6 +220,7 @@ episodes <- function(
     stop(errs, call. = FALSE)
   }
   opt.dataset.n <- length(date)
+  opt.sys.linked.n <- 0
   opts.splits_by_strata <- splits_by_strata
   opts.nrow <- length(date)
 
@@ -645,6 +646,16 @@ episodes <- function(
           ]
         ]
     }
+
+    if(opts.splits_by_strata > 1){
+      msg_prefix <- paste0(
+        'Split ',opts.split, '/', opts.splits_by_strata,': ')
+      msg_width <- 110
+    }else{
+      msg_prefix <- ''
+      msg_width <- 100
+    }
+
 
     # Priority for reference events
     # Non-Batched tracked reference events
@@ -1514,17 +1525,15 @@ episodes <- function(
     web$repo$iteration[web$sys.tmp$ite_pos[web$tmp$lgk]] <- ite
     web$tmp$ite.linked.n <- length(which(web$tmp$lgk))
     web$tmp$ite.tot.n <- length(web$sys.tmp$ite_pos)
+    opt.sys.linked.n <- opt.sys.linked.n + web$tmp$ite.linked.n
 
     if(grepl("^progress", opt.display)){
+      ite.msg <- paste0(
+        "Iteration ", fmt(ite),
+        " (", fmt(difftime(Sys.time(), web$tm_ia), "difftime"),")")
       web$msg <- progress_bar(
-        n = opt.dataset.n - (web$tmp$ite.tot.n - web$tmp$ite.linked.n),
-        d = opt.dataset.n,
-        max_width = 100,
-        msg = paste0("Iteration ",
-                     fmt(ite), " (",
-                     fmt(difftime(Sys.time(), web$tm_ia), "difftime"),
-                     ")"),
-        prefix_msg = "")
+        n = opt.sys.linked.n, d = opt.dataset.n, max_width = msg_width,
+        msg = ite.msg, prefix_msg = msg_prefix)
       cat(web$msg, "\r", sep = "")
     }else if (grepl("^stats", opt.display)){
       web$msg <- update_text(
@@ -1888,6 +1897,7 @@ episodes_af_shift <- function(
         web$repo$tmp.rec_pos <- web$repo$tmp.strata + web$repo$rec_pos
 
         i <- 1L
+        opt.sys.linked.n <- 0
         tm_ia <- Sys.time()
         while(any(is.finite(web$repo$tmp.rec_pos))){
           ite.msg <- paste0("Iteration ", fmt(i + 1L), " (", fmt(difftime(Sys.time(), tm_ia), "difftime"),")")
@@ -1906,12 +1916,13 @@ episodes_af_shift <- function(
             ite.linked.n <- length(which(web$repo$lgk[ite_lgk]))
             ite.tot.n <- length(which(ite_lgk)) + ite.linked.n
             cri.linked.n <- length(which(!ite_lgk))
+            opt.sys.linked.n <- opt.sys.linked.n + ite.tot.n
 
             if(grepl("^progress", opt.display)){
-              msg <- progress_bar(
-                n = dataset.n - (ite.tot.n - ite.linked.n), d = dataset.n,
-                max_width = 100, msg = ite.msg, prefix_msg = "")
-              cat(msg, "\r", sep = "")
+              web$msg <- progress_bar(
+                n = opt.sys.linked.n, d = dataset.n,
+                max_width = msg_width, msg = ite.msg, prefix_msg = msg_prefix)
+              cat(web$msg, "\r", sep = "")
             }else if (grepl("^stats", opt.display)){
               web$msg <- update_text(
                 tot_records = fmt(dataset.n), current_tot = fmt(ite.tot.n),
@@ -2001,271 +2012,4 @@ episodes_af_shift <- function(
   }
   web <- web$epids
   return(web)
-}
-
-#'
-#' @name episodes_wf
-#' @title Link events to chronological episodes.
-#'
-#' @description \code{episodes_wf_*} functions are wrapper functions of \code{\link{episodes}}.
-#' They are designed to be more efficient with large datasets i.e. reduce peak memory usage and/or run-time.
-#' Duplicate records that do not affect the case definition are excluded prior to episode tracking.
-#' The resulting episode identifiers are then recycled for the duplicate records.
-#'
-#' @param ... Arguments passed to \code{\link{episodes}}.
-#' @param duplicates_recovered \code{[character]}. Determines which duplicate records are recycled.
-#' Options are \code{"ANY"} (default), \code{"without_sub_criteria"}, \code{"with_sub_criteria"} or \code{"ALL"}. See \code{Details}.
-#' @param reframe \code{[logical]}. Determines if the duplicate records in a \code{\link{sub_criteria}} are reframed (\code{TRUE}) or excluded (\code{FALSE}).
-#'
-#' @return \code{\link[=epid-class]{epid}}; \code{list}
-#'
-#' @seealso
-#' \code{\link{episodes}}; \code{\link{sub_criteria}}
-#'
-#' @details
-#' \bold{\code{episodes_wf_repeats()}} reduces the number of records analysed in one go,
-#' while \bold{\code{episodes_wf_splits()}} reduces the number strata analysed in one go.
-#'
-#' \bold{\code{episodes_wf_repeats()}} - Excludes duplicate dates and periods by
-#' reducing or re-framing a dataset to the minimum number of records
-#' required to implement a case definition.
-#'
-#' \bold{\code{episodes_wf_splits()}} Split the datasets (by \code{strata}) into N-parts
-#' and analyse each parts separately. This can reduce peak memory usage by processing subsets of the data
-#' sequentially rather than simultaneously.
-#'
-#' The \code{duplicates_recovered} argument determines which identifiers are recycled. Options are:
-#' \itemize{
-#' \item \code{"with_sub_criteria"} - Only matches with a \code{\link{sub_criteria}} (\code{"Case_CR"} and \code{"Recurrent_CR"}) are recycled.
-#' \item \code{"without_sub_criteria"} - Only matches without \code{\link{sub_criteria}} (\code{"Case"} and \code{"Recurrent"}) are recycled.
-#' }
-#'
-#' The \code{reframe} argument will either \code{\link{reframe}} or subset a \code{\link{sub_criteria}}.
-#' Both will require slightly different functions for \code{match_funcs} or \code{equal_funcs}.
-#'
-#' @rdname episodes_wf
-#' @examples
-#' # With 2,000 duplicate records of 20 events,
-#' # `episodes_wf_repeats()` will take less time than `episodes()`
-#' dates <- seq(from = as.Date("2019-04-01"), to = as.Date("2019-04-20"), by = 1)
-#' dates <- rep(dates, 200000)
-#'
-#' system.time(ep1 <- episodes(dates, 1, display = 'progress'))
-#' # Recycle episode identifiers for duplicate records
-#' system.time(ep2 <- episodes_wf_repeats(dates, 1, display = 'progress'))
-#'
-#' # Both leads to the same outcome.
-#' all(ep1 == ep2)
-
-#' @export
-episodes_wf_repeats <- function(..., duplicates_recovered = "ANY"){
-  # Validations
-  errs <- err_episodes_checks_0(...)
-  if(!isFALSE(errs)) stop(errs, call. = FALSE)
-
-  # Extract options
-  opts <- extract.opts(..., ref.func = episodes)
-
-  if(is.null(opts$sn)){
-    opts$sn <- seq_len(length(opts$date))
-  }
-  opts$display <- gsub('_with_report', '', opts$display)
-
-  aLvl.Opt <-
-    c("data_links", "group_stats", "display", "batched")
-
-  list.args <-
-    c("case_length", "recurrence_length",
-      "case_overlap_methods", "recurrence_overlap_methods")
-
-  duplicates_recovered <- tolower(duplicates_recovered)
-  sn <- opts$sn
-  display <- opts$display
-
-  # Flag unique records
-  s.opts <- opts[names(opts) != "sn"]
-  check_lens <- function(x){
-    if(inherits(x, "sub_criteria")){
-      max(attr_eval(x))
-    }else if(inherits(x, "list")){
-      max(as.numeric(lapply(x, length)))
-    }else {
-      length(x)
-    }
-  }
-  row.n <- length(opts$date)
-  args_len <- unlist(lapply(s.opts, check_lens), use.names = FALSE)
-  s.opts <- s.opts[args_len == row.n]
-
-  s.opts <- lapply(s.opts, function(x){
-    if(inherits(x, "sub_criteria")){
-      unpack(attr_eval(x, func = identity, simplify = FALSE))
-    }else if(inherits(x, "list")){
-      x
-    }else{
-      list(x)
-    }
-  })
-
-  s.opts <- unlist(s.opts, recursive = FALSE, use.names = FALSE)
-  s.opts <- lapply(s.opts, function(x){
-    if(inherits(x, "number_line")){
-      list(x@start, x@.Data)
-    }else{
-      x
-    }
-  })
-  # sub_criteria with d_attributes/number_line objects
-  lgk <- unlist(lapply(s.opts, function(x) inherits(x, "list")),
-                use.names = FALSE)
-  s.opts <- c(s.opts[!lgk],
-              unlist(s.opts[lgk], recursive = FALSE, use.names = FALSE))
-
-  cmbi_cd <- combi(s.opts)
-  rf_lgk <- duplicated(cmbi_cd)
-
-  splits <- 1
-
-  # Split data into batches by strata
-  opts <- lapply(splits, function(i){
-    splt_func <- function(x){
-      if(length(x) <= 1){
-        return(x)
-      }else{
-        return(x[!rf_lgk])
-      }
-    }
-    opts_nm <- names(opts)
-    opts <- lapply(seq_len(length(opts)), function(k){
-      if(inherits(opts[[k]], 'sub_criteria')){
-        reframe(opts[[k]], splt_func)
-      }else if(opts_nm[[k]] %in% list.args &
-               inherits(opts[[k]], 'list')){
-        lapply(opts[[k]], splt_func)
-      }else if(opts_nm[[k]] %in% aLvl.Opt){
-        opts[[k]]
-      }else{
-        splt_func(opts[[k]])
-      }
-    })
-
-    names(opts) <- opts_nm
-    return(opts)
-  })
-
-  epids <- lapply(splits, function(x){
-    opts_nm <- names(opts[[1]])
-    RcmD <- paste0(
-      'episodes(',
-      paste0(opts_nm, " = opts[[", x ,"]] [['", opts_nm, "']]", collapse = ',\n'),
-      ')'
-    )
-    epid <- eval(parse(text = RcmD))
-    return(epid)
-  })
-
-  epids <- epids[[1]]
-
-  rp_lgk <- match(cmbi_cd, cmbi_cd[!rf_lgk])
-  wf_epid <- epids[rp_lgk]
-
-  wf_epid@sn <- sn
-  wf_epid@case_nm[((wf_epid@case_nm %in% c(0, 4) & duplicates_recovered == "any") |
-                     (wf_epid@case_nm == 0 & duplicates_recovered == "without_sub_criteria") |
-                     (wf_epid@case_nm == 4 & duplicates_recovered == "with_sub_criteria")) & rf_lgk] <- 2
-  wf_epid@case_nm[((wf_epid@case_nm %in% c(1, 5) & duplicates_recovered == "all") |
-                     (wf_epid@case_nm == 1 & duplicates_recovered == "without_sub_criteria") |
-                     (wf_epid@case_nm == 5 & duplicates_recovered == "with_sub_criteria")) & rf_lgk] <- 3
-  lgk <- which(wf_epid@case_nm == -1 | (wf_epid@case_nm %in% c(0, 1, 4, 5) & rf_lgk))
-  if(length(lgk) > 0){
-    wf_epid@.Data[lgk] <- wf_epid@sn[lgk]
-    wf_epid@wind_id <- lapply(wf_epid@wind_id, function(x){
-      x[lgk] <- wf_epid@sn[lgk]
-      return(x)
-    })
-  }
-  tot <- rle(sort(wf_epid@.Data[!seq_len(length(wf_epid)) %in% lgk]))
-  wf_epid@epid_total <- tot$lengths[match(wf_epid@.Data, tot$values)]
-  wf_epid@epid_total[is.na(wf_epid@epid_total)] <- 1L
-
-  return(wf_epid)
-}
-
-#' @rdname episodes_wf
-#' @export
-episodes_wf_splits <- function(..., splits_by_strata = 1L){
-  # Validations
-  errs <- err_episodes_checks_0(...)
-  if(!isFALSE(errs)) stop(errs, call. = FALSE)
-
-  # Extract options
-  opts <- extract.opts(..., ref.func = episodes)
-
-  if(is.null(opts$sn)){
-    opts$sn <- seq_len(length(opts$date))
-  }
-  opts$display <- gsub('_with_report', '', opts$display)
-
-  aLvl.Opt <-
-    c("data_links", "group_stats", "display", "batched")
-
-  list.args <-
-    c("case_length", "recurrence_length",
-      "case_overlap_methods", "recurrence_overlap_methods")
-
-  if(length(opts$strata) == 0){
-    splits <- rep(1, length(opts$date))
-  }else{
-    splits <- (combi(opts$strata, ordered = TRUE) %% splits_by_strata) + 1L
-  }
-
-  sn_splits <- split(opts$sn, splits)
-  splits <- seq_len(length(sn_splits))
-
-  # Split data into batches by strata
-  opts <- lapply(splits, function(i){
-    splt_func <- function(x){
-      if(length(x) <= 1){
-        return(x)
-      }else{
-        return(x[sn_splits[[i]]])
-      }
-    }
-    opts_nm <- names(opts)
-    opts <- lapply(seq_len(length(opts)), function(k){
-      if(inherits(opts[[k]], 'sub_criteria')){
-        reframe(opts[[k]], splt_func)
-      }else if(opts_nm[[k]] %in% list.args &
-               inherits(opts[[k]], 'list')){
-        lapply(opts[[k]], splt_func)
-      }else if(opts_nm[[k]] %in% aLvl.Opt){
-        opts[[k]]
-      }else{
-        splt_func(opts[[k]])
-      }
-    })
-
-    names(opts) <- opts_nm
-    return(opts)
-  })
-
-  epids <- lapply(splits, function(x){
-    opts_nm <- names(opts[[1]])
-    RcmD <- paste0(
-      'episodes(',
-      paste0(opts_nm, " = opts[[", x ,"]] [['", opts_nm, "']]", collapse = ',\n'),
-      ')'
-    )
-    epid <- eval(parse(text = RcmD))
-    return(epid)
-  })
-
-  epids <- flatten_list(epids)
-  names(epids) <- NULL
-  epids <- do.call('c', epids)
-  sn_splits <- unlist(sn_splits, recursive = FALSE, use.names = FALSE)
-
-  epids <- epids[order(sn_splits)]
-
-  return(epids)
 }

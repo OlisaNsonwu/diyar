@@ -4,9 +4,11 @@
 #'
 #' @details
 #' A \code{number_line} object represents a range of numbers.
-#' It is made up of a \code{start} and \code{end} point as the lower and upper ends of the range respectively.
-#' The location of the \code{start} point - \code{left} or \code{right},
-#' determines whether it is an \code{"increasing"} or \code{"decreasing"} \code{number_line}.
+#' It is made up of a \code{start} and \code{end} point as the lower and
+#' upper ends of the range respectively.
+#' The location of the \code{start} point (\code{left} or \code{right}),
+#' determines whether the \code{number_line} object is an \code{"increasing"} or
+#' \code{"decreasing"} \code{number_line}.
 #' This is the \code{direction} of the \code{number_line}.
 #'
 #' @seealso
@@ -23,7 +25,7 @@
 #' @examples
 #' number_line(-100, 100)
 #'
-#' # Also compatible with other numeric based object classes
+#' # Also compatible with other numeric-based object classes
 #' number_line(as.POSIXct("2019-05-15 13:15:07", tz = "UTC"),
 #'             as.POSIXct("2019-05-15 15:17:10", tz = "UTC"))
 #'
@@ -185,6 +187,9 @@ end_point <- function(x){
 }
 
 #' @rdname number_line
+#' @details
+#' \bold{\code{number_line_width()}} - returns the difference between the
+#' right and left points of a \code{number_line}.
 #' @export
 number_line_width <- function(x){
   if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
@@ -265,11 +270,12 @@ shift_number_line <- function(x, by = 1){
 }
 
 #' @rdname number_line
-#' @param point \code{[character]}. \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.
+#' @param point \code{[character]}. Point of the number_line.
+#' Options are \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.
 #' @details
 #' \bold{\code{expand_number_line()}} - Increase or decrease the width of a \code{number_line}.
 #' @examples
-#' # Change the duration, width or length of a number_line object
+#' # Expand or shrink a number_line
 #' d <- c(number_line(3, 6), number_line(6, 3))
 #'
 #' expand_number_line(d, 2)
@@ -355,7 +361,7 @@ invert_number_line <- function(x, point = "both"){
 
 #' @rdname number_line
 #' @details
-#' \bold{\code{flip_number_line()}} - Flip number around a \code{point}.
+#' \bold{\code{flip_number_line()}} - Flip a \code{number_line} around a \code{point}.
 #' @examples
 #' # Flip `number_line` objects
 #' e
@@ -478,83 +484,19 @@ compress_number_line <- function(x, methods = 8, collapse = FALSE,
 }
 
 #' @rdname number_line
-#' @param by \code{[integer]}. Increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}.
-#' @param length.out \code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}.
-#' @param fill \code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.
-#' @param simplify \code{[logical]}. If \code{TRUE}, returns a sequence of finite numbers.
+#' @param ... \code{[integer]}. Passed to \code{seq()}.
 #'
 #' @details
-#' \bold{\code{number_line_sequence()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
+#' \bold{\code{flip_number_line()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
 #'
 #' @examples
 #' # Split number line objects
 #' x <- number_line(Sys.Date() - 5, Sys.Date())
 #' x
-#' number_line_sequence(x, by = 2)
-#' number_line_sequence(x, by = 4)
-#' number_line_sequence(x, by = 4, fill = FALSE)
-#' number_line_sequence(x, length.out = 2)
-#' @export
-#'
-number_line_sequence <- function(x,
-                                 by = NULL,
-                                 length.out = 1,
-                                 fill = TRUE,
-                                 simplify = FALSE){
-  if(missing(x)) stop("argument `x` is missing, with no default", call. = FALSE)
-  err <- err_object_types(x, "x", "number_line")
-  if(err != FALSE) stop(err, call. = FALSE)
-  if(length(x) == 0) return(x)
-
-  errs <- err_split_nl_1(x = x,
-                         by = by,
-                         length.out = length.out,
-                         fill = fill,
-                         simplify = simplify)
-
-  if(errs != FALSE) stop(errs, call. = FALSE)
-  # change_dir <- x@.Data < 0
-  change_dir <- FALSE
-  if(!is.null(by)){
-    if(length(fill) == 1) fill <- rep(fill, length(x))
-    seq.dyr <- function(..., to = 1L, fill = TRUE){
-      x <- seq(..., to = to)
-      if(isTRUE(fill) & to != x[length(x)]) x <- c(x, to)
-      x
-    }
-    x <- mapply(seq.dyr, from = left_point(x), to = right_point(x), by = by, SIMPLIFY = FALSE, fill = fill)
-  }else{
-    x <- mapply(seq, from = left_point(x), to = right_point(x), length.out = length.out + 1, SIMPLIFY = FALSE)
-  }
-
-  if(isTRUE(simplify)){
-    return(
-      if(length(x) == 1){
-        x[[1]]
-      }else{
-        x
-      }
-    )
-  }
-
-  split_nl <- function(set, change_dir){
-    if(length(set) == 1){
-      as.number_line(set)
-    }else{
-      number_line(set[-length(set)], set[-1])
-    }
-  }
-
-  x <- mapply(split_nl, x, change_dir, SIMPLIFY = FALSE)
-
-  if(length(x) == 1){
-    x[[1]]
-  }else{
-    x
-  }
-}
-
-#' @rdname number_line
+#' flip_number_line(x, by = 2)
+#' flip_number_line(x, by = 4)
+#' flip_number_line(x, by = 4, fill = FALSE)
+#' flip_number_line(x, length.out = 2)
 #' @export
 #'
 split_number_line <- function(x, precision = 1, fill = TRUE, ...){

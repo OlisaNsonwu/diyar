@@ -18,7 +18,6 @@
 \alias{expand_number_line}
 \alias{invert_number_line}
 \alias{flip_number_line}
-\alias{number_line_sequence}
 \alias{split_number_line}
 \title{\code{number_line}}
 \usage{
@@ -56,14 +55,6 @@ invert_number_line(x, point = "both")
 
 flip_number_line(x, point = "left")
 
-number_line_sequence(
-  x,
-  by = NULL,
-  length.out = 1,
-  fill = TRUE,
-  simplify = FALSE
-)
-
 split_number_line(x, precision = 1, fill = TRUE, ...)
 }
 \arguments{
@@ -82,15 +73,10 @@ split_number_line(x, precision = 1, fill = TRUE, ...)
 \item{direction}{\code{[character]}. Type of \code{number_line} reverse.
 Options are; \code{"increasing"}, \code{"decreasing"} or \code{"both"} (default).}
 
-\item{by}{\code{[integer]}. Increment or decrement. Passed to \code{seq()} in \code{number_line_sequence()}.}
+\item{point}{\code{[character]}. Point of the number_line.
+Options are \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.}
 
-\item{point}{\code{[character]}. \code{"start"}, \code{"end"}, \code{"left"} or \code{"right"} point.}
-
-\item{length.out}{\code{[integer]}. Number of splits. For example, \code{1} for two parts or \code{2} for three parts. Passed to \code{seq()}.}
-
-\item{fill}{\code{[logical]}. Retain (\code{TRUE}) or drop (\code{FALSE}) the remainder of an uneven split.}
-
-\item{simplify}{\code{[logical]}. If \code{TRUE}, returns a sequence of finite numbers.}
+\item{...}{\code{[integer]}. Passed to \code{seq()}.}
 }
 \value{
 \code{number_line}
@@ -100,10 +86,15 @@ A range of \code{numeric} values.
 }
 \details{
 A \code{number_line} object represents a range of numbers.
-It is made up of a \code{start} and \code{end} point as the lower and upper ends of the range respectively.
-The location of the \code{start} point - \code{left} or \code{right},
-determines whether it is an \code{"increasing"} or \code{"decreasing"} \code{number_line}.
+It is made up of a \code{start} and \code{end} point as the lower and
+upper ends of the range respectively.
+The location of the \code{start} point (\code{left} or \code{right}),
+determines whether the \code{number_line} object is an \code{"increasing"} or
+\code{"decreasing"} \code{number_line}.
 This is the \code{direction} of the \code{number_line}.
+
+\bold{\code{number_line_width()}} - returns the difference between the
+right and left points of a \code{number_line}.
 
 \bold{\code{reverse_number_line()}} - reverse the direction of a \code{number_line}.
 A reversed \code{number_line} has its \code{left} and \code{right} points swapped.
@@ -116,14 +107,14 @@ The \code{direction} argument specifies which type of \code{number_line} will be
 
 \bold{\code{invert_number_line()}} - Change the \code{left} or \code{right} points from a negative to positive value or vice versa.
 
-\bold{\code{flip_number_line()}} - Flip number around a \code{point}.
+\bold{\code{flip_number_line()}} - Flip a \code{number_line} around a \code{point}.
 
-\bold{\code{number_line_sequence()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
+\bold{\code{flip_number_line()}} - Split a \code{number_line} into equal parts (\code{length.out}) or by a fixed recurring width (\code{by}).
 }
 \examples{
 number_line(-100, 100)
 
-# Also compatible with other numeric based object classes
+# Also compatible with other numeric-based object classes
 number_line(as.POSIXct("2019-05-15 13:15:07", tz = "UTC"),
             as.POSIXct("2019-05-15 15:17:10", tz = "UTC"))
 
@@ -148,7 +139,7 @@ shift_number_line(x = c(c, c), by = c(2, 3))
 # Shift number_line objects towards the negative end of the number line
 shift_number_line(x = c(c, c), by = c(-2, -3))
 
-# Change the duration, width or length of a number_line object
+# Expand or shrink a number_line
 d <- c(number_line(3, 6), number_line(6, 3))
 
 expand_number_line(d, 2)
@@ -173,10 +164,10 @@ flip_number_line(e, "left")
 # Split number line objects
 x <- number_line(Sys.Date() - 5, Sys.Date())
 x
-number_line_sequence(x, by = 2)
-number_line_sequence(x, by = 4)
-number_line_sequence(x, by = 4, fill = FALSE)
-number_line_sequence(x, length.out = 2)
+flip_number_line(x, by = 2)
+flip_number_line(x, by = 4)
+flip_number_line(x, by = 4, fill = FALSE)
+flip_number_line(x, length.out = 2)
 }
 \seealso{
 \code{\link{overlaps}}; \code{\link{set_operations}}; \code{\link{episodes}}; \code{\link{links}}

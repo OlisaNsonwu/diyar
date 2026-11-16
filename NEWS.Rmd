@@ -11,13 +11,15 @@ knitr::opts_chunk$set(
 # Version 0.5.1.9000
 
 ## New features
-+ `unpack_sub_criteria()`
++ `unpack_sub_criteria()`.
 + `flatten_list()`
 + `split_number_lines()`
 + `flip_number_line()`
 + `links_af_modular()`
 + `links_af_dt()`
 + `epid_units()`
++ `reframe()` - S3 methods for `d_attribute` and `list` objects
++ `subset_repeats()` and `split_repeats()` reframer functions.
 
 ## Changes
 + `group_stats` now controls which slots are updated for the `pid` and `epid` S4 objects. [Verify]. 
@@ -44,6 +46,8 @@ Please use `stepwise_method` moving forward. `shrink` and `expand` will be remov
 + The result of `expand_number_line(point = 'start', ...)` was incorrect for descending number lines. Corrected.
 + `delink()` for pid objects. `link_id` for unlinked records incorrectly updated. Resolved.
 + `merge_ids()`. Incorrect result sometimes when `shrink == TRUE`. Resolved.
++ `links()`. `ignore_same_source` was not implemented when selected. Resolved.
++ `prob_link()`. Incorrect `score_threshold` when `probabilty = TRUE` for record pairs with the same values.
 
 # Version 0.5.1
 

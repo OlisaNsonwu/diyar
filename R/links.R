@@ -527,6 +527,7 @@ links <- function(
         web$ite.tmp$index_cd[
           !duplicated(web$ite.tmp$batch_strata) & !web$ite.tmp$index_cd] <- TRUE
       }
+
       # Create record-pairs
       web$rec.pairs <- make_pairs_batched(
         strata = web$ite.tmp$batch_strata,
@@ -537,7 +538,7 @@ links <- function(
         # include_repeat = web$options$repeats_allowed,
         include_repeat = TRUE,
         ignore_same_source = web$options$ignore_same_source,
-        data_source = web$data_source)
+        data_source = web$repo$data_source[web$ite.tmp$ite_inc_indx])
 
       if(isFALSE(web$options$repeats_allowed) & length(web$rec.pairs$x_pos) == 0){
         # Possible when `repeats_allowed` FALSE
@@ -670,12 +671,16 @@ links <- function(
             web$ite.tmp$tgt_pid[web$repo$ovr_lgk])]
       }
 
-      web$ite.tmp$linked_lgk <- which(web$rec.pairs$e.match | web$rec.pairs$index_rd)
-      if(isFALSE(web$options$repeats_allowed) & web$options$batched[web$i] == 'no'){
-        web$repo$tag[web$rec.pairs$tr_pos] <- 2L
+      # web$ite.tmp$linked_lgk <- which(web$rec.pairs$e.match | web$rec.pairs$index_rd)
+      web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$index_rd]] <- 2L
+      if(isFALSE(web$options$repeats_allowed) | isTRUE(web$options$ignore_same_source)){
+        web$repo$tag[
+          web$ite.tmp$ite_inc_indx[web$ite.tmp$index_cd]
+        ] <- 2L
       }else{
-        web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$index_rd]] <- 2L
+        # web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$index_rd]] <- 2L
       }
+
       if(isFALSE(web$options$check_duplicates)){
         web$repo$tag[web$rec.pairs$cu_pos[web$rec.pairs$rec.match$equal_test]] <- 2L
       }

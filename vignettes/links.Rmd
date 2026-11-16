@@ -19,21 +19,22 @@ knitr::opts_chunk$set(
 library(diyar)
 ```
 
-Consolidating information from multiple sources is often the first step in these investigations.
-This vignette gives a brief introduction to the basics of record linkage as implemented by `diyar`.
-
-Let's begin by reviewing `missing_staff_id` - a sample dataset containing incomplete staff information.
+This vignette gives a brief introduction to the basics of record linkage as 
+implemented by `diyar`. Let's begin by reviewing `missing_staff_id` - a sample 
+dataset containing incomplete staff information.
 
 ```{r warning = FALSE}
 data(missing_staff_id)
 missing_staff_id
 ```
 
-A unique identifier that distinguishes one entity (staff) from another is often unavailable or incomplete as is the case with `staff_id` in this example.
-`links()` can be used to create one. 
-The identifier is created as an `S4` class (`pid`) with useful information about each group in its slots.
+A unique identifier that distinguishes one entity (staff) from another is 
+often unavailable or incomplete as is the case with `staff_id` in this example.
+`links()` can be used to create one. The identifier is created as an `S4` class
+(`pid`) with useful information about each group in its slots.
 
-The simplest strategy would be to select one attribute as a distinguishing characteristic for each entity. This is the simple deterministic approach to record linkage.
+The simplest implementation of `links()` is shown below where one attribute to
+`criteria` as a distinguishing characteristic for each entity.
 
 In the example below, we use `initials` and `hair_colour` as distinguishing characteristics. 
 ```{r warning = FALSE}
@@ -42,7 +43,8 @@ missing_staff_id$p2 <- links(criteria = missing_staff_id$hair_colour)
 missing_staff_id[c("initials", "hair_colour", "p1", "p2")]
 ```
 
-Unsurprisingly, the uniqueness of identifiers `p1` and `p2` correspond to the uniqueness of the `initials` and `hair_colour` respectively. 
+Unsurprisingly, the uniqueness of identifiers `p1` and `p2` correspond 
+to the uniqueness of the `initials` and `hair_colour` respectively. 
 Both identifiers represent different outcomes - `p1` identifies records 3 and 4 as the same person, while `p2` has it as records 4 and 5.
 
 To maximise coverage, `links()` can implement an ordered multistage deterministic approach to record linkage. For example, we can say that records with matching `initials` should be linked to each other first, then other records with a matching `hair_colour` should then be added to each group. This is referred to as group expansion.

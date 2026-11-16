@@ -3,12 +3,18 @@
 \name{reframe}
 \alias{reframe}
 \alias{reframe.sub_criteria}
+\alias{reframe.d_attribute}
+\alias{reframe.list}
 \alias{unpack_sub_criteria}
 \title{Access and modify \code{sub_criteria} objects.}
 \usage{
 reframe(x, ...)
 
 \method{reframe}{sub_criteria}(x, func = identity, ...)
+
+\method{reframe}{d_attribute}(x, func = identity, ...)
+
+\method{reframe}{list}(x, func = identity, ...)
 
 unpack_sub_criteria(x, part = "attribute")
 }

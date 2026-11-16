@@ -171,13 +171,19 @@ prob_link <- function(x, y,
     as.matrix(y$sn[[1]]),
     out_a
   )
-  colnames(out_a) <- c("sn_x", "sn_y", paste0("cmp.", attr_nm), "cmp.weight", "record.match")
+
+  cl.names <- c("sn_x", "sn_y", paste0("cmp.", attr_nm), "cmp.weight", "record.match")
+  colnames(out_a) <- cl.names
 
   if(isFALSE(probabilistic)){
     if(isTRUE(return_weights)) return(out_a) else return(lgk)
   }
   # remove 'record.match'
   out_a <- out_a[,1:(ncol(out_a)-1)]
+  if(is.null(ncol(out_a))){
+    out_a <- t(out_a)
+  }
+
   # If probability based, matches are based on scores derived from m- and u-probabilities
   pwts <- sapply(seq_len(attr_n), function(i){
     pwts <- rep(0, length(wts[[i]]))
@@ -188,8 +194,8 @@ prob_link <- function(x, y,
 
     curr_uprob <- x$u_probability[[i]]
     curr_mprob <- x$m_probability[[i]]
-    lgk <- which(x$attribute[[i]] != y$attribute[[i]] &
-                   !is.na(x$attribute[[i]]) &
+
+    lgk <- which(!is.na(x$attribute[[i]]) &
                    !is.na(y$attribute[[i]]))
 
     curr_uprob[lgk] <- curr_uprob[lgk] * (y$u_probability[[i]])[lgk]

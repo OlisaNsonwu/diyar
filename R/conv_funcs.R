@@ -27,12 +27,17 @@ missing_check <- function(x, lim =10){
 
 }
 
-fmt <- function(x, fmt = "count"){
+fmt <- function(x, fmt = "count", dp = 0){
   if(fmt == "difftime"){
-    paste0(ifelse(round(x) == 0, "< 1", round(as.numeric(x), 2)), " ", attr(x, "units"))
+    unit <- substr(attr(x, "units"), 1, 1)
+    x <- ifelse(round(x) == 0, "< 1", round(as.numeric(x), 1))
+    x <- ifelse(nchar(x) == 1, paste0(x, '.0'), x)
+    paste0(x, unit)
   }else if(fmt == "MB"){
     class(x) <- "object_size"
     format(x, fmt)
+  }else if(fmt == "percent"){
+    paste0(round(x, dp), '%')
   }else{
     formatC(x, format="d", big.mark=",")
   }
@@ -111,12 +116,17 @@ sep_bdr_nl <- function(x){
   return(b)
 }
 
-progress_bar <- function(n, d, max_width, msg = "",  prefix_msg = ""){
+progress_bar <- function(n, d, max_width, msg = "",  prefix_msg = "", show_pct = FALSE){
   prop_complete <- n/d
   mx_l <- max(nchar(c(n, d)))
   d <- format(d, big.mark = ",", width = mx_l, scientific = FALSE)
   n <- format(n, big.mark = ",", width = mx_l, scientific = FALSE)
-  pct_l <- paste0(msg,"; ", n, " of ", d, " record(s) completed.")
+  if(!show_pct){
+    pct_l <- paste0(msg,"; ", n, " of ", d, " records completed.")
+  }else{
+    pct_l <- paste0(msg,"; ", fmt(prop_complete * 100, 'percent',dp = 1), " complete.")
+  }
+
 
   status_width <- max_width - (nchar(pct_l) + nchar(prefix_msg))
   bar_width <- floor(prop_complete*status_width)

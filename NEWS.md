@@ -3,13 +3,15 @@
 
 ## New features
 
-- `unpack_sub_criteria()`
+- `unpack_sub_criteria()`.
 - `flatten_list()`
 - `split_number_lines()`
 - `flip_number_line()`
 - `links_af_modular()`
 - `links_af_dt()`
 - `epid_units()`
+- `reframe()` - S3 methods for `d_attribute` and `list` objects
+- `subset_repeats()` and `split_repeats()` reframer functions.
 
 ## Changes
 
@@ -19,12 +21,13 @@
   `unpack_sub_criteria(x, part = 'attribute')` to extract a
   `sub_criteria` attributes before manipulating them as needed.
 - New argument (`stepwise_method`) in `links()` and `merge_ids()`. It
-  replaces `shrink` and `expand`.
+  replaces `shrink` and `expand`. Options are:
   - `"expand_with_priority"` replaces when `expand == TRUE`.
-  - `"ordered_only"` replaces when `expand == FALSE & shrink == FALSE`.
-  - `"shrink_to_last_match"` replaces when `shrink == TRUE`. Please use
-    `stepwise_method` moving forward. `shrink` and `expand` will be
-    removed in the future.
+  - `"exclude_previous_matches"` replaces when
+    `expand == FALSE & shrink == FALSE`.
+  - `"shrink_to_last_match"` replaces when `shrink == TRUE`.
+  - `"expand_without_priority"` (new). Please use `stepwise_method`
+    moving forward. `shrink` and `expand` will be removed in the future.
 - `bys_func` upgrades. Less memory.
 - `reverse_number_line()` upgrades. Less memory.
 - `make_pairs()` upgrades. Less memory.
@@ -50,6 +53,10 @@
   updated. Resolved.
 - `merge_ids()`. Incorrect result sometimes when `shrink == TRUE`.
   Resolved.
+- `links()`. `ignore_same_source` was not implemented when selected.
+  Resolved.
+- `prob_link()`. Incorrect `score_threshold` when `probabilty = TRUE`
+  for record pairs with the same values.
 
 # Version 0.5.1
 
@@ -178,7 +185,7 @@ sub.cri.1 <- sub_criteria(
 
 format(sub.cri.1, show_levels = TRUE)
 #> logical_test-{
-#> Lv.0.1-match.export(Jan,Feb,Mar ...)
+#> Lv.0.1-match_func(attribute)
 #> }
 eval_sub_criteria(sub.cri.1)
 #> $logical_test

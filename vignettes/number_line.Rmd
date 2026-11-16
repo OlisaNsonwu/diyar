@@ -22,7 +22,10 @@ library(diyar)
 ```
 
 # Introduction
-A `number_line` object is a range of `numeric` values. `number_line` objects as based off `interval` objects from the `lubridate` package but supports any object that can be successfully coerced to a `numeric` object.
+In `diyar`, `number_line` is an object class representing a range of `numeric`
+values. `number_line` objects as based on `interval` objects from the
+`lubridate` package but supports any object that can be successfully coerced 
+to a `numeric` object.
 
 # Overview
 ```{r include = FALSE}
@@ -30,7 +33,7 @@ library(diyar)
 exp <- number_line(8, 1)
 ```
 
-For a given `number_line` object e.g. ``r format(exp)``, its main components are;
+For a given `number_line` object e.g. ``r format(exp)``, its main components are:
 
 + `left_point()` - left side of the `number_line` `i.e.` ``r left_point(exp) `` 
 + `right_point()` - right side of the `number_line` `i.e.` ``r right_point(exp) ``
@@ -39,7 +42,9 @@ For a given `number_line` object e.g. ``r format(exp)``, its main components are
 + `direction` - `"decreasing"` `(<-)`, `"increasing"` `(->)` or no direction `(==)`
 + `number_line_width()` - difference between the left and right points `i.e.` ``r number_line_width(exp) ``
 
-For an `"increasing"` `number_line`, its `start_point()` is at the `left_point()`. In contrast, the `start_point()` of a `"decreasing"` `number_line` is at the `right_point()`.
+For an `"increasing"` `number_line`, its `start_point()` is the same as its 
+`left_point()`. In contrast, the `start_point()` of a `"decreasing"`
+`number_line` is at the `right_point()`.
 
 ```{r message = FALSE, warning = FALSE}
 library(diyar)
@@ -56,7 +61,7 @@ left_point(nl_a)
 # Implementation
 
 ## Manipulating a `number_line`
-There are convenience functions to reverse, shrink, expand or shift a `number_line` along the number line.
+There are convenience functions to manipulate a `number_line` objects.
 
 ```{r message = FALSE, warning = FALSE}
 nl_c <- number_line(as.Date("2019-04-04"), as.Date("2019-4-07"))
@@ -86,12 +91,19 @@ nl_j <- shift_number_line(nl_c, 2); nl_j
 # Change the left part of the `number_line` to a negative value
 nl_k <- invert_number_line(nl_c, "left"); nl_k
 
+# Flip the `number_line` along one of its points
+nl_l <- flip_number_line(nl_c, "left"); nl_l
+
 # Split a `number_line`
-nl_l <- seq(nl_c, length.out = 3); nl_l
+nl_m <- split_number_line(nl_c, length.out = 3); nl_m
 ```
 
 ## Overlaps
-`number_line` objects can overlap with each other. `diyar` recognises seven ways this can happen. These are `exact()`, `inbetween()`, `across()`, `chain()`, `aligns_start()` and `aligns_end()`. The 6 methods are mutually exclusive. There are 2 convenience methods - `"none"` and `overlap()`, which are mutually inclusive with the other 6. See Figure 1.
+`diyar` recognises six mutually exclusive ways `number_line` objects 
+can overlaps. These are `exact()`, `inbetween()`, `across()`, `chain()`, 
+`aligns_start()` and `aligns_end()`. Two convenience functions 
+are included for no overlap (`none()`) and any overlap (`overlap()`). 
+See Figure 1.
 
 ```{r warning=FALSE, include=FALSE}
 #  exact <- c(number_line(1, 2), number_line(1, 2),

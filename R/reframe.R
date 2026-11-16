@@ -75,6 +75,42 @@ reframe.sub_criteria <- function(x, func = identity, ...){
 
 #' @rdname reframe
 #' @export
+reframe.d_attribute <- function(x, func = identity, ...){
+  for(i in seq_len(length(x))){
+    if(inherits(x[[i]], 'd_attribute')){
+      x[[i]] <- reframe.d_attribute(x[[i]], func = func)
+    }else{
+      x[[i]] <- func(x[[i]])
+    }
+  }
+
+  class(x) <- NULL
+  y <- try(x <- do.call(attrs, x), silent = TRUE)
+  if(inherits(y, 'try-error')){
+    stop(call. = FALSE,
+         paste0(
+           'The modified `d_attribute` is no longer valid\n',
+           'x - The reframed `d_attribute` object failed validation with the following error:\n',
+           'x - \"', gsub('\\n$','', format(y)), '\"\n'))
+  }
+  return(x)
+}
+
+#' @rdname reframe
+#' @export
+reframe.list <- function(x, func = identity, ...){
+  for(i in seq_len(length(x))){
+    if(all(class(x[[i]]) == 'list')){
+      x[[i]] <- reframe.list(x[[i]], func = func)
+    }else{
+      x[[i]] <- func(x[[i]])
+    }
+  }
+  return(x)
+}
+
+#' @rdname reframe
+#' @export
 unpack_sub_criteria <- function(x, part = 'attribute'){
   if(length(part) != 1){
     stop(call. = FALSE,
