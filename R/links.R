@@ -535,8 +535,8 @@ links <- function(
         index_record = web$ite.tmp$index_cd,
         assign_ord = seq_len(length(web$ite.tmp$ite_inc_indx)),
         look_back = web$options$permutations_allowed,
-        # include_repeat = web$options$repeats_allowed,
-        include_repeat = TRUE,
+        include_repeat = web$options$repeats_allowed,
+        # include_repeat = TRUE,
         ignore_same_source = web$options$ignore_same_source,
         data_source = web$repo$data_source[web$ite.tmp$ite_inc_indx])
 
@@ -640,7 +640,9 @@ links <- function(
         ] <- web$ite.tmp$ite_inc_indx[web$ite.tmp$batched_pids$group_id[web$ite.tmp$batched_pids$linked]]
       }else{
         if(stepwise_method == 'shrink_to_last_match'){
-          web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pr_sn[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
+          web$repo$pid[web$rec.pairs$tr_pos[web$rec.pairs$e.match]] <-
+            web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <-
+            web$repo$pr_sn[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
         }else{
           web$repo$pid[web$rec.pairs$cu_pos[web$rec.pairs$e.match]] <- web$repo$pid[web$rec.pairs$tr_pos[web$rec.pairs$e.match]]
         }
